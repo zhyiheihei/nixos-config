@@ -11,8 +11,8 @@
   cpuThreads = 6;
 
   # Colmena / deploy-rs 这类远程部署工具会优先用这里连接机器。
-  # 这里先用你之前强机器的局域网地址；如果 VM IP 不同，改这里。
-  hostname = "192.168.3.176";
+  # 这里先用当前测试 VM 的局域网地址；如果 VM IP 不同，改这里。
+  hostname = "192.168.3.192";
 
   city = geo.cities."US Bellevue";
 
@@ -34,13 +34,10 @@
   #   IPv6 = "2001:db8::1";
   # };
 
-  # 只有接入作者这套 home-lan / interconnect 网络时才开启。
-  # 当前你的网段是 192.168.3.0/24，先保持注释，避免误导路由模块。
-  # interconnect = {
-  #   name = "home-lan";
-  #   IPv4 = "192.168.3.176";
-  #   IPv6 = "2001:db8::176";
-  # };
+  interconnect = {
+    name = "home-lan";
+    IPv4 = "192.168.3.192";
+  };
 
   # 只有接入 DN42 后才开启。没有 DN42 地址时不要填。
   # dn42 = {
