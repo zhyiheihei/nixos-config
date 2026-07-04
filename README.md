@@ -1,6 +1,23 @@
-# Lan Tian's NixOS Configuration
+# Zhyi's NixOS Configuration
 
-This repository holds the configuration files for all my NixOS systems.
+This repository is my personal NixOS configuration, adapted from
+[xddxdd/nixos-config](https://github.com/xddxdd/nixos-config), Lan Tian's
+NixOS configuration repository.
+
+The original project structure, module layout, and many shared components come
+from the upstream repository. My changes focus on adapting it for my own hosts,
+secrets repository, hardware, and daily desktop workflow.
+
+## Documentation
+
+- [Adapt this project to your own NixOS device](docs/adapt-own-device.md)
+
+## License
+
+This repository follows the upstream licensing status. At the time this fork was
+created, [xddxdd/nixos-config](https://github.com/xddxdd/nixos-config) did not
+include an explicit `LICENSE` or `COPYING` file in the repository root. No
+different license is added by this fork.
 
 ## Features
 
