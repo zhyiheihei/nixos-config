@@ -1,5 +1,14 @@
 # Lan Tian's NixOS Configuration
 
+## AI 代理使用说明
+
+- 这是一个个人 NixOS 配置仓库，主入口是 `flake.nix`，主机定义位于 `hosts/`，公共系统模块位于 `nixos/`。
+- 主要构建和部署命令见 `Makefile`；首选命令包括 `make build`、`make all`、`make update`、`nix flake check`、`nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel`。
+- `hosts/` 子目录包含每个主机的 `host.nix`、`configuration.nix` 和 `hardware-configuration.nix`。修改主机配置前，请确认是否为目标主机改动。
+- `helpers/default.nix` 导出 `LT` 工具集，仓库中的许多模块和 host 配置都依赖它。
+- 不要直接改动 secrets 相关输入或硬件配置，除非用户明确要求。优先链接现有文档：`README.md`、`docs/adapt-own-device.md`。
+- 修改后请优先验证：`nix flake check` 或 `make build`，并保留 Nix 文件中的原有结构和命名习惯。
+
 ## 项目概述
 
 这是一个基于 Nix Flakes 的 NixOS 配置项目，用于管理多台主机的系统配置。项目采用模块化设计，支持服务器、客户端和最小化三种配置类型，集成了大量自定义包、覆盖层和补丁。

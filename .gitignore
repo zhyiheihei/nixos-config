@@ -1,5 +1,6 @@
 result*
 !result.*
+.DS_Store
 zones/
 .gcroots
 .vscode
