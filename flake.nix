@@ -177,7 +177,7 @@
     };
     secrets = {
       # url = "/home/lantian/Projects/nixos-secrets";
-      url = "github:xddxdd/nixos-secrets";
+      url = "git+ssh://git@github.com/zhyiheihei/nixos-secrets.git";
       inputs.flake-parts.follows = "flake-parts";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nur-xddxdd.follows = "nur-xddxdd";
