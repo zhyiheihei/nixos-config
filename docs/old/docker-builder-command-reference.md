@@ -67,6 +67,8 @@ Hi <username>! You've successfully authenticated, but GitHub does not provide sh
 
 ```bash
 ssh-copy-id root@192.168.3.237
+ssh-copy-id -o PreferredAuthentications=password -o PubkeyAuthentication=no root@192.168.3.237
+
 ```
 
 指定某个公钥：

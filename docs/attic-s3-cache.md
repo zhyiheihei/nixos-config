@@ -76,12 +76,12 @@ attic watch-store lantian
 
 ```text
 S3 服务
-  endpoint = https://s3.example.com
+  endpoint = https://rustfs.zhyi.cc:4000
   bucket   = nix-cache
-  path     = https://s3.example.com/nix-cache/...
+  path     = https://rustfs.zhyi.cc:4000/nix-cache/...
 
 Attic server
-  https://attic.example.com
+  https://attic.zhyi.cc:4000
   连接 PostgreSQL
   连接 S3 bucket
 
@@ -90,7 +90,7 @@ Builder
   attic push nixos ./result closure
 
 ml-2700u
-  substituter = https://attic.example.com/nixos
+  substituter = https://attic.zhyi.cc:4000/nixos
 ```
 
 这里 `nixos` 是 Attic cache 名字，可以换成你喜欢的名字。
@@ -102,13 +102,13 @@ Attic 的 S3 配置不需要单独写 `path-style = true`。
 Attic 使用 AWS SDK。只要你配置了自定义：
 
 ```nix
-endpoint = "https://s3.example.com";
+endpoint = "https://rustfs.zhyi.cc:4000";
 ```
 
 它就会使用 path-style 访问方式，形态类似：
 
 ```text
-https://s3.example.com/<bucket>/<object-key>
+https://rustfs.zhyi.cc:4000/<bucket>/<object-key>
 ```
 
 这正适合 MinIO、NAS S3、很多自建 S3-compatible 服务。
@@ -119,10 +119,10 @@ https://s3.example.com/<bucket>/<object-key>
 
 ```text
 bucket: nix-cache
-endpoint: https://s3.example.com
+endpoint: https://rustfs.zhyi.cc:4000
 region: us-east-1
-access key: <ATTIC_S3_ACCESS_KEY>
-secret key: <ATTIC_S3_SECRET_KEY>
+access key: <ATTIC_S3_ACCESS_KEY>I7NEK6WsfjtiWoCiLKan
+secret key: <ATTIC_S3_SECRET_KEY>04AnPosCQf9wJhZXLHQQ69IqGmoBgY3MMu20fk7x
 ```
 
 建议：
