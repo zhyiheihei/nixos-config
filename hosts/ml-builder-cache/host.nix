@@ -40,9 +40,10 @@
     IPv4 = "192.168.2.135";
   };
 
-  # 只有接入 DN42 后才开启。没有 DN42 地址时不要填。
-  # dn42 = {
-  #   IPv4 = "172.22.x.x";
-  #   region = 42;
-  # };
+  # Keep author-style server metadata even without enabling the dn42 tag;
+  # BIRD's LTNET config reads dn42.region for all server hosts.
+  dn42 = {
+    IPv4 = "172.22.76.115";
+    region = 42;
+  };
 }
