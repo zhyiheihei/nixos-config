@@ -22,7 +22,7 @@
 
   # SSH host public key。拿到 ml-builder 的 host key 后取消注释：
   #   ssh-keyscan -p 2222 192.168.2.135 2>/dev/null | grep ssh-ed25519
-  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDax7ee1Yjl1Ei1PqF5ef8QpThqI7YqTMDN5obfqL5+4";
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHKNB5iMmvZcsVXqL7c1CWijVc6ngyTDa6+iHvNC9bh+";
 
   # 暂时没有 ZeroTier node id 时不要开启。
   # 配好 ZeroTier 后，在目标机上运行 `zerotier-cli info`，取 10 位 node id：
