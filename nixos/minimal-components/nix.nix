@@ -109,9 +109,9 @@ in
       # max-jobs = "auto";
       # lazy-trees = true;
 
-      substituters = [ "https://cache.nixos.org" ] ++ config.nix.settings.trusted-substituters;
-      trusted-substituters = LT.constants.nix.substituters;
-      inherit (LT.constants.nix) trusted-public-keys;
+      substituters = lib.mkForce ([ "https://cache.nixos.org" ] ++ config.nix.settings.trusted-substituters);
+      trusted-substituters = lib.mkForce LT.constants.nix.substituters;
+      trusted-public-keys = lib.mkForce LT.constants.nix.trusted-public-keys;
     };
   };
 

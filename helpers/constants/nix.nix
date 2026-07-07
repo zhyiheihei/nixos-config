@@ -1,11 +1,19 @@
-_: {
+_: rec {
+  attic = rec {
+    cacheName = "lantian";
+    url = "http://192.168.2.135:13803/lantian";
+    publicKey = "lantian:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+  };
+
   substituters = [
+    attic.url
     "https://cache.nixos-cuda.org"
     "https://cuda-maintainers.cachix.org"
     "https://nix-gaming.cachix.org"
     "https://comfyui.cachix.org"
   ];
   trusted-public-keys = [
+    attic.publicKey
     "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
     "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
     "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
