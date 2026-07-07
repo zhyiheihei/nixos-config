@@ -4,6 +4,7 @@
   tags = with tags; [
     lan-access
     nix-builder
+    server
   ];
 
   # 强机器/虚拟机作为 Nix 远程构建机使用。
