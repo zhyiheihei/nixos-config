@@ -7,6 +7,7 @@ zones/
 .direnv
 nix-function-calls.*
 .pre-commit-config.yaml
+local-secrets/
 
 config.tf.json
 .terraform.lock.hcl
