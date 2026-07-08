@@ -15,7 +15,7 @@
   };
 
   fileSystems."/" = lib.mkForce {
-    device = "/dev/disk/by-uuid/02f9b911-0530-4f27-8355-23b22b25c071";
+    device = "/dev/disk/by-uuid/44ccda95-c6bc-4b56-b50e-da3deb16e6c8";
     fsType = "ext4";
   };
 
