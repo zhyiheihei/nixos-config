@@ -1,7 +1,7 @@
 _: rec {
   attic = rec {
     cacheName = "lantian";
-    url = "http://192.168.2.135:13803/lantian";
+    url = "https://attic.zhyi.cc:4000/lantian";
     publicKey = "lantian:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
   };
 
