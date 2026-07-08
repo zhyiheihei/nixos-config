@@ -8,6 +8,7 @@
 {
   imports = [
     ../../nixos/server.nix
+    ../../nixos/optional-apps/attic-watch-store.nix
 
     ./hardware-configuration.nix
   ];
