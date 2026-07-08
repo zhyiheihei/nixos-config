@@ -113,7 +113,8 @@ in
         nur-xddxdd.baidupcs-go
         nur-xddxdd.bambu-studio-bin
         nur-xddxdd.bilibili
-        nur-xddxdd.browseros
+        # Disabled temporarily: upstream v0.46.0 AppImage is mutable and currently mismatches the hash pinned in nur-xddxdd.
+        # nur-xddxdd.browseros
         nur-xddxdd.cardpointers-cli
         nur-xddxdd.command-code
         # nur-xddxdd.dingtalk
