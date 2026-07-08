@@ -1,8 +1,8 @@
 _: rec {
   attic = rec {
-    cacheName = "lantian";
-    url = "https://attic.zhyi.cc:4000/lantian";
-    publicKey = "lantian:regxSNF+7HLywmNcXVQ94TWhXmBlkMmi52lvWSqLRLE=";
+    cacheName = "lantian-v2";
+    url = "https://attic.zhyi.cc:4000/lantian-v2";
+    publicKey = "lantian-v2:WJtWvoIKSa3+SRS2v5W0Tv6yfKMqlzJ6udwn/OIUUoU=";
   };
 
   substituters = [
