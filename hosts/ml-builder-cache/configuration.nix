@@ -51,8 +51,8 @@
 
     settings = {
       listen = "0.0.0.0:${LT.portStr.Attic}";
-      api-endpoint = "http://${LT.this.interconnect.IPv4}:${LT.portStr.Attic}/";
-      substituter-endpoint = "http://${LT.this.interconnect.IPv4}:${LT.portStr.Attic}/";
+      api-endpoint = "https://attic.zhyi.cc:4000/";
+      substituter-endpoint = "https://attic.zhyi.cc:4000/";
 
       database = {
         url = "postgres://atticd?host=/run/postgresql&user=atticd";
@@ -63,9 +63,9 @@
 
       storage = {
         type = "s3";
-        region = "us-east-1";
+        region = "garage";
         bucket = "nix-cache";
-        endpoint = "https://rustfs.zhyi.cc:4000";
+        endpoint = "https://s3-garage.zhyi.cc:4000";
       };
 
       # Keep the author's S3 direct-download style: do not split NARs into chunks.
