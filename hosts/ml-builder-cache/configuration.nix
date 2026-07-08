@@ -64,9 +64,9 @@
 
       storage = {
         type = "s3";
-        region = "garage";
+        region = "us-east-1";
         bucket = "nix-cache";
-        endpoint = "https://s3-garage.zhyi.cc:4000";
+        endpoint = "https://vaults3.zhyi.cc:4000";
       };
 
       # Keep the author's S3 direct-download style: do not split NARs into chunks.
