@@ -9,7 +9,7 @@
   imports = [
     ../../nixos/server.nix
     ../../nixos/optional-apps/attic-watch-store.nix
-    ./hydra.nix
+    ../../nixos/optional-apps/hydra
 
     ./hardware-configuration.nix
   ];

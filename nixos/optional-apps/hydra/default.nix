@@ -34,7 +34,7 @@ in
   };
   sops.secrets.hydra-ssh-privkey = {
     sopsFile = inputs.secrets + "/hydra.yaml";
-    mode = "0440";
+    mode = "0400";
     owner = "hydra";
     group = "hydra";
   };
@@ -46,7 +46,7 @@ in
 
   environment.etc."hydra/post-build".source = pkgs.writeShellScript "post-build" ''
     export PATH="${path}:$PATH"
-    export HYDRA_URL="http://${LT.this.ltnet.IPv4}:${LT.portStr.Hydra}"
+    export HYDRA_URL="http://192.168.2.135:${LT.portStr.Hydra}"
 
     jq . "$HYDRA_JSON"
     exec ${lib.getExe' py "python3"} ${./post-build.py} "$HYDRA_JSON"
@@ -58,9 +58,9 @@ in
     package = pkgs.hydra.overrideAttrs (old: {
       doCheck = false;
     });
-    hydraURL = "https://hydra.lantian.pub";
-    listenHost = LT.this.ltnet.IPv4;
-    notificationSender = "postmaster@lantian.pub";
+    hydraURL = "https://hydra.zhyi.cc:4000";
+    listenHost = "192.168.2.135";
+    notificationSender = "postmaster@zhyi.cc";
     port = LT.port.Hydra;
     buildMachinesFiles = [ "/etc/nix/machines-with-localhost" ];
     useSubstitutes = true;
@@ -85,8 +85,8 @@ in
   systemd.services.hydra-notify = {
     preStart = ''
       if [ ! -f "$HOME/.config/attic/config.toml" ]; then
-        ${lib.getExe pkgs.attic-client} login --set-default lantian \
-          https://attic.colocrossing.xuyh0120.win \
+        ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
+          https://attic.zhyi.cc:4000 \
           $(cat ${config.sops.secrets.attic-upload-key.path})
       fi
     '';
@@ -96,7 +96,7 @@ in
     script = ''
       for F in /nix/var/nix/gcroots/hydra/*; do
         STORE_PATH="/nix/store/$(basename "$F")"
-        ${lib.getExe pkgs.attic-client} push lantian "$STORE_PATH" || true
+        ${lib.getExe pkgs.attic-client} push ${LT.nix.attic.cacheName} "$STORE_PATH" || true
       done
     '';
     serviceConfig = LT.serviceHarden // {
