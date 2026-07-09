@@ -11,7 +11,7 @@ in
 {
   systemd.services.hydra-cancel-old-builds = {
     environment = {
-      BASE_URL = "http://${LT.this.ltnet.IPv4}:${LT.portStr.Hydra}";
+      BASE_URL = "http://${config.services.hydra.listenHost}:${LT.portStr.Hydra}";
       USERNAME = "lantian";
     };
     script = ''
