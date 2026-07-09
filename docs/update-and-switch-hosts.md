@@ -96,6 +96,8 @@ cd /nix/src/nixos-config
 git fetch origin
 git reset --hard origin/master
 nixos-rebuild switch --flake .#ml-builder -L
+nixos-rebuild switch --flake .#ml-builder-cache -L
+nixos-rebuild switch --flake .#ml-2700u -L
 ```
 
 切换后检查：
