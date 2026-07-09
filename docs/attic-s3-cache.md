@@ -12,6 +12,7 @@ Hydra / builder 构建
   -> NixOS 机器从 Attic 拉 binary cache
 ```
 
+
 你可以先不搭 Hydra，先用自己的强机器、NixOS 虚拟机、GitHub self-hosted runner 构建，然后手动或自动 `attic push`。等缓存链路跑通后，再考虑 Hydra。
 
 ## 1. 仓库里原作者怎么做
