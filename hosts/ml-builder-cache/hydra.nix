@@ -19,13 +19,23 @@ let
     pkgs.jq
   ];
   atticEndpoint = lib.removeSuffix "/${LT.nix.attic.cacheName}" LT.nix.attic.url;
-  hydraPublicUrl = "https://hydra.zhyi.cc";
+  hydraPublicUrl = "https://hydra.zhyi.cc:4000";
   hydraInternalUrl = "http://${LT.this.interconnect.IPv4}:${LT.portStr.Hydra}";
+  hydraGitSshCommand =
+    "ssh -i ${config.sops.secrets.hydra-ssh-privkey.path} "
+    + "-o IdentitiesOnly=yes "
+    + "-o StrictHostKeyChecking=accept-new";
 in
 {
   sops.secrets.attic-upload-key = {
     sopsFile = inputs.secrets + "/common/attic.yaml";
     mode = "0444";
+  };
+  sops.secrets.hydra-ssh-privkey = {
+    sopsFile = inputs.secrets + "/hydra.yaml";
+    mode = "0440";
+    owner = "hydra";
+    group = "hydra";
   };
 
   nix.package = lib.mkForce pkgs.nixVersions.latest;
@@ -69,6 +79,7 @@ in
   '';
 
   systemd.services.hydra-notify = {
+    environment.GIT_SSH_COMMAND = hydraGitSshCommand;
     preStart = ''
       if [ ! -f "$HOME/.config/attic/config.toml" ]; then
         ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
@@ -77,6 +88,9 @@ in
       fi
     '';
   };
+
+  systemd.services.hydra-evaluator.environment.GIT_SSH_COMMAND = hydraGitSshCommand;
+  systemd.services.hydra-queue-runner.environment.GIT_SSH_COMMAND = hydraGitSshCommand;
 
   systemd.services.hydra-watchdog = {
     after = [
