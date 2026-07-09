@@ -18,6 +18,10 @@ let
     pkgs.jq
     pkgs.attic-client
   ];
+  hydraGitSshCommand =
+    "ssh -i ${config.sops.secrets.hydra-ssh-privkey.path} "
+    + "-o IdentitiesOnly=yes "
+    + "-o StrictHostKeyChecking=accept-new";
 in
 {
   imports = [
@@ -35,7 +39,7 @@ in
   sops.secrets.hydra-ssh-privkey = {
     sopsFile = inputs.secrets + "/hydra.yaml";
     mode = "0440";
-    owner = "hydra";
+    owner = "root";
     group = "hydra";
   };
 
@@ -90,6 +94,7 @@ in
   services.fast-nix-gc.noVacuum = true;
 
   systemd.services.hydra-notify = {
+    environment.GIT_SSH_COMMAND = hydraGitSshCommand;
     preStart = ''
       if [ ! -f "$HOME/.config/attic/config.toml" ]; then
         ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
@@ -98,6 +103,8 @@ in
       fi
     '';
   };
+  systemd.services.hydra-evaluator.environment.GIT_SSH_COMMAND = hydraGitSshCommand;
+  systemd.services.hydra-queue-runner.environment.GIT_SSH_COMMAND = hydraGitSshCommand;
 
   systemd.services.hydra-attic-repush = {
     script = ''
