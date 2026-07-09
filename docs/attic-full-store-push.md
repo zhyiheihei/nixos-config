@@ -11,7 +11,7 @@ https://attic.zhyi.cc:4000/lantian
 当前 public key：
 
 ```text
-lantian:bb++Di9jcflg4iRdiONgxrLRTLs2SdoVjIZaG6l5lEU=
+lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=
 ```
 
 ## 1. 清理 Attic 对象索引
@@ -123,7 +123,7 @@ nix copy \
 env NIX_CONFIG='experimental-features = nix-command flakes
 accept-flake-config = true
 substituters = https://cache.nixos.org https://attic.zhyi.cc:4000/lantian
-trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWJ0qOeuKX2w8VxlNjY36Heq3v4F4= lantian:bb++Di9jcflg4iRdiONgxrLRTLs2SdoVjIZaG6l5lEU=
+trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWJ0qOeuKX2w8VxlNjY36Heq3v4F4= lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=
 max-jobs = 0
 fallback = true' \
   nixos-install --flake path:/mnt/etc/nixos#ml-2700u --no-root-passwd --no-channel-copy
