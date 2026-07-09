@@ -179,7 +179,7 @@ helpers/constants/nix.nix
 
 ```text
 substituter: https://attic.zhyi.cc:4000/lantian
-public key:  lantian:1NwML/pv7MO0K3az6Zrb7NNd+X5MehGH5B0B4S111QA=
+public key:  lantian:bb++Di9jcflg4iRdiONgxrLRTLs2SdoVjIZaG6l5lEU=
 ```
 
 如果以后重建 Attic cache，public key 可能变化。变化后必须同步更新 `helpers/constants/nix.nix`，否则客户端会出现：
