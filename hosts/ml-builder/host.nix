@@ -8,7 +8,7 @@
 
   # 强机器/虚拟机作为 Nix 远程构建机使用。
   # 按实际分配给 VM 的 vCPU 数调整，影响远程构建并发。
-  cpuThreads = 6;
+  cpuThreads = 20;
 
   # Colmena / deploy-rs 这类远程部署工具会优先用这里连接机器。
   # 这里先用当前测试 VM 的局域网地址；如果 VM IP 不同，改这里。

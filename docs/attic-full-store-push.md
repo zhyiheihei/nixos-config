@@ -70,6 +70,18 @@ nix shell nixpkgs#attic-client -c attic login --set-default lantian \
   https://attic.zhyi.cc:4000 "$TOKEN"
 
 nix shell nixpkgs#attic-client -c attic push lantian /tmp/ml-2700u-result
+
+#全量推送
+ssh -A -p 2222 root@ml-builder
+cd /nix/src/nixos-config
+
+TOKEN=$(cat /run/secrets/attic-upload-key)
+
+nix shell nixpkgs#attic-client -c attic login --set-default lantian \
+  https://attic.zhyi.cc:4000 "$TOKEN"
+
+nix path-info --all | xargs -r -n 200 nix shell nixpkgs#attic-client -c attic push lantian
+
 ```
 
 如果上一步用了 `HOST` 变量：
