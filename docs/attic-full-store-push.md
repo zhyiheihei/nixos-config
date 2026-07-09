@@ -57,9 +57,20 @@ tmux attach -t attic-push-all
 
 ## 3. 登录 Attic
 
-`attic-upload-key` 由 SOPS 安装到 `/run/secrets/attic-upload-key`：
+手动推送使用你自己的 `nixos-secrets` 里的 upload token。来源链路是：
+
+```text
+nixos-secrets/common/attic.yaml
+  -> attic-upload-key
+  -> sops-install-secrets.service
+  -> /run/secrets/attic-upload-key
+```
+
+所以这里不要临时粘贴 token，也不要使用 admin token。直接读取 SOPS 下发的 upload key：
 
 ```bash
+# 这个文件由 nixos-secrets/common/attic.yaml 里的 attic-upload-key 解密生成。
+# 不要把 Attic public key、admin token 或手动临时 token 填在这里。
 TOKEN=$(cat /run/secrets/attic-upload-key)
 
 nix shell nixpkgs#attic-client -c attic login --set-default lantian \
@@ -78,6 +89,31 @@ cat /root/.config/attic/config.toml
 default-server = "lantian"
 endpoint = "https://attic.zhyi.cc:4000"
 ```
+
+如果 `attic login` 或 `attic push` 报权限错误，说明 `common/attic.yaml` 里的 `attic-upload-key` 不是当前 cache 可用的 upload token。生成新 token 后写回 secrets：
+
+```bash
+CONFIG=$(systemctl cat atticd.service | sed -n 's|^ExecStart=.* -f \([^ ]*\) --mode.*|\1|p' | tail -1)
+
+set -a
+. /run/secrets/attic-credentials
+set +a
+
+atticadm -f "$CONFIG" make-token \
+  --sub attic-upload \
+  --validity 10y \
+  --pull lantian \
+  --push lantian
+```
+
+把输出的整串 token 写入 `nixos-secrets/common/attic.yaml`：
+
+```yaml
+attic-upload-key: |
+  <新 token>
+```
+
+然后提交 `nixos-secrets`，回主仓库执行 `nix flake update secrets`，切换 `ml-builder-cache` 让 `/run/secrets/attic-upload-key` 更新。
 
 ## 4. 推送当前系统闭包
 
@@ -106,13 +142,16 @@ nix shell nixpkgs#attic-client -c attic push lantian \
 确认要全量推送时，使用分批方式，避免一次命令参数过长：
 
 ```bash
-find /nix/store -mindepth 1 -maxdepth 1 -print0 \
-  | xargs -0 -n 200 nix shell nixpkgs#attic-client -c attic push lantian
+find /nix/store -mindepth 1 -maxdepth 1 ! -name '.*' -print0 \
+  | xargs -0 -r -n 200 nix shell nixpkgs#attic-client -c attic push lantian
 ```
 
 说明：
 
-- 已存在于 Attic 的 path 会被跳过或去重。
+- `! -name '.*'` 会排除 `/nix/store/.links` 这类 Nix 内部目录；它不是合法 store path，传给 `attic push` 会报 `Path is too short`。
+- `-n 200` 会分批推送，避免一次传入过多参数。
+- `-r` 避免没有输入时仍然执行一次 `attic push`。
+- 如果刚重建过 Attic cache，先重新执行第 3 节的 `attic login`，否则本机可能还在使用旧 token/session，出现 `AccessError`。
 - 重跑同一条命令不会重复占用完整空间。
 - 如果中途中断，重新执行同一条命令即可继续补齐。
 - 如果出现少量 `HTTP 502 Bad Gateway`，先确认反代/S3 后端是否稳定，然后重跑命令。
