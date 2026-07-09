@@ -65,8 +65,8 @@ in
     buildMachinesFiles = [ "/etc/nix/machines-with-localhost" ];
     useSubstitutes = true;
 
-    maxServers = 10;
-    maxSpareServers = 2;
+    maxServers = 1;
+    maxSpareServers = 1;
     minSpareServers = 1;
 
     extraConfig = ''
