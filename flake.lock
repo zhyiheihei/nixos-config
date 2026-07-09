@@ -361,6 +361,26 @@
         "type": "github"
       }
     },
+    "dms-plugin-registry": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1783561568,
+        "narHash": "sha256-VMQvAmvDQ33hrShujj3wLurjhfptGad2qpLLu+sDHFM=",
+        "owner": "AvengeMedia",
+        "repo": "dms-plugin-registry",
+        "rev": "a6476aa07028fb86761e2dc817af726dbf768e94",
+        "type": "github"
+      },
+      "original": {
+        "owner": "AvengeMedia",
+        "repo": "dms-plugin-registry",
+        "type": "github"
+      }
+    },
     "fast-nix-gc": {
       "inputs": {
         "nix-darwin": "nix-darwin_2",
@@ -1509,6 +1529,7 @@
         "comfyui-nix": "comfyui-nix",
         "country-ip-blocks": "country-ip-blocks",
         "dms": "dms",
+        "dms-plugin-registry": "dms-plugin-registry",
         "fast-nix-gc": "fast-nix-gc",
         "firefox-addons": "firefox-addons",
         "flake-compat": "flake-compat",
@@ -1600,11 +1621,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1783555900,
-        "narHash": "sha256-x9YLcyitqp6EdKCrtwdppIDBRufn/7uJJEHeQWJ4kWg=",
+        "lastModified": 1783566246,
+        "narHash": "sha256-tOkT3MNJbTg0NYDOMh54efahvvgRpn/DiHe6/duzGs0=",
         "ref": "refs/heads/main",
-        "rev": "788075ba33f855e6892584229b7062df06625216",
-        "revCount": 31,
+        "rev": "fc7d45ed971da689b6f94d887343c49188816821",
+        "revCount": 38,
         "type": "git",
         "url": "ssh://git@github.com/zhyiheihei/nixos-secrets.git"
       },
