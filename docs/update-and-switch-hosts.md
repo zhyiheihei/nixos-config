@@ -39,6 +39,16 @@ rebase 完成后推回自己的 fork：
 
 ```bash
 git push --force-with-lease origin master
+
+```
+
+强制以远端为准
+
+```bash
+cd /nix/src/nixos-config
+git fetch origin
+git reset --hard origin/master
+git clean -fd
 ```
 
 ## 2. 先构建，不切换
