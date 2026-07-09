@@ -21,7 +21,9 @@
     environmentFile = config.sops.secrets.attic-credentials.path;
     mode = "monolithic";
     settings = lib.mkForce {
-      listen = "[::1]:${LT.portStr.Attic}";
+      listen = "0.0.0.0:${LT.portStr.Attic}";
+      api-endpoint = "https://attic.zhyi.cc:4000/";
+      substituter-endpoint = "https://attic.zhyi.cc:4000/";
       database = {
         url = "postgres://atticd?host=/run/postgresql&user=atticd";
         heartbeat = true;
@@ -29,11 +31,11 @@
       require-proof-of-possession = false;
       storage = {
         type = "s3";
-        region = "us-central-1";
-        bucket = "lantian-nix-cache";
-        endpoint = "https://us-central-1.telnyxstorage.com";
+        region = "us-east-1";
+        bucket = "nix-cache";
+        endpoint = "https://vaults3.zhyi.cc:4000";
       };
-      # Disable chunking to use S3 direct download
+      # Disable chunking to use S3 direct download.
       chunking = {
         nar-size-threshold = 0;
         min-size = 16384;
@@ -73,26 +75,15 @@
   };
 
   lantian.nginxVhosts = {
-    "attic.xuyh0120.win" = {
+    "attic.zhyi.cc" = {
       locations = {
         "/" = {
-          proxyPass = "http://[::1]:${LT.portStr.Attic}";
+          proxyPass = "http://127.0.0.1:${LT.portStr.Attic}";
           proxyNoTimeout = true;
         };
       };
 
-      sslCertificate = "zerossl-xuyh0120.win";
-      noIndex.enable = true;
-    };
-    "attic.${config.networking.hostName}.xuyh0120.win" = {
-      locations = {
-        "/" = {
-          proxyPass = "http://[::1]:${LT.portStr.Attic}";
-          proxyNoTimeout = true;
-        };
-      };
-
-      sslCertificate = "zerossl-${config.networking.hostName}.xuyh0120.win";
+      sslCertificate = "zerossl-zhyi.cc";
       noIndex.enable = true;
     };
   };
