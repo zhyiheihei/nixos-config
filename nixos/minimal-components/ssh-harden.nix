@@ -51,6 +51,8 @@ in
             n: v:
             let
               hostNames = [
+                "${n}.zhyi.cc"
+                "[${n}.zhyi.cc]:2222"
                 "${n}.lantian.pub"
                 "[${n}.lantian.pub]:2222"
                 "${n}.xuyh0120.win"
@@ -148,6 +150,10 @@ in
 
     Host git.lantian.pub
       User git
+      ${ltnetSSHConfig}
+
+    Host *.zhyi.cc
+      User root
       ${ltnetSSHConfig}
 
     Host *.lantian.pub

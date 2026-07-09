@@ -20,7 +20,7 @@ let
       [
         {
           inherit (v) system;
-          hostName = "${n}.lantian.pub";
+          hostName = "${n}.zhyi.cc";
           maxJobs = v.cpuThreads;
           protocol = "ssh-ng";
           speedFactor = v.cpuThreads;
@@ -33,7 +33,7 @@ let
       ++ lib.optionals (v.cpuThreads >= 8) [
         {
           inherit (v) system;
-          hostName = "${n}.lantian.pub";
+          hostName = "${n}.zhyi.cc";
           maxJobs = 1;
           protocol = "ssh-ng";
           speedFactor = v.cpuThreads;
