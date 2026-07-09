@@ -51,8 +51,8 @@ in
     useSubstitutes = true;
 
     maxServers = 4;
-    maxSpareServers = 1;
-    minSpareServers = 0;
+    maxSpareServers = 2;
+    minSpareServers = 1;
 
     extraConfig = ''
       <runcommand>
