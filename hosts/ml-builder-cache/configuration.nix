@@ -93,7 +93,10 @@
   networking.firewall.allowedTCPPorts = [ LT.port.Attic ];
 
   environment.systemPackages = with pkgs; [
+    age
     attic-client
     attic-server
+    sops
+    ssh-to-age
   ];
 }

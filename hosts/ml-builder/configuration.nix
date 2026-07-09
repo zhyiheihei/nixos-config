@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, ... }:
 {
   imports = [
     ../../nixos/minimal.nix
@@ -15,4 +15,10 @@
     };
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
+
+  environment.systemPackages = with pkgs; [
+    age
+    sops
+    ssh-to-age
+  ];
 }
