@@ -44,22 +44,6 @@ let
         }
       ];
 
-  nixBuildNet = {
-    hostName = "eu.nixbuild.net";
-    systems = [
-      "armv7l-linux"
-      "aarch64-linux"
-    ];
-    sshKey = cfg.sshKeyPath;
-    sshUser = "root";
-    maxJobs = 100;
-    speedFactor = 100;
-    supportedFeatures = [
-      "benchmark"
-      "big-parallel"
-    ];
-  };
-
   platforms = builtins.concatStringsSep "," (
     lib.uniqueStrings (config.nix.settings.extra-platforms ++ [ pkgs.stdenv.hostPlatform.system ])
   );
@@ -80,8 +64,7 @@ in
               lib.filterAttrs (n: v: v.hasTag LT.tags.nix-builder) LT.otherHosts
             )
           )
-        )
-        ++ [ nixBuildNet ];
+        );
     };
 
     # FIXME: hydra might be unable to handle duplicate entries
