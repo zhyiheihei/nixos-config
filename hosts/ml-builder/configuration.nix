@@ -10,7 +10,7 @@
   systemd.network.networks.eth0 = {
     matchConfig.Name = "eth0";
     networkConfig = {
-      DHCP = "ipv4";
+      DHCP = "yes";
       IPv6AcceptRA = "yes";
     };
     ipv6AcceptRAConfig.DHCPv6Client = "no";
