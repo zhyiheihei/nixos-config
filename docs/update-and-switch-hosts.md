@@ -65,6 +65,11 @@ git reset --hard origin/master
 nix build .#nixosConfigurations.ml-builder.config.system.build.toplevel -L
 nix build .#nixosConfigurations.ml-builder-cache.config.system.build.toplevel -L
 nix build .#nixosConfigurations.ml-2700u.config.system.build.toplevel -L
+#暂时使用缓存
+nix build .#nixosConfigurations.ml-builder-cache.config.system.build.toplevel -L \
+  --extra-substituters 'http://192.168.3.192:5000' \
+  --option require-sigs false
+
 ```
 
 长时间构建可以放到 `tmux`：
