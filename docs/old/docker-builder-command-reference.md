@@ -210,10 +210,15 @@ swapon --show
 ### 创建 8G 临时 swapfile
 
 ```bash
+#ext4文件系统
 fallocate -l 8G /swapfile
 chmod 600 /swapfile
 mkswap /swapfile
 swapon /swapfile
+#brtf 文件系统
+sudo btrfs filesystem mkswapfile --size 128g /nix/swap/build-swapfile
+sudo swapon -p 100 /nix/swap/build-swapfile
+sudo sysctl vm.swappiness=100
 ```
 
 确认：

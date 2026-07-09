@@ -12,6 +12,7 @@
 - [NixOS switch 后无法登录的回滚与救援](./nixos-rollback-rescue.md)
 - [使用 NAS Attic 和 Windows Docker 强机器做 NixOS 构建缓存](./self-hosted-builder.md)
 - [自建作者同款 Attic + S3 构建缓存](./attic-s3-cache.md)
+- [Attic 全量推送 /nix/store 操作手册](./attic-full-store-push.md)
 - [Docker 部署 Attic 并使用 Garage S3](./attic-docker-s3-cache.md)
 - [使用 Docker 强机器临时构建并传给弱机器](./docker-builder-temporary.md)
 - [Docker 强机器接力构建 ml-2700u 实操日志](./docker-builder-rescue-log.md)
