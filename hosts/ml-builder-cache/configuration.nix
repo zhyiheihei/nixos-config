@@ -1,5 +1,6 @@
 {
   LT,
+  lib,
   pkgs,
   ...
 }:
@@ -22,6 +23,15 @@
   };
 
   networking.firewall.allowedTCPPorts = [ LT.port.Attic ];
+
+  # This host is the Attic server itself. Avoid resolving attic.zhyi.cc back to
+  # this machine and then depending on the external HTTPS reverse proxy path.
+  nix.settings.trusted-substituters = lib.mkForce (
+    [
+      "http://127.0.0.1:${LT.portStr.Attic}/${LT.nix.attic.cacheName}"
+    ]
+    ++ lib.filter (url: url != LT.nix.attic.url) LT.constants.nix.substituters
+  );
 
   environment.systemPackages = with pkgs; [
     age
