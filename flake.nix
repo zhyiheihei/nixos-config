@@ -246,9 +246,13 @@
           )
         ) self.allSystems;
 
+        # 当前复刻阶段只让 Hydra 评估已经接管的两台机器；作者旧 DNS/host 后续再逐块复刻。
         hydraJobs = {
-          inherit (self) packages;
-          nixosConfigurations = lib.mapAttrs (n: v: v.config.system.build.toplevel) self.nixosConfigurations;
+          packages = lib.mapAttrs (_: packages: removeAttrs packages [ "dnscontrol-config" ]) self.packages;
+          nixosConfigurations = lib.genAttrs [
+            "ml-builder"
+            "ml-builder-cache"
+          ] (name: self.nixosConfigurations.${name}.config.system.build.toplevel);
         };
       };
 
