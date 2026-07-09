@@ -66,7 +66,7 @@ in
     useSubstitutes = true;
 
     maxServers = 1;
-    maxSpareServers = 1;
+    maxSpareServers = 2;
     minSpareServers = 1;
 
     extraConfig = ''
