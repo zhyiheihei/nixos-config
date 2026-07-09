@@ -22,6 +22,8 @@
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
 
+  networking.hosts."192.168.2.192" = [ "ml-builder.zhyi.cc" ];
+
   networking.firewall.allowedTCPPorts = [ LT.port.Attic ];
 
   # This host is the Attic server itself. Avoid resolving attic.zhyi.cc back to
