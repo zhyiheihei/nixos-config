@@ -251,6 +251,7 @@
           nixosConfigurations = lib.genAttrs [
             "ml-builder"
             "ml-builder-cache"
+            "ml-2700u"
           ] (name: self.nixosConfigurations.${name}.config.system.build.toplevel);
         };
       };
