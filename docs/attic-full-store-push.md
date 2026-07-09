@@ -77,10 +77,10 @@ nix shell nixpkgs#attic-client -c attic login --set-default lantian \
   https://attic.zhyi.cc:4000 "$TOKEN"
 ```
 
-验证配置：
+验证配置时不要直接 `cat` 整个 config，里面可能保存 token。只看 server 和 endpoint：
 
 ```bash
-cat /root/.config/attic/config.toml
+grep -E '^(default-server|endpoint) = ' /root/.config/attic/config.toml
 ```
 
 应看到：
@@ -131,8 +131,8 @@ nix shell nixpkgs#attic-client -c attic push lantian \
 如果希望推送当前仍被 GC root 保留的主要内容：
 
 ```bash
-nix shell nixpkgs#attic-client -c attic push lantian \
-  $(nix-store -qR /nix/var/nix/gcroots)
+nix-store -qR /nix/var/nix/gcroots \
+  | xargs -r -n 200 nix shell nixpkgs#attic-client -c attic push lantian
 ```
 
 这个范围比当前系统闭包大，但通常仍然比全 `/nix/store` 可控。
@@ -152,6 +152,7 @@ find /nix/store -mindepth 1 -maxdepth 1 ! -name '.*' -print0 \
 - `-n 200` 会分批推送，避免一次传入过多参数。
 - `-r` 避免没有输入时仍然执行一次 `attic push`。
 - 如果刚重建过 Attic cache，先重新执行第 3 节的 `attic login`，否则本机可能还在使用旧 token/session，出现 `AccessError`。
+- 已存在于 Attic 的 path 会被跳过或去重。
 - 重跑同一条命令不会重复占用完整空间。
 - 如果中途中断，重新执行同一条命令即可继续补齐。
 - 如果出现少量 `HTTP 502 Bad Gateway`，先确认反代/S3 后端是否稳定，然后重跑命令。
