@@ -11,8 +11,7 @@
   cpuThreads = 20;
 
   # Colmena / deploy-rs 这类远程部署工具会优先用这里连接机器。
-  # 这里先用当前测试 VM 的局域网地址；如果 VM IP 不同，改这里。
-  hostname = "192.168.3.192";
+  hostname = "ml-builder.zhyi.cc";
 
   city = geo.cities."US Bellevue";
 
