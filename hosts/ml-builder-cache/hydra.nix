@@ -33,7 +33,7 @@ in
   };
   sops.secrets.hydra-ssh-privkey = {
     sopsFile = inputs.secrets + "/hydra.yaml";
-    mode = "0440";
+    mode = "0400";
     owner = "hydra";
     group = "hydra";
   };
