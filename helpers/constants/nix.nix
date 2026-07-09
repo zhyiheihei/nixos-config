@@ -2,7 +2,7 @@ _: rec {
   attic = rec {
     cacheName = "lantian";
     url = "https://attic.zhyi.cc:4000/lantian";
-    publicKey = "lantian:bb++Di9jcflg4iRdiONgxrLRTLs2SdoVjIZaG6l5lEU=";
+    publicKey = "lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=";
   };
 
   substituters = [

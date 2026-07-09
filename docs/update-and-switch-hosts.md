@@ -160,7 +160,7 @@ nixos-rebuild switch --flake .#ml-2700u -L
 cd /mnt/etc/nixos
 NIX_CONFIG='extra-experimental-features = nix-command flakes
 extra-substituters = https://attic.zhyi.cc:4000/lantian
-extra-trusted-public-keys = lantian:bb++Di9jcflg4iRdiONgxrLRTLs2SdoVjIZaG6l5lEU=' \
+extra-trusted-public-keys = lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=' \
 nixos-install --flake path:/mnt/etc/nixos#ml-2700u --no-root-passwd -L
 ```
 
@@ -305,7 +305,7 @@ nix config show | grep -E '^(substituters|trusted-public-keys) ='
 当前 Attic key 应包含：
 
 ```text
-lantian:bb++Di9jcflg4iRdiONgxrLRTLs2SdoVjIZaG6l5lEU=
+lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=
 ```
 
 如果安装镜像或临时环境没有项目配置，需要临时用 `NIX_CONFIG` 传入 substituter 和 key。
