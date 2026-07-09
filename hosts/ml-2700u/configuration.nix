@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   ...
 }:
 {
@@ -25,4 +26,10 @@
     PasswordAuthentication = lib.mkOverride 40 true;
     PermitRootLogin = lib.mkOverride 40 "yes";
   };
+
+  environment.systemPackages = with pkgs; [
+    age
+    sops
+    ssh-to-age
+  ];
 }
