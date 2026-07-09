@@ -248,7 +248,10 @@
 
         hydraJobs = {
           inherit (self) packages;
-          nixosConfigurations = lib.mapAttrs (n: v: v.config.system.build.toplevel) self.nixosConfigurations;
+          nixosConfigurations = lib.genAttrs [
+            "ml-builder"
+            "ml-builder-cache"
+          ] (name: self.nixosConfigurations.${name}.config.system.build.toplevel);
         };
       };
 
