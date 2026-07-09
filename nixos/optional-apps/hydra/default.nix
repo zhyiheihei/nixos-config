@@ -52,6 +52,13 @@ in
     exec ${lib.getExe' py "python3"} ${./post-build.py} "$HYDRA_JSON"
   '';
 
+  # Hydra queue-runner still requires legacy ssh stores for remote builds.
+  # Keep nix-distributed on ssh-ng for normal Nix, and translate only here.
+  environment.etc."hydra/machines".text = lib.replaceStrings
+    [ "ssh-ng://" ]
+    [ "ssh://" ]
+    config.environment.etc."nix/machines-with-localhost".text;
+
   services.hydra = {
     enable = true;
     # FIXME: disable failing checks
@@ -62,7 +69,7 @@ in
     listenHost = "192.168.2.135";
     notificationSender = "postmaster@zhyi.cc";
     port = LT.port.Hydra;
-    buildMachinesFiles = [ "/etc/nix/machines-with-localhost" ];
+    buildMachinesFiles = [ "/etc/hydra/machines" ];
     useSubstitutes = true;
 
     maxServers = 10;
