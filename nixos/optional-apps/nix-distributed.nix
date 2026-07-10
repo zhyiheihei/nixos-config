@@ -33,7 +33,7 @@ let
           sshKey = cfg.sshKeyPath;
           sshUser = "nix-builder";
           supportedFeatures = lib.optionals (v.cpuThreads >= 8) [ "big-parallel" ];
-          mandatoryFeatures = lib.optionals (n == "ml-builder") [ "big-parallel" ];
+          mandatoryFeatures = [ ];
         }
       ];
 
