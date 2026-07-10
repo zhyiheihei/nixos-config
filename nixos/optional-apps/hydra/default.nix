@@ -85,14 +85,17 @@ in
 
   systemd.services.hydra-notify = {
     preStart = ''
-      if [ ! -f "$HOME/.config/attic/config.toml" ]; then
-        ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
-          http://127.0.0.1:${LT.portStr.Attic} \
-          $(cat ${config.sops.secrets.attic-upload-key.path})
-      fi
+      ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
+        http://127.0.0.1:${LT.portStr.Attic} \
+        $(cat ${config.sops.secrets.attic-upload-key.path})
     '';
   };
   systemd.services.hydra-attic-repush = {
+    preStart = ''
+      ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
+        http://127.0.0.1:${LT.portStr.Attic} \
+        $(cat ${config.sops.secrets.attic-upload-key.path})
+    '';
     script = ''
       for F in /nix/var/nix/gcroots/hydra/*; do
         STORE_PATH="/nix/store/$(basename "$F")"
