@@ -18,10 +18,6 @@ let
     pkgs.jq
     pkgs.attic-client
   ];
-  hydraGitSshCommand =
-    "ssh -i ${config.sops.secrets.hydra-ssh-privkey.path} "
-    + "-o IdentitiesOnly=yes "
-    + "-o StrictHostKeyChecking=accept-new";
 in
 {
   imports = [
@@ -39,7 +35,7 @@ in
   sops.secrets.hydra-ssh-privkey = {
     sopsFile = inputs.secrets + "/hydra.yaml";
     mode = "0440";
-    owner = "root";
+    owner = "hydra";
     group = "hydra";
   };
 
@@ -56,13 +52,6 @@ in
     exec ${lib.getExe' py "python3"} ${./post-build.py} "$HYDRA_JSON"
   '';
 
-  # Hydra queue-runner still requires legacy ssh stores for remote builds.
-  # Keep nix-distributed on ssh-ng for normal Nix, and translate only here.
-  environment.etc."hydra/machines".text = lib.replaceStrings
-    [ "ssh-ng://" ]
-    [ "ssh://" ]
-    config.environment.etc."nix/machines".text;
-
   services.hydra = {
     enable = true;
     # FIXME: disable failing checks
@@ -73,7 +62,7 @@ in
     listenHost = "192.168.2.135";
     notificationSender = "postmaster@zhyi.cc";
     port = LT.port.Hydra;
-    buildMachinesFiles = [ "/etc/hydra/machines" ];
+    buildMachinesFiles = [ "/etc/nix/machines-with-localhost" ];
     useSubstitutes = true;
 
     maxServers = 10;
@@ -94,7 +83,6 @@ in
   services.fast-nix-gc.noVacuum = true;
 
   systemd.services.hydra-notify = {
-    environment.GIT_SSH_COMMAND = hydraGitSshCommand;
     preStart = ''
       if [ ! -f "$HOME/.config/attic/config.toml" ]; then
         ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
@@ -103,9 +91,6 @@ in
       fi
     '';
   };
-  systemd.services.hydra-evaluator.environment.GIT_SSH_COMMAND = hydraGitSshCommand;
-  systemd.services.hydra-queue-runner.environment.GIT_SSH_COMMAND = hydraGitSshCommand;
-
   systemd.services.hydra-attic-repush = {
     script = ''
       for F in /nix/var/nix/gcroots/hydra/*; do
