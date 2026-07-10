@@ -3,6 +3,7 @@
 这个目录记录把本仓库适配到个人设备时的操作笔记。
 
 - [适配自己的 NixOS 设备](./adapt-own-device.md)
+- [ml-2700u 安装与桌面操作记录](./ml-2700u/README.md)
 - [hosts 目录机器分类](./hosts-overview.md)
 - [OpenWrt 两级路由网段互访配置](./opentwrt-two-router-interlan.md)
 - [一比一复刻原作者项目检查表](./upstream-replication-checklist.md)
@@ -13,6 +14,7 @@
 - [NixOS switch 后无法登录的回滚与救援](./nixos-rollback-rescue.md)
 - [使用 NAS Attic 和 Windows Docker 强机器做 NixOS 构建缓存](./self-hosted-builder.md)
 - [自建作者同款 Attic + S3 构建缓存](./attic-s3-cache.md)
+- [自有 Attic 优先与完整闭包缓存](./attic-owned-cache-priority.md)
 - [Attic 全量推送 /nix/store 操作手册](./attic-full-store-push.md)
 - [Docker 部署 Attic 并使用 Garage S3](./attic-docker-s3-cache.md)
 - [使用 Docker 强机器临时构建并传给弱机器](./docker-builder-temporary.md)
