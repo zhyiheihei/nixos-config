@@ -21,7 +21,7 @@
     environmentFile = config.sops.secrets.attic-credentials.path;
     mode = "monolithic";
     settings = lib.mkForce {
-      listen = "[::1]:${LT.portStr.Attic}";
+      listen = "0.0.0.0:${LT.portStr.Attic}";
       database = {
         url = "postgres://atticd?host=/run/postgresql&user=atticd";
         heartbeat = true;
@@ -76,7 +76,7 @@
     "attic.zhyi.cc" = {
       locations = {
         "/" = {
-          proxyPass = "http://[::1]:${LT.portStr.Attic}";
+          proxyPass = "http://127.0.0.1:${LT.portStr.Attic}";
           proxyNoTimeout = true;
         };
       };
