@@ -72,6 +72,27 @@ Flake 入口文件，定义了：
 | `configuration.nix`          | 主配置文件                                |
 | `hardware-configuration.nix` | 硬件配置（由 nixos-generate-config 生成） |
 
+### 磁盘与持久化约束
+
+- 作者体系中的物理 `client` 默认使用 tmpfs 作为 `/`，该行为由
+  `nixos/minimal-components/impermanence.nix` 提供；不要为这类主机长期保留
+  普通 ext4 `/` 覆盖。
+- 物理 client 的磁盘至少应包含 FAT32 EFI `/boot` 和持久化 `/nix`。作者常用
+  Btrfs 挂载 `/nix`，选项为 `compress-force=zstd`、`autodefrag`、`nosuid`、
+  `nodev`；简单设备可让 `/nix/persistent` 直接位于该 Btrfs 文件系统内。
+- 不要把已经运行的普通 ext4-root NixOS 直接在线 `switch` 到 tmpfs-root /
+  preservation 架构。首次适配应从安装环境按目标挂载结构重新安装，否则服务
+  重载可能停在旧根目录与新持久化结构之间，导致 systemd 和 SSH 激活失败。
+- 安装前必须准备 `/mnt/nix/persistent/etc/ssh`，保存或生成 SSH host keys。
+  SOPS 默认读取 `/nix/persistent/etc/ssh/ssh_host_ed25519_key`，OpenSSH 也从
+  `/nix/persistent/etc/ssh/` 读取 host keys。缺少这些文件会导致解密或 sshd
+  启动失败。
+- `hosts/ml-2700u` 中曾使用的 ext4 `/` 和 `/etc/ssh` SOPS key 路径只属于
+  普通安装阶段的临时兼容方案；重装复刻作者布局时应移除，而不是继续叠加覆盖。
+- 判断磁盘结构时优先参考作者的物理 client，例如
+  `nixos-config-exam/hosts/lt-dell-wyse/hardware-configuration.nix`；复杂的加密和
+  Btrfs 子卷布局再参考 `lt-hp-omen`，不要无必要引入。
+
 ### 可用标签
 
 | 标签          | 说明                 |
@@ -388,7 +409,10 @@ nix run .#update-flake
 1. 在 `hosts/` 目录下创建新目录
 2. 创建 `host.nix` 定义主机元数据
 3. 创建 `configuration.nix` 导入所需模块
-4. 运行 `nixos-generate-config` 生成 `hardware-configuration.nix`
+4. 根据配置类型先确认目标磁盘布局；物理 client 默认按上一节准备 tmpfs `/`、
+   EFI `/boot`、持久化 `/nix` 和 `/nix/persistent` SSH host keys
+5. 运行 `nixos-generate-config` 生成 `hardware-configuration.nix`，再检查生成结果
+   是否错误加入了磁盘 `/`，或漏掉 `/nix`
 
 ## 架构图
 
