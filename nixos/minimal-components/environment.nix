@@ -64,7 +64,6 @@
     lsof
     nettools
     nix-tree
-    nixos-rebuild-ng
     nmap
     nur-xddxdd.lantianCustomized.ls-iommu
     nur-xddxdd.lantianCustomized.nixos-cleanup
