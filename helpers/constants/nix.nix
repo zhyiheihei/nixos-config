@@ -6,7 +6,6 @@ _: rec {
   };
 
   substituters = [
-    attic.url
     "https://cache.nixos-cuda.org"
     "https://cuda-maintainers.cachix.org"
     "https://nix-gaming.cachix.org"
@@ -15,7 +14,6 @@ _: rec {
   trusted-public-keys = [
     "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
     "cache.nixos.org-1:6NCHdD59X431o0gWJ0qOeuKX2w8VxlNjY36Heq3v4F4="
-    attic.publicKey
     "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
     "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
     "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
