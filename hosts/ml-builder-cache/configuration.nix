@@ -34,7 +34,6 @@
     ]
     ++ lib.filter (url: url != LT.nix.attic.url) LT.constants.nix.substituters
   );
-  nix.settings.trusted-public-keys = LT.constants.nix.trusted-public-keys ++ [ LT.nix.attic.publicKey ];
 
   environment.systemPackages = with pkgs; [
     age
