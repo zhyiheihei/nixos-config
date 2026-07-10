@@ -25,7 +25,7 @@
   networking.hosts."192.168.2.192" = [ "ml-builder.zhyi.cc" ];
 
   lantian.nix-distributed = {
-    maxJobsPerMachine = 1;
+    maxJobsPerMachine = 6;
     localMaxJobs = 8;
     localSupportedFeatures = [
       "kvm"
