@@ -6,8 +6,8 @@ import time
 
 import requests
 
-HYDRA_QUEUE_URL = os.environ.get("HYDRA_QUEUE_URL", "https://hydra.lantian.pub/queue")
-HYDRA_STATUS_URL = os.environ.get("HYDRA_STATUS_URL", "https://hydra.lantian.pub/status")
+HYDRA_QUEUE_URL = os.environ.get("HYDRA_QUEUE_URL", "https://hydra.zhyi.cc:4000/queue")
+HYDRA_STATUS_URL = os.environ.get("HYDRA_STATUS_URL", "https://hydra.zhyi.cc:4000/status")
 CONSECUTIVE_THRESHOLD = 5
 CHECK_INTERVAL = 60
 
