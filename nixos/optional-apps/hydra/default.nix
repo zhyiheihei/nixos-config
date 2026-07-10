@@ -75,6 +75,7 @@ in
         command = /etc/hydra/post-build
       </runcommand>
 
+      max_output_size = 21474836480
       allow_import_from_derivation = true
     '';
   };
