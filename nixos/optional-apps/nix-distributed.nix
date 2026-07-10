@@ -17,6 +17,7 @@ let
     if isLocal then
       [ ]
     else
+      # Hydra keys machines by store URI, so each host must have only one entry.
       [
         {
           inherit (v) system;
@@ -26,21 +27,8 @@ let
           speedFactor = v.cpuThreads;
           sshKey = cfg.sshKeyPath;
           sshUser = "nix-builder";
-          supportedFeatures = [ ];
+          supportedFeatures = lib.optionals (v.cpuThreads >= 8) [ "big-parallel" ];
           mandatoryFeatures = [ ];
-        }
-      ]
-      ++ lib.optionals (v.cpuThreads >= 8) [
-        {
-          inherit (v) system;
-          hostName = "${n}.zhyi.cc";
-          maxJobs = 1;
-          protocol = "ssh-ng";
-          speedFactor = v.cpuThreads;
-          sshKey = cfg.sshKeyPath;
-          sshUser = "nix-builder";
-          supportedFeatures = [ "big-parallel" ];
-          mandatoryFeatures = [ "big-parallel" ];
         }
       ];
 
@@ -67,7 +55,6 @@ in
         );
     };
 
-    # FIXME: hydra might be unable to handle duplicate entries
     environment.etc."nix/machines-with-localhost".text = config.environment.etc."nix/machines".text + ''
       localhost ${platforms} - 2 1 kvm,nixos-test,big-parallel,benchmark - -
     '';
