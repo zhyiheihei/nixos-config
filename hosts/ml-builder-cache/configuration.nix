@@ -26,7 +26,7 @@
 
   lantian.nix-distributed = {
     maxJobsPerMachine = 6;
-    localMaxJobs = 1;
+    localMaxJobs = 8;
     localSupportedFeatures = [
       "kvm"
       "nixos-test"
