@@ -23,7 +23,8 @@ let
           inherit (v) system;
           hostName = "${n}.zhyi.cc";
           maxJobs = v.cpuThreads;
-          protocol = "ssh-ng";
+          # Hydra's build-remote path currently only supports legacy SSH stores.
+          protocol = "ssh";
           speedFactor = v.cpuThreads;
           sshKey = cfg.sshKeyPath;
           sshUser = "nix-builder";
