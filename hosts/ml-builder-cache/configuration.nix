@@ -27,6 +27,11 @@
   lantian.nix-distributed = {
     maxJobsPerMachine = 6;
     localMaxJobs = 1;
+    localSupportedFeatures = [
+      "kvm"
+      "nixos-test"
+      "benchmark"
+    ];
   };
 
   networking.firewall.allowedTCPPorts = [ LT.port.Attic ];
