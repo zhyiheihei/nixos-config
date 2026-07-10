@@ -12,7 +12,7 @@ in
   systemd.services.hydra-cancel-old-builds = {
     environment = {
       BASE_URL = "http://${config.services.hydra.listenHost}:${LT.portStr.Hydra}";
-      USERNAME = "lantian";
+      USERNAME = "zhyi";
     };
     script = ''
       export PASSWORD=$(cat ${config.sops.secrets.default-pw.path})
