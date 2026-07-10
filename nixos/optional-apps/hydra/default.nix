@@ -63,7 +63,7 @@ in
     notificationSender = "postmaster@zhyi.cc";
     port = LT.port.Hydra;
     buildMachinesFiles = [ "/etc/nix/machines-with-localhost" ];
-    useSubstitutes = true;
+    useSubstitutes = false;
 
     maxServers = 10;
     maxSpareServers = 2;
