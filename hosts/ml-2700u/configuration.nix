@@ -6,6 +6,7 @@
 {
   imports = [
     ../../nixos/client.nix
+    ../../nixos/optional-apps/nix-distributed.nix
 
     ./hardware-configuration.nix
   ];

@@ -61,7 +61,7 @@ in
   environment.etc."hydra/machines".text = lib.replaceStrings
     [ "ssh-ng://" ]
     [ "ssh://" ]
-    config.environment.etc."nix/machines-with-localhost".text;
+    config.environment.etc."nix/machines".text;
 
   services.hydra = {
     enable = true;
