@@ -22,11 +22,7 @@ let
         {
           inherit (v) system;
           hostName = "${n}.zhyi.cc";
-          maxJobs =
-            if cfg.maxJobsPerMachine == null then
-              v.cpuThreads
-            else
-              lib.min cfg.maxJobsPerMachine v.cpuThreads;
+          maxJobs = v.cpuThreads;
           # Hydra's build-remote path currently only supports legacy SSH stores.
           protocol = "ssh";
           speedFactor = v.cpuThreads;
@@ -46,23 +42,6 @@ in
     type = lib.types.str;
     default = "/home/lantian/.ssh/id_ed25519";
   };
-  options.lantian.nix-distributed.maxJobsPerMachine = lib.mkOption {
-    type = lib.types.nullOr lib.types.ints.positive;
-    default = null;
-  };
-  options.lantian.nix-distributed.localMaxJobs = lib.mkOption {
-    type = lib.types.ints.positive;
-    default = 2;
-  };
-  options.lantian.nix-distributed.localSupportedFeatures = lib.mkOption {
-    type = lib.types.listOf lib.types.str;
-    default = [
-      "kvm"
-      "nixos-test"
-      "big-parallel"
-      "benchmark"
-    ];
-  };
 
   config = {
     nix = {
@@ -78,7 +57,7 @@ in
     };
 
     environment.etc."nix/machines-with-localhost".text = config.environment.etc."nix/machines".text + ''
-      localhost ${platforms} - ${toString cfg.localMaxJobs} 1 ${builtins.concatStringsSep "," cfg.localSupportedFeatures} - -
+      localhost ${platforms} - 2 1 kvm,nixos-test,big-parallel,benchmark - -
     '';
 
     environment.systemPackages = [

@@ -24,16 +24,6 @@
 
   networking.hosts."192.168.2.192" = [ "ml-builder.zhyi.cc" ];
 
-  lantian.nix-distributed = {
-    maxJobsPerMachine = 6;
-    localMaxJobs = 8;
-    localSupportedFeatures = [
-      "kvm"
-      "nixos-test"
-      "benchmark"
-    ];
-  };
-
   networking.firewall.allowedTCPPorts = [ LT.port.Attic ];
 
   # This host is the Attic server itself. Avoid resolving attic.zhyi.cc back to
