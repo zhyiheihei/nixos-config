@@ -51,22 +51,13 @@
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
   ];
 
-  systemd.network.networks.eth1 = {
-    address = [ "23.94.65.218/30" ];
-    gateway = [ "23.94.65.217" ];
-    matchConfig.Name = "eth1";
-  };
-
-  networking.henet = {
-    enable = true;
-    remote = "209.51.161.14";
-    addresses = [
-      "2001:470:1f06:6fe::2/64"
-      "2001:470:1f07:6fe::1/64"
-      "2001:470:8c19::1/48"
-    ];
-    gateway = "2001:470:1f06:6fe::1";
-    attachToInterface = "eth1";
+  systemd.network.networks.ens18 = {
+    matchConfig.Name = "ens18";
+    networkConfig = {
+      DHCP = "yes";
+      IPv6AcceptRA = "yes";
+    };
+    ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
 
   virtualisation.oci-containers.containers.byparr.ports = [
