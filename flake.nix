@@ -252,7 +252,7 @@
             "ml-builder"
             "ml-builder-cache"
             "ml-2700u"
-            "pve-2700u"
+            "pve-2700"
             "colocrossing"
           ] (name: self.nixosConfigurations.${name}.config.system.build.toplevel);
         };
