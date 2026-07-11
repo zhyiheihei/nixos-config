@@ -8,7 +8,7 @@
 
   # 强机器/虚拟机作为 Nix 远程构建机使用。
   # 按实际分配给 VM 的 vCPU 数调整，影响远程构建并发。
-  cpuThreads = 20;
+  cpuThreads = 28;
 
   # Colmena / deploy-rs 这类远程部署工具会优先用这里连接机器。
   hostname = "ml-builder.zhyi.cc";
