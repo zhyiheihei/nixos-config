@@ -16,6 +16,8 @@
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
 
+  services.openssh.settings.MaxStartups = "64:30:128";
+
   environment.systemPackages = with pkgs; [
     age
     gnumake
