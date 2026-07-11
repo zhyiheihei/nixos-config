@@ -23,7 +23,7 @@
   };
 
   networking.hosts = {
-    "192.168.2.20" = [ "openclash.zhyi.cc" ];
+    "192.168.2.116" = [ "openclash.zhyi.cc" ];
     "192.168.2.192" = [ "ml-builder.zhyi.cc" ];
   };
 
