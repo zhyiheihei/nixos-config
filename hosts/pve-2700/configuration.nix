@@ -16,7 +16,7 @@
     device = "nodev";
   };
 
-  services.proxmox-ve.ipAddress = "192.168.2.237";
+  services.proxmox-ve.ipAddress = "192.168.2.11";
 
   networking.hosts = {
     "192.168.2.237" = [ config.networking.hostName ];
