@@ -34,7 +34,7 @@ in
   };
   sops.secrets.hydra-ssh-privkey = {
     sopsFile = inputs.secrets + "/hydra.yaml";
-    mode = "0440";
+    mode = "0400";
     owner = "hydra";
     group = "hydra";
   };
@@ -90,6 +90,8 @@ in
         $(cat ${config.sops.secrets.attic-upload-key.path})
     '';
   };
+  systemd.services.hydra-evaluator.environment.GIT_SSH_COMMAND =
+    "${lib.getExe pkgs.openssh} -i ${config.sops.secrets.hydra-ssh-privkey.path} -o IdentitiesOnly=yes";
   systemd.services.hydra-attic-repush = {
     preStart = ''
       ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
