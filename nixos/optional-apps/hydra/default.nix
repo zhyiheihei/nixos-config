@@ -38,8 +38,15 @@ in
     owner = "hydra";
     group = "hydra";
   };
+  sops.secrets.hydra-builder-ssh-privkey = {
+    sopsFile = inputs.secrets + "/hydra.yaml";
+    key = "hydra-ssh-privkey";
+    mode = "0400";
+    owner = "hydra-queue-runner";
+    group = "hydra";
+  };
 
-  lantian.nix-distributed.sshKeyPath = config.sops.secrets.hydra-ssh-privkey.path;
+  lantian.nix-distributed.sshKeyPath = config.sops.secrets.hydra-builder-ssh-privkey.path;
 
   # Force use original nix for Hydra hosts
   nix.package = lib.mkForce pkgs.nixVersions.latest;
