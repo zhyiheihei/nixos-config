@@ -16,6 +16,8 @@
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
 
+  networking.hosts."192.168.2.20" = [ "openclash.zhyi.cc" ];
+
   services.openssh.settings.MaxStartups = "64:30:128";
 
   environment.systemPackages = with pkgs; [
