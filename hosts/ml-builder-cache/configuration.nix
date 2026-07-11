@@ -4,6 +4,16 @@
   pkgs,
   ...
 }:
+let
+  proxyEnvironment = {
+    HTTP_PROXY = "http://openclash.zhyi.cc:7892";
+    HTTPS_PROXY = "http://openclash.zhyi.cc:7892";
+    NO_PROXY = "localhost,127.0.0.1,::1,.zhyi.cc,192.168.0.0/16";
+    http_proxy = "http://openclash.zhyi.cc:7892";
+    https_proxy = "http://openclash.zhyi.cc:7892";
+    no_proxy = "localhost,127.0.0.1,::1,.zhyi.cc,192.168.0.0/16";
+  };
+in
 {
   imports = [
     ../../nixos/server.nix
@@ -28,6 +38,13 @@
   };
 
   networking.firewall.allowedTCPPorts = [ LT.port.Attic ];
+
+  environment.variables = proxyEnvironment;
+  systemd.services = {
+    hydra-evaluator.environment = proxyEnvironment;
+    hydra-queue-runner.environment = proxyEnvironment;
+    nix-daemon.environment = proxyEnvironment;
+  };
 
   # This host is the Attic server itself. Avoid resolving attic.zhyi.cc back to
   # this machine and then depending on the external HTTPS reverse proxy path.
