@@ -24,9 +24,7 @@
   #   ssh-keyscan -p 2222 192.168.2.135 2>/dev/null | grep ssh-ed25519
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDax7ee1Yjl1Ei1PqF5ef8QpThqI7YqTMDN5obfqL5+4";
 
-  # 暂时没有 ZeroTier node id 时不要开启。
-  # 配好 ZeroTier 后，在目标机上运行 `zerotier-cli info`，取 10 位 node id：
-  # zerotier = "xxxxxxxxxx";
+  zerotier = "c340ae9a91";
 
   # 家用 NAT 后面的客户端通常没有公网 IP，先不要写 public。
   # 如果以后有公网地址，再按下面格式开启：
