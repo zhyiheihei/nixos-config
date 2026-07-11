@@ -20,6 +20,5 @@
   # No DN42 address is assigned until this VM actually joins DN42.
   dn42.region = 42;
 
-  # Fill this after the regular ZeroTier service generates its node ID.
-  # zerotier = "xxxxxxxxxx";
+  zerotier = "85c0f3a623";
 }
