@@ -57,7 +57,7 @@ in
     };
 
     environment.etc."nix/machines-with-localhost".text = config.environment.etc."nix/machines".text + ''
-      localhost ${platforms} - 2 1 kvm,nixos-test,big-parallel,benchmark - -
+      localhost ${platforms} - 2 1 kvm,nixos-test,benchmark - -
     '';
 
     environment.systemPackages = [
