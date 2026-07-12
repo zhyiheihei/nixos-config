@@ -154,7 +154,7 @@ in
 
     "lantian.pub" = addConfLantianPub {
       serverAliases = [ "${config.networking.hostName}.lantian.pub" ];
-      sslCertificate = "zerossl-lantian.pub";
+      sslCertificate = "lets-encrypt-zhyi.xin";
     };
     "lantian.dn42" = addConfLantianPub {
       listenHTTP.enable = true;
@@ -170,29 +170,29 @@ in
     "www.lantian.pub" = {
       locations."/".return = "307 https://lantian.pub$request_uri";
       enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-lantian.pub";
+      sslCertificate = "lets-encrypt-zhyi.xin";
     };
     "xuyh0120.win" = {
       serverAliases = [ "www.xuyh0120.win" ];
       locations."/".return = "307 https://lantian.pub$request_uri";
       enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-xuyh0120.win";
+      sslCertificate = "lets-encrypt-zhyi.cc";
     };
     "xn--gmqs02au1c935d.pub" = {
       serverAliases = [ "www.xn--gmqs02au1c935d.pub" ];
       locations."/".return = "307 https://lantian.pub$request_uri";
       enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-xn--gmqs02au1c935d.pub";
+      sslCertificate = "lets-encrypt-moliy.site";
     };
     "lab.xuyh0120.win" = {
       locations."/".return = "307 https://lab.lantian.pub$request_uri";
       enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-xuyh0120.win";
+      sslCertificate = "lets-encrypt-zhyi.cc";
     };
     "www.ltn.pw" = {
       locations."/".return = "307 https://ltn.pw$request_uri";
       enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-ltn.pw";
+      sslCertificate = "lets-encrypt-moliy.site";
     };
 
     "gopher.lantian.pub" = {
@@ -222,7 +222,7 @@ in
       enableCommonLocationOptions = false;
       noIndex.enable = true;
 
-      sslCertificate = "zerossl-lantian.pub";
+      sslCertificate = "lets-encrypt-zhyi.xin";
 
       extraConfig = ''
         error_page 404 /404.gopher;
@@ -249,7 +249,7 @@ in
       enableCommonLocationOptions = false;
       noIndex.enable = true;
 
-      sslCertificate = "zerossl-lantian.pub";
+      sslCertificate = "lets-encrypt-zhyi.xin";
 
       extraConfig = ''
         error_page 404 /404.gopher;

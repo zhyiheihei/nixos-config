@@ -31,7 +31,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
         tryFiles = "$uri $uri/ =404";
       };
     };
-    sslCertificate = "zerossl-lantian.pub";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
     disableLiveCompression = true;
   };

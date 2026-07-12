@@ -38,7 +38,7 @@
       "/".return = "https://ca.lantian.pub:444$request_uri";
     };
 
-    sslCertificate = "zerossl-lantian.pub";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 

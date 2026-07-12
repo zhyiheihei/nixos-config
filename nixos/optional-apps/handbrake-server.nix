@@ -63,7 +63,7 @@
         proxyPass = "http://127.0.0.1:${LT.portStr.HandBrake}";
       };
     };
-    sslCertificate = "zerossl-${config.networking.hostName}.xuyh0120.win";
+    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
     accessibleBy = "private";
     noIndex.enable = true;
   };

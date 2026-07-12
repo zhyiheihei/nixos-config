@@ -93,7 +93,7 @@
       proxyPass = "http://unix:/run/pocket-id/pocket-id.sock";
     };
 
-    sslCertificate = "zerossl-lantian.pub";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

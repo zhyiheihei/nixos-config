@@ -11,7 +11,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
   lantian.nginxVhosts."um.xuyh0120.win" = {
     root = um;
     accessibleBy = "private";
-    sslCertificate = "zerossl-xuyh0120.win";
+    sslCertificate = "lets-encrypt-zhyi.cc";
     noIndex.enable = true;
     disableLiveCompression = true;
   };

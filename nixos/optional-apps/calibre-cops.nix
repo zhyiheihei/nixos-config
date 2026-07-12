@@ -68,7 +68,7 @@ in
         };
 
         phpfpmSocket = config.services.phpfpm.pools.calibre-cops.socket;
-        sslCertificate = "zerossl-xuyh0120.win";
+        sslCertificate = "lets-encrypt-zhyi.cc";
       };
     };
 

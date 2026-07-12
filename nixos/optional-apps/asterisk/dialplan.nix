@@ -133,7 +133,7 @@ in
 {
   lantian.nginxVhosts."sip.lantian.pub" = {
     root = dialPlanDir;
-    sslCertificate = "zerossl-lantian.pub";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

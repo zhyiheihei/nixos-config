@@ -81,7 +81,7 @@
         };
       };
 
-      sslCertificate = "zerossl-zhyi.cc";
+      sslCertificate = "lets-encrypt-zhyi.cc";
       noIndex.enable = true;
     };
   };
