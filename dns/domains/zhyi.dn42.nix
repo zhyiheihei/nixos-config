@@ -14,13 +14,16 @@
 
         (config.common.hostRecs.mapAddresses {
           name = "ns1.${domain}.";
-          addresses = LT.hosts."colocrossing".dn42;
+          addresses = {
+            IPv4 = "172.20.46.227";
+            IPv6 = "fdd8:1938:4e88:3712::54";
+          };
         })
         (config.common.hostRecs.mapAddresses {
           name = "ns-anycast.${domain}.";
           addresses = {
-            IPv4 = "172.20.46.225";
-            IPv6 = "fdd8:1938:4e88:18::1";
+            IPv4 = "172.20.46.227";
+            IPv6 = "fdd8:1938:4e88:3712::54";
           };
         })
 
