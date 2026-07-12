@@ -133,7 +133,7 @@ systemctl status hydra-attic-repush.timer --no-pager -l
 验证缓存可读：
 
 ```bash
-nix path-info --store https://attic.zhyi.cc:4000/lantian /run/current-system
+nix path-info --store https://attic.zhyi.xin:8443/lantian /run/current-system
 ```
 
 如果这条找不到当前系统闭包，不一定是错误；可能只是当前系统还没有推送进 Attic。先看 `attic-watch-store` 日志：
@@ -159,7 +159,7 @@ nixos-rebuild switch --flake .#ml-2700u -L
 ```bash
 cd /mnt/etc/nixos
 NIX_CONFIG='extra-experimental-features = nix-command flakes
-extra-substituters = https://attic.zhyi.cc:4000/lantian
+extra-substituters = https://attic.zhyi.xin:8443/lantian
 extra-trusted-public-keys = lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=' \
 nixos-install --flake path:/mnt/etc/nixos#ml-2700u --no-root-passwd -L
 ```

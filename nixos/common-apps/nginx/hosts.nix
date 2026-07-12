@@ -11,7 +11,7 @@
       lib.hasInfix "." v
       && !lib.hasPrefix "gopher." v
       && !lib.hasPrefix "whois." v
-      && !(config.services.atticd.enable && v == "attic.zhyi.cc")
+      && !(config.services.atticd.enable && v == "attic.zhyi.xin")
     )
       (
         (builtins.attrNames config.lantian.nginxVhosts)

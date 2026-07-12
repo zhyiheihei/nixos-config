@@ -40,7 +40,7 @@ _: [
   "ai.xuyh0120.win"
   "attic.colocrossing.xuyh0120.win"
   "attic.xuyh0120.win"
-  "attic.zhyi.cc"
+  "attic.zhyi.xin"
   "bitwarden.xuyh0120.win"
   "cal.zhyi.xin"
   "cal.xuyh0120.win"
