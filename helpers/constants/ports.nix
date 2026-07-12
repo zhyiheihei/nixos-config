@@ -10,7 +10,7 @@ rec {
     BGP = 179;
     Hack3ricFlow = 180;
     LDAP = 389;
-    HTTPS = 8000;
+    HTTPS = 8443;
     CUPS = 631;
     LDAPS = 636;
     Rsync = 873;
