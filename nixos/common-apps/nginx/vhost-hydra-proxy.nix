@@ -14,7 +14,7 @@
 
       blockDotfiles = false;
       enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-lantian.pub";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
   };

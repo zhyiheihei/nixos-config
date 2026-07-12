@@ -42,7 +42,7 @@ in
       };
     };
 
-    sslCertificate = "zerossl-ltn.pw";
+    sslCertificate = "lets-encrypt-moliy.site";
     noIndex.enable = true;
   };
 

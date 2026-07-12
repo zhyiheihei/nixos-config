@@ -111,7 +111,7 @@ in
         };
       };
 
-      sslCertificate = "zerossl-xuyh0120.win";
+      sslCertificate = "lets-encrypt-zhyi.cc";
       noIndex.enable = true;
     };
   };

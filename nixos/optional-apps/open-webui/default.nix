@@ -151,7 +151,7 @@
         "/model-icons".alias = "${LT.sources.lobe-icons.src}/packages/static-png/dark";
       };
 
-      sslCertificate = "zerossl-xuyh0120.win";
+      sslCertificate = "lets-encrypt-zhyi.cc";
       noIndex.enable = true;
     };
   };

@@ -36,7 +36,7 @@
         '';
       };
 
-      sslCertificate = "zerossl-lantian.pub";
+      sslCertificate = "lets-encrypt-zhyi.xin";
     };
 
     "stage1.whois.local" = {

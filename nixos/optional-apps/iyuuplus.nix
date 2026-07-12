@@ -111,7 +111,7 @@ in
       };
 
       accessibleBy = "private";
-      sslCertificate = "zerossl-${config.networking.hostName}.xuyh0120.win";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
       noIndex.enable = true;
     };
     "iyuu.localhost" = {
