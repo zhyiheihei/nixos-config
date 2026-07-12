@@ -7,7 +7,6 @@
   ];
   city = geo.cities."US New York City";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIC5Oz+8RCV4amTUqd5BwLJ1gqkhyVhDItoevMwczN3Ry";
-  zerotier = "9e0a041298";
   public = {
     IPv4 = "45.42.214.121";
     IPv6 = "2001:470:1f07:54d::1";

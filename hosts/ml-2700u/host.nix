@@ -21,9 +21,7 @@
   # 把这里的 key 自动加入系统级 known_hosts。
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIVlH+ak3IpI3ThRUdUjo7/+n3Qr9+KRfx13yjQ8i3Ee";
 
-  # 暂时没有 ZeroTier node id 时不要开启。
-  # 配好 ZeroTier 后，在目标机上运行 `zerotier-cli info`，取 10 位 node id：
-  # zerotier = "xxxxxxxxxx";
+  zerotier = "214f8619a9";
 
   # 家用 NAT 后面的客户端通常没有公网 IP，先不要写 public。
   # 如果以后有公网地址，再按下面格式开启：
