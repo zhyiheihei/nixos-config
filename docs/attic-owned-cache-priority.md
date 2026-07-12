@@ -23,7 +23,7 @@ Nix 会读取每个 binary cache 的 `Priority`。数值越小，优先级越高
 目标状态：
 
 ```text
-Binary Cache Endpoint: https://attic.zhyi.cc:4000/lantian
+Binary Cache Endpoint: https://attic.zhyi.xin:8443/lantian
 Priority: 30
 ```
 

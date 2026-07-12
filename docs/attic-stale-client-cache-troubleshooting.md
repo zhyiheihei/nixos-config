@@ -80,7 +80,7 @@ mount -o remount,bind,ro /nix/store
 随后从缓存重新导入该路径，并再次验证：
 
 ```bash
-nix copy --from https://attic.zhyi.cc:4000/lantian /nix/store/xxxxxxxx-name
+nix copy --from https://attic.zhyi.xin:8443/lantian /nix/store/xxxxxxxx-name
 nix-store --verify-path /nix/store/xxxxxxxx-name
 ```
 

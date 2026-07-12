@@ -82,7 +82,7 @@ S3 服务
   path     = https://rustfs.zhyi.cc:4000/nix-cache/...
 
 Attic server
-  https://attic.zhyi.cc:4000
+  https://attic.zhyi.xin:8443
   连接 PostgreSQL
   连接 S3 bucket
 
@@ -91,7 +91,7 @@ Builder
   attic push nixos ./result closure
 
 ml-2700u
-  substituter = https://attic.zhyi.cc:4000/nixos
+  substituter = https://attic.zhyi.xin:8443/nixos
 ```
 
 这里 `nixos` 是 Attic cache 名字，可以换成你喜欢的名字。

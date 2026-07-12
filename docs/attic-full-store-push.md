@@ -5,7 +5,7 @@
 当前缓存地址：
 
 ```text
-https://attic.zhyi.cc:4000/lantian
+https://attic.zhyi.xin:8443/lantian
 ```
 
 当前 public key：
@@ -67,7 +67,7 @@ nix build .#nixosConfigurations.${HOST}.config.system.build.toplevel \
 TOKEN=$(cat /run/secrets/attic-upload-key)
 
 nix shell nixpkgs#attic-client -c attic login --set-default lantian \
-  https://attic.zhyi.cc:4000 "$TOKEN"
+  https://attic.zhyi.xin:8443 "$TOKEN"
 
 nix shell nixpkgs#attic-client -c attic push lantian /tmp/ml-2700u-result
 
@@ -78,7 +78,7 @@ cd /nix/src/nixos-config
 TOKEN=$(cat /run/secrets/attic-upload-key)
 
 nix shell nixpkgs#attic-client -c attic login --set-default lantian \
-  https://attic.zhyi.cc:4000 "$TOKEN"
+  https://attic.zhyi.xin:8443 "$TOKEN"
 
 nix path-info --all | xargs -r -n 200 nix shell nixpkgs#attic-client -c attic push lantian
 
@@ -108,7 +108,7 @@ P=/nix/store/<hash-name>
 rm -rf /tmp/attic-copy-test
 
 nix copy \
-  --from https://attic.zhyi.cc:4000/lantian \
+  --from https://attic.zhyi.xin:8443/lantian \
   --to file:///tmp/attic-copy-test \
   "$P"
 ```
@@ -122,7 +122,7 @@ nix copy \
 ```bash
 env NIX_CONFIG='experimental-features = nix-command flakes
 accept-flake-config = true
-substituters = https://cache.nixos.org https://attic.zhyi.cc:4000/lantian
+substituters = https://cache.nixos.org https://attic.zhyi.xin:8443/lantian
 trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWJ0qOeuKX2w8VxlNjY36Heq3v4F4= lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=
 max-jobs = 0
 fallback = true' \
