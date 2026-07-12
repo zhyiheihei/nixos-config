@@ -10,7 +10,7 @@ rec {
     BGP = 179;
     Hack3ricFlow = 180;
     LDAP = 389;
-    HTTPS = 4000;
+    HTTPS = 8000;
     CUPS = 631;
     LDAPS = 636;
     Rsync = 873;
@@ -20,7 +20,7 @@ rec {
     KMS = 1688;
     Gemini = 1965;
     Bitmagnet = 3333;
-    NFS.StatD = 4003;
+    NFS.StatD = 4000;
     NFS.LockD = 4001;
     NFS.MountD = 4002;
     Quassel.Main = 4242;
