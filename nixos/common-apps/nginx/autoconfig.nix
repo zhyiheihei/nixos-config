@@ -4,9 +4,9 @@
 }:
 let
   domains = [
-    "lantian.pub"
-    "xuyh0120.win"
-    "ltn.pw"
+    "zhyi.xin"
+    "zhyi.cc"
+    "moliy.site"
   ];
 
   emailConfigFor = domain: {
@@ -270,7 +270,7 @@ in
             }
           '';
         };
-        sslCertificate = "zerossl-${domain}";
+        sslCertificate = "lets-encrypt-${domain}";
         noIndex.enable = true;
       }
     ) domains
