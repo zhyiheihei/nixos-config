@@ -156,6 +156,11 @@ in
       serverAliases = [ "${config.networking.hostName}.lantian.pub" ];
       sslCertificate = "lets-encrypt-zhyi.xin";
     };
+    "lantian.dn42" = addConfLantianPub {
+      listenHTTP.enable = true;
+      serverAliases = [ "${config.networking.hostName}.lantian.dn42" ];
+      sslCertificate = "dn42-lantian.dn42";
+    };
     "lantian.neo" = addConfLantianPub {
       listenHTTP.enable = true;
       listenHTTPS.enable = false;
@@ -249,13 +254,6 @@ in
       extraConfig = ''
         error_page 404 /404.gopher;
       '';
-    };
-  }
-  // lib.optionalAttrs (LT.this.hasTag "dn42") {
-    "lantian.dn42" = addConfLantianPub {
-      listenHTTP.enable = true;
-      serverAliases = [ "${config.networking.hostName}.lantian.dn42" ];
-      sslCertificate = "dn42-lantian.dn42";
     };
   };
 }
