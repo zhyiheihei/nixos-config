@@ -7,7 +7,7 @@ help: FORCE
 		'make                显示本帮助，不执行构建或部署' \
 		'make four-eval      求值四个自有配置，不构建、不部署' \
 		'make four           构建四个自有配置，不部署' \
-		'make current        部署并切换当前在线的三台自有主机' \
+		'make current        部署并切换当前在线的四台自有主机' \
 		'make servers        部署并切换 @server 主机' \
 		'make all            部署并切换 @default 主机' \
 		'make all-all        部署并切换 @all 主机' \
