@@ -79,7 +79,7 @@ let
   ++ lib.optionals (config.networking.hostName != "pve-epyc") [
     111
     2049
-    4000
+    LT.port.NFS.StatD
     4001
     4002
     20048
