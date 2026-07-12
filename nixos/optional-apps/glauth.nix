@@ -26,7 +26,7 @@ let
 
     [[backends]]
       datastore = "config"
-      baseDN = "dc=lantian,dc=pub"
+      baseDN = "dc=zhyi,dc=xin"
 
     [behaviors]
       IgnoreCapabilities = false

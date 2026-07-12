@@ -9,7 +9,7 @@
 }:
 let
   cfg = {
-    issuer = "https://login.lantian.pub";
+    issuer = "https://login.zhyi.xin";
     storage = {
       type = "postgres";
       config.host = "/run/postgresql";
@@ -30,7 +30,7 @@ let
         name = "Pocket ID";
         id = "ldap"; # Backwards compatibility
         config = {
-          issuer = "https://id.lantian.pub";
+          issuer = "https://id.zhyi.xin";
           scopes = [
             "email"
             "profile"
@@ -43,7 +43,7 @@ let
           clientSecret = {
             _secret = config.sops.secrets.dex-pocket-id-client-secret.path;
           };
-          redirectURI = "https://login.lantian.pub/callback";
+          redirectURI = "https://login.zhyi.xin/callback";
           insecureSkipEmailVerified = true;
           insecureEnableGroups = true;
           getUserInfo = true;
@@ -58,7 +58,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-gitea-secret.path;
         };
-        redirectURIs = [ "https://git.lantian.pub/user/oauth2/Dex/callback" ];
+        redirectURIs = [ "https://git.zhyi.xin/user/oauth2/Dex/callback" ];
       }
       {
         id = "grafana";
@@ -66,7 +66,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-grafana-secret.path;
         };
-        redirectURIs = [ "https://dashboard.xuyh0120.win/login/generic_oauth" ];
+        redirectURIs = [ "https://dashboard.zhyi.cc/login/generic_oauth" ];
       }
       {
         id = "immich";
@@ -75,9 +75,9 @@ let
           _secret = config.sops.secrets.dex-immich-secret.path;
         };
         redirectURIs = [
-          "https://immich.xuyh0120.win/auth/login"
-          "https://immich.xuyh0120.win/user-settings"
-          "https://immich.xuyh0120.win/api/oauth/mobile-redirect"
+          "https://immich.zhyi.xin/auth/login"
+          "https://immich.zhyi.xin/user-settings"
+          "https://immich.zhyi.xin/api/oauth/mobile-redirect"
           "app.immich:///oauth-callback"
         ];
       }
@@ -87,7 +87,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-librechat-secret.path;
         };
-        redirectURIs = [ "https://ai.xuyh0120.win/oauth/openid/callback" ];
+        redirectURIs = [ "https://ai.zhyi.xin/oauth/openid/callback" ];
       }
       {
         id = "oauth-proxy";
@@ -96,10 +96,10 @@ let
           _secret = config.sops.secrets.dex-oauth2-proxy-secret.path;
         };
         redirectURIs = [
-          "https://*.lantian.pub/oauth2/callback"
-          "https://*.*.lantian.pub/oauth2/callback"
-          "https://*.xuyh0120.win/oauth2/callback"
-          "https://*.*.xuyh0120.win/oauth2/callback"
+          "https://*.zhyi.xin/oauth2/callback"
+          "https://*.*.zhyi.xin/oauth2/callback"
+          "https://*.zhyi.cc/oauth2/callback"
+          "https://*.*.zhyi.cc/oauth2/callback"
         ];
       }
       {
@@ -108,7 +108,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-open-webui-secret.path;
         };
-        redirectURIs = [ "https://ai.xuyh0120.win/oauth/oidc/callback" ];
+        redirectURIs = [ "https://ai.zhyi.xin/oauth/oidc/callback" ];
       }
       # keep-sorted end
     ];
@@ -192,7 +192,7 @@ in
   };
   users.groups.dex.members = [ "nginx" ];
 
-  lantian.nginxVhosts."login.lantian.pub" = {
+  lantian.nginxVhosts."login.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.Dex}";
     };

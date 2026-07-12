@@ -28,7 +28,7 @@ in
     ];
 
     settings = {
-      public_baseurl = "https://matrix.lantian.pub";
+      public_baseurl = "https://matrix.zhyi.xin";
       server_name = config.networking.domain;
       account_threepid_delegates = {
         msisdn = "https://vector.im";
@@ -115,14 +115,14 @@ in
           config = {
             enabled = true;
             uri = "ldap://[fdd8:1938:4e88:3712::389]:${LT.portStr.LDAP}";
-            base = "dc=lantian,dc=pub";
+            base = "dc=zhyi,dc=xin";
             attributes = {
               uid = "cn";
               mail = "mail";
               name = "givenName";
             };
           };
-          bind_dn = "cn=serviceuser,dc=lantian,dc=pub";
+          bind_dn = "cn=serviceuser,dc=zhyi,dc=xin";
           bind_password_file = config.sops.secrets.glauth-bindpw.path;
           filter = "(&(objectClass=posixAccount)(!(ou=svcaccts)))";
         }
@@ -255,11 +255,11 @@ in
     ];
   };
 
-  lantian.nginxVhosts."matrix-federation.lantian.pub" = {
+  lantian.nginxVhosts."matrix-federation.zhyi.xin" = {
     listenHTTPS.port = LT.port.Matrix.Public;
 
     serverAliases = [
-      "matrix.lantian.pub"
+      "matrix.zhyi.xin"
       config.services.matrix-synapse.settings.server_name
     ];
     locations = {
@@ -274,8 +274,8 @@ in
     noIndex.enable = true;
   };
 
-  lantian.nginxVhosts."matrix-client.lantian.pub" = {
-    serverAliases = [ "matrix.lantian.pub" ];
+  lantian.nginxVhosts."matrix-client.zhyi.xin" = {
+    serverAliases = [ "matrix.zhyi.xin" ];
     locations = {
       "/" = {
         proxyPass = "http://unix:/run/matrix-synapse/client.sock";

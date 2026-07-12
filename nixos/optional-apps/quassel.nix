@@ -54,8 +54,8 @@
       DB_PGSQL_PORT = "5432";
 
       AUTH_AUTHENTICATOR = "LDAP";
-      AUTH_LDAP_BASE_DN = "dc=lantian,dc=pub";
-      AUTH_LDAP_BIND_DN = "cn=serviceuser,dc=lantian,dc=pub";
+      AUTH_LDAP_BASE_DN = "dc=zhyi,dc=xin";
+      AUTH_LDAP_BIND_DN = "cn=serviceuser,dc=zhyi,dc=xin";
       AUTH_LDAP_FILTER = "(&(objectClass=posixAccount)(!(ou=svcaccts)))";
       AUTH_LDAP_HOSTNAME = "ldap://[fdd8:1938:4e88:3712::389]";
       AUTH_LDAP_PORT = LT.portStr.LDAP;

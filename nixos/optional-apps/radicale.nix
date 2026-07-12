@@ -17,8 +17,8 @@
       auth = {
         type = "ldap";
         ldap_uri = "ldap://[fdd8:1938:4e88:3712::389]";
-        ldap_base = "dc=lantian,dc=pub";
-        ldap_reader_dn = "cn=serviceuser,dc=lantian,dc=pub";
+        ldap_base = "dc=zhyi,dc=xin";
+        ldap_reader_dn = "cn=serviceuser,dc=zhyi,dc=xin";
         ldap_secret_file = config.sops.secrets.glauth-bindpw.path;
         ldap_filter = "(&(cn={0})(objectClass=posixAccount)(!(ou=svcaccts)))";
         ldap_user_attribute = "cn";
@@ -32,12 +32,12 @@
     RestartSec = 5;
   };
 
-  lantian.nginxVhosts."cal.xuyh0120.win" = {
+  lantian.nginxVhosts."cal.zhyi.xin" = {
     locations = {
       "/".proxyPass = "http://127.0.0.1:${LT.portStr.Radicale}";
     };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     blockDotfiles = false;
     noIndex.enable = true;
   };

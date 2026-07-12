@@ -13,7 +13,7 @@
   services.gitea-actions-runner.instances.default = {
     enable = true;
     name = config.networking.hostName;
-    url = "https://git.lantian.pub";
+    url = "https://git.zhyi.xin";
     labels = builtins.map (n: "${n}:docker://gitea/runner-images:${n}") [
       "ubuntu-latest"
       "ubuntu-22.04"

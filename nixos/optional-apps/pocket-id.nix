@@ -18,7 +18,7 @@
   services.pocket-id = {
     enable = true;
     settings = {
-      APP_URL = "https://id.lantian.pub";
+      APP_URL = "https://id.zhyi.xin";
       TRUST_PROXY = true;
       DB_PROVIDER = "postgres";
       DB_CONNECTION_STRING = "postgres://pocket-id?host=/run/postgresql&user=pocket-id";
@@ -44,8 +44,8 @@
 
       LDAP_ENABLED = true;
       LDAP_URL = "ldap://[fdd8:1938:4e88:3712::389]:${LT.portStr.LDAP}";
-      LDAP_BIND_DN = "cn=serviceuser,dc=lantian,dc=pub";
-      LDAP_BASE = "dc=lantian,dc=pub";
+      LDAP_BIND_DN = "cn=serviceuser,dc=zhyi,dc=xin";
+      LDAP_BASE = "dc=zhyi,dc=xin";
       LDAP_USER_SEARCH_FILTER = "(&(objectClass=posixAccount)(!(ou=svcaccts)))";
       LDAP_USER_GROUP_SEARCH_FILTER = "(objectClass=posixGroup)";
       LDAP_SOFT_DELETE_USERS = true;
@@ -88,7 +88,7 @@
   };
   users.groups.pocket-id.members = [ "nginx" ];
 
-  lantian.nginxVhosts."id.lantian.pub" = {
+  lantian.nginxVhosts."id.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://unix:/run/pocket-id/pocket-id.sock";
     };
