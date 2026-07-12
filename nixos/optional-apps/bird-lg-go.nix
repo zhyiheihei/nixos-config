@@ -33,7 +33,7 @@ in
     description = "Bird-lg-go";
     wantedBy = [ "multi-user.target" ];
     environment = {
-      BIRDLG_DNS_INTERFACE = "asn.lantian.dn42";
+      BIRDLG_DNS_INTERFACE = "asn.zhyi.dn42";
       BIRDLG_DOMAIN = lgproxyDomain;
       BIRDLG_LISTEN = "/run/bird-lg-go/bird-lg-go.sock";
       BIRDLG_NAME_FILTER = "^(ltdocker|sys_|static_|ltdyn_)";
@@ -73,7 +73,7 @@ in
       sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
-    "lg.lantian.dn42" = {
+    "lg.zhyi.dn42" = {
       listenHTTP.enable = true;
       listenHTTPS.enable = false;
 
@@ -85,7 +85,7 @@ in
         };
       };
 
-      sslCertificate = "zerossl-lantian.dn42";
+      sslCertificate = "dn42-zhyi.dn42";
       noIndex.enable = true;
     };
   };

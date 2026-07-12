@@ -24,7 +24,7 @@
         "run"
         "--bind [::1]:${LT.portStr.Hack3ricFlow}"
         "--local-as 65000"
-        "--remote-as 4242422547"
+        "--remote-as 4242423712"
         "--allowed-ips ::1/128"
       ];
     };

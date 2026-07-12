@@ -2,7 +2,9 @@
 {
   index = 18;
   tags = with tags; [
+    dn42
     lan-access
+    public-facing
     server
   ];
   cpuThreads = 4;
@@ -16,9 +18,15 @@
   # address as host metadata; colocrossing.zhyi.cc is maintained by DDNS.
   firewalled = true;
 
-  # Server modules use the region when generating internal routing metadata.
-  # No DN42 address is assigned until this VM actually joins DN42.
-  dn42.region = 42;
+  dn42 = {
+    IPv4 = "172.20.46.225";
+    region = 42;
+  };
+
+  additionalRoutes = [
+    "172.20.46.224/27"
+    "fdd8:1938:4e88::/48"
+  ];
 
   zerotier = "fd2e98dccf";
 }

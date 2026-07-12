@@ -21,7 +21,7 @@ let
     yggdrasil_only = false
 
     [dns]
-    listen = "[fdbc:f9dc:67ad:2547::52]:${LT.portStr.DNS}"
+    listen = "[fdd8:1938:4e88:3712::52]:${LT.portStr.DNS}"
     threads = 50
     forwarders = ["https://dns.adguard.com/dns-query"]
     bootstraps = ["9.9.9.9:53", "94.140.14.14:53"]
@@ -35,7 +35,7 @@ in
   lantian.netns.yggdrasil-alfis = {
     ipSuffix = "52";
     announcedIPv6 = [
-      "fdbc:f9dc:67ad:2547::52"
+      "fdd8:1938:4e88:3712::52"
     ];
     birdBindTo = [ "yggdrasil-alfis.service" ];
   };

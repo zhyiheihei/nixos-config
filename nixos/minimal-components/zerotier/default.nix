@@ -103,7 +103,7 @@ in
     matchConfig.Name = "ztje7axwd2";
     address = [
       "198.18.0.${builtins.toString LT.this.index}/24"
-      "fdbc:f9dc:67ad::${builtins.toString LT.this.index}/64"
+      "fdd8:1938:4e88::${builtins.toString LT.this.index}/64"
     ];
     networkConfig = {
       LinkLocalAddressing = "no";
@@ -114,12 +114,12 @@ in
         let
           i = builtins.toString v.index;
           routes = builtins.filter (
-            route: !lib.hasPrefix "198.18.0." route && !lib.hasPrefix "fdbc:f9dc:67ad::" route
+            route: !lib.hasPrefix "198.18.0." route && !lib.hasPrefix "fdd8:1938:4e88::" route
           ) v._routes;
         in
         builtins.map (r: {
           Destination = r;
-          Gateway = if lib.hasInfix ":" r then "fdbc:f9dc:67ad::${i}" else "198.18.0.${i}";
+          Gateway = if lib.hasInfix ":" r then "fdd8:1938:4e88::${i}" else "198.18.0.${i}";
         }) routes
       ) (LT.otherHostsWithoutTag LT.tags.server)
     );

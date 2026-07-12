@@ -15,7 +15,7 @@ _: [
   "gopher.lantian.pub"
   "lab.lantian.pub"
   "lab.xuyh0120.win"
-  "lantian.dn42"
+  "zhyi.dn42"
   "lantian.neo"
   "lantian.pub"
   "letsencrypt-ssl.zhyi.xin"
@@ -63,7 +63,7 @@ _: [
   # Intentionally public without authentication
   # keep-sorted start
   "flapalerted.lantian.pub"
-  "lg.lantian.dn42"
+  "lg.zhyi.dn42"
   "lg.lantian.pub"
   # keep-sorted end
 ]

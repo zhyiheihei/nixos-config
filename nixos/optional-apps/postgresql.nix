@@ -24,7 +24,7 @@
     );
     authentication = ''
       host all all 198.18.0.0/15 md5
-      host all all fdbc:f9dc:67ad::/48 md5
+      host all all fdd8:1938:4e88::/48 md5
     '';
     settings = {
       io_method = "io_uring";

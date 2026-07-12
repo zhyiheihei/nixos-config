@@ -43,7 +43,7 @@
       EMAIL_ONE_TIME_ACCESS_AS_ADMIN_ENABLED = true;
 
       LDAP_ENABLED = true;
-      LDAP_URL = "ldap://[fdbc:f9dc:67ad:2547::389]:${LT.portStr.LDAP}";
+      LDAP_URL = "ldap://[fdd8:1938:4e88:3712::389]:${LT.portStr.LDAP}";
       LDAP_BIND_DN = "cn=serviceuser,dc=lantian,dc=pub";
       LDAP_BASE = "dc=lantian,dc=pub";
       LDAP_USER_SEARCH_FILTER = "(&(objectClass=posixAccount)(!(ou=svcaccts)))";

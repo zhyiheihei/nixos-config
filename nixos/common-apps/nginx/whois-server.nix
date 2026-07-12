@@ -14,7 +14,7 @@
       enableCommonVhostOptions = false;
 
       serverAliases = [
-        "whois.lantian.dn42"
+        "whois.zhyi.dn42"
         "whois.lantian.neo"
       ];
       locations = {

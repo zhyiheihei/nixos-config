@@ -51,7 +51,7 @@ in
         "10.127.10.243"
       ];
       announcedIPv6 = [
-        "fdbc:f9dc:67ad:2547::43"
+        "fdd8:1938:4e88:3712::43"
         "fd10:127:10:2547::43"
       ];
       birdBindTo = [ "nginx-proxy.service" ];

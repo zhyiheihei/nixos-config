@@ -117,12 +117,12 @@
       IPv6 = lib.mkOption {
         type = lib.types.str;
         readOnly = true;
-        default = "fdbc:f9dc:67ad::${builtins.toString config.index}";
+        default = "fdd8:1938:4e88::${builtins.toString config.index}";
       };
       IPv6Prefix = lib.mkOption {
         type = lib.types.str;
         readOnly = true;
-        default = "fdbc:f9dc:67ad:${builtins.toString config.index}";
+        default = "fdd8:1938:4e88:${builtins.toString config.index}";
       };
     };
 
@@ -149,12 +149,12 @@
       IPv6 = lib.mkOption {
         type = lib.types.str;
         readOnly = true;
-        default = "fdbc:f9dc:67ad:${builtins.toString config.index}::1";
+        default = "fdd8:1938:4e88:${builtins.toString config.index}::1";
       };
       IPv6Prefix = lib.mkOption {
         type = lib.types.str;
         readOnly = true;
-        default = "fdbc:f9dc:67ad:${builtins.toString config.index}";
+        default = "fdd8:1938:4e88:${builtins.toString config.index}";
       };
       region = lib.mkOption { type = lib.types.int; };
     };

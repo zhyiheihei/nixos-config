@@ -17,7 +17,7 @@ let
   ];
 
   DN42Servers = [
-    "ns-anycast.lantian.dn42."
+    "ns1.zhyi.dn42."
   ];
 
   NeoNetworkServers = [
@@ -55,8 +55,8 @@ in
     DN42 = {
       recordType = "SOA";
       name = "@";
-      nameserver = "ns-anycast.lantian.dn42.";
-      email = "lantian.lantian.dn42.";
+      nameserver = "ns1.zhyi.dn42.";
+      email = "molishanguang.outlook.com.";
       refresh = 360;
       retry = 600;
       expire = 604800;

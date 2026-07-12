@@ -17,7 +17,7 @@
   };
 
   # DN42 legacy address
-  systemd.network.networks.dummy0.address = [ "fdbc:f9dc:67ad::dd:c85a:8a93/128" ];
+  systemd.network.networks.dummy0.address = [ "fdd8:1938:4e88::dd:c85a:8a93/128" ];
 
   networking.henet = {
     # SIT tunnel provided by BandwagonHost

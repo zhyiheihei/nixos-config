@@ -326,7 +326,7 @@ let
           set_real_ip_from 127.0.0.0/8;
           set_real_ip_from 198.18.0.0/15;
           set_real_ip_from fe80::/16;
-          set_real_ip_from fdbc:f9dc:67ad::/48;
+          set_real_ip_from fdd8:1938:4e88::/48;
           real_ip_header proxy_protocol;
         ''
       )

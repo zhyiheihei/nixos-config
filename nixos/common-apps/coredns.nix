@@ -65,7 +65,7 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
             loadbalance round_robin
             prometheus ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.Prometheus.CoreDNS}
 
-            forward . 198.19.0.253 fdbc:f9dc:67ad:2547::53
+            forward . 198.19.0.253 fdd8:1938:4e88:3712::53
           }
         '';
         block = zone: ''

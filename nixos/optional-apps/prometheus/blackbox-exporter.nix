@@ -116,7 +116,7 @@ in
             prober = "dns";
             timeout = "15s";
             dns = {
-              query_name = "lantian.dn42";
+              query_name = "zhyi.dn42";
               query_type = "A";
             };
           };
@@ -132,7 +132,7 @@ in
             prober = "tcp";
             timeout = "15s";
             tcp.query_response = [
-              { send = "AS4242422547\r\n"; }
+              { send = "AS4242423712\r\n"; }
               { expect = "LANTIAN-DN42"; }
             ];
           };

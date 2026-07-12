@@ -16,7 +16,7 @@ let
             zone = k;
             forwarders = [
               "198.19.0.254"
-              "fdbc:f9dc:67ad:2547::54"
+              "fdd8:1938:4e88:3712::54"
             ];
           })
           # NeoNetwork is covered by fwd-dn42-interconnect
@@ -35,7 +35,7 @@ let
       yggdrasilAlfis = builtins.map (k: {
         zone = k;
         forwarders = [
-          "fdbc:f9dc:67ad:2547::52"
+          "fdd8:1938:4e88:3712::52"
         ];
       }) LT.constants.zones.YggdrasilAlfis;
 
@@ -80,7 +80,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
       "10.127.10.253"
     ];
     announcedIPv6 = [
-      "fdbc:f9dc:67ad:2547::53"
+      "fdd8:1938:4e88:3712::53"
       "fd10:127:10:2547::53"
     ];
     birdBindTo = [ "pdns-recursor.service" ];
