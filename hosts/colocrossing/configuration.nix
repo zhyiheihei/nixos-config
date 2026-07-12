@@ -10,6 +10,7 @@
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
+    ./ddns-gcore.nix
 
     ../../nixos/optional-apps/acme
     ../../nixos/optional-apps/attic.nix
