@@ -18,6 +18,11 @@
   # address as host metadata; colocrossing.zhyi.cc is maintained by DDNS.
   firewalled = true;
 
+  interconnect = {
+    name = "home-lan";
+    IPv4 = "192.168.2.188";
+  };
+
   dn42 = {
     IPv4 = "172.20.46.225";
     region = 42;
