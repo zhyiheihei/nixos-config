@@ -10,7 +10,7 @@
   city = geo.cities."US Bellevue";
   manualDeploy = true;
 
-  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFQiblSIcKmIamjtjUii7w7qKxlQCdpgNu8MzWtobXH9";
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF3dyI6XJJXk98kndydXBRFHF3SQnlkSs/B2/cDhNTUJ";
 
   # This VM is behind a dynamic public address. Do not publish the current
   # address as host metadata; colocrossing.zhyi.cc is maintained by DDNS.
