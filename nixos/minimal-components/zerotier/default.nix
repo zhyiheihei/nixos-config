@@ -26,21 +26,25 @@ in
     enable = true;
     joinNetworks = [ ltnet ];
     localConf = {
-      virtual = lib.mapAttrs' (
-        k: v:
-        let
-          interconnectIPv4 = LT.interconnectIPv4For k;
-          interconnectIPv6 = LT.interconnectIPv6For k;
-        in
-        lib.nameValuePair v.zerotier {
-          try =
-            (lib.optionals (interconnectIPv4 != null) [ "${interconnectIPv4}/9993" ])
-            ++ (lib.optionals (interconnectIPv6 != null) [ "${interconnectIPv6}/9993" ])
-            ++ (lib.optionals (v.public.IPv4 != null) [ "${v.public.IPv4}/9993" ])
-            ++ (lib.optionals (v.public.IPv6 != null) [ "${v.public.IPv6}/9993" ])
-            ++ (lib.optionals (v.public.IPv6Alt != null) [ "${v.public.IPv6Alt}/9993" ]);
-        }
-      ) (lib.filterAttrs (k: v: v.zerotier != null) LT.otherHosts);
+      virtual =
+        lib.mapAttrs' (
+          k: v:
+          let
+            interconnectIPv4 = LT.interconnectIPv4For k;
+            interconnectIPv6 = LT.interconnectIPv6For k;
+          in
+          lib.nameValuePair v.zerotier {
+            try =
+              (lib.optionals (interconnectIPv4 != null) [ "${interconnectIPv4}/9993" ])
+              ++ (lib.optionals (interconnectIPv6 != null) [ "${interconnectIPv6}/9993" ])
+              ++ (lib.optionals (v.public.IPv4 != null) [ "${v.public.IPv4}/9993" ])
+              ++ (lib.optionals (v.public.IPv6 != null) [ "${v.public.IPv6}/9993" ])
+              ++ (lib.optionals (v.public.IPv6Alt != null) [ "${v.public.IPv6Alt}/9993" ]);
+          }
+        ) (lib.filterAttrs (k: v: v.zerotier != null) LT.otherHosts)
+        // {
+          "466270de75".try = [ "192.168.2.188/9994" ];
+        };
       settings = {
         interfacePrefixBlacklist = whitelistToBlacklist (
           # Do not try to use network namespaces
