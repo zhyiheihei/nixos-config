@@ -27,15 +27,15 @@
       code-challenge-method = "S256";
       cookie-csrf-expire = "15m";
       cookie-csrf-per-request = true;
-      oidc-issuer-url = "https://login.lantian.pub";
+      oidc-issuer-url = "https://login.zhyi.xin";
       insecure-oidc-skip-issuer-verification = "true";
       insecure-oidc-allow-unverified-email = "true";
       scope = "openid profile email groups";
       whitelist-domain = [
-        "lantian.pub"
-        "*.lantian.pub"
-        "xuyh0120.win"
-        "*.xuyh0120.win"
+        "zhyi.xin"
+        "*.zhyi.xin"
+        "zhyi.cc"
+        "*.zhyi.cc"
       ];
     };
   };

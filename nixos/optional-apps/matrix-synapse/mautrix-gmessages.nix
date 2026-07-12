@@ -6,7 +6,7 @@
     enable = true;
     package = pkgs.nur-xddxdd.mautrix-gmessages;
     settings = {
-      homeserver.address = "https://matrix.lantian.pub";
+      homeserver.address = "https://matrix.zhyi.xin";
       appservice = {
         hostname = "127.0.0.1";
         id = "gmessages";
@@ -16,7 +16,7 @@
         uri = "postgresql:///mautrix-gmessages?host=/run/postgresql";
       };
       bridge.permissions = {
-        "@lantian:lantian.pub" = "admin";
+        "@lantian:zhyi.xin" = "admin";
       };
       network.aggressive_reconnect = true;
       backfill.enabled = true;

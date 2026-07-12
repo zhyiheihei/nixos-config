@@ -40,7 +40,7 @@ in
 
   services.gitea = {
     enable = true;
-    appName = "Lan Tian @ Git";
+    appName = "Zh Yi @ Git";
     database = {
       type = "mysql";
       socket = "/run/mysqld/mysqld.sock";
@@ -61,19 +61,19 @@ in
         SHOW_USER_EMAIL = false;
       };
       "ui.meta" = {
-        AUTHOR = "Lan Tian @ Git";
-        DESCRIPTION = "Lan Tian's Git service.";
+        AUTHOR = "Zh Yi @ Git";
+        DESCRIPTION = "Zh Yi's Git service.";
         KEYWORDS = "go,git,self-hosted,gitea";
       };
       log = {
         LEVEL = "Error";
       };
       server = {
-        DOMAIN = "git.lantian.pub";
+        DOMAIN = "git.zhyi.xin";
         LANDING_PAGE = "explore";
         PROTOCOL = "http+unix";
-        ROOT_URL = "https://git.lantian.pub/";
-        SSH_DOMAIN = "git.lantian.pub";
+        ROOT_URL = "https://git.zhyi.xin/";
+        SSH_DOMAIN = "git.zhyi.xin";
         SSH_PORT = 2222;
       };
       repository = {
@@ -92,7 +92,7 @@ in
         DISABLE_REGISTRATION = true;
         ENABLE_CAPTCHA = false;
         ENABLE_NOTIFY_MAIL = false;
-        NO_REPLY_ADDRESS = "hidden.lantian.pub";
+        NO_REPLY_ADDRESS = "hidden.zhyi.xin";
         REGISTER_EMAIL_CONFIRM = false;
         REQUIRE_SIGNIN_VIEW = false;
         SHOW_REGISTRATION_BUTTON = false;
@@ -103,7 +103,7 @@ in
       };
       mailer = {
         ENABLED = true;
-        FROM = "postmaster@lantian.pub";
+        FROM = "postmaster@zhyi.xin";
         PROTOCOL = "sendmail";
         SENDMAIL_PATH = lib.getExe pkgs.msmtp;
         SENDMAIL_ARGS = "--";
@@ -117,13 +117,8 @@ in
         GC = 3600;
       };
       storage = {
-        STORAGE_TYPE = "minio";
-        MINIO_ENDPOINT = "us-west-1.telnyxstorage.com";
-        MINIO_BUCKET = "lantian-gitea";
-        MINIO_LOCATION = "us-west-1";
-        MINIO_USE_SSL = true;
-        # Telnyx storage does not support regular presigned URLs, will expose key
-        SERVE_DIRECT = false;
+        STORAGE_TYPE = "local";
+        PATH = "${config.services.gitea.stateDir}/data/attachments";
       };
     };
   };
@@ -159,7 +154,7 @@ in
 
   users.groups.gitea = { };
 
-  lantian.nginxVhosts."git.lantian.pub" = {
+  lantian.nginxVhosts."git.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:/run/gitea/gitea.sock";
