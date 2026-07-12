@@ -156,10 +156,10 @@ in
       serverAliases = [ "${config.networking.hostName}.lantian.pub" ];
       sslCertificate = "lets-encrypt-zhyi.xin";
     };
-    "lantian.dn42" = addConfLantianPub {
+    "zhyi.dn42" = addConfLantianPub {
       listenHTTP.enable = true;
-      serverAliases = [ "${config.networking.hostName}.lantian.dn42" ];
-      sslCertificate = "dn42-lantian.dn42";
+      serverAliases = [ "${config.networking.hostName}.zhyi.dn42" ];
+      sslCertificate = "dn42-zhyi.dn42";
     };
     "lantian.neo" = addConfLantianPub {
       listenHTTP.enable = true;
@@ -206,7 +206,7 @@ in
 
       root = "/nix/sync-servers/www/lantian.pub";
       serverAliases = [
-        "gopher.lantian.dn42"
+        "gopher.zhyi.dn42"
         "gopher.lantian.neo"
       ];
 
@@ -240,7 +240,7 @@ in
 
       root = "/nix/sync-servers/www/lantian.pub";
       serverAliases = [
-        "gemini.lantian.dn42"
+        "gemini.zhyi.dn42"
         "gemini.lantian.neo"
       ];
 

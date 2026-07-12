@@ -16,7 +16,7 @@
       server.hosts = [ "127.0.0.1:${LT.portStr.Radicale}" ];
       auth = {
         type = "ldap";
-        ldap_uri = "ldap://[fdbc:f9dc:67ad:2547::389]";
+        ldap_uri = "ldap://[fdd8:1938:4e88:3712::389]";
         ldap_base = "dc=lantian,dc=pub";
         ldap_reader_dn = "cn=serviceuser,dc=lantian,dc=pub";
         ldap_secret_file = config.sops.secrets.glauth-bindpw.path;

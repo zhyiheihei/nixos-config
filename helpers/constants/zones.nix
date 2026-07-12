@@ -60,7 +60,7 @@ _: {
       "18.198.in-addr.arpa"
       "19.198.in-addr.arpa"
       "d.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa"
-      "lantian.dn42"
+      "zhyi.dn42"
       "lantian.neo"
       # Lan Tian Mobile VoLTE
       "mnc001.mcc001.3gppnetwork.org"

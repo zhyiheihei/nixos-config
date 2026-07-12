@@ -287,7 +287,7 @@
                     allowedPrefixes = [
                       "172.2"
                       "10.127."
-                      "fdbc:f9dc:67ad:"
+                      "fdd8:1938:4e88:"
                       "fd10:127:10:"
                     ];
                     includedAddresses = builtins.filter (
@@ -295,7 +295,7 @@
                     ) host._addresses;
                     convertedAddresses = builtins.map (
                       a:
-                      if lib.hasSuffix "::1/128" a && !(lib.hasPrefix "fdbc:f9dc:67ad::" a) then
+                      if lib.hasSuffix "::1/128" a && !(lib.hasPrefix "fdd8:1938:4e88::" a) then
                         "${lib.removeSuffix "::1/128" a}::/64"
                       else
                         a

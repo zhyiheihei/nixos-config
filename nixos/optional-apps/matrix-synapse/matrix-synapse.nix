@@ -114,7 +114,7 @@ in
           module = "ldap_auth_provider.LdapAuthProviderModule";
           config = {
             enabled = true;
-            uri = "ldap://[fdbc:f9dc:67ad:2547::389]:${LT.portStr.LDAP}";
+            uri = "ldap://[fdd8:1938:4e88:3712::389]:${LT.portStr.LDAP}";
             base = "dc=lantian,dc=pub";
             attributes = {
               uid = "cn";

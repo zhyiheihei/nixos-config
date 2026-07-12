@@ -32,5 +32,5 @@
   services.ndppd.proxies.eth0.rules."2a14:67c0:306:211::/64".method = "static";
 
   # DN42 legacy address
-  systemd.network.networks.dummy0.address = [ "fdbc:f9dc:67ad::8b:c606:ba01/128" ];
+  systemd.network.networks.dummy0.address = [ "fdd8:1938:4e88::8b:c606:ba01/128" ];
 }

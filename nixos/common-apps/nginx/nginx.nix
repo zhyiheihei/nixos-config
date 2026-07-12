@@ -150,9 +150,9 @@ in
 
       map $server_addr $gopher_addr {
         default               gopher.lantian.pub;
-        "~*^172\.22\."        gopher.lantian.dn42;
+        "~*^172\.22\."        gopher.zhyi.dn42;
         "~*^10\.127\."        gopher.lantian.neo;
-        "~*^fdbc:f9dc:67ad:"  gopher.lantian.dn42;
+        "~*^fdd8:1938:4e88:"  gopher.zhyi.dn42;
         "~*^fd10:127:10:"     gopher.lantian.neo;
       }
 

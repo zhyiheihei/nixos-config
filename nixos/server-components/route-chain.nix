@@ -22,7 +22,7 @@
   config = {
     services.route-chain.routes = [
       "172.22.76.97/29"
-      "fdbc:f9dc:67ad:6d61:6e6f:7361:6261::/120"
+      "fdd8:1938:4e88:6d61:6e6f:7361:6261::/120"
       "fd10:127:10:6d61:6e6f:7361:6261::/120"
     ]
     ++ lib.optionals config.networking.henet.enable (

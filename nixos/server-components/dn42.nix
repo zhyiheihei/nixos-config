@@ -7,7 +7,7 @@
   ...
 }:
 let
-  myASNAbbr = 2547;
+  myASNAbbr = 3712;
 
   filterType = type: lib.filterAttrs (n: v: v.tunnel.type == type);
 
@@ -168,7 +168,7 @@ in
                 };
                 myIPv6LinkLocal = lib.mkOption {
                   type = lib.types.str;
-                  default = "fe80::2547";
+                  default = "fe80::3712";
                 };
                 IPv4SubnetMask = lib.mkOption {
                   type = lib.types.int;

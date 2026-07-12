@@ -3,11 +3,11 @@ let
   defaultGatewayHost = LT.hosts.lt-home-vm;
   managedIPv4Ranges = LT.constants.dn42.IPv4 ++ LT.constants.neonetwork.IPv4 ++ [ "198.18.0.0/15" ];
   managedIPv6Ranges =
-    LT.constants.dn42.IPv6 ++ LT.constants.neonetwork.IPv6 ++ [ "fdbc:f9dc:67ad::/48" ];
+    LT.constants.dn42.IPv6 ++ LT.constants.neonetwork.IPv6 ++ [ "fdd8:1938:4e88::/48" ];
 
   ztRoutes = [
     { target = "198.18.0.0/24"; }
-    { target = "fdbc:f9dc:67ad::/64"; }
+    { target = "fdd8:1938:4e88::/64"; }
 
     # Default routing to home router
     {
@@ -16,7 +16,7 @@ let
     }
     {
       target = "::/0";
-      via = "fdbc:f9dc:67ad::204";
+      via = "fdd8:1938:4e88::204";
     }
 
     # SideStore

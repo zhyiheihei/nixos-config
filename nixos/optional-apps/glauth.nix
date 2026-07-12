@@ -77,7 +77,7 @@ in
       "10.127.10.38"
     ];
     announcedIPv6 = [
-      "fdbc:f9dc:67ad:2547::389"
+      "fdd8:1938:4e88:3712::389"
       "fd10:127:10:2547::389"
     ];
     birdBindTo = [ "glauth.service" ];

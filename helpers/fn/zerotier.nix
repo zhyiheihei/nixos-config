@@ -15,7 +15,7 @@ let
       name = n;
       ipAssignments = [
         "198.18.0.${i}"
-        "fdbc:f9dc:67ad::${i}"
+        "fdd8:1938:4e88::${i}"
       ];
       noAutoAssignIps = true;
     }
@@ -33,7 +33,7 @@ let
         inherit name;
         ipAssignments = [
           "198.18.0.${builtins.toString index}"
-          "fdbc:f9dc:67ad::${builtins.toString index}"
+          "fdd8:1938:4e88::${builtins.toString index}"
         ];
         noAutoAssignIps = true;
       }
@@ -46,5 +46,5 @@ in
 
   clientManagedIPv4Ranges = constants.dn42.IPv4 ++ constants.neonetwork.IPv4 ++ [ "198.18.0.0/15" ];
   clientManagedIPv6Ranges =
-    constants.dn42.IPv6 ++ constants.neonetwork.IPv6 ++ [ "fdbc:f9dc:67ad::/48" ];
+    constants.dn42.IPv6 ++ constants.neonetwork.IPv6 ++ [ "fdd8:1938:4e88::/48" ];
 }

@@ -55,14 +55,14 @@ let
         n:
         { wg-lantian, index, ... }:
         ''
-          ip6 daddr ${LT.this.public.IPv6} tcp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to fdbc:f9dc:67ad:${builtins.toString index}::192
-          ip6 daddr ${LT.this.public.IPv6} udp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to fdbc:f9dc:67ad:${builtins.toString index}::192
+          ip6 daddr ${LT.this.public.IPv6} tcp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to fdd8:1938:4e88:${builtins.toString index}::192
+          ip6 daddr ${LT.this.public.IPv6} udp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to fdd8:1938:4e88:${builtins.toString index}::192
         ''
       ) LT.hosts
     ))
     + (lib.optionalString (LT.this.public.IPv6Subnet != null) (
       lib.concatMapAttrsStringSep "" (n: v: ''
-        ip6 daddr ${LT.this.public.IPv6Subnet}${builtins.toString v.index} dnat to fdbc:f9dc:67ad:${builtins.toString v.index}::192
+        ip6 daddr ${LT.this.public.IPv6Subnet}${builtins.toString v.index} dnat to fdd8:1938:4e88:${builtins.toString v.index}::192
       '') LT.hosts
     ))
   );
@@ -191,7 +191,7 @@ let
 
       # Redirect all KMS requests to internal server
       tcp dport ${LT.portStr.KMS} iifname @INTERFACE_LAN dnat ip to 198.19.0.252:${LT.portStr.KMS}
-      tcp dport ${LT.portStr.KMS} iifname @INTERFACE_LAN dnat ip6 to [fdbc:f9dc:67ad:2547::1688]:${LT.portStr.KMS}
+      tcp dport ${LT.portStr.KMS} iifname @INTERFACE_LAN dnat ip6 to [fdd8:1938:4e88:3712::1688]:${LT.portStr.KMS}
     }
 
     chain NAT_INPUT {
@@ -203,7 +203,7 @@ let
 
       # Redirect all KMS requests to internal server
       tcp dport ${LT.portStr.KMS} dnat ip to 198.19.0.252:${LT.portStr.KMS}
-      tcp dport ${LT.portStr.KMS} dnat ip6 to [fdbc:f9dc:67ad:2547::1688]:${LT.portStr.KMS}
+      tcp dport ${LT.portStr.KMS} dnat ip6 to [fdd8:1938:4e88:3712::1688]:${LT.portStr.KMS}
     }
 
     chain NAT_POSTROUTING {
@@ -220,9 +220,9 @@ let
     ip6 saddr != @DN42_IPV6 ip6 daddr @DN42_IPV6 ip6 daddr != @NEONETWORK_IPV6 ip6 daddr != @LOCAL_IPV6 oifname != @INTERFACE_WAN oifname != @INTERFACE_OVERLAY snat to ${LT.this.dn42.IPv6}
   '')
   + ''
-      # 198.18.0.200-255, fdbc:f9dc:67ad::200-255 is for devices without BGP sessions
+      # 198.18.0.200-255, fdd8:1938:4e88::200-255 is for devices without BGP sessions
       ip daddr 198.18.0.200-198.18.0.255 snat to ${LT.this.ltnet.IPv4}
-      ip6 daddr fdbc:f9dc:67ad::200-fdbc:f9dc:67ad::255 snat to ${LT.this.ltnet.IPv6}
+      ip6 daddr fdd8:1938:4e88::200-fdd8:1938:4e88::255 snat to ${LT.this.ltnet.IPv6}
 
       ip saddr @RESERVED_IPV4 ip daddr != @RESERVED_IPV4 masquerade
       ip6 saddr @RESERVED_IPV6 ip6 daddr != @RESERVED_IPV6 masquerade

@@ -1,7 +1,7 @@
 { LT, ... }:
 rec {
-  DN42_AS = "4242422547";
-  DN42_TEST_AS = "4242422557";
+  DN42_AS = "4242423712";
+  DN42_TEST_AS = "4242423712";
   DN42_REGION = builtins.toString LT.this.dn42.region;
   NEO_AS = "4201270010";
 
@@ -12,9 +12,9 @@ rec {
 
   community = {
     LT_POLICY_NO_KERNEL = "(${DN42_AS}, 1, 3)";
-    LT_ROA_FAIL = "(${DN42_AS}, 2547, 0)";
-    LT_ROA_UNKNOWN = "(${DN42_AS}, 2547, 1)";
-    LT_FLAP_BLOCK = "(${DN42_AS}, 2547, 2)";
+    LT_ROA_FAIL = "(${DN42_AS}, 3712, 0)";
+    LT_ROA_UNKNOWN = "(${DN42_AS}, 3712, 1)";
+    LT_FLAP_BLOCK = "(${DN42_AS}, 3712, 2)";
 
     # Do not export out of AS
     NO_EXPORT = "(65535, 65281)";

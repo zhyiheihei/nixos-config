@@ -49,8 +49,8 @@ let
       }
 
       # DN42 Lan Tian Authoritatives
-      ${forwardZone "lantian.dn42" "Klantian.dn42.+013+20109"}
-      ${forwardZone "asn.lantian.dn42" null}
+      ${forwardZone "zhyi.dn42" "Kzhyi.dn42.+013+20109"}
+      ${forwardZone "asn.zhyi.dn42" null}
       ${forwardZone "184/29.76.22.172.in-addr.arpa" "K184_29.76.22.172.in-addr.arpa.+013+08709"}
       ${forwardZone "96/27.76.22.172.in-addr.arpa" "K96_27.76.22.172.in-addr.arpa.+013+41969"}
       ${forwardZone "d.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa" "Kd.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa.+013+18344"}
@@ -149,7 +149,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
       "10.127.10.254"
     ];
     announcedIPv6 = [
-      "fdbc:f9dc:67ad:2547::54"
+      "fdd8:1938:4e88:3712::54"
       "fd10:127:10:2547::54"
     ];
     birdBindTo = [ "coredns-authoritative.service" ];
@@ -264,7 +264,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
             ];
             address = [
               "198.18.0.202@${LT.portStr.DNS}"
-              "fdbc:f9dc:67ad::202@${LT.portStr.DNS}"
+              "fdd8:1938:4e88::202@${LT.portStr.DNS}"
             ];
           }
         ];
@@ -299,7 +299,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
             action = "notify";
             address = [
               "198.18.0.202"
-              "fdbc:f9dc:67ad::202"
+              "fdd8:1938:4e88::202"
             ];
           }
           {
@@ -321,12 +321,12 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
           ])
           ++ (map (z: mkLocalZone z.domain z.path) [
             {
-              domain = "lantian.dn42";
-              path = "ltnet-zones/lantian.dn42";
+              domain = "zhyi.dn42";
+              path = "ltnet-zones/zhyi.dn42";
             }
             {
-              domain = "asn.lantian.dn42";
-              path = "ltnet-scripts/zones/asn.lantian.dn42";
+              domain = "asn.zhyi.dn42";
+              path = "ltnet-scripts/zones/asn.zhyi.dn42";
             }
             {
               domain = "184/29.76.22.172.in-addr.arpa";
