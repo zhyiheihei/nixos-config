@@ -6,12 +6,10 @@ _: {
     ../../nixos/hardware/qemu.nix
   ];
 
-  boot.kernelModules = [ "kvm-amd" ];
-
   boot.loader.grub.device = "/dev/vda"; # or "nodev" for efi only
 
   fileSystems."/nix" = {
-    device = "/dev/vda2";
+    device = "/dev/vda3";
     fsType = "btrfs";
     options = [
       "compress-force=zstd"
@@ -22,15 +20,13 @@ _: {
   };
 
   fileSystems."/boot" = {
-    device = "/dev/vda1";
-    fsType = "ext4";
+    device = "/dev/vda2";
+    fsType = "vfat";
+    options = [
+      "fmask=0077"
+      "dmask=0077"
+    ];
   };
 
-  # Needed, or kopia backup fails
-  swapDevices = [
-    {
-      device = "/dev/vda3";
-      randomEncryption.enable = true;
-    }
-  ];
+  swapDevices = [ ];
 }
