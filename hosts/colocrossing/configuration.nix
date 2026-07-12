@@ -1,5 +1,6 @@
 {
   inputs,
+  pkgs,
   config,
   lib,
   LT,
@@ -78,6 +79,21 @@
       mode = "0644";
       user = "root";
       group = "root";
+    };
+  };
+
+  # Public HTTPS is exposed on 8443, while services on the overlay resolve
+  # zhyi domains directly to this host and expect the standard HTTPS port.
+  systemd.sockets.nginx-ltnet-https = {
+    wantedBy = [ "sockets.target" ];
+    listenStreams = [ "${LT.this.ltnet.IPv4}:443" ];
+  };
+  systemd.services.nginx-ltnet-https = {
+    requires = [ "nginx.service" ];
+    after = [ "nginx.service" ];
+    serviceConfig = {
+      ExecStart = "${lib.getExe' pkgs.systemd "systemd-socket-proxyd"} 127.0.0.1:${LT.portStr.HTTPS}";
+      DynamicUser = true;
     };
   };
 
