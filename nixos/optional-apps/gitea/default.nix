@@ -117,8 +117,12 @@ in
         GC = 3600;
       };
       storage = {
-        STORAGE_TYPE = "local";
-        PATH = "${config.services.gitea.stateDir}/data/attachments";
+        STORAGE_TYPE = "minio";
+        MINIO_ENDPOINT = "vaults3.zhyi.cc:4000";
+        MINIO_BUCKET = "gitea";
+        MINIO_LOCATION = "east-1";
+        MINIO_USE_SSL = true;
+        SERVE_DIRECT = false;
       };
     };
   };
