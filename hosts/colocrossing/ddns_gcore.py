@@ -3,29 +3,52 @@ import os
 import requests
 
 API_BASE = "https://api.gcore.com/dns/v2"
-IP_LOOKUP_URL = "https://api.ipify.org"
+IP_LOOKUP_URLS = [
+    "https://api.ipify.org",
+    "https://ifconfig.me/ip",
+    "https://icanhazip.com",
+    "https://checkip.amazonaws.com",
+]
 TTL = 60
 
 RECORDS = {
     "zhyi.cc": [
         "colocrossing.zhyi.cc",
-        "*.colocrossing.zhyi.cc",
+        "autoconfig.zhyi.cc",
+        "netbox.zhyi.cc",
     ],
     "zhyi.xin": [
-        "zhyi.xin",
-        "*.zhyi.xin",
+        "attic.zhyi.xin",
+        "autoconfig.zhyi.xin",
+        "cal.zhyi.xin",
+        "git.zhyi.xin",
+        "google-ssl.zhyi.xin",
+        "google-test-ssl.zhyi.xin",
+        "id.zhyi.xin",
+        "letsencrypt-ssl.zhyi.xin",
+        "letsencrypt-test-ssl.zhyi.xin",
+        "login.zhyi.xin",
+        "matrix-client.zhyi.xin",
+        "matrix-federation.zhyi.xin",
+        "matrix.zhyi.xin",
+        "zerossl.zhyi.xin",
     ],
     "moliy.site": [
-        "moliy.site",
-        "*.moliy.site",
+        "autoconfig.moliy.site",
     ],
 }
 
 
 def get_current_ipv4() -> str:
-    response = requests.get(IP_LOOKUP_URL, timeout=10)
-    response.raise_for_status()
-    return response.text.strip()
+    errors = []
+    for url in IP_LOOKUP_URLS:
+        try:
+            response = requests.get(url, timeout=10)
+            response.raise_for_status()
+            return response.text.strip()
+        except requests.RequestException as error:
+            errors.append(f"{url}: {error}")
+    raise RuntimeError("Unable to determine public IPv4: " + "; ".join(errors))
 
 
 def update_record(api_key: str, zone: str, name: str, ipv4: str) -> None:
