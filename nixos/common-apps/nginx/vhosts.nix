@@ -159,7 +159,7 @@ in
     "zhyi.dn42" = addConfLantianPub {
       listenHTTP.enable = true;
       serverAliases = [ "${config.networking.hostName}.zhyi.dn42" ];
-      sslCertificate = "dn42-zhyi.dn42";
+      sslCertificate = "lets-encrypt-zhyi.xin";
     };
     "lantian.neo" = addConfLantianPub {
       listenHTTP.enable = true;

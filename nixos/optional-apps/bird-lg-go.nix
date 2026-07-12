@@ -85,7 +85,7 @@ in
         };
       };
 
-      sslCertificate = "dn42-zhyi.dn42";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
   };
