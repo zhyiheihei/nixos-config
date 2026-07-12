@@ -49,11 +49,10 @@ let
       }
 
       # DN42 Lan Tian Authoritatives
-      ${forwardZone "zhyi.dn42" "Kzhyi.dn42.+013+20109"}
+      ${forwardZone "zhyi.dn42" "Kzhyi.dn42.+013+23771"}
       ${forwardZone "asn.zhyi.dn42" null}
-      ${forwardZone "184/29.76.22.172.in-addr.arpa" "K184_29.76.22.172.in-addr.arpa.+013+08709"}
-      ${forwardZone "96/27.76.22.172.in-addr.arpa" "K96_27.76.22.172.in-addr.arpa.+013+41969"}
-      ${forwardZone "d.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa" "Kd.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa.+013+18344"}
+      ${forwardZone "224/27.46.20.172.in-addr.arpa" "K224_27.46.20.172.in-addr.arpa.+013+49136"}
+      ${forwardZone "8.8.e.4.8.3.9.1.8.d.d.f.ip6.arpa" "K8.8.e.4.8.3.9.1.8.d.d.f.ip6.arpa.+013+58452"}
       ${forwardZone "7.4.5.2.4.2.4.0.tel.dn42" "K7.4.5.2.4.2.4.0.tel.dn42.+013+33346"}
 
       # DN42 Authoritative
@@ -144,7 +143,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
   lantian.netns.coredns-authoritative = {
     ipSuffix = "54";
     announcedIPv4 = [
-      "172.22.76.109"
+      "172.20.46.227"
       "198.19.0.254"
       "10.127.10.254"
     ];
