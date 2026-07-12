@@ -20,5 +20,5 @@
   # No DN42 address is assigned until this VM actually joins DN42.
   dn42.region = 42;
 
-  zerotier = "85c0f3a623";
+  zerotier = "fd2e98dccf";
 }
