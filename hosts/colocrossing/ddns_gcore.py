@@ -9,7 +9,7 @@ IP_LOOKUP_URLS = [
     "https://icanhazip.com",
     "https://checkip.amazonaws.com",
 ]
-TTL = 60
+TTL = 120
 
 RECORDS = {
     "zhyi.cc": [
