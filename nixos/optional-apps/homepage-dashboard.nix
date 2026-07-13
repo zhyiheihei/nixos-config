@@ -23,11 +23,20 @@
 
     settings = {
       title = "Zh Yi @ Dashboard";
+      theme = "dark";
+      color = "neutral";
       headerStyle = "clean";
       language = "zh-CN";
       target = "_blank";
       disableCollapse = true;
       hideVersion = true;
+      iconStyle = "theme";
+      statusStyle = "dot";
+      background = {
+        image = "https://img-api.yumo.cc/api/muse-dash-gif/";
+        opacity = 35;
+      };
+      cardBlur = "sm";
       # Ignore errors for network instability
       hideErrors = true;
     };
