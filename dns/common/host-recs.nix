@@ -22,8 +22,10 @@ let
     v-ps-hkg = LT.hosts."alice";
     v-ps-sjc = LT.hosts."bwg-lax";
     virmach-ny3ip = LT.hosts."virmach-ny6g";
-    virtono = LT.hosts."buyvm";
     # keep-sorted end
+  }
+  // lib.optionalAttrs (LT.hosts ? buyvm) {
+    virtono = LT.hosts."buyvm";
   };
 
   forEachActiveHost = mapFunc: (lib.mapAttrsToList mapFunc LT.hosts);

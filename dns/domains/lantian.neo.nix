@@ -24,10 +24,10 @@
           name = "ns3.${domain}.";
           addresses = LT.hosts."virmach-ny1g".neonetwork;
         })
-        (config.common.hostRecs.mapAddresses {
+        (lib.optional (LT.hosts ? buyvm) (config.common.hostRecs.mapAddresses {
           name = "ns4.${domain}.";
           addresses = LT.hosts."buyvm".neonetwork;
-        })
+        }))
         (config.common.hostRecs.mapAddresses {
           name = "ns5.${domain}.";
           addresses = LT.hosts."colocrossing".neonetwork;
