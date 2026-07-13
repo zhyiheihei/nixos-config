@@ -85,12 +85,18 @@
     };
   };
 
-  # Public HTTPS is exposed on 8443, while services on the overlay resolve
-  # zhyi domains directly to this host and expect the standard HTTPS port.
+  # Public HTTPS is exposed on 8443. Route host-scoped home services to
+  # ml-home-vm while keeping colocrossing services on the local nginx.
   services.nginx.streamConfig = ''
+    map $ssl_preread_server_name $home_https_upstream {
+      ~(^|\.)ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
+      default 127.0.0.1:${LT.portStr.HTTPS};
+    }
+
     server {
       listen ${LT.this.ltnet.IPv4}:443;
-      proxy_pass 127.0.0.1:${LT.portStr.HTTPS};
+      proxy_pass $home_https_upstream;
+      ssl_preread on;
     }
   '';
 
