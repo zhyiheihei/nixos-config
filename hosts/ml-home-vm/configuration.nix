@@ -1,6 +1,7 @@
 {
   inputs,
   LT,
+  lib,
   pkgs,
   ...
 }:
@@ -43,6 +44,7 @@ in
     ../../nixos/optional-apps/llama-cpp.nix
     ../../nixos/optional-apps/metapi.nix
     ../../nixos/optional-apps/n8n
+    ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/nginx-openspeedtest.nix
     ../../nixos/optional-apps/open-webui
@@ -102,6 +104,8 @@ in
     sops
     ssh-to-age
   ];
+
+  services.ncps.cache.maxSize = lib.mkForce "50G";
 
   services.calibre-cops.libraryPath = "/mnt/storage/Calibre Library";
 
