@@ -1,13 +1,14 @@
 import os
+import re
+from ipaddress import IPv4Address
 
 import requests
 
 API_BASE = "https://api.gcore.com/dns/v2"
 IP_LOOKUP_URLS = [
-    "https://api.ipify.org",
-    "https://ifconfig.me/ip",
-    "https://icanhazip.com",
-    "https://checkip.amazonaws.com",
+    "https://ip.3322.net",
+    "http://members.3322.org/dyndns/getip",
+    "https://myip.ipip.net",
 ]
 TTL = 120
 
@@ -41,12 +42,17 @@ RECORDS = {
 
 def get_current_ipv4() -> str:
     errors = []
+    session = requests.Session()
+    session.trust_env = False
     for url in IP_LOOKUP_URLS:
         try:
-            response = requests.get(url, timeout=10)
+            response = session.get(url, timeout=10)
             response.raise_for_status()
-            return response.text.strip()
-        except requests.RequestException as error:
+            match = re.search(r"(?:\d{1,3}\.){3}\d{1,3}", response.text)
+            if not match:
+                raise ValueError("response does not contain an IPv4 address")
+            return str(IPv4Address(match.group(0)))
+        except (requests.RequestException, ValueError) as error:
             errors.append(f"{url}: {error}")
     raise RuntimeError("Unable to determine public IPv4: " + "; ".join(errors))
 
