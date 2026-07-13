@@ -22,6 +22,8 @@
     mode = "monolithic";
     settings = lib.mkForce {
       listen = "0.0.0.0:${LT.portStr.Attic}";
+      api-endpoint = "https://attic.zhyi.xin:8443/";
+      substituter-endpoint = "https://attic.zhyi.xin:8443/";
       database = {
         url = "postgres://atticd?host=/run/postgresql&user=atticd";
         heartbeat = true;
@@ -78,9 +80,6 @@
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.Attic}";
           proxyNoTimeout = true;
-          extraConfig = ''
-            proxy_set_header Host $http_host;
-          '';
         };
       };
 
