@@ -37,7 +37,7 @@ _: [
   # Has own authentication system
   # keep-sorted start
   "ai-api.xuyh0120.win"
-  "ai.xuyh0120.win"
+  "ai.zhyi.xin"
   "attic.colocrossing.xuyh0120.win"
   "attic.xuyh0120.win"
   "attic.zhyi.xin"
@@ -61,7 +61,7 @@ _: [
   "matrix-client.zhyi.xin"
   "matrix-federation.lantian.pub"
   "matrix-federation.zhyi.xin"
-  "n8n.xuyh0120.win"
+  "n8n.zhyi.xin"
   "pb.ltn.pw"
   "stats.zhyi.xin"
   # keep-sorted end
