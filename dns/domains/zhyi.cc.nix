@@ -1,7 +1,31 @@
-{ config, lib, ... }:
+{
+  config,
+  lib,
+  LT,
+  ...
+}:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
   twvmTarget = "tw.zhyi.cc.";
+
+  ownHosts = [
+    "colocrossing"
+    "ml-2700u"
+    "ml-builder"
+    "ml-home-vm"
+    "pve-2700"
+    "twvm"
+  ];
+
+  hostRecords =
+    domain: addressFor:
+    lib.concatMap (
+      name:
+      config.common.hostRecs.mapAddresses {
+        name = "${name}.${domain}.";
+        addresses = addressFor LT.hosts.${name};
+      }
+    ) ownHosts;
 in
 {
   domains = [
@@ -76,8 +100,10 @@ in
           ttl = "10m";
         }
 
-        (config.common.hostRecs.Normal "${domain}.")
-        (config.common.hostRecs.LTNet "ltnet.${domain}.")
+        (hostRecords domain (
+          host: if config.common.hostRecs.hasPublicIP host then host.public else host.ltnet
+        ))
+        (hostRecords "ltnet.${domain}" (host: host.ltnet))
       ];
     }
   ];
