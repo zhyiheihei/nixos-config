@@ -3,6 +3,7 @@
   config,
   lib,
   LT,
+  pkgs,
   ...
 }:
 {
@@ -99,4 +100,22 @@
   systemd.services.flaresolverr = lib.mkIf config.services.flaresolverr.enable {
     environment.HOST = lib.mkForce LT.this.ltnet.IPv4;
   };
+
+  # Keep the author's account automation units available, but leave them
+  # dormant until this deployment has its own account-specific configuration.
+  systemd.services.email-oauth2-proxy.unitConfig.ConditionPathExists =
+    "${inputs.secrets}/imapfilter/emailproxy.config";
+  systemd.services.imapfilter-outlook.unitConfig.ConditionPathExists =
+    "${inputs.secrets}/imapfilter/outlook.lua";
+  systemd.services.imapfilter-gmail.unitConfig.ConditionPathExists =
+    "${inputs.secrets}/imapfilter/gmail.lua";
+  systemd.services.imapfilter-lantian.unitConfig.ConditionPathExists =
+    "${inputs.secrets}/imapfilter/lantian.lua";
+
+  systemd.services.tg-bot-cleaner-bot.serviceConfig.ExecCondition = [
+    "${pkgs.gnugrep}/bin/grep -qE ^TG_API_ID=.+$ ${config.sops.secrets.tg-bot-cleaner-bot.path}"
+    "${pkgs.gnugrep}/bin/grep -qE ^TG_API_HASH=.+$ ${config.sops.secrets.tg-bot-cleaner-bot.path}"
+  ];
+  systemd.services.cleanup-github-notifications.serviceConfig.ExecCondition =
+    "${pkgs.gnugrep}/bin/grep -qE ^GITHUB_TOKEN=.+$ ${config.sops.secrets.cleanup-github-notifications-env.path}";
 }
