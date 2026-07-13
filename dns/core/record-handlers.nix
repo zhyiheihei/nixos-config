@@ -62,6 +62,7 @@ in
         args.priority
         args.target
       ];
+    NO_PURGE = _: [ "NO_PURGE" ];
     NAMESERVER = args: record "NAMESERVER" args [ ];
     NAPTR =
       args:
