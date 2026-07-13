@@ -53,6 +53,12 @@ in
         }
         {
           recordType = "CNAME";
+          name = "homepage.ml-home-vm";
+          target = twvmTarget;
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
           name = "*";
           target = homeDdnsTarget;
           ttl = "10m";

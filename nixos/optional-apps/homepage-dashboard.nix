@@ -90,6 +90,7 @@
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
+          enableOAuth = true;
         };
         "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
       };
