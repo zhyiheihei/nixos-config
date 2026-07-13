@@ -20,6 +20,7 @@ in
     ../../nixos/optional-apps/hydra
 
     ./hardware-configuration.nix
+    ./lt-home-vm.nix
   ];
 
   systemd.network.networks.ens18 = {
