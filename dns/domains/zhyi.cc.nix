@@ -12,12 +12,6 @@
           name = "@";
         }
         {
-          recordType = "IGNORE";
-          name = "@";
-          type = "NS";
-        }
-
-        {
           recordType = "CNAME";
           name = "sub";
           target = "tw";
