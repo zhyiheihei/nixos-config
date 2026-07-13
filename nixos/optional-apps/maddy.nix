@@ -14,12 +14,9 @@
 
   services.maddy = {
     enable = true;
-    hostname = "${config.networking.hostName}.zhyi.dn42";
-    primaryDomain = "zhyi.dn42";
-    localDomains = [
-      "zhyi.dn42"
-      "lantian.neo"
-    ];
+    hostname = "mail.zhyi.xin";
+    primaryDomain = "zhyi.xin";
+    localDomains = [ "zhyi.xin" ];
 
     tls = {
       loader = "file";
@@ -32,7 +29,6 @@
           [
             "lets-encrypt-zhyi.xin-ecc"
             "lets-encrypt-zhyi.cc-ecc"
-            "dn42-zhyi.dn42-ecc"
           ];
     };
 

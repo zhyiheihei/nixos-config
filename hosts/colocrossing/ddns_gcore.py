@@ -29,6 +29,7 @@ RECORDS = {
         "letsencrypt-ssl.zhyi.xin",
         "letsencrypt-test-ssl.zhyi.xin",
         "login.zhyi.xin",
+        "mail.zhyi.xin",
         "matrix-client.zhyi.xin",
         "matrix-federation.zhyi.xin",
         "matrix.zhyi.xin",
