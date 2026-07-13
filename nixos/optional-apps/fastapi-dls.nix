@@ -10,7 +10,7 @@
     description = "FastAPI-DLS";
     wantedBy = [ "multi-user.target" ];
     environment = {
-      DLS_URL = "fastapi-dls.${config.networking.hostName}.xuyh0120.win";
+      DLS_URL = "fastapi-dls.${config.networking.hostName}.zhyi.cc";
       DLS_PORT = "443";
       LEASE_RENEWAL_PERIOD = "0.01";
       DATABASE = "sqlite:///var/lib/fastapi-dls/db.sqlite";
@@ -41,7 +41,7 @@
     };
   };
 
-  lantian.nginxVhosts."fastapi-dls.${config.networking.hostName}.xuyh0120.win" = {
+  lantian.nginxVhosts."fastapi-dls.${config.networking.hostName}.zhyi.cc" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:/run/fastapi-dls/fastapi-dls.sock";

@@ -33,7 +33,7 @@
     serviceConfig.RuntimeDirectory = "mcpo";
   };
 
-  lantian.nginxVhosts."mcpo.${config.networking.hostName}.xuyh0120.win" = {
+  lantian.nginxVhosts."mcpo.${config.networking.hostName}.zhyi.cc" = {
     locations = {
       "/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.Mcpo}";
@@ -41,7 +41,7 @@
         extraConfig = ''
           sub_filter_types *;
           sub_filter_once off;
-          sub_filter 'http://0.0.0.0:${LT.portStr.Mcpo}' 'https://mcpo.${config.networking.hostName}.xuyh0120.win';
+          sub_filter 'http://0.0.0.0:${LT.portStr.Mcpo}' 'https://mcpo.${config.networking.hostName}.zhyi.cc';
         '';
       };
     };

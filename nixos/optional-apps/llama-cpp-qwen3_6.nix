@@ -16,7 +16,7 @@
   };
 
   lantian.nginxVhosts = {
-    "llama-cpp.${config.networking.hostName}.xuyh0120.win" = {
+    "llama-cpp.${config.networking.hostName}.zhyi.cc" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.LlamaCpp.Qwen3_6}";
         proxyNoTimeout = true;

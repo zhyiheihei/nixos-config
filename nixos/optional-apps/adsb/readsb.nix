@@ -123,7 +123,7 @@ in
 
   users.users.readsb.extraGroups = [ "plugdev" ];
 
-  lantian.nginxVhosts."adsb.${config.networking.hostName}.xuyh0120.win" = {
+  lantian.nginxVhosts."adsb.${config.networking.hostName}.zhyi.cc" = {
     root = "${pkgs.dump1090-fa}/share/dump1090";
     locations = {
       "/data/".alias = "/run/readsb-adsb/";

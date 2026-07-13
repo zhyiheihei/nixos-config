@@ -98,7 +98,7 @@ in
   users.groups.iyuu.members = [ "nginx" ];
 
   lantian.nginxVhosts = {
-    "iyuu.${config.networking.hostName}.xuyh0120.win" = {
+    "iyuu.${config.networking.hostName}.zhyi.cc" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.IyuuPlus}";

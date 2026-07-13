@@ -30,7 +30,7 @@ in
   };
 
   lantian.nginxVhosts = {
-    "volume.${config.networking.hostName}.xuyh0120.win" = {
+    "volume.${config.networking.hostName}.zhyi.cc" = {
       locations."/" = {
         proxyPass = "http://unix:/run/pipewire-volume-control/listen.sock";
       };

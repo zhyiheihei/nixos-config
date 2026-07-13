@@ -68,7 +68,7 @@ in
   };
 
   lantian.nginxVhosts = {
-    "bitmagnet.${config.networking.hostName}.xuyh0120.win" = {
+    "bitmagnet.${config.networking.hostName}.zhyi.cc" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.Bitmagnet}";

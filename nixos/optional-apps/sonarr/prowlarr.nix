@@ -21,7 +21,7 @@
     };
   };
   lantian.nginxVhosts = {
-    "prowlarr.${config.networking.hostName}.xuyh0120.win" = {
+    "prowlarr.${config.networking.hostName}.zhyi.cc" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.Prowlarr}";

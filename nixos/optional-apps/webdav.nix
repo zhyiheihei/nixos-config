@@ -31,7 +31,7 @@
     };
   };
 
-  lantian.nginxVhosts."dav.${config.networking.hostName}.xuyh0120.win" = {
+  lantian.nginxVhosts."dav.${config.networking.hostName}.zhyi.cc" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:/run/webdav/webdav.sock";
