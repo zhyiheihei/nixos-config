@@ -1,6 +1,5 @@
 {
   inputs,
-  pkgs,
   config,
   lib,
   LT,
@@ -87,18 +86,12 @@
 
   # Public HTTPS is exposed on 8443, while services on the overlay resolve
   # zhyi domains directly to this host and expect the standard HTTPS port.
-  systemd.sockets.nginx-ltnet-https = {
-    wantedBy = [ "sockets.target" ];
-    listenStreams = [ "${LT.this.ltnet.IPv4}:443" ];
-  };
-  systemd.services.nginx-ltnet-https = {
-    requires = [ "nginx.service" ];
-    after = [ "nginx.service" ];
-    serviceConfig = {
-      ExecStart = "${lib.getExe' pkgs.systemd "systemd-socket-proxyd"} 127.0.0.1:${LT.portStr.HTTPS}";
-      DynamicUser = true;
-    };
-  };
+  services.nginx.streamConfig = ''
+    server {
+      listen ${LT.this.ltnet.IPv4}:443;
+      proxy_pass 127.0.0.1:${LT.portStr.HTTPS};
+    }
+  '';
 
   virtualisation.oci-containers.containers.byparr.ports = [
     "${LT.this.ltnet.IPv4}:${LT.portStr.FlareSolverr}:8191"
