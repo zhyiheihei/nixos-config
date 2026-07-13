@@ -78,6 +78,9 @@
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.Attic}";
           proxyNoTimeout = true;
+          extraConfig = ''
+            proxy_set_header Host $http_host;
+          '';
         };
       };
 
