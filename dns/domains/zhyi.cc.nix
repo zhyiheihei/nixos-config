@@ -1,4 +1,4 @@
-{ config, ... }:
+{ config, lib, ... }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
   twvmTarget = "tw.zhyi.cc.";
@@ -10,7 +10,7 @@ in
       registrar = "none";
       providers = [ "gcore" ];
       enableWildcard = true;
-      records = [
+      records = lib.flatten [
         {
           recordType = "CNAME";
           name = "sub";
