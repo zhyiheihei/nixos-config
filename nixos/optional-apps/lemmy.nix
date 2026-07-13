@@ -19,7 +19,7 @@ in
     ui.port = LT.port.Lemmy.UI;
 
     settings = {
-      hostname = "lemmy.lantian.pub";
+      hostname = "lemmy.zhyi.xin";
       port = LT.port.Lemmy.API;
       pictrs = {
         url = "http://${config.services.pict-rs.address}:${toString config.services.pict-rs.port}";
@@ -40,7 +40,7 @@ in
 
   systemd.services.lemmy-ui.enable = lib.mkForce false;
 
-  lantian.nginxVhosts."lemmy.lantian.pub" = {
+  lantian.nginxVhosts."lemmy.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${toString cfg.settings.port}";
       proxyWebsockets = true;

@@ -22,7 +22,7 @@ let
   };
 in
 lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
-  lantian.nginxVhosts."tools.lantian.pub" = {
+  lantian.nginxVhosts."tools.zhyi.xin" = {
     root = pkgs.linkFarm "tools" tools;
     locations = {
       "/" = {

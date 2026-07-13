@@ -1,7 +1,7 @@
 { config, ... }:
 {
   lantian.nginxVhosts = {
-    "whois.lantian.pub" = {
+    "whois.zhyi.xin" = {
       listenHTTP.enable = true;
       listenPlainSocket = {
         enable = true;

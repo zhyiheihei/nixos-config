@@ -19,7 +19,7 @@ let
   };
 in
 {
-  lantian.nginxVhosts."avatar.lantian.pub" = {
+  lantian.nginxVhosts."avatar.zhyi.xin" = {
     root = avatars;
     locations = {
       "/".tryFiles = "/avatar-$arg_s.jpg /avatar-80.jpg =404";

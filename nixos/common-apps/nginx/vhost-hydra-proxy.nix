@@ -1,7 +1,7 @@
 { LT, ... }:
 {
   lantian.nginxVhosts = {
-    "hydra.lantian.pub" = {
+    "hydra.zhyi.cc" = {
       locations = {
         "/" = {
           proxyPass = "http://${LT.hosts.ml-home-vm.ltnet.IPv4}:${LT.portStr.Hydra}";
@@ -14,7 +14,7 @@
 
       blockDotfiles = false;
       enableCommonLocationOptions = false;
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.cc";
       noIndex.enable = true;
     };
   };

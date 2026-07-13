@@ -8,7 +8,7 @@ let
   um = LT.nginx.compressStaticAssets (pkgs.callPackage ./um.nix { inherit (LT) sources; });
 in
 lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
-  lantian.nginxVhosts."um.xuyh0120.win" = {
+  lantian.nginxVhosts."um.zhyi.cc" = {
     root = um;
     accessibleBy = "private";
     sslCertificate = "lets-encrypt-zhyi.cc";

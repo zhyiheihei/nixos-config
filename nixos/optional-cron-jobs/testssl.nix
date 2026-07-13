@@ -6,13 +6,13 @@
 }:
 let
   targets = [
-    "lab.lantian.pub"
+    "lab.colocrossing.zhyi.cc"
 
-    "google-ssl.lantian.pub"
-    "google-test-ssl.lantian.pub"
-    "letsencrypt-ssl.lantian.pub"
-    "letsencrypt-test-ssl.lantian.pub"
-    "zerossl.lantian.pub"
+    "google-ssl.zhyi.xin"
+    "google-test-ssl.zhyi.xin"
+    "letsencrypt-ssl.zhyi.xin"
+    "letsencrypt-test-ssl.zhyi.xin"
+    "zerossl.zhyi.xin"
   ];
 in
 {

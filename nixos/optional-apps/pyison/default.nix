@@ -76,7 +76,7 @@ in
     ];
   };
 
-  lantian.nginxVhosts."posts.lantian.pub" = {
+  lantian.nginxVhosts."posts.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.Pyison}";

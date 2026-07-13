@@ -7,7 +7,7 @@
 }:
 let
   lgproxyHosts = builtins.attrNames (LT.hostsWithTag LT.tags.dn42);
-  lgproxyDomain = "ltnet.lantian.pub";
+  lgproxyDomain = "ltnet.zhyi.cc";
 in
 {
   networking.hosts = builtins.listToAttrs (
@@ -56,7 +56,7 @@ in
   systemd.services.bird-lgproxy-go.enable = lib.mkForce true;
 
   lantian.nginxVhosts = {
-    "lg.lantian.pub" = {
+    "lg.zhyi.cc" = {
       locations = {
         "/" = {
           proxyPass = "http://unix:/run/bird-lg-go/bird-lg-go.sock";
@@ -70,7 +70,7 @@ in
         };
       };
 
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.cc";
       noIndex.enable = true;
     };
     "lg.zhyi.dn42" = {

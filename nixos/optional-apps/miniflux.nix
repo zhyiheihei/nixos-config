@@ -10,7 +10,7 @@
     enable = true;
     config = {
       LISTEN_ADDR = "/run/miniflux/miniflux.sock";
-      BASE_URL = "https://rss.xuyh0120.win/";
+      BASE_URL = "https://rss.zhyi.xin/";
       POLLING_PARSING_ERROR_LIMIT = "0";
       CLEANUP_ARCHIVE_UNREAD_DAYS = "-1";
       CLEANUP_ARCHIVE_READ_DAYS = "-1";
@@ -32,7 +32,7 @@
     adminCredentialsFile = pkgs.writeText "dummy" "DUMMY=1";
   };
 
-  lantian.nginxVhosts."rss.xuyh0120.win" = {
+  lantian.nginxVhosts."rss.zhyi.xin" = {
     locations = {
       "/" = {
         enableOAuth = true;
@@ -40,7 +40,7 @@
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 

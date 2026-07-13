@@ -39,14 +39,14 @@ in
 
   users.groups.bird.members = [ "nginx" ];
 
-  lantian.nginxVhosts."flapalerted.lantian.pub" = {
+  lantian.nginxVhosts."flapalerted.zhyi.cc" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:/run/flapalerted/flapalerted.sock";
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.cc";
     noIndex.enable = true;
   };
 }
