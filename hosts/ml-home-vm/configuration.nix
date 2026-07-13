@@ -21,6 +21,8 @@ in
     ../../nixos/optional-apps/hydra
 
     ./hardware-configuration.nix
+    ./media-center.nix
+    ./shares.nix
 
     ../../nixos/client-components/cups.nix
     ../../nixos/client-components/multicast-dns.nix
