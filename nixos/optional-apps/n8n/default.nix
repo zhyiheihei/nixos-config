@@ -104,4 +104,17 @@
     sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
+
+  lantian.nginxVhosts."n8n.localhost" = {
+    listenHTTP.enable = true;
+    listenHTTPS.enable = false;
+
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";
+      proxyWebsockets = true;
+    };
+
+    noIndex.enable = true;
+    accessibleBy = "localhost";
+  };
 }

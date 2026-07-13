@@ -86,9 +86,23 @@ in
   };
 
   networking.hosts = {
+    "127.0.0.1" = [
+      "element.zhyi.xin"
+      "hydra.zhyi.cc"
+      "tools.zhyi.xin"
+    ];
     "192.168.2.116" = [ "openclash.zhyi.cc" ];
-    "192.168.2.188" = [ "attic.zhyi.xin" ];
-    "${LT.hosts.colocrossing.ltnet.IPv4}" = [ "login.zhyi.xin" ];
+    "${LT.hosts.colocrossing.interconnect.IPv4}" = [
+      "attic.zhyi.xin"
+      "cal.zhyi.xin"
+      "git.zhyi.xin"
+      "id.zhyi.xin"
+      "login.zhyi.xin"
+      "netbox.zhyi.cc"
+      "posts.zhyi.xin"
+      "rss.zhyi.xin"
+      "stats.zhyi.xin"
+    ];
     "192.168.2.192" = [ "ml-builder.zhyi.cc" ];
   };
 
