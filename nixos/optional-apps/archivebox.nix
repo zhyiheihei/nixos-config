@@ -36,7 +36,7 @@
     };
 
     lantian.nginxVhosts = {
-      "archivebox.${config.networking.hostName}.xuyh0120.win" = {
+      "archivebox.${config.networking.hostName}.zhyi.cc" = {
         locations = {
           "/" = {
             enableOAuth = true;

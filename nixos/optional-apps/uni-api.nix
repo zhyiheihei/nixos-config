@@ -52,6 +52,11 @@ in
 {
   imports = [ (inputs.secrets + "/uni-api") ];
 
+  sops.secrets."uni-api-admin-api-key" = {
+    owner = "uni-api";
+    group = "ai-gateways";
+  };
+
   systemd.services.uni-api = {
     description = "Uni-API Server";
     after = [
@@ -101,7 +106,7 @@ in
   users.groups.ai-gateways.members = [ "nginx" ];
 
   lantian.nginxVhosts = {
-    "uni-api.${config.networking.hostName}.xuyh0120.win" = {
+    "uni-api.${config.networking.hostName}.zhyi.cc" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
         proxyNoTimeout = true;

@@ -1,7 +1,7 @@
 { config, LT, ... }:
 {
   lantian.nginxVhosts = {
-    "openspeedtest.${config.networking.hostName}.xuyh0120.win" = {
+    "openspeedtest.${config.networking.hostName}.zhyi.cc" = {
       # Add layer of reverse proxy to fix abnormal upload speed
       locations."/" = {
         proxyPass = "http://127.0.0.1";

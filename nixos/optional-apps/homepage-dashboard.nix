@@ -81,7 +81,7 @@
   users.groups.homepage-dashboard = { };
 
   lantian.nginxVhosts = {
-    "homepage.${config.networking.hostName}.xuyh0120.win" = {
+    "homepage.${config.networking.hostName}.zhyi.cc" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";

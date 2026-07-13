@@ -26,7 +26,7 @@
   };
 
   lantian.nginxVhosts = {
-    "bazarr.${config.networking.hostName}.xuyh0120.win" = {
+    "bazarr.${config.networking.hostName}.zhyi.cc" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.Bazarr}";

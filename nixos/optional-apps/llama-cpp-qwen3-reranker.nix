@@ -54,7 +54,7 @@ in
   users.groups.llama-cpp = { };
 
   lantian.nginxVhosts = {
-    "qwen3-reranker.${config.networking.hostName}.xuyh0120.win" = {
+    "qwen3-reranker.${config.networking.hostName}.zhyi.cc" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.LlamaCpp.Qwen3Reranker}";
         proxyNoTimeout = true;

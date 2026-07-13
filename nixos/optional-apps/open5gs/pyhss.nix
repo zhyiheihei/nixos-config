@@ -83,7 +83,7 @@ in
   users.groups.pyhss = { };
 
   lantian.nginxVhosts = {
-    "pyhss.${config.networking.hostName}.xuyh0120.win" = {
+    "pyhss.${config.networking.hostName}.zhyi.cc" = {
       locations = {
         "/".proxyPass = "http://127.0.0.8:8080";
         "/swaggerui/".alias =

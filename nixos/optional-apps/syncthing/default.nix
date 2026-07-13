@@ -72,8 +72,20 @@
             settingsJSON = pkgs.writeText "syncthing-config.json" (
               builtins.toJSON config.services.syncthing.settings
             );
+            prepareConfig = pkgs.writeShellScript "prepare-syncthing-config" ''
+              if [[ ! -e /var/lib/syncthing/config.xml ]]; then
+                ${lib.getExe config.services.syncthing.package} generate \
+                  --home=/var/lib/syncthing \
+                  --no-port-probing
+              fi
+
+              exec ${lib.getExe pkgs.python3} \
+                ${./update-config.py} \
+                ${settingsJSON} \
+                /var/lib/syncthing/config.xml
+            '';
           in
-          "${lib.getExe pkgs.python3} ${./update-config.py} ${settingsJSON} /var/lib/syncthing/config.xml";
+          prepareConfig;
       };
     };
 
@@ -91,7 +103,7 @@
     };
 
     lantian.nginxVhosts = {
-      "syncthing.${config.networking.hostName}.xuyh0120.win" = {
+      "syncthing.${config.networking.hostName}.zhyi.cc" = {
         locations = {
           "/" = {
             enableOAuth = true;

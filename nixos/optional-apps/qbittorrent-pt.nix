@@ -67,7 +67,7 @@ in
   };
 
   lantian.nginxVhosts = {
-    "pt.${config.networking.hostName}.xuyh0120.win" = {
+    "pt.${config.networking.hostName}.zhyi.cc" = {
       locations = {
         "/" = {
           allowCORS = true;

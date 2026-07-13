@@ -3,8 +3,8 @@
   ...
 }:
 {
-  lantian.nginxVhosts."lab.${config.networking.hostName}.xuyh0120.win" = {
-    root = "/var/www/lab.${config.networking.hostName}.xuyh0120.win";
+  lantian.nginxVhosts."lab.${config.networking.hostName}.zhyi.cc" = {
+    root = "/var/www/lab.${config.networking.hostName}.zhyi.cc";
     locations."/".enableAutoIndex = true;
     sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
     noIndex.enable = true;
