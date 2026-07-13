@@ -42,7 +42,12 @@ in
     cp -r "$CURR_DIR/zones" "$TEMP_DIR/zones"
   fi
 
-  ${lib.getExe pkgs.ssh-to-age} -private-key -i "$HOME/.ssh/id_ed25519" \
+  SSH_KEY="''${DNSCONTROL_SSH_KEY:-$HOME/.ssh/id_ed25519}"
+  if [ ! -f "$SSH_KEY" ] && [ -f /nix/persistent/etc/ssh/ssh_host_ed25519_key ]; then
+    SSH_KEY=/nix/persistent/etc/ssh/ssh_host_ed25519_key
+  fi
+
+  ${lib.getExe pkgs.ssh-to-age} -private-key -i "$SSH_KEY" \
     > "$TEMP_DIR/age_key"
   SOPS_AGE_KEY_FILE="$TEMP_DIR/age_key" \
     ${lib.getExe pkgs.sops} decrypt \

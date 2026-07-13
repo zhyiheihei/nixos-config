@@ -1,14 +1,11 @@
 { ... }:
 {
-  imports =
-    let
-      ls = dir: builtins.map (f: (dir + "/${f}")) (builtins.attrNames (builtins.readDir dir));
-    in
-    [
-      ./common
-      ./core
-    ]
-    ++ ls ./domains;
+  imports = [
+    ./common
+    ./core
+
+    ./domains/zhyi.cc.nix
+  ];
 
   registrars = [
     "doh"
