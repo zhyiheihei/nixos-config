@@ -77,7 +77,6 @@ in
         }
 
         (config.common.hostRecs.Normal "${domain}.")
-        (config.common.hostRecs.SSHFP "${domain}.")
         (config.common.hostRecs.LTNet "ltnet.${domain}.")
       ];
     }
