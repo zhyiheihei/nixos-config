@@ -13,12 +13,6 @@
         }
 
         {
-          recordType = "fakeALIAS";
-          name = "tw";
-          target = "twvm";
-          ttl = "10m";
-        }
-        {
           recordType = "CNAME";
           name = "sub";
           target = "tw";
