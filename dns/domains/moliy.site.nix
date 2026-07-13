@@ -8,10 +8,6 @@
       enableWildcard = false;
       records = [
         {
-          recordType = "NO_PURGE";
-          name = "@";
-        }
-        {
           recordType = "CNAME";
           name = "autoconfig";
           target = "home-ddns.zhyi.cc.";

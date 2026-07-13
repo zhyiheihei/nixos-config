@@ -12,10 +12,6 @@ in
       enableWildcard = false;
       records = [
         {
-          recordType = "NO_PURGE";
-          name = "@";
-        }
-        {
           recordType = "CNAME";
           name = "sub";
           target = twvmTarget;
@@ -53,6 +49,12 @@ in
           recordType = "CNAME";
           name = "*.ml-home-vm";
           target = "ml-home-vm.zhyi.cc.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "*";
+          target = homeDdnsTarget;
           ttl = "10m";
         }
         {
