@@ -7,12 +7,12 @@
     server
   ];
 
-  # 强机器/虚拟机作为 Nix 远程构建机使用。
+  # 家庭服务虚拟机，同时作为 Nix 远程构建机使用。
   # 按实际分配给 VM 的 vCPU 数调整，影响远程构建并发。
   cpuThreads = 14;
 
   # Colmena / deploy-rs 这类远程部署工具会优先用这里连接机器。
-  # 这里先用当前测试 VM 的局域网地址；如果 VM IP 不同，改这里。
+  # 保留当前虚拟机的局域网部署地址。
   hostname = "192.168.2.135";
 
   city = geo.cities."US Bellevue";
@@ -20,8 +20,7 @@
   # 初期手动部署，避免还没验证好的构建机被批量部署误操作。
   manualDeploy = true;
 
-  # SSH host public key。拿到 ml-builder 的 host key 后取消注释：
-  #   ssh-keyscan -p 2222 192.168.2.135 2>/dev/null | grep ssh-ed25519
+  # 当前虚拟机的 SSH host public key。
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDax7ee1Yjl1Ei1PqF5ef8QpThqI7YqTMDN5obfqL5+4";
 
   zerotier = "c340ae9a91";

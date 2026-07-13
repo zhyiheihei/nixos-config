@@ -1,15 +1,15 @@
-# ml-builder-cache follow-ups
+# ml-home-vm follow-ups
 
 Current minimal fix:
 
-- `ml-builder-cache` uses local Attic directly as a Nix substituter:
+- `ml-home-vm` uses local Attic directly as a Nix substituter:
   `http://127.0.0.1:13803/lantian`
 - Other hosts still use the public Attic URL from `helpers/constants/nix.nix`:
   `https://attic.zhyi.xin:8443/lantian`
 
 Why:
 
-- On `ml-builder-cache`, `attic.zhyi.xin` resolves back to the machine's LTNET
+- On `ml-home-vm`, `attic.zhyi.xin` resolves back to the machine's LTNET
   address.
 - The public HTTPS `:4000` entrypoint is handled outside Attic itself.
 - Attic listens locally on `LT.port.Attic` / `13803`, so the cache host can use
