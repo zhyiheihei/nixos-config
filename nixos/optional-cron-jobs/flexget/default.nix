@@ -91,6 +91,7 @@ in
     };
     serviceConfig = LT.serviceHarden // {
       EnvironmentFile = config.sops.secrets.flexget-env.path;
+      ExecCondition = "${lib.getExe pkgs.bash} -c 'test -n \"$HDHOME_AUTO_RSS_URL\"'";
       Type = "oneshot";
       TimeoutSec = 3600;
       StateDirectory = "flexget";
