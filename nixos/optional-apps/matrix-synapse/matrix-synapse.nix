@@ -29,7 +29,7 @@ in
 
     settings = {
       public_baseurl = "https://matrix.zhyi.xin";
-      server_name = "zhyi.xin";
+      server_name = config.networking.domain;
       account_threepid_delegates = {
         msisdn = "https://vector.im";
       };
