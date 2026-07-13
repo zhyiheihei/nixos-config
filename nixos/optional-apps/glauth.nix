@@ -33,15 +33,15 @@ let
       LimitFailedBinds = false
 
     [[users]]
-      name = "lantian"
-      givenname = "Lan"
-      sn = "Tian"
+      name = "zhyi"
+      givenname = "Zh"
+      sn = "Yi"
       mail = "${glauthUsers.lantian.mail}"
       uidnumber = 1000
       primarygroup = 100
       passbcrypt = "${hexdump glauthUsers.lantian.passBcrypt}"
       [[users.customattributes]]
-        displayName = ["Lan Tian"]
+        displayName = ["Zh Yi"]
 
     [[users]]
       name = "serviceuser"
