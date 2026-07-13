@@ -21,7 +21,7 @@
     environmentFile = config.sops.secrets.attic-credentials.path;
     mode = "monolithic";
     settings = lib.mkForce {
-      listen = "0.0.0.0:${LT.portStr.Attic}";
+      listen = "[::1]:${LT.portStr.Attic}";
       api-endpoint = "https://attic.zhyi.xin:8443/";
       substituter-endpoint = "https://attic.zhyi.xin:8443/";
       database = {
@@ -78,7 +78,7 @@
     "attic.zhyi.xin" = {
       locations = {
         "/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.Attic}";
+          proxyPass = "http://[::1]:${LT.portStr.Attic}";
           proxyNoTimeout = true;
         };
       };
