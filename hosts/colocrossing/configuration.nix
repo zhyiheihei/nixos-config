@@ -53,9 +53,6 @@
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
   ];
 
-  # Temporary LAN deployment path while public TCP/2222 is not forwarded.
-  deployment.targetHost = lib.mkForce "192.168.2.188";
-
   systemd.network.networks.ens18 = {
     matchConfig.Name = "ens18";
     networkConfig = {

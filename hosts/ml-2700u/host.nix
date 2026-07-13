@@ -8,9 +8,7 @@
   # Ryzen 7 2700U 是 4 核 8 线程。
   cpuThreads = 8;
 
-  # Colmena / deploy-rs 这类远程部署工具会优先用这里连接机器。
-  # 现在先用局域网 IP；以后如果你配置了自己的 DNS，可以改成域名。
-  hostname = "192.168.2.237";
+  hostname = "ml-2700u.zhyi.cc";
 
   city = geo.cities."US Bellevue";
 

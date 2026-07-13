@@ -11,9 +11,7 @@
   # 按实际分配给 VM 的 vCPU 数调整，影响远程构建并发。
   cpuThreads = 14;
 
-  # Colmena / deploy-rs 这类远程部署工具会优先用这里连接机器。
-  # 保留当前虚拟机的局域网部署地址。
-  hostname = "192.168.2.135";
+  hostname = "ml-home-vm.zhyi.cc";
 
   city = geo.cities."US Bellevue";
 
