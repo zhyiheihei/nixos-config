@@ -1,4 +1,4 @@
-{ config, lib, ... }:
+{ ... }:
 {
   domains = [
     rec {
@@ -6,10 +6,11 @@
       registrar = "none";
       providers = [ "gcore" ];
       enableWildcard = false;
-      records = lib.flatten [
-        config.common.hostRecs.CAA
-        (config.common.hostRecs.Normal "${domain}.")
-        (config.common.hostRecs.LTNet "ltnet.${domain}.")
+      records = [
+        {
+          recordType = "NO_PURGE";
+          name = "@";
+        }
 
         {
           recordType = "fakeALIAS";
