@@ -93,7 +93,7 @@ in
   systemd.services.hydra-notify = {
     preStart = ''
       ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
-        http://127.0.0.1:${LT.portStr.Attic} \
+        https://attic.zhyi.xin:8443 \
         $(cat ${config.sops.secrets.attic-upload-key.path})
     '';
   };
@@ -102,7 +102,7 @@ in
   systemd.services.hydra-attic-repush = {
     preStart = ''
       ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
-        http://127.0.0.1:${LT.portStr.Attic} \
+        https://attic.zhyi.xin:8443 \
         $(cat ${config.sops.secrets.attic-upload-key.path})
     '';
     script = ''
