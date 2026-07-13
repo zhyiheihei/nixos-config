@@ -10,6 +10,8 @@ let
   qBitTorrentPTSonarrDownloadPath = "/mnt/storage/.downloads-qb-pt";
   qBitTorrentSonarrDownloadPath = "/mnt/storage/.downloads-qb";
   flexgetAutoDownloadPath = "/mnt/storage/.downloads-auto";
+  cloudMusicPath = "/mnt/storage/media/CloudMusic";
+  cloudMusicArchivePath = "/mnt/storage/media/CloudMusicArchive";
   radarrMediaPath = "/mnt/storage/media-radarr";
   sonarrMediaPath = "/mnt/storage/media-sonarr";
 in
@@ -77,6 +79,14 @@ in
       mode = "755";
       user = "lantian";
       group = "users";
+    };
+    "${cloudMusicPath}".d = {
+      mode = "755";
+      inherit (config.services.syncthing) user group;
+    };
+    "${cloudMusicArchivePath}".d = {
+      mode = "755";
+      inherit (config.services.syncthing) user group;
     };
     "${radarrMediaPath}".d = {
       mode = "755";
