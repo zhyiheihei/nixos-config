@@ -216,6 +216,16 @@ in
 
       ${utils.genJqSecretsReplacementSnippet v2rayConf "/run/v2ray/config.json"}
 
+      if ! grep -q '[^[:space:]]' ${config.sops.secrets.v2ray-unblock-cn-host.path} \
+        || ! grep -q '[^[:space:]]' ${config.sops.secrets.v2ray-unblock-cn-pass.path}; then
+        ${lib.getExe pkgs.jq} '
+          del(.inbounds[] | select(.tag == "inbound-unblock-cn"))
+          | del(.outbounds[] | select(.tag == "unblock-cn"))
+          | del(.routing.rules[] | select(.outboundTag == "unblock-cn"))
+        ' /run/v2ray/config.json > /run/v2ray/config.without-unblock-cn.json
+        mv /run/v2ray/config.without-unblock-cn.json /run/v2ray/config.json
+      fi
+
       exec ${lib.getExe pkgs.xray} -config /run/v2ray/config.json
     '';
     serviceConfig = LT.serviceHarden // {
