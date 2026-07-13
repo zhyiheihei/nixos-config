@@ -52,7 +52,7 @@ in
       domain = "zhyi.xin";
       registrar = "none";
       providers = [ "gcore" ];
-      enableWildcard = false;
+      enableWildcard = true;
       records = [
         {
           recordType = "IGNORE";
@@ -75,9 +75,10 @@ in
           type = "A,AAAA";
         }
         {
-          recordType = "IGNORE";
+          recordType = "A";
           name = "*";
-          type = "A,AAAA";
+          address = "101.96.199.157";
+          ttl = "10m";
         }
       ]
       ++ map (mkCname homeDdnsTarget) homeServices
