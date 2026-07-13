@@ -22,7 +22,7 @@
     environmentFile = config.sops.secrets.homepage-dashboard-env.path;
 
     settings = {
-      title = "Lan Tian @ Dashboard";
+      title = "Zh Yi @ Dashboard";
       headerStyle = "clean";
       language = "zh-CN";
       target = "_blank";
