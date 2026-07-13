@@ -1,4 +1,8 @@
-{ config, ... }:
+{
+  config,
+  LT,
+  ...
+}:
 {
   imports = [
     ../../nixos/server.nix
@@ -26,6 +30,18 @@
   ];
 
   lantian.nginxVhosts."tw.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+
+  # Standard HTTPS ingress for selected low-traffic services hosted on
+  # colocrossing and ml-home-vm. TLS remains terminated by the origin nginx.
+  services.nginx.streamConfig = ''
+    server {
+      listen 0.0.0.0:443;
+      listen [::]:443;
+      proxy_connect_timeout 10s;
+      proxy_timeout 3600s;
+      proxy_pass ${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.HTTPS};
+    }
+  '';
 
   sops.templates.mihomo-subscription = {
     owner = "nginx";

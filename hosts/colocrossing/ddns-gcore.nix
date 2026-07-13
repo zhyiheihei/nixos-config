@@ -16,6 +16,7 @@ in
   };
 
   systemd.services.ddns-gcore = {
+    environment.TWVM_IPV4 = LT.hosts.twvm.public.IPv4;
     serviceConfig = LT.serviceHarden // {
       Type = "oneshot";
       EnvironmentFile = config.sops.secrets.ddns-gcore-env.path;
