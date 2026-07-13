@@ -21,6 +21,17 @@ in
     ];
     wantedBy = [ "multi-user.target" ];
 
+    # The local cleanup job uses the Web API without credentials. Keep remote
+    # WebUI authentication enabled while restoring qBittorrent's old localhost
+    # behavior expected by that job.
+    preStart = ''
+      config=/var/lib/qbittorrent-pt/qBittorrent/config/qBittorrent.conf
+      if [ -f "$config" ]; then
+        sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
+        sed -i '/^\[Preferences\]$/a WebUI\\LocalHostAuth=false' "$config"
+      fi
+    '';
+
     serviceConfig = LT.serviceHarden // {
       User = user;
       Group = group;

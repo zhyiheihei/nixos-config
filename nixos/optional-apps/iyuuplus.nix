@@ -45,12 +45,12 @@ in
     path = with pkgs; [ gitMinimal ];
 
     preStart = ''
-      if [ -e .git ]; then
-        git fetch --all
-        git reset --hard origin/master
-      else
-        git clone https://github.com/ledccn/iyuuplus-dev.git .
+      if [ ! -d .git ]; then
+        git init
+        git remote add origin https://github.com/ledccn/iyuuplus-dev.git
       fi
+      git fetch --all
+      git reset --hard origin/master
 
       sed -E -i "s#'listen'.*#'listen' => 'http://127.0.0.1:${LT.portStr.IyuuPlus}',#g" config/server.php
       install -Dm644 ${config.sops.secrets.iyuu-env.path} .env
