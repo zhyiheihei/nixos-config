@@ -11,6 +11,7 @@
   hostname = "tw.zhyi.cc";
   city = geo.cities."CN Hong Kong";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEZ4PresW6G2jVfJWVfjajdo4ersMRfkl97nKveYoVjC";
+  zerotier = "94602ea0ad";
   public = {
     IPv4 = "140.235.38.39";
     IPv6 = "2407:cdc0:f008:12a::";
