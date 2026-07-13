@@ -1,5 +1,7 @@
 { LT, lib, ... }:
 {
   services.nix-cache-proxy.enable = lib.mkForce false;
-  nix.settings.substituters = lib.mkForce [ "http://192.168.0.4:${LT.portStr.Ncps}" ];
+  nix.settings.substituters = lib.mkForce [
+    "http://${LT.hosts."ml-home-vm".interconnect.IPv4}:${LT.portStr.Ncps}"
+  ];
 }

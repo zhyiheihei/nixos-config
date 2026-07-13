@@ -6,9 +6,9 @@
 {
   services.ncps = {
     enable = true;
-    server.addr = "192.168.0.4:${LT.portStr.Ncps}";
+    server.addr = "${LT.this.interconnect.IPv4}:${LT.portStr.Ncps}";
     upstream = {
-      caches = [ "https://cache.nixos.org" ] ++ LT.constants.nix.substituters;
+      caches = LT.constants.nix.substituters ++ [ "https://cache.nixos.org" ];
       publicKeys = LT.constants.nix.trusted-public-keys;
     };
     cache = {
