@@ -20,7 +20,7 @@
   services.n8n = {
     enable = true;
     environment = {
-      N8N_EDITOR_BASE_URL = "https://n8n.xuyh0120.win";
+      N8N_EDITOR_BASE_URL = "https://n8n.zhyi.xin";
       N8N_LISTEN_ADDRESS = "127.0.0.1";
       N8N_PORT = LT.port.N8N;
       N8N_RUNNERS_AUTH_TOKEN_FILE = config.sops.secrets.n8n-secret.path;
@@ -86,7 +86,7 @@
   };
   users.groups.n8n = { };
 
-  lantian.nginxVhosts."n8n.xuyh0120.win" = {
+  lantian.nginxVhosts."n8n.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";
       proxyWebsockets = true;
@@ -101,7 +101,7 @@
       '';
     };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }
