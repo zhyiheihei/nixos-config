@@ -73,6 +73,8 @@
     MemoryDenyWriteExecute = lib.mkForce false;
     SystemCallFilter = lib.mkForce [ ];
   };
+  systemd.services.homepage-dashboard.environment.HOMEPAGE_ALLOWED_HOSTS =
+    "homepage.${config.networking.hostName}.zhyi.cc:8443,homepage.localhost";
 
   users.users.homepage-dashboard = {
     group = "homepage-dashboard";
