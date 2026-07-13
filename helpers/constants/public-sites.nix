@@ -71,6 +71,7 @@ _: [
   "flapalerted.lantian.pub"
   "lg.zhyi.dn42"
   "lg.lantian.pub"
+  "sub.zhyi.cc"
   "tw.zhyi.cc"
   # keep-sorted end
 ]
