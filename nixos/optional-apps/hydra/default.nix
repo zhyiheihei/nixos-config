@@ -92,19 +92,16 @@ in
 
   systemd.services.hydra-notify = {
     preStart = ''
-      ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
-        https://attic.zhyi.xin:8443 \
-        $(cat ${config.sops.secrets.attic-upload-key.path})
+      if [ ! -f "$HOME/.config/attic/config.toml" ]; then
+        ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
+          https://attic.zhyi.xin:8443 \
+          $(cat ${config.sops.secrets.attic-upload-key.path})
+      fi
     '';
   };
   systemd.services.hydra-evaluator.environment.GIT_SSH_COMMAND =
     "${lib.getExe pkgs.openssh} -i ${config.sops.secrets.hydra-ssh-privkey.path} -o IdentitiesOnly=yes";
   systemd.services.hydra-attic-repush = {
-    preStart = ''
-      ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
-        https://attic.zhyi.xin:8443 \
-        $(cat ${config.sops.secrets.attic-upload-key.path})
-    '';
     script = ''
       for F in /nix/var/nix/gcroots/hydra/*; do
         STORE_PATH="/nix/store/$(basename "$F")"
