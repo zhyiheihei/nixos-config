@@ -12,55 +12,63 @@ IP_LOOKUP_URLS = [
 ]
 TTL = 120
 
-RECORDS = {
+DYNAMIC_RECORDS = {
     "zhyi.cc": [
         "colocrossing.zhyi.cc",
         "autoconfig.zhyi.cc",
         "flapalerted.zhyi.cc",
-        "hydra.zhyi.cc",
         "lab.colocrossing.zhyi.cc",
         "lg.zhyi.cc",
-        "netbox.zhyi.cc",
         "syncthing.colocrossing.zhyi.cc",
         "um.zhyi.cc",
     ],
     "zhyi.xin": [
-        "zhyi.xin",
         "ai.zhyi.xin",
-        "api.zhyi.xin",
         "attic.zhyi.xin",
-        "autoconfig.zhyi.xin",
-        "avatar.zhyi.xin",
-        "cal.zhyi.xin",
-        "comments.zhyi.xin",
-        "element.zhyi.xin",
         "gemini.zhyi.xin",
         "git.zhyi.xin",
         "google-ssl.zhyi.xin",
         "google-test-ssl.zhyi.xin",
         "gopher.zhyi.xin",
-        "id.zhyi.xin",
         "lemmy.zhyi.xin",
         "letsencrypt-ssl.zhyi.xin",
         "letsencrypt-test-ssl.zhyi.xin",
-        "login.zhyi.xin",
         "mail.zhyi.xin",
         "matrix-client.zhyi.xin",
         "matrix-federation.zhyi.xin",
         "matrix.zhyi.xin",
         "n8n.zhyi.xin",
         "pb.zhyi.xin",
-        "posts.zhyi.xin",
-        "rss.zhyi.xin",
         "rsshub.zhyi.xin",
-        "stats.zhyi.xin",
-        "tools.zhyi.xin",
-        "whois.zhyi.xin",
-        "www.zhyi.xin",
         "zerossl.zhyi.xin",
     ],
     "moliy.site": [
         "autoconfig.moliy.site",
+    ],
+}
+
+# These low-traffic HTTPS services enter through twvm:443 and are forwarded to
+# colocrossing over the existing WireGuard mesh. Large file and media services
+# deliberately remain in DYNAMIC_RECORDS.
+TWVM_RECORDS = {
+    "zhyi.cc": [
+        "hydra.zhyi.cc",
+        "netbox.zhyi.cc",
+    ],
+    "zhyi.xin": [
+        "api.zhyi.xin",
+        "autoconfig.zhyi.xin",
+        "avatar.zhyi.xin",
+        "cal.zhyi.xin",
+        "comments.zhyi.xin",
+        "element.zhyi.xin",
+        "id.zhyi.xin",
+        "login.zhyi.xin",
+        "posts.zhyi.xin",
+        "rss.zhyi.xin",
+        "stats.zhyi.xin",
+        "tools.zhyi.xin",
+        "whois.zhyi.xin",
     ],
 }
 
@@ -109,10 +117,19 @@ def main() -> None:
     if not api_key:
         raise RuntimeError("GCORE_PERMANENT_API_TOKEN is not set")
 
-    ipv4 = get_current_ipv4()
-    for zone, names in RECORDS.items():
+    dynamic_ipv4 = get_current_ipv4()
+    twvm_ipv4 = os.environ.get("TWVM_IPV4")
+    if not twvm_ipv4:
+        raise RuntimeError("TWVM_IPV4 is not set")
+    twvm_ipv4 = str(IPv4Address(twvm_ipv4))
+
+    for zone, names in DYNAMIC_RECORDS.items():
         for name in names:
-            update_record(api_key, zone, name, ipv4)
+            update_record(api_key, zone, name, dynamic_ipv4)
+
+    for zone, names in TWVM_RECORDS.items():
+        for name in names:
+            update_record(api_key, zone, name, twvm_ipv4)
 
 
 if __name__ == "__main__":
