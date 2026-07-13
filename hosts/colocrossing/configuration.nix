@@ -85,18 +85,29 @@
     };
   };
 
-  # Public HTTPS is exposed on 8443. Route host-scoped home services to
-  # ml-home-vm while keeping colocrossing services on the local nginx.
+  # Keep high-traffic services on the home ingress, but expose Homepage only
+  # through the standard HTTPS entry point on twvm.
   services.nginx.streamConfig = ''
-    map $ssl_preread_server_name $home_https_upstream {
+    map $ssl_preread_server_name $lan_https_upstream {
+      homepage.ml-home-vm.zhyi.cc 127.0.0.1:1;
+      ~(^|\.)ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
+      default 127.0.0.1:${LT.portStr.HTTPS};
+    }
+
+    map $ssl_preread_server_name $ltnet_https_upstream {
       ~(^|\.)ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       default 127.0.0.1:${LT.portStr.HTTPS};
     }
 
     server {
-      listen 0.0.0.0:443;
-      listen [::]:443;
-      proxy_pass $home_https_upstream;
+      listen ${LT.this.interconnect.IPv4}:443;
+      proxy_pass $lan_https_upstream;
+      ssl_preread on;
+    }
+
+    server {
+      listen ${LT.this.ltnet.IPv4}:443;
+      proxy_pass $ltnet_https_upstream;
       ssl_preread on;
     }
   '';
