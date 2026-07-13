@@ -1,9 +1,34 @@
 { LT, lib, ... }:
 let
+  defaultGatewayHost = LT.hosts.ml-home-vm;
+  managedIPv4Ranges = LT.constants.dn42.IPv4 ++ LT.constants.neonetwork.IPv4 ++ [ "198.18.0.0/15" ];
+  managedIPv6Ranges =
+    LT.constants.dn42.IPv6 ++ LT.constants.neonetwork.IPv6 ++ [ "fdd8:1938:4e88::/48" ];
+
   ztRoutes = [
     { target = "198.18.0.0/24"; }
     { target = "fdd8:1938:4e88::/64"; }
-  ];
+
+    # Default routing to home router
+    {
+      target = "0.0.0.0/0";
+      via = defaultGatewayHost.ltnet.IPv4;
+    }
+    # SideStore
+    {
+      target = "10.7.0.1/32";
+      via = defaultGatewayHost.ltnet.IPv4;
+    }
+  ]
+  # Managed IP ranges
+  ++ (builtins.map (r: {
+    target = r;
+    via = defaultGatewayHost.ltnet.IPv4;
+  }) managedIPv4Ranges)
+  ++ (builtins.map (r: {
+    target = r;
+    via = defaultGatewayHost.ltnet.IPv6;
+  }) managedIPv6Ranges);
 in
 {
   services.zerotierone.controller = {
