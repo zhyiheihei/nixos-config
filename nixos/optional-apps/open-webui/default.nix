@@ -119,12 +119,10 @@
     after = [
       "redis-open-webui.service"
       "postgresql.service"
-      "open-webui-auto-setup.service"
     ];
     requires = [
       "redis-open-webui.service"
       "postgresql.service"
-      "open-webui-auto-setup.service"
     ];
     serviceConfig = {
       DynamicUser = lib.mkForce false;
