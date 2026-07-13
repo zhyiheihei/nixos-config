@@ -22,8 +22,7 @@ in
 
   security.acme = {
     acceptTerms = true;
-    # Gcore rejects concurrent writes to the same ACME challenge RRset.
-    maxConcurrentRenewals = 1;
+    maxConcurrentRenewals = 0;
 
     defaults = {
       dnsProvider = "gcore";
@@ -38,17 +37,34 @@ in
     };
   };
 
-  systemd.services = lib.mapAttrs' (
-    k: v:
-    lib.nameValuePair "acme-${k}" {
-      environment = {
-        LEGO_DEBUG_CLIENT_VERBOSE_ERROR = "true";
-        LEGO_DEBUG_ACME_HTTP_CLIENT = "true";
-      };
-      serviceConfig = {
-        Restart = "on-failure";
-        TimeoutStartSec = "900";
-      };
-    }
-  ) config.security.acme.certs;
+  systemd.services =
+    lib.mapAttrs' (
+      k: _:
+      lib.nameValuePair "acme-${k}" {
+        environment = {
+          LEGO_DEBUG_CLIENT_VERBOSE_ERROR = "true";
+          LEGO_DEBUG_ACME_HTTP_CLIENT = "true";
+        };
+        serviceConfig = {
+          Restart = "on-failure";
+          TimeoutStartSec = "900";
+        };
+      }
+    ) config.security.acme.certs
+    // lib.mapAttrs' (
+      k: _:
+      let
+        rsaCert = "${lib.removeSuffix "-ecc" k}-rsa";
+      in
+      lib.nameValuePair "acme-order-renew-${k}" {
+        # Gcore rejects concurrent writes to the same ACME challenge RRset.
+        after = [ "acme-order-renew-${rsaCert}.service" ];
+      }
+    ) (
+      lib.filterAttrs (
+        k: _:
+        lib.hasSuffix "-ecc" k
+        && builtins.hasAttr "${lib.removeSuffix "-ecc" k}-rsa" config.security.acme.certs
+      ) config.security.acme.certs
+    );
 }
