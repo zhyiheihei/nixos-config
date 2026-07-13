@@ -9,7 +9,6 @@
       records = lib.flatten [
         config.common.hostRecs.CAA
         (config.common.hostRecs.Normal "${domain}.")
-        (config.common.hostRecs.SSHFP "${domain}.")
         (config.common.hostRecs.LTNet "ltnet.${domain}.")
 
         {
