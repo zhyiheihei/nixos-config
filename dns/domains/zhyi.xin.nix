@@ -55,8 +55,29 @@ in
       enableWildcard = false;
       records = [
         {
-          recordType = "NO_PURGE";
+          recordType = "IGNORE";
           name = "@";
+          type = "A,AAAA";
+        }
+        {
+          recordType = "IGNORE";
+          name = "www";
+          type = "A,AAAA";
+        }
+        {
+          recordType = "IGNORE";
+          name = "hub";
+          type = "A,AAAA";
+        }
+        {
+          recordType = "IGNORE";
+          name = "hk";
+          type = "A,AAAA";
+        }
+        {
+          recordType = "IGNORE";
+          name = "*";
+          type = "A,AAAA";
         }
       ]
       ++ map (mkCname homeDdnsTarget) homeServices
