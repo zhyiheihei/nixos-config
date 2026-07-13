@@ -47,7 +47,7 @@
       WEBSOCKET_REDIS_URL = "redis://localhost:${LT.portStr.OpenWebUI.Redis}/0";
       REDIS_URL = "redis://localhost:${LT.portStr.OpenWebUI.Redis}/0";
 
-      WEBUI_URL = "https://ai.xuyh0120.win";
+      WEBUI_URL = "https://ai.zhyi.xin";
       OPENAI_API_BASE_URL = "http://uni-api.localhost/v1";
 
       ENABLE_LOGIN_FORM = "False";
@@ -58,7 +58,7 @@
       OAUTH_SCOPES = "openid profile email groups";
       ENABLE_OAUTH_ROLE_MANAGEMENT = "True";
       OAUTH_ROLES_CLAIM = "groups";
-      OPENID_PROVIDER_URL = "https://login.lantian.pub/.well-known/openid-configuration";
+      OPENID_PROVIDER_URL = "https://login.zhyi.xin/.well-known/openid-configuration";
 
       VECTOR_DB = "pgvector";
       PGVECTOR_DB_URL = "postgresql:///open-webui?host=/run/postgresql";
@@ -139,7 +139,7 @@
   users.groups.open-webui = { };
 
   lantian.nginxVhosts = {
-    "ai.xuyh0120.win" = {
+    "ai.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.OpenWebUI.UI}";
@@ -149,7 +149,7 @@
         "/model-icons".alias = "${LT.sources.lobe-icons.src}/packages/static-png/dark";
       };
 
-      sslCertificate = "lets-encrypt-zhyi.cc";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
   };

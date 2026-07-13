@@ -75,7 +75,7 @@ let
         '$ADMIN_ID',
         NULL,
         '${name}',
-        '{"profile_image_url": "https://ai.xuyh0120.win${iconUrl}", "description": null, "capabilities": {"vision": true, "citations": true}, "suggestion_prompts": null, "tags": []}',
+        '{"profile_image_url": "https://ai.zhyi.xin${iconUrl}", "description": null, "capabilities": {"vision": true, "citations": true}, "suggestion_prompts": null, "tags": []}',
         '{"function_calling": "native"}',
         $TIMESTAMP,
         $TIMESTAMP,
@@ -114,7 +114,23 @@ in
         psql -qtAX -v ON_ERROR_STOP=1 -d open-webui "$@"
       }
 
+      for _ in $(seq 1 60); do
+        if [ "$(owsql -c "SELECT to_regclass('public.user') IS NOT NULL")" = "t" ]; then
+          break
+        fi
+        sleep 2
+      done
+
+      if [ "$(owsql -c "SELECT to_regclass('public.user') IS NOT NULL")" != "t" ]; then
+        echo "Open WebUI database migrations did not finish in time" >&2
+        exit 1
+      fi
+
       export ADMIN_ID=$(owsql -c "SELECT id FROM public.user WHERE role = 'admin' ORDER BY created_at ASC LIMIT 1")
+      if [ -z "$ADMIN_ID" ]; then
+        echo "Open WebUI has no admin user yet; model setup will retry later"
+        exit 0
+      fi
       echo "Admin ID: $ADMIN_ID"
 
       export TIMESTAMP=$(date "+%s")
@@ -136,6 +152,15 @@ in
 
       User = "open-webui";
       Group = "open-webui";
+    };
+  };
+
+  systemd.timers.open-webui-auto-setup = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "2min";
+      OnUnitActiveSec = "15min";
+      Unit = "open-webui-auto-setup.service";
     };
   };
 }

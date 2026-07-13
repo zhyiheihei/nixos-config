@@ -84,10 +84,8 @@ in
 
   networking.hosts = {
     "192.168.2.116" = [ "openclash.zhyi.cc" ];
-    "192.168.2.188" = [
-      "attic.zhyi.xin"
-      "login.zhyi.xin"
-    ];
+    "192.168.2.188" = [ "attic.zhyi.xin" ];
+    "${LT.hosts.colocrossing.ltnet.IPv4}" = [ "login.zhyi.xin" ];
     "192.168.2.192" = [ "ml-builder.zhyi.cc" ];
   };
 
