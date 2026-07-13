@@ -1,10 +1,10 @@
 { portStr, ... }:
 {
-  server = builtins.toJSON { "m.server" = "matrix.lantian.pub:${portStr.Matrix.Public}"; };
+  server = builtins.toJSON { "m.server" = "matrix.zhyi.xin:${portStr.Matrix.Public}"; };
   client = builtins.toJSON {
-    "m.server"."base_url" = "https://matrix.lantian.pub";
-    "m.homeserver"."base_url" = "https://matrix.lantian.pub";
+    "m.server"."base_url" = "https://matrix.zhyi.xin";
+    "m.homeserver"."base_url" = "https://matrix.zhyi.xin";
     "m.identity_server"."base_url" = "https://vector.im";
-    "org.matrix.msc3575.proxy"."url" = "https://matrix.lantian.pub";
+    "org.matrix.msc3575.proxy"."url" = "https://matrix.zhyi.xin";
   };
 }

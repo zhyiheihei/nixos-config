@@ -51,7 +51,7 @@ lib.mkIf (LT.this.hasTag LT.tags.dn42) {
         (lib.getExe pkgs.stayrtr)
         "--bind 127.0.0.1:${LT.portStr.StayRTR.FlapAlerted}"
         "--metrics.addr 127.0.0.1:${LT.portStr.StayRTR.Metrics.FlapAlerted}"
-        "--cache https://flapalerted.lantian.pub/flaps/active/roa"
+        "--cache https://flapalerted.zhyi.cc/flaps/active/roa"
         "--rtr.expire 3600"
         "--rtr.refresh 60"
         "--rtr.retry 60"

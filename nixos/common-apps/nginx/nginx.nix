@@ -149,7 +149,7 @@ in
       stream_server_traffic_status_zone;
 
       map $server_addr $gopher_addr {
-        default               gopher.lantian.pub;
+        default               gopher.zhyi.xin;
         "~*^172\.22\."        gopher.zhyi.dn42;
         "~*^10\.127\."        gopher.lantian.neo;
         "~*^fdd8:1938:4e88:"  gopher.zhyi.dn42;

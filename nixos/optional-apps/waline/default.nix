@@ -21,7 +21,7 @@ in
   sops.secrets.waline-env.sopsFile = inputs.secrets + "/waline.yaml";
 
   lantian.nginxVhosts = {
-    "comments.lantian.pub" = {
+    "comments.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.Waline}";
@@ -63,8 +63,8 @@ in
         PG_PORT = "5432";
         PG_HOST = "/run/postgresql";
 
-        SITE_NAME = "Lan Tian @ Blog";
-        SITE_URL = "https://lantian.pub";
+        SITE_NAME = "Zh Yi @ Blog";
+        SITE_URL = "https://zhyi.xin";
         AKISMET_KEY = "false";
 
         SMTP_HOST = config.programs.msmtp.accounts.default.host;
@@ -72,7 +72,7 @@ in
         SMTP_USER = config.programs.msmtp.accounts.default.user;
         SMTP_SECURE = if (!config.programs.msmtp.accounts.default.tls_starttls) then "true" else "false";
         SENDER_EMAIL = config.programs.msmtp.accounts.default.from;
-        SENDER_NAME = "Lan Tian @ Blog";
+        SENDER_NAME = "Zh Yi @ Blog";
       };
       environmentFiles = [ config.sops.secrets.waline-env.path ];
       volumes = [

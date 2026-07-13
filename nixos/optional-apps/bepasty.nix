@@ -7,7 +7,7 @@
   ...
 }:
 let
-  host = "pb.ltn.pw";
+  host = "pb.zhyi.xin";
 in
 {
   sops.secrets.bepasty = {
@@ -42,11 +42,11 @@ in
       };
     };
 
-    sslCertificate = "lets-encrypt-moliy.site";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 
-  systemd.services."bepasty-server-pb.ltn.pw-gunicorn".serviceConfig = LT.networkToolHarden // {
+  systemd.services."bepasty-server-${host}-gunicorn".serviceConfig = LT.networkToolHarden // {
     Group = "bepasty";
     StateDirectory = "bepasty";
     User = "bepasty";
@@ -55,7 +55,7 @@ in
       pkgs.writeShellScript "bepasty-start" ''
         ${lib.getExe pkgs.python3Packages.gunicorn} \
           bepasty.wsgi \
-          --name "pb.ltn.pw" \
+          --name "${host}" \
           --workers 3 \
           --log-level=info \
           --bind=unix:/run/bepasty/bepasty.sock \

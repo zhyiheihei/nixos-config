@@ -152,8 +152,7 @@ in
       accessibleBy = "localhost";
     };
 
-    "lantian.pub" = addConfLantianPub {
-      serverAliases = [ "${config.networking.hostName}.lantian.pub" ];
+    "zhyi.xin" = addConfLantianPub {
       sslCertificate = "lets-encrypt-zhyi.xin";
     };
     "zhyi.dn42" = addConfLantianPub {
@@ -167,35 +166,13 @@ in
     };
 
     # Don't use globalRedirect, it adds http:// prefix
-    "www.lantian.pub" = {
-      locations."/".return = "307 https://lantian.pub$request_uri";
+    "www.zhyi.xin" = {
+      locations."/".return = "307 https://zhyi.xin$request_uri";
       enableCommonLocationOptions = false;
       sslCertificate = "lets-encrypt-zhyi.xin";
     };
-    "xuyh0120.win" = {
-      serverAliases = [ "www.xuyh0120.win" ];
-      locations."/".return = "307 https://lantian.pub$request_uri";
-      enableCommonLocationOptions = false;
-      sslCertificate = "lets-encrypt-zhyi.cc";
-    };
-    "xn--gmqs02au1c935d.pub" = {
-      serverAliases = [ "www.xn--gmqs02au1c935d.pub" ];
-      locations."/".return = "307 https://lantian.pub$request_uri";
-      enableCommonLocationOptions = false;
-      sslCertificate = "lets-encrypt-moliy.site";
-    };
-    "lab.xuyh0120.win" = {
-      locations."/".return = "307 https://lab.lantian.pub$request_uri";
-      enableCommonLocationOptions = false;
-      sslCertificate = "lets-encrypt-zhyi.cc";
-    };
-    "www.ltn.pw" = {
-      locations."/".return = "307 https://ltn.pw$request_uri";
-      enableCommonLocationOptions = false;
-      sslCertificate = "lets-encrypt-moliy.site";
-    };
 
-    "gopher.lantian.pub" = {
+    "gopher.zhyi.xin" = {
       listenHTTP.enable = true;
       listenPlainSocket = {
         enable = true;
@@ -229,7 +206,7 @@ in
       '';
     };
 
-    "gemini.lantian.pub" = {
+    "gemini.zhyi.xin" = {
       listenHTTP.enable = true;
       listenGeminiSocket = {
         enable = true;

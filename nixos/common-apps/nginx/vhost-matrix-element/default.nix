@@ -19,7 +19,7 @@ let
       "matrix.org"
       "nixos.org"
       "hackint.org"
-      "lantian.pub"
+      "zhyi.xin"
     ];
     branding.welcome_background_url = import ./background.nix;
     embedded_pages.login_for_welcome = true;
@@ -44,7 +44,7 @@ let
   );
 in
 lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
-  lantian.nginxVhosts."element.lantian.pub" = {
+  lantian.nginxVhosts."element.zhyi.xin" = {
     listenHTTP.enable = true;
     root = builtins.toString (LT.nginx.compressStaticAssets pkgs.element-web);
     locations = {

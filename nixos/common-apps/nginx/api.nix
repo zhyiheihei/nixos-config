@@ -1,5 +1,5 @@
 _: {
-  lantian.nginxVhosts."api.lantian.pub" = {
+  lantian.nginxVhosts."api.zhyi.xin" = {
     root = "/var/empty";
     locations = {
       # https://soha.moe/post/test-capport-rfc.html
@@ -8,7 +8,7 @@ _: {
           let
             json = builtins.toJSON {
               captive = false;
-              venue-info-url = "https://lantian.pub";
+              venue-info-url = "https://zhyi.xin";
               seconds-remaining = 10 * 365 * 24 * 60 * 60; # 10 years
               bytes-remaining = 1024 * 1024 * 1024 * 1024 * 1024; # 1 PB
               can-extend-session = false;
