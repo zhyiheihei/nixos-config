@@ -1,4 +1,4 @@
-FOUR_HOSTS := ml-builder,ml-home-vm,ml-2700u,pve-2700u
+FOUR_HOSTS := ml-builder,ml-home-vm,ml-2700u,pve-2700
 CURRENT_HOSTS := ml-builder,ml-home-vm,ml-2700u,colocrossing,twvm
 .DEFAULT_GOAL := help
 
@@ -25,7 +25,12 @@ help: FORCE
 		'make push-cache     将 .gcroots 中的闭包推送到 Attic'
 
 four-eval: FORCE
-	@nix run .#colmena -- eval --on $(FOUR_HOSTS)
+	@set -e; \
+	for host in ml-builder ml-home-vm ml-2700u pve-2700; do \
+		printf 'Evaluating %s... ' "$$host"; \
+		nix eval --raw ".#nixosConfigurations.$$host.config.system.build.toplevel.drvPath" >/dev/null; \
+		printf 'done\n'; \
+	done
 
 four: FORCE
 	@nix run .#colmena -- build --on $(FOUR_HOSTS)
