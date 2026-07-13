@@ -86,22 +86,20 @@ in
   };
 
   networking.hosts = {
-    "127.0.0.1" = [
-      "element.zhyi.xin"
-      "hydra.zhyi.cc"
-      "tools.zhyi.xin"
-    ];
     "192.168.2.116" = [ "openclash.zhyi.cc" ];
     "${LT.hosts.colocrossing.interconnect.IPv4}" = [
       "attic.zhyi.xin"
       "cal.zhyi.xin"
+      "element.zhyi.xin"
       "git.zhyi.xin"
+      "hydra.zhyi.cc"
       "id.zhyi.xin"
       "login.zhyi.xin"
       "netbox.zhyi.cc"
       "posts.zhyi.xin"
       "rss.zhyi.xin"
       "stats.zhyi.xin"
+      "tools.zhyi.xin"
     ];
     "192.168.2.192" = [ "ml-builder.zhyi.cc" ];
   };
