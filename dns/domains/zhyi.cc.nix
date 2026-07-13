@@ -9,7 +9,7 @@ in
       domain = "zhyi.cc";
       registrar = "none";
       providers = [ "gcore" ];
-      enableWildcard = false;
+      enableWildcard = true;
       records = [
         {
           recordType = "CNAME";
