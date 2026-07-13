@@ -1,4 +1,4 @@
-{ ... }:
+{ config, ... }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
   twvmTarget = "tw.zhyi.cc.";
@@ -26,30 +26,6 @@ in
           recordType = "IGNORE";
           name = "tw";
           type = "A,AAAA";
-        }
-        {
-          recordType = "CNAME";
-          name = "colocrossing";
-          target = homeDdnsTarget;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "*.colocrossing";
-          target = "colocrossing.zhyi.cc.";
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "ml-home-vm";
-          target = homeDdnsTarget;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "*.ml-home-vm";
-          target = "ml-home-vm.zhyi.cc.";
-          ttl = "10m";
         }
         {
           recordType = "CNAME";
@@ -99,6 +75,10 @@ in
           target = twvmTarget;
           ttl = "10m";
         }
+
+        (config.common.hostRecs.Normal "${domain}.")
+        (config.common.hostRecs.SSHFP "${domain}.")
+        (config.common.hostRecs.LTNet "ltnet.${domain}.")
       ];
     }
   ];
