@@ -11,6 +11,11 @@
           recordType = "NO_PURGE";
           name = "@";
         }
+        {
+          recordType = "IGNORE";
+          name = "@";
+          type = "NS";
+        }
 
         {
           recordType = "CNAME";
