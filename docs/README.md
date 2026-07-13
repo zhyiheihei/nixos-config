@@ -10,6 +10,7 @@
 - [从原项目修改的提交表](./fork-change-table.md)
 - [测试 ml-builder 强构建机](./test-ml-builder.md)
 - [同步上游后逐台切换系统](./update-and-switch-hosts.md)
+- [Homepage 链接与监测检查](./homepage-link-audit.md)
 - [TODO: 复刻作者的 impermanence 布局](./todo-impermanence.md)
 - [NixOS switch 后无法登录的回滚与救援](./nixos-rollback-rescue.md)
 - [使用 NAS Attic 和 Windows Docker 强机器做 NixOS 构建缓存](./self-hosted-builder.md)
