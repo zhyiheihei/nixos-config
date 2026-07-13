@@ -88,9 +88,10 @@
   # Keep high-traffic services on the home ingress, but expose Homepage only
   # through the standard HTTPS entry point on twvm.
   services.nginx.streamConfig = ''
-    map $ssl_preread_server_name $lan_https_upstream {
-      homepage.ml-home-vm.zhyi.cc 127.0.0.1:1;
-      ~(^|\.)ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
+    map "$remote_addr:$ssl_preread_server_name" $lan_https_upstream {
+      ~^${lib.escapeRegex LT.hosts.twvm.public.IPv4}:homepage\.ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
+      ~:homepage\.ml-home-vm\.zhyi\.cc$ 127.0.0.1:1;
+      ~:.*\.ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       default 127.0.0.1:${LT.portStr.HTTPS};
     }
 

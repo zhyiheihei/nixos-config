@@ -34,12 +34,18 @@
   # Standard HTTPS ingress for selected low-traffic services. Colocrossing
   # dispatches the TLS stream to the owning origin by SNI.
   services.nginx.streamConfig = ''
+    resolver 1.1.1.1 8.8.8.8 valid=60s ipv6=off;
+
+    map $remote_addr $home_https_origin {
+      default home-ddns.zhyi.cc:8443;
+    }
+
     server {
       listen 0.0.0.0:443;
       listen [::]:443;
       proxy_connect_timeout 10s;
       proxy_timeout 3600s;
-      proxy_pass ${LT.hosts.colocrossing.ltnet.IPv4}:443;
+      proxy_pass $home_https_origin;
     }
   '';
 
