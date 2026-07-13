@@ -33,6 +33,7 @@ RECORDS = {
         "matrix-client.zhyi.xin",
         "matrix-federation.zhyi.xin",
         "matrix.zhyi.xin",
+        "stats.zhyi.xin",
         "zerossl.zhyi.xin",
     ],
     "moliy.site": [
