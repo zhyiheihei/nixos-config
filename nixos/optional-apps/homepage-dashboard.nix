@@ -305,6 +305,8 @@
   };
   users.groups.homepage-dashboard = { };
 
+  environment.etc."homepage-dashboard/assets".source = ./homepage-dashboard-assets;
+
   lantian.nginxVhosts = {
     "homepage.${config.networking.hostName}.zhyi.cc" = {
       locations = {
@@ -313,7 +315,7 @@
           enableOAuth = true;
         };
         "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
-        "/homepage-assets/".alias = builtins.toString ./homepage-dashboard-assets + "/";
+        "/homepage-assets/".alias = "/etc/homepage-dashboard/assets/";
       };
 
       sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
@@ -329,7 +331,7 @@
           proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
         };
         "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
-        "/homepage-assets/".alias = builtins.toString ./homepage-dashboard-assets + "/";
+        "/homepage-assets/".alias = "/etc/homepage-dashboard/assets/";
       };
 
       noIndex.enable = true;
