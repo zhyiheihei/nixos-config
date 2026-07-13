@@ -19,7 +19,7 @@
     enable = true;
     package = pkgs.homepage-dashboard.override { enableLocalIcons = true; };
     listenPort = LT.port.HomepageDashboard;
-    environmentFile = config.sops.secrets.homepage-dashboard-env.path;
+    environmentFiles = [ config.sops.secrets.homepage-dashboard-env.path ];
 
     settings = {
       title = "Zh Yi @ Dashboard";
