@@ -94,7 +94,8 @@
     }
 
     server {
-      listen ${LT.this.ltnet.IPv4}:443;
+      listen 0.0.0.0:443;
+      listen [::]:443;
       proxy_pass $home_https_upstream;
       ssl_preread on;
     }
