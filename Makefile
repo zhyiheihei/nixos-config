@@ -1,5 +1,5 @@
-FOUR_HOSTS := ml-builder,ml-builder-cache,ml-2700u,pve-2700u
-CURRENT_HOSTS := ml-builder,ml-builder-cache,ml-2700u,colocrossing
+FOUR_HOSTS := ml-builder,ml-home-vm,ml-2700u,pve-2700u
+CURRENT_HOSTS := ml-builder,ml-home-vm,ml-2700u,colocrossing
 .DEFAULT_GOAL := help
 
 help: FORCE

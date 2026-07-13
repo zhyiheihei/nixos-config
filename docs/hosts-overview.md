@@ -67,8 +67,9 @@ interconnect = { ... };
 
 | 机器 | 主要标签 | 用途理解 |
 | --- | --- | --- |
-| `lt-home-vm` | `server`, `lan-access` | 家里主服务器/大 VM，64 线程 |
+| `lt-home-vm` | `server`, `lan-access` | 作者的家里主服务器/大 VM，64 线程 |
 | `lt-home-builder` | `nix-builder`, `lan-access` | 家里强构建机，64 线程 |
+| `ml-home-vm` | `server`, `lan-access`, `nix-builder` | 你的家庭服务 VM，并兼作远程构建机 |
 | `ml-builder` | `nix-builder`, `lan-access` | 你的强机器/虚拟机构建机 |
 | `lt-home-rdp` | `client`, `lan-access` | 远程桌面/客户端机器 |
 | `lt-home-router` | 无标签 | 家里路由器，手动部署 |

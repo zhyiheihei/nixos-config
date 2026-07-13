@@ -63,10 +63,10 @@ git fetch origin
 git reset --hard origin/master
 
 nix build .#nixosConfigurations.ml-builder.config.system.build.toplevel -L
-nix build .#nixosConfigurations.ml-builder-cache.config.system.build.toplevel -L
+nix build .#nixosConfigurations.ml-home-vm.config.system.build.toplevel -L
 nix build .#nixosConfigurations.ml-2700u.config.system.build.toplevel -L
 #暂时使用缓存
-nix build .#nixosConfigurations.ml-builder-cache.config.system.build.toplevel -L \
+nix build .#nixosConfigurations.ml-home-vm.config.system.build.toplevel -L \
   --extra-substituters 'http://192.168.3.192:5000' \
   --option require-sigs false
 
@@ -96,7 +96,7 @@ cd /nix/src/nixos-config
 git fetch origin
 git reset --hard origin/master
 nixos-rebuild switch --flake .#ml-builder -L
-nixos-rebuild switch --flake .#ml-builder-cache -L
+nixos-rebuild switch --flake .#ml-home-vm -L
 nixos-rebuild switch --flake .#ml-2700u -L
 ```
 
@@ -110,14 +110,14 @@ git config --global user.name
 git config --global user.email
 ```
 
-### ml-builder-cache
+### ml-home-vm
 
 ```bash
 ssh -A -p 2222 root@192.168.2.135
 cd /nix/src/nixos-config
 git fetch origin
 git reset --hard origin/master
-nixos-rebuild switch --flake .#ml-builder-cache -L
+nixos-rebuild switch --flake .#ml-home-vm -L
 ```
 
 切换后重点检查 Attic 和 Hydra：
@@ -227,7 +227,7 @@ manualDeploy = true;
 然后可以尝试单机 Colmena：
 
 ```bash
-nix run .#colmena -- apply --on ml-builder-cache
+nix run .#colmena -- apply --on ml-home-vm
 ```
 
 或在目标机器本机：
@@ -249,7 +249,7 @@ make all
 
 当前阶段建议顺序：
 
-1. `ml-builder-cache`
+1. `ml-home-vm`
 
    先保证 Attic/Hydra/cache 服务稳定。缓存机稳定后，其他机器切换可以吃缓存。
 

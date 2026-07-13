@@ -1,14 +1,26 @@
 {
   inputs,
+  LT,
+  pkgs,
   ...
 }:
+let
+  proxyEnvironment = {
+    HTTP_PROXY = "http://openclash.zhyi.cc:7892";
+    HTTPS_PROXY = "http://openclash.zhyi.cc:7892";
+    NO_PROXY = "localhost,127.0.0.1,::1,.zhyi.cc,.zhyi.xin,192.168.0.0/16";
+    http_proxy = "http://openclash.zhyi.cc:7892";
+    https_proxy = "http://openclash.zhyi.cc:7892";
+    no_proxy = "localhost,127.0.0.1,::1,.zhyi.cc,.zhyi.xin,192.168.0.0/16";
+  };
+in
 {
   imports = [
     ../../nixos/server.nix
+    # ../../nixos/optional-apps/attic-watch-store.nix
+    ../../nixos/optional-apps/hydra
 
     ./hardware-configuration.nix
-    ./media-center.nix
-    ./shares.nix
 
     ../../nixos/client-components/cups.nix
     ../../nixos/client-components/multicast-dns.nix
@@ -17,28 +29,21 @@
     ../../nixos/optional-apps/archiveteam.nix
     ../../nixos/optional-apps/asf.nix
     ../../nixos/optional-apps/axonhub.nix
-    # ../../nixos/optional-apps/bifrost.nix
     ../../nixos/optional-apps/calibre-cops.nix
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/clawemail.nix
-    # ../../nixos/optional-apps/cliproxyapi.nix
-    # ../../nixos/optional-apps/elasticsearch.nix
     ../../nixos/optional-apps/epic-awesome-gamer
     ../../nixos/optional-apps/fastapi-dls.nix
     ../../nixos/optional-apps/glauth.nix
     ../../nixos/optional-apps/handbrake-server.nix
-    # ../../nixos/optional-apps/homepage-dashboard.nix
     ../../nixos/optional-apps/immich.nix
     ../../nixos/optional-apps/iyuuplus.nix
     ../../nixos/optional-apps/llama-cpp.nix
     ../../nixos/optional-apps/metapi.nix
-    # ../../nixos/optional-apps/mtranserver.nix
     ../../nixos/optional-apps/n8n
     ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/nginx-openspeedtest.nix
     ../../nixos/optional-apps/open-webui
-    # ../../nixos/optional-apps/palworld.nix
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
@@ -54,32 +59,55 @@
     "${inputs.secrets}/nixos-hidden-module/851e5310ebca4e5c"
   ];
 
-  services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
-
-  systemd.network.networks.eth0 = {
-    address = [ "192.168.1.10/24" ];
-    gateway = [ "192.168.1.1" ];
-    matchConfig.Name = "eth0";
-    linkConfig.MTUBytes = "9000";
-    networkConfig.IPv6AcceptRA = "yes";
-    ipv6AcceptRAConfig = {
-      Token = "::10";
-      DHCPv6Client = "no";
-    };
-    routes = [
-      {
-        Destination = "64:ff9b::/96";
-        Gateway = "_ipv6ra";
-      }
+  fileSystems."/mnt/storage" = {
+    device = "192.168.2.93:/nixos";
+    fsType = "nfs";
+    options = [
+      "_netdev"
+      "noatime"
+      "clientaddr=192.168.2.135"
+      "hard"
+      "vers=4.1"
+      "nconnect=16"
     ];
   };
+
+  systemd.network.networks.ens18 = {
+    address = [ "${LT.this.interconnect.IPv4}/24" ];
+    gateway = [ "192.168.2.2" ];
+    matchConfig.Name = "ens18";
+    networkConfig.IPv6AcceptRA = "yes";
+    ipv6AcceptRAConfig.DHCPv6Client = "no";
+  };
+
+  networking.hosts = {
+    "192.168.2.116" = [ "openclash.zhyi.cc" ];
+    "192.168.2.188" = [ "attic.zhyi.xin" ];
+    "192.168.2.192" = [ "ml-builder.zhyi.cc" ];
+  };
+
+  environment.variables = proxyEnvironment;
+  systemd.services = {
+    hydra-evaluator.environment = proxyEnvironment;
+    hydra-queue-runner.environment = proxyEnvironment;
+    nix-daemon.environment = proxyEnvironment;
+  };
+
+  environment.systemPackages = with pkgs; [
+    age
+    attic-client
+    sops
+    ssh-to-age
+  ];
+
+  services.calibre-cops.libraryPath = "/mnt/storage/Calibre Library";
 
   services.printing = {
     browsing = true;
     defaultShared = true;
     listenAddresses = [
       "127.0.0.1:631"
-      "192.168.1.10:631"
+      "192.168.2.135:631"
     ];
     allowFrom = [ "all" ];
   };
@@ -88,9 +116,16 @@
   lantian.syncthing.storage = "/mnt/storage/media";
   lantian.archivebox.storage = "/mnt/storage/archivebox";
 
-  # Allow Radicale calendar sync task to access *arr config
   systemd.services.radicale-calendar-sync.serviceConfig = {
     AmbientCapabilities = [ "CAP_DAC_OVERRIDE" ];
     CapabilityBoundingSet = [ "CAP_DAC_OVERRIDE" ];
+  };
+
+  systemd.tmpfiles.settings.ml-home-vm-storage = {
+    "/mnt/storage".d = {
+      mode = "0755";
+      user = "root";
+      group = "root";
+    };
   };
 }

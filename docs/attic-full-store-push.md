@@ -54,7 +54,7 @@ nix build .#nixosConfigurations.ml-2700u.config.system.build.toplevel \
 如果换成别的 host，只改 host 名和 out-link：
 
 ```bash
-HOST=ml-builder-cache
+HOST=ml-home-vm
 nix build .#nixosConfigurations.${HOST}.config.system.build.toplevel \
   --out-link /tmp/${HOST}-result
 ```
