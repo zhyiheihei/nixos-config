@@ -22,7 +22,8 @@ in
 
   security.acme = {
     acceptTerms = true;
-    maxConcurrentRenewals = 0;
+    # Gcore rejects concurrent writes to the same ACME challenge RRset.
+    maxConcurrentRenewals = 1;
 
     defaults = {
       dnsProvider = "gcore";

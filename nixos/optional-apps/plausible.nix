@@ -43,13 +43,13 @@ in
 
     server = {
       port = LT.port.Plausible;
-      baseUrl = "https://stats.xuyh0120.win";
+      baseUrl = "https://stats.zhyi.xin";
       disableRegistration = true;
       secretKeybaseFile = config.sops.secrets.plausible-secret.path;
     };
   };
 
-  lantian.nginxVhosts."stats.xuyh0120.win" = {
+  lantian.nginxVhosts."stats.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://${config.lantian.netns.plausible.ipv4}:${LT.portStr.Plausible}";
