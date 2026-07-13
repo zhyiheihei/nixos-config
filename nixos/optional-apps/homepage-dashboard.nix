@@ -33,7 +33,7 @@
       iconStyle = "theme";
       statusStyle = "dot";
       background = {
-        image = "/homepage-assets/city-night.jpg";
+        image = "/homepage-assets/infra-harbor-night.png";
         opacity = 100;
       };
       layout = {
@@ -47,11 +47,11 @@
         };
         "家庭服务" = {
           style = "row";
-          columns = 5;
+          columns = 3;
         };
         "媒体管理" = {
           style = "row";
-          columns = 6;
+          columns = 3;
         };
       };
       # Ignore errors for network instability
@@ -60,9 +60,9 @@
 
     customCSS = ''
       :root {
-        --dashboard-ink: rgba(8, 11, 15, 0.82);
-        --dashboard-panel: rgba(16, 20, 25, 0.9);
-        --dashboard-line: rgba(255, 255, 255, 0.12);
+        --dashboard-ink: rgba(7, 10, 14, 0.96);
+        --dashboard-panel: rgba(16, 20, 25, 0.97);
+        --dashboard-line: rgba(255, 255, 255, 0.14);
         --dashboard-cyan: #58e1d2;
         --dashboard-coral: #ff6f7d;
         --dashboard-yellow: #f7c95c;
@@ -77,14 +77,14 @@
       body,
       #__next {
         min-height: 100%;
-        background: #070b10 url("/homepage-assets/city-night.jpg") center / cover fixed no-repeat !important;
+        background: #070b10 url("/homepage-assets/infra-harbor-night.png") center / cover fixed no-repeat !important;
       }
 
       #background {
         opacity: 1 !important;
         background-position: center !important;
         background-size: cover !important;
-        filter: saturate(1.12) contrast(1.05);
+        filter: saturate(1.06) contrast(1.04);
       }
 
       #page_wrapper::before {
@@ -93,7 +93,9 @@
         inset: 0;
         z-index: 1;
         pointer-events: none;
-        background: rgba(4, 7, 11, 0.3);
+        background:
+          linear-gradient(180deg, rgba(4, 7, 11, 0.2), rgba(4, 7, 11, 0.48) 78%),
+          linear-gradient(90deg, rgba(4, 7, 11, 0.16), transparent 30%, transparent 70%, rgba(4, 7, 11, 0.16));
       }
 
       #inner_wrapper {
@@ -103,16 +105,38 @@
 
       #information-widgets {
         margin: 28px 32px 8px !important;
-        padding: 14px 18px !important;
+        padding: 8px !important;
         border: 1px solid var(--dashboard-line) !important;
         border-radius: 8px !important;
         background: var(--dashboard-ink) !important;
-        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.32);
+        box-shadow:
+          inset 0 1px rgba(255, 255, 255, 0.06),
+          0 18px 44px rgba(0, 0, 0, 0.36);
       }
 
       .widget-container {
-        min-height: 52px;
-        padding: 4px 10px;
+        min-height: 58px;
+        margin: 4px;
+        padding: 8px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 5px;
+        background: rgba(16, 20, 25, 0.92);
+      }
+
+      .widget-container:nth-child(1) {
+        border-left: 3px solid var(--dashboard-cyan);
+      }
+
+      .widget-container:nth-child(2) {
+        border-top: 2px solid var(--dashboard-coral);
+      }
+
+      .widget-container:nth-child(3) {
+        border-bottom: 2px solid var(--dashboard-yellow);
+      }
+
+      .widget-container:nth-child(4) {
+        border-right: 3px solid var(--dashboard-mint);
       }
 
       #services {
@@ -142,7 +166,10 @@
         border: 1px solid var(--dashboard-line) !important;
         border-radius: 6px !important;
         background-color: var(--dashboard-panel) !important;
-        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.24) !important;
+        box-shadow:
+          inset 0 1px rgba(255, 255, 255, 0.07),
+          inset 0 -1px rgba(0, 0, 0, 0.45),
+          0 10px 26px rgba(0, 0, 0, 0.28) !important;
         transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
       }
 
@@ -172,7 +199,7 @@
 
       .services-group:nth-child(1) .service-card {
         border-top: 3px solid var(--dashboard-cyan) !important;
-        background-color: rgba(10, 24, 27, 0.94) !important;
+        background-color: rgba(9, 21, 24, 0.98) !important;
         background-image:
           linear-gradient(90deg, rgba(88, 225, 210, 0.1) 1px, transparent 1px),
           linear-gradient(rgba(88, 225, 210, 0.07) 1px, transparent 1px) !important;
@@ -194,28 +221,34 @@
         min-height: 80px;
         padding-left: 14px !important;
         border-left: 4px solid var(--dashboard-coral) !important;
-        background-color: rgba(28, 17, 22, 0.94) !important;
+        background-color: rgba(27, 16, 21, 0.98) !important;
+        background-image: linear-gradient(110deg, rgba(255, 111, 125, 0.1), transparent 42%) !important;
         box-shadow:
           inset 10px 0 24px rgba(255, 111, 125, 0.08),
           0 10px 26px rgba(0, 0, 0, 0.24) !important;
       }
 
       .services-group:nth-child(3) .service-card {
-        min-height: 52px;
+        min-height: 104px;
         border-bottom: 3px solid var(--dashboard-yellow) !important;
-        background-color: rgba(27, 24, 16, 0.94) !important;
-        background-image: linear-gradient(135deg, transparent 72%, rgba(247, 201, 92, 0.1) 72%) !important;
+        background-color: rgba(26, 23, 15, 0.98) !important;
+        background-image:
+          linear-gradient(135deg, transparent 72%, rgba(247, 201, 92, 0.12) 72%),
+          linear-gradient(0deg, rgba(247, 201, 92, 0.05), transparent 60%) !important;
       }
 
-      .services-group:nth-child(3) .service-description {
-        display: none;
+      .services-group:nth-child(3) .service-card > div:last-child {
+        border-top: 1px solid rgba(247, 201, 92, 0.13);
       }
 
       .services-group:nth-child(4) .service-card {
-        min-height: 78px;
+        min-height: 112px;
         padding: 11px 12px !important;
         border-right: 3px solid var(--dashboard-mint) !important;
-        background-color: rgba(14, 25, 20, 0.94) !important;
+        background-color: rgba(13, 24, 19, 0.98) !important;
+        background-image:
+          linear-gradient(180deg, rgba(125, 226, 165, 0.08), transparent 44%),
+          repeating-linear-gradient(90deg, transparent 0 28px, rgba(125, 226, 165, 0.025) 28px 29px) !important;
         box-shadow:
           inset 0 0 0 1px rgba(125, 226, 165, 0.07),
           0 10px 26px rgba(0, 0, 0, 0.24) !important;
@@ -243,6 +276,16 @@
         body,
         #__next {
           background-attachment: scroll !important;
+        }
+
+        #background {
+          background-attachment: scroll !important;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .service-card {
+          transition: none !important;
         }
       }
     '';
