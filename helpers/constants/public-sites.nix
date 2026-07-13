@@ -63,7 +63,7 @@ _: [
   "matrix-federation.zhyi.xin"
   "n8n.xuyh0120.win"
   "pb.ltn.pw"
-  "stats.xuyh0120.win"
+  "stats.zhyi.xin"
   # keep-sorted end
 
   # Intentionally public without authentication
