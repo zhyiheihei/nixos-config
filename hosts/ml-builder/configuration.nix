@@ -21,9 +21,6 @@
     "192.168.2.188" = [ "attic.zhyi.xin" ];
   };
 
-  environment.variables = proxyEnvironment;
-  systemd.services.nix-daemon.environment = proxyEnvironment;
-
   services.openssh.settings.MaxStartups = "64:30:128";
 
   environment.systemPackages = with pkgs; [

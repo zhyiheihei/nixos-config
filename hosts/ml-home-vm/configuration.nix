@@ -94,13 +94,6 @@
     "192.168.2.192" = [ "ml-builder.zhyi.cc" ];
   };
 
-  environment.variables = proxyEnvironment;
-  systemd.services = {
-    hydra-evaluator.environment = proxyEnvironment;
-    hydra-queue-runner.environment = proxyEnvironment;
-    nix-daemon.environment = proxyEnvironment;
-  };
-
   environment.systemPackages = with pkgs; [
     age
     attic-client
