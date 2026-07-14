@@ -34,6 +34,7 @@ in
       PATH="/ray"
       SNI="tw.zhyi.cc"
       TYPE="xhttp"
+      LINK="vless://${config.sops.placeholder.v2ray-key}@tw.zhyi.cc:443?security=tls&sni=tw.zhyi.cc&fp=chrome&type=xhttp&host=tw.zhyi.cc&path=%2Fray&mode=stream-up&encryption=none#twvm"
       SUBAPI="https://sub.cmliussss.com"
       SUBNAME="Zh Yi Subscription"
     '';
@@ -64,6 +65,12 @@ in
       User = "worker-vless2sub";
       Group = "worker-vless2sub";
       MemoryDenyWriteExecute = false;
+      RestrictAddressFamilies = [
+        "AF_UNIX"
+        "AF_INET"
+        "AF_INET6"
+        "AF_NETLINK"
+      ];
       RuntimeDirectory = "worker-vless2sub";
       StateDirectory = "worker-vless2sub";
       Restart = "always";
