@@ -59,6 +59,24 @@ in
         }
         {
           recordType = "CNAME";
+          name = "archivebox.ml-home-vm";
+          target = twvmTarget;
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "syncthing.ml-home-vm";
+          target = twvmTarget;
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "*.ml-home-vm";
+          target = homeDdnsTarget;
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
           name = "*";
           target = homeDdnsTarget;
           ttl = "10m";
@@ -100,9 +118,12 @@ in
           ttl = "10m";
         }
 
-        (hostRecords domain (
-          host: if config.common.hostRecs.hasPublicIP host then host.public else host.ltnet
-        ))
+        (builtins.filter
+          (record: !(record.recordType == "CNAME" && record.name == "*.ml-home-vm.zhyi.cc."))
+          (hostRecords domain (
+            host: if config.common.hostRecs.hasPublicIP host then host.public else host.ltnet
+          ))
+        )
         (hostRecords "ltnet.${domain}" (host: host.ltnet))
       ];
     }
