@@ -5,16 +5,6 @@
   pkgs,
   ...
 }:
-let
-  proxyEnvironment = {
-    HTTP_PROXY = "http://openclash.zhyi.cc:7892";
-    HTTPS_PROXY = "http://openclash.zhyi.cc:7892";
-    NO_PROXY = "localhost,127.0.0.1,::1,.zhyi.cc,.zhyi.xin,192.168.0.0/16";
-    http_proxy = "http://openclash.zhyi.cc:7892";
-    https_proxy = "http://openclash.zhyi.cc:7892";
-    no_proxy = "localhost,127.0.0.1,::1,.zhyi.cc,.zhyi.xin,192.168.0.0/16";
-  };
-in
 {
   imports = [
     ../../nixos/server.nix
