@@ -8,7 +8,7 @@
     server
   ];
   cpuThreads = 1;
-  hostname = "twvm.zhyi.cc";
+  hostname = "140.235.38.39";
   city = geo.cities."CN Hong Kong";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEZ4PresW6G2jVfJWVfjajdo4ersMRfkl97nKveYoVjC";
   zerotier = "94602ea0ad";
