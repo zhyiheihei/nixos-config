@@ -38,6 +38,7 @@
 
     map $ssl_preread_server_name $https_origin {
       tw.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
+      sub.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
       default home-ddns.zhyi.cc:8443;
     }
 
