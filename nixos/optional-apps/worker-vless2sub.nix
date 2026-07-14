@@ -17,9 +17,86 @@ let
 
   wranglerConfig = pkgs.writeText "worker-vless2sub-wrangler.toml" ''
     name = "vless2sub-worker"
-    main = "_worker.js"
+    main = "wrapper.js"
     compatibility_date = "2025-09-07"
     keep_vars = true
+  '';
+
+  workerWrapper = pkgs.writeText "worker-vless2sub-wrapper.js" ''
+    import upstream from "./_worker.js";
+
+    function mihomoConfig(env) {
+      return `mixed-port: 7890
+    allow-lan: true
+    mode: rule
+    log-level: info
+    ipv6: true
+
+    proxies:
+      - name: twvm
+        type: vless
+        server: tw.zhyi.cc
+        port: 443
+        uuid: "''${env.UUID}"
+        network: xhttp
+        tls: true
+        udp: true
+        servername: tw.zhyi.cc
+        client-fingerprint: chrome
+        encryption: ""
+        xhttp-opts:
+          path: /ray
+          host: tw.zhyi.cc
+          mode: stream-up
+
+    proxy-groups:
+      - name: PROXY
+        type: select
+        proxies:
+          - AUTO
+          - twvm
+          - DIRECT
+      - name: AUTO
+        type: url-test
+        proxies:
+          - twvm
+        url: https://www.gstatic.com/generate_204
+        interval: 300
+
+    rules:
+      - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
+      - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
+      - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
+      - IP-CIDR,192.168.0.0/16,DIRECT,no-resolve
+      - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
+      - IP-CIDR6,fc00::/7,DIRECT,no-resolve
+      - IP-CIDR6,fe80::/10,DIRECT,no-resolve
+      - GEOIP,CN,DIRECT,no-resolve
+      - MATCH,PROXY
+    `;
+    }
+
+    export default {
+      async fetch(request, env, context) {
+        const url = new URL(request.url);
+        if (url.pathname === "/mihomo.yaml") {
+          if (!env.TOKEN || url.searchParams.get("token") !== env.TOKEN) {
+            return new Response("Not Found", { status: 404 });
+          }
+
+          return new Response(mihomoConfig(env), {
+            headers: {
+              "content-type": "text/yaml; charset=utf-8",
+              "content-disposition": "attachment; filename=mihomo.yaml",
+              "profile-update-interval": "6",
+              "cache-control": "no-store",
+            },
+          });
+        }
+
+        return upstream.fetch(request, env, context);
+      },
+    };
   '';
 in
 {
@@ -52,6 +129,7 @@ in
     };
     script = ''
       cp ${workerSource} "$RUNTIME_DIRECTORY/_worker.js"
+      cp ${workerWrapper} "$RUNTIME_DIRECTORY/wrapper.js"
       cp ${wranglerConfig} "$RUNTIME_DIRECTORY/wrangler.toml"
       ln -s ${config.sops.templates."worker-vless2sub.dev-vars".path} "$RUNTIME_DIRECTORY/.dev.vars"
       cd "$RUNTIME_DIRECTORY"
