@@ -13,7 +13,7 @@ in
   imports = [
     ../../nixos/minimal.nix
     # ../../nixos/optional-apps/attic-watch-store.nix
-
+    ../../nixos/client-apps/vscode-remote-env.nix
     ./hardware-configuration.nix
   ];
 
