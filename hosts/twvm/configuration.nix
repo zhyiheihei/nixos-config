@@ -36,16 +36,18 @@
   services.nginx.streamConfig = ''
     resolver 1.1.1.1 8.8.8.8 valid=60s ipv6=off;
 
-    map $remote_addr $home_https_origin {
+    map $ssl_preread_server_name $https_origin {
+      tw.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
       default home-ddns.zhyi.cc:8443;
     }
 
     server {
       listen 0.0.0.0:443;
       listen [::]:443;
+      ssl_preread on;
       proxy_connect_timeout 10s;
       proxy_timeout 3600s;
-      proxy_pass $home_https_origin;
+      proxy_pass $https_origin;
     }
   '';
 
@@ -58,7 +60,7 @@
         - name: twvm
           type: vless
           server: tw.zhyi.cc
-          port: 8443
+          port: 443
           uuid: ${config.sops.placeholder.v2ray-key}
           udp: true
           tls: true
