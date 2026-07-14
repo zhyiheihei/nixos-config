@@ -64,7 +64,6 @@ _: [
   "flapalerted.zhyi.cc"
   "lg.zhyi.cc"
   "lg.zhyi.dn42"
-  "sub.zhyi.cc"
   "tw.zhyi.cc"
   # keep-sorted end
 ]

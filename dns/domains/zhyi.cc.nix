@@ -36,12 +36,6 @@ in
       enableWildcard = true;
       records = lib.flatten [
         {
-          recordType = "CNAME";
-          name = "sub";
-          target = twvmTarget;
-          ttl = "10m";
-        }
-        {
           recordType = "IGNORE";
           name = "home-ddns";
           type = "A,AAAA";
