@@ -26,7 +26,9 @@ let
     import upstream from "./_worker.js";
 
     function subscriptionPage(request, env) {
-      const subscriptionUrl = new URL("/mihomo.yaml", request.url);
+      const publicUrl = new URL(request.url);
+      publicUrl.protocol = request.headers.get("x-forwarded-proto") || publicUrl.protocol;
+      const subscriptionUrl = new URL("/mihomo.yaml", publicUrl);
       subscriptionUrl.searchParams.set("token", env.TOKEN);
       const escapedUrl = subscriptionUrl.toString()
         .replaceAll("&", "&amp;")
