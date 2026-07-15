@@ -118,6 +118,12 @@ in
           target = twvmTarget;
           ttl = "10m";
         }
+        {
+          recordType = "CNAME";
+          name = "sub";
+          target = twvmTarget;
+          ttl = "10m";
+        }
 
         (builtins.filter
           (record: !(record.recordType == "CNAME" && record.name == "*.ml-home-vm.zhyi.cc."))
