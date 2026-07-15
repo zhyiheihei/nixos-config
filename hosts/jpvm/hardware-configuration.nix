@@ -6,7 +6,7 @@ _: {
     ../../nixos/hardware/qemu.nix
   ];
 
-  boot.loader.grub.device = "/dev/vda"; # or "nodev" for efi only
+  boot.loader.grub.device = "/dev/vda";
 
   fileSystems."/nix" = {
     device = "/dev/vda3";

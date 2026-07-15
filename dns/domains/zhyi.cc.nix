@@ -10,6 +10,7 @@ let
 
   ownHosts = [
     "colocrossing"
+    "jpvm"
     "ml-2700u"
     "ml-builder"
     "ml-home-vm"
@@ -44,6 +45,12 @@ in
           recordType = "IGNORE";
           name = "tw";
           type = "A,AAAA";
+        }
+        {
+          recordType = "A";
+          name = "jp";
+          address = LT.hosts.jpvm.public.IPv4;
+          ttl = "10m";
         }
         {
           recordType = "CNAME";
