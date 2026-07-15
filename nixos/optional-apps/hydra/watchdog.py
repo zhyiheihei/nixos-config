@@ -5,8 +5,8 @@ import time
 
 import requests
 
-HYDRA_QUEUE_URL = "https://hydra.zhyi.cc:4000/queue"
-HYDRA_STATUS_URL = "https://hydra.zhyi.cc:4000/status"
+HYDRA_QUEUE_URL = "https://hydra.zhyi.cc/queue"
+HYDRA_STATUS_URL = "https://hydra.zhyi.cc/status"
 CONSECUTIVE_THRESHOLD = 5
 CHECK_INTERVAL = 60
 

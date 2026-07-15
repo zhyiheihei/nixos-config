@@ -8,6 +8,8 @@
           extraConfig = ''
             limit_req zone=slow burst=20 nodelay;
             limit_req_status 429;
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Forwarded-Port 443;
           '';
         };
       };
