@@ -222,6 +222,7 @@ in
       StateDirectory = "worker-vless2sub";
       Restart = "always";
       RestartSec = 5;
+      CPUQuota = "25%";
     };
   };
 

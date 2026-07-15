@@ -1,6 +1,7 @@
 {
   LT,
   lib,
+  pkgs,
   config,
   inputs,
   ...
@@ -115,14 +116,33 @@
     user = "open-webui";
   };
 
+  systemd.services.open-webui-pgvector-init = {
+    description = "Initialize pgvector for Open WebUI";
+    before = [ "open-webui.service" ];
+    after = [ "postgresql.service" ];
+    requires = [ "postgresql.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      User = "postgres";
+      Group = "postgres";
+      RemainAfterExit = true;
+    };
+    script = ''
+      ${lib.getExe' pkgs.postgresql "psql"} -v ON_ERROR_STOP=1 -d open-webui \
+        -c 'CREATE EXTENSION IF NOT EXISTS vector'
+    '';
+  };
+
   systemd.services.open-webui = {
     after = [
       "redis-open-webui.service"
       "postgresql.service"
+      "open-webui-pgvector-init.service"
     ];
     requires = [
       "redis-open-webui.service"
       "postgresql.service"
+      "open-webui-pgvector-init.service"
     ];
     serviceConfig = {
       DynamicUser = lib.mkForce false;
