@@ -1,5 +1,5 @@
-FOUR_HOSTS := ml-builder,ml-home-vm,ml-2700u,colocrossing,twvm,jpvm
-CURRENT_HOSTS := ml-builder,ml-home-vm,ml-2700u,colocrossing,twvm,jpvm
+FOUR_HOSTS := ml-builder,ml-home-vm,pve-2700,colocrossing,twvm,jpvm
+CURRENT_HOSTS := ml-builder,ml-home-vm,pve-2700,colocrossing,twvm,jpvm
 .DEFAULT_GOAL := help
 
 help: FORCE
@@ -26,7 +26,7 @@ help: FORCE
 
 four-eval: FORCE
 	@set -e; \
-	for host in ml-builder ml-home-vm ml-2700u pve-2700; do \
+	for host in ml-builder ml-home-vm pve-2700; do \
 		printf 'Evaluating %s... ' "$$host"; \
 		nix eval --raw ".#nixosConfigurations.$$host.config.system.build.toplevel.drvPath" >/dev/null; \
 		printf 'done\n'; \
