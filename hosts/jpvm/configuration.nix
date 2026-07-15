@@ -1,4 +1,5 @@
 {
+  inputs,
   LT,
   ...
 }:
@@ -7,6 +8,8 @@
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
+
+    "${inputs.secrets}/nixos-hidden-module/aacd9f37de95f98d"
   ];
 
   systemd.network.networks.eth0 = {
