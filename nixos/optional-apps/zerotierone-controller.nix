@@ -14,6 +14,10 @@ let
       target = "0.0.0.0/0";
       via = defaultGatewayHost.ltnet.IPv4;
     }
+    {
+      target = "::/0";
+      via = defaultGatewayHost.ltnet.IPv6;
+    }
     # SideStore
     {
       target = "10.7.0.1/32";
