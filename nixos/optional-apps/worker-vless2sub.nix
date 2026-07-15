@@ -48,6 +48,21 @@ let
           path: /ray
           host: tw.zhyi.cc
           mode: stream-up
+      - name: jpvm
+        type: vless
+        server: jp.zhyi.cc
+        port: 443
+        uuid: "''${env.UUID}"
+        network: xhttp
+        tls: true
+        udp: true
+        servername: jp.zhyi.cc
+        client-fingerprint: chrome
+        encryption: ""
+        xhttp-opts:
+          path: /ray
+          host: jp.zhyi.cc
+          mode: stream-up
 
     proxy-groups:
       - name: PROXY
@@ -55,11 +70,13 @@ let
         proxies:
           - AUTO
           - twvm
+          - jpvm
           - DIRECT
       - name: AUTO
         type: url-test
         proxies:
           - twvm
+          - jpvm
         url: https://www.gstatic.com/generate_204
         interval: 300
 
