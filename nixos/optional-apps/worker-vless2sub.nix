@@ -2,6 +2,16 @@
   config,
   ...
 }:
+let
+  mkSubscriptionLocation = template: {
+    extraConfig = ''
+      include ${config.sops.templates."worker-vless2sub-token.nginx".path};
+      default_type text/yaml;
+      add_header Content-Disposition 'attachment; filename=mihomo.yaml';
+      alias ${config.sops.templates.${template}.path};
+    '';
+  };
+in
 {
   # The subscription is static apart from the VLESS UUID. Rendering it through
   # SOPS avoids keeping Wrangler's development runtime and file watcher alive.
@@ -112,6 +122,88 @@
     '';
   };
 
+  sops.templates."worker-vless2sub-twvm.yaml" = {
+    owner = "nginx";
+    group = "nginx";
+    mode = "0440";
+    content = ''
+      mixed-port: 7890
+      allow-lan: true
+      mode: rule
+      log-level: info
+      ipv6: true
+
+      proxies:
+        - name: twvm
+          type: vless
+          server: tw.zhyi.cc
+          port: 443
+          uuid: "${config.sops.placeholder.v2ray-key}"
+          network: xhttp
+          tls: true
+          udp: true
+          servername: tw.zhyi.cc
+          client-fingerprint: chrome
+          encryption: ""
+          xhttp-opts:
+            path: /ray
+            host: tw.zhyi.cc
+            mode: stream-up
+
+      proxy-groups:
+        - name: PROXY
+          type: select
+          proxies:
+            - twvm
+            - DIRECT
+
+      rules:
+        - GEOIP,CN,DIRECT,no-resolve
+        - MATCH,PROXY
+    '';
+  };
+
+  sops.templates."worker-vless2sub-jpvm.yaml" = {
+    owner = "nginx";
+    group = "nginx";
+    mode = "0440";
+    content = ''
+      mixed-port: 7890
+      allow-lan: true
+      mode: rule
+      log-level: info
+      ipv6: true
+
+      proxies:
+        - name: jpvm
+          type: vless
+          server: jp.zhyi.cc
+          port: 443
+          uuid: "${config.sops.placeholder.v2ray-key}"
+          network: xhttp
+          tls: true
+          udp: true
+          servername: jp.zhyi.cc
+          client-fingerprint: chrome
+          encryption: ""
+          xhttp-opts:
+            path: /ray
+            host: jp.zhyi.cc
+            mode: stream-up
+
+      proxy-groups:
+        - name: PROXY
+          type: select
+          proxies:
+            - jpvm
+            - DIRECT
+
+      rules:
+        - GEOIP,CN,DIRECT,no-resolve
+        - MATCH,PROXY
+    '';
+  };
+
   sops.templates."worker-vless2sub-token.nginx" = {
     owner = "nginx";
     group = "nginx";
@@ -132,12 +224,9 @@
           alias ${config.sops.templates."worker-vless2sub-index.html".path};
         '';
       };
-      "= /mihomo.yaml".extraConfig = ''
-        include ${config.sops.templates."worker-vless2sub-token.nginx".path};
-        default_type text/yaml;
-        add_header Content-Disposition 'attachment; filename=mihomo.yaml';
-        alias ${config.sops.templates."worker-vless2sub-mihomo.yaml".path};
-      '';
+      "= /mihomo.yaml" = mkSubscriptionLocation "worker-vless2sub-mihomo.yaml";
+      "= /twvm.yaml" = mkSubscriptionLocation "worker-vless2sub-twvm.yaml";
+      "= /jpvm.yaml" = mkSubscriptionLocation "worker-vless2sub-jpvm.yaml";
     };
     sslCertificate = "lets-encrypt-zhyi.cc";
     noIndex.enable = true;
