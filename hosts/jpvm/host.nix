@@ -11,6 +11,7 @@
   hostname = "36.50.85.113";
   city = geo.cities."JP Tokyo";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEBFLiDovNcpzs3OhpkCoc/ByL6DoTdz1H8LlZojX1Pn";
+  zerotier = "a073934677";
   public = {
     IPv4 = "36.50.85.113";
   };
