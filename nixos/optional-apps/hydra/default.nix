@@ -65,7 +65,7 @@ in
     package = pkgs.hydra.overrideAttrs (old: {
       doCheck = false;
     });
-    hydraURL = "https://hydra.zhyi.cc:4000";
+    hydraURL = "https://hydra.zhyi.cc";
     listenHost = "192.168.2.135";
     notificationSender = "postmaster@zhyi.cc";
     port = LT.port.Hydra;
