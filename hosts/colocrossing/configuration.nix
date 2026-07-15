@@ -82,6 +82,18 @@
     };
   };
 
+  lantian.nginxVhosts."sub.zhyi.cc" = {
+    locations."/" = {
+      proxyPass = "https://${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS}";
+      extraConfig = ''
+        proxy_ssl_name sub.zhyi.cc;
+        proxy_ssl_server_name on;
+      '';
+    };
+    sslCertificate = "lets-encrypt-zhyi.cc";
+    noIndex.enable = true;
+  };
+
   # Keep high-traffic services on the home ingress, but expose Homepage only
   # through the standard HTTPS entry point on twvm.
   services.nginx.streamConfig = ''
