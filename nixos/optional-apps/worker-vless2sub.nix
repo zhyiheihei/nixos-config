@@ -25,6 +25,44 @@ let
   workerWrapper = pkgs.writeText "worker-vless2sub-wrapper.js" ''
     import upstream from "./_worker.js";
 
+    function subscriptionPage(request, env) {
+      const subscriptionUrl = new URL("/mihomo.yaml", request.url);
+      subscriptionUrl.searchParams.set("token", env.TOKEN);
+      const escapedUrl = subscriptionUrl.toString()
+        .replaceAll("&", "&amp;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;");
+
+      return `<!doctype html>
+    <html lang="zh-CN">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="robots" content="noindex, nofollow">
+        <title>Zh Yi Subscription</title>
+        <style>
+          :root { color-scheme: light dark; font-family: system-ui, sans-serif; }
+          body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #111315; color: #f3f5f7; }
+          main { width: min(680px, calc(100% - 40px)); }
+          h1 { margin: 0 0 12px; font-size: 30px; letter-spacing: 0; }
+          p { margin: 0 0 24px; color: #aeb6bf; }
+          input { box-sizing: border-box; width: 100%; padding: 13px 14px; border: 1px solid #42484f; border-radius: 6px; background: #1b1f23; color: #e8edf2; font: 14px ui-monospace, monospace; }
+          a { display: inline-block; margin-top: 16px; padding: 11px 16px; border-radius: 6px; background: #e8edf2; color: #111315; font-weight: 650; text-decoration: none; }
+          a:hover { background: #ffffff; }
+        </style>
+      </head>
+      <body>
+        <main>
+          <h1>Zh Yi Subscription</h1>
+          <p>Mihomo 订阅</p>
+          <input aria-label="Mihomo 订阅地址" readonly value="''${escapedUrl}">
+          <a href="''${escapedUrl}">打开订阅</a>
+        </main>
+      </body>
+    </html>`;
+    }
+
     function mihomoConfig(env) {
       return `mixed-port: 7890
     allow-lan: true
@@ -96,6 +134,18 @@ let
     export default {
       async fetch(request, env, context) {
         const url = new URL(request.url);
+        if (url.pathname === "/") {
+          if (!env.TOKEN) {
+            return new Response("Subscription is not configured", { status: 503 });
+          }
+          return new Response(subscriptionPage(request, env), {
+            headers: {
+              "content-type": "text/html; charset=utf-8",
+              "cache-control": "no-store",
+            },
+          });
+        }
+
         if (url.pathname === "/mihomo.yaml") {
           if (!env.TOKEN || url.searchParams.get("token") !== env.TOKEN) {
             return new Response("Not Found", { status: 404 });
@@ -180,8 +230,14 @@ in
   users.groups.worker-vless2sub = { };
 
   lantian.nginxVhosts."sub.zhyi.cc" = {
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.WorkerVless2sub}";
+    locations = {
+      "/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.WorkerVless2sub}";
+        enableOAuth = true;
+      };
+      "= /mihomo.yaml" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.WorkerVless2sub}";
+      };
     };
     sslCertificate = "lets-encrypt-zhyi.cc";
     noIndex.enable = true;

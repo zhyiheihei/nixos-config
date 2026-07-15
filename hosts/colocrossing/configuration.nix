@@ -83,12 +83,22 @@
   };
 
   lantian.nginxVhosts."sub.zhyi.cc" = {
-    locations."/" = {
-      proxyPass = "https://${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS}";
-      extraConfig = ''
-        proxy_ssl_name sub.zhyi.cc;
-        proxy_ssl_server_name on;
-      '';
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS}";
+        enableOAuth = true;
+        extraConfig = ''
+          proxy_ssl_name sub.zhyi.cc;
+          proxy_ssl_server_name on;
+        '';
+      };
+      "= /mihomo.yaml" = {
+        proxyPass = "https://${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS}";
+        extraConfig = ''
+          proxy_ssl_name sub.zhyi.cc;
+          proxy_ssl_server_name on;
+        '';
+      };
     };
     sslCertificate = "lets-encrypt-zhyi.cc";
     noIndex.enable = true;
