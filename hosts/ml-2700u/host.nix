@@ -10,7 +10,7 @@
 
   hostname = "ml-2700u.zhyi.cc";
 
-  city = geo.cities."US Bellevue";
+  city = geo.cities."CN Ningbo";
 
   # 这台机器是你手工安装/切换的客户端机器，不参与批量自动部署。
   manualDeploy = true;

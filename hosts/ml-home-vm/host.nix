@@ -13,7 +13,7 @@
 
   hostname = "ml-home-vm.zhyi.cc";
 
-  city = geo.cities."US Bellevue";
+  city = geo.cities."CN Ningbo";
 
   # 初期手动部署，避免还没验证好的构建机被批量部署误操作。
   manualDeploy = true;

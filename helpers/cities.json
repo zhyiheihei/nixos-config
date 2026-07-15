@@ -48,6 +48,22 @@
     "name": "Tokyo"
   },
   {
+    "admin1": "02",
+    "admin2": "3302",
+    "country": "CN",
+    "lat": "29.87819",
+    "lng": "121.54945",
+    "name": "Ningbo"
+  },
+  {
+    "admin1": "04",
+    "admin2": "TPE",
+    "country": "TW",
+    "lat": "25.05306",
+    "lng": "121.52639",
+    "name": "Taipei"
+  },
+  {
     "admin1": "20",
     "admin2": "3907",
     "country": "NO",
