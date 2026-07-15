@@ -11,7 +11,6 @@ let
   ownHosts = [
     "colocrossing"
     "jpvm"
-    "ml-2700u"
     "ml-builder"
     "ml-home-vm"
     "pve-2700"
