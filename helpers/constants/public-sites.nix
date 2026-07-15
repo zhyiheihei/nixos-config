@@ -62,6 +62,7 @@ _: [
   # Intentionally public without authentication
   # keep-sorted start
   "flapalerted.zhyi.cc"
+  "jp.zhyi.cc"
   "lg.zhyi.cc"
   "lg.zhyi.dn42"
   "sub.zhyi.cc"
