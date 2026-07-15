@@ -23,7 +23,7 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-label/PVEBOOT";
+    device = "/dev/disk/by-uuid/E619-53C2";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -32,7 +32,7 @@
   };
 
   fileSystems."/nix" = {
-    device = "/dev/disk/by-label/PVENIX";
+    device = "/dev/disk/by-uuid/6fd54081-54f1-4977-8263-ca83cf81e55f";
     fsType = "btrfs";
     options = [
       "compress-force=zstd"
