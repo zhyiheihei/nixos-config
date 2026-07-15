@@ -2,7 +2,7 @@
 {
   index = 116;
   tags = with tags; [ ];
-  city = geo.cities."US Bellevue";
+  city = geo.cities."CN Ningbo";
   cpuThreads = 8;
   hostname = "pve-2700.zhyi.cc";
   manualDeploy = true;

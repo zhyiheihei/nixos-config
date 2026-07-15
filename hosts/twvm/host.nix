@@ -9,7 +9,7 @@
   ];
   cpuThreads = 1;
   hostname = "140.235.38.39";
-  city = geo.cities."CN Hong Kong";
+  city = geo.cities."CN Taipei";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEZ4PresW6G2jVfJWVfjajdo4ersMRfkl97nKveYoVjC";
   zerotier = "94602ea0ad";
   public = {
