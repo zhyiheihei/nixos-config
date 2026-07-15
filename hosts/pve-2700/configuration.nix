@@ -1,7 +1,5 @@
 {
   config,
-  lib,
-  pkgs,
   ...
 }:
 {
@@ -16,22 +14,32 @@
     device = "nodev";
   };
 
-  services.proxmox-ve.ipAddress = "192.168.2.11";
+  services.proxmox-ve.bridges = [ "br0" ];
+  services.proxmox-ve.ipAddress = "192.168.2.237";
 
   networking.hosts = {
     "192.168.2.237" = [ config.networking.hostName ];
   };
 
-  sops.age.sshKeyPaths = lib.mkForce [ "/etc/ssh/ssh_host_ed25519_key" ];
-
-  services.openssh.settings = {
-    PasswordAuthentication = lib.mkOverride 40 true;
-    PermitRootLogin = lib.mkOverride 40 "yes";
+  systemd.network.netdevs.br0 = {
+    netdevConfig = {
+      Kind = "bridge";
+      Name = "br0";
+    };
   };
 
-  environment.systemPackages = with pkgs; [
-    age
-    sops
-    ssh-to-age
-  ];
+  systemd.network.networks = {
+    "10-pve-uplink" = {
+      matchConfig.Name = "eth1";
+      networkConfig.Bridge = "br0";
+      linkConfig.RequiredForOnline = "enslaved";
+    };
+
+    br0 = {
+      address = [ "192.168.2.237/24" ];
+      gateway = [ "192.168.2.2" ];
+      matchConfig.Name = "br0";
+      networkConfig.IPv6AcceptRA = "yes";
+    };
+  };
 }
