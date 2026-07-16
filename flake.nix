@@ -248,7 +248,15 @@
 
         hydraJobs = {
           inherit (self) packages;
-          nixosConfigurations = lib.mapAttrs (n: v: v.config.system.build.toplevel) self.nixosConfigurations;
+          nixosConfigurations = lib.genAttrs [
+            "colocrossing"
+            "jpvm"
+            "ml-builder"
+            "ml-home-vm"
+            "pve-2700"
+            "pve-5700u"
+            "twvm"
+          ] (name: self.nixosConfigurations.${name}.config.system.build.toplevel);
         };
       };
 

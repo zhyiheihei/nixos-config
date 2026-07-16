@@ -124,15 +124,21 @@ nix run .#colmena -- apply \
 
 ## 5. Hydra 自动构建
 
-Hydra 的自动构建名单已经在 `flake.nix` 的 `hydraJobs` 中限定为这四个配置。
+Hydra 的自动构建名单在 `flake.nix` 的 `hydraJobs` 中限定为当前已经接管的配置。
 Git 仓库出现新提交后，Hydra 会按 Jobset 的 `Check interval` 拉取并构建：
 
 ```text
+colocrossing
+jpvm
 ml-builder
 ml-home-vm
-ml-2700u
-pve-2700u
+pve-2700
+pve-5700u
+twvm
 ```
+
+作者的其余 host 模板继续保留在 `nixosConfigurations`，可以单独求值和构建，
+但在完成域名、网络和 secrets 适配前不会进入日常 Hydra 队列。
 
 Hydra 自动构建和 Colmena 部署是两件事：
 
