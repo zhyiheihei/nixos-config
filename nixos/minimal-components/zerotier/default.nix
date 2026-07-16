@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   lib,
   LT,
@@ -48,7 +49,8 @@ in
         );
         softwareUpdate = "disable";
         portMappingEnabled = LT.this.firewalled || LT.this.public.IPv4 == null;
-        allowTcpFallbackRelay = false;
+        allowTcpFallbackRelay = config.networking.hostName == "twvm";
+        forceTcpRelay = config.networking.hostName == "twvm";
       };
     };
   };
