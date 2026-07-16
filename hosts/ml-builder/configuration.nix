@@ -18,6 +18,7 @@
   networking.hosts = {
     "192.168.2.116" = [ "openclash.zhyi.cc" ];
     "${LT.hosts.ml-home-vm.interconnect.IPv4}" = [ "ml-home-vm.zhyi.cc" ];
+    "${LT.hosts."pve-5700u".interconnect.IPv4}" = [ "pve-5700u.zhyi.cc" ];
     "${LT.hosts.colocrossing.interconnect.IPv4}" = [ "attic.zhyi.xin" ];
   };
 
