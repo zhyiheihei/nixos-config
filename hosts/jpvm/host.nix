@@ -17,12 +17,7 @@
     IPv4 = "36.50.85.113";
   };
   ltnet = {
-    peers = [
-      "colocrossing"
-      "twvm"
-    ];
-    routeReflectorClients = [ "twvm" ];
-    zerotierPeers = [ "colocrossing" ];
+    peers = [ "twvm" ];
   };
   dn42 = {
     IPv4 = "172.20.46.227";

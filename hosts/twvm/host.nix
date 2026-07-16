@@ -16,7 +16,13 @@
     IPv4 = "140.235.38.39";
     IPv6 = "2407:cdc0:f008:12a::";
   };
-  ltnet.peers = [ "jpvm" ];
+  ltnet = {
+    peers = [
+      "colocrossing"
+      "jpvm"
+    ];
+    routeReflectorClients = [ "jpvm" ];
+  };
   dn42 = {
     IPv4 = "172.20.46.226";
     region = 52;

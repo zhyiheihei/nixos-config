@@ -25,14 +25,10 @@
 
   ltnet = {
     peers = [
-      "jpvm"
       "ml-home-vm"
+      "twvm"
     ];
-    routeReflectorClients = [
-      "jpvm"
-      "ml-home-vm"
-    ];
-    zerotierPeers = [ "jpvm" ];
+    routeReflectorClients = [ "ml-home-vm" ];
   };
 
   dn42 = {
