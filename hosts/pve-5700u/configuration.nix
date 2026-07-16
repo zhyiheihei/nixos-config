@@ -5,9 +5,17 @@
 }:
 {
   imports = [
+    ../../nixos/hardware/lvm.nix
+    ../../nixos/hardware/smart.nix
     ../../nixos/pve.nix
 
+    ./enable-smart.nix
     ./hardware-configuration.nix
+  ];
+
+  boot.kernelParams = [
+    "amd_pstate=active"
+    "amd_pstate.shared_mem=1"
   ];
 
   boot.loader.grub = {
