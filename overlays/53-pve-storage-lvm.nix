@@ -1,4 +1,5 @@
-_: final: prev: {
+_: final: prev:
+let
   pve-storage = prev.pve-storage.overrideAttrs (old: {
     postPatch = (old.postPatch or "") + ''
       grep -rlZ '/sbin/pv' . | xargs -0 sed -i \
@@ -13,4 +14,13 @@ _: final: prev: {
       grep -R "bin/pvcreate', '--metadatasize'" "$out" >/dev/null
     '';
   });
+  pve-ha-manager = prev.pve-ha-manager.override { inherit pve-storage; };
+  pve-manager = prev.pve-manager.override { inherit pve-ha-manager; };
+in
+{
+  inherit pve-storage pve-ha-manager pve-manager;
+
+  proxmox-ve = prev.proxmox-ve.override {
+    inherit pve-storage pve-ha-manager pve-manager;
+  };
 }
