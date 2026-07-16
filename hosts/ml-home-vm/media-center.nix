@@ -32,28 +32,6 @@ in
 
   services.xserver.enable = lib.mkForce false;
 
-  systemd.services.ml-home-vm-storage-setup = {
-    description = "Create ml-home-vm storage directories after mounting the NAS";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "mnt-storage.mount" ];
-    requires = [ "mnt-storage.mount" ];
-    before = [
-      "bazarr.service"
-      "podman-archivebox.service"
-      "podman-handbrake.service"
-      "qbittorrent.service"
-      "qbittorrent-pt.service"
-      "radarr.service"
-      "sonarr.service"
-      "syncthing.service"
-    ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      ExecStart = "${lib.getExe' pkgs.systemd "systemd-tmpfiles"} --create --prefix=/mnt/storage";
-    };
-  };
-
   systemd.tmpfiles.settings.storage = {
     "/mnt/storage".d = {
       mode = "755";
@@ -99,8 +77,8 @@ in
   };
 
   systemd.services.radarr = {
-    after = [ "ml-home-vm-storage-setup.service" ];
-    requires = [ "ml-home-vm-storage-setup.service" ];
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
     serviceConfig = LT.serviceHarden // {
       BindPaths = [
         radarrMediaPath
@@ -111,8 +89,8 @@ in
   };
 
   systemd.services.sonarr = {
-    after = [ "ml-home-vm-storage-setup.service" ];
-    requires = [ "ml-home-vm-storage-setup.service" ];
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
     serviceConfig = LT.serviceHarden // {
       BindPaths = [
         sonarrMediaPath
@@ -123,8 +101,8 @@ in
   };
 
   systemd.services.bazarr = {
-    after = [ "ml-home-vm-storage-setup.service" ];
-    requires = [ "ml-home-vm-storage-setup.service" ];
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
     path = with pkgs; [ mediainfo ];
     serviceConfig = LT.serviceHarden // {
       BindPaths = [
@@ -135,8 +113,8 @@ in
   };
 
   systemd.services.qbittorrent = {
-    after = [ "ml-home-vm-storage-setup.service" ];
-    requires = [ "ml-home-vm-storage-setup.service" ];
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
     serviceConfig.BindPaths = [
       defaultDownloadPath
       qBitTorrentSonarrDownloadPath
@@ -144,8 +122,8 @@ in
   };
 
   systemd.services.qbittorrent-pt = {
-    after = [ "ml-home-vm-storage-setup.service" ];
-    requires = [ "ml-home-vm-storage-setup.service" ];
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
     serviceConfig.BindPaths = [
       defaultDownloadPath
       flexgetAutoDownloadPath
@@ -153,14 +131,7 @@ in
     ];
   };
 
-  systemd.services.syncthing = {
-    after = [ "ml-home-vm-storage-setup.service" ];
-    requires = [ "ml-home-vm-storage-setup.service" ];
-  };
-
   systemd.services.podman-archivebox = {
-    after = [ "ml-home-vm-storage-setup.service" ];
-    requires = [ "ml-home-vm-storage-setup.service" ];
     environment = {
       HTTP_PROXY = "http://openclash.zhyi.cc:7892";
       HTTPS_PROXY = "http://openclash.zhyi.cc:7892";
@@ -169,8 +140,6 @@ in
   };
 
   systemd.services.podman-handbrake = {
-    after = [ "ml-home-vm-storage-setup.service" ];
-    requires = [ "ml-home-vm-storage-setup.service" ];
     environment = {
       HTTP_PROXY = "http://openclash.zhyi.cc:7892";
       HTTPS_PROXY = "http://openclash.zhyi.cc:7892";

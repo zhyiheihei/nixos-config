@@ -41,6 +41,22 @@
     ];
   };
 
+  fileSystems."/nix/persistent/var/lib/vz/virtiofs" = {
+    device = "/dev/disk/by-uuid/b987f750-5ef7-414c-a9c5-ccbe22205835";
+    fsType = "btrfs";
+    options = [
+      "compress-force=zstd"
+      "autodefrag"
+      "nosuid"
+      "nodev"
+      "x-systemd.mount-timeout=infinity"
+    ];
+  };
+
+  services.btrfs.autoScrub.fileSystems = lib.mkAfter [
+    "/nix/persistent/var/lib/vz/virtiofs"
+  ];
+
   swapDevices = [ ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";

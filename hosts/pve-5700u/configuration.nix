@@ -26,6 +26,15 @@
     device = "nodev";
   };
 
+  lantian.backup.enable = true;
+  lantian.backup.paths = {
+    nvme-nixos-home-vm = {
+      snapshotFrom = "/nix/persistent/var/lib/vz/virtiofs";
+      snapshotTo = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-home-vm";
+      backupPath = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-home-vm/virtiofs/nixos-home-vm/persistent";
+    };
+  };
+
   services.proxmox-ve.bridges = [ "br0" ];
   services.proxmox-ve.ipAddress = LT.this.interconnect.IPv4;
 
