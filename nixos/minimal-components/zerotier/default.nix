@@ -1,5 +1,4 @@
 {
-  config,
   pkgs,
   lib,
   LT,
@@ -32,14 +31,19 @@ in
         let
           interconnectIPv4 = LT.interconnectIPv4For k;
           interconnectIPv6 = LT.interconnectIPv6For k;
+          usePublicEndpoint =
+            (LT.this.public.IPv4 != null || LT.this.public.IPv6 != null)
+            && (v.public.IPv4 != null || v.public.IPv6 != null || v.public.IPv6Alt != null);
         in
         lib.nameValuePair v.zerotier {
           try =
             (lib.optionals (interconnectIPv4 != null) [ "${interconnectIPv4}/9993" ])
             ++ (lib.optionals (interconnectIPv6 != null) [ "${interconnectIPv6}/9993" ])
-            ++ (lib.optionals (v.public.IPv4 != null) [ "${v.public.IPv4}/9993" ])
-            ++ (lib.optionals (v.public.IPv6 != null) [ "${v.public.IPv6}/9993" ])
-            ++ (lib.optionals (v.public.IPv6Alt != null) [ "${v.public.IPv6Alt}/9993" ]);
+            ++ (lib.optionals (usePublicEndpoint && v.public.IPv4 != null) [ "${v.public.IPv4}/9993" ])
+            ++ (lib.optionals (usePublicEndpoint && v.public.IPv6 != null) [ "${v.public.IPv6}/9993" ])
+            ++ (lib.optionals (usePublicEndpoint && v.public.IPv6Alt != null) [
+              "${v.public.IPv6Alt}/9993"
+            ]);
         }
       ) (lib.filterAttrs (k: v: v.zerotier != null) LT.otherHosts);
       settings = {
@@ -49,8 +53,7 @@ in
         );
         softwareUpdate = "disable";
         portMappingEnabled = LT.this.firewalled || LT.this.public.IPv4 == null;
-        allowTcpFallbackRelay = config.networking.hostName == "twvm";
-        forceTcpRelay = config.networking.hostName == "twvm";
+        allowTcpFallbackRelay = false;
       };
     };
   };
