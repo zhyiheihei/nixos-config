@@ -65,6 +65,17 @@ rec {
     postInstall = (old.postInstall or "") + ''
       cp -r ${final.lxc}/share/lxc/config/. "$out/share/lxc/config/"
     '';
+    postFixup = (old.postFixup or "") + ''
+      substituteInPlace "$out/share/lxc/config/common.conf" \
+        --replace-fail "/run/current-system/sw/share/lxc/config/common.conf.d/" \
+        "$out/share/lxc/config/common.conf.d/"
+
+      find "$out/share/lxc" -type f -exec \
+        sed -i '1s|^#!/usr/bin/perl$|#!/usr/bin/env perl|' {} +
+
+      substituteInPlace "$out/share/lxc/lxcnetaddbr" \
+        --replace-fail "/sbin/ip" "${final.iproute2}/bin/ip"
+    '';
   });
   phpWithExtensions = prev.php.withExtensions (
     { enabled, all }:

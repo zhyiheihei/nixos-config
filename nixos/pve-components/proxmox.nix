@@ -1,4 +1,7 @@
 { lib, pkgs, ... }:
+let
+  pvePerl = pkgs.perl540.withPackages (_: [ pkgs.pve-manager ]);
+in
 {
   imports = [ ../hardware/vfio.nix ];
 
@@ -11,6 +14,12 @@
   # PVE invokes this unit when starting an LXC container through pct.
   systemd.services."pve-container@" = {
     description = "PVE LXC Container: %i";
+    path = [
+      pvePerl
+      pkgs.binutils
+      pkgs.iproute2
+      pkgs.lxc
+    ];
     unitConfig = {
       DefaultDependencies = false;
       Documentation = "man:lxc-start man:lxc man:pct";
