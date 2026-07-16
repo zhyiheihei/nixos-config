@@ -4,6 +4,7 @@
     "dm-cache"
     "dm-integrity"
     "dm-raid"
+    "dm-thin-pool"
     "dm-writecache"
     "raid0"
     "raid1"
