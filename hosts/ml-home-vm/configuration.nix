@@ -61,7 +61,7 @@
     options = [
       "_netdev"
       "noatime"
-      "clientaddr=192.168.2.135"
+      "clientaddr=${LT.this.interconnect.IPv4}"
       "hard"
       "vers=4.1"
       "nconnect=16"
@@ -92,7 +92,7 @@
       "stats.zhyi.xin"
       "tools.zhyi.xin"
     ];
-    "192.168.2.192" = [ "ml-builder.zhyi.cc" ];
+    "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
   };
 
   environment.systemPackages = with pkgs; [
@@ -111,7 +111,7 @@
     defaultShared = true;
     listenAddresses = [
       "127.0.0.1:631"
-      "192.168.2.135:631"
+      "${LT.this.interconnect.IPv4}:631"
     ];
     allowFrom = [ "all" ];
   };

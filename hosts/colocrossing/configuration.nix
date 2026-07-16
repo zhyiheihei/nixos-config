@@ -54,11 +54,10 @@
   ];
 
   systemd.network.networks.ens18 = {
+    address = [ "${LT.this.interconnect.IPv4}/24" ];
+    gateway = [ "192.168.2.2" ];
     matchConfig.Name = "ens18";
-    networkConfig = {
-      DHCP = "yes";
-      IPv6AcceptRA = "yes";
-    };
+    networkConfig.IPv6AcceptRA = "yes";
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
 

@@ -20,7 +20,7 @@
 
   interconnect = {
     name = "home-lan";
-    IPv4 = "192.168.2.188";
+    IPv4 = "192.168.2.52";
   };
 
   dn42 = {

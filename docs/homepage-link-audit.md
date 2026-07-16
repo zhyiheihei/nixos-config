@@ -59,7 +59,7 @@
 - colocrossing 按 SNI 将 `n8n.zhyi.xin` 转发到 `ml-home-vm:8443`。
 - BitMagnet 用户链接改为实际存在的 `/webui/`。
 - Hydra、Element 和 IT Tools 在承载机上走本机 `8443` 监测。
-- colocrossing 上的服务通过 `192.168.2.188` 内网地址监测。
+- colocrossing 上的服务通过 `192.168.2.52` 内网地址监测。
 
 ## 复测命令
 

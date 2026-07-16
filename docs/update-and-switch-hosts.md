@@ -113,7 +113,7 @@ git config --global user.email
 ### ml-home-vm
 
 ```bash
-ssh -A -p 2222 root@192.168.2.135
+ssh -A -p 2222 root@ml-home-vm.zhyi.cc
 cd /nix/src/nixos-config
 git fetch origin
 git reset --hard origin/master

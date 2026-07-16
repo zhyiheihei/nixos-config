@@ -19,7 +19,7 @@ lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=
 在缓存机执行：
 
 ```bash
-ssh -A -p 2222 root@192.168.2.135
+ssh -A -p 2222 root@ml-home-vm.zhyi.cc
 ```
 
 备份数据库，并清掉旧 object/nar/chunk 索引：

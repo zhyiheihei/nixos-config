@@ -32,7 +32,7 @@
 
   interconnect = {
     name = "home-lan";
-    IPv4 = "192.168.2.135";
+    IPv4 = "192.168.2.51";
   };
 
   # Keep author-style server metadata even without enabling the dn42 tag;

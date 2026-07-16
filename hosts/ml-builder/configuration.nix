@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, LT, ... }:
 {
   imports = [
     ../../nixos/minimal.nix
@@ -8,18 +8,17 @@
   ];
 
   systemd.network.networks.eth0 = {
+    address = [ "${LT.this.interconnect.IPv4}/24" ];
+    gateway = [ "192.168.2.2" ];
     matchConfig.Name = "eth0";
-    networkConfig = {
-      DHCP = "yes";
-      IPv6AcceptRA = "yes";
-    };
+    networkConfig.IPv6AcceptRA = "yes";
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
 
   networking.hosts = {
     "192.168.2.116" = [ "openclash.zhyi.cc" ];
-    "192.168.2.135" = [ "ml-home-vm.zhyi.cc" ];
-    "192.168.2.188" = [ "attic.zhyi.xin" ];
+    "${LT.hosts.ml-home-vm.interconnect.IPv4}" = [ "ml-home-vm.zhyi.cc" ];
+    "${LT.hosts.colocrossing.interconnect.IPv4}" = [ "attic.zhyi.xin" ];
   };
 
   services.openssh.settings.MaxStartups = "64:30:128";

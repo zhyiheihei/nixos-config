@@ -31,12 +31,10 @@
   #   IPv6 = "2001:db8::1";
   # };
 
-  # 只有接入作者这套 home-lan / interconnect 网络时才开启。
-  # 当前先使用 DHCP 获取地址，避免把局域网静态 IP 写进系统网络配置。
-  # interconnect = {
-  #   name = "home-lan";
-  #   IPv4 = "192.168.3.192";
-  # };
+  interconnect = {
+    name = "home-lan";
+    IPv4 = "192.168.2.50";
+  };
 
   # 只有接入 DN42 后才开启。没有 DN42 地址时不要填。
   # dn42 = {
