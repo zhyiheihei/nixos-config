@@ -4,7 +4,7 @@
     "hydra.zhyi.cc" = {
       locations = {
         "/" = {
-          proxyPass = "http://${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.Hydra}";
+          proxyPass = "http://${LT.hosts.pve-5700u.interconnect.IPv4}:${LT.portStr.Hydra}";
           extraConfig = ''
             limit_req zone=slow burst=20 nodelay;
             limit_req_status 429;

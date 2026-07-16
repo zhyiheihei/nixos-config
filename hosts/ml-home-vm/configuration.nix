@@ -9,7 +9,6 @@
   imports = [
     ../../nixos/server.nix
     # ../../nixos/optional-apps/attic-watch-store.nix
-    ../../nixos/optional-apps/hydra
 
     ./hardware-configuration.nix
     ./media-center.nix

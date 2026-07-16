@@ -53,7 +53,7 @@ in
 
   environment.etc."hydra/post-build".source = pkgs.writeShellScript "post-build" ''
     export PATH="${path}:$PATH"
-    export HYDRA_URL="http://192.168.2.135:${LT.portStr.Hydra}"
+    export HYDRA_URL="http://${LT.this.interconnect.IPv4}:${LT.portStr.Hydra}"
 
     jq . "$HYDRA_JSON"
     exec ${lib.getExe' py "python3"} ${./post-build.py} "$HYDRA_JSON"
@@ -66,7 +66,7 @@ in
       doCheck = false;
     });
     hydraURL = "https://hydra.zhyi.cc";
-    listenHost = "192.168.2.135";
+    listenHost = LT.this.interconnect.IPv4;
     notificationSender = "postmaster@zhyi.cc";
     port = LT.port.Hydra;
     buildMachinesFiles = [ "/etc/nix/machines-with-localhost" ];
