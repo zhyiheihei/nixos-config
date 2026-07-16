@@ -7,6 +7,29 @@
 }:
 let
   glauthUsers = import (inputs.secrets + "/glauth-users.nix");
+  certNames = builtins.attrNames config.security.acme.certs;
+  renewalServices = lib.listToAttrs (
+    lib.imap0 (
+      index: certName:
+      let
+        needsEab = lib.hasPrefix "google-" certName || lib.hasPrefix "zerossl-" certName;
+      in
+      lib.nameValuePair "acme-order-renew-${certName}" (
+        lib.optionalAttrs (index > 0) {
+          # All challenges are delegated to the same Gcore RRset.
+          after = [
+            "acme-order-renew-${builtins.elemAt certNames (index - 1)}.service"
+          ];
+        }
+        // lib.optionalAttrs needsEab {
+          serviceConfig.ExecCondition = [
+            "${pkgs.gnugrep}/bin/grep -qE ^LEGO_EAB_KID=.+$ ${config.sops.secrets.lego-env.path}"
+            "${pkgs.gnugrep}/bin/grep -qE ^LEGO_EAB_HMAC=.+$ ${config.sops.secrets.lego-env.path}"
+          ];
+        }
+      )
+    ) certNames
+  );
 in
 {
   imports = [
@@ -52,25 +75,5 @@ in
         };
       }
     ) config.security.acme.certs
-    // lib.mapAttrs' (
-      k: _:
-      let
-        rsaCert = "${lib.removeSuffix "-ecc" k}-rsa";
-        hasRsaPair =
-          lib.hasSuffix "-ecc" k && builtins.hasAttr rsaCert config.security.acme.certs;
-        needsEab = lib.hasPrefix "google-" k || lib.hasPrefix "zerossl-" k;
-      in
-      lib.nameValuePair "acme-order-renew-${k}" (
-        lib.optionalAttrs hasRsaPair {
-          # Gcore rejects concurrent writes to the same ACME challenge RRset.
-          after = [ "acme-order-renew-${rsaCert}.service" ];
-        }
-        // lib.optionalAttrs needsEab {
-          serviceConfig.ExecCondition = [
-            "${pkgs.gnugrep}/bin/grep -qE ^LEGO_EAB_KID=.+$ ${config.sops.secrets.lego-env.path}"
-            "${pkgs.gnugrep}/bin/grep -qE ^LEGO_EAB_HMAC=.+$ ${config.sops.secrets.lego-env.path}"
-          ];
-        }
-      )
-    ) config.security.acme.certs;
+    // renewalServices;
 }
