@@ -109,6 +109,11 @@
         default = [ ];
         description = "LTNET peers treated as BGP route-reflector clients.";
       };
+      zerotierPeers = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = "LTNET WireGuard peers explicitly carried over ZeroTier.";
+      };
       IPv4 = lib.mkOption {
         type = lib.types.str;
         readOnly = true;

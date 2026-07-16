@@ -18,10 +18,11 @@
   };
   ltnet = {
     peers = [
-      "ml-home-vm"
+      "colocrossing"
       "twvm"
     ];
     routeReflectorClients = [ "twvm" ];
+    zerotierPeers = [ "colocrossing" ];
   };
   dn42 = {
     IPv4 = "172.20.46.227";
