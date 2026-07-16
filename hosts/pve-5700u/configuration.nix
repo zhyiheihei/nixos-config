@@ -9,6 +9,9 @@
     ../../nixos/hardware/smart.nix
     ../../nixos/pve.nix
 
+    # Match the upstream pve-epyc role: Hydra runs on the PVE host.
+    ../../nixos/optional-apps/hydra
+
     ./enable-smart.nix
     ./hardware-configuration.nix
   ];
