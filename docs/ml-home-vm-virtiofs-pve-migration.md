@@ -179,3 +179,25 @@ Also verify:
 
 Do not delete the old disk until the new layout has operated correctly for at
 least one week and an independent restore test has succeeded.
+
+## Migration result
+
+The migration completed on 2026-07-16 with VM ID 105 on `pve-5700u`.
+
+- The guest `/nix` is mounted from `virtiofs-nixos-home-vm`.
+- The QNAP export `192.168.2.93:/nixos` remains mounted at `/mnt/storage`.
+- `/run/sftp`, `/run/nfs/storage`, and `/run/syncthing-files` are classified
+  as remote mounts with `_netdev`; this prevents a systemd ordering cycle
+  during a cold boot.
+- PostgreSQL, MySQL, Open WebUI, Homepage, Syncthing, Samba, NFS, and the
+  enabled Podman workloads passed a cold-boot check.
+- VM 105 has the QEMU guest agent enabled and responding.
+- The old 256 GiB `scsi0` disk remains attached and unchanged as the rollback
+  path. Keep it for at least one week and until an independent restore test
+  has passed.
+
+During the migration, a full PVE storage pool paused VM 200 with a QEMU I/O
+error. Free PVE storage and verify `qm status` before resuming a paused VM;
+do not treat the resulting guest time jump or service failures as independent
+application faults. VM 200 now has the QEMU guest agent enabled so the host can
+resynchronize its clock after pause and resume events.

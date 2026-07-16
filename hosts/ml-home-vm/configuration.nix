@@ -1,4 +1,5 @@
 {
+  config,
   inputs,
   LT,
   lib,
@@ -106,6 +107,17 @@
   lantian.syncthing.storage = "/mnt/storage/media";
   fileSystems."/run/syncthing-files".options = lib.mkAfter [ "_netdev" ];
   lantian.archivebox.storage = "/mnt/storage/archivebox";
+
+  systemd.services.podman-epic-awesome-gamer.serviceConfig.ExecCondition =
+    pkgs.writeShellScript "epic-awesome-gamer-credentials-ready" ''
+      envFile=${lib.escapeShellArg config.sops.secrets.epic-awesome-gamer-env.path}
+      for key in GEMINI_API_KEY EPIC_EMAIL EPIC_PASSWORD; do
+        if ! ${lib.getExe pkgs.gnugrep} -q "^$key=." "$envFile"; then
+          echo "Skipping epic-awesome-gamer: $key is not configured"
+          exit 1
+        fi
+      done
+    '';
 
   systemd.services.radicale-calendar-sync.serviceConfig = {
     AmbientCapabilities = [ "CAP_DAC_OVERRIDE" ];
