@@ -1,6 +1,9 @@
 { lib, pkgs, ... }:
 let
-  pvePerl = pkgs.perl.withPackages (_: [ pkgs.pve-manager ]);
+  pvePerlPackage = lib.findFirst (
+    package: (package.pname or null) == "perl"
+  ) (throw "pve-manager does not expose its Perl interpreter") pkgs.pve-manager.requiredPerlModules;
+  pvePerl = pvePerlPackage.withPackages (_: [ pkgs.pve-manager ]);
 in
 {
   imports = [ ../hardware/vfio.nix ];
