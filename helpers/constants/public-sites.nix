@@ -38,6 +38,7 @@ _: [
   "bitwarden.xuyh0120.win"
   "cal.xuyh0120.win"
   "cal.zhyi.xin"
+  "couchdb.zhyi.cc"
   "comments.zhyi.xin"
   "dashboard.xuyh0120.win"
   "git.lantian.pub"
@@ -56,7 +57,9 @@ _: [
   "matrix-federation.zhyi.xin"
   "n8n.zhyi.xin"
   "pb.zhyi.xin"
+  "qnap.zhyi.cc"
   "stats.zhyi.xin"
+  "vaults3.zhyi.cc"
   # keep-sorted end
 
   # Intentionally public without authentication

@@ -12,6 +12,7 @@
 
     ./hardware-configuration.nix
     ./ddns-gcore.nix
+    ./home-lan-vhosts.nix
 
     ../../nixos/optional-apps/acme
     ../../nixos/optional-apps/attic.nix
@@ -60,6 +61,8 @@
     networkConfig.IPv6AcceptRA = "yes";
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
+
+  networking.hosts.${LT.this.interconnect.IPv4} = [ "vaults3.zhyi.cc" ];
 
   # Keep the manually forwarded UDP 9994 bound to the dedicated controller.
   # The regular client would otherwise claim that public port through UPnP.
