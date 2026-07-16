@@ -11,6 +11,7 @@
 
     # Match the upstream pve-epyc role: Hydra runs on the PVE host.
     ../../nixos/optional-apps/hydra
+    ../../nixos/optional-apps/ncps-client.nix
 
     ./enable-smart.nix
     ./hardware-configuration.nix
@@ -40,6 +41,13 @@
 
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
+    "${LT.hosts.colocrossing.interconnect.IPv4}" = [
+      "attic.zhyi.xin"
+      "colocrossing.zhyi.cc"
+      "hydra.zhyi.cc"
+    ];
+    "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
+    "${LT.hosts."ml-home-vm".interconnect.IPv4}" = [ "ml-home-vm.zhyi.cc" ];
   };
 
   systemd.network.netdevs.br0 = {
