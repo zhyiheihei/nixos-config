@@ -63,7 +63,7 @@ rec {
   });
   pve-container = prev.pve-container.overrideAttrs (old: {
     postInstall = (old.postInstall or "") + ''
-      cp ${final.lxc}/share/lxc/config/common.seccomp "$out/share/lxc/config/common.seccomp"
+      cp -r ${final.lxc}/share/lxc/config/. "$out/share/lxc/config/"
     '';
   });
   phpWithExtensions = prev.php.withExtensions (
