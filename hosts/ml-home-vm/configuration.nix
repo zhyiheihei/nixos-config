@@ -54,10 +54,10 @@
     "${inputs.secrets}/nixos-hidden-module/851e5310ebca4e5c"
   ];
 
-  systemd.network.networks.ens18 = {
+  systemd.network.networks.eth0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     gateway = [ "192.168.2.2" ];
-    matchConfig.Name = "ens18";
+    matchConfig.Name = "eth0";
     networkConfig.IPv6AcceptRA = "yes";
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
