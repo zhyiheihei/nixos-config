@@ -13,6 +13,8 @@ let
       LT.publicIPv4For name
     else if LT.this.public.IPv6 != null && LT.publicIPv6For name != null then
       LT.publicIPv6For name
+    else if LT.this.zerotier != null && host.zerotier != null then
+      host.ltnet.IPv4
     else
       null;
   targetHosts = lib.filterAttrs (
