@@ -104,6 +104,7 @@
 
   lantian.immich.storage = "/mnt/storage/immich";
   lantian.syncthing.storage = "/mnt/storage/media";
+  fileSystems."/run/syncthing-files".options = lib.mkAfter [ "_netdev" ];
   lantian.archivebox.storage = "/mnt/storage/archivebox";
 
   systemd.services.radicale-calendar-sync.serviceConfig = {
