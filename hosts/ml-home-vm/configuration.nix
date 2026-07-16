@@ -54,38 +54,6 @@
     "${inputs.secrets}/nixos-hidden-module/851e5310ebca4e5c"
   ];
 
-  fileSystems."/mnt/storage" = {
-    device = "192.168.2.93:/nixos";
-    fsType = "nfs";
-    options = [
-      "_netdev"
-      "noatime"
-      "clientaddr=${LT.this.interconnect.IPv4}"
-      "hard"
-      "nofail"
-      "vers=4.1"
-      "nconnect=16"
-      "x-systemd.automount"
-      "x-systemd.idle-timeout=10min"
-      "x-systemd.mount-timeout=30s"
-    ];
-  };
-
-  fileSystems."/run/syncthing-files".options = lib.mkAfter [
-    "nofail"
-    "x-systemd.automount"
-  ];
-
-  fileSystems."/run/sftp".options = lib.mkAfter [
-    "nofail"
-    "x-systemd.automount"
-  ];
-
-  fileSystems."/run/nfs/storage".options = lib.mkAfter [
-    "nofail"
-    "x-systemd.automount"
-  ];
-
   systemd.network.networks.ens18 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     gateway = [ "192.168.2.2" ];
@@ -122,8 +90,6 @@
 
   services.ncps.cache.maxSize = lib.mkForce "50G";
 
-  services.qemuGuest.enable = true;
-
   services.calibre-cops.libraryPath = "/mnt/storage/Calibre Library";
 
   services.printing = {
@@ -145,11 +111,4 @@
     CapabilityBoundingSet = [ "CAP_DAC_OVERRIDE" ];
   };
 
-  systemd.tmpfiles.settings.ml-home-vm-storage = {
-    "/mnt/storage".d = {
-      mode = "0755";
-      user = "root";
-      group = "root";
-    };
-  };
 }
