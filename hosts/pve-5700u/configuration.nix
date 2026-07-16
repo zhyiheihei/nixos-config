@@ -28,11 +28,18 @@
     };
   };
 
-  # Add the physical uplink to br0 after reading the actual interface name.
-  systemd.network.networks.br0 = {
-    address = [ "192.168.2.10/24" ];
-    gateway = [ "192.168.2.2" ];
-    matchConfig.Name = "br0";
-    networkConfig.IPv6AcceptRA = "yes";
+  systemd.network.networks = {
+    "10-pve-uplink" = {
+      matchConfig.Name = "eth0";
+      networkConfig.Bridge = "br0";
+      linkConfig.RequiredForOnline = "enslaved";
+    };
+
+    br0 = {
+      address = [ "192.168.2.10/24" ];
+      gateway = [ "192.168.2.2" ];
+      matchConfig.Name = "br0";
+      networkConfig.IPv6AcceptRA = "yes";
+    };
   };
 }
