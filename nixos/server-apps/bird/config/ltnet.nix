@@ -18,15 +18,10 @@ let
         !sharedInterconnect
         && LT.this.zerotier != null
         && zerotier != null
-        && (
-          builtins.elem hostname LT.this.ltnet.zerotierPeers
-          || (
-            LT.this.public.IPv4 == null
-            && LT.this.public.IPv6 == null
-            && public.IPv4 == null
-            && public.IPv6 == null
-          )
-        );
+        && LT.this.public.IPv4 == null
+        && LT.this.public.IPv6 == null
+        && public.IPv4 == null
+        && public.IPv6 == null;
     in
     ''
       protocol bgp ltnet_${lib.toLower (LT.sanitizeName hostname)} from lantian_internal {
