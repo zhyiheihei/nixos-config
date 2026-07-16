@@ -46,6 +46,7 @@
       device = "/mnt/storage";
       fsType = "fuse.bindfs";
       options = LT.constants.bindfsMountOptions' [
+        "_netdev"
         "force-user=sftp"
         "force-group=sftp"
         "perms=700"
@@ -59,6 +60,7 @@
       device = "/mnt/storage";
       fsType = "fuse.bindfs";
       options = LT.constants.bindfsMountOptions' [
+        "_netdev"
         "force-user=lantian"
         "force-group=lantian"
         "perms=700"
