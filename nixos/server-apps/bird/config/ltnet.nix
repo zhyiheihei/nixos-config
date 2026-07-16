@@ -114,7 +114,13 @@ in
 
   peers = builtins.concatStringsSep "\n" (
     lib.mapAttrsToList peer (
-      lib.filterAttrs (n: v: LT.this.hasTag LT.tags.server && v.hasTag LT.tags.server) LT.otherHosts
+      lib.filterAttrs (
+        _name: host:
+        LT.this.hasTag LT.tags.server
+        && LT.this.zerotier != null
+        && host.hasTag LT.tags.server
+        && host.zerotier != null
+      ) LT.otherHosts
     )
   );
 }

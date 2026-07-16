@@ -15,7 +15,10 @@ let
       LT.publicIPv6For name
     else
       null;
-  targetHosts = lib.filterAttrs (n: v: v.hasTag "server") LT.otherHosts;
+  targetHosts = lib.filterAttrs (
+    _name: host:
+    LT.this.zerotier != null && host.hasTag "server" && host.zerotier != null
+  ) LT.otherHosts;
 in
 {
   sops.secrets.wg-priv = {
