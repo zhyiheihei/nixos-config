@@ -9,12 +9,24 @@ let
   wg-pubkey = import (inputs.secrets + "/wg-pubkey.nix");
   wgEndpointFor =
     name: host:
-    if !(LT.this.hasTag "ipv6-only") && LT.publicIPv4For name != null then
+    let
+      sharedInterconnect =
+        LT.interconnectIPv4For name != null || LT.interconnectIPv6For name != null;
+      useZeroTier =
+        !sharedInterconnect
+        && LT.this.zerotier != null
+        && host.zerotier != null
+        && (
+          (LT.this.public.IPv4 == null && LT.this.public.IPv6 == null)
+          || (host.public.IPv4 == null && host.public.IPv6 == null)
+        );
+    in
+    if useZeroTier then
+      host.ltnet.IPv4
+    else if !(LT.this.hasTag "ipv6-only") && LT.publicIPv4For name != null then
       LT.publicIPv4For name
     else if LT.this.public.IPv6 != null && LT.publicIPv6For name != null then
       LT.publicIPv6For name
-    else if LT.this.zerotier != null && host.zerotier != null then
-      host.ltnet.IPv4
     else
       null;
   targetHosts = lib.filterAttrs (
