@@ -68,6 +68,7 @@
     "${LT.hosts.colocrossing.interconnect.IPv4}" = [
       "attic.zhyi.xin"
       "cal.zhyi.xin"
+      "colocrossing.zhyi.cc"
       "element.zhyi.xin"
       "git.zhyi.xin"
       "hydra.zhyi.cc"
@@ -80,6 +81,7 @@
       "tools.zhyi.xin"
     ];
     "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
+    "${LT.hosts."pve-5700u".interconnect.IPv4}" = [ "pve-5700u.zhyi.cc" ];
   };
 
   environment.systemPackages = with pkgs; [
