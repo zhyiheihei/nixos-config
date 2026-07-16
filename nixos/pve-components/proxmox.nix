@@ -1,6 +1,6 @@
 { lib, pkgs, ... }:
 let
-  pvePerl = pkgs.perl540.withPackages (_: [ pkgs.pve-manager ]);
+  pvePerl = pkgs.perl.withPackages (_: [ pkgs.pve-manager ]);
 in
 {
   imports = [ ../hardware/vfio.nix ];

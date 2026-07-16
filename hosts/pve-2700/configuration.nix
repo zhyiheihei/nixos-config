@@ -1,5 +1,6 @@
 {
   config,
+  LT,
   ...
 }:
 {
@@ -15,10 +16,10 @@
   };
 
   services.proxmox-ve.bridges = [ "br0" ];
-  services.proxmox-ve.ipAddress = "192.168.2.237";
+  services.proxmox-ve.ipAddress = LT.this.interconnect.IPv4;
 
   networking.hosts = {
-    "192.168.2.237" = [ config.networking.hostName ];
+    "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
   };
 
   systemd.network.netdevs.br0 = {
@@ -36,7 +37,7 @@
     };
 
     br0 = {
-      address = [ "192.168.2.237/24" ];
+      address = [ "${LT.this.interconnect.IPv4}/24" ];
       gateway = [ "192.168.2.2" ];
       matchConfig.Name = "br0";
       networkConfig.IPv6AcceptRA = "yes";
