@@ -62,10 +62,29 @@
       "noatime"
       "clientaddr=${LT.this.interconnect.IPv4}"
       "hard"
+      "nofail"
       "vers=4.1"
       "nconnect=16"
+      "x-systemd.automount"
+      "x-systemd.idle-timeout=10min"
+      "x-systemd.mount-timeout=30s"
     ];
   };
+
+  fileSystems."/run/syncthing-files".options = lib.mkAfter [
+    "nofail"
+    "x-systemd.automount"
+  ];
+
+  fileSystems."/run/sftp".options = lib.mkAfter [
+    "nofail"
+    "x-systemd.automount"
+  ];
+
+  fileSystems."/run/nfs/storage".options = lib.mkAfter [
+    "nofail"
+    "x-systemd.automount"
+  ];
 
   systemd.network.networks.ens18 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
@@ -102,6 +121,8 @@
   ];
 
   services.ncps.cache.maxSize = lib.mkForce "50G";
+
+  services.qemuGuest.enable = true;
 
   services.calibre-cops.libraryPath = "/mnt/storage/Calibre Library";
 
