@@ -17,7 +17,8 @@ let
     "moliy.site"
   ];
 
-  hostSubdomains = lib.mapAttrsToList (n: _: "${n}.zhyi.cc") LT.hosts;
+  activeHosts = lib.filterAttrs (_: host: host.zerotier != null) LT.hosts;
+  hostSubdomains = lib.mapAttrsToList (n: _: "${n}.zhyi.cc") activeHosts;
 in
 {
   security.acme.certs = lib.mergeAttrsList (
