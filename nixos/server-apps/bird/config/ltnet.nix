@@ -28,6 +28,9 @@ let
         local fe80::${builtins.toString LT.this.index} as ${DN42_AS};
         neighbor fe80::${builtins.toString index}%'wgmesh${builtins.toString index}' internal;
         direct;
+        ${lib.optionalString (builtins.elem hostname LT.this.ltnet.routeReflectorClients) ''
+          rr client yes;
+        ''}
         ${lib.optionalString useZeroTier ''
           hold time 120;
           keepalive time 10;
@@ -138,6 +141,7 @@ in
         && LT.this.zerotier != null
         && host.hasTag LT.tags.server
         && host.zerotier != null
+        && (LT.this.ltnet.peers == null || builtins.elem _name LT.this.ltnet.peers)
       ) LT.otherHosts
     )
   );

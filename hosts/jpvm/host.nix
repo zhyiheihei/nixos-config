@@ -16,6 +16,13 @@
   public = {
     IPv4 = "36.50.85.113";
   };
+  ltnet = {
+    peers = [
+      "ml-home-vm"
+      "twvm"
+    ];
+    routeReflectorClients = [ "twvm" ];
+  };
   dn42 = {
     IPv4 = "172.20.46.227";
     region = 52;

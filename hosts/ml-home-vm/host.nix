@@ -35,6 +35,14 @@
     IPv4 = "192.168.2.51";
   };
 
+  ltnet = {
+    peers = [
+      "colocrossing"
+      "jpvm"
+    ];
+    routeReflectorClients = [ "colocrossing" ];
+  };
+
   # Keep author-style server metadata even without enabling the dn42 tag;
   # BIRD's LTNET config reads dn42.region for all server hosts.
   dn42 = {
