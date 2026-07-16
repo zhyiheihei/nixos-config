@@ -23,6 +23,8 @@
     IPv4 = "192.168.2.52";
   };
 
+  ltnet.peers = [ "ml-home-vm" ];
+
   dn42 = {
     IPv4 = "172.20.46.225";
     region = 42;

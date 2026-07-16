@@ -31,8 +31,9 @@ let
     else
       null;
   targetHosts = lib.filterAttrs (
-    _name: host:
+    name: host:
     LT.this.zerotier != null && host.hasTag "server" && host.zerotier != null
+    && (LT.this.ltnet.peers == null || builtins.elem name LT.this.ltnet.peers)
   ) LT.otherHosts;
 in
 {
