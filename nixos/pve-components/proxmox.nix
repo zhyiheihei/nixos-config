@@ -17,6 +17,8 @@ in
   # PVE invokes this unit when starting an LXC container through pct.
   systemd.services."pve-container@" = {
     description = "PVE LXC Container: %i";
+    after = [ "lxc.service" ];
+    wants = [ "lxc.service" ];
     path = [
       pvePerl
       pkgs.binutils
@@ -30,6 +32,33 @@ in
     serviceConfig = {
       Delegate = true;
       ExecStart = "${pkgs.lxc}/bin/lxc-start -F -n %i";
+      ExecStop = "${pkgs.pve-container}/share/lxc/pve-container-stop-wrapper %i";
+      KillMode = "mixed";
+      StandardError = "file:/run/pve/ct-%i.stderr";
+      StandardOutput = "null";
+      TimeoutStopSec = 120;
+      Type = "simple";
+    };
+  };
+
+  # pct --debug uses a separate template with PVE's original debug flags.
+  systemd.services."pve-container-debug@" = {
+    description = "PVE LXC Container: %i";
+    after = [ "lxc.service" ];
+    wants = [ "lxc.service" ];
+    path = [
+      pvePerl
+      pkgs.binutils
+      pkgs.iproute2
+      pkgs.lxc
+    ];
+    unitConfig = {
+      DefaultDependencies = false;
+      Documentation = "man:lxc-start man:lxc man:pct";
+    };
+    serviceConfig = {
+      Delegate = true;
+      ExecStart = "${pkgs.lxc}/bin/lxc-start -F -n %i -o /dev/stderr -l DEBUG";
       ExecStop = "${pkgs.pve-container}/share/lxc/pve-container-stop-wrapper %i";
       KillMode = "mixed";
       StandardError = "file:/run/pve/ct-%i.stderr";

@@ -1,15 +1,8 @@
 _: final: prev:
 let
-  pve-container = prev.pve-container.overrideAttrs (old: {
-    postFixup = (old.postFixup or "") + ''
-      # LXC runs these hooks outside the package's build environment.
-      patchShebangs "$out/share/lxc/hooks"
-    '';
-  });
   pve-ha-manager = (
     prev.pve-ha-manager.override {
-      inherit pve-container;
-      inherit (final) pve-storage;
+      inherit (final) pve-container pve-storage;
     }
   ).overrideAttrs (old: {
     postInstall = (old.postInstall or "") + ''
@@ -25,10 +18,10 @@ let
   pve-manager = prev.pve-manager.override { inherit pve-ha-manager; };
 in
 {
-  inherit pve-container pve-ha-manager pve-manager;
+  inherit pve-ha-manager pve-manager;
 
   proxmox-ve = prev.proxmox-ve.override {
-    inherit pve-container pve-ha-manager pve-manager;
-    inherit (final) pve-storage;
+    inherit (final) pve-container pve-storage;
+    inherit pve-ha-manager pve-manager;
   };
 }
