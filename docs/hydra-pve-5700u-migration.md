@@ -4,6 +4,9 @@ Hydra follows the upstream layout used by `pve-epyc`: the Hydra server,
 evaluator, queue runner, PostgreSQL database, and Attic post-build upload run on
 the physical PVE host. `ml-home-vm` remains the home application VM.
 
+Like the upstream PVE host, `pve-5700u` is registered as a ZeroTier member so
+Hydra reaches remote builders through their LTNET addresses.
+
 The migration is intentionally reversible:
 
 1. Build the new `pve-5700u` and `ml-home-vm` closures.
