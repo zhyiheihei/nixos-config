@@ -36,11 +36,7 @@
   };
 
   ltnet = {
-    peers = [
-      "colocrossing"
-      "jpvm"
-    ];
-    routeReflectorClients = [ "colocrossing" ];
+    peers = [ "colocrossing" ];
   };
 
   # Keep author-style server metadata even without enabling the dn42 tag;

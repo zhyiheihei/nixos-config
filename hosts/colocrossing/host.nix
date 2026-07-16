@@ -23,7 +23,17 @@
     IPv4 = "192.168.2.52";
   };
 
-  ltnet.peers = [ "ml-home-vm" ];
+  ltnet = {
+    peers = [
+      "jpvm"
+      "ml-home-vm"
+    ];
+    routeReflectorClients = [
+      "jpvm"
+      "ml-home-vm"
+    ];
+    zerotierPeers = [ "jpvm" ];
+  };
 
   dn42 = {
     IPv4 = "172.20.46.225";
