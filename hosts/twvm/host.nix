@@ -22,6 +22,7 @@
       "jpvm"
     ];
     routeReflectorClients = [ "jpvm" ];
+    zerotierPeers = [ "colocrossing" ];
   };
   dn42 = {
     IPv4 = "172.20.46.226";

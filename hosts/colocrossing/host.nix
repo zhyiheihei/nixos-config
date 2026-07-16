@@ -29,6 +29,7 @@
       "twvm"
     ];
     routeReflectorClients = [ "ml-home-vm" ];
+    zerotierPeers = [ "twvm" ];
   };
 
   dn42 = {
