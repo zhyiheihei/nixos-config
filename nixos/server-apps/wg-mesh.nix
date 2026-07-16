@@ -16,6 +16,8 @@ let
     !sharedInterconnect
     && LT.this.zerotier != null
     && host.zerotier != null
+    && LT.this.public.IPv4 == null
+    && LT.this.public.IPv6 == null
     && host.public.IPv4 == null
     && host.public.IPv6 == null;
   wgEndpointFor =
