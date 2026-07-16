@@ -12,30 +12,35 @@ from the `register-zhyi` branch.
 - IPv6 allocation: `fdd8:1938:4e88::/48`
 - Domain: `zhyi.dn42`
 
-Do not announce these resources before the Registry pull request is merged.
+The Registry pull request has been merged. These resources may only be
+announced by the configured ZHYI DN42 routers.
 
-## First router
+## Active routers
 
-`colocrossing` is the first DN42 router and authoritative DNS server.
+`jpvm` is the current external DN42 ingress. Its WireGuard and MP-BGP session
+to `sg1.g-load.eu` is defined by the encrypted hidden module and carries both
+IPv4 and IPv6 routes.
+
+`colocrossing` is the home-side DN42 router and authoritative DNS server.
 
 - IPv4: `172.20.46.225`
 - IPv6: `fdd8:1938:4e88:18::1`
 - Nameserver: `ns1.zhyi.dn42`
 
-During the single-node stage, public DN42 service records point to this node.
-The author's multi-node DNS and anycast layout can be restored as more DN42
-routers are added.
+The two routers exchange LTNET routes through the same WireGuard and BIRD
+layout as the upstream configuration. A host participates in this live mesh
+only when it has both the `server` tag and a ZeroTier node ID. This keeps
+retained upstream host examples out of the active routing table without
+changing their reference configurations.
 
 ## Activation order
 
-1. Wait for the Registry pull request to be merged.
-2. Find a nearby peer that supports WireGuard and dual-stack MP-BGP.
-3. Store the WireGuard private key in the existing per-host SOPS secret.
-4. Add the peer parameters to one of the colocrossing hidden modules.
-5. Verify the WireGuard handshake and BIRD BGP session.
-6. Verify that the `/27` and `/48` are exported with valid ROAs.
-7. Configure the authoritative `zhyi.dn42` zone and reverse DNS.
-8. Obtain the Kioubit CA token and encrypt it as
+1. Store the WireGuard private key in the existing per-host SOPS secret.
+2. Add peer parameters to the target router's encrypted hidden module.
+3. Verify the WireGuard handshake and both BIRD BGP sessions.
+4. Verify that the `/27` and `/48` are exported with valid ROAs.
+5. Configure the authoritative `zhyi.dn42` zone and reverse DNS.
+6. Obtain the Kioubit CA token and encrypt it as
    `dn42-certificate-token.yaml` before enabling the DN42 TLS vhosts.
 
 ## Deferred resources
