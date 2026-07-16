@@ -4,6 +4,13 @@ let
     package: (package.pname or null) == "perl"
   ) (throw "pve-manager does not expose its Perl interpreter") pkgs.pve-manager.requiredPerlModules;
   pvePerl = pvePerlPackage.withPackages (_: [ pkgs.pve-manager ]);
+  pveContainerPath = [
+    pvePerl
+    pkgs.binutils
+    pkgs.iproute2
+    pkgs.lxc
+    pkgs.util-linux
+  ];
 in
 {
   imports = [ ../hardware/vfio.nix ];
@@ -19,12 +26,7 @@ in
     description = "PVE LXC Container: %i";
     after = [ "lxc.service" ];
     wants = [ "lxc.service" ];
-    path = [
-      pvePerl
-      pkgs.binutils
-      pkgs.iproute2
-      pkgs.lxc
-    ];
+    path = pveContainerPath;
     unitConfig = {
       DefaultDependencies = false;
       Documentation = "man:lxc-start man:lxc man:pct";
@@ -46,12 +48,7 @@ in
     description = "PVE LXC Container: %i";
     after = [ "lxc.service" ];
     wants = [ "lxc.service" ];
-    path = [
-      pvePerl
-      pkgs.binutils
-      pkgs.iproute2
-      pkgs.lxc
-    ];
+    path = pveContainerPath;
     unitConfig = {
       DefaultDependencies = false;
       Documentation = "man:lxc-start man:lxc man:pct";
