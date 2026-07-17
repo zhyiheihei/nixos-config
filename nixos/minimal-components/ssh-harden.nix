@@ -142,8 +142,8 @@ in
       Port 23
       IdentityFile ${config.sops.secrets.sftp-privkey.path}
 
-    Host sftp.ml-home-vm.ltnet.xuyh0120.win
-      HostName ml-home-vm.ltnet.xuyh0120.win
+    Host sftp.ml-home-vm.zhyi.cc
+      HostName ml-home-vm.zhyi.cc
       User sftp
       IdentityFile ${config.sops.secrets.sftp-privkey.path}
       ${ltnetSSHConfig}

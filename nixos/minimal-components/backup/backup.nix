@@ -34,7 +34,7 @@ in
     };
     resticRepos = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = builtins.attrNames resticRepos;
+      default = [ "home" ];
     };
     schedule = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
