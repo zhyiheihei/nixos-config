@@ -36,6 +36,7 @@
       logging.level = "warning";
       output.elasticsearch = {
         hosts = [ "https://es-ingest.logvm.zhyi.cc:${LT.portStr.HTTPS}" ];
+        ssl.certificate_authorities = [ "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" ];
         compression_level = 6;
         index = "beat";
       };
