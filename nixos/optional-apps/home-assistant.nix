@@ -9,7 +9,7 @@
     ];
     environment.TZ = config.time.timeZone;
     volumes = [
-      "/mnt/storage/homeassistant:/config"
+      "/var/lib/home-assistant:/config"
       "/dev:/dev"
       "/etc/localtime:/etc/localtime:ro"
       "/var/run/docker.sock:/var/run/docker.sock"
@@ -17,17 +17,11 @@
   };
 
   systemd.services.podman-home-assistant = {
-    after = [
-      "mnt-storage.mount"
-      "podman.socket"
-    ];
-    requires = [
-      "mnt-storage.mount"
-      "podman.socket"
-    ];
+    after = [ "podman.socket" ];
+    requires = [ "podman.socket" ];
   };
 
-  systemd.tmpfiles.settings.home-assistant."/mnt/storage/homeassistant"."d" = {
+  systemd.tmpfiles.settings.home-assistant."/var/lib/home-assistant"."d" = {
     mode = "0700";
     user = "root";
     group = "root";
