@@ -11,8 +11,8 @@
   ];
 
   systemd.settings.Manager = {
-    RebootWatchdogSec = lib.mkForce null;
-    RuntimeWatchdogSec = lib.mkForce null;
-    KExecWatchdogSec = lib.mkForce null;
+    RebootWatchdogSec = lib.mkForce "0";
+    RuntimeWatchdogSec = lib.mkForce "0";
+    KExecWatchdogSec = lib.mkForce "0";
   };
 }

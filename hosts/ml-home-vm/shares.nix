@@ -39,6 +39,12 @@
     "delete veto files" = "yes";
   };
 
+  services.samba.settings.global = {
+    "local master" = "no";
+    "preferred master" = "no";
+    "domain master" = "no";
+  };
+
   lantian.syncthing.storage = "/mnt/storage/media";
 
   fileSystems = {
