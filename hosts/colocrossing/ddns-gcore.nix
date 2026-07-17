@@ -20,6 +20,12 @@ in
       Type = "oneshot";
       EnvironmentFile = config.sops.secrets.ddns-gcore-env.path;
       Environment = "IP_COMMAND=${lib.getExe' pkgs.iproute2 "ip"}";
+      RestrictAddressFamilies = [
+        "AF_UNIX"
+        "AF_INET"
+        "AF_INET6"
+        "AF_NETLINK"
+      ];
       ExecStart = "${lib.getExe py} ${./ddns_gcore.py}";
       Restart = "no";
     };
