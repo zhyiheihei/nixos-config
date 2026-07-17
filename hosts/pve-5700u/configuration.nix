@@ -45,6 +45,7 @@
       "attic.zhyi.xin"
       "colocrossing.zhyi.cc"
       "hydra.zhyi.cc"
+      "vaults3.zhyi.cc"
     ];
     "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
     "${LT.hosts."ml-home-vm".interconnect.IPv4}" = [ "ml-home-vm.zhyi.cc" ];
