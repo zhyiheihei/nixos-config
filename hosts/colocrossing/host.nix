@@ -25,6 +25,7 @@
 
   ltnet = {
     peers = [
+      "logvm"
       "ml-home-vm"
       "twvm"
     ];

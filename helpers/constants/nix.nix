@@ -7,6 +7,7 @@ _: rec {
 
   substituters = [
     attic.url
+    "https://mirror.sjtu.edu.cn/nix-channels/store"
     "https://cache.nixos-cuda.org"
     "https://cuda-maintainers.cachix.org"
     "https://nix-gaming.cachix.org"
