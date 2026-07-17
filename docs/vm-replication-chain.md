@@ -7,7 +7,7 @@
 
 | 当前主机 | 作者主机 | 保留的角色 |
 | --- | --- | --- |
-| `ml-home-vm` | `lt-home-vm` | 家庭服务 VM、持久数据挂载、普通 Nix 远程构建机、NCPS |
+| `ml-home-vm` | `lt-home-vm` | 家庭服务 VM、持久数据挂载、NCPS |
 | `pve-5700u` | `pve-epyc` | PVE 虚拟化宿主、Hydra、远程构建调度 |
 
 CPU 数量、磁盘设备、网卡名、MAC、城市、域名和局域网网段必须使用当前硬件的真实值，
@@ -18,9 +18,8 @@ Open vSwitch 文件硬编码了作者机器的四张网卡。
 
 ```text
 Hydra (pve-5700u .54)
-  |-- big-parallel --> ml-builder .50
-  |-- regular jobs --> ml-home-vm .51
-  `-- kvm/test ------> Hydra localhost
+  |-- ARM/big-parallel --> ml-builder .50
+  `-- native kvm/test --> Hydra localhost
 
 Nix client
   |-- priority 5  --> Attic (colocrossing .52) --> S3
@@ -73,8 +72,9 @@ systemctl is-active hydra-evaluator hydra-queue-runner hydra-server
 cat /etc/nix/machines-with-localhost
 ```
 
-预期 `ml-builder` 的构建机记录包含强制特性 `big-parallel`；`ml-home-vm`
-没有该强制特性。这样普通任务可落到家庭 VM，大包只交给强构建机。
+预期远程构建机表只包含 `ml-builder`。它声明 x86_64 和 ARM 平台，并支持
+`big-parallel`；Hydra localhost 只声明非 ARM 平台，`ml-home-vm` 不参与构建。
+这样 ARM 和大包都只交给强构建机。
 
 ## 保留事项
 

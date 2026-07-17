@@ -3,12 +3,10 @@
   index = 115;
   tags = with tags; [
     lan-access
-    nix-builder
     server
   ];
 
-  # 家庭服务虚拟机，同时作为 Nix 远程构建机使用。
-  # 按实际分配给 VM 的 vCPU 数调整，影响远程构建并发。
+  # 家庭服务虚拟机，不参与 Hydra 远程构建。
   cpuThreads = 14;
 
   hostname = "ml-home-vm.zhyi.cc";
