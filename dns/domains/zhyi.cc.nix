@@ -42,6 +42,11 @@ in
         }
         {
           recordType = "IGNORE";
+          name = "wg-home";
+          type = "A,AAAA";
+        }
+        {
+          recordType = "IGNORE";
           name = "tw";
           type = "A,AAAA";
         }

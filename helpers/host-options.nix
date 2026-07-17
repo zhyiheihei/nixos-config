@@ -99,6 +99,11 @@
     };
 
     ltnet = {
+      endpointOverrides = lib.mkOption {
+        type = lib.types.attrsOf lib.types.str;
+        default = { };
+        description = "Per-peer WireGuard endpoint overrides for dynamic public addresses.";
+      };
       peers = lib.mkOption {
         type = lib.types.nullOr (lib.types.listOf lib.types.str);
         default = null;

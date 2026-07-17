@@ -7,6 +7,7 @@
 }:
 let
   primaryServer = "colocrossing";
+  syncAddress = "${LT.hosts.${primaryServer}.ltnet.IPv4Prefix}.1";
 in
 {
   systemd.tmpfiles.settings = {
@@ -29,7 +30,7 @@ in
     socketActivated = true;
     settings = {
       globalSection = {
-        address = LT.this.ltnet.IPv4;
+        address = syncAddress;
         gid = "root";
         uid = "root";
         "use chroot" = true;
@@ -52,7 +53,7 @@ in
   };
 
   systemd.sockets.rsync = {
-    listenStreams = lib.mkForce [ "${LT.this.ltnet.IPv4}:${LT.portStr.Rsync}" ];
+    listenStreams = lib.mkForce [ "${syncAddress}:${LT.portStr.Rsync}" ];
     socketConfig = {
       FreeBind = true;
       SocketProtocol = "mptcp";
@@ -74,7 +75,7 @@ in
             "-aczrq"
             "--delete-after"
             "--timeout=300"
-            "rsync://${LT.hosts.${primaryServer}.ltnet.IPv4}/sync-servers/"
+            "rsync://${syncAddress}/sync-servers/"
             "/nix/sync-servers/"
           ]
         else

@@ -19,6 +19,7 @@ in
     serviceConfig = LT.serviceHarden // {
       Type = "oneshot";
       EnvironmentFile = config.sops.secrets.ddns-gcore-env.path;
+      Environment = "IP_COMMAND=${lib.getExe' pkgs.iproute2 "ip"}";
       ExecStart = "${lib.getExe py} ${./ddns_gcore.py}";
       Restart = "no";
     };
