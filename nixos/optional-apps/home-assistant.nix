@@ -2,6 +2,7 @@
 {
   virtualisation.oci-containers.containers.home-assistant = {
     image = "ghcr.io/home-assistant/home-assistant:2026.3.1";
+    labels."io.containers.autoupdate" = "registry";
     extraOptions = [
       "--network=host"
       "--privileged"
