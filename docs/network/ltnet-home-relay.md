@@ -109,8 +109,8 @@ re-enabled.
 
 ## Builder availability
 
-`ml-builder` is currently reachable at `192.168.2.50`. Hydra assigns jobs that
-require `big-parallel` only to this strong builder. `ml-home-vm` remains a
-regular remote builder and Hydra localhost handles `kvm`, `nixos-test`, and
-`benchmark` jobs. If the strong builder is powered off, only jobs that require
-`big-parallel` should wait.
+`ml-builder` is currently reachable at `192.168.2.50`. It is the only machine
+that advertises ARM platforms and the `big-parallel` feature. `ml-home-vm` is
+not a remote builder. Hydra localhost handles native x86_64 jobs with `kvm`,
+`nixos-test`, and `benchmark`, but does not advertise ARM platforms. If the
+strong builder is powered off, ARM and `big-parallel` jobs wait.

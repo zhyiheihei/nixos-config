@@ -8,6 +8,17 @@
 let
   cfg = config.lantian.nix-distributed;
 
+  armPlatforms = [
+    "aarch64-linux"
+    "armv5tel-linux"
+    "armv6l-linux"
+    "armv7a-linux"
+    "armv7l-linux"
+  ];
+
+  isArmPlatform = platform: builtins.elem platform armPlatforms;
+  isLocalArmBuilder = config.networking.hostName == "ml-builder";
+
   mkBuildMachine =
     n: v:
     let
@@ -21,7 +32,9 @@ let
       # Hydra keys machines by store URI, so each host must have only one entry.
       [
         {
-          inherit (v) system;
+          systems =
+            [ v.system ]
+            ++ lib.optionals isBigParallelBuilder armPlatforms;
           hostName = "${n}.zhyi.cc";
           maxJobs = v.cpuThreads;
           # Hydra's build-remote path currently only supports legacy SSH stores.
@@ -30,13 +43,17 @@ let
           sshKey = cfg.sshKeyPath;
           sshUser = "nix-builder";
           supportedFeatures = lib.optionals isBigParallelBuilder [ "big-parallel" ];
-          mandatoryFeatures = lib.optionals isBigParallelBuilder [ "big-parallel" ];
+          mandatoryFeatures = [ ];
         }
       ];
 
-  platforms = builtins.concatStringsSep "," (
-    lib.uniqueStrings (config.nix.settings.extra-platforms ++ [ pkgs.stdenv.hostPlatform.system ])
+  localPlatforms = lib.uniqueStrings (
+    [ pkgs.stdenv.hostPlatform.system ]
+    ++ builtins.filter
+      (platform: isLocalArmBuilder || !isArmPlatform platform)
+      config.nix.settings.extra-platforms
   );
+  platforms = builtins.concatStringsSep "," localPlatforms;
 in
 {
   options.lantian.nix-distributed.sshKeyPath = lib.mkOption {
