@@ -79,6 +79,7 @@
       "rss.zhyi.xin"
       "stats.zhyi.xin"
       "tools.zhyi.xin"
+      "vaults3.zhyi.cc"
     ];
     "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
     "${LT.hosts."pve-5700u".interconnect.IPv4}" = [ "pve-5700u.zhyi.cc" ];
