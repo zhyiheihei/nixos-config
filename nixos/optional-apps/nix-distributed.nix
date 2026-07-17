@@ -12,6 +12,7 @@ let
     n: v:
     let
       isLocal = n == config.networking.hostName;
+      isBigParallelBuilder = n == "ml-builder";
     in
     assert v.cpuThreads > 0;
     if isLocal then
@@ -28,8 +29,8 @@ let
           speedFactor = v.cpuThreads;
           sshKey = cfg.sshKeyPath;
           sshUser = "nix-builder";
-          supportedFeatures = lib.optionals (v.cpuThreads >= 8) [ "big-parallel" ];
-          mandatoryFeatures = [ ];
+          supportedFeatures = lib.optionals isBigParallelBuilder [ "big-parallel" ];
+          mandatoryFeatures = lib.optionals isBigParallelBuilder [ "big-parallel" ];
         }
       ];
 
