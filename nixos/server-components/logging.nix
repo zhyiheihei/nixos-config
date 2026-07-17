@@ -3,15 +3,14 @@
   lib,
   LT,
   config,
-  inputs,
   ...
 }:
 {
-  sops.secrets.filebeat-elasticsearch-pw.sopsFile = inputs.secrets + "/common/flebeat.yaml";
+  networking.hosts."${LT.hosts.logvm.ltnet.IPv4}" = [ "es-ingest.logvm.zhyi.cc" ];
 
   services.filebeat = {
     enable = !(LT.this.hasTag LT.tags.low-ram);
-    package = pkgs.filebeat8;
+    package = pkgs.filebeat7;
     inputs = {
       journald = {
         type = "journald";
@@ -36,14 +35,11 @@
     settings = {
       logging.level = "warning";
       output.elasticsearch = {
-        hosts = [ "https://cloud.community.humio.com:9200" ];
-        username = "any-organization";
-        password = {
-          _secret = config.sops.secrets.filebeat-elasticsearch-pw.path;
-        };
+        hosts = [ "https://es-ingest.logvm.zhyi.cc:${LT.portStr.HTTPS}" ];
         compression_level = 6;
         index = "beat";
       };
+      setup.ilm.enabled = false;
       setup.template = {
         name = "beat";
         pattern = "beat";
