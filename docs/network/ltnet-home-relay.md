@@ -107,8 +107,10 @@ All must report `Established`. A rapidly increasing one-way WireGuard transfer
 counter indicates a broken transport and should be investigated before BGP is
 re-enabled.
 
-## Known external dependency
+## Builder availability
 
-`ml-builder` is not reachable at `192.168.2.50`. Its host or VM must be powered
-on before Hydra can use that builder. Hydra can continue with `ml-home-vm` and
-localhost while it is offline.
+`ml-builder` is currently reachable at `192.168.2.50`. Hydra assigns jobs that
+require `big-parallel` only to this strong builder. `ml-home-vm` remains a
+regular remote builder and Hydra localhost handles `kvm`, `nixos-test`, and
+`benchmark` jobs. If the strong builder is powered off, only jobs that require
+`big-parallel` should wait.
