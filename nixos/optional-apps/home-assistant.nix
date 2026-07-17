@@ -32,6 +32,7 @@
       proxyPass = "http://127.0.0.1:8123";
       proxyNoTimeout = true;
       proxyWebsockets = true;
+      enableOAuth = true;
     };
     sslCertificate = "lets-encrypt-zhyi.cc";
     noIndex.enable = true;
