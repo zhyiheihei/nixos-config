@@ -1,13 +1,12 @@
-FOUR_HOSTS := ml-builder,ml-home-vm,pve-2700,colocrossing,twvm,jpvm
-CURRENT_HOSTS := ml-builder,ml-home-vm,pve-2700,colocrossing,twvm,jpvm
+CURRENT_HOSTS := ml-builder,ml-home-vm,pve-5700u,colocrossing,twvm,jpvm
 .DEFAULT_GOAL := help
 
 help: FORCE
 	@printf '%s\n' \
 		'make                显示本帮助，不执行构建或部署' \
-		'make four-eval      求值四个自有配置，不构建、不部署' \
-		'make four           构建四个自有配置，不部署' \
-		'make current        部署并切换当前在线的四台自有主机' \
+		'make current-eval   求值当前在线主机，不构建、不部署' \
+		'make current-build  构建当前在线主机，不部署' \
+		'make current        部署并切换当前在线主机' \
 		'make servers        部署并切换 @server 主机' \
 		'make all            部署并切换 @default 主机' \
 		'make all-all        部署并切换 @all 主机' \
@@ -24,16 +23,21 @@ help: FORCE
 		'make update-nur     只更新 nur-xddxdd input' \
 		'make push-cache     将 .gcroots 中的闭包推送到 Attic'
 
-four-eval: FORCE
+current-eval: FORCE
 	@set -e; \
-	for host in ml-builder ml-home-vm pve-2700; do \
+	for host in $$(printf '%s' '$(CURRENT_HOSTS)' | tr ',' ' '); do \
 		printf 'Evaluating %s... ' "$$host"; \
 		nix eval --raw ".#nixosConfigurations.$$host.config.system.build.toplevel.drvPath" >/dev/null; \
 		printf 'done\n'; \
 	done
 
-four: FORCE
-	@nix run .#colmena -- build --on $(FOUR_HOSTS)
+current-build: FORCE
+	@nix run .#colmena -- build --on $(CURRENT_HOSTS)
+
+# Backward-compatible aliases for the old target names.
+four-eval: current-eval
+
+four: current-build
 
 current: FORCE
 	@nix run .#colmena -- apply --on $(CURRENT_HOSTS)
