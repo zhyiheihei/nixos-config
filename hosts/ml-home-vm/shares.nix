@@ -45,6 +45,7 @@
     "/run/sftp" = lib.mkForce {
       device = "/mnt/storage";
       fsType = "fuse.bindfs";
+      depends = [ "/mnt/storage" ];
       options = LT.constants.bindfsMountOptions' [
         "_netdev"
         "force-user=sftp"
@@ -59,6 +60,7 @@
     "/run/nfs/storage" = {
       device = "/mnt/storage";
       fsType = "fuse.bindfs";
+      depends = [ "/mnt/storage" ];
       options = LT.constants.bindfsMountOptions' [
         "_netdev"
         "force-user=lantian"
