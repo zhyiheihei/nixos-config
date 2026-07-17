@@ -6,6 +6,7 @@
 - [ml-2700u 安装与桌面操作记录](./ml-2700u/README.md)
 - [hosts 目录机器分类](./hosts-overview.md)
 - [OpenWrt 两级路由网段互访配置](./opentwrt-two-router-interlan.md)
+- [LTNET 家庭中继与缓存链路](./network/ltnet-home-relay.md)
 - [一比一复刻原作者项目检查表](./upstream-replication-checklist.md)
 - [从原项目修改的提交表](./fork-change-table.md)
 - [测试 ml-builder 强构建机](./test-ml-builder.md)

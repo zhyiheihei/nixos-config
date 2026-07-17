@@ -16,15 +16,10 @@ let
     !sharedInterconnect
     && LT.this.zerotier != null
     && host.zerotier != null
-    && (
-      builtins.elem name LT.this.ltnet.zerotierPeers
-      || (
-        LT.this.public.IPv4 == null
-        && LT.this.public.IPv6 == null
-        && host.public.IPv4 == null
-        && host.public.IPv6 == null
-      )
-    );
+    && LT.this.public.IPv4 == null
+    && LT.this.public.IPv6 == null
+    && host.public.IPv4 == null
+    && host.public.IPv6 == null;
   wgEndpointFor =
     name: host:
     if builtins.hasAttr name LT.this.ltnet.endpointOverrides then
