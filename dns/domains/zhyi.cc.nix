@@ -6,7 +6,20 @@
 }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
-  twvmTarget = "tw.zhyi.cc.";
+
+  mkPublicVpsRecord = name: {
+    recordType = "GEO";
+    inherit name;
+    ttl = "1m";
+    filter = n: _: builtins.elem n [ "jpvm" "twvm" ];
+    ipv4Only = true;
+    healthcheck = "${name}.zhyi.cc";
+    gcoreFilters = "weighted,false;first_n,false,1";
+    weights = {
+      jpvm = 100;
+      twvm = 1;
+    };
+  };
 
   ownHosts = [
     "colocrossing"
@@ -56,24 +69,10 @@ in
           address = LT.hosts.jpvm.public.IPv4;
           ttl = "10m";
         }
-        {
-          recordType = "CNAME";
-          name = "homepage.ml-home-vm";
-          target = twvmTarget;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "archivebox.ml-home-vm";
-          target = twvmTarget;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "syncthing.ml-home-vm";
-          target = twvmTarget;
-          ttl = "10m";
-        }
+        (mkPublicVpsRecord "homepage.ml-home-vm")
+        (mkPublicVpsRecord "archivebox.ml-home-vm")
+        (mkPublicVpsRecord "syncthing.ml-home-vm")
+        (mkPublicVpsRecord "ha")
         {
           recordType = "CNAME";
           name = "*.ml-home-vm";
@@ -110,24 +109,9 @@ in
           target = homeDdnsTarget;
           ttl = "10m";
         }
-        {
-          recordType = "CNAME";
-          name = "hydra";
-          target = twvmTarget;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "netbox";
-          target = twvmTarget;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "sub";
-          target = twvmTarget;
-          ttl = "10m";
-        }
+        (mkPublicVpsRecord "hydra")
+        (mkPublicVpsRecord "netbox")
+        (mkPublicVpsRecord "sub")
 
         (builtins.filter
           (record: !(record.recordType == "CNAME" && record.name == "*.ml-home-vm.zhyi.cc."))

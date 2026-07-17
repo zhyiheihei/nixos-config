@@ -1,7 +1,6 @@
 { ... }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
-  twvmTarget = "tw.zhyi.cc.";
 
   homeServices = [
     "ai"
@@ -23,7 +22,7 @@ let
     "zerossl"
   ];
 
-  twvmServices = [
+  publicVpsServices = [
     "api"
     "autoconfig"
     "avatar"
@@ -44,6 +43,20 @@ let
     recordType = "CNAME";
     inherit name target;
     ttl = "10m";
+  };
+
+  mkPublicVpsRecord = name: {
+    recordType = "GEO";
+    inherit name;
+    ttl = "1m";
+    filter = n: _: builtins.elem n [ "jpvm" "twvm" ];
+    ipv4Only = true;
+    healthcheck = "${name}.zhyi.xin";
+    gcoreFilters = "weighted,false;first_n,false,1";
+    weights = {
+      jpvm = 100;
+      twvm = 1;
+    };
   };
 in
 {
@@ -82,7 +95,7 @@ in
         }
       ]
       ++ map (mkCname homeDdnsTarget) homeServices
-      ++ map (mkCname twvmTarget) twvmServices;
+      ++ map mkPublicVpsRecord publicVpsServices;
     }
   ];
 }

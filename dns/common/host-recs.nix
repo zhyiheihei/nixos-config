@@ -147,7 +147,7 @@ in
     GEO =
       { filter, ... }@args:
       let
-        geodnsFilter = "country,false;default,false;geodistance,false;first_n,false,1";
+        geodnsFilter = args.gcoreFilters or "country,false;default,false;geodistance,false;first_n,false,1";
 
         meta =
           k: v:
@@ -157,6 +157,9 @@ in
             gcore_longitude = "${builtins.toString v.city.lng}";
             gcore_notes = k;
           }
+          // (lib.optionalAttrs (args ? weights && builtins.hasAttr k args.weights) {
+            gcore_weight = builtins.toString args.weights.${k};
+          })
           // (lib.optionalAttrs (args ? healthcheck) {
             gcore_filters = "healthcheck,false;${geodnsFilter}";
             gcore_failover_protocol = "HTTP";
@@ -185,7 +188,7 @@ in
               }
             )
           ))
-          ++ (lib.optional (v.public.IPv6 != null) (
+          ++ (lib.optional (v.public.IPv6 != null && !(args.ipv4Only or false)) (
             config.recordHandlers.AAAA (
               args
               // {
