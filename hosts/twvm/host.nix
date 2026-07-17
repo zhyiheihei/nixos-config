@@ -22,7 +22,7 @@
       "jpvm"
     ];
     routeReflectorClients = [ "jpvm" ];
-    zerotierPeers = [ "colocrossing" ];
+    endpointOverrides.colocrossing = "wg-home.zhyi.cc";
   };
   dn42 = {
     IPv4 = "172.20.46.226";

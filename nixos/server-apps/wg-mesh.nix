@@ -27,7 +27,9 @@ let
     );
   wgEndpointFor =
     name: host:
-    if useZeroTierFor name host then
+    if builtins.hasAttr name LT.this.ltnet.endpointOverrides then
+      LT.this.ltnet.endpointOverrides.${name}
+    else if useZeroTierFor name host then
       host.ltnet.IPv4
     else if !(LT.this.hasTag "ipv6-only") && LT.publicIPv4For name != null then
       LT.publicIPv4For name
