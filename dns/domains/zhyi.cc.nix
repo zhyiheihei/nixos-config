@@ -6,6 +6,15 @@
 }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
+  publicVpsTarget = "tw.zhyi.cc.";
+
+  mkPublicVpsCname = name: {
+    recordType = "CNAME";
+    inherit name;
+    target = publicVpsTarget;
+    ttl = "10m";
+  };
+
   mkPublicVpsRecord = name: {
     recordType = "GEO";
     inherit name;
@@ -69,9 +78,9 @@ in
           address = LT.hosts.jpvm.public.IPv4;
           ttl = "10m";
         }
-        (mkPublicVpsRecord "homepage.ml-home-vm")
-        (mkPublicVpsRecord "archivebox.ml-home-vm")
-        (mkPublicVpsRecord "syncthing.ml-home-vm")
+        (mkPublicVpsCname "homepage.ml-home-vm")
+        (mkPublicVpsCname "archivebox.ml-home-vm")
+        (mkPublicVpsCname "syncthing.ml-home-vm")
         (mkPublicVpsRecord "halo.ml-home-vm")
         (mkPublicVpsRecord "linkwarden.ml-home-vm")
         (mkPublicVpsRecord "excalidraw.ml-home-vm")
@@ -115,9 +124,9 @@ in
           target = homeDdnsTarget;
           ttl = "10m";
         }
-        (mkPublicVpsRecord "hydra")
-        (mkPublicVpsRecord "netbox")
-        (mkPublicVpsRecord "sub")
+        (mkPublicVpsCname "hydra")
+        (mkPublicVpsCname "netbox")
+        (mkPublicVpsCname "sub")
 
         (builtins.filter
           (record: !(record.recordType == "CNAME" && record.name == "*.ml-home-vm.zhyi.cc."))

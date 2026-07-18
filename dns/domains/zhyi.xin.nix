@@ -1,6 +1,7 @@
 { ... }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
+  publicVpsTarget = "tw.zhyi.cc.";
 
   homeServices = [
     "ai"
@@ -96,7 +97,8 @@ in
         }
       ]
       ++ map (mkCname homeDdnsTarget) homeServices
-      ++ map mkPublicVpsRecord (publicVpsServices ++ [ "n8n" ]);
+      ++ map (mkCname publicVpsTarget) publicVpsServices
+      ++ [ (mkPublicVpsRecord "n8n") ];
     }
   ];
 }
