@@ -1,6 +1,6 @@
 # Homepage 链接与监测检查
 
-最后验证：2026-07-18
+最后验证：2026-07-19
 
 ## 复刻结构
 
@@ -60,6 +60,36 @@
 | 媒体管理 | PeerBanHelper | 200 | 200 |
 | 媒体管理 | BitMagnet | 200 (`/webui/`) | 200 |
 
+## 2026-07-19 补充卡片
+
+以下原本在 `ml-home-vm` 运行、但未显示在 Homepage 的 Web 服务已补齐。用户链接
+均使用实际正式域名；`siteMonitor` 均从承载机的 `*.localhost` 或私有 HTTPS
+入口验证。WebDAV 保留无监测，因为正常访问需要 Basic Auth。
+
+| 分组 | 服务 | 用户链接 | 监测地址 | 结果 |
+| --- | --- | --- | --- | --- |
+| 公开服务 | Vaultwarden | `bitwarden.zhyi.xin` | `bitwarden.localhost` | 200 |
+| 公开服务 | Home Assistant | `ha.zhyi.cc` | `127.0.0.1:8123` | 200 |
+| 公开服务 | Open WebUI | `ai.zhyi.xin` | `ai.localhost` | 200 |
+| 公开服务 | Sun Panel | `index.zhyi.xin` | `sun-panel.localhost` | 200 |
+| 公开服务 | FileCodeBox | `filebox.zhyi.xin` | `filebox.localhost` | 200 |
+| 公开服务 | Zitadel | `sso.zhyi.xin` | `sso.localhost/healthz` | 200 |
+| 家庭服务 | ArchiveTeam | `archiveteam.ml-home-vm.zhyi.cc:8443` | `archiveteam.localhost` | 200 |
+| 家庭服务 | HandBrake | `handbrake.ml-home-vm.zhyi.cc:8443` | 私有 HTTPS | 200 |
+| 家庭服务 | IYUUPlus | `iyuu.ml-home-vm.zhyi.cc:8443` | `iyuu.localhost` | 200 |
+| 家庭服务 | OpenSpeedTest | `openspeedtest.ml-home-vm.zhyi.cc:8443` | `openspeedtest.localhost` | 200 |
+| 家庭服务 | WebDAV | `dav.ml-home-vm.zhyi.cc:8443` | 无（Basic Auth） | 不适用 |
+| 家庭服务 | Calibre COPS | `books.ml-home-vm.zhyi.cc:8443` | `books.localhost/ping.php` | 200 |
+| 家庭服务 | Immich | `immich.ml-home-vm.zhyi.cc:8443` | `immich.localhost` | 200 |
+| 家庭服务 | Jellyfin | `jellyfin.ml-home-vm.zhyi.cc:8443` | `jellyfin.localhost` | 200 |
+| 家庭服务 | Tachidesk | `tachidesk.ml-home-vm.zhyi.cc:8443` | `tachidesk.localhost` | 200 |
+| 本机工具 | AxonHub | `axonhub.ml-home-vm.zhyi.cc:8443` | 私有 HTTPS | 200 |
+| 本机工具 | FastAPI DLS | `fastapi-dls.ml-home-vm.zhyi.cc:8443` | 私有 HTTPS | 200 |
+| 本机工具 | MetaAPI | `metapi.ml-home-vm.zhyi.cc:8443` | 私有 HTTPS | 200 |
+| 本机工具 | Uni API | `uni-api.ml-home-vm.zhyi.cc:8443` | `uni-api.localhost/healthz` | 200 |
+| 本机工具 | SearxNG | `searx.ml-home-vm.zhyi.cc:8443` | `searx.localhost` | 200 |
+| 本机工具 | ArchiSteamFarm | `asf.ml-home-vm.zhyi.cc:8443` | `asf.localhost` | 200 |
+
 ## 本次修正
 
 - 为 `n8n` 增加 `n8n.localhost`，监测 `/healthz`。
@@ -71,6 +101,13 @@
 - BitMagnet 用户链接改为实际存在的 `/webui/`。
 - Hydra、Element 和 IT Tools 在承载机上走本机 `8443` 监测。
 - colocrossing 上的服务通过 `192.168.2.52` 内网地址监测。
+- 迁移了仍硬编码 `xuyh0120.win` 的 ASF、Calibre COPS、Immich、Jellyfin、SearxNG
+  和 Tachidesk：正式入口统一改为 `*.ml-home-vm.zhyi.cc:8443`。
+- ASF 当前镜像的 IPC 默认仅绑定容器内部 localhost；采用同仓库 Tachidesk 已使用的
+  host-network 方式，由 Nginx 反代主机 `127.0.0.1:1242`，避免将 IPC 端口暴露到
+  ltnet，同时保留 OAuth 保护的正式入口。
+- Calibre COPS 的健康检查使用 PHP-FPM 的 `/ping.php`，不再因应用的正式 URL
+  重定向而误报离线。
 
 正式入口统一静态指向 `jpvm`，不配置公网自动故障转移。`twvm` 保留为手动备用
 VLESS 节点，其专用订阅不参与默认 Mihomo 订阅的节点选择。
