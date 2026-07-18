@@ -5,7 +5,6 @@ let
   publicServices = [
     "ai"
     "api"
-    "attic"
     "autoconfig"
     "avatar"
     "bitwarden"
@@ -40,6 +39,8 @@ let
     "whois"
     "zerossl"
   ];
+
+  highTrafficServices = [ "attic" ];
 
   mkCname = target: name: {
     recordType = "CNAME";
@@ -83,7 +84,8 @@ in
           ttl = "10m";
         }
       ]
-      ++ map (mkCname publicVpsTarget) publicServices;
+      ++ map (mkCname publicVpsTarget) publicServices
+      ++ map (mkCname "colocrossing.zhyi.cc.") highTrafficServices;
     }
   ];
 }
