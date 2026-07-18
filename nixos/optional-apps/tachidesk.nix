@@ -42,16 +42,29 @@
     };
   };
 
-  lantian.nginxVhosts."tachidesk.xuyh0120.win" = {
-    locations = {
-      "/" = {
-        enableBasicAuth = true;
+  lantian.nginxVhosts = {
+    "tachidesk.${config.networking.hostName}.zhyi.cc" = {
+      locations = {
+        "/" = {
+          enableBasicAuth = true;
+          proxyPass = "http://127.0.0.1:${LT.portStr.Tachidesk}";
+          proxyWebsockets = true;
+        };
+      };
+
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      noIndex.enable = true;
+    };
+    "tachidesk.localhost" = {
+      listenHTTP.enable = true;
+      listenHTTPS.enable = false;
+      locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.Tachidesk}";
         proxyWebsockets = true;
       };
-    };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
-    noIndex.enable = true;
+      accessibleBy = "localhost";
+      noIndex.enable = true;
+    };
   };
 }
