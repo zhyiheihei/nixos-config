@@ -90,6 +90,35 @@
 | 本机工具 | SearxNG | `searx.ml-home-vm.zhyi.cc` | `searx.localhost` | 200 |
 | 本机工具 | ArchiSteamFarm | `asf.ml-home-vm.zhyi.cc` | `asf.localhost` | 200 |
 
+## 其他在线主机
+
+2026-07-19 从 `ml-builder` 探测当前部署节点：`ml-builder`、`ml-home-vm`、
+`colocrossing`、`pve-5700u`、`cnvm`、`jpvm` 和 `twvm` 在线；`pve-2700`
+离线，因此本轮不为它增加入口。
+
+以下在线服务原先未显示在 Homepage，现按实际用途并入已有分组：
+
+| 分组 | 承载节点 | 服务 | 用户链接 | 检查结果 |
+| --- | --- | --- | --- | --- |
+| 基础设施 | pve-5700u | Proxmox VE | `https://192.168.2.54` | 200，仅内网 |
+| 基础设施 | colocrossing | Bird Looking Glass | `https://lg.zhyi.cc` | 200 |
+| 基础设施 | colocrossing | FlapAlerted | `https://flapalerted.zhyi.cc` | 200 |
+| 基础设施 | NAS，经 colocrossing | CouchDB Fauxton | `https://couchdb.zhyi.cc/_utils/` | 401，需登录 |
+| 公开服务 | colocrossing | Bepasty | `https://pb.zhyi.xin` | 200 |
+| 公开服务 | colocrossing | RSSHub | `https://rsshub.zhyi.xin` | 200 |
+| 公开服务 | colocrossing | Waline | `https://comments.zhyi.xin` | 200 |
+| 家庭服务 | NAS，经 colocrossing | QNAP | `https://qnap.zhyi.cc` | 200 |
+| 家庭服务 | colocrossing | Syncthing | `https://syncthing.colocrossing.zhyi.cc` | 200 |
+
+PVE 使用作者防火墙模块已有的 `443 -> 8006` 本机重定向，卡片不直接暴露
+`8006`。CouchDB 需要认证且没有无认证健康端点，因此只保留入口、不配置
+`siteMonitor`。
+
+未加入卡片的服务：Lemmy 按作者配置禁用了 Web UI，只保留 API；Matrix
+Synapse 已由 Element 卡片承接用户入口；Glauth、Maddy、Quassel、Byparr、
+ZeroTier Controller、Rsync CI 和 Yggdrasil/Alfis 都是协议、后端或自动化服务，
+没有适合作为导航卡片的用户界面。
+
 ## 本次修正
 
 - 为 `n8n` 增加 `n8n.localhost`，监测 `/healthz`。
