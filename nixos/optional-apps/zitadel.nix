@@ -47,10 +47,10 @@ in
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      EnvironmentFile = config.sops.secrets.zitadel-env.path;
     };
     script = ''
       set -euo pipefail
-      source ${config.sops.secrets.zitadel-env.path}
 
       if test -e ${marker}; then
         exit 0
