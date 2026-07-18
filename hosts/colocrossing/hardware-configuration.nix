@@ -18,7 +18,7 @@
     "sd_mod"
     "sr_mod"
   ];
-  boot.initrd.kernelModules = [ ];
+  boot.initrd.kernelModules = [ "virtiofs" ];
   boot.kernelModules = [ "kvm-amd" ];
   boot.extraModulePackages = [ ];
 
@@ -32,14 +32,8 @@
   };
 
   fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/0681c820-51ac-4124-aa94-dccdbaa44e41";
-    fsType = "btrfs";
-    options = [
-      "compress-force=zstd"
-      "autodefrag"
-      "nosuid"
-      "nodev"
-    ];
+    device = "virtiofs-nixos-colocrossing";
+    fsType = "virtiofs";
   };
 
   fileSystems."/var/cache" = {

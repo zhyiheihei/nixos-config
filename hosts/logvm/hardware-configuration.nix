@@ -11,6 +11,7 @@
   ];
 
   boot.kernelParams = [ "console=ttyS0,115200" ];
+  boot.initrd.kernelModules = [ "virtiofs" ];
   boot.loader.grub.device = "/dev/sda";
 
   fileSystems."/boot" = {
@@ -19,14 +20,8 @@
   };
 
   fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/42d4166e-5230-423d-bee5-fef687afe88c";
-    fsType = "btrfs";
-    options = [
-      "compress-force=zstd"
-      "autodefrag"
-      "nosuid"
-      "nodev"
-    ];
+    device = "virtiofs-nixos-logvm";
+    fsType = "virtiofs";
   };
 
   swapDevices = [
