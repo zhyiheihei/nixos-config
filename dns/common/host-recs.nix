@@ -164,7 +164,7 @@ in
             gcore_filters = "healthcheck,false;${geodnsFilter}";
             gcore_failover_protocol = "HTTP";
             gcore_failover_port = "443";
-            gcore_failover_frequency = "30";
+            gcore_failover_frequency = builtins.toString (args.healthcheckFrequency or 30);
             gcore_failover_timeout = "10";
             gcore_failover_method = "GET";
             gcore_failover_url = "/";
