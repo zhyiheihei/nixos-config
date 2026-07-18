@@ -1,4 +1,4 @@
-{ LT, ... }:
+{ LT, config, ... }:
 {
   virtualisation.oci-containers.containers.asf = {
     image = "ghcr.io/justarchinet/archisteamfarm:released";
@@ -30,20 +30,36 @@
     };
   };
 
-  lantian.nginxVhosts."asf.xuyh0120.win" = {
-    locations = {
-      "/" = {
-        enableOAuth = true;
-        proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.ASF}";
+  lantian.nginxVhosts = {
+    "asf.${config.networking.hostName}.zhyi.cc" = {
+      locations = {
+        "/" = {
+          enableOAuth = true;
+          proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.ASF}";
+        };
+        "~* /Api/NLog" = {
+          enableOAuth = true;
+          proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.ASF}";
+          proxyWebsockets = true;
+        };
       };
-      "~* /Api/NLog" = {
-        enableOAuth = true;
-        proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.ASF}";
-        proxyWebsockets = true;
-      };
-    };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
-    noIndex.enable = true;
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      noIndex.enable = true;
+    };
+    "asf.localhost" = {
+      listenHTTP.enable = true;
+      listenHTTPS.enable = false;
+      locations = {
+        "/".proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.ASF}";
+        "~* /Api/NLog" = {
+          proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.ASF}";
+          proxyWebsockets = true;
+        };
+      };
+
+      accessibleBy = "localhost";
+      noIndex.enable = true;
+    };
   };
 }

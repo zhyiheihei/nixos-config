@@ -6,6 +6,33 @@
 }:
 let
   calibreLibrary = config.services.calibre-cops.libraryPath;
+  copsVhost = {
+    root = pkgs.nur-xddxdd.calibre-cops;
+    locations = {
+      "/" = {
+        tryFiles = "$uri $uri/ /index.php$uri";
+        index = "index.php";
+        enableBasicAuth = true;
+      };
+      "/download/".extraConfig = ''
+        rewrite ^/download/(\d+)/(\d+)/.*\.(.*)$ /index.php/fetch/$2/$1/ignore.$3 last;
+        rewrite ^/download/(\d+)/.*\.(.*)$ /index.php/fetch/0/$1/ignore.$2 last;
+        break;
+      '';
+      "/view/".extraConfig = ''
+        rewrite ^/view/(\d+)/(\d+)/.*\.(.*)$ /index.php/inline/$2/$1/ignore.$3 last;
+        rewrite ^/view/(\d+)/.*\.(.*)$ /index.php/inline/0/$1/ignore.$2 last;
+        break;
+      '';
+      "\"${calibreLibrary}/\"".extraConfig = ''
+        alias "${calibreLibrary}/";
+        internal;
+      '';
+    };
+
+    phpfpmSocket = config.services.phpfpm.pools.calibre-cops.socket;
+    noIndex.enable = true;
+  };
 in
 {
   options.services.calibre-cops = {
@@ -43,32 +70,16 @@ in
     };
 
     lantian.nginxVhosts = {
-      "books.xuyh0120.win" = {
-        root = pkgs.nur-xddxdd.calibre-cops;
-        locations = {
-          "/" = {
-            tryFiles = "$uri $uri/ /index.php$uri";
-            index = "index.php";
-            enableBasicAuth = true;
-          };
-          "/download/".extraConfig = ''
-            rewrite ^/download/(\d+)/(\d+)/.*\.(.*)$ /index.php/fetch/$2/$1/ignore.$3 last;
-            rewrite ^/download/(\d+)/.*\.(.*)$ /index.php/fetch/0/$1/ignore.$2 last;
-            break;
-          '';
-          "/view/".extraConfig = ''
-            rewrite ^/view/(\d+)/(\d+)/.*\.(.*)$ /index.php/inline/$2/$1/ignore.$3 last;
-            rewrite ^/view/(\d+)/.*\.(.*)$ /index.php/inline/0/$1/ignore.$2 last;
-            break;
-          '';
-          "\"${calibreLibrary}/\"".extraConfig = ''
-            alias "${calibreLibrary}/";
-            internal;
-          '';
+      "books.${config.networking.hostName}.zhyi.cc" = copsVhost // {
+        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      };
+      "books.localhost" = copsVhost // {
+        listenHTTP.enable = true;
+        listenHTTPS.enable = false;
+        locations = copsVhost.locations // {
+          "/" = copsVhost.locations."/" // { enableBasicAuth = false; };
         };
-
-        phpfpmSocket = config.services.phpfpm.pools.calibre-cops.socket;
-        sslCertificate = "lets-encrypt-zhyi.cc";
+        accessibleBy = "localhost";
       };
     };
 
@@ -82,7 +93,7 @@ in
       $config['cops_author_split_first_letter'] = '0';
       $config['cops_epub_reader'] = 'epubjs';
       # $config['cops_front_controller'] = 'index.php';
-      $config['cops_full_url'] = 'https://books.xuyh0120.win/';
+      $config['cops_full_url'] = 'https://books.${config.networking.hostName}.zhyi.cc/';
       $config['cops_generate_invalid_opds_stream'] = '1';
       $config['cops_ignored_categories'] = array('publisher', 'rating');
       $config['cops_kepubify_path'] = '${lib.getExe' pkgs.kepubify "kepubify"}';
