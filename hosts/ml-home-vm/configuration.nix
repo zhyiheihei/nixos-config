@@ -72,7 +72,7 @@
   };
 
   networking.hosts = {
-    "192.168.2.116" = [ "openclash.zhyi.cc" ];
+    "${LT.this.interconnect.IPv4}" = [ "openclash.zhyi.cc" ];
     "${LT.this.ltnet.IPv4}" = [ "sftp.ml-home-vm.zhyi.cc" ];
     "${LT.hosts.colocrossing.interconnect.IPv4}" = [
       "attic.zhyi.xin"

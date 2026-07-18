@@ -39,6 +39,7 @@
       password=$(<${config.sops.secrets.halo-mysql-password.path})
       escaped_password=$(printf %s "$password" | sed -e 's/\\/\\\\/g' -e "s/'/\\\\'/g")
       mysql --protocol=socket --user=root <<SQL
+      CREATE DATABASE IF NOT EXISTS halo;
       CREATE USER IF NOT EXISTS 'halo'@'localhost' IDENTIFIED BY '$escaped_password';
       ALTER USER 'halo'@'localhost' IDENTIFIED BY '$escaped_password';
       GRANT ALL PRIVILEGES ON halo.* TO 'halo'@'localhost';
