@@ -70,8 +70,9 @@ in
       runuser -u postgres -- createuser --login --no-superuser --no-createdb --no-createrole "$user" 2>/dev/null || true
       set_role_password "$admin" "$ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD"
       set_role_password "$user" "$ZITADEL_DATABASE_POSTGRES_USER_PASSWORD"
+      runuser -u postgres -- dropdb --if-exists --force ${database}
       runuser -u postgres -- createdb -O "$user" ${database} 2>/dev/null || true
-      runuser -u postgres -- psql -v ON_ERROR_STOP=1 -d ${database} < ${dump}
+      sed '/ALTER TABLE .* SET UNLOGGED;/d' ${dump} | runuser -u postgres -- psql -v ON_ERROR_STOP=1 -d ${database}
       touch ${marker}
     '';
   };
