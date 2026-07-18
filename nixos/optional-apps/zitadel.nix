@@ -10,10 +10,6 @@ let
   database = "zitadel_wjarxb";
   dump = "/var/lib/onepanel-migration/20260718-initial/zitadel.sql";
   marker = "/var/lib/onepanel-migration/20260718-initial/.zitadel-restored";
-  startupScript = pkgs.writeShellScript "zitadel-start" ''
-    set -euo pipefail
-    exec /app/zitadel start-from-init --masterkey "$ZITADEL_MASTERKEY" --tlsMode external
-  '';
 in
 {
   imports = [ ./postgresql.nix ];
@@ -35,8 +31,7 @@ in
       ZITADEL_LISTENHOST = "127.0.0.1";
     };
     environmentFiles = [ config.sops.secrets.zitadel-env.path ];
-    volumes = [ "${startupScript}:${startupScript}:ro" ];
-    entrypoint = builtins.toString startupScript;
+    cmd = [ "start-from-init" "--masterkeyFromEnv" "--tlsMode" "external" ];
   };
 
   systemd.services.zitadel-db-restore = {
