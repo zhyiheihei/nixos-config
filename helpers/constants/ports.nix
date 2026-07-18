@@ -113,6 +113,7 @@ rec {
     Excalidraw = 13818;
     Memos = 13819;
     FreshRSS = 13820;
+    Vertex = 13821;
     Syncthing = 13834;
     Usque = 13840;
     Ncps = 13851;
