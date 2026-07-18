@@ -26,7 +26,9 @@
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/clawemail.nix
     ../../nixos/optional-apps/epic-awesome-gamer
+    ../../nixos/optional-apps/excalidraw.nix
     ../../nixos/optional-apps/fastapi-dls.nix
+    ../../nixos/optional-apps/freshrss.nix
     ../../nixos/optional-apps/glauth.nix
     ../../nixos/optional-apps/handbrake-server.nix
     ../../nixos/optional-apps/home-assistant.nix
@@ -35,6 +37,7 @@
     ../../nixos/optional-apps/iyuuplus.nix
     ../../nixos/optional-apps/llama-cpp.nix
     ../../nixos/optional-apps/metapi.nix
+    ../../nixos/optional-apps/memos.nix
     ../../nixos/optional-apps/n8n
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/ncps-client.nix
