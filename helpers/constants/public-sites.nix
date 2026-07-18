@@ -36,6 +36,7 @@ _: [
   "attic.xuyh0120.win"
   "attic.zhyi.xin"
   "bitwarden.xuyh0120.win"
+  "bitwarden.zhyi.xin"
   "cal.xuyh0120.win"
   "cal.zhyi.xin"
   "couchdb.zhyi.cc"
