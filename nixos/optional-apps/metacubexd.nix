@@ -33,7 +33,8 @@
       image = "ghcr.io/metacubex/metacubexd-server:latest";
       labels."io.containers.autoupdate" = "registry";
       ports = [
-        "127.0.0.1:${LT.portStr.MetaCubeXD.Mixed}:7892"
+        # Preserve the legacy OpenClash-compatible LAN endpoint.
+        "${LT.this.interconnect.IPv4}:7892:7892"
         "127.0.0.1:${LT.portStr.MetaCubeXD.Control}:8082"
         "127.0.0.1:${LT.portStr.MetaCubeXD.ClashAPI}:9092"
       ];
