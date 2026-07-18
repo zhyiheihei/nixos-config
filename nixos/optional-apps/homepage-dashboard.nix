@@ -49,6 +49,10 @@
           style = "row";
           columns = 3;
         };
+        "迁移服务" = {
+          style = "row";
+          columns = 3;
+        };
         "媒体管理" = {
           style = "row";
           columns = 3;

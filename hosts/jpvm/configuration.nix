@@ -32,7 +32,7 @@
 
     map $ssl_preread_server_name $https_origin {
       jp.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
-      default home-ddns.zhyi.cc:8443;
+      default ${LT.hosts.colocrossing.ltnet.IPv4}:443;
     }
 
     server {
