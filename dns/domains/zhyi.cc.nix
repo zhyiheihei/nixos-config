@@ -6,28 +6,13 @@
 }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
-  publicVpsTarget = "tw.zhyi.cc.";
+  publicVpsTarget = "jp.zhyi.cc.";
 
   mkPublicVpsCname = name: {
     recordType = "CNAME";
     inherit name;
     target = publicVpsTarget;
     ttl = "10m";
-  };
-
-  mkPublicVpsRecord = name: {
-    recordType = "GEO";
-    inherit name;
-    ttl = "2m";
-    filter = n: _: builtins.elem n [ "jpvm" "twvm" ];
-    ipv4Only = true;
-    healthcheck = "${name}.zhyi.cc";
-    healthcheckFrequency = 300;
-    gcoreFilters = "weighted_shuffle,false;first_n,false,1";
-    weights = {
-      jpvm = 100;
-      twvm = 1;
-    };
   };
 
   ownHosts = [
@@ -87,7 +72,7 @@ in
         (mkPublicVpsCname "freshrss.ml-home-vm")
         (mkPublicVpsCname "memos.ml-home-vm")
         (mkPublicVpsCname "vertex.ml-home-vm")
-        (mkPublicVpsRecord "ha")
+        (mkPublicVpsCname "ha")
         {
           recordType = "CNAME";
           name = "*.ml-home-vm";
