@@ -62,9 +62,9 @@ in
       runuser -u postgres -- createuser --login --superuser "$admin" 2>/dev/null || true
       runuser -u postgres -- createuser --login --no-superuser --no-createdb --no-createrole "$user" 2>/dev/null || true
       runuser -u postgres -- psql -v ON_ERROR_STOP=1 -v role_name="$admin" -v role_password="$ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD" \
-        -c 'ALTER ROLE :"role_name" WITH LOGIN PASSWORD :'\''role_password'\'';'
+        -c "ALTER ROLE :\"role_name\" WITH LOGIN PASSWORD :'role_password';"
       runuser -u postgres -- psql -v ON_ERROR_STOP=1 -v role_name="$user" -v role_password="$ZITADEL_DATABASE_POSTGRES_USER_PASSWORD" \
-        -c 'ALTER ROLE :"role_name" WITH LOGIN PASSWORD :'\''role_password'\'';'
+        -c "ALTER ROLE :\"role_name\" WITH LOGIN PASSWORD :'role_password';"
       runuser -u postgres -- createdb -O "$user" ${database} 2>/dev/null || true
       runuser -u postgres -- psql -v ON_ERROR_STOP=1 -d ${database} < ${dump}
       touch ${marker}
