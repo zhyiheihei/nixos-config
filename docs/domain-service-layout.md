@@ -6,15 +6,16 @@
 
 | 自有域名 | 对应作者职责 | 适用内容 | 公网入口 |
 | --- | --- | --- | --- |
-| `zhyi.cc` | `lantian.pub` | 基础设施、主机名、家庭内部服务 | jpvm 或家庭 DDNS |
-| `zhyi.xin` | `xuyh0120.win` | 面向用户的应用与身份服务 | cnvm:443 |
+| `zhyi.xin` | `lantian.pub` | 主公开域：面向用户的应用、身份与协作服务 | cnvm:443 |
+| `zhyi.cc` | 主机与互联命名职责 | 基础设施、主机名、家庭内部服务 | jpvm 或家庭 DDNS |
 | `moliy.site` | `ltn.pw` | 个人/附属站点 | 保持现有用途 |
 
 ## 入口路径
 
 ### `zhyi.xin`
 
-所有已命名的应用记录统一 CNAME 到 `cnvm.zhyi.cc`。CNVM 只做 TLS 四层透传：
+`zhyi.xin` 是本部署的主公开域。所有已命名的应用记录统一 CNAME 到
+`cnvm.zhyi.cc`。CNVM 只做 TLS 四层透传：
 
 ```text
 客户端 -> cnvm:443 -> colocrossing LTNET:443 -> SNI 对应服务
