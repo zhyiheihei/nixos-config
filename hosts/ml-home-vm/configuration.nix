@@ -58,6 +58,7 @@
     ../../nixos/optional-apps/vaultwarden.nix
     ../../nixos/optional-apps/webdav.nix
     ../../nixos/optional-apps/worker-vless2sub.nix
+    ../../nixos/optional-apps/zitadel.nix
 
     ../../nixos/optional-cron-jobs/qbittorrent-pt-cleanup
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
