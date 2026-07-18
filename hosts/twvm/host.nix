@@ -19,9 +19,13 @@
   ltnet = {
     peers = [
       "colocrossing"
+      "cnvm"
       "jpvm"
     ];
-    routeReflectorClients = [ "jpvm" ];
+    routeReflectorClients = [
+      "cnvm"
+      "jpvm"
+    ];
     endpointOverrides.colocrossing = "wg-home.zhyi.cc";
   };
   dn42 = {
