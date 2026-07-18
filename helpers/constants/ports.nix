@@ -115,6 +115,11 @@ rec {
     FreshRSS = 13820;
     Vertex = 13821;
     Linkwarden = 13822;
+    MetaCubeXD = {
+      Mixed = 13824;
+      Control = 13825;
+      ClashAPI = 13826;
+    };
     Syncthing = 13834;
     Usque = 13840;
     Ncps = 13851;
