@@ -27,14 +27,27 @@
     group = "root";
   };
 
-  lantian.nginxVhosts."ha.zhyi.cc" = {
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:8123";
-      proxyNoTimeout = true;
-      proxyWebsockets = true;
-      enableOAuth = true;
+  lantian.nginxVhosts = {
+    "ha.zhyi.cc" = {
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:8123";
+        proxyNoTimeout = true;
+        proxyWebsockets = true;
+        enableOAuth = true;
+      };
+      sslCertificate = "lets-encrypt-zhyi.cc";
+      noIndex.enable = true;
     };
-    sslCertificate = "lets-encrypt-zhyi.cc";
-    noIndex.enable = true;
+    "ha.localhost" = {
+      listenHTTP.enable = true;
+      listenHTTPS.enable = false;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:8123";
+        proxyNoTimeout = true;
+        proxyWebsockets = true;
+      };
+      accessibleBy = "localhost";
+      noIndex.enable = true;
+    };
   };
 }

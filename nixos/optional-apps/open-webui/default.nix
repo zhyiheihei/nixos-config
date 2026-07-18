@@ -172,5 +172,16 @@
       sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
+    "ai.localhost" = {
+      listenHTTP.enable = true;
+      listenHTTPS.enable = false;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.OpenWebUI.UI}";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+      };
+      accessibleBy = "localhost";
+      noIndex.enable = true;
+    };
   };
 }
