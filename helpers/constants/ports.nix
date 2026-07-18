@@ -115,6 +115,7 @@ rec {
     FreshRSS = 13820;
     Vertex = 13821;
     Linkwarden = 13822;
+    Halo = 13823;
     MetaCubeXD = {
       Mixed = 13824;
       Control = 13825;
