@@ -201,3 +201,32 @@ error. Free PVE storage and verify `qm status` before resuming a paused VM;
 do not treat the resulting guest time jump or service failures as independent
 application faults. VM 200 now has the QEMU guest agent enabled so the host can
 resynchronize its clock after pause and resume events.
+
+## Additional NixOS guests
+
+The remaining running NixOS guests were migrated on 2026-07-19 using the same
+per-guest VirtioFS layout as the upstream `pve-epyc` configuration:
+
+| VM ID | Guest | Directory mapping | Backing directory |
+| --- | --- | --- | --- |
+| 105 | `ml-home-vm` | `virtiofs-nixos-home-vm` | `virtiofs/nixos-home-vm` |
+| 200 | `colocrossing` | `virtiofs-nixos-colocrossing` | `virtiofs/nixos-colocrossing` |
+| 201 | `logvm` | `virtiofs-nixos-logvm` | `virtiofs/nixos-logvm` |
+
+Each guest has its own writable `/nix`. Never attach one guest's mapping to a
+second running guest: their Nix databases, profiles, and garbage collection
+must remain independent. The original `scsi0` disks remain attached and
+unchanged as rollback sources.
+
+For the cold copy, shut down one guest at a time and expose its old `/nix`
+partition through a read-only NBD device. The PVE-packaged `qemu-nbd` may be in
+the Nix store without being present in `PATH`. On this installation, qcow2
+partitions appeared in `/proc/partitions` but udev did not create the matching
+`/dev/nbd0pN` nodes. Only create a temporary block node after checking the
+kernel-reported major and minor numbers, and always remove it after unmounting
+and disconnecting NBD.
+
+After every migration, verify the VirtioFS source, current system closure,
+failed units, application services, and QEMU guest agent before proceeding to
+the next VM. Keep the old disk until the new storage has passed a later cold
+boot and an independent backup restore test.
