@@ -110,6 +110,9 @@ rec {
     AxonHub.Web = 13815;
     AxonHub.Redis = 13816;
     WorkerVless2sub = 13817;
+    Excalidraw = 13818;
+    Memos = 13819;
+    FreshRSS = 13820;
     Syncthing = 13834;
     Usque = 13840;
     Ncps = 13851;
