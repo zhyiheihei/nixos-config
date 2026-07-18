@@ -29,9 +29,10 @@ the stable, non-temporary address at:
 wg-home.zhyi.cc AAAA
 ```
 
-`twvm` uses this name through `ltnet.endpointOverrides.colocrossing`. The
-normal service wildcard remains on `home-ddns.zhyi.cc`; changing the WireGuard
-record therefore cannot alter public HTTP routing.
+`twvm` uses this name through `ltnet.endpointOverrides.colocrossing`. Normal
+`zhyi.cc` Web services enter through `jpvm`; only the cache data plane uses
+`home-ddns.zhyi.cc`. Changing the WireGuard record therefore cannot alter
+public HTTP routing.
 
 The home router permits only UDP port `10002` from WAN to LAN over IPv6:
 

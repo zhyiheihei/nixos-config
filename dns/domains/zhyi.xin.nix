@@ -1,4 +1,4 @@
-{ ... }:
+{ LT, ... }:
 let
   publicVpsTarget = "cnvm.zhyi.cc.";
 
@@ -37,6 +37,7 @@ let
     "stats"
     "tools"
     "whois"
+    "www"
     "zerossl"
   ];
 
@@ -58,29 +59,15 @@ in
       enableWildcard = true;
       records = [
         {
-          recordType = "IGNORE";
-          name = "@";
-          type = "A,AAAA";
-        }
-        {
-          recordType = "IGNORE";
-          name = "www";
-          type = "A,AAAA";
-        }
-        {
-          recordType = "IGNORE";
-          name = "hub";
-          type = "A,AAAA";
-        }
-        {
-          recordType = "IGNORE";
-          name = "hk";
-          type = "A,AAAA";
-        }
-        {
           recordType = "A";
+          name = "@";
+          address = LT.hosts.cnvm.public.IPv4;
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
           name = "*";
-          address = "101.96.199.157";
+          target = publicVpsTarget;
           ttl = "10m";
         }
       ]
