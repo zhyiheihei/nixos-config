@@ -43,6 +43,7 @@
       listenHTTPS.enable = false;
       locations."/" = {
         proxyPass = "http://127.0.0.1:8123";
+        proxyOverrideHost = "127.0.0.1";
         proxyNoTimeout = true;
         proxyWebsockets = true;
       };
