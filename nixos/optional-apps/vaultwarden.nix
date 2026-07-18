@@ -14,14 +14,27 @@
     };
   };
 
-  lantian.nginxVhosts."bitwarden.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.Vaultwarden}";
-      proxyWebsockets = true;
-    };
+  lantian.nginxVhosts = {
+    "bitwarden.zhyi.xin" = {
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.Vaultwarden}";
+        proxyWebsockets = true;
+      };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
-    noIndex.enable = true;
+      sslCertificate = "lets-encrypt-zhyi.xin";
+      noIndex.enable = true;
+    };
+    "bitwarden.localhost" = {
+      listenHTTP.enable = true;
+      listenHTTPS.enable = false;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.Vaultwarden}";
+        proxyWebsockets = true;
+      };
+
+      accessibleBy = "localhost";
+      noIndex.enable = true;
+    };
   };
 
   systemd.services.vaultwarden = {

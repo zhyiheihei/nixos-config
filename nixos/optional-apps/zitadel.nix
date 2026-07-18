@@ -76,12 +76,24 @@ in
     '';
   };
 
-  lantian.nginxVhosts."sso.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.Zitadel}";
-      proxyWebsockets = true;
+  lantian.nginxVhosts = {
+    "sso.zhyi.xin" = {
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.Zitadel}";
+        proxyWebsockets = true;
+      };
+      sslCertificate = "lets-encrypt-zhyi.xin";
+      noIndex.enable = true;
     };
-    sslCertificate = "lets-encrypt-zhyi.xin";
-    noIndex.enable = true;
+    "sso.localhost" = {
+      listenHTTP.enable = true;
+      listenHTTPS.enable = false;
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.Zitadel}";
+        proxyWebsockets = true;
+      };
+      accessibleBy = "localhost";
+      noIndex.enable = true;
+    };
   };
 }
