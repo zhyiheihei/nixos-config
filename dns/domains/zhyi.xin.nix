@@ -48,7 +48,7 @@ let
   mkPublicVpsRecord = name: {
     recordType = "GEO";
     inherit name;
-    ttl = "1m";
+    ttl = "2m";
     filter = n: _: builtins.elem n [ "jpvm" "twvm" ];
     ipv4Only = true;
     healthcheck = "${name}.zhyi.xin";
