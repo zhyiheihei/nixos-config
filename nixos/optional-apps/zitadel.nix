@@ -61,9 +61,9 @@ in
       set_role_password() {
         role="$1"
         password="$2"
-        escaped_password=$(printf %s "$password" | sed "s/'/''/g")
-        runuser -u postgres -- psql -v ON_ERROR_STOP=1 \
-          -c "ALTER ROLE $role WITH LOGIN PASSWORD '$escaped_password';"
+        runuser -u postgres -- psql -v ON_ERROR_STOP=1 -v role_name="$role" -v role_password="$password" <<'SQL'
+      ALTER ROLE :"role_name" WITH LOGIN PASSWORD :'role_password';
+      SQL
       }
 
       runuser -u postgres -- createuser --login --superuser "$admin" 2>/dev/null || true
