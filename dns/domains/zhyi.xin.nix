@@ -1,29 +1,11 @@
 { ... }:
 let
-  homeDdnsTarget = "home-ddns.zhyi.cc.";
   publicVpsTarget = "cnvm.zhyi.cc.";
 
-  homeServices = [
+  publicServices = [
     "ai"
-    "attic"
-    "gemini"
-    "google-ssl"
-    "google-test-ssl"
-    "gopher"
-    "lemmy"
-    "letsencrypt-ssl"
-    "letsencrypt-test-ssl"
-    "mail"
-    "matrix"
-    "matrix-client"
-    "matrix-federation"
-    "pb"
-    "rsshub"
-    "zerossl"
-  ];
-
-  publicVpsServices = [
     "api"
+    "attic"
     "autoconfig"
     "avatar"
     "bitwarden"
@@ -31,17 +13,32 @@ let
     "comments"
     "element"
     "filebox"
+    "gemini"
     "git"
+    "google-ssl"
+    "google-test-ssl"
+    "gopher"
     "id"
     "index"
     "index-helper"
+    "lemmy"
+    "letsencrypt-ssl"
+    "letsencrypt-test-ssl"
     "login"
+    "mail"
+    "matrix"
+    "matrix-client"
+    "matrix-federation"
+    "n8n"
+    "pb"
     "posts"
     "rss"
+    "rsshub"
     "sso"
     "stats"
     "tools"
     "whois"
+    "zerossl"
   ];
 
   mkCname = target: name: {
@@ -86,8 +83,7 @@ in
           ttl = "10m";
         }
       ]
-      ++ map (mkCname homeDdnsTarget) homeServices
-      ++ map (mkCname publicVpsTarget) (publicVpsServices ++ [ "n8n" ]);
+      ++ map (mkCname publicVpsTarget) publicServices;
     }
   ];
 }
