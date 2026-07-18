@@ -33,12 +33,18 @@
 
     lantian.nginxVhosts = {
       "index.zhyi.xin" = {
-        locations."/".proxyPass = "http://127.0.0.1:${LT.portStr.SunPanel}";
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.SunPanel}";
+          enableOAuth = true;
+        };
         sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
       "index-helper.zhyi.xin" = {
-        locations."/".proxyPass = "http://127.0.0.1:${LT.portStr.SunPanelHelper}";
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.SunPanelHelper}";
+          enableOAuth = true;
+        };
         sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
