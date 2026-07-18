@@ -58,13 +58,18 @@ in
 
       admin="$ZITADEL_DATABASE_POSTGRES_ADMIN_USERNAME"
       user="$ZITADEL_DATABASE_POSTGRES_USER_USERNAME"
+      set_role_password() {
+        role="$1"
+        password="$2"
+        escaped_password=$(printf %s "$password" | sed "s/'/''/g")
+        runuser -u postgres -- psql -v ON_ERROR_STOP=1 \
+          -c "ALTER ROLE \"$role\" WITH LOGIN PASSWORD '$escaped_password';"
+      }
 
       runuser -u postgres -- createuser --login --superuser "$admin" 2>/dev/null || true
       runuser -u postgres -- createuser --login --no-superuser --no-createdb --no-createrole "$user" 2>/dev/null || true
-      runuser -u postgres -- psql -v ON_ERROR_STOP=1 -v role_name="$admin" -v role_password="$ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD" \
-        -c "ALTER ROLE :\"role_name\" WITH LOGIN PASSWORD :'role_password';"
-      runuser -u postgres -- psql -v ON_ERROR_STOP=1 -v role_name="$user" -v role_password="$ZITADEL_DATABASE_POSTGRES_USER_PASSWORD" \
-        -c "ALTER ROLE :\"role_name\" WITH LOGIN PASSWORD :'role_password';"
+      set_role_password "$admin" "$ZITADEL_DATABASE_POSTGRES_ADMIN_PASSWORD"
+      set_role_password "$user" "$ZITADEL_DATABASE_POSTGRES_USER_PASSWORD"
       runuser -u postgres -- createdb -O "$user" ${database} 2>/dev/null || true
       runuser -u postgres -- psql -v ON_ERROR_STOP=1 -d ${database} < ${dump}
       touch ${marker}
