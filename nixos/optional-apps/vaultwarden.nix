@@ -1,60 +1,30 @@
 {
   LT,
-  config,
-  inputs,
-  pkgs,
-  lib,
   ...
 }:
 {
-  imports = [ ./mysql.nix ];
-
-  sops.secrets.vaultwarden-env.sopsFile = inputs.secrets + "/vaultwarden.yaml";
-
-  services.mysql = {
-    ensureDatabases = [ "vaultwarden" ];
-    ensureUsers = [
-      {
-        name = "vaultwarden";
-        ensurePermissions = {
-          "vaultwarden.*" = "ALL PRIVILEGES";
-        };
-      }
-    ];
-  };
-
   services.vaultwarden = {
     enable = true;
-    dbBackend = "mysql";
+    dbBackend = "sqlite";
     config = {
       SIGNUPS_ALLOWED = false;
-      DOMAIN = "https://bitwarden.xuyh0120.win";
+      DOMAIN = "https://bitwarden.zhyi.xin";
       ROCKET_ADDRESS = "127.0.0.1";
       ROCKET_PORT = LT.port.Vaultwarden;
-
-      DATABASE_URL = "mysql:///vaultwarden";
-
-      USE_SENDMAIL = "true";
-      SENDMAIL_COMMAND = lib.getExe pkgs.msmtp;
-      SMTP_FROM = config.programs.msmtp.accounts.default.from;
-      SMTP_FROM_NAME = "Vaultwarden";
     };
-    environmentFile = config.sops.secrets.vaultwarden-env.path;
   };
 
-  lantian.nginxVhosts."bitwarden.xuyh0120.win" = {
+  lantian.nginxVhosts."bitwarden.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.Vaultwarden}";
       proxyWebsockets = true;
     };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 
   systemd.services.vaultwarden = {
-    after = [ "mysql.service" ];
-    requires = [ "mysql.service" ];
     serviceConfig = {
       RestrictAddressFamilies = [
         "AF_UNIX"
