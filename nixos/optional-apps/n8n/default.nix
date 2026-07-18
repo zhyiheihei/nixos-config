@@ -90,6 +90,7 @@
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";
       proxyWebsockets = true;
+      enableOAuth = true;
     };
     locations."/webhook/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";

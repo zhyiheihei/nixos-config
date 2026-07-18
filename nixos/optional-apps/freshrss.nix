@@ -27,7 +27,10 @@
 
     lantian.nginxVhosts = {
       "freshrss.${config.networking.hostName}.zhyi.cc" = {
-        locations."/".proxyPass = "http://127.0.0.1:${LT.portStr.FreshRSS}";
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.FreshRSS}";
+          enableOAuth = true;
+        };
         accessibleBy = "private";
         sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
         noIndex.enable = true;
