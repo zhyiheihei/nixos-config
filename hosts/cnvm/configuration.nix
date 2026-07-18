@@ -1,5 +1,6 @@
 {
   LT,
+  lib,
   ...
 }:
 {
@@ -21,6 +22,10 @@
     "8.8.4.4"
     "1.1.1.1"
   ];
+
+  # CNVM only passes TLS at layer four. It must not inherit the shared HTTP
+  # vhosts, which require the synchronized ACME certificate tree.
+  services.nginx.virtualHosts = lib.mkForce { };
 
   services.nginx.streamConfig = ''
     resolver 1.1.1.1 8.8.8.8 valid=60s ipv6=off;
