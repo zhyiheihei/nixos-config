@@ -114,6 +114,7 @@ rec {
     Memos = 13819;
     FreshRSS = 13820;
     Vertex = 13821;
+    Linkwarden = 13822;
     Syncthing = 13834;
     Usque = 13840;
     Ncps = 13851;
