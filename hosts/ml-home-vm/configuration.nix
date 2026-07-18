@@ -36,6 +36,7 @@
     ../../nixos/optional-apps/immich.nix
     ../../nixos/optional-apps/iyuuplus.nix
     ../../nixos/optional-apps/llama-cpp.nix
+    ../../nixos/optional-apps/linkwarden.nix
     ../../nixos/optional-apps/metapi.nix
     ../../nixos/optional-apps/memos.nix
     ../../nixos/optional-apps/n8n
