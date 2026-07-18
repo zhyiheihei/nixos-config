@@ -121,6 +121,9 @@ rec {
       Control = 13825;
       ClashAPI = 13826;
     };
+    FileCodeBox = 13827;
+    SunPanel = 13828;
+    SunPanelHelper = 13829;
     Syncthing = 13834;
     Usque = 13840;
     Ncps = 13851;

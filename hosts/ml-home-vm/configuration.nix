@@ -28,6 +28,7 @@
     ../../nixos/optional-apps/epic-awesome-gamer
     ../../nixos/optional-apps/excalidraw.nix
     ../../nixos/optional-apps/fastapi-dls.nix
+    ../../nixos/optional-apps/filecodebox.nix
     ../../nixos/optional-apps/freshrss.nix
     ../../nixos/optional-apps/glauth.nix
     ../../nixos/optional-apps/handbrake-server.nix
@@ -48,6 +49,7 @@
     ../../nixos/optional-apps/open-webui
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/sftp-server.nix
+    ../../nixos/optional-apps/sun-panel.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/tachidesk.nix
     ../../nixos/optional-apps/uni-api.nix
