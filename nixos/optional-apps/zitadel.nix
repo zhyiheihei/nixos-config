@@ -72,7 +72,10 @@ in
       set_role_password "$user" "$ZITADEL_DATABASE_POSTGRES_USER_PASSWORD"
       runuser -u postgres -- dropdb --if-exists --force ${database}
       runuser -u postgres -- createdb -O "$user" ${database} 2>/dev/null || true
-      sed '/UNLOGGED/Id' ${dump} | runuser -u postgres -- psql -v ON_ERROR_STOP=1 -d ${database}
+      sed \
+        -e '/^[[:space:]]*ALTER TABLE .* SET UNLOGGED;[[:space:]]*$/Id' \
+        -e 's/CREATE[[:space:]]\+UNLOGGED[[:space:]]\+TABLE/CREATE TABLE/I' \
+        ${dump} | runuser -u postgres -- psql -v ON_ERROR_STOP=1 -d ${database}
       touch ${marker}
     '';
   };
