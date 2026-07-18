@@ -45,21 +45,6 @@ let
     ttl = "10m";
   };
 
-  mkPublicVpsRecord = name: {
-    recordType = "GEO";
-    inherit name;
-    ttl = "2m";
-    filter = n: _: builtins.elem n [ "jpvm" "twvm" ];
-    ipv4Only = true;
-    healthcheck = "${name}.zhyi.xin";
-    healthcheckFrequency = 300;
-    gcoreFilters = "weighted_shuffle,false;first_n,false,1";
-    weights = {
-      jpvm = 100;
-      twvm = 1;
-    };
-  };
-
 in
 {
   domains = [
@@ -97,8 +82,7 @@ in
         }
       ]
       ++ map (mkCname homeDdnsTarget) homeServices
-      ++ map (mkCname publicVpsTarget) publicVpsServices
-      ++ [ (mkPublicVpsRecord "n8n") ];
+      ++ map (mkCname publicVpsTarget) (publicVpsServices ++ [ "n8n" ]);
     }
   ];
 }
