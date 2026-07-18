@@ -81,12 +81,12 @@ in
         (mkPublicVpsCname "homepage.ml-home-vm")
         (mkPublicVpsCname "archivebox.ml-home-vm")
         (mkPublicVpsCname "syncthing.ml-home-vm")
-        (mkPublicVpsRecord "halo.ml-home-vm")
-        (mkPublicVpsRecord "linkwarden.ml-home-vm")
-        (mkPublicVpsRecord "excalidraw.ml-home-vm")
-        (mkPublicVpsRecord "freshrss.ml-home-vm")
-        (mkPublicVpsRecord "memos.ml-home-vm")
-        (mkPublicVpsRecord "vertex.ml-home-vm")
+        (mkPublicVpsCname "halo.ml-home-vm")
+        (mkPublicVpsCname "linkwarden.ml-home-vm")
+        (mkPublicVpsCname "excalidraw.ml-home-vm")
+        (mkPublicVpsCname "freshrss.ml-home-vm")
+        (mkPublicVpsCname "memos.ml-home-vm")
+        (mkPublicVpsCname "vertex.ml-home-vm")
         (mkPublicVpsRecord "ha")
         {
           recordType = "CNAME";
