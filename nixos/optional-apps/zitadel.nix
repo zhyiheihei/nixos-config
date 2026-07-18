@@ -35,6 +35,7 @@ in
       ZITADEL_LISTENHOST = "127.0.0.1";
     };
     environmentFiles = [ config.sops.secrets.zitadel-env.path ];
+    volumes = [ "${startupScript}:${startupScript}:ro" ];
     entrypoint = builtins.toString startupScript;
   };
 
