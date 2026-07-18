@@ -36,6 +36,10 @@
   };
 
   virtualisation.oci-containers.containers.linkwarden = {
+    extraOptions = [
+      "--uidmap=0:65531:1"
+      "--gidmap=0:65531:1"
+    ];
     image = "ghcr.io/linkwarden/linkwarden:latest";
     labels."io.containers.autoupdate" = "registry";
     ports = [ "127.0.0.1:${LT.portStr.Linkwarden}:3000" ];
@@ -53,14 +57,21 @@
 
   systemd.tmpfiles.settings.linkwarden."/var/lib/linkwarden"."d" = {
     mode = "0755";
-    user = "root";
-    group = "root";
+    user = "linkwarden";
+    group = "linkwarden";
   };
 
   systemd.services.podman-linkwarden = {
     after = [ "postgresql.service" ];
     requires = [ "postgresql.service" ];
   };
+
+  users.users.linkwarden = {
+    group = "linkwarden";
+    isSystemUser = true;
+    uid = 65531;
+  };
+  users.groups.linkwarden.gid = 65531;
 
   lantian.nginxVhosts = {
     "linkwarden.${config.networking.hostName}.zhyi.cc" = {
