@@ -52,6 +52,7 @@ let
     filter = n: _: builtins.elem n [ "jpvm" "twvm" ];
     ipv4Only = true;
     healthcheck = "${name}.zhyi.xin";
+    healthcheckFrequency = 300;
     gcoreFilters = "weighted_shuffle,false;first_n,false,1";
     weights = {
       jpvm = 100;
