@@ -108,7 +108,6 @@ in
         (mkPublicVpsCname "sub")
 
         # High-volume cache data stays on the home ingress.
-        (mkHomeIngressCname "home-ingress")
         (mkHomeIngressCname "vaults3")
 
         (builtins.filter
