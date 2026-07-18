@@ -15,6 +15,7 @@
 - [同步上游后逐台切换系统](./update-and-switch-hosts.md)
 - [Homepage 链接与监测检查](./homepage-link-audit.md)
 - [Gcore 免费套餐 DNSControl 发布规范](./gcore-dnscontrol-free-plan.md)
+- [1Panel 服务迁移到 ml-home-vm](./onepanel-to-ml-home-vm-migration.md)
 - [ml-home-vm VirtioFS 与 PVE 无损迁移手册](./ml-home-vm-virtiofs-pve-migration.md)
 - [TODO: 复刻作者的 impermanence 布局](./todo-impermanence.md)
 - [NixOS switch 后无法登录的回滚与救援](./nixos-rollback-rescue.md)
