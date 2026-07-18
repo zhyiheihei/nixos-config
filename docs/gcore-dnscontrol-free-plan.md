@@ -54,6 +54,14 @@ dig +short ha.zhyi.cc @1.1.1.1
 dig +short hydra.zhyi.cc @1.1.1.1
 ```
 
+若主机网络拦截 UDP/53，`dig @1.1.1.1` 仍可能命中本地缓存。此时用 DoH 交叉验证，
+不要据此重复发布 DNS：
+
+```bash
+curl -fsS -H 'accept: application/dns-json' \
+  'https://cloudflare-dns.com/dns-query?name=cnvm.zhyi.cc&type=A'
+```
+
 ## 失败恢复
 
 DNSControl 对 CNAME 与 A/GEO 的替换不是事务：旧 CNAME 可能先删除，而新记录因
