@@ -35,7 +35,7 @@ in
       ZITADEL_LISTENHOST = "127.0.0.1";
     };
     environmentFiles = [ config.sops.secrets.zitadel-env.path ];
-    entrypoint = startupScript;
+    entrypoint = builtins.toString startupScript;
   };
 
   systemd.services.zitadel-db-restore = {
