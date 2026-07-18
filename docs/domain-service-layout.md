@@ -20,9 +20,13 @@
 客户端 -> cnvm:443 -> colocrossing LTNET:443 -> SNI 对应服务
 ```
 
-colocrossing 本机承载 Attic、Dex、Gitea、Matrix、Pocket ID、RSS 等服务；SNI 为
+colocrossing 本机承载 Dex、Gitea、Matrix、Pocket ID、RSS 等服务；SNI 为
 `ai`、`bitwarden`、`filebox`、`index`、`index-helper`、`sso` 和 `n8n` 的请求继续
 转发到 `ml-home-vm`。这样 DNS 不再把同一域名的一部分服务绕过 CNVM 直连家庭 DDNS。
+
+`attic.zhyi.xin` 是例外：它直接 CNAME 到 `colocrossing.zhyi.cc`，不经 CNVM。
+Attic 的 NAR 下载与上传流量较大，固定由 colocrossing 的家庭出口承载，避免占用
+低配公网入口的带宽与连接资源。
 
 ### `zhyi.cc`
 
