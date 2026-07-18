@@ -49,7 +49,7 @@
           style = "row";
           columns = 3;
         };
-        "迁移服务" = {
+        "自托管服务" = {
           style = "row";
           columns = 3;
         };
