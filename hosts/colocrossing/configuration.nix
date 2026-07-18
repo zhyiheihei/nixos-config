@@ -110,11 +110,11 @@
     noIndex.enable = true;
   };
 
-  # Keep high-traffic services on the home ingress, but expose Homepage only
-  # through the standard HTTPS entry point on twvm.
+  # Keep high-traffic services on the home ingress. Public low-traffic
+  # services enter through jpvm, then cross LTNET to this SNI dispatcher.
   services.nginx.streamConfig = ''
     map "$remote_addr:$ssl_preread_server_name" $lan_https_upstream {
-      ~^(${lib.escapeRegex LT.hosts.jpvm.public.IPv4}|${lib.escapeRegex LT.hosts.twvm.public.IPv4}):(homepage\.ml-home-vm\.zhyi\.cc|ha\.zhyi\.cc)$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
+      ~^${lib.escapeRegex LT.hosts.jpvm.public.IPv4}:(homepage\.ml-home-vm\.zhyi\.cc|ha\.zhyi\.cc)$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~:homepage\.ml-home-vm\.zhyi\.cc$ 127.0.0.1:1;
       ~:n8n\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~:.*\.ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};

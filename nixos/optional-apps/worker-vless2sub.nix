@@ -27,21 +27,6 @@ in
       ipv6: true
 
       proxies:
-        - name: twvm
-          type: vless
-          server: tw.zhyi.cc
-          port: 443
-          uuid: "${config.sops.placeholder.v2ray-key}"
-          network: xhttp
-          tls: true
-          udp: true
-          servername: tw.zhyi.cc
-          client-fingerprint: chrome
-          encryption: ""
-          xhttp-opts:
-            path: /ray
-            host: tw.zhyi.cc
-            mode: stream-up
         - name: jpvm
           type: vless
           server: jp.zhyi.cc
@@ -62,17 +47,8 @@ in
         - name: PROXY
           type: select
           proxies:
-            - AUTO
-            - twvm
             - jpvm
             - DIRECT
-        - name: AUTO
-          type: url-test
-          proxies:
-            - twvm
-            - jpvm
-          url: https://www.gstatic.com/generate_204
-          interval: 300
 
       rules:
         - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve

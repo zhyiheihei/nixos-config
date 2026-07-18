@@ -1,7 +1,7 @@
 { ... }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
-  publicVpsTarget = "tw.zhyi.cc.";
+  publicVpsTarget = "jp.zhyi.cc.";
 
   homeServices = [
     "ai"

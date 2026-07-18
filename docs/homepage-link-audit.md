@@ -65,16 +65,15 @@
 - 为 `n8n` 增加 `n8n.localhost`，监测 `/healthz`。
 - 为 Halo、Linkwarden、Excalidraw、FreshRSS、Memos、Vertex 和 MetaCubeXD
   增加 Homepage 卡片及本机 `*.localhost` 监测；Vertex 检查其登录页。
-- `n8n` 和前六个迁移服务的正式域名经 `twvm:443` 进入 LTNET，再由
+- `n8n` 和前六个迁移服务的正式域名经 `jpvm:443` 进入 LTNET，再由
   colocrossing 转发至 `ml-home-vm:8443`；均受 OAuth 保护。
 - MetaCubeXD 保持私有，仅通过 `metacubexd.ml-home-vm.zhyi.cc:8443` 访问。
 - BitMagnet 用户链接改为实际存在的 `/webui/`。
 - Hydra、Element 和 IT Tools 在承载机上走本机 `8443` 监测。
 - colocrossing 上的服务通过 `192.168.2.52` 内网地址监测。
 
-Gcore 免费套餐拒绝为同一名称创建多条动态 GEO 记录，因此当前正式入口为
-静态 `twvm` CNAME，不提供 `jpvm` 自动主备切换。后续若需要自动故障转移，需
-更换或升级支持该能力的 DNS 方案，再变更记录；不要在当前套餐上重复尝试。
+正式入口统一静态指向 `jpvm`，不配置公网自动故障转移。`twvm` 保留为手动备用
+VLESS 节点，其专用订阅不参与默认 Mihomo 订阅的节点选择。
 
 ## 复测命令
 
