@@ -72,7 +72,7 @@ in
         }
       ]
       ++ map (mkCname publicVpsTarget) publicServices
-      ++ map (mkCname "colocrossing.zhyi.cc.") highTrafficServices;
+      ++ map (mkCname "home-ingress.zhyi.cc.") highTrafficServices;
     }
   ];
 }

@@ -108,14 +108,13 @@ in
         (mkPublicVpsCname "sub")
 
         # High-volume cache data stays on the home ingress.
-        (mkHomeIngressCname "colocrossing")
+        (mkHomeIngressCname "home-ingress")
         (mkHomeIngressCname "vaults3")
 
         (builtins.filter
           (
             record:
             !(record.recordType == "CNAME" && record.name == "*.ml-home-vm.zhyi.cc.")
-            && record.name != "colocrossing.zhyi.cc."
           )
           (hostRecords domain (
             host: if config.common.hostRecs.hasPublicIP host then host.public else host.ltnet
