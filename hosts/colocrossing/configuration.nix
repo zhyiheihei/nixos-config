@@ -122,7 +122,7 @@
     }
 
     map $ssl_preread_server_name $ltnet_https_upstream {
-      ~^(bitwarden|filebox|index|index-helper|sso)\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
+      ~^(ai|bitwarden|filebox|index|index-helper|sso)\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~^n8n\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~^ha\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~(^|\.)ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
