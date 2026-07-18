@@ -6,7 +6,7 @@
 }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
-  publicVpsTarget = "cnvm.zhyi.cc.";
+  publicVpsTarget = "jp.zhyi.cc.";
 
   mkPublicVpsCname = name: {
     recordType = "CNAME";
