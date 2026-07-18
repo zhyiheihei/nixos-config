@@ -79,7 +79,9 @@
     "${LT.this.interconnect.IPv4}" = [ "openclash.zhyi.cc" ];
     "${LT.this.ltnet.IPv4}" = [ "sftp.ml-home-vm.zhyi.cc" ];
     "${LT.hosts.colocrossing.interconnect.IPv4}" = [
+      "api.zhyi.xin"
       "attic.zhyi.xin"
+      "avatar.zhyi.xin"
       "cal.zhyi.xin"
       "comments.zhyi.xin"
       "colocrossing.zhyi.cc"
@@ -89,8 +91,10 @@
       "git.zhyi.xin"
       "hydra.zhyi.cc"
       "id.zhyi.xin"
+      "lemmy.zhyi.xin"
       "lg.zhyi.cc"
       "login.zhyi.xin"
+      "matrix-client.zhyi.xin"
       "netbox.zhyi.cc"
       "pb.zhyi.xin"
       "posts.zhyi.xin"
