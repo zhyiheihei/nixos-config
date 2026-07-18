@@ -59,6 +59,7 @@
     ];
     "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
     "${LT.hosts."ml-home-vm".interconnect.IPv4}" = [ "ml-home-vm.zhyi.cc" ];
+    "${LT.hosts.logvm.interconnect.IPv4}" = [ "logvm.zhyi.cc" ];
   };
 
   systemd.network.netdevs.br0 = {
