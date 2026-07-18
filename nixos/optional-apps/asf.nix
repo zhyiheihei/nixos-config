@@ -3,6 +3,7 @@
   virtualisation.oci-containers.containers.asf = {
     image = "ghcr.io/justarchinet/archisteamfarm:released";
     labels."io.containers.autoupdate" = "registry";
+    environment.ASPNETCORE_URLS = "http://0.0.0.0:1242";
     ports = [ "${LT.this.ltnet.IPv4}:${LT.portStr.ASF}:1242" ];
     volumes = [
       "/var/lib/asf/config:/app/config"

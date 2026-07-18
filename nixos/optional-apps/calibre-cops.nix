@@ -78,6 +78,15 @@ in
         listenHTTPS.enable = false;
         locations = copsVhost.locations // {
           "/" = copsVhost.locations."/" // { enableBasicAuth = false; };
+          "= /ping.php".extraConfig = ''
+            fastcgi_pass unix:${config.services.phpfpm.pools.calibre-cops.socket};
+            fastcgi_param SCRIPT_NAME /ping.php;
+            fastcgi_param SCRIPT_FILENAME /ping.php;
+            fastcgi_param REQUEST_URI /ping.php;
+            fastcgi_param REQUEST_METHOD $request_method;
+            fastcgi_param SERVER_PROTOCOL $server_protocol;
+            fastcgi_param REDIRECT_STATUS 200;
+          '';
         };
         accessibleBy = "localhost";
       };
