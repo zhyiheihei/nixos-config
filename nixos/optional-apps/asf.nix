@@ -1,10 +1,9 @@
-{ LT, config, ... }:
+{ config, ... }:
 {
   virtualisation.oci-containers.containers.asf = {
     image = "ghcr.io/justarchinet/archisteamfarm:released";
     labels."io.containers.autoupdate" = "registry";
-    environment.ASPNETCORE_URLS = "http://0.0.0.0:1242";
-    ports = [ "${LT.this.ltnet.IPv4}:${LT.portStr.ASF}:1242" ];
+    extraOptions = [ "--net=host" ];
     volumes = [
       "/var/lib/asf/config:/app/config"
       "/var/lib/asf/plugins:/app/plugins"
@@ -36,11 +35,11 @@
       locations = {
         "/" = {
           enableOAuth = true;
-          proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.ASF}";
+          proxyPass = "http://127.0.0.1:1242";
         };
         "~* /Api/NLog" = {
           enableOAuth = true;
-          proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.ASF}";
+          proxyPass = "http://127.0.0.1:1242";
           proxyWebsockets = true;
         };
       };
@@ -52,9 +51,9 @@
       listenHTTP.enable = true;
       listenHTTPS.enable = false;
       locations = {
-        "/".proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.ASF}";
+        "/".proxyPass = "http://127.0.0.1:1242";
         "~* /Api/NLog" = {
-          proxyPass = "http://${LT.this.ltnet.IPv4}:${LT.portStr.ASF}";
+          proxyPass = "http://127.0.0.1:1242";
           proxyWebsockets = true;
         };
       };
