@@ -45,14 +45,14 @@
 | 家庭服务 | qBittorrent PT | 200 | 200 |
 | 家庭服务 | Syncthing | 200 (OAuth) | 200 |
 | 家庭服务 | ArchiveBox | 200 (OAuth) | 200 |
-| 家庭服务 | n8n | 200 (OAuth) | 200 |
-| 迁移服务 | Halo | 200 (OAuth) | 200 |
-| 迁移服务 | Linkwarden | 200 (OAuth) | 200 |
-| 迁移服务 | Excalidraw | 200 (OAuth) | 200 |
-| 迁移服务 | FreshRSS | 200 (OAuth) | 200 |
-| 迁移服务 | Memos | 200 (OAuth) | 200 |
-| 迁移服务 | Vertex | 200 (OAuth) | 200 (`/user/login`) |
-| 迁移服务 | MetaCubeXD | 仅私有入口 | 200 |
+| 公开服务 | n8n | 200 (OAuth) | 200 |
+| 公开服务 | Halo | 200 | 200 |
+| 家庭服务 | Linkwarden | 200 (OAuth) | 200 |
+| 家庭服务 | Excalidraw | 200 (OAuth) | 200 |
+| 家庭服务 | FreshRSS | 200 (OAuth) | 200 |
+| 家庭服务 | Memos | 200 (OAuth) | 200 |
+| 媒体管理 | Vertex | 200 (OAuth) | 200 (`/user/login`) |
+| 本机工具 | MetaCubeXD | 仅私有入口 | 200 |
 | 媒体管理 | Sonarr | 200 (登录页) | 200 |
 | 媒体管理 | Radarr | 200 (登录页) | 200 |
 | 媒体管理 | Prowlarr | 200 (登录页) | 200 |
@@ -74,35 +74,35 @@
 | 公开服务 | Sun Panel | `index.zhyi.xin` | `sun-panel.localhost` | 200 |
 | 公开服务 | FileCodeBox | `filebox.zhyi.xin` | `filebox.localhost` | 200 |
 | 公开服务 | Zitadel | `sso.zhyi.xin` | `sso.localhost/healthz` | 200 |
-| 家庭服务 | ArchiveTeam | `archiveteam.ml-home-vm.zhyi.cc:8443` | `archiveteam.localhost` | 200 |
-| 家庭服务 | HandBrake | `handbrake.ml-home-vm.zhyi.cc:8443` | 私有 HTTPS | 200 |
-| 家庭服务 | IYUUPlus | `iyuu.ml-home-vm.zhyi.cc:8443` | `iyuu.localhost` | 200 |
-| 家庭服务 | OpenSpeedTest | `openspeedtest.ml-home-vm.zhyi.cc:8443` | `openspeedtest.localhost` | 200 |
-| 家庭服务 | WebDAV | `dav.ml-home-vm.zhyi.cc:8443` | 无（Basic Auth） | 不适用 |
-| 家庭服务 | Calibre COPS | `books.ml-home-vm.zhyi.cc:8443` | `books.localhost/ping.php` | 200 |
-| 家庭服务 | Immich | `immich.ml-home-vm.zhyi.cc:8443` | `immich.localhost` | 200 |
-| 家庭服务 | Jellyfin | `jellyfin.ml-home-vm.zhyi.cc:8443` | `jellyfin.localhost` | 200 |
-| 家庭服务 | Tachidesk | `tachidesk.ml-home-vm.zhyi.cc:8443` | `tachidesk.localhost` | 200 |
-| 本机工具 | AxonHub | `axonhub.ml-home-vm.zhyi.cc:8443` | 私有 HTTPS | 200 |
-| 本机工具 | FastAPI DLS | `fastapi-dls.ml-home-vm.zhyi.cc:8443` | 私有 HTTPS | 200 |
-| 本机工具 | MetaAPI | `metapi.ml-home-vm.zhyi.cc:8443` | 私有 HTTPS | 200 |
-| 本机工具 | Uni API | `uni-api.ml-home-vm.zhyi.cc:8443` | `uni-api.localhost/healthz` | 200 |
-| 本机工具 | SearxNG | `searx.ml-home-vm.zhyi.cc:8443` | `searx.localhost` | 200 |
-| 本机工具 | ArchiSteamFarm | `asf.ml-home-vm.zhyi.cc:8443` | `asf.localhost` | 200 |
+| 家庭服务 | ArchiveTeam | `archiveteam.ml-home-vm.zhyi.cc` | `archiveteam.localhost` | 200 |
+| 家庭服务 | HandBrake | `handbrake.ml-home-vm.zhyi.cc` | 私有 HTTPS | 200 |
+| 家庭服务 | IYUUPlus | `iyuu.ml-home-vm.zhyi.cc` | `iyuu.localhost` | 200 |
+| 家庭服务 | OpenSpeedTest | `openspeedtest.ml-home-vm.zhyi.cc` | `openspeedtest.localhost` | 200 |
+| 家庭服务 | WebDAV | `dav.ml-home-vm.zhyi.cc` | 无（Basic Auth） | 不适用 |
+| 家庭服务 | Calibre COPS | `books.ml-home-vm.zhyi.cc` | `books.localhost/ping.php` | 200 |
+| 家庭服务 | Immich | `immich.ml-home-vm.zhyi.cc` | `immich.localhost` | 200 |
+| 家庭服务 | Jellyfin | `jellyfin.ml-home-vm.zhyi.cc` | `jellyfin.localhost` | 200 |
+| 家庭服务 | Tachidesk | `tachidesk.ml-home-vm.zhyi.cc` | `tachidesk.localhost` | 200 |
+| 本机工具 | AxonHub | `axonhub.ml-home-vm.zhyi.cc` | 私有 HTTPS | 200 |
+| 本机工具 | FastAPI DLS | `fastapi-dls.ml-home-vm.zhyi.cc` | 私有 HTTPS | 200 |
+| 本机工具 | MetaAPI | `metapi.ml-home-vm.zhyi.cc` | 私有 HTTPS | 200 |
+| 本机工具 | Uni API | `uni-api.ml-home-vm.zhyi.cc` | `uni-api.localhost/healthz` | 200 |
+| 本机工具 | SearxNG | `searx.ml-home-vm.zhyi.cc` | `searx.localhost` | 200 |
+| 本机工具 | ArchiSteamFarm | `asf.ml-home-vm.zhyi.cc` | `asf.localhost` | 200 |
 
 ## 本次修正
 
 - 为 `n8n` 增加 `n8n.localhost`，监测 `/healthz`。
 - 为 Halo、Linkwarden、Excalidraw、FreshRSS、Memos、Vertex 和 MetaCubeXD
   增加 Homepage 卡片及本机 `*.localhost` 监测；Vertex 检查其登录页。
-- `n8n` 和前六个迁移服务的正式域名经 `jpvm:443` 进入 LTNET，再由
-  colocrossing 转发至 `ml-home-vm:8443`；均受 OAuth 保护。
-- MetaCubeXD 保持私有，仅通过 `metacubexd.ml-home-vm.zhyi.cc:8443` 访问。
+- `n8n` 和 Halo 使用 `zhyi.xin` 的 CNVM 公开入口；其余 `zhyi.cc` Web 服务经
+  `jpvm:443` 进入 LTNET，再由 colocrossing 转发至 `ml-home-vm:8443`。
+- MetaCubeXD 保持私有，仅通过 `metacubexd.ml-home-vm.zhyi.cc` 访问。
 - BitMagnet 用户链接改为实际存在的 `/webui/`。
 - Hydra、Element 和 IT Tools 在承载机上走本机 `8443` 监测。
 - colocrossing 上的服务通过 `192.168.2.52` 内网地址监测。
 - 迁移了仍硬编码 `xuyh0120.win` 的 ASF、Calibre COPS、Immich、Jellyfin、SearxNG
-  和 Tachidesk：正式入口统一改为 `*.ml-home-vm.zhyi.cc:8443`。
+  和 Tachidesk：正式入口统一改为 `*.ml-home-vm.zhyi.cc`。
 - ASF 当前镜像的 IPC 默认仅绑定容器内部 localhost；采用同仓库 Tachidesk 已使用的
   host-network 方式，由 Nginx 反代主机 `127.0.0.1:1242`，避免将 IPC 端口暴露到
   ltnet，同时保留 OAuth 保护的正式入口。

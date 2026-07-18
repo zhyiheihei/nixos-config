@@ -15,6 +15,13 @@ let
     ttl = "10m";
   };
 
+  mkHomeIngressCname = name: {
+    recordType = "CNAME";
+    inherit name;
+    target = homeDdnsTarget;
+    ttl = "10m";
+  };
+
   ownHosts = [
     "cnvm"
     "colocrossing"
@@ -60,6 +67,12 @@ in
         }
         {
           recordType = "A";
+          name = "@";
+          address = LT.hosts.jpvm.public.IPv4;
+          ttl = "10m";
+        }
+        {
+          recordType = "A";
           name = "jp";
           address = LT.hosts.jpvm.public.IPv4;
           ttl = "10m";
@@ -77,45 +90,33 @@ in
         {
           recordType = "CNAME";
           name = "*.ml-home-vm";
-          target = homeDdnsTarget;
+          target = publicVpsTarget;
           ttl = "10m";
         }
         {
           recordType = "CNAME";
           name = "*";
-          target = homeDdnsTarget;
+          target = publicVpsTarget;
           ttl = "10m";
         }
-        {
-          recordType = "CNAME";
-          name = "autoconfig";
-          target = homeDdnsTarget;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "flapalerted";
-          target = homeDdnsTarget;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "lg";
-          target = homeDdnsTarget;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "um";
-          target = homeDdnsTarget;
-          ttl = "10m";
-        }
+        (mkPublicVpsCname "autoconfig")
+        (mkPublicVpsCname "flapalerted")
+        (mkPublicVpsCname "lg")
+        (mkPublicVpsCname "um")
         (mkPublicVpsCname "hydra")
         (mkPublicVpsCname "netbox")
         (mkPublicVpsCname "sub")
 
+        # High-volume cache data stays on the home ingress.
+        (mkHomeIngressCname "colocrossing")
+        (mkHomeIngressCname "vaults3")
+
         (builtins.filter
-          (record: !(record.recordType == "CNAME" && record.name == "*.ml-home-vm.zhyi.cc."))
+          (
+            record:
+            !(record.recordType == "CNAME" && record.name == "*.ml-home-vm.zhyi.cc.")
+            && record.name != "colocrossing.zhyi.cc."
+          )
           (hostRecords domain (
             host: if config.common.hostRecs.hasPublicIP host then host.public else host.ltnet
           ))
