@@ -13,9 +13,6 @@
 
   city = geo.cities."CN Ningbo";
 
-  # 初期手动部署，避免还没验证好的构建机被批量部署误操作。
-  manualDeploy = true;
-
   # 当前虚拟机的 SSH host public key。
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDax7ee1Yjl1Ei1PqF5ef8QpThqI7YqTMDN5obfqL5+4";
 

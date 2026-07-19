@@ -11,8 +11,6 @@
   cpuThreads = 2;
   hostname = "cnvm.zhyi.cc";
   city = geo.cities."CN Ningbo";
-  manualDeploy = true;
-
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJdPcNgpGfX6QT+clqKr4dL/FuWXxYeWVCY/lWxxA8E5 root@cnvm";
 
   public.IPv4 = "101.96.199.157";

@@ -15,9 +15,6 @@
 
   city = geo.cities."CN Ningbo";
 
-  # 初期手动部署，避免还没验证好的构建机被批量部署误操作。
-  manualDeploy = true;
-
   # SSH host public key。重装后从固定局域网地址重新读取：
   #   ssh-keyscan -p 2222 192.168.2.50 2>/dev/null | grep ssh-ed25519
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEL+VnRYwULTdXkJtOCqoKY4COzWxHNz9glsndnSbZxl";

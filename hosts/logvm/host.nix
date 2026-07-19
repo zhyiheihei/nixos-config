@@ -9,8 +9,6 @@
   cpuThreads = 4;
   hostname = "logvm.zhyi.cc";
   city = geo.cities."CN Ningbo";
-  manualDeploy = true;
-
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJJm1gZb51/N/fVV1LV+dCs6l9EHbXeTUj42puGIwrX6";
 
   firewalled = true;
