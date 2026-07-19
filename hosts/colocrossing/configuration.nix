@@ -62,11 +62,12 @@
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
 
-  systemd.network.networks.wgmesh117.linkConfig.MTUBytes = 1280;
+  systemd.network.networks.wgmesh117.linkConfig.MTUBytes = lib.mkForce 1280;
 
   systemd.services.wg-mesh-wstunnel-jpvm = {
     description = "WireGuard mesh WebSocket tunnel to JPVM";
     after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
     wantedBy = [ "multi-user.target" ];
     script = ''
       exec ${pkgs.wstunnel}/bin/wstunnel client \

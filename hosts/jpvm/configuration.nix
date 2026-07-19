@@ -1,6 +1,7 @@
 {
   inputs,
   LT,
+  lib,
   pkgs,
   ...
 }:
@@ -51,8 +52,8 @@
     };
   };
 
-  systemd.network.networks.wgmesh18.linkConfig.MTUBytes = 1280;
-  systemd.network.networks.wgmesh119.linkConfig.MTUBytes = 1280;
+  systemd.network.networks.wgmesh18.linkConfig.MTUBytes = lib.mkForce 1280;
+  systemd.network.networks.wgmesh119.linkConfig.MTUBytes = lib.mkForce 1280;
 
   # Standard HTTPS ingress for selected low-traffic services. Colocrossing
   # dispatches the TLS stream to the owning origin by SNI.
