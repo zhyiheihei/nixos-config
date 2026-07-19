@@ -65,12 +65,5 @@
       proxy_timeout 3600s;
       proxy_pass $https_origin;
     }
-
-    server {
-      listen 0.0.0.0:443 udp reuseport;
-      listen [::]:443 udp reuseport;
-      proxy_timeout 3600s;
-      proxy_pass ${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.HTTPS};
-    }
   '';
 }
