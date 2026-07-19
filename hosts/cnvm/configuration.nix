@@ -9,6 +9,8 @@
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
+    ../../nixos/optional-apps/dex.nix
+    ../../nixos/optional-apps/pocket-id.nix
   ];
 
   boot.kernelParams = [ "console=ttyS0,115200" ];
