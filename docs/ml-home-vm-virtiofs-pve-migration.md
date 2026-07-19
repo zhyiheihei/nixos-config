@@ -230,3 +230,26 @@ After every migration, verify the VirtioFS source, current system closure,
 failed units, application services, and QEMU guest agent before proceeding to
 the next VM. Keep the old disk until the new storage has passed a later cold
 boot and an independent backup restore test.
+
+## Garbage collection memory safety
+
+`pve-5700u` has about 46 GiB of RAM and no swap, matching the upstream PVE
+configuration's decision to disable zram. Three running guests consume about
+30 GiB before accounting for QEMU shared memory and `virtiofsd` page cache.
+Consequently, a large Nix GC through VirtioFS can trigger the host OOM killer
+even when the guest itself does not exhaust its assigned memory.
+
+For routine daily `fast-nix-gc`, keep the existing randomized timer. For a
+large manual cleanup, especially after removing obsolete GC roots:
+
+1. Record the roots being removed under `/nix/persistent`.
+2. Shut down the other VirtioFS guests.
+3. Run GC in only one guest at a time as a systemd service so an SSH disconnect
+   cannot interrupt it.
+4. Monitor `MemAvailable` and `/proc/pressure/memory` on `pve-5700u`.
+5. Verify the guest and its application services before starting the next VM.
+
+On 2026-07-19, 170 stale Hydra roots were removed from `ml-home-vm` after
+Hydra had moved to `pve-5700u`. The root manifest is stored under
+`/nix/persistent/var/lib/nix-gc-audit/`. Nix GC then deleted 10,217 store paths
+and reported 23.6 GiB freed. Hydra roots on `pve-5700u` were not modified.
