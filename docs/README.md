@@ -17,23 +17,19 @@
 - [域名与服务编排](./domain-service-layout.md)
 - [家庭局域网 IP 规划](./home-lan-ip-plan.md)
 - [LTNET 家庭中继与缓存链路](./network/ltnet-home-relay.md)
-- [DN42 接入准备](./network/dn42-bootstrap.md)
-- [OpenWrt 两级路由网段互访配置](./opentwrt-two-router-interlan.md)
+- [DN42 当前拓扑](./network/dn42.md)
 - [自建 Attic + S3 构建缓存](./attic-s3-cache.md)
 - [自有 Attic 优先与完整闭包缓存](./attic-owned-cache-priority.md)
 - [Attic 手动补推缓存流程](./attic-full-store-push.md)
-- [Attic 旧客户端缓存排障](./attic-stale-client-cache-troubleshooting.md)
 
 ## 主机与服务
 
 - [当前 hosts 概览](./hosts-overview.md)
-- [ml-2700u 安装与桌面操作](./ml-2700u/README.md)
-- [Homepage 链接与监测检查](./homepage-link-audit.md)
+- [Homepage 卡片与健康检查](./homepage-link-audit.md)
 
 ## 迁移与验收记录
 
 - [ml-home-vm 与 pve-5700u 复刻验收](./vm-replication-chain.md)
-- [1Panel 服务迁移到 ml-home-vm](./onepanel-to-ml-home-vm-migration.md)
 - [ml-home-vm VirtioFS 与 PVE 迁移手册](./ml-home-vm-virtiofs-pve-migration.md)
 
 ## 历史归档

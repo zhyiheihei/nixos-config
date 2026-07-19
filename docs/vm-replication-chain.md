@@ -31,17 +31,13 @@ ml-home-vm /mnt/storage --> QNAP .93:/nixos (NFSv4.1)
 
 局域网固定地址以 [home-lan-ip-plan.md](./home-lan-ip-plan.md) 为准。
 
-## 2026-07-17 运行态证据
+## 应有运行状态
 
-- `ml-builder` 和 `ml-home-vm` 均为 `systemctl is-system-running = running`，失败单元为零。
-- `ml-home-vm` 的 `/nix` 来自 `virtiofs-nixos-home-vm`。
-- `/mnt/storage` 来自 `192.168.2.93:/nixos`，使用 NFSv4.1 和 `nconnect=16`。
-- `ml-home-vm` 的 ZeroTier 状态为 `ONLINE`，`ltnet_colocrossing` 为 `Established`。
-- Attic 返回 `Priority: 5`，NCPS 返回 `Priority: 10`。
-- 从 Attic 下载已缓存系统闭包返回 HTTP 200，最终连接地址为 `192.168.2.52`，
-  证明 Attic 和 S3 域名在家中网络内没有绕公网回环。
-- Hydra 已成功完成 `ml-home-vm`、`pve-5700u` 等系统任务，并通过 RunCommand
-  将构建结果上传到 Attic。
+- `ml-home-vm` 的 `/nix` 来自 `virtiofs-nixos-home-vm`，`/mnt/storage` 来自
+  `192.168.2.93:/nixos`。
+- `ml-home-vm` 的 ZeroTier 为 `ONLINE`，`ltnet_colocrossing` 为 `Established`。
+- Attic 的 `Priority` 小于 NCPS，且家庭客户端解析 Attic 与 VaultS3 时不应绕经公网。
+- Hydra 成功完成系统任务后，通过 RunCommand 将构建结果上传到 Attic。
 
 ## 验收命令
 
