@@ -68,16 +68,15 @@ rec {
     '';
     storagebox = ''
       [repository]
-      repository = "opendal:sftp"
+      repository = "opendal:s3"
       password-file = "${config.sops.secrets.restic-pw.path}"
       cache-dir = "/var/cache/restic/storagebox"
 
       [repository.options]
-      user = "u378583-sub2"
-      endpoint = "ssh://u378583-sub2.your-storagebox.de:23"
-      key = "${config.sops.secrets.sftp-privkey.path}"
-      root = "/home"
-      known_hosts_strategy = "Accept"
+      endpoint = "https://vaults3.zhyi.cc:8443"
+      region = "east-1"
+      bucket = "rustic-backup"
+      root = "/"
       enable_copy = "true"
 
       [backup]
@@ -98,7 +97,7 @@ rec {
   };
 
   maintenanceHosts = {
-    "terrahost" = [ "storagebox" ];
+    "logvm" = [ "storagebox" ];
     "ml-home-vm" = [ "home" ];
   };
 
@@ -109,6 +108,10 @@ rec {
     in
     pkgs.writeShellScriptBin "rustic-${k}" ''
       export RUSTIC_USE_PROFILE=${configFile}
+      ${lib.optionalString (k == "storagebox") ''
+        export AWS_ACCESS_KEY_ID="$(cat ${config.sops.secrets.restic-s3-access-key.path})"
+        export AWS_SECRET_ACCESS_KEY="$(cat ${config.sops.secrets.restic-s3-secret-key.path})"
+      ''}
       exec ${lib.getExe pkgs.rustic} "$@"
     ''
   ) resticRepos;

@@ -34,7 +34,7 @@ in
     };
     resticRepos = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [ "home" ];
+      default = builtins.attrNames resticRepos;
     };
     schedule = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
@@ -71,6 +71,8 @@ in
   config = lib.mkMerge [
     {
       sops.secrets.restic-pw.sopsFile = inputs.secrets + "/common/restic.yaml";
+      sops.secrets.restic-s3-access-key.sopsFile = inputs.secrets + "/common/restic.yaml";
+      sops.secrets.restic-s3-secret-key.sopsFile = inputs.secrets + "/common/restic.yaml";
       sops.secrets.sftp-privkey.sopsFile = inputs.secrets + "/common/sftp.yaml";
 
       environment.systemPackages = resticCommands ++ [ pkgs.rustic ];
