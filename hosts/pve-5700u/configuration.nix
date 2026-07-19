@@ -1,6 +1,7 @@
 {
   config,
   LT,
+  lib,
   ...
 }:
 {
@@ -21,6 +22,10 @@
     "amd_pstate=active"
     "amd_pstate.shared_mem=1"
   ];
+
+  # This host has less memory than the author's pve-epyc. Keep the existing
+  # swap usable so Hydra evaluation cannot force the kernel to kill a VM.
+  boot.kernel.sysctl."vm.swappiness" = lib.mkForce 10;
 
   boot.loader.grub = {
     efiSupport = true;
