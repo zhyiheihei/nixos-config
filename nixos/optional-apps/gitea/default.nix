@@ -97,6 +97,9 @@ in
         REQUIRE_SIGNIN_VIEW = false;
         SHOW_REGISTRATION_BUTTON = false;
       };
+      oauth2_client = {
+        ENABLE_AUTO_REGISTRATION = true;
+      };
       session = {
         PROVIDER = "db";
         COOKIE_SECURE = true;
