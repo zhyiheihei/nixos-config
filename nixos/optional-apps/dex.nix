@@ -58,10 +58,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-freshrss-secret.path;
         };
-        redirectURIs = [
-          "https://freshrss.ml-home-vm.zhyi.cc/i/oidc/"
-          "https://freshrss.ml-home-vm.zhyi.cc:8443/i/oidc/"
-        ];
+        redirectURIs = [ "https://freshrss.ml-home-vm.zhyi.cc/i/oidc/" ];
       }
       {
         id = "gitea";
