@@ -265,6 +265,20 @@ in
       ];
     })
     {
+      job_name = "sglang-sakura-llm";
+      scheme = "https";
+      static_configs = [
+        { targets = [ "sakura-llm.ml-builder.zhyi.cc" ]; }
+      ];
+    }
+    {
+      job_name = "sakura-share";
+      scheme = "https";
+      static_configs = [
+        { targets = [ "sakura-share.one" ]; }
+      ];
+    }
+    {
       job_name = "flapalerted";
       scheme = "https";
       metrics_path = "/flaps/metrics/prometheus";

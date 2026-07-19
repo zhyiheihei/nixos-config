@@ -17,6 +17,20 @@ let
 
   httpMonitorTargets = builtins.map (site: "https://${site}") ownPublicSites;
 
+  monitoredHosts = lib.filterAttrs (
+    n: v: v.hasTag LT.tags.server && v.hasTag LT.tags.public-facing
+  ) LT.activeHosts;
+
+  monitoredHostsExceptSelf = lib.filterAttrs (n: _: n != config.networking.hostName) monitoredHosts;
+
+  httpPublicFacingHosts = lib.mapAttrsToList (n: _: "https://${n}.zhyi.cc") monitoredHosts;
+
+  publicFacingHostsExceptSelf =
+    port:
+    lib.mapAttrsToList (
+      n: _: "${n}.zhyi.cc" + lib.optionalString (port != null) ":${builtins.toString port}"
+    ) monitoredHostsExceptSelf;
+
   relabelConfigs = [
     {
       source_labels = [ "__address__" ];
@@ -72,7 +86,7 @@ in
             timeout = "15s";
             tcp.query_response = [
               { send = "/\r\n"; }
-              { expect = "gopher\\.lantian\\."; }
+              { expect = "gopher\\.zhyi\\."; }
             ];
           };
           whois = {
@@ -98,7 +112,31 @@ in
       scrape_interval = "1m";
       metrics_path = "/probe";
       params.module = [ "https_2xx" ];
-      static_configs = [ { targets = httpMonitorTargets; } ];
+      static_configs = [ { targets = httpMonitorTargets ++ httpPublicFacingHosts; } ];
+      relabel_configs = relabelConfigs;
+    }
+    {
+      job_name = "dns";
+      scrape_interval = "1m";
+      metrics_path = "/probe";
+      params.module = [ "dns" ];
+      static_configs = [ { targets = publicFacingHostsExceptSelf null; } ];
+      relabel_configs = relabelConfigs;
+    }
+    {
+      job_name = "gopher";
+      scrape_interval = "1m";
+      metrics_path = "/probe";
+      params.module = [ "gopher" ];
+      static_configs = [ { targets = publicFacingHostsExceptSelf 70; } ];
+      relabel_configs = relabelConfigs;
+    }
+    {
+      job_name = "whois";
+      scrape_interval = "1m";
+      metrics_path = "/probe";
+      params.module = [ "whois" ];
+      static_configs = [ { targets = publicFacingHostsExceptSelf 43; } ];
       relabel_configs = relabelConfigs;
     }
   ];
@@ -118,6 +156,36 @@ in
                 annotations = {
                   summary = "⚠️ {{$labels.alias}}: Web service {{$labels.name}} failed.";
                   description = "{{$labels.alias}} is not returning status code 200 for {{$labels.name}}.";
+                };
+              }
+              {
+                alert = "dns_service_failed";
+                expr = ''probe_success{job="dns"} == 0'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "⚠️ {{$labels.alias}}: DNS service {{$labels.name}} failed.";
+                  description = "{{$labels.alias}} is not returning DNS response for {{$labels.name}}.";
+                };
+              }
+              {
+                alert = "gopher_service_failed";
+                expr = ''probe_success{job="gopher"} == 0'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "⚠️ {{$labels.alias}}: Gopher service {{$labels.name}} failed.";
+                  description = "{{$labels.alias}} is not returning Gopher response for {{$labels.name}}.";
+                };
+              }
+              {
+                alert = "whois_service_failed";
+                expr = ''probe_success{job="whois"} == 0'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "⚠️ {{$labels.alias}}: WHOIS service {{$labels.name}} failed.";
+                  description = "{{$labels.alias}} is not returning WHOIS response for {{$labels.name}}.";
                 };
               }
             ];
