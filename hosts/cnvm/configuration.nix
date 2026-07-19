@@ -55,6 +55,7 @@
     resolver 223.5.5.5 119.29.29.29 valid=60s ipv6=off;
 
     map $ssl_preread_server_name $https_origin {
+      ~^(login|id)\.zhyi\.xin$ 127.0.0.1:${LT.portStr.HTTPS};
       cnvm.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
       default ${LT.hosts.colocrossing.ltnet.IPv4}:443;
     }
