@@ -16,9 +16,9 @@ let
     default_federate = true;
     default_theme = "dark";
     room_directory.servers = [
-      "matrix.org"
       "nixos.org"
       "hackint.org"
+      "matrix.org"
       "zhyi.xin"
     ];
     branding.welcome_background_url = import ./background.nix;
