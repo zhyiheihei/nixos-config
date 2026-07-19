@@ -89,8 +89,6 @@
   users.groups.pocket-id.members = [ "nginx" ];
 
   lantian.nginxVhosts."id.zhyi.xin" = {
-    advertiseHTTP3Port = null;
-
     locations."/" = {
       proxyPass = "http://unix:/run/pocket-id/pocket-id.sock";
     };

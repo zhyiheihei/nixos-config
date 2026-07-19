@@ -67,8 +67,6 @@
     "${inputs.secrets}/nixos-hidden-module/851e5310ebca4e5c"
   ];
 
-  lantian.nginxDefaultAdvertiseHTTP3Port = null;
-
   systemd.network.networks.eth0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     gateway = [ "192.168.2.2" ];
