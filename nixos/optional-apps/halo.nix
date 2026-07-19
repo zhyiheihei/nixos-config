@@ -74,8 +74,8 @@
   lantian.nginxVhosts = {
     "zhyi.xin" = {
       root = lib.mkForce null;
-      locations = lib.mkForce {
-        "/" = {
+      locations = {
+        "/" = lib.mkForce {
           proxyPass = "http://127.0.0.1:${LT.portStr.Halo}";
           proxyWebsockets = true;
         };
