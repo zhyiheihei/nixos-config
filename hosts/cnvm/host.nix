@@ -19,7 +19,10 @@
 
   zerotier = "ecd09d7bc2";
 
-  ltnet.peers = [ "jpvm" ];
+  ltnet = {
+    peers = [ "jpvm" ];
+    endpointOverrides.jpvm = "127.0.0.1";
+  };
 
   dn42 = {
     IPv4 = "172.20.46.229";

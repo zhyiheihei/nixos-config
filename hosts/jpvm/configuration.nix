@@ -1,6 +1,7 @@
 {
   inputs,
   LT,
+  pkgs,
   ...
 }:
 {
@@ -23,7 +24,35 @@
     "1.1.1.1"
   ];
 
-  lantian.nginxVhosts."jp.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  lantian.nginxVhosts."jp.zhyi.cc" = {
+    locations."/ltnet-wg/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.WGMesh.WebSocket}";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
+    sslCertificate = "lets-encrypt-zhyi.cc";
+  };
+
+  systemd.services.wg-mesh-wstunnel-server = {
+    description = "WireGuard mesh WebSocket tunnel server";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    script = ''
+      exec ${pkgs.wstunnel}/bin/wstunnel server \
+        --log-lvl WARN \
+        --restrict-to 127.0.0.1:10018 \
+        --restrict-to 127.0.0.1:10119 \
+        ws://127.0.0.1:${LT.portStr.WGMesh.WebSocket}
+    '';
+    serviceConfig = LT.serviceHarden // {
+      DynamicUser = true;
+      Restart = "always";
+      RestartSec = 5;
+    };
+  };
+
+  systemd.network.networks.wgmesh18.linkConfig.MTUBytes = 1280;
+  systemd.network.networks.wgmesh119.linkConfig.MTUBytes = 1280;
 
   # Standard HTTPS ingress for selected low-traffic services. Colocrossing
   # dispatches the TLS stream to the owning origin by SNI.
