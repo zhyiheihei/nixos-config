@@ -1,8 +1,8 @@
 # 当前 hosts 概览
 
 `hosts/<name>/host.nix` 保存主机元数据，`configuration.nix` 保存主机配置，
-`hardware-configuration.nix` 保存硬件与文件系统信息。当前仓库有 19 个 host
-目录；不是每个目录都属于当前生产部署。
+`hardware-configuration.nix` 保存硬件与文件系统信息。`hosts/` 只保存 8 台自有
+主机；作者参考配置位于 `hosts-exam/`，不生成可部署的 NixOS configuration。
 
 ## 当前自有拓扑
 
@@ -27,8 +27,8 @@
 
 ## 保留的作者参考主机
 
-以下 host 仍保留在 flake 中，用于复刻作者模块、硬件与网络结构，不应默认视为
-可部署的自有机器：
+以下 host 位于 `hosts-exam/`，用于复刻作者模块、硬件与网络结构，不是可部署的
+自有机器。部分旧模块仍通过兼容元数据引用它们，但它们不会出现在 Colmena Hive：
 
 | 类别 | 主机 |
 | --- | --- |
