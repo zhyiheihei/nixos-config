@@ -410,7 +410,7 @@ in
     };
     advertiseHTTP3Port = lib.mkOption {
       type = lib.types.nullOr lib.types.port;
-      default = LT.port.HTTPS;
+      default = osConfig.lantian.nginxDefaultAdvertiseHTTP3Port;
       description = "Public port advertised for HTTP/3, or null to clear HTTP/3 discovery";
     };
     disableLiveCompression = lib.mkEnableOption "Disable on-the-fly compression and only use precompressed assets";

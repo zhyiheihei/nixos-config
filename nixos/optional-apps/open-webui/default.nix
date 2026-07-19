@@ -182,7 +182,6 @@
 
   lantian.nginxVhosts = {
     "ai.zhyi.xin" = {
-      advertiseHTTP3Port = null;
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.OpenWebUI.UI}";
