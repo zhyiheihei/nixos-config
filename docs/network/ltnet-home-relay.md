@@ -67,6 +67,17 @@ closure copy so the target does not query every configured substituter first:
 nix run .#colmena -- apply --on cnvm --no-substitute
 ```
 
+## Public HTTP/3 ingress
+
+CNVM must forward both sides of the public HTTPS service:
+
+- TCP 443 uses TLS SNI routing.
+- UDP 443 forwards QUIC to colocrossing UDP 8443.
+
+The origin advertises `Alt-Svc: h3=":443"`. Removing the UDP forwarding leaves
+that advertisement active but makes browser OIDC redirects fail with protocol
+errors, even though a new HTTP/2 request made with curl still succeeds.
+
 ## Verification
 
 ```bash
