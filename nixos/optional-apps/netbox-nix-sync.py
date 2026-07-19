@@ -3,6 +3,7 @@ import os
 from decimal import Decimal
 
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Manufacturer, Platform, Site
+from django.contrib.contenttypes.models import ContentType
 from django.db import transaction
 from extras.models import Tag
 from ipam.models import IPAddress
@@ -202,6 +203,53 @@ def sync_device(data):
     return True
 
 
+def delete_stale_devices(active_names):
+    stale_devices = list(
+        Device.objects.filter(description__contains=MARKER).exclude(name__in=active_names)
+    )
+    if not stale_devices:
+        return
+
+    interface_type = ContentType.objects.get_for_model(Interface)
+    stale_interface_ids = Interface.objects.filter(device__in=stale_devices).values_list(
+        "id", flat=True
+    )
+    stale_ips = IPAddress.objects.filter(
+        description__contains=MARKER,
+        assigned_object_type=interface_type,
+        assigned_object_id__in=stale_interface_ids,
+    )
+    for ip in stale_ips:
+        ip.delete()
+    for device in stale_devices:
+        print(f"delete stale Nix-managed device {device.name}")
+        device.delete()
+
+
+def delete_unused_inventory_objects():
+    managed_devices = list(Device.objects.filter(description__contains=MARKER))
+    used_site_ids = {device.site_id for device in managed_devices if device.site_id}
+    used_role_ids = {device.role_id for device in managed_devices if device.role_id}
+    used_device_type_ids = {
+        device.device_type_id for device in managed_devices if device.device_type_id
+    }
+    used_tag_ids = set()
+    for device in managed_devices:
+        used_tag_ids.update(device.tags.values_list("id", flat=True))
+
+    managed_objects = (
+        (Site, used_site_ids),
+        (DeviceRole, used_role_ids),
+        (DeviceType, used_device_type_ids),
+        (Tag, used_tag_ids),
+    )
+    for model, used_ids in managed_objects:
+        for obj in model.objects.filter(description__contains=MARKER).exclude(
+            id__in=used_ids
+        ):
+            obj.delete()
+
+
 def main():
     with open(os.environ["NETBOX_NIX_INVENTORY"], encoding="utf-8") as inventory_file:
         inventory = json.load(inventory_file)
@@ -211,6 +259,8 @@ def main():
         for device in inventory:
             if sync_device(device):
                 synced += 1
+        delete_stale_devices({device["name"] for device in inventory})
+        delete_unused_inventory_objects()
     print(f"netbox-nix-sync: synced {synced}/{len(inventory)} devices")
 
 
