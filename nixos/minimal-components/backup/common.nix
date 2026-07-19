@@ -111,6 +111,7 @@ rec {
         export RCLONE_CONFIG_STORAGEBOX_ENDPOINT=https://vaults3.zhyi.cc:8443
         export RCLONE_CONFIG_STORAGEBOX_REGION=east-1
         export RCLONE_CONFIG_STORAGEBOX_FORCE_PATH_STYLE=true
+        export RCLONE_CONFIG_STORAGEBOX_NO_CHECK_BUCKET=true
       ''}
       exec ${lib.getExe pkgs.rustic} "$@"
     ''
