@@ -7,7 +7,6 @@ let
   # Must be running >1min so that node_exporter can see them running
   periodicTasks = [
     # keep-sorted start
-    "auto-mihoyo-bbs"
     # keep-sorted end
   ];
 in
