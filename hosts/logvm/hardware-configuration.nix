@@ -24,6 +24,18 @@
     fsType = "virtiofs";
   };
 
+  fileSystems."/var/lib/prometheus" = {
+    device = "/dev/disk/by-uuid/42d4166e-5230-423d-bee5-fef687afe88c";
+    fsType = "btrfs";
+    options = [
+      "subvol=persistent/var/lib/prometheus"
+      "compress-force=zstd"
+      "autodefrag"
+      "nosuid"
+      "nodev"
+    ];
+  };
+
   swapDevices = [
     {
       device = "/dev/disk/by-partuuid/7f822cbd-a26b-41eb-8360-1c7fa2259762";
