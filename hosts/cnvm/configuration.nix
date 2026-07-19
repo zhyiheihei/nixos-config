@@ -95,5 +95,13 @@
       proxy_timeout 3600s;
       proxy_pass $https_origin;
     }
+
+    server {
+      listen 0.0.0.0:${LT.portStr.Matrix.Public};
+      listen [::]:${LT.portStr.Matrix.Public};
+      proxy_connect_timeout 10s;
+      proxy_timeout 3600s;
+      proxy_pass ${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.Matrix.Public};
+    }
   '';
 }
