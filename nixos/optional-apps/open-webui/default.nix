@@ -75,17 +75,14 @@
       CONTENT_EXTRACTION_ENGINE = "tika";
       TIKA_SERVER_URL = "http://127.0.0.1:${LT.portStr.Tika}";
 
-      ENABLE_IMAGE_GENERATION = "True";
-      IMAGE_GENERATION_ENGINE = "automatic1111";
-      AUTOMATIC1111_BASE_URL = "https://stable-diffusion.xuyh0120.win";
-      IMAGE_SIZE = "512x512";
-      IMAGE_STEPS = "20";
+      # No local image-generation backend is configured yet.
+      ENABLE_IMAGE_GENERATION = "False";
 
       # Search query is provided via MCP tools
       ENABLE_RAG_WEB_SEARCH = "False";
       ENABLE_SEARCH_QUERY = "False";
       RAG_WEB_SEARCH_ENGINE = "searxng";
-      SEARXNG_QUERY_URL = "https://searx.xuyh0120.win/search?q=<query>";
+      SEARXNG_QUERY_URL = "http://searx.localhost/search?q=<query>";
       RAG_WEB_SEARCH_RESULT_COUNT = "10";
       RAG_WEB_SEARCH_CONCURRENT_REQUESTS = "10";
 
