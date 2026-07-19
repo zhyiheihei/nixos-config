@@ -338,7 +338,7 @@
     SystemCallFilter = lib.mkForce [ ];
   };
   systemd.services.homepage-dashboard.environment.HOMEPAGE_ALLOWED_HOSTS = lib.mkForce (
-    "homepage.${config.networking.hostName}.zhyi.cc,homepage.localhost,"
+    "homepage.zhyi.xin,homepage.${config.networking.hostName}.zhyi.cc,homepage.localhost,"
     + "localhost:${LT.portStr.HomepageDashboard},127.0.0.1:${LT.portStr.HomepageDashboard}"
   );
 
@@ -351,7 +351,7 @@
   environment.etc."homepage-dashboard/assets".source = ./homepage-dashboard-assets;
 
   lantian.nginxVhosts = {
-    "homepage.${config.networking.hostName}.zhyi.cc" = {
+    "homepage.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
@@ -361,9 +361,9 @@
         "/homepage-assets/".alias = "/etc/homepage-dashboard/assets/";
       };
 
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
-      accessibleBy = "private";
+      accessibleBy = "public";
     };
     "homepage.localhost" = {
       listenHTTP.enable = true;

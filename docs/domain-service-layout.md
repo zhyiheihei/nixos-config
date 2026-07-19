@@ -22,8 +22,8 @@
 ```
 
 CNVM 本机承载 Dex、Pocket ID 与 Vaultwarden；colocrossing 承载 Gitea、Matrix、RSS
-等服务。SNI 为 `ai`、`filebox`、`index`、`index-helper` 和 `n8n` 的请求继续转发到
-`ml-home-vm`。这样 DNS 不再把同一域名的一部分服务绕过 CNVM 直连家庭 DDNS。
+等服务。SNI 为 `ai`、`filebox`、`homepage`、`index`、`index-helper` 和 `n8n` 的请求
+继续转发到 `ml-home-vm`。这样 DNS 不再把同一域名的一部分服务绕过 CNVM 直连家庭 DDNS。
 
 `attic.zhyi.xin` 是例外：它直接 CNAME 到 `home-ddns.zhyi.cc`，不经 CNVM。
 Attic 与其 `vaults3.zhyi.cc` 数据面流量较大，固定由 colocrossing 的家庭出口承载，
