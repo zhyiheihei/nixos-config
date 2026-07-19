@@ -44,7 +44,7 @@
         OIDC_CLIENT_ID = "freshrss";
         OIDC_REMOTE_USER_CLAIM = "preferred_username";
         OIDC_SCOPES = "openid profile email groups";
-        OIDC_X_FORWARDED_HEADERS = "X-Forwarded-Host X-Forwarded-Proto";
+        OIDC_X_FORWARDED_HEADERS = "X-Forwarded-Host X-Forwarded-Port X-Forwarded-Proto";
       };
       environmentFiles = [ config.sops.templates.freshrss-env.path ];
     };
@@ -59,6 +59,10 @@
       "freshrss.${config.networking.hostName}.zhyi.cc" = {
         locations."/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.FreshRSS}";
+          extraConfig = ''
+            proxy_set_header X-Forwarded-Host $host;
+            proxy_set_header X-Forwarded-Port 443;
+          '';
         };
         accessibleBy = "private";
         sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
