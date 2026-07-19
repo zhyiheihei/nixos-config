@@ -156,7 +156,7 @@ in
       WorkingDirectory = "/var/lib/netbox";
     };
     script = ''
-      exec ${lib.getExe' config.services.netbox.package "netbox-manage"} shell < ${./netbox-nix-sync.py}
+      exec /run/current-system/sw/bin/netbox-manage shell < ${./netbox-nix-sync.py}
     '';
   };
 
