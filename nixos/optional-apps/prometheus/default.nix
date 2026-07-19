@@ -8,7 +8,6 @@
     ./blackbox-exporter.nix
     ./periodic-tasks.nix
     ./scrape-configs.nix
-    ./storagebox.nix
   ];
 
   services.prometheus = {
