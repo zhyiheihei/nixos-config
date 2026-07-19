@@ -48,15 +48,14 @@ DNS、到 colocrossing 的局域网覆盖及服务端状态，不要临时关闭
 nix build .#nixosConfigurations.ml-builder.config.system.build.toplevel -L
 ```
 
-再验证当前部署集合但不切换：
+再验证 `hosts/` 中的完整自有 Hive，但不切换：
 
 ```bash
-make current-eval
-make current-build
+make build
 ```
 
-`make current` 会部署 Makefile 声明的七台日常目标主机，不能作为单机测试命令。完整说明见
-[构建与部署当前主机](./deployment.md)。
+`make all` 和 `make servers` 会部署对应 Colmena 标签，不能作为单机测试命令。完整说明见
+[构建与部署](./deployment.md)。
 
 ## 作为远程 builder
 

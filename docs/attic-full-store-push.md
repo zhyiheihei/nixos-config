@@ -15,7 +15,7 @@ nix build ".#nixosConfigurations.$HOST.config.system.build.toplevel" \
   --out-link "/root/cache-roots/$HOST"
 ```
 
-如果是当前部署集合，可先用 `make current-build`。它只构建，不会切换任何机器。
+需要构建 `hosts/` 中的完整自有 Hive 时，可使用 `make build`。它不会切换任何机器。
 
 ## 2. 定向上传
 

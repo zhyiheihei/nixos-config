@@ -1,10 +1,7 @@
-# 构建与部署当前主机
+# 构建与部署
 
-`Makefile` 是构建和部署命令的权威来源。当前在线部署集合定义为：
-
-```text
-ml-builder, ml-home-vm, pve-5700u, colocrossing, jpvm, logvm, cnvm
-```
+`hosts/` 是可构建的自有 Colmena Hive，`hosts-exam/` 不参与构建和部署。`Makefile`
+与作者原版一致，使用 Colmena 标签选择目标，不额外维护一份在线主机清单。
 
 所有求值、构建和 Colmena 部署都在 `ml-builder` 执行，避免在本机或低配节点临时
 运行 Nix：
@@ -18,22 +15,18 @@ git pull --ff-only
 ## 常用命令
 
 ```bash
-# 查看完整命令说明；不执行构建或部署。
-make help
+# 构建 hosts/ 中的整个 Hive，但不上传、不切换。
+make build
 
-# 只求值当前在线主机。
-make current-eval
+# 构建带 @default 标签的主机，但不切换。
+make build-default
 
-# 构建当前在线主机，但不上传、不切换。
-make current-build
-
-# 构建、上传并切换当前在线主机。
-make current
+# 构建 x86_64-linux 主机，但不切换。
+make build-x86
 ```
 
-`make current` 是有状态变更的操作。先执行 `make current-eval`，再执行
-`make current-build`；只有确认要把同一提交部署到全部当前在线主机时才执行
-`make current`。
+`make servers`、`make all` 及其他 `apply` 目标是有状态变更操作。作者 Makefile 的
+首个目标是 `servers`，因此不要裸运行 `make`；验证时明确使用 `make build`。
 
 ## 指定主机
 
@@ -53,10 +46,10 @@ nix run .#colmena -- apply --on ml-home-vm,colocrossing
 先确认 SSH、DNS 和目标机当前地址可用。网络、入口或 SSH host key 变更后，不要把
 受影响主机和无关主机混在同一次 `apply` 中。
 
-## 非当前集合的主机
+## 保留主机
 
-`pve-2700`、作者保留的主机模板以及离线机器不属于 `make current`。只有在机器已经
-安装对应系统、网络与 SSH 身份均已确认后，才显式构建或部署：
+`pve-2700` 位于 `hosts/`，属于自有保留主机，但不应随日常在线主机一起部署。只有
+在机器状态、网络与 SSH 身份均已确认后，才显式构建或部署：
 
 ```bash
 nix run .#colmena -- build --on pve-2700
