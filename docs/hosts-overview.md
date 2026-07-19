@@ -8,8 +8,8 @@
 
 当前日常在线主机为：
 `ml-builder`、`ml-home-vm`、`pve-5700u`、`colocrossing`、`jpvm`、`logvm`、`cnvm`。
-`pve-2700` 是自有保留主机。`Makefile` 与作者原版一致，通过 Colmena 标签选择目标；
-实际部署命令见 [构建与部署](./deployment.md)。
+`pve-2700` 是自有保留主机。`Makefile` 沿用作者的 Colmena 标签目标，并增加安全的
+默认帮助；实际部署命令见 [构建与部署](./deployment.md)。
 
 | 主机 | index | 角色 | 主机元数据地址 | 说明 |
 | --- | ---: | --- | --- | --- |
