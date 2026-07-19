@@ -7,6 +7,12 @@
   ...
 }:
 {
+  options.lantian.nginxDefaultAdvertiseHTTP3Port = lib.mkOption {
+    type = lib.types.nullOr lib.types.port;
+    default = LT.port.HTTPS;
+    description = "Default public port advertised for HTTP/3 by Nginx virtual hosts";
+  };
+
   options.lantian.nginxVhosts = lib.mkOption {
     type = lib.types.attrsOf (
       lib.types.submodule (
