@@ -71,6 +71,7 @@
       REDIS_URL = "redis://localhost:${LT.portStr.OpenWebUI.Redis}/0";
 
       WEBUI_URL = "https://ai.zhyi.xin";
+      WEBUI_SESSION_COOKIE_SECURE = "True";
       OPENAI_API_BASE_URL = "http://uni-api.localhost/v1";
 
       ENABLE_LOGIN_FORM = "False";
@@ -181,6 +182,7 @@
 
   lantian.nginxVhosts = {
     "ai.zhyi.xin" = {
+      advertiseHTTP3Port = 443;
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.OpenWebUI.UI}";
