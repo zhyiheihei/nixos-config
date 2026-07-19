@@ -1,4 +1,5 @@
 {
+  config,
   LT,
   lib,
   ...
@@ -23,14 +24,51 @@
     "1.1.1.1"
   ];
 
-  # CNVM only passes TLS at layer four. It must not inherit the shared HTTP
-  # vhosts, which require the synchronized ACME certificate tree.
-  services.nginx.virtualHosts = lib.mkForce { };
+  # Terminate the authentication origins on the public host, as in the
+  # upstream public-facing layout. Other origins remain TLS passthrough.
+  lantian.nginxVhosts = {
+    "login.zhyi.xin" = {
+      advertiseHTTP3 = false;
+      locations."/" = {
+        proxyPass = "https://${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.HTTPS}";
+        extraConfig = ''
+          proxy_ssl_name login.zhyi.xin;
+          proxy_ssl_server_name on;
+        '';
+      };
+      sslCertificate = "lets-encrypt-zhyi.xin";
+      noIndex.enable = true;
+    };
+
+    "id.zhyi.xin" = {
+      advertiseHTTP3 = false;
+      locations."/" = {
+        proxyPass = "https://${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.HTTPS}";
+        extraConfig = ''
+          proxy_ssl_name id.zhyi.xin;
+          proxy_ssl_server_name on;
+        '';
+      };
+      sslCertificate = "lets-encrypt-zhyi.xin";
+      noIndex.enable = true;
+    };
+  };
+
+  services.nginx.virtualHosts = lib.mkForce (
+    lib.mapAttrs (_: v: v._config) (
+      lib.getAttrs [
+        "id.zhyi.xin"
+        "login.zhyi.xin"
+      ] config.lantian.nginxVhosts
+    )
+  );
 
   services.nginx.streamConfig = ''
     resolver 1.1.1.1 8.8.8.8 valid=60s ipv6=off;
 
     map $ssl_preread_server_name $https_origin {
+      id.zhyi.xin 127.0.0.1:${LT.portStr.HTTPS};
+      login.zhyi.xin 127.0.0.1:${LT.portStr.HTTPS};
       default ${LT.hosts.colocrossing.ltnet.IPv4}:443;
     }
 
