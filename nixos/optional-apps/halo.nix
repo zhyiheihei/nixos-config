@@ -78,6 +78,11 @@
         "/" = lib.mkForce {
           proxyPass = "http://127.0.0.1:${LT.portStr.Halo}";
           proxyWebsockets = true;
+          extraConfig = ''
+            proxy_set_header Accept-Encoding "";
+            sub_filter_once on;
+            sub_filter '</head>' '<script defer data-domain="zhyi.xin" data-api="https://stats.zhyi.xin/api/event" src="https://stats.zhyi.xin/js/script.js"></script></head>';
+          '';
         };
       };
     };
