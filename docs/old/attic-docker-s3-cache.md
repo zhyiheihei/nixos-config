@@ -1,6 +1,6 @@
 # Docker 部署 Attic 并使用 Garage S3
 
-本文是 [`attic-s3-cache.md`](./attic-s3-cache.md) 的临时落地版：现在还没有合适的 NixOS server，所以先在一台普通 Docker 机器上跑 Attic server，后端对象存储使用已经通过 Caddy 反代验证过的 Garage S3。
+本文是 [`attic-s3-cache.md`](../attic-s3-cache.md) 的临时落地版：现在还没有合适的 NixOS server，所以先在一台普通 Docker 机器上跑 Attic server，后端对象存储使用已经通过 Caddy 反代验证过的 Garage S3。
 
 目标链路：
 
