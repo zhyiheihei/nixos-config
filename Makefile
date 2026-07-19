@@ -1,4 +1,4 @@
-CURRENT_HOSTS := $(shell cat hosts/current.txt)
+CURRENT_HOSTS := $(shell cat current-hosts.txt)
 .DEFAULT_GOAL := help
 
 help: FORCE
