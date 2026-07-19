@@ -1,7 +1,8 @@
 # 构建与部署
 
 `hosts/` 是可构建的自有 Colmena Hive，`hosts-exam/` 不参与构建和部署。`Makefile`
-与作者原版一致，使用 Colmena 标签选择目标，不额外维护一份在线主机清单。
+沿用作者的 Colmena 标签目标，不额外维护一份在线主机清单；同时保留 `help` 作为
+安全的默认目标。
 
 所有求值、构建和 Colmena 部署都在 `ml-builder` 执行，避免在本机或低配节点临时
 运行 Nix：
@@ -15,6 +16,9 @@ git pull --ff-only
 ## 常用命令
 
 ```bash
+# 显示用法，不执行构建或部署。
+make
+
 # 构建 hosts/ 中的整个 Hive，但不上传、不切换。
 make build
 
@@ -25,8 +29,8 @@ make build-default
 make build-x86
 ```
 
-`make servers`、`make all` 及其他 `apply` 目标是有状态变更操作。作者 Makefile 的
-首个目标是 `servers`，因此不要裸运行 `make`；验证时明确使用 `make build`。
+`make servers`、`make all` 及其他 `apply` 目标是有状态变更操作。裸 `make` 只显示
+帮助；验证时明确使用 `make build`。
 
 ## 指定主机
 
