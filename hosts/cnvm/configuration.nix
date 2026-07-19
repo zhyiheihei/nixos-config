@@ -29,6 +29,18 @@
 
   lantian.nginxVhosts."cnvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
+  lantian.nginxVhosts."_default_https" = {
+    sslCertificate = "lets-encrypt-zhyi.xin";
+    locations."/" = {
+      return = lib.mkForce null;
+      proxyPass = "https://${LT.hosts.colocrossing.ltnet.IPv4}:443";
+      extraConfig = ''
+        proxy_ssl_name $host;
+        proxy_ssl_server_name on;
+      '';
+    };
+  };
+
   systemd.network.networks.wgmesh117.linkConfig.MTUBytes = lib.mkForce 1280;
 
   systemd.services.wg-mesh-wstunnel-jpvm = {
@@ -56,7 +68,8 @@
     resolver 223.5.5.5 119.29.29.29 valid=60s ipv6=off;
 
     map $ssl_preread_server_name $https_origin {
-      ~^(login|id)\.zhyi\.xin$ 127.0.0.1:${LT.portStr.HTTPS};
+      zhyi.xin 127.0.0.1:${LT.portStr.HTTPS};
+      ~^.+\.zhyi\.xin$ 127.0.0.1:${LT.portStr.HTTPS};
       cnvm.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
       default ${LT.hosts.colocrossing.ltnet.IPv4}:443;
     }
