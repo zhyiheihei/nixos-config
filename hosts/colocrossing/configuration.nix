@@ -130,6 +130,32 @@
     noIndex.enable = true;
   };
 
+  lantian.nginxVhosts = {
+    "id.zhyi.xin" = {
+      locations."/" = {
+        proxyPass = "https://${LT.hosts.cnvm.ltnet.IPv4}:${LT.portStr.HTTPS}";
+        extraConfig = ''
+          proxy_ssl_name id.zhyi.xin;
+          proxy_ssl_server_name on;
+        '';
+      };
+      sslCertificate = "lets-encrypt-zhyi.xin";
+      noIndex.enable = true;
+    };
+
+    "login.zhyi.xin" = {
+      locations."/" = {
+        proxyPass = "https://${LT.hosts.cnvm.ltnet.IPv4}:${LT.portStr.HTTPS}";
+        extraConfig = ''
+          proxy_ssl_name login.zhyi.xin;
+          proxy_ssl_server_name on;
+        '';
+      };
+      sslCertificate = "lets-encrypt-zhyi.xin";
+      noIndex.enable = true;
+    };
+  };
+
   # Keep high-traffic services on the home ingress. Public low-traffic
   # services enter through jpvm, then cross LTNET to this SNI dispatcher.
   services.nginx.streamConfig = ''
