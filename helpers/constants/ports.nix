@@ -124,7 +124,6 @@ rec {
     FileCodeBox = 13827;
     SunPanel = 13828;
     SunPanelHelper = 13829;
-    Zitadel = 13830;
     Syncthing = 13834;
     Usque = 13840;
     WGMesh.WebSocket = 13841;

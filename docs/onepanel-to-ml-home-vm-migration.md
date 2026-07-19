@@ -12,7 +12,6 @@
 | `filebox.zhyi.xin` | FileCodeBox 容器 | `/var/lib/filecodebox` | Dex OAuth `302` |
 | `index.zhyi.xin` | Sun Panel 容器 | `/var/lib/sun-panel` | Dex OAuth `302` |
 | `index-helper.zhyi.xin` | Sun Panel Helper 容器 | `/var/lib/sun-panel/custom` | Dex OAuth `302` |
-| `sso.zhyi.xin` | Zitadel 容器与本机 PostgreSQL | `/var/lib/onepanel-migration/20260718-initial/zitadel.sql` | Zitadel `302` |
 
 首次迁移快照保留在：
 
@@ -20,26 +19,17 @@
 /var/lib/onepanel-migration/20260718-initial
 ```
 
-Zitadel 的恢复单元只在恢复标记不存在时导入该快照。标记为：
-
-```text
-/var/lib/onepanel-migration/20260718-initial/.zitadel-restored
-```
-
-不要手动删除标记。需要重新从快照恢复时，先确认当前目标数据库可以丢弃，再由
-维护者删除标记并重启 `zitadel-db-restore.service`。
-
 ## 公网路径
 
-五个域名由 DNSControl 声明为静态 `CNAME -> cnvm.zhyi.cc.`。TLS 流量路径为：
+四个域名由 DNSControl 声明为静态 `CNAME -> cnvm.zhyi.cc.`。TLS 流量路径为：
 
 ```text
 客户端 -> cnvm:443 -> colocrossing LTNET:443 -> ml-home-vm:8443
 ```
 
 `hosts/colocrossing/configuration.nix` 按 TLS SNI 将这些域名转发到
-`ml-home-vm`。Vaultwarden 和 Zitadel使用各自认证；FileCodeBox 与两项 Sun
-Panel 服务使用 Dex OAuth。
+`ml-home-vm`。Vaultwarden 使用自身认证；FileCodeBox 与两项 Sun Panel 服务使用
+Dex OAuth。
 
 ## 验证
 
@@ -54,7 +44,7 @@ nix run .#dnscontrol -- preview
 通过公共递归 DNS 检查发布结果：
 
 ```bash
-for host in bitwarden filebox index index-helper sso; do
+for host in bitwarden filebox index index-helper; do
   printf '%s ' "$host"
   dig +short CNAME "$host.zhyi.xin" @1.1.1.1
 done
@@ -63,7 +53,7 @@ done
 通过真实公网 URL 检查：
 
 ```bash
-for host in bitwarden filebox index index-helper sso; do
+for host in bitwarden filebox index index-helper; do
   printf '%s ' "$host"
   curl -sS -o /dev/null -w '%{http_code}\n' "https://$host.zhyi.xin/"
 done

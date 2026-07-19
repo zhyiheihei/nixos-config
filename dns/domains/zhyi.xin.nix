@@ -33,7 +33,6 @@ let
     "posts"
     "rss"
     "rsshub"
-    "sso"
     "stats"
     "tools"
     "whois"
