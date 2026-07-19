@@ -89,10 +89,8 @@
       "flapalerted.zhyi.cc"
       "git.zhyi.xin"
       "hydra.zhyi.cc"
-      "id.zhyi.xin"
       "lemmy.zhyi.xin"
       "lg.zhyi.cc"
-      "login.zhyi.xin"
       "matrix-client.zhyi.xin"
       "netbox.zhyi.cc"
       "pb.zhyi.xin"
@@ -104,6 +102,10 @@
       "syncthing.colocrossing.zhyi.cc"
       "tools.zhyi.xin"
       "vaults3.zhyi.cc"
+    ];
+    "${LT.hosts.cnvm.ltnet.IPv4}" = [
+      "id.zhyi.xin"
+      "login.zhyi.xin"
     ];
     "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
     "${LT.hosts."pve-5700u".interconnect.IPv4}" = [ "pve-5700u.zhyi.cc" ];
