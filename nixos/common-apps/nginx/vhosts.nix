@@ -42,15 +42,6 @@ let
           extraConfig = enableCompression;
         };
 
-        # Waline
-        "= /api/comment" = {
-          proxyPass = "http://${LT.hosts."colocrossing".ltnet.IPv4}:${LT.portStr.Waline}";
-          extraConfig = ''
-            proxy_set_header REMOTE-HOST $remote_addr;
-            ${enableCompression}
-          '';
-        };
-
         # Matrix Federation
         "= /.well-known/matrix/server" = {
           allowCORS = true;

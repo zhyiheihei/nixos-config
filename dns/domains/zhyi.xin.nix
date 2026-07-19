@@ -9,7 +9,6 @@ let
     "avatar"
     "bitwarden"
     "cal"
-    "comments"
     "element"
     "filebox"
     "gemini"
