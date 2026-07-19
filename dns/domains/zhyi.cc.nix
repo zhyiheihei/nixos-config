@@ -71,7 +71,6 @@ in
           address = LT.hosts.jpvm.public.IPv4;
           ttl = "10m";
         }
-        (mkPublicVpsCname "homepage.ml-home-vm")
         (mkPublicVpsCname "archivebox.ml-home-vm")
         (mkPublicVpsCname "syncthing.ml-home-vm")
         (mkPublicVpsCname "halo.ml-home-vm")

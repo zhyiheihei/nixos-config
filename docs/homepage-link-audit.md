@@ -20,7 +20,8 @@ Homepage 运行在 `ml-home-vm`。它的服务卡片属于私有配置，实际 
 1. 先确认服务模块确实导出了正式 vhost 与适合的内部检查地址。
 2. 在 `nixos-secrets` 的 Homepage 配置中添加或修改卡片。不要把 token、Basic
    Auth 密码或私有管理地址写入本仓库。
-3. 卡片链接按域名分组：`zhyi.xin` 是公开服务域，`zhyi.cc` 是基础设施与私有
+3. Homepage 正式入口为 `https://homepage.zhyi.xin`，经 Dex OAuth 认证后访问。卡片
+   链接按域名分组：`zhyi.xin` 是公开服务域，`zhyi.cc` 是基础设施与私有
    服务域；Attic 仍是例外，固定走 colocrossing 的 `:8443` 入口。
 4. 由 `ml-builder` 构建并部署 `ml-home-vm`，然后在目标主机检查生成结果。
 

@@ -17,6 +17,7 @@ let
     "google-ssl"
     "google-test-ssl"
     "gopher"
+    "homepage"
     "id"
     "index"
     "index-helper"
