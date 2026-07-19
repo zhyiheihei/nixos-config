@@ -29,7 +29,6 @@ let
     "ml-builder"
     "ml-home-vm"
     "pve-2700"
-    "twvm"
   ];
 
   hostRecords =
@@ -58,11 +57,6 @@ in
         {
           recordType = "IGNORE";
           name = "wg-home";
-          type = "A,AAAA";
-        }
-        {
-          recordType = "IGNORE";
-          name = "tw";
           type = "A,AAAA";
         }
         {

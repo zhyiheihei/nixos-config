@@ -134,7 +134,6 @@ ml-builder
 ml-home-vm
 pve-2700
 pve-5700u
-twvm
 ```
 
 作者的其余 host 模板继续保留在 `nixosConfigurations`，可以单独求值和构建，
