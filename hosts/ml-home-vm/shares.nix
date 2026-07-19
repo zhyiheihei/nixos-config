@@ -18,7 +18,6 @@
         LT.hosts.lt-dell-wyse-thin.ltnet.IPv4
         LT.hosts.lt-home-rdp.ltnet.IPv4
         LT.hosts.lt-hp-omen.ltnet.IPv4
-        LT.hosts."pve-2700".ltnet.IPv4
       ];
     in
     ''
