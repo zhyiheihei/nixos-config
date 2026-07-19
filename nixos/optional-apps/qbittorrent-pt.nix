@@ -25,7 +25,13 @@ in
     # WebUI authentication enabled while restoring qBittorrent's old localhost
     # behavior expected by that job.
     preStart = ''
-      config=/var/lib/qbittorrent-pt/qBittorrent/config/qBittorrent.conf
+      oldDir=/var/lib/qbittorrent-pt/qBittorrent
+      instanceDir=/var/lib/qbittorrent-pt/qBittorrent_pt
+      if [ -d "$oldDir" ] && [ ! -e "$instanceDir" ]; then
+        cp -a "$oldDir" "$instanceDir"
+      fi
+
+      config=$instanceDir/config/qBittorrent.conf
       if [ -f "$config" ]; then
         sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
         sed -i '/^\[Preferences\]$/a WebUI\\LocalHostAuth=false' "$config"
@@ -41,6 +47,7 @@ in
       ExecStart = utils.escapeSystemdExecArgs [
         (lib.getExe pkgs.qbittorrent-nox)
         "--profile=/var/lib/qbittorrent-pt"
+        "--configuration=pt"
         "--webui-port=${LT.portStr.qBitTorrentPT.WebUI}"
         "--torrenting-port=${builtins.toString (LT.this.wg-lantian.forwardStart + 1)}"
         "--confirm-legal-notice"
