@@ -61,7 +61,6 @@ _: [
   "pb.zhyi.xin"
   "qnap.zhyi.cc"
   "stats.zhyi.xin"
-  "sso.zhyi.xin"
   "vaults3.zhyi.cc"
   # keep-sorted end
 

@@ -145,7 +145,7 @@
 
     map $ssl_preread_server_name $ltnet_https_upstream {
       ~^zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~^(ai|bitwarden|filebox|immich|index|index-helper|sso)\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
+      ~^(ai|bitwarden|filebox|immich|index|index-helper)\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~^matrix-federation\.zhyi\.xin$ 127.0.0.1:${LT.portStr.Matrix.Public};
       ~^n8n\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~^ha\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};

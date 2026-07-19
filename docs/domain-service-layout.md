@@ -22,7 +22,7 @@
 ```
 
 colocrossing 本机承载 Dex、Gitea、Matrix、Pocket ID、RSS 等服务；SNI 为
-`ai`、`bitwarden`、`filebox`、`index`、`index-helper`、`sso` 和 `n8n` 的请求继续
+`ai`、`bitwarden`、`filebox`、`index`、`index-helper` 和 `n8n` 的请求继续
 转发到 `ml-home-vm`。这样 DNS 不再把同一域名的一部分服务绕过 CNVM 直连家庭 DDNS。
 
 `attic.zhyi.xin` 是例外：它直接 CNAME 到 `home-ddns.zhyi.cc`，不经 CNVM。

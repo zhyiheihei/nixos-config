@@ -73,7 +73,6 @@
 | 公开服务 | Open WebUI | `ai.zhyi.xin` | `ai.localhost` | 200 |
 | 公开服务 | Sun Panel | `index.zhyi.xin` | `sun-panel.localhost` | 200 |
 | 公开服务 | FileCodeBox | `filebox.zhyi.xin` | `filebox.localhost` | 200 |
-| 公开服务 | Zitadel | `sso.zhyi.xin` | `sso.localhost/healthz` | 200 |
 | 家庭服务 | ArchiveTeam | `archiveteam.ml-home-vm.zhyi.cc` | `archiveteam.localhost` | 200 |
 | 家庭服务 | HandBrake | `handbrake.ml-home-vm.zhyi.cc` | 私有 HTTPS | 200 |
 | 家庭服务 | IYUUPlus | `iyuu.ml-home-vm.zhyi.cc` | `iyuu.localhost` | 200 |
