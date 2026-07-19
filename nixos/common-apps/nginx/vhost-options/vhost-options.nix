@@ -310,7 +310,12 @@ let
         (config.enableCommonVhostOptions && (config.listenHTTPS.enable || config.listenHTTPS_Socket.enable))
         ''
           add_header Strict-Transport-Security 'max-age=31536000;includeSubDomains;preload';
-          add_header Alt-Svc 'h3=":${builtins.toString config.advertiseHTTP3Port}"; ma=86400';
+          add_header Alt-Svc '${
+            if config.advertiseHTTP3Port == null then
+              "clear"
+            else
+              ''h3=":${builtins.toString config.advertiseHTTP3Port}"; ma=86400''
+          }';
         ''
       )
       + (lib.optionalString
@@ -404,9 +409,9 @@ in
       default = true;
     };
     advertiseHTTP3Port = lib.mkOption {
-      type = lib.types.port;
+      type = lib.types.nullOr lib.types.port;
       default = LT.port.HTTPS;
-      description = "Public port advertised for the HTTP/3 endpoint";
+      description = "Public port advertised for HTTP/3, or null to clear HTTP/3 discovery";
     };
     disableLiveCompression = lib.mkEnableOption "Disable on-the-fly compression and only use precompressed assets";
 
