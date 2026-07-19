@@ -1,132 +1,67 @@
 # Attic 手动补推缓存流程
 
-本文只记录当前已经验证过的一条流程：当 Attic 缓存出现 DB/S3 不一致，或需要重新补齐某台机器的系统闭包时，在缓存机清理 Attic 对象索引，然后在强机器重新构建并推送目标闭包。
+日常构建由 Hydra 的 post-build hook 上传。只有新增系统、补齐明确缺失的闭包，或
+确认缓存写入中断时才手动补推。不要把“全量推送”理解为扫描并上传整块
+`/nix/store`：这会包含无关历史路径，也会放大并发上传问题。
 
-当前缓存地址：
+## 1. 构建并固定目标闭包
 
-```text
-https://attic.zhyi.xin:8443/lantian
-```
-
-当前 public key：
-
-```text
-lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=
-```
-
-## 1. 清理 Attic 对象索引
-
-在缓存机执行：
+在 `ml-builder` 上运行。使用明确的 out-link 或 `.gcroots` 保留要上传的系统根：
 
 ```bash
-ssh -A -p 2222 root@ml-home-vm.zhyi.cc
-```
-
-备份数据库，并清掉旧 object/nar/chunk 索引：
-
-```bash
-backup=/var/lib/atticd/atticd-before-cache-index-reset-$(date +%Y%m%d-%H%M%S).sql
-
-systemctl stop atticd.service
-sudo -u postgres pg_dump atticd > "$backup"
-sudo -u postgres psql -d atticd -v ON_ERROR_STOP=1 \
-  -c "TRUNCATE TABLE object, chunkref, nar, chunk RESTART IDENTITY CASCADE;"
-systemctl start atticd.service
-systemctl is-active atticd.service
-
-echo "$backup"
-```
-
-这一步保留 `lantian` cache 名称、public key 和服务配置，只让后续 push 重新生成正确的 narinfo 和 S3 对象关系。
-
-## 2. 在强机器构建目标系统
-
-到强机器执行。以 `ml-2700u` 为例：
-
-```bash
-ssh -A -p 2222 root@192.168.3.192
 cd /nix/src/nixos-config
-
-nix build .#nixosConfigurations.ml-2700u.config.system.build.toplevel \
-  --out-link /tmp/ml-2700u-result
-```
-
-如果换成别的 host，只改 host 名和 out-link：
-
-```bash
 HOST=ml-home-vm
-nix build .#nixosConfigurations.${HOST}.config.system.build.toplevel \
-  --out-link /tmp/${HOST}-result
+nix build ".#nixosConfigurations.$HOST.config.system.build.toplevel" \
+  --out-link "/root/cache-roots/$HOST"
 ```
 
-## 3. 推送目标闭包到 Attic
+如果是当前部署集合，可先用 `make current-build`。它只构建，不会切换任何机器。
 
-仍然在强机器执行：
+## 2. 定向上传
+
+上传 token 由 SOPS 提供，不能打印或写入 shell 历史。若当前机器已配置
+`attic-upload-key`，使用：
 
 ```bash
+ROOT=/root/cache-roots/ml-home-vm
 TOKEN=$(cat /run/secrets/attic-upload-key)
 
 nix shell nixpkgs#attic-client -c attic login --set-default lantian \
   https://attic.zhyi.xin:8443 "$TOKEN"
-
-nix shell nixpkgs#attic-client -c attic push lantian /tmp/ml-2700u-result
-
-#全量推送
-ssh -A -p 2222 root@ml-builder
-cd /nix/src/nixos-config
-
-TOKEN=$(cat /run/secrets/attic-upload-key)
-
-nix shell nixpkgs#attic-client -c attic login --set-default lantian \
-  https://attic.zhyi.xin:8443 "$TOKEN"
-
-nix path-info --all | xargs -r -n 200 nix shell nixpkgs#attic-client -c attic push lantian
-
+nix shell nixpkgs#attic-client -c attic push lantian "$ROOT"
 ```
 
-如果上一步用了 `HOST` 变量：
+需要补推 `.gcroots` 中的多个已经验证根时，使用现有 Makefile 目标：
 
 ```bash
-nix shell nixpkgs#attic-client -c attic push lantian /tmp/${HOST}-result
+make push-cache
 ```
 
-看到大量类似输出就是正常：
+不要启用 `attic-watch-store` 来替代这一步；当前 `ml-builder` 和 `ml-home-vm` 都明确
+没有启用该服务。
 
-```text
-✅ <store-path-name> (... KiB/s)
-✅ <store-path-name> (deduplicated)
-```
-
-如果出现少量 `HTTP 502 Bad Gateway`，等命令结束后重新执行同一条 `attic push`。
-
-## 4. 抽样验证
-
-推完后，任选一个刚才失败过或关心的 store path，验证 Attic 真的能把 NAR 拉下来：
+## 3. 验收与重试
 
 ```bash
-P=/nix/store/<hash-name>
+P=$(readlink -f "$ROOT")
+nix copy --from https://attic.zhyi.xin:8443/lantian \
+  --to file:///tmp/attic-copy-test "$P"
 rm -rf /tmp/attic-copy-test
-
-nix copy \
-  --from https://attic.zhyi.xin:8443/lantian \
-  --to file:///tmp/attic-copy-test \
-  "$P"
 ```
 
-这个命令成功，才说明 narinfo 和 S3 里的 `nar/*.nar` 都是可用的。
-
-## 5. 安装机使用缓存
-
-安装机里使用正确 key，例如：
+网络错误或 HTTP 502 后，先检查服务端：
 
 ```bash
-env NIX_CONFIG='experimental-features = nix-command flakes
-accept-flake-config = true
-substituters = https://cache.nixos.org https://attic.zhyi.xin:8443/lantian
-trusted-public-keys = cache.nixos.org-1:6NCHdD59X431o0gWJ0qOeuKX2w8VxlNjY36Heq3v4F4= lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=
-max-jobs = 0
-fallback = true' \
-  nixos-install --flake path:/mnt/etc/nixos#ml-2700u --no-root-passwd --no-channel-copy
+ssh -A -p 2222 root@colocrossing.zhyi.cc \
+  'systemctl status atticd.service --no-pager -l; journalctl -u atticd.service -n 100 --no-pager'
 ```
 
-`max-jobs = 0` 用来确认弱机器只拉缓存、不本地编译。若闭包没推完整，它会失败暴露问题。
+确认服务正常后重新执行完全相同的定向上传。已成功对象会显示为已缓存，不会因中断
+整体损坏。
+
+## 4. 不要直接清库
+
+删除 S3 对象、截断 Attic 表、重建 cache 或轮换 cache key 都是事故恢复操作，必须先
+备份 PostgreSQL、确认所有客户端的公钥迁移方案，并单独记录变更。客户端出现旧
+narinfo 或本地 store 损坏时，先分别验证目标路径、Attic narinfo 和服务端日志，
+不要把问题扩大成整库清理。

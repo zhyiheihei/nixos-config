@@ -1,406 +1,65 @@
-# 自建作者同款 Attic + S3 构建缓存
+# Attic + S3 缓存架构
 
-本文目标是复刻原作者的缓存思路，但换成自己的基础设施。
+当前缓存名、公开端点与公钥只以
+[`helpers/constants/nix.nix`](../helpers/constants/nix.nix) 为准。不要在文档、Shell
+历史或 Git 提交中复制上传 token、S3 access key、S3 secret key 或 Attic 私钥。
 
-原作者路线大概是：
-
-```text
-Hydra / builder 构建
-  -> attic push
-  -> Attic server
-  -> S3-compatible storage
-  -> NixOS 机器从 Attic 拉 binary cache
-```
-
-
-你可以先不搭 Hydra，先用自己的强机器、NixOS 虚拟机、GitHub self-hosted runner 构建，然后手动或自动 `attic push`。等缓存链路跑通后，再考虑 Hydra。
-
-## 1. 仓库里原作者怎么做
-
-Attic 服务端在：
+## 当前结构
 
 ```text
-nixos/optional-apps/attic.nix
+Hydra (pve-5700u) / 手动构建 (ml-builder)
+  -> attic push lantian
+  -> Attic (colocrossing)
+  -> PostgreSQL + VaultS3 bucket nix-cache
+  -> Nix clients
 ```
 
-关键配置：
+- Attic 服务、Nginx vhost 与 S3 参数定义在
+  [`nixos/optional-apps/attic.nix`](../nixos/optional-apps/attic.nix)，由
+  `hosts/colocrossing/configuration.nix` 导入。
+- Attic 只监听回环地址，由同机 Nginx 发布；外部数据面使用
+  `https://attic.zhyi.xin:8443/lantian`。
+- S3 凭据与上传 token 只在私有 secrets 仓库的 `common/attic.yaml` 中以 SOPS 加密
+  保存。修改它必须遵循 secrets 仓库的 `docs/sops-manual.md`。
+- Hydra 在
+  [`nixos/optional-apps/hydra/default.nix`](../nixos/optional-apps/hydra/default.nix)
+  中通过 post-build hook 上传成功构建的输出。不要同时在多台机器启用
+  `attic-watch-store`，否则会制造重复上传和难以判断的失败日志。
 
-```nix
-services.atticd = {
-  enable = true;
-  mode = "monolithic";
-  settings = {
-    database.url = "postgres://atticd?host=/run/postgresql&user=atticd";
-    storage = {
-      type = "s3";
-      region = "us-central-1";
-      bucket = "lantian-nix-cache";
-      endpoint = "https://us-central-1.telnyxstorage.com";
-    };
-  };
-};
-```
+## 客户端使用
 
-Hydra 构建成功后推缓存的位置：
+客户端的默认 substituter 与公钥由 `LT.nix.attic` 统一提供。NCPS 客户端先请求
+Attic，再回退到本机 NCPS；该顺序定义在
+[`nixos/optional-apps/ncps-client.nix`](../nixos/optional-apps/ncps-client.nix)。
 
-```text
-nixos/optional-apps/hydra/post-build.py
-```
+安装环境或临时 shell 不应手写长期 `/etc/nix/nix.conf`。仅在尚未加载目标配置时，
+从 `helpers/constants/nix.nix` 读取当前 URL 和公钥后，以一次性的 `NIX_CONFIG` 传入。
 
-关键逻辑：
+## 健康检查
 
-```python
-["attic", "push", "lantian", *output_paths]
-```
-
-还有一个可选的自动上传 store 服务：
-
-```text
-nixos/optional-apps/attic-watch-store.nix
-```
-
-核心命令：
+在任意已配置客户端上：
 
 ```bash
-attic watch-store lantian
+curl -fsS https://attic.zhyi.xin:8443/lantian/nix-cache-info
+nix store ping --store https://attic.zhyi.xin:8443/lantian
 ```
 
-所以作者不是让每台机器自己编，而是：
-
-```text
-构建机编译 -> Attic 收产物 -> 其他机器下载
-```
-
-## 2. 你的自建目标
-
-你有自己的 HTTPS path-style S3 服务，可以这样设计：
-
-```text
-S3 服务
-  endpoint = https://rustfs.zhyi.cc:4000
-  bucket   = nix-cache
-  path     = https://rustfs.zhyi.cc:4000/nix-cache/...
-
-Attic server
-  https://attic.zhyi.xin:8443
-  连接 PostgreSQL
-  连接 S3 bucket
-
-Builder
-  nix build
-  attic push nixos ./result closure
-
-ml-2700u
-  substituter = https://attic.zhyi.xin:8443/nixos
-```
-
-这里 `nixos` 是 Attic cache 名字，可以换成你喜欢的名字。
-
-## 3. path-style S3 怎么配
-
-Attic 的 S3 配置不需要单独写 `path-style = true`。
-
-Attic 使用 AWS SDK。只要你配置了自定义：
-
-```nix
-endpoint = "https://rustfs.zhyi.cc:4000";
-```
-
-它就会使用 path-style 访问方式，形态类似：
-
-```text
-https://rustfs.zhyi.cc:4000/<bucket>/<object-key>
-```
-
-这正适合 MinIO、NAS S3、很多自建 S3-compatible 服务。
-
-## 4. S3 侧准备
-
-在你的 S3 服务里准备：
-
-```text
-bucket: nix-cache
-endpoint: https://rustfs.zhyi.cc:4000
-region: us-east-1
-access key: <ATTIC_S3_ACCESS_KEY>I7NEK6WsfjtiWoCiLKan
-secret key: <ATTIC_S3_SECRET_KEY>04AnPosCQf9wJhZXLHQQ69IqGmoBgY3MMu20fk7x
-```
-
-建议：
-
-- bucket 不公开写入。
-- access key 只给这个 bucket 的读写权限。
-- 如果 S3 服务支持 lifecycle，可以配置旧对象清理。
-- 先不要把 S3 直接暴露给 Nix 客户端，先让 Attic 作为唯一入口。
-
-## 5. Attic 服务端 NixOS 配置
-
-可以新建一个自己的模块，例如：
-
-```text
-nixos/optional-apps/my-attic.nix
-```
-
-基础版本：
-
-```nix
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
-{
-  services.postgresql = {
-    enable = true;
-    ensureDatabases = [ "atticd" ];
-    ensureUsers = [
-      {
-        name = "atticd";
-        ensureDBOwnership = true;
-      }
-    ];
-  };
-
-  users.users.atticd = {
-    isSystemUser = true;
-    group = "atticd";
-  };
-  users.groups.atticd = { };
-
-  services.atticd = {
-    enable = true;
-    package = pkgs.attic-server;
-    mode = "monolithic";
-
-    # 推荐用 sops-nix 或 systemd credential 管理这个文件。
-    environmentFile = "/run/secrets/attic-env";
-
-    settings = {
-      listen = "127.0.0.1:8080";
-      api-endpoint = "https://attic.example.com/";
-      substituter-endpoint = "https://attic.example.com/";
-
-      database = {
-        url = "postgres://atticd?host=/run/postgresql&user=atticd";
-        heartbeat = true;
-      };
-
-      require-proof-of-possession = false;
-
-      storage = {
-        type = "s3";
-        region = "us-east-1";
-        bucket = "nix-cache";
-        endpoint = "https://s3.example.com";
-      };
-
-      # 先照搬作者思路：关闭 chunking，方便 S3 直接下载完整 NAR。
-      chunking = {
-        nar-size-threshold = 0;
-        min-size = 16384;
-        avg-size = 65536;
-        max-size = 262144;
-      };
-
-      compression = {
-        type = "zstd";
-        level = 9;
-      };
-
-      garbage-collection = {
-        interval = "12 hours";
-        default-retention-period = "3 month";
-      };
-    };
-  };
-
-  services.nginx = {
-    enable = true;
-    virtualHosts."attic.example.com" = {
-      forceSSL = true;
-      enableACME = true;
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:8080";
-        proxyWebsockets = true;
-        extraConfig = ''
-          proxy_read_timeout 3600s;
-          proxy_send_timeout 3600s;
-          client_max_body_size 0;
-        '';
-      };
-    };
-  };
-}
-```
-
-`/run/secrets/attic-env` 至少需要这些环境变量：
+在 colocrossing 上：
 
 ```bash
-AWS_ACCESS_KEY_ID=你的S3AccessKey
-AWS_SECRET_ACCESS_KEY=你的S3SecretKey
-ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64=一段base64随机密钥
+systemctl is-active atticd nginx postgresql
+journalctl -u atticd.service --since '30 minutes ago' --no-pager
 ```
 
-生成 HMAC secret：
+缓存配置和权限需要管理员 token 时，使用 `attic cache info lantian` 检查；不要为了
+修改优先级或 upstream key 直接更新 PostgreSQL 表。
 
-```bash
-openssl rand -base64 64
-```
+## S3 与流量边界
 
-如果你用 sops-nix，建议把这三个值放进 secrets 仓库，不要提交明文。
+Attic 负责 narinfo、鉴权与对象索引；已发布 NAR 由 S3 后端提供。S3 bucket 不向
+客户端公开写入，客户端始终使用 Attic URL。Attic 的 GC 由服务端每 12 小时执行，
+默认保留期为 3 个月；不要在 S3 侧另设会删除仍被 Attic 引用对象的生命周期规则。
 
-## 6. 初始化 Attic cache
-
-在能访问 Attic server 的机器上：
-
-```bash
-export NIX_CONFIG="experimental-features = nix-command flakes"
-nix shell nixpkgs#attic-client -c bash
-```
-
-登录。第一次可以用 root/admin token，具体 token 取决于你怎么初始化 Attic：
-
-```bash
-attic login local https://attic.example.com <admin-or-root-token>
-```
-
-创建 cache：
-
-```bash
-attic cache create nixos
-attic cache configure nixos --public
-```
-
-生成给 builder 用的 push token：
-
-```bash
-atticadm make-token --sub builder --validity "1 year" --pull nixos --push nixos
-```
-
-查看客户端配置：
-
-```bash
-attic use nixos
-```
-
-会输出类似：
-
-```text
-extra-substituters = https://attic.example.com/nixos
-extra-trusted-public-keys = nixos:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx=
-```
-
-## 7. Builder 推缓存
-
-强机器或 NixOS 虚拟机构建完成后：
-
-```bash
-cd /root/nixos-config
-nix build .#nixosConfigurations.ml-2700u.config.system.build.toplevel -L \
-  --option max-jobs 2 \
-  --option cores 6
-```
-
-登录 Attic：
-
-```bash
-attic login local https://attic.example.com <builder-push-token>
-```
-
-推完整 closure：
-
-```bash
-attic push nixos $(nix path-info -r ./result)
-```
-
-以后也可以推当前系统：
-
-```bash
-attic push nixos $(nix path-info -r /run/current-system)
-```
-
-## 8. 让 ml-2700u 使用缓存
-
-把 `attic use nixos` 输出写进 `ml-2700u` 配置：
-
-```nix
-{
-  nix.settings.substituters = [
-    "https://attic.example.com/nixos"
-    "https://cache.nixos.org"
-  ];
-
-  nix.settings.trusted-public-keys = [
-    "nixos:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx="
-  ];
-}
-```
-
-然后：
-
-```bash
-cd /etc/nixos
-export NIX_CONFIG="experimental-features = nix-command flakes"
-nixos-rebuild switch --flake .#ml-2700u -L
-```
-
-命中缓存时应该大量看到：
-
-```text
-copying path
-```
-
-而不是：
-
-```text
-building
-```
-
-## 9. 最小上线顺序
-
-建议按这个顺序来：
-
-1. S3 bucket 建好，确认 access key 能读写。
-2. Attic server 连接 PostgreSQL 和 S3。
-3. Nginx/HTTPS 暴露 `https://attic.example.com`。
-4. 创建 `nixos` cache。
-5. 生成 builder push token。
-6. builder 构建 `ml-2700u` 并 `attic push`。
-7. `ml-2700u` 加入 substituter 和 public key。
-8. 重新 build，确认从 `building` 变成 `copying path`。
-
-## 10. 常见坑
-
-### S3 path-style 访问失败
-
-确认 Attic 配置里写了：
-
-```nix
-endpoint = "https://s3.example.com";
-```
-
-有自定义 endpoint 时，Attic 会走 path-style。不要写成 bucket virtual-host 风格的 endpoint。
-
-### push 很慢
-
-第一次推 KDE client 闭包可能几十 GB，很正常。先推一次完整 closure，后面只会补新增 store path。
-
-### 客户端仍然 building
-
-通常是下面几种：
-
-- `ml-2700u` 没配 `trusted-public-keys`。
-- builder 构建的 flake 和 `ml-2700u` 当前 flake 不一致。
-- builder 没把完整 closure 推上去。
-- Attic cache 不是 public，客户端无权限读取。
-
-### S3 账单暴涨
-
-Nix cache 会吃容量和出站流量。建议：
-
-- 先只在内网测试。
-- 给 bucket 配 lifecycle。
-- Attic 配 garbage collection。
-- 不要一开始公开给所有机器乱拉。
-
+缓存损坏、旧 narinfo 或需要补推闭包时，先按
+[补推流程](./attic-full-store-push.md) 核对服务端、目标闭包和客户端的
+`nix-cache-info`，不要直接删除对象或数据库记录。
