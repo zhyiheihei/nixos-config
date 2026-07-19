@@ -10,8 +10,6 @@
   cpuThreads = 4;
   hostname = "colocrossing.zhyi.cc";
   city = geo.cities."CN Ningbo";
-  manualDeploy = true;
-
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIF3dyI6XJJXk98kndydXBRFHF3SQnlkSs/B2/cDhNTUJ";
 
   # This VM is behind a dynamic public address. Do not publish the current
