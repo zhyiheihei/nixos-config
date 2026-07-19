@@ -24,7 +24,7 @@ let
     # Services under lantian.pub
     "https://comments.lantian.pub"
     "https://element.lantian.pub"
-    "https://flapalerted.lantian.pub"
+    "https://flapalerted.zhyi.cc"
     "https://git.lantian.pub"
     "https://lab.lantian.pub"
     "https://lemmy.lantian.pub"

@@ -283,7 +283,7 @@ in
       scheme = "https";
       metrics_path = "/flaps/metrics/prometheus";
       static_configs = [
-        { targets = [ "flapalerted.lantian.pub" ]; }
+        { targets = [ "flapalerted.zhyi.cc" ]; }
       ];
     }
   ];
