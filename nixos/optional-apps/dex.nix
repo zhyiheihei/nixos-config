@@ -90,6 +90,14 @@ let
         redirectURIs = [ "https://ai.zhyi.xin/oauth/openid/callback" ];
       }
       {
+        id = "linkwarden";
+        name = "Linkwarden";
+        secret = {
+          _secret = config.sops.secrets.dex-linkwarden-secret.path;
+        };
+        redirectURIs = [ "https://linkwarden.ml-home-vm.zhyi.cc/api/v1/auth/callback/oidc" ];
+      }
+      {
         id = "oauth-proxy";
         name = "OAuth2 Proxy";
         secret = {
@@ -149,6 +157,7 @@ in
         "grafana"
         "immich"
         "librechat"
+        "linkwarden"
         "netbox"
         "oauth2-proxy"
         "open-webui"
