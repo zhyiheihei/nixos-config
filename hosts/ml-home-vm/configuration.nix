@@ -55,7 +55,6 @@
     ../../nixos/optional-apps/uni-api.nix
     ../../nixos/optional-apps/vertex.nix
     ../../nixos/optional-apps/vlmcsd.nix
-    ../../nixos/optional-apps/vaultwarden.nix
     ../../nixos/optional-apps/webdav.nix
     ../../nixos/optional-apps/worker-vless2sub.nix
     ../../nixos/optional-apps/zitadel.nix
