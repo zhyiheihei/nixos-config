@@ -310,12 +310,7 @@ let
         (config.enableCommonVhostOptions && (config.listenHTTPS.enable || config.listenHTTPS_Socket.enable))
         ''
           add_header Strict-Transport-Security 'max-age=31536000;includeSubDomains;preload';
-          add_header Alt-Svc '${
-            if config.advertiseHTTP3 then
-              ''h3=":${builtins.toString config.listenHTTPS.port}"; ma=86400''
-            else
-              "clear"
-          }';
+          add_header Alt-Svc 'h3=":${builtins.toString config.listenHTTPS.port}"; ma=86400';
         ''
       )
       + (lib.optionalString
@@ -406,9 +401,6 @@ in
       default = true;
     };
     enableCommonVhostOptions = (lib.mkEnableOption "Add common vhost options") // {
-      default = true;
-    };
-    advertiseHTTP3 = (lib.mkEnableOption "Advertise the HTTPS listener as an HTTP/3 endpoint") // {
       default = true;
     };
     disableLiveCompression = lib.mkEnableOption "Disable on-the-fly compression and only use precompressed assets";

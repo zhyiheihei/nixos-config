@@ -193,8 +193,6 @@ in
   users.groups.dex.members = [ "nginx" ];
 
   lantian.nginxVhosts."login.zhyi.xin" = {
-    advertiseHTTP3 = false;
-
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.Dex}";
     };
