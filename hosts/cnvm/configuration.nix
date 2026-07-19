@@ -54,6 +54,20 @@
     };
   };
 
+  lantian.nginxVhosts."filebox.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "https://${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS}";
+      extraConfig = ''
+        proxy_ssl_name $host;
+        proxy_ssl_server_name on;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port 443;
+      '';
+    };
+    sslCertificate = "lets-encrypt-zhyi.xin";
+    noIndex.enable = true;
+  };
+
   systemd.network.networks.wgmesh117.linkConfig.MTUBytes = lib.mkForce 1280;
 
   systemd.services.wg-mesh-wstunnel-jpvm = {
