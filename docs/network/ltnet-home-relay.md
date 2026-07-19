@@ -53,6 +53,20 @@ valid narinfo followed by HTTP 403 for the referenced NAR, which made NCPS
 return HTTP 500 instead of falling back. The same failed store path was
 retested through NCPS and returned HTTP 200 after removal.
 
+## China DNS
+
+CoreDNS keeps the author's Google DNS-over-TLS upstream outside China. Hosts
+whose city metadata has `country = "CN"` instead use AliDNS over TLS at
+`223.5.5.5` and `223.6.6.6`. This avoids cross-border DNS-over-TLS timeouts
+without changing the LTNET and DN42 zone forwarders.
+
+If DNS is already broken while deploying this change, use Colmena's direct
+closure copy so the target does not query every configured substituter first:
+
+```bash
+nix run .#colmena -- apply --on cnvm --no-substitute
+```
+
 ## Verification
 
 ```bash
