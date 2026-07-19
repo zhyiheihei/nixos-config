@@ -66,6 +66,7 @@ _: [
 
   # Intentionally public without authentication
   # keep-sorted start
+  "cnvm.zhyi.cc"
   "flapalerted.zhyi.cc"
   "jp.zhyi.cc"
   "lg.zhyi.cc"
