@@ -58,6 +58,7 @@ _: [
   "matrix-federation.zhyi.xin"
   "n8n.zhyi.xin"
   "pb.zhyi.xin"
+  "prometheus.zhyi.cc"
   "qnap.zhyi.cc"
   "stats.zhyi.xin"
   "vaults3.zhyi.cc"

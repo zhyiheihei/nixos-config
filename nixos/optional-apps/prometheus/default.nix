@@ -4,11 +4,8 @@
 }:
 {
   imports = [
-    ./alertmanager.nix
     ./blackbox-exporter.nix
-    ./periodic-tasks.nix
     ./scrape-configs.nix
-    ./storagebox.nix
   ];
 
   services.prometheus = {
@@ -16,7 +13,7 @@
     enableReload = true;
     port = LT.port.Prometheus.Daemon;
     listenAddress = "127.0.0.1";
-    webExternalUrl = "https://prometheus.xuyh0120.win";
+    webExternalUrl = "https://prometheus.zhyi.cc";
     stateDir = "prometheus";
     checkConfig = "syntax-only";
 
@@ -28,7 +25,7 @@
 
   systemd.services.prometheus.serviceConfig = LT.serviceHarden;
 
-  lantian.nginxVhosts."prometheus.xuyh0120.win" = {
+  lantian.nginxVhosts."prometheus.zhyi.cc" = {
     locations = {
       "/" = {
         enableOAuth = true;

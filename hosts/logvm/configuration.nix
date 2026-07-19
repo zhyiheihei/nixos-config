@@ -9,6 +9,7 @@
     ./hardware-configuration.nix
 
     ../../nixos/optional-apps/elasticsearch.nix
+    ../../nixos/optional-apps/prometheus
   ];
 
   systemd.network.networks.ens18 = {
