@@ -1,4 +1,4 @@
-CURRENT_HOSTS := ml-builder,ml-home-vm,pve-5700u,colocrossing,jpvm,logvm,cnvm
+CURRENT_HOSTS := $(shell cat hosts/current.txt)
 .DEFAULT_GOAL := help
 
 help: FORCE
