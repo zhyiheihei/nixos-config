@@ -51,6 +51,8 @@
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
   ];
 
+  networking.domain = "zhyi.xin";
+
   systemd.network.networks.ens18 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     gateway = [ "192.168.2.2" ];
