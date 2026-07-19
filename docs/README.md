@@ -1,29 +1,42 @@
-# Docs
+# 文档索引
 
-这个目录记录把本仓库适配到个人设备时的操作笔记。
+配置的最终来源始终是 `hosts/`、`nixos/`、`helpers/`、`dns/` 与 `Makefile`。
+本文档只记录当前操作约束、架构解释和经验证的迁移记录；历史救援过程统一放在
+[`old/`](./old/README.md)，不能直接当作当前操作步骤执行。
 
+## 日常操作
+
+- [构建与部署当前主机](./deployment.md)
+- [新主机接入规范](./new-host-standard.md)
 - [适配自己的 NixOS 设备](./adapt-own-device.md)
-- [ml-2700u 安装与桌面操作记录](./ml-2700u/README.md)
-- [hosts 目录机器分类](./hosts-overview.md)
-- [OpenWrt 两级路由网段互访配置](./opentwrt-two-router-interlan.md)
-- [LTNET 家庭中继与缓存链路](./network/ltnet-home-relay.md)
-- [家庭局域网 IP 规划](./home-lan-ip-plan.md)
-- [ml-home-vm 与 pve-5700u 复刻验收](./vm-replication-chain.md)
-- [一比一复刻原作者项目检查表](./upstream-replication-checklist.md)
-- [从原项目修改的提交表](./fork-change-table.md)
-- [测试 ml-builder 强构建机](./test-ml-builder.md)
-- [同步上游后逐台切换系统](./update-and-switch-hosts.md)
-- [Homepage 链接与监测检查](./homepage-link-audit.md)
 - [Gcore 免费套餐 DNSControl 发布规范](./gcore-dnscontrol-free-plan.md)
-- [1Panel 服务迁移到 ml-home-vm](./onepanel-to-ml-home-vm-migration.md)
-- [ml-home-vm VirtioFS 与 PVE 无损迁移手册](./ml-home-vm-virtiofs-pve-migration.md)
-- [TODO: 复刻作者的 impermanence 布局](./todo-impermanence.md)
-- [NixOS switch 后无法登录的回滚与救援](./nixos-rollback-rescue.md)
-- [使用 NAS Attic 和 Windows Docker 强机器做 NixOS 构建缓存](./self-hosted-builder.md)
-- [自建作者同款 Attic + S3 构建缓存](./attic-s3-cache.md)
+
+## 基础设施
+
+- [网络参照](./network-reference.md)
+- [域名与服务编排](./domain-service-layout.md)
+- [家庭局域网 IP 规划](./home-lan-ip-plan.md)
+- [LTNET 家庭中继与缓存链路](./network/ltnet-home-relay.md)
+- [DN42 接入准备](./network/dn42-bootstrap.md)
+- [OpenWrt 两级路由网段互访配置](./opentwrt-two-router-interlan.md)
+- [自建 Attic + S3 构建缓存](./attic-s3-cache.md)
 - [自有 Attic 优先与完整闭包缓存](./attic-owned-cache-priority.md)
-- [Attic 全量推送 /nix/store 操作手册](./attic-full-store-push.md)
-- [Docker 部署 Attic 并使用 Garage S3](./attic-docker-s3-cache.md)
-- [使用 Docker 强机器临时构建并传给弱机器](./docker-builder-temporary.md)
-- [Docker 强机器接力构建 ml-2700u 实操日志](./docker-builder-rescue-log.md)
-- [Docker/NixOS 接力构建命令参考](./docker-builder-command-reference.md)
+- [Attic 手动补推缓存流程](./attic-full-store-push.md)
+- [Attic 旧客户端缓存排障](./attic-stale-client-cache-troubleshooting.md)
+
+## 主机与服务
+
+- [当前 hosts 概览](./hosts-overview.md)
+- [ml-2700u 安装与桌面操作](./ml-2700u/README.md)
+- [Homepage 链接与监测检查](./homepage-link-audit.md)
+
+## 迁移与验收记录
+
+- [ml-home-vm 与 pve-5700u 复刻验收](./vm-replication-chain.md)
+- [1Panel 服务迁移到 ml-home-vm](./onepanel-to-ml-home-vm-migration.md)
+- [ml-home-vm VirtioFS 与 PVE 迁移手册](./ml-home-vm-virtiofs-pve-migration.md)
+
+## 历史归档
+
+历史安装日志、临时 Docker 构建方案和已经完成的救援记录见
+[`docs/old/`](./old/README.md)。
