@@ -44,7 +44,7 @@
         OIDC_CLIENT_ID = "freshrss";
         OIDC_REMOTE_USER_CLAIM = "preferred_username";
         OIDC_SCOPES = "openid profile email groups";
-        OIDC_X_FORWARDED_HEADERS = "X-Forwarded-Host X-Forwarded-Port X-Forwarded-Proto";
+        OIDC_X_FORWARDED_HEADERS = "X-Forwarded-Host X-Forwarded-Proto";
       };
       environmentFiles = [ config.sops.templates.freshrss-env.path ];
     };
