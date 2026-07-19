@@ -17,12 +17,17 @@
       sopsFile = inputs.secrets + "/common/personal-apps.yaml";
       key = "LINKWARDEN_OPENAI_API_KEY";
     };
+    linkwarden-oidc-client-secret = {
+      sopsFile = inputs.secrets + "/common/dex.yaml";
+      key = "dex-linkwarden-secret";
+    };
   };
 
   sops.templates.linkwarden-env.content = ''
     DATABASE_URL=postgresql://linkwarden@localhost/linkwarden?host=/run/postgresql
     NEXTAUTH_SECRET=${config.sops.placeholder.linkwarden-nextauth-secret}
     OPENAI_API_KEY=${config.sops.placeholder.linkwarden-openai-api-key}
+    OIDC_CLIENT_SECRET=${config.sops.placeholder.linkwarden-oidc-client-secret}
   '';
 
   services.postgresql = {
@@ -49,6 +54,11 @@
     ];
     environment = {
       NEXTAUTH_URL = "https://linkwarden.${config.networking.hostName}.zhyi.cc/api/v1/auth";
+      NEXT_PUBLIC_OIDC_ENABLED = "true";
+      OIDC_CLIENT_ID = "linkwarden";
+      OIDC_CUSTOM_NAME = "Dex";
+      OIDC_SCOPES = "openid email profile groups";
+      OIDC_WELLKNOWN_URL = "https://login.zhyi.xin/.well-known/openid-configuration";
       CUSTOM_OPENAI_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3";
       OPENAI_MODEL = "doubao-1-5-lite-32k-250115";
     };
