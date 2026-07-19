@@ -127,6 +127,7 @@ rec {
     Zitadel = 13830;
     Syncthing = 13834;
     Usque = 13840;
+    WGMesh.WebSocket = 13841;
     Ncps = 13851;
     IyuuPlus = 13878;
     LlamaCpp.Qwen3Reranker = 13880;

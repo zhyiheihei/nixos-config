@@ -30,6 +30,7 @@
       "jpvm"
     ];
     routeReflectorClients = [ "ml-home-vm" ];
+    endpointOverrides.jpvm = "127.0.0.1";
   };
 
   dn42 = {
