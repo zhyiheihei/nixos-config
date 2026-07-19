@@ -81,7 +81,6 @@
       "attic.zhyi.xin"
       "avatar.zhyi.xin"
       "cal.zhyi.xin"
-      "comments.zhyi.xin"
       "colocrossing.zhyi.cc"
       "couchdb.zhyi.cc"
       "element.zhyi.xin"

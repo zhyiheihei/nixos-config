@@ -40,7 +40,6 @@ _: [
   "cal.xuyh0120.win"
   "cal.zhyi.xin"
   "couchdb.zhyi.cc"
-  "comments.zhyi.xin"
   "dashboard.xuyh0120.win"
   "filebox.zhyi.xin"
   "git.lantian.pub"
