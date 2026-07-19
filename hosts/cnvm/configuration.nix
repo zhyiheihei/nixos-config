@@ -12,6 +12,7 @@
     ../../nixos/optional-apps/dex.nix
     ../../nixos/optional-apps/glauth.nix
     ../../nixos/optional-apps/pocket-id.nix
+    ../../nixos/optional-apps/vaultwarden.nix
   ];
 
   boot.kernelParams = [ "console=ttyS0,115200" ];
