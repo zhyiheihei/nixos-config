@@ -188,7 +188,7 @@
     enable = true;
     port = LT.port.Prometheus.AlertManager;
     listenAddress = "127.0.0.1";
-    webExternalUrl = "https://alert.xuyh0120.win";
+    webExternalUrl = "https://alert.zhyi.cc";
     configuration = {
       global = {
         smtp_from = config.programs.msmtp.accounts.default.from;
@@ -242,7 +242,7 @@
     '';
   };
 
-  lantian.nginxVhosts."alert.xuyh0120.win" = {
+  lantian.nginxVhosts."alert.zhyi.cc" = {
     locations = {
       "/" = {
         enableOAuth = true;
