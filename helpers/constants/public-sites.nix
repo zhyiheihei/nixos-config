@@ -42,6 +42,7 @@ _: [
   "couchdb.zhyi.cc"
   "comments.zhyi.xin"
   "dashboard.xuyh0120.win"
+  "filebox.zhyi.xin"
   "git.lantian.pub"
   "git.zhyi.xin"
   "hydra.zhyi.cc"
