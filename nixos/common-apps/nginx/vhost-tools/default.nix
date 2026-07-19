@@ -31,7 +31,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
         tryFiles = "$uri $uri/ =404";
         extraConfig = ''
           sub_filter_once on;
-          sub_filter '</head>' '<script defer data-domain="zhyi.xin" data-api="https://stats.zhyi.xin/api/event" src="https://stats.zhyi.xin/js/script.js"></script></head>';
+          sub_filter '</head>' '<script defer data-domain="tools.zhyi.xin" data-api="https://stats.zhyi.xin/api/event" src="https://stats.zhyi.xin/js/script.js"></script></head>';
         '';
       };
     };
