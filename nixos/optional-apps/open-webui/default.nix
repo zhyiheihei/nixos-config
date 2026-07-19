@@ -19,12 +19,34 @@
     ../uni-api.nix
   ];
 
-  sops.secrets.open-webui-env.sopsFile = inputs.secrets + "/open-webui.yaml";
+  sops.secrets = {
+    open-webui-oauth-client-secret = {
+      sopsFile = inputs.secrets + "/common/dex.yaml";
+      key = "dex-open-webui-secret";
+      owner = "open-webui";
+      group = "open-webui";
+    };
+    open-webui-uni-api-key = {
+      sopsFile = inputs.secrets + "/uni-api/keys.yaml";
+      key = "uni-api-admin-api-key";
+      owner = "open-webui";
+      group = "open-webui";
+    };
+  };
+
+  sops.templates.open-webui-env = {
+    owner = "open-webui";
+    group = "open-webui";
+    content = ''
+      OAUTH_CLIENT_SECRET=${config.sops.placeholder.open-webui-oauth-client-secret}
+      OPENAI_API_KEY=${config.sops.placeholder.open-webui-uni-api-key}
+    '';
+  };
 
   services.open-webui = {
     enable = true;
     port = LT.port.OpenWebUI.UI;
-    environmentFile = config.sops.secrets.open-webui-env.path;
+    environmentFile = config.sops.templates.open-webui-env.path;
     environment = {
       ENV = "prod";
       DATABASE_URL = "postgresql:///open-webui?host=/run/postgresql";
@@ -135,11 +157,13 @@
       "redis-open-webui.service"
       "postgresql.service"
       "open-webui-pgvector-init.service"
+      "sops-install-secrets.service"
     ];
     requires = [
       "redis-open-webui.service"
       "postgresql.service"
       "open-webui-pgvector-init.service"
+      "sops-install-secrets.service"
     ];
     serviceConfig = {
       DynamicUser = lib.mkForce false;
