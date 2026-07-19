@@ -6,60 +6,23 @@ the peer layout to the links that are actually reachable.
 ## Active topology
 
 ```text
-ml-home-vm -- LAN -- colocrossing -- public IPv6 -- twvm -- public IPv4 -- jpvm
+ml-home-vm -- LAN -- colocrossing -- public IPv4 -- jpvm -- public IPv4 -- cnvm
 ```
 
 - `colocrossing` reflects routes to `ml-home-vm`.
-- `twvm` reflects routes to `jpvm`.
-- `jpvm` is the active external DN42 ingress.
+- `jpvm` reflects routes between `colocrossing` and `cnvm`.
+- `jpvm` is the active external DN42 ingress and public LTNET relay.
 - ZeroTier remains the management and discovery network. It is not the normal
-  data path for the colo-to-TW BGP session.
+  data path for the colocrossing-to-JPVM BGP session.
 - Hosts without a public or shared interconnect can still use the automatic
   ZeroTier fallback inherited by the WireGuard mesh module.
 
 The explicit `ltnet.peers` lists prevent retained upstream example hosts from
 joining the live mesh. A null list preserves the author's full-mesh behavior.
 
-## Dynamic home endpoint
-
-`colocrossing` has a dynamic public IPv6 prefix. The `ddns-gcore` timer updates
-the stable, non-temporary address at:
-
-```text
-wg-home.zhyi.cc AAAA
-```
-
-`twvm` uses this name through `ltnet.endpointOverrides.colocrossing`. Normal
-`zhyi.cc` Web services enter through `jpvm`; only the cache data plane uses
-`home-ddns.zhyi.cc`. Changing the WireGuard record therefore cannot alter
-public HTTP routing.
-
-The home router permits only UDP port `10002` from WAN to LAN over IPv6:
-
-```text
-firewall.ltnet_wg6=rule
-firewall.ltnet_wg6.src='wan'
-firewall.ltnet_wg6.dest='lan'
-firewall.ltnet_wg6.proto='udp'
-firewall.ltnet_wg6.dest_port='10002'
-firewall.ltnet_wg6.target='ACCEPT'
-firewall.ltnet_wg6.family='ipv6'
-```
-
-The configuration backup made before this rule was installed is:
-
-```text
-/root/firewall.before-ltnet-wg6.20260717-0756
-```
-
-To remove only this rule:
-
-```bash
-uci delete firewall.ltnet_wg6
-fw4 check
-uci commit firewall
-/etc/init.d/firewall reload
-```
+`colocrossing` and `cnvm` initiate WireGuard sessions to JPVM's fixed public
+IPv4 address. JPVM learns the roaming home endpoint from authenticated
+WireGuard traffic, so LTNET does not depend on a dynamic home endpoint record.
 
 ## Rsync path
 
@@ -100,8 +63,8 @@ Expected BGP sessions are:
 
 ```text
 ml-home-vm <-> colocrossing
-colocrossing <-> twvm
-twvm <-> jpvm
+colocrossing <-> jpvm
+jpvm <-> cnvm
 ```
 
 All must report `Established`. A rapidly increasing one-way WireGuard transfer

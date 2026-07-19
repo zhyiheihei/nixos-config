@@ -98,47 +98,6 @@ in
     '';
   };
 
-  sops.templates."worker-vless2sub-twvm.yaml" = {
-    owner = "nginx";
-    group = "nginx";
-    mode = "0440";
-    content = ''
-      mixed-port: 7890
-      allow-lan: true
-      mode: rule
-      log-level: info
-      ipv6: true
-
-      proxies:
-        - name: twvm
-          type: vless
-          server: tw.zhyi.cc
-          port: 443
-          uuid: "${config.sops.placeholder.v2ray-key}"
-          network: xhttp
-          tls: true
-          udp: true
-          servername: tw.zhyi.cc
-          client-fingerprint: chrome
-          encryption: ""
-          xhttp-opts:
-            path: /ray
-            host: tw.zhyi.cc
-            mode: stream-up
-
-      proxy-groups:
-        - name: PROXY
-          type: select
-          proxies:
-            - twvm
-            - DIRECT
-
-      rules:
-        - GEOIP,CN,DIRECT,no-resolve
-        - MATCH,PROXY
-    '';
-  };
-
   sops.templates."worker-vless2sub-jpvm.yaml" = {
     owner = "nginx";
     group = "nginx";
@@ -201,7 +160,6 @@ in
         '';
       };
       "= /mihomo.yaml" = mkSubscriptionLocation "worker-vless2sub-mihomo.yaml";
-      "= /twvm.yaml" = mkSubscriptionLocation "worker-vless2sub-twvm.yaml";
       "= /jpvm.yaml" = mkSubscriptionLocation "worker-vless2sub-jpvm.yaml";
     };
     sslCertificate = "lets-encrypt-zhyi.cc";

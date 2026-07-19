@@ -27,7 +27,7 @@
     peers = [
       "logvm"
       "ml-home-vm"
-      "twvm"
+      "jpvm"
     ];
     routeReflectorClients = [ "ml-home-vm" ];
   };

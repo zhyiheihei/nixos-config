@@ -1,6 +1,5 @@
 {
   LT,
-  lib,
   ...
 }:
 {
@@ -23,15 +22,14 @@
     "1.1.1.1"
   ];
 
-  # CNVM only passes TLS at layer four. It must not inherit the shared HTTP
-  # vhosts, which require the synchronized ACME certificate tree.
-  services.nginx.virtualHosts = lib.mkForce { };
+  lantian.nginxVhosts."cnvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
   services.nginx.streamConfig = ''
     resolver 1.1.1.1 8.8.8.8 valid=60s ipv6=off;
 
     map $ssl_preread_server_name $https_origin {
-      default home-ddns.zhyi.cc:8443;
+      cnvm.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
+      default ${LT.hosts.colocrossing.ltnet.IPv4}:443;
     }
 
     server {
@@ -41,15 +39,6 @@
       proxy_connect_timeout 10s;
       proxy_timeout 3600s;
       proxy_pass $https_origin;
-    }
-
-    # The upstream layout serves HTTP/3 on UDP 443 directly. This host keeps
-    # that public interface while the home origin listens on UDP 8443.
-    server {
-      listen 0.0.0.0:443 udp reuseport;
-      listen [::]:443 udp reuseport;
-      proxy_timeout 3600s;
-      proxy_pass ${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.HTTPS};
     }
   '';
 }

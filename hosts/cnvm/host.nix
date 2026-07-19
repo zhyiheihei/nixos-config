@@ -19,7 +19,7 @@
 
   zerotier = "ecd09d7bc2";
 
-  ltnet.peers = [ "twvm" ];
+  ltnet.peers = [ "jpvm" ];
 
   dn42 = {
     IPv4 = "172.20.46.229";
