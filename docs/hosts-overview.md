@@ -6,9 +6,10 @@
 
 ## 当前自有拓扑
 
-`Makefile` 的 `CURRENT_HOSTS` 是日常 Colmena 部署集合：
+当前日常在线主机为：
 `ml-builder`、`ml-home-vm`、`pve-5700u`、`colocrossing`、`jpvm`、`logvm`、`cnvm`。
-实际部署命令见 [构建与部署当前主机](./deployment.md)。
+`pve-2700` 是自有保留主机。`Makefile` 与作者原版一致，通过 Colmena 标签选择目标；
+实际部署命令见 [构建与部署](./deployment.md)。
 
 | 主机 | index | 角色 | 主机元数据地址 | 说明 |
 | --- | ---: | --- | --- | --- |

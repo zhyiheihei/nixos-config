@@ -10,7 +10,7 @@ SOPS、WireGuard、ZeroTier、引导和同步服务。
 - 先核对磁盘、网卡和 SSH host key，再执行任何格式化或安装命令。
 - secrets 必须先加密并验证，禁止把私钥或解密后的 YAML 提交到 Git。
 - 物理 client、server VM 和 PVE host 的磁盘布局不同，不得互相套用。
-- 每完成一层就验证一层，不用一次 `make current` 同时排查安装、网络和应用问题。
+- 每完成一层就验证一层，不用一次 `make all` 同时排查安装、网络和应用问题。
 
 ## 2. 创建主机配置
 
@@ -192,7 +192,7 @@ systemctl start rsync-nix-sync-servers.service
 2. 在主仓库更新 secrets flake input。
 3. 提交主机配置、必要的对端 peer 和 `flake.lock`。
 4. 在 `ml-builder` 重新构建。
-5. 最后再使用 Colmena 或 `make current` 批量部署。
+5. 最后再使用 Colmena 或 Makefile 中对应的标签目标批量部署。
 
 任何一步失败时，保留上一代 system profile 和 PVE 磁盘，不删除可启动代；先用
 控制台、`systemctl status`、`journalctl` 和网络三层状态定位具体故障。

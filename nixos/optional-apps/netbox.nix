@@ -35,8 +35,6 @@ let
       "server"
     else
       "node";
-  currentHostNames = lib.splitString "," (lib.removeSuffix "\n" (builtins.readFile ../../current-hosts.txt));
-  currentHosts = lib.genAttrs currentHostNames (name: LT.hosts.${name});
   inventory = pkgs.writeText "netbox-nix-inventory.json" (
     builtins.toJSON (
       lib.mapAttrsToList (
@@ -79,7 +77,7 @@ let
             ])
           ];
         }
-      ) currentHosts
+      ) LT.activeHosts
     )
   );
 in
