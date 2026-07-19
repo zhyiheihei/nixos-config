@@ -53,6 +53,14 @@ let
     staticClients = [
       # keep-sorted start block=yes
       {
+        id = "freshrss";
+        name = "FreshRSS";
+        secret = {
+          _secret = config.sops.secrets.dex-freshrss-secret.path;
+        };
+        redirectURIs = [ "https://freshrss.ml-home-vm.zhyi.cc/i/oidc/" ];
+      }
+      {
         id = "gitea";
         name = "Gitea";
         secret = {
@@ -153,6 +161,7 @@ in
       )
       [
         # keep-sorted start
+        "freshrss"
         "gitea"
         "grafana"
         "immich"
