@@ -51,7 +51,7 @@
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
   ];
 
-  networking.domain = "zhyi.xin";
+  networking.domain = lib.mkForce "zhyi.xin";
 
   systemd.network.networks.ens18 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
