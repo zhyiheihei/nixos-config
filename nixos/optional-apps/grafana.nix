@@ -54,9 +54,9 @@ in
         name = "Dex";
         allow_sign_up = "true";
         scopes = "openid profile email groups offline_access";
-        auth_url = "https://login.lantian.pub/auth";
-        token_url = "https://login.lantian.pub/token";
-        api_url = "https://login.lantian.pub/userinfo";
+        auth_url = "https://login.zhyi.xin/auth";
+        token_url = "https://login.zhyi.xin/token";
+        api_url = "https://login.zhyi.xin/userinfo";
         role_attribute_path = "contains(groups[*], 'admin') && 'Admin' || 'Viewer'";
       };
       database = {
@@ -70,8 +70,8 @@ in
       };
       server = {
         protocol = "socket";
-        domain = "dashboard.xuyh0120.win";
-        root_url = "https://dashboard.xuyh0120.win/";
+        domain = "dashboard.zhyi.cc";
+        root_url = "https://dashboard.zhyi.cc/";
         socket = "/run/grafana/grafana.sock";
         socket_mode = "0777";
       };
@@ -111,7 +111,7 @@ in
     ];
   };
 
-  lantian.nginxVhosts."dashboard.xuyh0120.win" = {
+  lantian.nginxVhosts."dashboard.zhyi.cc" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:${config.services.grafana.settings.server.socket}";

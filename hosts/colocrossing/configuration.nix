@@ -137,7 +137,7 @@
     map "$remote_addr:$ssl_preread_server_name" $lan_https_upstream {
       ~^${lib.escapeRegex LT.hosts.jpvm.public.IPv4}:ha\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~:n8n\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~:prometheus\.zhyi\.cc$ ${LT.hosts.logvm.interconnect.IPv4}:${LT.portStr.HTTPS};
+      ~:(alert|dashboard|prometheus)\.zhyi\.cc$ ${LT.hosts.logvm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~:.*\.ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       default 127.0.0.1:${LT.portStr.HTTPS};
     }
@@ -148,7 +148,7 @@
       ~^matrix-federation\.zhyi\.xin$ 127.0.0.1:${LT.portStr.Matrix.Public};
       ~^n8n\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~^ha\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~^prometheus\.zhyi\.cc$ ${LT.hosts.logvm.interconnect.IPv4}:${LT.portStr.HTTPS};
+      ~^(alert|dashboard|prometheus)\.zhyi\.cc$ ${LT.hosts.logvm.interconnect.IPv4}:${LT.portStr.HTTPS};
       ~(^|\.)ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
       default 127.0.0.1:${LT.portStr.HTTPS};
     }

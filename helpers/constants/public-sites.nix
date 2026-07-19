@@ -32,6 +32,7 @@ _: [
   # keep-sorted start
   "ai-api.xuyh0120.win"
   "ai.zhyi.xin"
+  "alert.zhyi.cc"
   "attic.colocrossing.xuyh0120.win"
   "attic.xuyh0120.win"
   "attic.zhyi.xin"
@@ -40,7 +41,7 @@ _: [
   "cal.xuyh0120.win"
   "cal.zhyi.xin"
   "couchdb.zhyi.cc"
-  "dashboard.xuyh0120.win"
+  "dashboard.zhyi.cc"
   "filebox.zhyi.xin"
   "git.lantian.pub"
   "git.zhyi.xin"
