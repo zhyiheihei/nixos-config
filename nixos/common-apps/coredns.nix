@@ -34,6 +34,19 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
             cache
           }
         '';
+        forwardToAliDNS = zone: ''
+          ${zone} {
+            any
+            bufsize 1232
+            loadbalance round_robin
+            prometheus ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.Prometheus.CoreDNS}
+
+            forward . tls://223.5.5.5 tls://223.6.6.6 {
+              tls_servername dns.alidns.com
+            }
+            cache
+          }
+        '';
         forwardToLancache = zone: ''
           ${zone} {
             any
@@ -81,6 +94,8 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
             forwardToLancache
           else if config.networking.networkmanager.enable then
             forwardToResolvConf
+          else if LT.this.city.country == "CN" then
+            forwardToAliDNS
           else
             forwardToGoogleDNS;
 

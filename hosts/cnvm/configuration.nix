@@ -19,9 +19,9 @@
   };
 
   networking.nameservers = [
-    "8.8.8.8"
-    "8.8.4.4"
-    "1.1.1.1"
+    "223.5.5.5"
+    "223.6.6.6"
+    "119.29.29.29"
   ];
 
   lantian.nginxVhosts."cnvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
@@ -50,7 +50,7 @@
   };
 
   services.nginx.streamConfig = ''
-    resolver 1.1.1.1 8.8.8.8 valid=60s ipv6=off;
+    resolver 223.5.5.5 119.29.29.29 valid=60s ipv6=off;
 
     map $ssl_preread_server_name $https_origin {
       cnvm.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
