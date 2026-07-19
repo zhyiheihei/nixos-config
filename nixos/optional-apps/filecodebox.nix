@@ -30,7 +30,6 @@
       "filebox.zhyi.xin" = {
         locations."/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.FileCodeBox}";
-          enableOAuth = true;
         };
         sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
