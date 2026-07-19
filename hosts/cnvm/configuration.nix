@@ -31,7 +31,7 @@
     resolver 1.1.1.1 8.8.8.8 valid=60s ipv6=off;
 
     map $ssl_preread_server_name $https_origin {
-      default ${LT.hosts.colocrossing.ltnet.IPv4}:443;
+      default home-ddns.zhyi.cc:8443;
     }
 
     server {
