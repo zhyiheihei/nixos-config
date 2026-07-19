@@ -35,6 +35,7 @@
     locations."/" = {
       return = lib.mkForce null;
       proxyPass = "https://${LT.hosts.colocrossing.ltnet.IPv4}:443";
+      proxyWebsockets = true;
       extraConfig = ''
         proxy_ssl_name $host;
         proxy_ssl_server_name on;
