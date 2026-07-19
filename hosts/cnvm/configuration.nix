@@ -42,5 +42,14 @@
       proxy_timeout 3600s;
       proxy_pass $https_origin;
     }
+
+    # The upstream layout serves HTTP/3 on UDP 443 directly. This host keeps
+    # that public interface while the home origin listens on UDP 8443.
+    server {
+      listen 0.0.0.0:443 udp reuseport;
+      listen [::]:443 udp reuseport;
+      proxy_timeout 3600s;
+      proxy_pass ${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.HTTPS};
+    }
   '';
 }
