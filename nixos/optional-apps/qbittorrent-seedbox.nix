@@ -33,6 +33,7 @@ in
       sed -i '/^Downloads\\SavePath=/d' "$config"
       sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
       sed -i "/^\[Preferences\]$/a Downloads\\SavePath=$downloadPath/" "$config"
+      sed -i "/^\[Preferences\]$/a WebUI\\LocalHostAuth=false" "$config"
     '';
 
     serviceConfig = LT.serviceHarden // {
