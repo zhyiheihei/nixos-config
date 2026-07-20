@@ -50,18 +50,12 @@ in
           lib.mapAttrsToList (
             n: v:
             let
-              hostNames = lib.unique (
-                [
-                  "${n}.zhyi.cc"
-                  "[${n}.zhyi.cc]:2222"
-                  v.hostname
-                  "[${v.hostname}]:2222"
-                ]
-                ++ lib.optionals (n == "colocrossing") [
-                  "git.zhyi.xin"
-                  "[git.zhyi.xin]:${LT.portStr.Gitea.SSH}"
-                ]
-              );
+              hostNames = lib.unique [
+                "${n}.zhyi.cc"
+                "[${n}.zhyi.cc]:2222"
+                v.hostname
+                "[${v.hostname}]:2222"
+              ];
             in
             lib.optional (v.ssh.ed25519 != null) {
               name = "${n}-ed25519";
@@ -130,7 +124,6 @@ in
 
     Host git.zhyi.xin
       User git
-      Port ${LT.portStr.Gitea.SSH}
       ${ltnetSSHConfig}
 
     Host *.zhyi.cc
