@@ -74,7 +74,7 @@ in
         PROTOCOL = "http+unix";
         ROOT_URL = "https://git.zhyi.xin/";
         SSH_DOMAIN = "git.zhyi.xin";
-        SSH_PORT = 2222;
+        SSH_PORT = LT.port.Gitea.SSH;
       };
       repository = {
         DEFAULT_PRIVATE = "private";
