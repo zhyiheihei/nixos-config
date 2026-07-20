@@ -46,7 +46,7 @@ in
         "--profile=/var/lib/qbittorrent-seedbox"
         "--configuration=seedbox"
         "--webui-port=${LT.portStr.qBitTorrentSeedbox.WebUI}"
-        "--torrenting-port=${builtins.toString (LT.this.wg-lantian.forwardStart + 2)}"
+        "--torrenting-port=${builtins.toString (LT.this.wg-zhyi.forwardStart + 2)}"
         "--confirm-legal-notice"
       ];
       TimeoutStopSec = 1800;

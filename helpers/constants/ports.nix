@@ -145,8 +145,8 @@ rec {
     ADSB.RawOutput978 = 13978;
     ClawEmail = 13997;
     Open5GS = 13999;
-    WGLanTian.ForwardStart = 30010;
-    WGLanTian.ForwardStop = 32559;
+    WGZhyi.ForwardStart = 30010;
+    WGZhyi.ForwardStop = 32559;
   };
 
   portStr = lib.mapAttrsRecursive (k: builtins.toString) port;

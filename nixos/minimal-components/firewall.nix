@@ -43,20 +43,20 @@ let
     (lib.optionalString (LT.this.public.IPv4 != null) (
       lib.concatMapAttrsStringSep "" (
         n:
-        { wg-lantian, index, ... }:
+        { wg-zhyi, index, ... }:
         ''
-          ip daddr ${LT.this.public.IPv4} tcp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to 198.18.${builtins.toString index}.192
-          ip daddr ${LT.this.public.IPv4} udp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to 198.18.${builtins.toString index}.192
+          ip daddr ${LT.this.public.IPv4} tcp dport { ${builtins.toString wg-zhyi.forwardStart}-${builtins.toString wg-zhyi.forwardStop} } dnat to 198.18.${builtins.toString index}.192
+          ip daddr ${LT.this.public.IPv4} udp dport { ${builtins.toString wg-zhyi.forwardStart}-${builtins.toString wg-zhyi.forwardStop} } dnat to 198.18.${builtins.toString index}.192
         ''
       ) LT.hosts
     ))
     + (lib.optionalString (LT.this.public.IPv6 != null) (
       lib.concatMapAttrsStringSep "" (
         n:
-        { wg-lantian, index, ... }:
+        { wg-zhyi, index, ... }:
         ''
-          ip6 daddr ${LT.this.public.IPv6} tcp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to fdd8:1938:4e88:${builtins.toString index}::192
-          ip6 daddr ${LT.this.public.IPv6} udp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to fdd8:1938:4e88:${builtins.toString index}::192
+          ip6 daddr ${LT.this.public.IPv6} tcp dport { ${builtins.toString wg-zhyi.forwardStart}-${builtins.toString wg-zhyi.forwardStop} } dnat to fdd8:1938:4e88:${builtins.toString index}::192
+          ip6 daddr ${LT.this.public.IPv6} udp dport { ${builtins.toString wg-zhyi.forwardStart}-${builtins.toString wg-zhyi.forwardStop} } dnat to fdd8:1938:4e88:${builtins.toString index}::192
         ''
       ) LT.hosts
     ))

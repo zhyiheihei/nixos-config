@@ -49,7 +49,7 @@ in
         "--profile=/var/lib/qbittorrent-pt"
         "--configuration=pt"
         "--webui-port=${LT.portStr.qBitTorrentPT.WebUI}"
-        "--torrenting-port=${builtins.toString (LT.this.wg-lantian.forwardStart + 1)}"
+        "--torrenting-port=${builtins.toString (LT.this.wg-zhyi.forwardStart + 1)}"
         "--confirm-legal-notice"
       ];
       TimeoutStopSec = 1800;

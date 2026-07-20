@@ -187,16 +187,16 @@
       };
     };
 
-    wg-lantian = {
+    wg-zhyi = {
       forwardStart = lib.mkOption {
         readOnly = true;
         type = lib.types.int;
-        default = constants.port.WGLanTian.ForwardStart + (config.index - 1) * 10;
+        default = constants.port.WGZhyi.ForwardStart + (config.index - 1) * 10;
       };
       forwardStop = lib.mkOption {
         readOnly = true;
         type = lib.types.int;
-        default = constants.port.WGLanTian.ForwardStart + config.index * 10 - 1;
+        default = constants.port.WGZhyi.ForwardStart + config.index * 10 - 1;
       };
     };
 
