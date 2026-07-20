@@ -19,7 +19,7 @@ rec {
     V2Ray.IPv4OnlyClient = 1082;
     KMS = 1688;
     Gemini = 1965;
-    Gitea.SSH = 2223;
+    Gitea.SSH = 22;
     Bitmagnet = 3333;
     NFS.StatD = 4000;
     NFS.LockD = 4001;

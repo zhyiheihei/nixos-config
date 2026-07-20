@@ -57,7 +57,7 @@ in
                   v.hostname
                   "[${v.hostname}]:2222"
                 ]
-                ++ lib.optionals (n == "cnvm") [
+                ++ lib.optionals (n == "colocrossing") [
                   "git.zhyi.xin"
                   "[git.zhyi.xin]:${LT.portStr.Gitea.SSH}"
                 ]
