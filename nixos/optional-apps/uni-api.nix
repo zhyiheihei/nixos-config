@@ -132,7 +132,7 @@ in
     };
   }
   // lib.optionalAttrs (config.networking.hostName == "v-ps-sea") {
-    "ai-api.xuyh0120.win" = {
+    "ai-api.zhyi.xin" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
         proxyNoTimeout = true;

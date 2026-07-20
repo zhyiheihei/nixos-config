@@ -33,9 +33,9 @@
     };
   };
 
-  lantian.nginxVhosts."ca.lantian.pub" = {
+  lantian.nginxVhosts."ca.zhyi.xin" = {
     locations = {
-      "/".return = "https://ca.lantian.pub:444$request_uri";
+      "/".return = "https://ca.zhyi.xin:444$request_uri";
     };
 
     sslCertificate = "lets-encrypt-zhyi.xin";

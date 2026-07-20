@@ -74,7 +74,7 @@ in
     "ltn.pw" = {
       root = yourlsPackage;
       locations = {
-        "= /".return = "307 https://lantian.pub";
+        "= /".return = "307 https://zhyi.xin";
         "/" = {
           index = "index.php";
           tryFiles = "$uri $uri/ /yourls-loader.php$is_args$args";

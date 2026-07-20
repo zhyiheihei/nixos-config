@@ -87,7 +87,7 @@ in
       alang = "chi,zho,cmn,zh,eng,en";
       slang = "chi,zho,cmn,zh,eng,en";
     }
-    // (lib.optionalAttrs (osConfig.networking.hostName == "lt-dell-wyse") {
+    // (lib.optionalAttrs (osConfig.networking.hostName == "ml-builder") {
       hwdec = "vaapi";
       scale = "lanczos";
       dither = false;

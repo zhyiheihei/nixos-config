@@ -118,7 +118,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
       recursor = {
         any_to_tcp = true;
         qname_minimization = false;
-        server_id = "${config.networking.hostName}.lantian.pub";
+        server_id = "${config.networking.hostName}.zhyi.cc";
         forward_zones_file = "/nix/sync-servers/ltnet-scripts/pdns-recursor-conf/fwd-dn42-interconnect.yml";
         forward_zones = forwardZones;
         forward_zones_recurse = forwardZonesRecurse;

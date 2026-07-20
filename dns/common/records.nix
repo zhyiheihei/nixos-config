@@ -55,12 +55,12 @@
       {
         recordType = "TXT";
         name = "@";
-        contents = "forward-email=xuyh0120@gmail.com";
+        contents = "forward-email=molishanguang@outlook.com";
       }
       {
         recordType = "TXT";
         name = "@";
-        contents = "mailtie=xuyh0120@gmail.com";
+        contents = "mailtie=molishanguang@outlook.com";
       }
       {
         recordType = "TXT";
@@ -69,8 +69,8 @@
       }
     ];
 
-    GeoDNSTarget = "lantian.pub.";
-    GeoStorDNSTarget = "tools.lantian.pub.";
+    GeoDNSTarget = "zhyi.xin.";
+    GeoStorDNSTarget = "tools.zhyi.xin.";
 
     Libravatar = [
       {
@@ -87,7 +87,7 @@
         priority = 0;
         weight = 0;
         port = 80;
-        target = "avatar.lantian.pub.";
+        target = "avatar.zhyi.xin.";
       }
       {
         recordType = "SRV";
@@ -95,7 +95,7 @@
         priority = 0;
         weight = 0;
         port = 443;
-        target = "avatar.lantian.pub.";
+        target = "avatar.zhyi.xin.";
       }
     ];
 
@@ -185,12 +185,12 @@
       {
         recordType = "TXT";
         name = "@";
-        contents = "v=DMARC1; p=quarantine; ruf=mailto:lantian@${domain}";
+        contents = "v=DMARC1; p=quarantine; ruf=mailto:molishanguang@${domain}";
       }
       {
         recordType = "TXT";
         name = "_dmarc";
-        contents = "v=DMARC1; p=quarantine; ruf=mailto:lantian@${domain}";
+        contents = "v=DMARC1; p=quarantine; ruf=mailto:molishanguang@${domain}";
       }
     ];
 

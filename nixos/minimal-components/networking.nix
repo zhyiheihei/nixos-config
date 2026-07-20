@@ -77,14 +77,14 @@ in
     hostId = lib.substring 0 8 (builtins.hashString "sha256" config.networking.hostName);
     usePredictableInterfaceNames = false;
     useDHCP = false;
-    domain = "lantian.pub";
+    domain = "zhyi.cc";
     firewall.enable = false;
     firewall.checkReversePath = false;
     iproute2.enable = true;
     nat.enable = false;
     resolvconf.dnsExtensionMechanism = true;
     resolvconf.dnsSingleRequest = true;
-    search = [ "lantian.pub" ];
+    search = [ "zhyi.cc" ];
     tempAddresses = "disabled";
 
     # systemd-networkd breaks resolv.conf, but fixed with resolv-conf-setup.service

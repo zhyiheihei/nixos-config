@@ -118,7 +118,7 @@ in
         transport=transport-ipv6-alt-tls-dn42
         context=src-peers-enum
         message_context=src-peers-enum-message
-        from_domain=lantian.dn42
+        from_domain=zhyi.dn42
 
         [dn42-enum]
         type=identify
@@ -129,7 +129,7 @@ in
         match=fd00::/8
 
         [dn42-enum-outbound](template-endpoint-common)
-        from_domain=lantian.dn42
+        from_domain=zhyi.dn42
 
         ; Include passwords
         #include ${config.sops.secrets.asterisk-pw.path}

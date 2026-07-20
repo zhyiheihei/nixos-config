@@ -47,9 +47,9 @@ let
           number = prefixZeros 4 n;
           numberLink =
             if builtins.match "[[:digit:]]+" number != null then
-              "<a href=\"sip:${number}@lantian.pub\">sip:${number}@lantian.pub</a>"
+              "<a href=\"sip:${number}@zhyi.xin\">sip:${number}@zhyi.xin</a>"
             else
-              "sip:${number}@lantian.pub";
+              "sip:${number}@zhyi.xin";
         in
         "<p>${numberLink} ${v}</p>"
       ) numbers
@@ -60,7 +60,7 @@ let
     <html lang="en">
       <head>
         <meta charset="utf-8">
-        <title>lantian.pub SIP dial plan</title>
+        <title>zhyi.xin SIP dial plan</title>
         <style>
           /*
             Josh's Custom CSS Reset
@@ -118,11 +118,11 @@ let
       </head>
       <body>
         <details>
-          <summary>sip:00XX@lantian.pub</summary>
+          <summary>sip:00XX@zhyi.xin</summary>
           ${dialPlanRows' (lib.filterAttrs (k: _: lib.hasPrefix "00" k) dialPlan)}
         </details>
         <details>
-          <summary>sip:02XX@lantian.pub</summary>
+          <summary>sip:02XX@zhyi.xin</summary>
           ${dialPlanRows' (lib.filterAttrs (k: _: lib.hasPrefix "02" k) dialPlan)}
         </details>
         ${dialPlanRows' (lib.filterAttrs (k: _: !(lib.hasPrefix "0" k)) dialPlan)}
@@ -131,7 +131,7 @@ let
   '';
 in
 {
-  lantian.nginxVhosts."sip.lantian.pub" = {
+  lantian.nginxVhosts."sip.zhyi.xin" = {
     root = dialPlanDir;
     sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;

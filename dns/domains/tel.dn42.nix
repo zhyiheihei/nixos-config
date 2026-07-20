@@ -19,7 +19,7 @@
           preference = 10;
           terminalFlag = "u";
           service = "E2U+sip";
-          regexp = "!^(.*)$!sip:\\1@${config.common.records.SIPTarget}.lantian.dn42:5060!";
+          regexp = "!^(.*)$!sip:\\1@${config.common.records.SIPTarget}.zhyi.dn42:5060!";
           target = ".";
         }
       ];

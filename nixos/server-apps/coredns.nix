@@ -69,7 +69,7 @@ let
       ${forwardZone "127.10.in-addr.arpa" null}
 
       # LTNET Active Directory
-      ${forwardZone "ad.lantian.pub" null}
+      ${forwardZone "ad.zhyi.cc" null}
 
       # NeoNetwork Lan Tian Authoritative
       ${forwardZone "lantian.neo" "Klantian.neo.+013+47346"}
@@ -78,14 +78,13 @@ let
       ${forwardZone "0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa" "K0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa.+013+11807"}
 
       # LTNET Public Facing Addressing
-      ${forwardZone "asn.lantian.pub" "Kasn.lantian.pub.+013+48539"}
+      ${forwardZone "asn.zhyi.cc" "Kasn.zhyi.cc.+013+48539"}
 
       # LTNET Authoritative
       ${forwardZone "18.198.in-addr.arpa" null}
       ${forwardZone "19.198.in-addr.arpa" null}
 
       # Public Internet Authoritative
-      ${forwardZone "lantian.eu.org" "Klantian.eu.org.+013+37106"}
 
       # OpenNIC Authoritative
       ${forwardZone "opennic.glue" null}
@@ -207,9 +206,9 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
             "127.0.0.1@${LT.portStr.DNSLocal}"
             "::1@${LT.portStr.DNSLocal}"
           ];
-          identity = "lantian";
+          identity = "zhyi";
           version = "2.3.3";
-          nsid = "lantian";
+          nsid = "zhyi";
           edns-client-subnet = true;
           answer-rotation = true;
         };
@@ -315,8 +314,8 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
           (map mkDn42Zone LT.constants.zones.DN42)
           ++ (map mkOpennicZone ([ "." ] ++ LT.constants.zones.OpenNIC))
           ++ (map mkLtnetAdZone [
-            "ad.lantian.pub"
-            "_msdcs.ad.lantian.pub"
+            "ad.zhyi.cc"
+            "_msdcs.ad.zhyi.cc"
           ])
           ++ (map (z: mkLocalZone z.domain z.path) [
             {
@@ -364,8 +363,8 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
               path = "ltnet-zones/0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa";
             }
             {
-              domain = "asn.lantian.pub";
-              path = "ltnet-scripts/zones/asn.lantian.pub";
+              domain = "asn.zhyi.cc";
+              path = "ltnet-scripts/zones/asn.zhyi.cc";
             }
             {
               domain = "18.198.in-addr.arpa";
@@ -374,10 +373,6 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
             {
               domain = "19.198.in-addr.arpa";
               path = "ltnet-zones/19.198.in-addr.arpa";
-            }
-            {
-              domain = "lantian.eu.org";
-              path = "ltnet-zones/lantian.eu.org";
             }
             {
               domain = "neo";

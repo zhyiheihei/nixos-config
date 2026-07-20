@@ -62,7 +62,7 @@ let
         "= /.well-known/webfinger".extraConfig = ''
           # Manually setup proxy to avoid passing proxy headers
           # Add a variable to force use URL set by me
-          set $account "lantian@mastodon.social";
+          set $account "molishanguang@mastodon.social";
           proxy_pass "https://mastodon.social/.well-known/webfinger?resource=acct:$account";
           proxy_ssl_name mastodon.social;
           proxy_ssl_server_name on;
@@ -73,7 +73,7 @@ let
         };
       };
 
-      root = "/nix/sync-servers/www/lantian.pub";
+      root = "/nix/sync-servers/www/zhyi.xin";
 
       disableLiveCompression = true;
 
@@ -172,7 +172,7 @@ in
         default = true;
       };
 
-      root = "/nix/sync-servers/www/lantian.pub";
+      root = "/nix/sync-servers/www/zhyi.xin";
       serverAliases = [
         "gopher.zhyi.dn42"
         "gopher.lantian.neo"
@@ -206,7 +206,7 @@ in
         default = true;
       };
 
-      root = "/nix/sync-servers/www/lantian.pub";
+      root = "/nix/sync-servers/www/zhyi.xin";
       serverAliases = [
         "gemini.zhyi.dn42"
         "gemini.lantian.neo"

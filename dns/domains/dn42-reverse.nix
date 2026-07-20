@@ -7,8 +7,8 @@
       providers = [ "bind" ];
       records = lib.flatten [
         config.common.nameservers.LTNet
-        (config.common.hostRecs.LTNetReverseIPv4_16 "ltnet.lantian.pub.")
-        (config.common.hostRecs.LTNetReverseIPv4_24in16 "ltnet.lantian.pub.")
+        (config.common.hostRecs.LTNetReverseIPv4_16 "ltnet.zhyi.cc.")
+        (config.common.hostRecs.LTNetReverseIPv4_24in16 "ltnet.zhyi.cc.")
       ];
     }
 
@@ -18,7 +18,7 @@
       providers = [ "bind" ];
       records = lib.flatten [
         config.common.nameservers.LTNet
-        (config.common.hostRecs.LTNetReverseIPv4_16 "ltnet.lantian.pub.")
+        (config.common.hostRecs.LTNetReverseIPv4_16 "ltnet.zhyi.cc.")
       ];
     }
 
