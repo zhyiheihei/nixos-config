@@ -32,4 +32,6 @@
   ];
 
   zerotier = "fd2e98dccf";
+
+  ltnet.tcpTransportPeers.jpvm = "jp.zhyi.cc";
 }

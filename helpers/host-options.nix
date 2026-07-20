@@ -99,6 +99,16 @@
     };
 
     ltnet = {
+      tcpTransportDomain = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Public HTTPS hostname accepting WireGuard mesh WebSocket transport.";
+      };
+      tcpTransportPeers = lib.mkOption {
+        type = lib.types.attrsOf lib.types.str;
+        default = { };
+        description = "WireGuard mesh peers carried through a WSS endpoint instead of direct UDP.";
+      };
       IPv4 = lib.mkOption {
         type = lib.types.str;
         readOnly = true;

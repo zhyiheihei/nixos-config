@@ -23,6 +23,8 @@
     "1.1.1.1"
   ];
 
+  lantian.nginxVhosts."jp.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+
   # Standard HTTPS ingress for selected low-traffic services. Colocrossing
   # dispatches the TLS stream to the owning origin by SNI.
   services.nginx.streamConfig = ''
