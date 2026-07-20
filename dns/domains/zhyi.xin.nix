@@ -12,6 +12,7 @@ let
     "element"
     "filebox"
     "gemini"
+    "git"
     "google-ssl"
     "google-test-ssl"
     "gopher"
@@ -66,12 +67,6 @@ in
           recordType = "CNAME";
           name = "*";
           target = publicVpsTarget;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "git";
-          target = "colocrossing.zhyi.cc.";
           ttl = "10m";
         }
       ]

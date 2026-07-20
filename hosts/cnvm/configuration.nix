@@ -104,5 +104,13 @@
       proxy_timeout 3600s;
       proxy_pass ${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.Matrix.Public};
     }
+
+    server {
+      listen 0.0.0.0:${LT.portStr.Gitea.SSH};
+      listen [::]:${LT.portStr.Gitea.SSH};
+      proxy_connect_timeout 10s;
+      proxy_timeout 3600s;
+      proxy_pass ${LT.hosts.colocrossing.ltnet.IPv4}:2222;
+    }
   '';
 }
