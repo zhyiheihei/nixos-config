@@ -12,16 +12,16 @@ let
 
   replacedHosts = {
     # keep-sorted start
-    "50kvm" = LT.hosts."alice";
-    gigsgigscloud = LT.hosts."alice";
+    "50kvm" = LT.hosts.cnvm;
+    gigsgigscloud = LT.hosts.cnvm;
     hetzner-de = LT.hosts."colocrossing";
-    hostdare = LT.hosts."bwg-lax";
-    linkin = LT.hosts."alice";
+    hostdare = LT.hosts.jpvm;
+    linkin = LT.hosts.cnvm;
     oneprovider = LT.hosts."colocrossing";
     soyoustart = LT.hosts."colocrossing";
-    v-ps-hkg = LT.hosts."alice";
-    v-ps-sjc = LT.hosts."bwg-lax";
-    virmach-ny3ip = LT.hosts."virmach-ny6g";
+    v-ps-hkg = LT.hosts.cnvm;
+    v-ps-sjc = LT.hosts.jpvm;
+    virmach-ny3ip = LT.hosts.jpvm;
     # keep-sorted end
   }
   // lib.optionalAttrs (LT.hosts ? buyvm) {

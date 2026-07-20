@@ -14,15 +14,15 @@
 
         (config.common.hostRecs.mapAddresses {
           name = "ns1.${domain}.";
-          addresses = LT.hosts."alice".neonetwork;
+          addresses = LT.hosts.cnvm.neonetwork;
         })
         (config.common.hostRecs.mapAddresses {
           name = "ns2.${domain}.";
-          addresses = LT.hosts."bwg-lax".neonetwork;
+          addresses = LT.hosts.jpvm.neonetwork;
         })
         (config.common.hostRecs.mapAddresses {
           name = "ns3.${domain}.";
-          addresses = LT.hosts."virmach-ny1g".neonetwork;
+          addresses = LT.hosts.colocrossing.neonetwork;
         })
         (lib.optional (LT.hosts ? buyvm) (config.common.hostRecs.mapAddresses {
           name = "ns4.${domain}.";

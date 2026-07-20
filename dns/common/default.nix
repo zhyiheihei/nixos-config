@@ -22,7 +22,7 @@
 
   config.common = rec {
     inherit (LT) hosts;
-    fallbackServer = LT.hosts.bwg-lax;
+    fallbackServer = LT.hosts.jpvm;
 
     apexRecords =
       _domain:
