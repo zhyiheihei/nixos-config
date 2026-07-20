@@ -30,6 +30,8 @@
     IPv4 = "192.168.2.51";
   };
 
+  ltnet.tcpTransportPeers.jpvm = "jp.zhyi.cc";
+
   # Keep author-style server metadata even without enabling the dn42 tag;
   # BIRD's LTNET config reads dn42.region for all server hosts.
   dn42 = {

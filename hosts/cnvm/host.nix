@@ -17,6 +17,8 @@
 
   zerotier = "ecd09d7bc2";
 
+  ltnet.tcpTransportPeers.jpvm = "jp.zhyi.cc";
+
   dn42 = {
     IPv4 = "172.20.46.229";
     region = 42;

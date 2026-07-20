@@ -9,7 +9,9 @@ let
   wg-pubkey = import (inputs.secrets + "/wg-pubkey.nix");
   wgEndpointFor =
     name: host:
-    if !(LT.this.hasTag "ipv6-only") && LT.publicIPv4For name != null then
+    if builtins.hasAttr name LT.this.ltnet.tcpTransportPeers then
+      "127.0.0.1"
+    else if !(LT.this.hasTag "ipv6-only") && LT.publicIPv4For name != null then
       LT.publicIPv4For name
     else if LT.this.public.IPv6 != null && LT.publicIPv6For name != null then
       LT.publicIPv6For name
@@ -70,7 +72,8 @@ in
       ++ lib.optionals (LT.this.ltnet.IPv4 != null) [ (LT.this.ltnet.IPv4 + "/32") ]
       ++ lib.optionals (LT.this.ltnet.IPv6 != null) [ (LT.this.ltnet.IPv6 + "/128") ];
 
-      linkConfig.MTUBytes = 1400;
+      linkConfig.MTUBytes =
+        if builtins.hasAttr n LT.this.ltnet.tcpTransportPeers then 1280 else 1400;
       networkConfig = {
         LinkLocalAddressing = "no";
       };
