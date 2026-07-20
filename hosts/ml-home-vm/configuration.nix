@@ -118,6 +118,15 @@
 
   services.ncps.cache.maxSize = lib.mkForce "50G";
 
+  # Keep the temporary edp-panel database role confined to its own database.
+  # These entries must precede the shared LTNET PostgreSQL HBA rules.
+  services.postgresql.authentication = lib.mkBefore ''
+    host "edp-panel" "edp-panel" 198.18.0.0/15 md5
+    host "edp-panel" "edp-panel" fdd8:1938:4e88::/48 md5
+    host all "edp-panel" 198.18.0.0/15 reject
+    host all "edp-panel" fdd8:1938:4e88::/48 reject
+  '';
+
   services.calibre-cops.libraryPath = "/mnt/storage/Calibre Library";
 
   services.printing = {
