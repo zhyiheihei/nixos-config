@@ -23,8 +23,8 @@ in
       WorkingDirectory = "/run/pipewire-volume-control";
 
       # Requires access to $HOME/.config/pulse/cookie
-      User = "lantian";
-      Group = "lantian";
+      User = "zhyi";
+      Group = "zhyi";
       UMask = "0000";
     };
   };

@@ -60,5 +60,5 @@ in
 
   systemd.services.NetworkManager-wait-online.enable = false;
 
-  users.users.lantian.extraGroups = [ "networkmanager" ];
+  users.users.zhyi.extraGroups = [ "networkmanager" ];
 }

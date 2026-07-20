@@ -7,7 +7,7 @@
 {
   imports = [ inputs.nixcord.homeModules.nixcord ];
 
-  programs.nixcord = lib.mkIf (config.home.username == "lantian") {
+  programs.nixcord = lib.mkIf (config.home.username == "zhyi") {
     enable = true;
 
     # Clients

@@ -30,7 +30,7 @@ let
   args = {
     enable = true;
     package = null; # Already installed system wide
-    profiles.lantian = {
+    profiles.zhyi = {
       extensions = {
         packages = with pkgs.firefox-addons; [
           # keep-sorted start
@@ -135,7 +135,7 @@ in
     configPath = ".mozilla/firefox";
     betterfox = {
       enable = true;
-      profiles.lantian.settings = {
+      profiles.zhyi.settings = {
         securefox.enable = true;
         peskyfox.enable = true;
         peskyfox.ai.enable = false;

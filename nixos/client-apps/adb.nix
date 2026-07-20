@@ -19,7 +19,7 @@
     };
   };
 
-  users.users.lantian.extraGroups = [ "adbusers" ];
+  users.users.zhyi.extraGroups = [ "adbusers" ];
 
   lantian.preservation.directories = [ "/root/.android" ];
 }

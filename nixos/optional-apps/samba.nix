@@ -49,7 +49,7 @@
       "printers" = {
         "path" = "/var/tmp";
         "printable" = "yes";
-        "valid users" = "lantian";
+        "valid users" = "zhyi";
       };
     };
   };

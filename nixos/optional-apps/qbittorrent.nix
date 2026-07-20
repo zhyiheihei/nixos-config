@@ -8,7 +8,7 @@
   services.qbittorrent = {
     enable = true;
     package = pkgs.qbittorrent-enhanced-nox;
-    user = "lantian";
+    user = "zhyi";
     group = "users";
     profileDir = "/var/lib/qbittorrent";
     webuiPort = LT.port.qBitTorrent.WebUI;

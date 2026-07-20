@@ -54,8 +54,8 @@ in
       '';
 
     serviceConfig = LT.serviceHarden // {
-      User = "lantian";
-      Group = "lantian";
+      User = "zhyi";
+      Group = "zhyi";
 
       MemoryDenyWriteExecute = false;
       ProtectHome = false;

@@ -2,7 +2,7 @@
 {
   virtualisation.oci-containers.containers.archiveteam = {
     environment = {
-      DOWNLOADER = "lantian";
+      DOWNLOADER = "zhyi";
       SELECTED_PROJECT = "auto";
     };
     labels."io.containers.autoupdate" = "registry";

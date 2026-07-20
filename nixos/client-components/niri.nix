@@ -33,7 +33,7 @@
       };
       initial_session = {
         command = "niri-session";
-        user = "lantian";
+        user = "zhyi";
       };
     };
   };

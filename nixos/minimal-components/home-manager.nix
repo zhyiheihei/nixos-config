@@ -22,6 +22,6 @@ in
 
     sharedModules = [ inputs.plasma-manager.homeModules.plasma-manager ];
 
-    users = lib.genAttrs [ "root" "lantian" ] perUserConfig;
+    users = lib.genAttrs [ "root" "zhyi" ] perUserConfig;
   };
 }

@@ -16,7 +16,7 @@
       ];
       MemoryDenyWriteExecute = false;
       DynamicUser = lib.mkForce false;
-      User = lib.mkForce "lantian";
+      User = lib.mkForce "zhyi";
       Group = lib.mkForce "users";
     };
   };
@@ -57,7 +57,7 @@
       PORT = LT.portStr.Prometheus.ProwlarrExporter;
       CONFIG = "/var/lib/prowlarr/config.xml";
     };
-    user = "lantian";
+    user = "zhyi";
     group = "users";
   };
   systemd.services.prometheus-exportarr-prowlarr-exporter.serviceConfig = {

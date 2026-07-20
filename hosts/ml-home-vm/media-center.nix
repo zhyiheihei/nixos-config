@@ -42,27 +42,27 @@ in
     };
     "${defaultDownloadPath}".d = {
       mode = "755";
-      user = "lantian";
+      user = "zhyi";
       group = "users";
     };
     "${flexgetAutoDownloadPath}".d = {
       mode = "755";
-      user = "lantian";
+      user = "zhyi";
       group = "users";
     };
     "${qBitTorrentPTSonarrDownloadPath}".d = {
       mode = "755";
-      user = "lantian";
+      user = "zhyi";
       group = "users";
     };
     "${qBitTorrentSonarrDownloadPath}".d = {
       mode = "755";
-      user = "lantian";
+      user = "zhyi";
       group = "users";
     };
     "${qBitTorrentSeedboxDownloadPath}".d = {
       mode = "755";
-      user = "lantian";
+      user = "zhyi";
       group = "users";
     };
     "${cloudMusicPath}".d = {

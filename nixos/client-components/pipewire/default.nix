@@ -91,7 +91,7 @@ in
     };
   };
 
-  users.users.lantian.extraGroups = [
+  users.users.zhyi.extraGroups = [
     "audio"
   ]
   ++ lib.optionals config.services.pipewire.systemWide [ "pipewire" ];

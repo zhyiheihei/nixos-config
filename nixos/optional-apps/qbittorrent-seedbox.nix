@@ -7,7 +7,7 @@
   ...
 }:
 let
-  user = "lantian";
+  user = "zhyi";
   group = "users";
   downloadPath = "/mnt/storage/.downloads-qb-seedbox";
 in

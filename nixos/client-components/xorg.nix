@@ -54,7 +54,7 @@
 
   services.displayManager.autoLogin = {
     enable = true;
-    user = "lantian";
+    user = "zhyi";
   };
 
   services.xserver.displayManager.lightdm.enable = false;
@@ -69,7 +69,7 @@
   };
 
   programs.xwayland.enable = true;
-  users.users.lantian.extraGroups = [
+  users.users.zhyi.extraGroups = [
     "video"
     "users"
     "input"

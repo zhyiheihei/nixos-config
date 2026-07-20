@@ -5,7 +5,7 @@
   ...
 }:
 {
-  programs.firefox.profiles.lantian.settings = {
+  programs.firefox.profiles.zhyi.settings = {
     # Anti fingerprint
     # https://github.com/feder-cr/invisible_playwright/blob/main/src/invisible_playwright/prefs.py
     # Turn off Firefox's own resistFingerprinting; we do our own via patches.

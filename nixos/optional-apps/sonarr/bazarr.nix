@@ -9,7 +9,7 @@
   services.bazarr = {
     enable = true;
     listenPort = LT.port.Bazarr;
-    user = "lantian";
+    user = "zhyi";
     group = "users";
   };
   systemd.services.bazarr = {

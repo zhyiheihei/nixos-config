@@ -58,7 +58,7 @@
         };
       };
     };
-    users.users.lantian.extraGroups = [ "podman" ];
+    users.users.zhyi.extraGroups = [ "podman" ];
 
     virtualisation.oci-containers.backend = "podman";
 

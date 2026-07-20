@@ -53,7 +53,7 @@ in
         wsrep_on = true;
         wsrep_retry_autocommit = 3;
         wsrep_provider = "${pkgs.mariadb-galera}/lib/galera/libgalera_smm.so";
-        wsrep_cluster_name = "lantian";
+        wsrep_cluster_name = "zhyi";
         wsrep_cluster_address =
           "gcomm://"
           + lib.concatMapStringsSep "," (n: LT.hosts."${n}".ltnet.IPv4) [
