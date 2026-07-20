@@ -50,13 +50,11 @@ in
           lib.mapAttrsToList (
             n: v:
             let
-              hostNames = [
+              hostNames = lib.unique [
                 "${n}.zhyi.cc"
                 "[${n}.zhyi.cc]:2222"
-                "${n}.lantian.pub"
-                "[${n}.lantian.pub]:2222"
-                "${n}.xuyh0120.win"
-                "[${n}.xuyh0120.win]:2222"
+                v.hostname
+                "[${v.hostname}]:2222"
               ];
             in
             lib.optional (LT.hosts."${n}".ssh.ed25519 != null) {
@@ -68,21 +66,7 @@ in
             }
           ) LT.hosts
         )
-      ))
-      // {
-        "your-storagebox.de-rsa" = {
-          hostNames = [ "[u378583.your-storagebox.de]:23" ];
-          publicKey = "ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEA5EB5p/5Hp3hGW1oHok+PIOH9Pbn7cnUiGmUEBrCVjnAw+HrKyN8bYVV0dIGllswYXwkG/+bgiBlE6IVIBAq+JwVWu1Sss3KarHY3OvFJUXZoZyRRg/Gc/+LRCE7lyKpwWQ70dbelGRyyJFH36eNv6ySXoUYtGkwlU5IVaHPApOxe4LHPZa/qhSRbPo2hwoh0orCtgejRebNtW5nlx00DNFgsvn8Svz2cIYLxsPVzKgUxs8Zxsxgn+Q/UvR7uq4AbAhyBMLxv7DjJ1pc7PJocuTno2Rw9uMZi1gkjbnmiOh6TTXIEWbnroyIhwc8555uto9melEUmWNQ+C+PwAK+MPw==";
-        };
-        "your-storagebox.de-ecdsa" = {
-          hostNames = [ "[u378583.your-storagebox.de]:23" ];
-          publicKey = "ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAGK0po6usux4Qv2d8zKZN1dDvbWjxKkGsx7XwFdSUCnF19Q8psHEUWR7C/LtSQ5crU/g+tQVRBtSgoUcE8T+FWp5wBxKvWG2X9gD+s9/4zRmDeSJR77W6gSA/+hpOZoSE+4KgNdnbYSNtbZH/dN74EG7GLb/gcIpbUUzPNXpfKl7mQitw==";
-        };
-        "your-storagebox.de-ed25519" = {
-          hostNames = [ "[u378583.your-storagebox.de]:23" ];
-          publicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIICf9svRenC/PLKIL9nk6K/pxQgoiFC41wTNvoIncOxs";
-        };
-      };
+      ));
   };
 
   services.openssh = {
@@ -132,23 +116,13 @@ in
       Port 22
       PubkeyAcceptedKeyTypes ssh-ed25519
 
-    Host u378583-sub1.your-storagebox.de
-      User u378583-sub1
-      Port 23
-      IdentityFile ${config.sops.secrets.sftp-privkey.path}
-
-    Host u378583-sub2.your-storagebox.de
-      User u378583-sub2
-      Port 23
-      IdentityFile ${config.sops.secrets.sftp-privkey.path}
-
     Host sftp.ml-home-vm.zhyi.cc
       HostName ml-home-vm.zhyi.cc
       User sftp
       IdentityFile ${config.sops.secrets.sftp-privkey.path}
       ${ltnetSSHConfig}
 
-    Host git.lantian.pub
+    Host git.zhyi.xin
       User git
       ${ltnetSSHConfig}
 
@@ -156,20 +130,7 @@ in
       User root
       ${ltnetSSHConfig}
 
-    Host *.lantian.pub
-      User root
-      ${ltnetSSHConfig}
-
-    Host *.xuyh0120.win
-      User root
-      ${ltnetSSHConfig}
-
     Host localhost
-      ${ltnetSSHConfig}
-
-    Host vscode-remote
-      HostName lt-home-rdp.ltnet.xuyh0120.win
-      User lantian
       ${ltnetSSHConfig}
 
     Host *
