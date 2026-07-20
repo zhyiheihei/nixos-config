@@ -55,7 +55,7 @@ in
         node {
           v2ray: "socks5://localhost:${LT.portStr.V2Ray.SocksClient}"
           v2ray_unblock_cn: "socks5://localhost:${LT.portStr.V2Ray.UnblockCNClient}"
-          zgocloud: "socks5://${LT.hosts.zgocloud.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
+          jpvm: "socks5://${LT.hosts.jpvm.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
         }
 
         dns {
@@ -85,8 +85,8 @@ in
             filter: name(v2ray_unblock_cn)
             policy: fixed(0)
           }
-          zgocloud {
-            filter: name(zgocloud)
+          jpvm {
+            filter: name(jpvm)
             policy: fixed(0)
           }
         }

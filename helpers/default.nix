@@ -5,30 +5,15 @@
   inputs,
   self ? null,
   hostsBase ? ../hosts,
-  hostsExamBase ? ../hosts-exam,
   ...
 }:
 let
-  compatibilityExampleHostNames = [
-    "alice"
-    "bwg-lax"
-    "lt-dell-wyse"
-    "lt-dell-wyse-thin"
-    "lt-home-rdp"
-    "lt-hp-omen"
-    "terrahost"
-    "v-ps-sea"
-    "virmach-ny1g"
-    "virmach-ny6g"
-    "zgocloud"
-  ];
-  callWith =
-    path: args:
-    builtins.removeAttrs (lib.callPackageWith (pkgs // helpers) path args) [
+  call =
+    path:
+    builtins.removeAttrs (lib.callPackageWith (pkgs // helpers) path { }) [
       "override"
       "overrideDerivation"
     ];
-  call = path: callWith path { };
   helpers = rec {
     inherit
       config
@@ -37,7 +22,6 @@ let
       inputs
       self
       hostsBase
-      hostsExamBase
       ;
     inherit (inputs.nix-math.lib) math;
 
@@ -62,11 +46,7 @@ let
 
     sources = call _sources/generated.nix;
 
-    activeHosts = callWith ./fn/hosts.nix { inherit hostsBase; };
-    exampleHosts = lib.getAttrs compatibilityExampleHostNames (
-      callWith ./fn/hosts.nix { hostsBase = hostsExamBase; }
-    );
-    hosts = activeHosts // exampleHosts;
+    hosts = call ./fn/hosts.nix;
     this = hosts."${config.networking.hostName}";
     otherHosts = builtins.removeAttrs hosts [ config.networking.hostName ];
 

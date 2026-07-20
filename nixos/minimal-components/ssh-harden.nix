@@ -70,7 +70,7 @@ in
                 publicKey = v.ssh.ed25519;
               };
             }
-          ) LT.activeHosts
+          ) LT.hosts
         )
       ));
   };
