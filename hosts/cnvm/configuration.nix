@@ -1,7 +1,6 @@
 {
   LT,
   lib,
-  pkgs,
   ...
 }:
 {
@@ -52,29 +51,6 @@
         proxy_ssl_name $host;
         proxy_ssl_server_name on;
       '';
-    };
-  };
-
-  systemd.network.networks.wgmesh117.linkConfig.MTUBytes = lib.mkForce 1280;
-
-  systemd.services.wg-mesh-wstunnel-jpvm = {
-    description = "WireGuard mesh WebSocket tunnel to JPVM";
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-    script = ''
-      exec ${pkgs.wstunnel}/bin/wstunnel client \
-        --log-lvl WARN \
-        --tls-verify-certificate \
-        --http-upgrade-path-prefix ltnet-wg \
-        --websocket-ping-frequency-sec 10 \
-        -L 'udp://127.0.0.1:10119:127.0.0.1:10119?timeout_sec=0' \
-        wss://jp.zhyi.cc:443
-    '';
-    serviceConfig = LT.serviceHarden // {
-      DynamicUser = true;
-      Restart = "always";
-      RestartSec = 5;
     };
   };
 

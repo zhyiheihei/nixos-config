@@ -21,16 +21,6 @@
     IPv4 = "192.168.2.52";
   };
 
-  ltnet = {
-    peers = [
-      "logvm"
-      "ml-home-vm"
-      "jpvm"
-    ];
-    routeReflectorClients = [ "ml-home-vm" ];
-    endpointOverrides.jpvm = "127.0.0.1";
-  };
-
   dn42 = {
     IPv4 = "172.20.46.225";
     region = 42;

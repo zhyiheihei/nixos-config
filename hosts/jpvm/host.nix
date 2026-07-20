@@ -16,16 +16,6 @@
   public = {
     IPv4 = "36.50.85.113";
   };
-  ltnet = {
-    peers = [
-      "cnvm"
-      "colocrossing"
-    ];
-    routeReflectorClients = [
-      "cnvm"
-      "colocrossing"
-    ];
-  };
   dn42 = {
     IPv4 = "172.20.46.227";
     region = 52;

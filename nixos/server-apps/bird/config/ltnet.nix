@@ -7,34 +7,13 @@ let
     {
       index,
       city,
-      public,
-      zerotier,
       ...
     }:
-    let
-      sharedInterconnect =
-        LT.interconnectIPv4For hostname != null || LT.interconnectIPv6For hostname != null;
-      useZeroTier =
-        !sharedInterconnect
-        && LT.this.zerotier != null
-        && zerotier != null
-        && LT.this.public.IPv4 == null
-        && LT.this.public.IPv6 == null
-        && public.IPv4 == null
-        && public.IPv6 == null;
-    in
     ''
       protocol bgp ltnet_${lib.toLower (LT.sanitizeName hostname)} from lantian_internal {
         local fe80::${builtins.toString LT.this.index} as ${DN42_AS};
         neighbor fe80::${builtins.toString index}%'wgmesh${builtins.toString index}' internal;
         direct;
-        ${lib.optionalString (builtins.elem hostname LT.this.ltnet.routeReflectorClients) ''
-          rr client yes;
-        ''}
-        ${lib.optionalString useZeroTier ''
-          hold time 120;
-          keepalive time 10;
-        ''}
         # NEVER cause local_pref inversion on iBGP routes!
         ipv4 {
           import filter ltnet_filter_v4;
@@ -135,14 +114,7 @@ in
 
   peers = builtins.concatStringsSep "\n" (
     lib.mapAttrsToList peer (
-      lib.filterAttrs (
-        _name: host:
-        LT.this.hasTag LT.tags.server
-        && LT.this.zerotier != null
-        && host.hasTag LT.tags.server
-        && host.zerotier != null
-        && (LT.this.ltnet.peers == null || builtins.elem _name LT.this.ltnet.peers)
-      ) LT.otherHosts
+      lib.filterAttrs (n: v: LT.this.hasTag LT.tags.server && v.hasTag LT.tags.server) LT.otherHosts
     )
   );
 }
