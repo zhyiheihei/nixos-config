@@ -131,8 +131,8 @@ in
       accessibleBy = "localhost";
     };
   }
-  // lib.optionalAttrs (config.networking.hostName == "v-ps-sea") {
-    "ai-api.zhyi.xin" = {
+  // lib.optionalAttrs (config.networking.hostName == "jpvm") {
+    "ai-api.zhyi.cc" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
         proxyNoTimeout = true;
