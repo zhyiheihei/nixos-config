@@ -151,7 +151,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nur-xddxdd = {
-      # url = "/home/lantian/Projects/nur-packages";
+      # url = "/home/zhyi/Projects/nur-packages";
       url = "github:xddxdd/nur-packages";
       inputs.flake-parts.follows = "flake-parts";
       inputs.nix-cachyos-kernel.follows = "nix-cachyos-kernel";
@@ -176,7 +176,7 @@
       inputs.flake-compat.follows = "flake-compat";
     };
     secrets = {
-      # url = "/home/lantian/Projects/nixos-secrets";
+      # url = "/home/zhyi/Projects/nixos-secrets";
       url = "git+ssh://git@github.com/zhyiheihei/nixos-secrets.git";
       inputs.flake-parts.follows = "flake-parts";
       inputs.nixpkgs.follows = "nixpkgs";
