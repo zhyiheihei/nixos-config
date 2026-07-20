@@ -10,6 +10,7 @@
     ./hardware-configuration.nix
 
     ../../nixos/optional-apps/uni-api.nix
+    "${inputs.secrets}/uni-api/opencode-zen.nix"
 
     "${inputs.secrets}/nixos-hidden-module/aacd9f37de95f98d"
   ];
