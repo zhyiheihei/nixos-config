@@ -97,7 +97,7 @@
       ShowHomeButton = false;
       SupportMenu = {
         Title = "Lan Tian @ Blog";
-        URL = "https://lantian.pub";
+        URL = "https://zhyi.xin";
         AccessKey = "S";
       };
       UseSystemPrintDialog = true;

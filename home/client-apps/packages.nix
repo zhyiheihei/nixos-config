@@ -163,7 +163,7 @@ in
         zoom-us
         # keep-sorted end
       ]
-      ++ lib.optionals (osConfig.networking.hostName != "lt-dell-wyse") [ nur-xddxdd.svp_4_6 ]
+      ++ lib.optionals (osConfig.networking.hostName != "ml-builder") [ nur-xddxdd.svp_4_6 ]
     );
 
   programs.nix-index.enable = true;

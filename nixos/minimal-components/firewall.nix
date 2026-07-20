@@ -148,7 +148,7 @@ let
       oifname "zt*" udp sport 5353 reject
       oifname "zt*" udp dport 5353 reject
 
-      # Pipewire DSCP to lt-dell-wyse
+      # Pipewire DSCP to ml-builder
   ''
   + (lib.concatMapStrings (ip: ''
     oifname @INTERFACE_WAN ip daddr ${ip} udp dport 10001-10003 ip dscp set ef

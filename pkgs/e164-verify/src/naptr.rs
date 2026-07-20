@@ -119,13 +119,13 @@ mod tests {
     }
 
     #[test]
-    fn test_regexp_backref_lantian_dn42() {
-        // Real-world pattern from v-ps-sea.lantian.dn42:
-        //   "!^(.*)$!sip:\\1@v-ps-sea.lantian.dn42:5060!"
+    fn test_regexp_backref_zhyi_dn42() {
+        // Real-world pattern from v-ps-sea.zhyi.dn42:
+        //   "!^(.*)$!sip:\\1@v-ps-sea.zhyi.dn42:5060!"
         // dig displays this as \001 but the wire format is the two-byte sequence
         // backslash + '1', identical to the gensokyo.dn42 pattern above.
-        let uri = check("!^(.*)$!sip:\\1@v-ps-sea.lantian.dn42:5060!", ".").unwrap();
+        let uri = check("!^(.*)$!sip:\\1@v-ps-sea.zhyi.dn42:5060!", ".").unwrap();
         let host = crate::sip_uri::extract_host_from_sip_uri(&uri).unwrap();
-        assert_eq!(host, "v-ps-sea.lantian.dn42");
+        assert_eq!(host, "v-ps-sea.zhyi.dn42");
     }
 }

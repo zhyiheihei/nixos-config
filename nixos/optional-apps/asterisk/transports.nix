@@ -82,8 +82,8 @@ in
     protocol=tls
     bind=${LT.this.dn42.IPv4}:5061
     ca_list_file=/etc/ssl/certs/ca-certificates.crt
-    cert_file=${LT.nginx.getSSLCert "dn42-lantian.dn42-ecc"}
-    priv_key_file=${LT.nginx.getSSLKey "dn42-lantian.dn42-ecc"}
+    cert_file=${LT.nginx.getSSLCert "dn42-zhyi.dn42-ecc"}
+    priv_key_file=${LT.nginx.getSSLKey "dn42-zhyi.dn42-ecc"}
     method=tlsv1_2
     verify_client=no
     verify_server=yes
@@ -107,8 +107,8 @@ in
     protocol=tls
     bind=[${LT.this.ltnet.IPv6}]:5061
     ca_list_file=/etc/ssl/certs/ca-certificates.crt
-    cert_file=${LT.nginx.getSSLCert "dn42-lantian.dn42-ecc"}
-    priv_key_file=${LT.nginx.getSSLKey "dn42-lantian.dn42-ecc"}
+    cert_file=${LT.nginx.getSSLCert "dn42-zhyi.dn42-ecc"}
+    priv_key_file=${LT.nginx.getSSLKey "dn42-zhyi.dn42-ecc"}
     method=tlsv1_2
     verify_client=no
     verify_server=yes
@@ -132,8 +132,8 @@ in
     protocol=tls
     bind=[${LT.this.dn42.IPv6}]:5061
     ca_list_file=/etc/ssl/certs/ca-certificates.crt
-    cert_file=${LT.nginx.getSSLCert "dn42-lantian.dn42-ecc"}
-    priv_key_file=${LT.nginx.getSSLKey "dn42-lantian.dn42-ecc"}
+    cert_file=${LT.nginx.getSSLCert "dn42-zhyi.dn42-ecc"}
+    priv_key_file=${LT.nginx.getSSLKey "dn42-zhyi.dn42-ecc"}
     method=tlsv1_2
     verify_client=no
     verify_server=yes

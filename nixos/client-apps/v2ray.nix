@@ -82,11 +82,11 @@ let
             network = "xhttp";
             security = "tls";
             tlsSettings = {
-              serverName = "lantian.pub";
+              serverName = "zhyi.xin";
               fingerprint = "firefox";
             };
             xhttpSettings = {
-              host = "lantian.pub";
+              host = "zhyi.xin";
               path = "/ray";
               xmux = {
                 maxConcurrency = 128;

@@ -107,7 +107,7 @@ def main():
     print("正在创建或更新监控器...")
     for host in host_names:
         monitor_name = f"Blog/{host}"
-        monitor_target_url = f"https://{host}.lantian.pub"
+        monitor_target_url = f"https://{host}.zhyi.cc"
 
         if monitor_name in existing_monitors:
             monitor = existing_monitors[monitor_name]

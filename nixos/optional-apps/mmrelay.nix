@@ -3,22 +3,22 @@ let
   configFile = pkgs.writeText "config.yaml" (
     builtins.toJSON {
       matrix = {
-        homeserver = "https://matrix.lantian.pub";
-        bot_user_id = "@meshtastic:lantian.pub";
+        homeserver = "https://matrix.zhyi.xin";
+        bot_user_id = "@meshtastic:zhyi.xin";
         prefix_enabled = true;
         prefix_format = "[{long}/{short}]: ";
       };
       matrix_rooms = [
         {
-          id = "#meshtastic-longfast:lantian.pub";
+          id = "#meshtastic-longfast:zhyi.xin";
           meshtastic_channel = 0;
         }
         {
-          id = "#meshtastic-ps-mesh:lantian.pub";
+          id = "#meshtastic-ps-mesh:zhyi.xin";
           meshtastic_channel = 1;
         }
         {
-          id = "#meshtastic-ps-mqtt:lantian.pub";
+          id = "#meshtastic-ps-mqtt:zhyi.xin";
           meshtastic_channel = 2;
         }
       ];

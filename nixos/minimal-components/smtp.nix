@@ -30,7 +30,7 @@ in
         else
           "send.ahasend.com";
       port = 587;
-      from = "postmaster@lantian.pub";
+      from = "postmaster@zhyi.cc";
       user = "LyRZoFKp7S";
       passwordeval = "cat ${config.sops.secrets.smtp-pass.path}";
       tls = true;
@@ -51,7 +51,7 @@ in
     ];
 
     script = ''
-      MAILTO="${glauthUsers.lantian.mail}"
+      MAILTO="${glauthUsers.molishanguang.mail}"
 
       [ "$MONITOR_SERVICE_RESULT" = "success" ] && FLAG="⭕️ SUCCESS:" || FLAG="❌ FAILURE:"
 

@@ -13,7 +13,7 @@
     };
     hostname = lib.mkOption {
       type = lib.types.str;
-      default = "${config.name}.lantian.pub";
+      default = "${config.name}.zhyi.cc";
     };
     index = lib.mkOption { type = lib.types.int; };
     tags = lib.mkOption {

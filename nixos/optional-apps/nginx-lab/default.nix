@@ -6,7 +6,7 @@
   ...
 }:
 let
-  labRoot = "/var/www/lab.lantian.pub";
+  labRoot = "/var/www/lab.zhyi.xin";
 in
 {
   sops.secrets.nginx-cgi-ssh-key = {
@@ -16,7 +16,7 @@ in
     group = "nginx";
   };
 
-  lantian.nginxVhosts."lab.lantian.pub" = {
+  lantian.nginxVhosts."lab.zhyi.xin" = {
     listenHTTP.enable = true;
     root = labRoot;
     locations = {
@@ -34,13 +34,13 @@ in
       "/public".enableAutoIndex = true;
       "/zjui-ece385-scoreboard".disableLiveCompression = true;
 
-      # 307 to tools.lantian.pub
-      "/dngzwxdq".return = "307 https://tools.lantian.pub$request_uri";
-      "/dnyjzsxj".return = "307 https://tools.lantian.pub$request_uri";
-      "/glibc-for-debian-10-on-openvz".return = "307 https://tools.lantian.pub$request_uri";
-      "/mota-24".return = "307 https://tools.lantian.pub$request_uri";
-      "/mota-51".return = "307 https://tools.lantian.pub$request_uri";
-      "/mota-xinxin".return = "307 https://tools.lantian.pub$request_uri";
+      # 307 to tools.zhyi.xin
+      "/dngzwxdq".return = "307 https://tools.zhyi.xin$request_uri";
+      "/dnyjzsxj".return = "307 https://tools.zhyi.xin$request_uri";
+      "/glibc-for-debian-10-on-openvz".return = "307 https://tools.zhyi.xin$request_uri";
+      "/mota-24".return = "307 https://tools.zhyi.xin$request_uri";
+      "/mota-51".return = "307 https://tools.zhyi.xin$request_uri";
+      "/mota-xinxin".return = "307 https://tools.zhyi.xin$request_uri";
     };
 
     phpfpmSocket = config.services.phpfpm.pools.lab.socket;
@@ -84,7 +84,7 @@ in
     ];
 
     serviceConfig = LT.serviceHarden // {
-      ReadWritePaths = [ "/var/www/lab.lantian.pub" ];
+      ReadWritePaths = [ "/var/www/lab.zhyi.xin" ];
     };
   };
 
@@ -94,7 +94,7 @@ in
         argument = "/nix/sync-servers/ltnet-scripts";
       };
       "${labRoot}/testssl.html"."L+" = {
-        argument = "/nix/sync-servers/www/lab.lantian.pub/testssl.htm";
+        argument = "/nix/sync-servers/www/lab.zhyi.xin/testssl.htm";
       };
     };
   };

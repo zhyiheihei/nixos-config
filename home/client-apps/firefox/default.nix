@@ -84,7 +84,7 @@ let
         # keep-sorted start
         "browser.aboutConfig.showWarning" = false;
         # AI Sidebar
-        "browser.ml.chat.provider" = "https://ai.xuyh0120.win";
+        "browser.ml.chat.provider" = "https://ai.zhyi.xin";
         "browser.tabs.groups.enabled" = false;
         "browser.tabs.groups.smart.enabled" = false;
         "browser.tabs.unloadTabInContextMenu" = true;

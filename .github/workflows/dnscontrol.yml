@@ -57,7 +57,7 @@ jobs:
       - name: Rsync zone files over SSH
         run: |
           sudo apt-get install -y rsync
-          rsync -avzr -e "ssh -p2222" ci@rsync-ci.xuyh0120.win:/ltnet-zones/ zones/ || true
+          rsync -avzr -e "ssh -p2222" ci@rsync-ci.zhyi.cc:/ltnet-zones/ zones/ || true
 
       - name: Apply DNSControl changes
         run: nix run ".#dnscontrol" -- push
@@ -65,4 +65,4 @@ jobs:
       - name: Rsync zone files over SSH
         run: |
           sudo apt-get install -y rsync
-          rsync -avzr --delete-after -e "ssh -p2222" zones/ ci@rsync-ci.xuyh0120.win:/ltnet-zones/
+          rsync -avzr --delete-after -e "ssh -p2222" zones/ ci@rsync-ci.zhyi.cc:/ltnet-zones/

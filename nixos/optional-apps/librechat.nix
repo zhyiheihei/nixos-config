@@ -39,7 +39,7 @@ in
       PORT = LT.portStr.Librechat;
 
       MONGO_URI = "mongodb://127.0.0.1:27017/LibreChat";
-      OPENID_ISSUER = "https://login.lantian.pub";
+      OPENID_ISSUER = "https://login.zhyi.xin";
       OPENID_CLIENT_ID = "librechat";
       OPENID_CALLBACK_URL = "/oauth/openid/callback";
       OPENID_SCOPE = "openid profile email groups";
@@ -53,8 +53,8 @@ in
       ALLOW_SOCIAL_LOGIN = "true";
       ALLOW_SOCIAL_REGISTRATION = "true";
 
-      DOMAIN_CLIENT = "https://ai.xuyh0120.win";
-      DOMAIN_SERVER = "https://ai.xuyh0120.win";
+      DOMAIN_CLIENT = "https://ai.zhyi.xin";
+      DOMAIN_SERVER = "https://ai.zhyi.xin";
 
       # Avoid duplicate compression
       DISABLE_COMPRESSION = "true";
@@ -104,7 +104,7 @@ in
   };
 
   lantian.nginxVhosts = {
-    "ai.xuyh0120.win" = {
+    "ai.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.Librechat}";
