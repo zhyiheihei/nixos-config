@@ -99,7 +99,7 @@ in
                       '$status $body_bytes_sent "$http_referer" "$http_user_agent" '
                       'JA4=$http_ssl_ja4 JA4H=$http_ssl_ja4h JA4ONE=$http_ssl_ja4one';
       access_log syslog:server=unix:/dev/log,nohostname main if=$is_not_healthcheck_user_agent;
-      more_set_headers "Server: lantian/${config.networking.hostName}";
+      more_set_headers "Server: zhyi/${config.networking.hostName}";
 
       # set to aio on; for io_uring support
       aio on;

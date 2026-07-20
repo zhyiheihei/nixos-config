@@ -142,7 +142,7 @@
         command = toString (
           pkgs.writeShellScript "mcp-caldav" ''
             export CALDAV_BASE_URL=https://cal.zhyi.xin
-            export CALDAV_USERNAME=lantian
+            export CALDAV_USERNAME=zhyi
             export CALDAV_PASSWORD=$(cat "${config.sops.secrets.default-pw.path}")
             exec ${pkgs.nodejs}/bin/npx -y caldav-mcp
           ''

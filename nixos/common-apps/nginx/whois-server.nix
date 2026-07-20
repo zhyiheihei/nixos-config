@@ -23,16 +23,16 @@
 
           proxy_pass http://unix:${config.lantian.nginxVhosts."stage1.whois.local".listenHTTP_Socket.socket};
           proxy_set_header Host "stage1.whois.local";
-          add_before_body /lantian-prepend;
+          add_before_body /zhyi-prepend;
 
           limit_req zone=slow burst=5 nodelay;
           limit_req_status 429;
         '';
 
         # Prepend isn't working now, not sure why
-        "/lantian-prepend".extraConfig = ''
+        "/zhyi-prepend".extraConfig = ''
           internal;
-          return 200 "% Lan Tian Nginx-based WHOIS Server\n% GET $request_uri:\n\n";
+          return 200 "% ZHYI Nginx-based WHOIS Server\n% GET $request_uri:\n\n";
         '';
       };
 
