@@ -35,7 +35,7 @@
   # Keep author-style server metadata even without enabling the dn42 tag;
   # BIRD's LTNET config reads dn42.region for all server hosts.
   dn42 = {
-    IPv4 = "172.22.76.115";
+    IPv4 = "172.20.46.226";
     region = 42;
   };
 }

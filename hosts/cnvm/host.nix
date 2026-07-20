@@ -2,7 +2,6 @@
 {
   index = 119;
   tags = with tags; [
-    dn42
     low-disk
     low-ram
     public-facing

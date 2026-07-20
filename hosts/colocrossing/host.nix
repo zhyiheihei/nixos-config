@@ -2,7 +2,6 @@
 {
   index = 18;
   tags = with tags; [
-    dn42
     lan-access
     public-facing
     server
