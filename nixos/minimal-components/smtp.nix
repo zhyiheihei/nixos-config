@@ -51,7 +51,7 @@ in
     ];
 
     script = ''
-      MAILTO="${glauthUsers.molishanguang.mail}"
+      MAILTO="${glauthUsers.lantian.mail}"
 
       [ "$MONITOR_SERVICE_RESULT" = "success" ] && FLAG="⭕️ SUCCESS:" || FLAG="❌ FAILURE:"
 
