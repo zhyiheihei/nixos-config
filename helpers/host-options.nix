@@ -99,21 +99,6 @@
     };
 
     ltnet = {
-      endpointOverrides = lib.mkOption {
-        type = lib.types.attrsOf lib.types.str;
-        default = { };
-        description = "Per-peer WireGuard endpoint overrides for dynamic public addresses.";
-      };
-      peers = lib.mkOption {
-        type = lib.types.nullOr (lib.types.listOf lib.types.str);
-        default = null;
-        description = "Explicit LTNET peers; null keeps the original full mesh.";
-      };
-      routeReflectorClients = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        description = "LTNET peers treated as BGP route-reflector clients.";
-      };
       IPv4 = lib.mkOption {
         type = lib.types.str;
         readOnly = true;

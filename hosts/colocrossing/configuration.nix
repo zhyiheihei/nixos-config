@@ -60,29 +60,6 @@
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
 
-  systemd.network.networks.wgmesh117.linkConfig.MTUBytes = lib.mkForce 1280;
-
-  systemd.services.wg-mesh-wstunnel-jpvm = {
-    description = "WireGuard mesh WebSocket tunnel to JPVM";
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-    script = ''
-      exec ${pkgs.wstunnel}/bin/wstunnel client \
-        --log-lvl WARN \
-        --tls-verify-certificate \
-        --http-upgrade-path-prefix ltnet-wg \
-        --websocket-ping-frequency-sec 10 \
-        -L 'udp://127.0.0.1:10018:127.0.0.1:10018?timeout_sec=0' \
-        wss://jp.zhyi.cc:443
-    '';
-    serviceConfig = LT.serviceHarden // {
-      DynamicUser = true;
-      Restart = "always";
-      RestartSec = 5;
-    };
-  };
-
   networking.hosts.${LT.this.interconnect.IPv4} = [ "vaults3.zhyi.cc" ];
 
   # Keep the manually forwarded UDP 9994 bound to the dedicated controller.

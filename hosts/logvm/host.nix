@@ -19,7 +19,6 @@
   };
 
   zerotier = "cba3cdffbf";
-  ltnet.peers = [ "colocrossing" ];
 
   dn42 = {
     IPv4 = "172.20.46.228";
