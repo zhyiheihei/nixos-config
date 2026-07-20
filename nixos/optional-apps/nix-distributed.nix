@@ -58,7 +58,7 @@ in
 {
   options.lantian.nix-distributed.sshKeyPath = lib.mkOption {
     type = lib.types.str;
-    default = "/home/lantian/.ssh/id_ed25519";
+    default = "/home/zhyi/.ssh/id_ed25519";
   };
 
   config = {

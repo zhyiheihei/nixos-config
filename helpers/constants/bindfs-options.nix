@@ -1,7 +1,7 @@
 _: rec {
   bindfsMountOptions = bindfsMountOptions' [
-    "force-user=lantian"
-    "force-group=lantian"
+    "force-user=zhyi"
+    "force-group=zhyi"
     "create-for-user=root"
     "create-for-group=root"
   ];

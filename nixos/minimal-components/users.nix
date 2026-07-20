@@ -8,7 +8,7 @@ let
   # unixHashedPassword = import (inputs.secrets + "/unix-hashed-pw.nix");
   glauthUsers = import (inputs.secrets + "/glauth-users.nix");
   unixHashedPassword = glauthUsers.lantian.passBcrypt;
-  sshKeys = import (inputs.secrets + "/ssh/lantian.nix");
+  sshKeys = import (inputs.secrets + "/ssh/zhyi.nix");
   sshKeysForNixBuilder = import (inputs.secrets + "/ssh/nix-builder.nix");
 in
 {
@@ -16,14 +16,14 @@ in
     mode = "0644";
     text = ''
       root:100000:65536
-      lantian:200000:65536
+      zhyi:200000:65536
     '';
   };
   environment.etc.subgid = {
     mode = "0644";
     text = ''
       root:100000:65536
-      lantian:200000:65536
+      zhyi:200000:65536
     '';
   };
 
@@ -40,12 +40,12 @@ in
       openssh.authorizedKeys.keys = sshKeys;
       linger = LT.this.hasTag LT.tags.client;
     };
-    lantian = {
+    zhyi = {
       hashedPassword = lib.mkForce unixHashedPassword;
       isNormalUser = true;
       isSystemUser = lib.mkForce false;
       description = "Lan Tian";
-      group = "lantian";
+      group = "zhyi";
       extraGroups = [
         # keep-sorted start
         "dialout"
@@ -70,7 +70,7 @@ in
   };
 
   users.groups = {
-    lantian = {
+    zhyi = {
       gid = 1000;
     };
     nix-builder = { };

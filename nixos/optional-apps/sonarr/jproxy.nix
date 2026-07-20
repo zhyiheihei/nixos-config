@@ -41,7 +41,7 @@
       StateDirectory = "jproxy";
       WorkingDirectory = "/var/lib/jproxy";
 
-      User = "lantian";
+      User = "zhyi";
       Group = "users";
     };
   };

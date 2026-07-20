@@ -66,8 +66,8 @@ test -f /boot/grub/i386-pc/btrfs.mod
 
 作者原版使用两类密钥，禁止混用：
 
-1. **个人登录密钥**：公钥来自 secrets 的 `ssh/lantian.nix`，用于 root 和
-   `lantian` 的 `authorizedKeys`；私钥由设备所有者在 Bitwarden 中统一管理。
+1. **个人登录密钥**：公钥来自 secrets 的 `ssh/zhyi.nix`，用于 root 和
+   `zhyi` 的 `authorizedKeys`；私钥由设备所有者在 Bitwarden 中统一管理。
 2. **每主机 host key**：私钥保存在
    `/nix/persistent/etc/ssh/ssh_host_ed25519_key`，既用于 SSH 服务器身份，也由
    `sops.age.sshKeyPaths` 用作该主机的 SOPS age 解密身份；公钥写入

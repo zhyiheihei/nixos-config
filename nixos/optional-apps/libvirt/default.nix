@@ -23,5 +23,5 @@
     };
   };
 
-  users.users.lantian.extraGroups = [ "libvirtd" ];
+  users.users.zhyi.extraGroups = [ "libvirtd" ];
 }

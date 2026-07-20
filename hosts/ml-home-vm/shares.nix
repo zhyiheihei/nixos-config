@@ -12,7 +12,7 @@
 
   services.nfs.server.exports =
     let
-      opts = "rw,insecure,no_subtree_check,mountpoint,all_squash,fsid=1,anonuid=${builtins.toString config.users.users.lantian.uid},anongid=${builtins.toString config.users.groups.lantian.gid}";
+      opts = "rw,insecure,no_subtree_check,mountpoint,all_squash,fsid=1,anonuid=${builtins.toString config.users.users.zhyi.uid},anongid=${builtins.toString config.users.groups.zhyi.gid}";
       hostOpts = lib.concatMapStringsSep " " (ip: "${ip}(${opts})") (
         lib.mapAttrsToList (_: host: host.ltnet.IPv4) (LT.hostsWithTag LT.tags."lan-access")
       );
@@ -30,7 +30,7 @@
     "directory mask" = "0755";
     "force user" = "root";
     "force group" = "users";
-    "valid users" = "lantian";
+    "valid users" = "zhyi";
     "veto files" = "/._*/.DS_Store/Thumbs.db/";
     "delete veto files" = "yes";
   };
@@ -47,7 +47,7 @@
         "force-user=sftp"
         "force-group=sftp"
         "perms=700"
-        "create-for-user=lantian"
+        "create-for-user=zhyi"
         "create-for-group=users"
         "create-with-perms=755"
         "chmod-ignore"
@@ -59,10 +59,10 @@
       depends = [ "/mnt/storage" ];
       options = LT.constants.bindfsMountOptions' [
         "_netdev"
-        "force-user=lantian"
-        "force-group=lantian"
+        "force-user=zhyi"
+        "force-group=zhyi"
         "perms=700"
-        "create-for-user=lantian"
+        "create-for-user=zhyi"
         "create-for-group=users"
         "create-with-perms=755"
         "chmod-ignore"

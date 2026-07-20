@@ -8,7 +8,7 @@
       user = v.serviceConfig.User or "";
     in
     {
-      assertion = (user != "root" && user != "lantian") || (!du && du != "yes");
+      assertion = (user != "root" && user != "zhyi") || (!du && du != "yes");
       message = "${n} has DynamicUser enabled for ${user}";
     }
   ) config.systemd.services;

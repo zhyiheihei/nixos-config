@@ -22,5 +22,5 @@
   # Don't autoload as it conflicts with physical camera on some programs
   # boot.kernelModules = [ "v4l2loopback" ];
 
-  users.users.lantian.extraGroups = [ "video" ];
+  users.users.zhyi.extraGroups = [ "video" ];
 }

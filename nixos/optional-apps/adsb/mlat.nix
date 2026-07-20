@@ -23,7 +23,7 @@
         altitudeFile = config.sops.secrets.adsb-alt.path;
 
         inputConnect = "${LT.this.ltnet.IPv4}:${LT.portStr.ADSB.BeastOutput}";
-        mlatUser = "lantian";
+        mlatUser = "zhyi";
         uuidFile = config.sops.secrets.adsb-uuid.path;
       })
       {

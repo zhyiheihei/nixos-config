@@ -3,11 +3,11 @@ _: {
     targets = {
       firefox = {
         colorTheme.enable = true;
-        profileNames = [ "lantian" ];
+        profileNames = [ "zhyi" ];
       };
       librewolf = {
         colorTheme.enable = true;
-        profileNames = [ "lantian" ];
+        profileNames = [ "zhyi" ];
       };
     };
   };

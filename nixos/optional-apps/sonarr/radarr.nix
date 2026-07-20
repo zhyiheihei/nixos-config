@@ -7,7 +7,7 @@
 {
   services.radarr = {
     enable = true;
-    user = "lantian";
+    user = "zhyi";
     group = "users";
     dataDir = "/var/lib/radarr";
   };

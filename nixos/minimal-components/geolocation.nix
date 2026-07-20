@@ -32,7 +32,7 @@ in
     geoProviderUrl = "https://api.beacondb.net/v1/geolocate";
     submitData = false;
     submissionUrl = "https://api.beacondb.net/v2/geosubmit";
-    submissionNick = "lantian";
+    submissionNick = "zhyi";
   };
 
   environment.systemPackages = lib.optionals config.services.geoclue2.enable [

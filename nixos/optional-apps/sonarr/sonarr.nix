@@ -7,7 +7,7 @@
 {
   services.sonarr = {
     enable = true;
-    user = "lantian";
+    user = "zhyi";
     group = "users";
     dataDir = "/var/lib/sonarr";
   };

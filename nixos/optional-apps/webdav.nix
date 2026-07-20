@@ -5,8 +5,8 @@
 {
   services.webdav = {
     enable = true;
-    user = "lantian";
-    group = "lantian";
+    user = "zhyi";
+    group = "zhyi";
     settings = {
       address = "unix:/run/webdav/webdav.sock";
       directory = "/mnt/storage";
@@ -15,7 +15,7 @@
       noPassword = true;
       users = [
         {
-          username = "lantian";
+          username = "zhyi";
         }
       ];
     };

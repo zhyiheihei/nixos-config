@@ -43,7 +43,7 @@
 #       };
 #       initial_session = {
 #         command = "startplasma-wayland";
-#         user = "lantian";
+#         user = "zhyi";
 #       };
 #     };
 #   };

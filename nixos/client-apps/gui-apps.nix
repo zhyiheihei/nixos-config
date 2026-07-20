@@ -19,5 +19,5 @@
 
   services.udev.packages = with pkgs; [ libfido2 ];
 
-  users.users.lantian.extraGroups = [ "wireshark" ];
+  users.users.zhyi.extraGroups = [ "wireshark" ];
 }
