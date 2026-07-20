@@ -78,7 +78,7 @@ let
       ${forwardZone "0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa" "K0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa.+013+11807"}
 
       # LTNET Public Facing Addressing
-      ${forwardZone "asn.zhyi.cc" "Kasn.zhyi.cc.+013+48539"}
+      ${forwardZone "asn.zhyi.cc" "Kasn.lantian.pub.+013+48539"}
 
       # LTNET Authoritative
       ${forwardZone "18.198.in-addr.arpa" null}
