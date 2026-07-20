@@ -49,9 +49,13 @@
           style = "row";
           columns = 3;
         };
-        "媒体管理" = {
+        "下载与媒体链路" = {
           style = "row";
           columns = 3;
+        };
+        "本机工具" = {
+          style = "row";
+          columns = 4;
         };
       };
       # Ignore errors for network instability
