@@ -103,6 +103,7 @@ rec {
     Attic = 13803;
     qBitTorrent.WebUI = 13808;
     qBitTorrentPT.WebUI = 13809;
+    qBitTorrentSeedbox.WebUI = 13830;
     SakuraLLM = 13810;
     Metapi = 13811;
     HomepageDashboard = 13812;
