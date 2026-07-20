@@ -9,6 +9,7 @@ let
   defaultDownloadPath = "/mnt/storage/downloads";
   qBitTorrentPTSonarrDownloadPath = "/mnt/storage/.downloads-qb-pt";
   qBitTorrentSonarrDownloadPath = "/mnt/storage/.downloads-qb";
+  qBitTorrentSeedboxDownloadPath = "/mnt/storage/.downloads-qb-seedbox";
   flexgetAutoDownloadPath = "/mnt/storage/.downloads-auto";
   cloudMusicPath = "/mnt/storage/media/CloudMusic";
   cloudMusicArchivePath = "/mnt/storage/media/CloudMusicArchive";
@@ -25,6 +26,7 @@ in
     ../../nixos/optional-apps/peerbanhelper.nix
     ../../nixos/optional-apps/qbittorrent.nix
     ../../nixos/optional-apps/qbittorrent-pt.nix
+    ../../nixos/optional-apps/qbittorrent-seedbox.nix
     ../../nixos/optional-apps/sonarr
 
     ../../nixos/optional-cron-jobs/flexget
@@ -54,6 +56,11 @@ in
       group = "users";
     };
     "${qBitTorrentSonarrDownloadPath}".d = {
+      mode = "755";
+      user = "lantian";
+      group = "users";
+    };
+    "${qBitTorrentSeedboxDownloadPath}".d = {
       mode = "755";
       user = "lantian";
       group = "users";
@@ -129,6 +136,12 @@ in
       flexgetAutoDownloadPath
       qBitTorrentPTSonarrDownloadPath
     ];
+  };
+
+  systemd.services.qbittorrent-seedbox = {
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
+    serviceConfig.BindPaths = [ qBitTorrentSeedboxDownloadPath ];
   };
 
   systemd.services.podman-archivebox = {
