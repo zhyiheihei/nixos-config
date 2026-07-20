@@ -68,9 +68,17 @@ rec {
     '';
     storagebox = ''
       [repository]
-      repository = "rclone:storagebox:rustic-backup"
+      repository = "opendal:sftp"
       password-file = "${config.sops.secrets.restic-pw.path}"
       cache-dir = "/var/cache/restic/storagebox"
+
+      [repository.options]
+      user = "sftp"
+      endpoint = "ssh://sftp.ml-home-vm.zhyi.cc:2222"
+      key = "${config.sops.secrets.sftp-privkey.path}"
+      root = "/backups/rustic-storagebox"
+      known_hosts_strategy = "Accept"
+      enable_copy = "true"
 
       [backup]
       git-ignore = true
@@ -101,18 +109,6 @@ rec {
     in
     pkgs.writeShellScriptBin "rustic-${k}" ''
       export RUSTIC_USE_PROFILE=${configFile}
-      ${lib.optionalString (k == "storagebox") ''
-        export PATH=${lib.makeBinPath [ pkgs.rclone ]}:$PATH
-        export AWS_ACCESS_KEY_ID="$(cat ${config.sops.secrets.restic-s3-access-key.path})"
-        export AWS_SECRET_ACCESS_KEY="$(cat ${config.sops.secrets.restic-s3-secret-key.path})"
-        export RCLONE_CONFIG_STORAGEBOX_TYPE=s3
-        export RCLONE_CONFIG_STORAGEBOX_PROVIDER=Other
-        export RCLONE_CONFIG_STORAGEBOX_ENV_AUTH=true
-        export RCLONE_CONFIG_STORAGEBOX_ENDPOINT=https://vaults3.zhyi.cc:8443
-        export RCLONE_CONFIG_STORAGEBOX_REGION=east-1
-        export RCLONE_CONFIG_STORAGEBOX_FORCE_PATH_STYLE=true
-        export RCLONE_CONFIG_STORAGEBOX_NO_CHECK_BUCKET=true
-      ''}
       exec ${lib.getExe pkgs.rustic} "$@"
     ''
   ) resticRepos;
