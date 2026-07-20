@@ -19,7 +19,7 @@ in
     ];
     script = ''
       FAX_DIR="/var/lib/asterisk/fax"
-      MAILTO="${glauthUsers.lantian.mail}"
+      MAILTO="${glauthUsers.zhyi.mail}"
       FROM="${config.programs.msmtp.accounts.default.from}"
 
       mkdir -p "$FAX_DIR"

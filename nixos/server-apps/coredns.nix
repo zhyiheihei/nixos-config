@@ -78,7 +78,7 @@ let
       ${forwardZone "0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa" "K0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa.+013+11807"}
 
       # LTNET Public Facing Addressing
-      ${forwardZone "asn.lantian.pub" "Kasn.lantian.pub.+013+48539"}
+      ${forwardZone "asn.zhyi.cc" "Kasn.zhyi.cc.+013+54715"}
 
       # LTNET Authoritative
       ${forwardZone "18.198.in-addr.arpa" null}
@@ -363,8 +363,8 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
               path = "ltnet-zones/0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa";
             }
             {
-              domain = "asn.lantian.pub";
-              path = "ltnet-scripts/zones/asn.lantian.pub";
+              domain = "asn.zhyi.cc";
+              path = "ltnet-scripts/zones/asn.zhyi.cc";
             }
             {
               domain = "18.198.in-addr.arpa";
