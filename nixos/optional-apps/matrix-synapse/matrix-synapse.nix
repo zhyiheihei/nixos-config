@@ -78,7 +78,7 @@ in
         ++ LT.constants.dn42.IPv6
         ++ LT.constants.neonetwork.IPv4
         ++ LT.constants.neonetwork.IPv6;
-      admin_contact = glauthUsers.lantian.mail;
+      admin_contact = glauthUsers.zhyi.mail;
 
       forgotten_room_retention_period = "7d";
 

@@ -217,7 +217,7 @@
           name = "admin";
           # email_configs = [
           #   {
-          #     to = glauthUsers.lantian.mail;
+          #     to = glauthUsers.zhyi.mail;
           #     send_resolved = true;
           #     threading = {
           #       enabled = true;

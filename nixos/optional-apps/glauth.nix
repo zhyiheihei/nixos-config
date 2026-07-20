@@ -36,10 +36,10 @@ let
       name = "zhyi"
       givenname = "Zh"
       sn = "Yi"
-      mail = "${glauthUsers.lantian.mail}"
+      mail = "${glauthUsers.zhyi.mail}"
       uidnumber = 1000
       primarygroup = 100
-      passbcrypt = "${hexdump glauthUsers.lantian.passBcrypt}"
+      passbcrypt = "${hexdump glauthUsers.zhyi.passBcrypt}"
       [[users.customattributes]]
         displayName = ["Zh Yi"]
 

@@ -29,7 +29,7 @@ in
       dnsProvider = "gcore";
       dnsResolver = "8.8.8.8:53";
       dnsPropagationCheck = false;
-      email = glauthUsers.lantian.mail;
+      email = glauthUsers.zhyi.mail;
       environmentFile = [ config.sops.secrets.lego-env.path ];
       postRun = ''
         CERT=$(basename $(pwd))
