@@ -120,6 +120,13 @@ in
   };
 
   systemd.services.qbittorrent = {
+    preStart = lib.mkAfter ''
+      config=/var/lib/qbittorrent/qBittorrent/config/qBittorrent.conf
+      if [ -f "$config" ]; then
+        sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
+        sed -i "/^\[Preferences\]$/a WebUI\\LocalHostAuth=true" "$config"
+      fi
+    '';
     after = [ "mnt-storage.mount" ];
     requires = [ "mnt-storage.mount" ];
     serviceConfig.BindPaths = [
