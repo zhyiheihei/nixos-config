@@ -3,7 +3,6 @@
   config,
   inputs,
   lib,
-  pkgs,
   ...
 }:
 {
@@ -21,12 +20,6 @@
   };
   systemd.services.prometheus-storagebox-exporter.serviceConfig = {
     DynamicUser = lib.mkForce false;
-    ExecCondition = pkgs.writeShellScript "check-hetzner-storagebox-token" ''
-      status=$(${lib.getExe pkgs.curl} --silent --output /dev/null --write-out '%{http_code}' \
-        --header "Authorization: Bearer $(cat ${config.sops.secrets.hetzner-storagebox-metrics-token.path})" \
-        https://api.hetzner.cloud/v1/servers)
-      test "$status" = 200
-    '';
   };
   users.users.storagebox-exporter = {
     group = "storagebox-exporter";

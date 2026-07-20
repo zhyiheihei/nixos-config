@@ -8,18 +8,53 @@
 let
   blackboxExporterHost = "${config.services.prometheus.exporters.blackbox.listenAddress}:${builtins.toString config.services.prometheus.exporters.blackbox.port}";
 
-  ownPublicSites = lib.filter (
-    site:
-    site == "zhyi.xin"
-    || lib.hasSuffix ".zhyi.xin" site
-    || lib.hasSuffix ".zhyi.cc" site
-  ) LT.constants.publicSites;
+  httpMonitorTargets = [
+    # SSL tests
+    "https://google-ssl.zhyi.xin"
+    "https://google-test-ssl.zhyi.xin"
+    "https://letsencrypt-ssl.zhyi.xin"
+    "https://letsencrypt-test-ssl.zhyi.xin"
+    "https://zerossl.zhyi.xin"
 
-  httpMonitorTargets = builtins.map (site: "https://${site}") ownPublicSites;
+    # Services under zhyi.xin
+    "https://ai.zhyi.xin"
+    "https://api.zhyi.xin"
+    "https://attic.zhyi.xin"
+    "https://avatar.zhyi.xin"
+    "https://bitwarden.zhyi.xin"
+    "https://cal.zhyi.xin"
+    "https://element.zhyi.xin"
+    "https://filebox.zhyi.xin"
+    "https://git.zhyi.xin"
+    "https://id.zhyi.xin"
+    "https://lemmy.zhyi.xin"
+    "https://login.zhyi.xin"
+    "https://matrix.zhyi.xin/_matrix/client/versions"
+    "https://n8n.zhyi.xin"
+    "https://pb.zhyi.xin"
+    "https://posts.zhyi.xin"
+    "https://stats.zhyi.xin"
+    "https://tools.zhyi.xin"
+    "https://whois.zhyi.xin"
+    "https://www.zhyi.xin"
+    "https://zhyi.xin"
+
+    # Services under zhyi.cc
+    "https://alert.zhyi.cc"
+    "https://couchdb.zhyi.cc"
+    "https://dashboard.zhyi.cc"
+    "https://flapalerted.zhyi.cc"
+    "https://hydra.zhyi.cc"
+    "https://lg.zhyi.cc"
+    "https://netbox.zhyi.cc"
+    "https://prometheus.zhyi.cc"
+    "https://qnap.zhyi.cc"
+    "https://vaults3.zhyi.cc"
+  ];
 
   monitoredHosts = lib.filterAttrs (
     n: v: v.hasTag LT.tags.server && v.hasTag LT.tags.public-facing
-  ) LT.activeHosts;
+  ) LT.hosts;
 
   monitoredHostsExceptSelf = lib.filterAttrs (n: _: n != config.networking.hostName) monitoredHosts;
 

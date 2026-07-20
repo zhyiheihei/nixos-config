@@ -8,10 +8,6 @@
 }:
 let
   netns = config.lantian.netns.plausible;
-  plausiblePackage = inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.plausible;
-  geonames = pkgs.runCommand "plausible-geonames.csv" { } ''
-    cp "$(find ${plausiblePackage}/lib -path '*/priv/geonames.lite.csv' -print -quit)" "$out"
-  '';
 in
 {
   imports = [
@@ -34,7 +30,7 @@ in
   services.plausible = {
     enable = true;
     # Latest version on nixos-unstable times out
-    package = plausiblePackage;
+    package = inputs.nixpkgs-stable.legacyPackages.${pkgs.stdenv.hostPlatform.system}.plausible;
 
     mail = {
       email = config.programs.msmtp.accounts.default.from;
@@ -87,7 +83,7 @@ in
         ERL_EPMD_ADDRESS = "127.0.0.1";
 
         GEOLITE2_COUNTRY_DB = "/etc/geoip/GeoLite2-Country.mmdb";
-        GEONAMES_SOURCE_FILE = geonames;
+        GEONAMES_SOURCE_FILE = "/var/lib/plausible/geonames.csv";
         IP_GEOLOCATION_DB = "/etc/geoip/GeoLite2-City.mmdb";
 
         STORAGE_DIR = lib.mkForce "/run/plausible/elixir_tzdata";
