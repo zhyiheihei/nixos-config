@@ -1,4 +1,18 @@
-{ pkgs, LT, ... }:
+{
+  inputs,
+  lib,
+  pkgs,
+  LT,
+  ...
+}:
+let
+  adminSSHKeys = import (inputs.secrets + "/ssh/lantian.nix");
+  deploySSHKey = lib.findFirst (
+    (key: lib.hasSuffix " github-bot" key)
+    (throw "github-bot SSH public key not found")
+    adminSSHKeys;
+  deploySSHKeyFile = pkgs.writeText "github-bot.pub" "${deploySSHKey}\n";
+in
 {
   imports = [
     ../../nixos/minimal.nix
@@ -29,6 +43,12 @@
   };
 
   services.openssh.settings.MaxStartups = "64:30:128";
+
+  programs.ssh.extraConfig = lib.mkBefore ''
+    Host *.zhyi.cc 36.50.85.113
+      IdentityFile ${deploySSHKeyFile}
+      IdentitiesOnly yes
+  '';
 
   environment.systemPackages = with pkgs; [
     age
