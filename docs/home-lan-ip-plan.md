@@ -11,6 +11,7 @@ the DHCP pool; OpenWrt allocates dynamic leases from `192.168.2.100` upward.
 | `192.168.2.52` | `colocrossing` | `bc:24:11:39:22:9b` | active Attic and home ingress |
 | `192.168.2.53` | `pve-2700` | `1c:83:41:29:62:48` | retained legacy host, not a current deployment target |
 | `192.168.2.54` | `pve-5700u` | `1c:83:41:40:c0:7a` | active PVE and Hydra host |
+| `192.168.2.55` | `logvm` | managed by its VM configuration | active logging and infrastructure VM |
 | `192.168.2.93` | QNAP NAS | managed outside this repository | active NFS and S3 storage |
 
 Before deploying `ml-home-vm`, allow `192.168.2.51` in the QNAP NFS export

@@ -9,7 +9,7 @@
 | 家庭局域网 | 同一 `home-lan` 的直接管理与服务访问 | `hosts/*/host.nix` 中的 `interconnect.IPv4`，网段 `192.168.2.0/24` |
 | ZeroTier | 设备可达性与无公网节点之间的 WireGuard 建链 | 网络 `466270de75000001`，接口 `zttalxbxtu` |
 | LTNET | 内部服务地址与路由前缀 | `198.18.0.<index>`、`198.18.<index>.0/24`、`fdd8:1938:4e88::<index>` |
-| WireGuard mesh | LTNET 的加密点对点传输 | `wgmesh<peer-index>`，UDP `10000 + 本机 index` |
+| WireGuard mesh | LTNET 的加密点对点传输 | `wgmesh<peer-index>`；本机 UDP 端口为 `10000 + 本机 index` |
 | DN42 | 仅 DN42 节点对外发布的路由 | `172.20.46.224/27`、`fdd8:1938:4e88::/48` |
 
 `interconnect` 优先用于同一局域网的直连。LTNET 的路由由 BIRD 在 WireGuard 链路上交换；ZeroTier 不是 LTNET 的替代品，而是在两个端点都没有可用公网地址时，为 WireGuard 提供可达的底层端点。
@@ -19,15 +19,16 @@
 | 主机 | index | 家庭局域网 IPv4 | ZeroTier 节点 ID | LTNET IPv4 | WireGuard/LTNET 声明 |
 | --- | ---: | --- | --- | --- | --- |
 | `ml-builder` | 114 | `192.168.2.50` | `2c86750714` | `198.18.0.114` | 仅最小系统；不声明 server mesh 对等 |
-| `ml-home-vm` | 115 | `192.168.2.51` | `c340ae9a91` | `198.18.0.115` | 对等 `colocrossing` |
-| `colocrossing` | 18 | `192.168.2.52` | `fd2e98dccf` | `198.18.0.18` | 对等 `jpvm`、`logvm`、`ml-home-vm`；`ml-home-vm` 为路由反射客户端 |
+| `ml-home-vm` | 115 | `192.168.2.51` | `c340ae9a91` | `198.18.0.115` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
+| `colocrossing` | 18 | `192.168.2.52` | `fd2e98dccf` | `198.18.0.18` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
 | `pve-2700` | 113 | `192.168.2.53` | `214f8619a9` | `198.18.0.113` | 当前没有 server mesh 声明 |
 | `pve-5700u` | 116 | `192.168.2.54` | `706ba6d04d` | `198.18.0.116` | 当前没有 server mesh 声明 |
-| `logvm` | 118 | `192.168.2.55` | `cba3cdffbf` | `198.18.0.118` | 对等 `colocrossing` |
-| `jpvm` | 117 | 无 | `a073934677` | `198.18.0.117` | 对等 `colocrossing`、`cnvm`；二者均为路由反射客户端 |
-| `cnvm` | 119 | 无 | `ecd09d7bc2` | `198.18.0.119` | 对等 `jpvm` |
+| `logvm` | 118 | `192.168.2.55` | `cba3cdffbf` | `198.18.0.118` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
+| `jpvm` | 117 | 无 | `a073934677` | `198.18.0.117` | server mesh 全互联；为 WSS/TCP WireGuard transport 服务端 |
+| `cnvm` | 119 | 无 | `ecd09d7bc2` | `198.18.0.119` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
+| `molishanguang-macbook` | 200 | 无 | `174ea952dd` | `198.18.0.200` | 额外 ZeroTier 客户端；不参与 server mesh |
 
-ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index>`，IPv6 为 `fdd8:1938:4e88::<index>`。额外客户端仅在 secrets 的 `zerotier-additional-hosts.nix` 中声明，不能在本文件假定其地址。
+ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index>`，IPv6 为 `fdd8:1938:4e88::<index>`。额外客户端的声明来源仍是 secrets 的 `zerotier-additional-hosts.nix`；上表只记录已授权的 Mac 固定分配。
 
 ## WireGuard 与 LTNET
 
@@ -35,12 +36,20 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 | --- | --- |
 | 私钥 | 每台启用 mesh 的主机从 `per-host/wg-priv/<hostname>.yaml` 由 SOPS 解密 |
 | 公钥 | 由 secrets 的 `wg-pubkey.nix` 提供；不在仓库文档中复制 |
-| 对等选择 | 仅 `server` 主机，且双方有 ZeroTier ID；`ltnet.peers` 非空时只建立列表中的对等 |
-| 端点选择 | 同一 `interconnect.name` 时走局域网；双方无公网地址时走对端 LTNET/ZeroTier 地址；否则走公网地址 |
+| 对等选择 | 当前五台 `server` 主机全互联：`ml-home-vm`、`colocrossing`、`jpvm`、`logvm`、`cnvm` |
+| 端点选择 | 同一 `interconnect.name` 时走局域网；通常跨网段走公网或 LTNET/ZeroTier 可达地址；到 `jpvm` 的四条跨网段链路由 WSS/TCP transport 接管 |
+| TCP transport | `ml-home-vm`、`colocrossing`、`logvm`、`cnvm` 将到 `jpvm` 的 WireGuard UDP 封装进本地 WSS/TCP `443`；WireGuard 本体只在本机回环与 `wstunnel` 间通信 |
 | 路由 | BIRD 通过每条 `wgmesh<peer-index>` 链路上的 IPv6 link-local iBGP 交换 LTNET、DN42 与附加路由 |
 | 可观察性 | WireGuard exporter 监听本机 LTNET IPv4；BIRD 配置见 `nixos/server-apps/bird/config/ltnet.nix` |
 
 当前 DN42 前缀只由 `colocrossing` 宣告：`172.20.46.224/27` 与 `fdd8:1938:4e88::/48`。不要将家庭局域网前缀加入 DN42 路由。
+
+## 内部数据库入口
+
+| 服务 | LTNET 地址 | 用途 | 访问范围 |
+| --- | --- | --- | --- |
+| PostgreSQL 18 | `198.18.0.115:5432` | `ml-home-vm` 的应用数据库 | 仅本机与 LTNET；不发布公网 DNS 或反向代理 |
+| `edp-panel` | `postgresql://edp-panel@198.18.0.115:5432/edp-panel` | 临时测试数据库 | 角色仅允许连接自己的数据库；密码不记录在文档 |
 
 ## 域名与入口
 

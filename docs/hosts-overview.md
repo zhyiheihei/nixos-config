@@ -2,7 +2,8 @@
 
 `hosts/<name>/host.nix` 保存主机元数据，`configuration.nix` 保存主机配置，
 `hardware-configuration.nix` 保存硬件与文件系统信息。`hosts/` 只保存 8 台自有
-主机；作者参考配置位于 `hosts-exam/`，不生成可部署的 NixOS configuration。
+主机；作者原版的独立 checkout 位于仓库上级目录 `../nixos-config-exam`，仅用于人工
+对照，不参与当前 flake 求值或部署。
 
 ## 当前自有拓扑
 
@@ -25,19 +26,6 @@
 家庭局域网地址、MAC 与 DHCP 边界以 [家庭局域网 IP 规划](./home-lan-ip-plan.md)
 为准；LTNET、ZeroTier、WireGuard 与 DN42 关系以
 [网络参照](./network-reference.md) 为准。
-
-## 保留的作者参考主机
-
-以下 host 位于 `hosts-exam/`，用于复刻作者模块、硬件与网络结构，不是可部署的
-自有机器。部分旧模块仍通过兼容元数据引用它们，但它们不会出现在 Colmena Hive：
-
-| 类别 | 主机 |
-| --- | --- |
-| 作者公网/DN42 模板 | `alice`、`bwg-lax`、`terrahost`、`v-ps-sea`、`virmach-ny1g`、`virmach-ny6g`、`zgocloud` |
-| 作者家庭客户端与设备模板 | `lt-dell-wyse`、`lt-dell-wyse-thin`、`lt-home-rdp`、`lt-hp-omen` |
-
-这些目录可能包含作者的真实地址、SSH host key 与 DN42 元数据。不要为“清理”而修改它们；
-新增自有机器应复制相近角色的结构，再替换为自己的硬件、地址和密钥。
 
 ## 关键字段
 
