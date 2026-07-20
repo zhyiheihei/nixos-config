@@ -59,7 +59,7 @@ let
         };
         proxy_set_header X-Real-IP ${if config.proxyHideIP then "127.0.0.1" else "$remote_addr"};
         proxy_set_header X-Forwarded-For ${if config.proxyHideIP then "127.0.0.1" else "$remote_addr"};
-        proxy_set_header X-Forwarded-Host $host:${LT.portStr.HTTPS};
+        proxy_set_header X-Forwarded-Host $http_host;
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header X-Forwarded-Server $host;
         proxy_set_header X-Scheme $scheme;
@@ -86,7 +86,7 @@ let
         };
         grpc_set_header X-Real-IP ${if config.proxyHideIP then "127.0.0.1" else "$remote_addr"};
         grpc_set_header X-Forwarded-For ${if config.proxyHideIP then "127.0.0.1" else "$remote_addr"};
-        grpc_set_header X-Forwarded-Host $host:${LT.portStr.HTTPS};
+        grpc_set_header X-Forwarded-Host $http_host;
         grpc_set_header X-Forwarded-Proto $scheme;
         grpc_set_header X-Forwarded-Server $host;
         grpc_set_header X-Scheme $scheme;
