@@ -255,7 +255,7 @@ in
     ];
   };
 
-  lantian.nginxVhosts."matrix-federation.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."matrix-federation.zhyi.xin" = {
     listenHTTPS.port = LT.port.Matrix.Public;
 
     serverAliases = [
@@ -270,11 +270,11 @@ in
       };
     };
 
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 
-  lantian.nginxVhosts."matrix-client.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."matrix-client.zhyi.xin" = {
     serverAliases = [ "matrix.zhyi.xin" ];
     locations = {
       "/" = {
@@ -300,7 +300,7 @@ in
       };
     };
 
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 

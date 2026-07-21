@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  config,
   LT,
   ...
 }:
@@ -45,7 +44,7 @@ let
   );
 in
 lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
-  lantian.nginxVhosts."element.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."element.zhyi.xin" = {
     listenHTTP.enable = true;
     root = builtins.toString (LT.nginx.compressStaticAssets pkgs.element-web);
     locations = {
@@ -56,7 +55,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
       "= /config.json".root = elementConfigPath;
     };
 
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
     disableLiveCompression = true;
   };
