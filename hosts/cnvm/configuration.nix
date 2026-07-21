@@ -53,40 +53,4 @@
       '';
     };
   };
-
-  services.nginx.streamConfig = ''
-    resolver 223.5.5.5 119.29.29.29 valid=60s ipv6=off;
-
-    map $ssl_preread_server_name $https_origin {
-      zhyi.xin 127.0.0.1:${LT.portStr.HTTPS};
-      ~^.+\.zhyi\.xin$ 127.0.0.1:${LT.portStr.HTTPS};
-      cnvm.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
-      default ${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.HTTPSRelay};
-    }
-
-    server {
-      listen 0.0.0.0:443;
-      listen [::]:443;
-      ssl_preread on;
-      proxy_connect_timeout 10s;
-      proxy_timeout 3600s;
-      proxy_pass $https_origin;
-    }
-
-    server {
-      listen 0.0.0.0:${LT.portStr.Matrix.Public};
-      listen [::]:${LT.portStr.Matrix.Public};
-      proxy_connect_timeout 10s;
-      proxy_timeout 3600s;
-      proxy_pass ${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.Matrix.Public};
-    }
-
-    server {
-      listen 0.0.0.0:${LT.portStr.Gitea.SSH};
-      listen [::]:${LT.portStr.Gitea.SSH};
-      proxy_connect_timeout 10s;
-      proxy_timeout 3600s;
-      proxy_pass ${LT.hosts.colocrossing.ltnet.IPv4}:2222;
-    }
-  '';
 }

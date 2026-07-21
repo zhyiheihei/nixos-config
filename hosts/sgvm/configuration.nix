@@ -48,25 +48,4 @@
 
   lantian.nginxVhosts."sg.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
-  # Standard HTTPS ingress for selected low-traffic services. Colocrossing
-  # dispatches the TLS stream to the owning origin by SNI.
-  services.nginx.streamConfig = ''
-    resolver 1.1.1.1 8.8.8.8 valid=60s ipv6=off;
-
-    map $ssl_preread_server_name $https_origin {
-      sg.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
-      uni-api.sgvm.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
-      default ${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.HTTPSRelay};
-    }
-
-    server {
-      listen 0.0.0.0:443;
-      listen [::]:443;
-      ssl_preread on;
-      proxy_connect_timeout 10s;
-      proxy_timeout 3600s;
-      proxy_pass $https_origin;
-    }
-  '';
-
 }
