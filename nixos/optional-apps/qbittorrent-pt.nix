@@ -22,9 +22,10 @@ in
     ];
     wantedBy = [ "multi-user.target" ];
 
-    # The local cleanup job uses the Web API without credentials. Keep remote
-    # WebUI authentication enabled while restoring qBittorrent's old localhost
-    # behavior expected by that job.
+    # Match the author's design: no WebUI authentication. Security relies
+    # on accessibleBy="private" (network-level IP whitelist). This ensures
+    # localhost API calls (Radarr, Sonarr, cleanup job) work without credentials.
+    # Strip any manually-set credentials on each start.
     preStart = ''
       instanceDir=/var/lib/qbittorrent-pt/qBittorrent_pt
       config=$instanceDir/config/qBittorrent.conf
@@ -33,9 +34,10 @@ in
       if ! grep -q '^\[Preferences\]$' "$config"; then
         printf '[Preferences]\n' >> "$config"
       fi
+      sed -i '/^WebUI\\Username=/d' "$config"
+      sed -i '/^WebUI\\Password_PBKDF2=/d' "$config"
       sed -i '/^WebUILocalHostAuth=/d' "$config"
       sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
-      sed -i "/^\[Preferences\]$/a WebUI\\LocalHostAuth=false" "$config"
     '';
 
     serviceConfig = LT.serviceHarden // {
