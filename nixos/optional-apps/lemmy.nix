@@ -40,13 +40,13 @@ in
 
   systemd.services.lemmy-ui.enable = lib.mkForce false;
 
-  lantian.nginxVhosts."lemmy.zhyi.xin" = {
+  lantian.nginxVhosts."lemmy.${config.networking.hostName}.zhyi.cc" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${toString cfg.settings.port}";
       proxyWebsockets = true;
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
     noIndex.enable = true;
     blockMainlandChina = true;
   };

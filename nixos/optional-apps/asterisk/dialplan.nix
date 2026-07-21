@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }@args:
+{ pkgs, lib, config, ... }@args:
 let
   inherit (pkgs.callPackage ./common.nix args) prefixZeros;
   inherit (pkgs.callPackage ./local-devices.nix args) destLocalDialPlan;
@@ -131,9 +131,9 @@ let
   '';
 in
 {
-  lantian.nginxVhosts."sip.zhyi.xin" = {
+  lantian.nginxVhosts."sip.${config.networking.hostName}.zhyi.cc" = {
     root = dialPlanDir;
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
     noIndex.enable = true;
   };
 }
