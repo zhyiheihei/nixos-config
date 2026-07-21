@@ -10,6 +10,7 @@
   hostname = "203.55.176.158";
   city = geo.cities."SG Singapore";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGz0eHtw3CAZuRxtgwaZhcXdZulfgNfczK8l2ZJePOvr";
+  zerotier = "76d1b20a73";
   ltnet.tcpTransportDomain = "sg.zhyi.cc";
   public = {
     IPv4 = "203.55.176.158";
