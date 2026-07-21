@@ -51,7 +51,11 @@ in
             PersistentKeepalive = 15;
           }
           // lib.optionalAttrs (wgEndpoint != null) {
-            Endpoint = "${wgEndpoint}:${builtins.toString (LT.port.WGMesh.Start + LT.this.index)}";
+            Endpoint = "${wgEndpoint}:${builtins.toString (
+              if builtins.hasAttr n LT.this.ltnet.tcpTransportPeers
+              then LT.port.WGMesh.Start + 256 + v.index
+              else LT.port.WGMesh.Start + LT.this.index
+            )}";
           }
         )
       ];

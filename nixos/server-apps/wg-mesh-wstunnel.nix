@@ -8,6 +8,10 @@
 let
   cfg = LT.this.ltnet;
   localPort = builtins.toString (LT.port.WGMesh.Start + LT.this.index);
+  # 每个对端的 wstunnel client 需要不同的本地 UDP 监听端口，避免多 peer 时端口冲突。
+  # 服务端通过 --restrict-to 限制转发目标端口为 WGMesh.Start + 客户端 index，
+  # 因此 -L 的第二个端口（远程目标）必须保持 localPort，第一个端口（本地监听）可改。
+  clientPort = peer: builtins.toString (LT.port.WGMesh.Start + 256 + LT.hosts.${peer}.index);
   tunnelClients = lib.filterAttrs (
     _: host: builtins.hasAttr config.networking.hostName host.ltnet.tcpTransportPeers
   ) LT.otherHosts;
@@ -33,7 +37,7 @@ in
               --tls-verify-certificate \
               --http-upgrade-path-prefix ltnet-wg \
               --websocket-ping-frequency-sec 10 \
-              -L 'udp://127.0.0.1:${localPort}:127.0.0.1:${localPort}?timeout_sec=0' \
+              -L 'udp://127.0.0.1:${clientPort peer}:127.0.0.1:${localPort}?timeout_sec=0' \
               wss://${endpoint}
           '';
           serviceConfig = LT.serviceHarden // {
