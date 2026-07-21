@@ -108,41 +108,6 @@
     noIndex.enable = true;
   };
 
-  # Keep high-traffic services on the home ingress. Public low-traffic
-  # services enter through jpvm, then cross LTNET to this SNI dispatcher.
-  services.nginx.streamConfig = ''
-    map "$remote_addr:$ssl_preread_server_name" $lan_https_upstream {
-      ~^${lib.escapeRegex LT.hosts.jpvm.public.IPv4}:ha\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~:n8n\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~:(alert|dashboard|prometheus)\.zhyi\.cc$ ${LT.hosts.logvm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~:.*\.ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      default 127.0.0.1:${LT.portStr.HTTPS};
-    }
-
-    map $ssl_preread_server_name $ltnet_https_upstream {
-      ~^zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~^(ai|bitwarden|filebox|homepage|immich|index|index-helper)\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~^matrix-federation\.zhyi\.xin$ 127.0.0.1:${LT.portStr.Matrix.Public};
-      ~^n8n\.zhyi\.xin$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~^ha\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~^(alert|dashboard|prometheus)\.zhyi\.cc$ ${LT.hosts.logvm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      ~(^|\.)ml-home-vm\.zhyi\.cc$ ${LT.hosts.ml-home-vm.interconnect.IPv4}:${LT.portStr.HTTPS};
-      default 127.0.0.1:${LT.portStr.HTTPS};
-    }
-
-    server {
-      listen ${LT.this.interconnect.IPv4}:${LT.portStr.HTTPSRelay};
-      proxy_pass $lan_https_upstream;
-      ssl_preread on;
-    }
-
-    server {
-      listen ${LT.this.ltnet.IPv4}:${LT.portStr.HTTPSRelay};
-      proxy_pass $ltnet_https_upstream;
-      ssl_preread on;
-    }
-  '';
-
   virtualisation.oci-containers.containers.byparr.ports = [
     "${LT.this.ltnet.IPv4}:${LT.portStr.FlareSolverr}:8191"
   ];
