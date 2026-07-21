@@ -9,15 +9,17 @@
 let
   user = "zhyi";
   group = "users";
+  downloadPath = "/mnt/storage/.downloads-qb-pt";
 in
 {
   systemd.services.qbittorrent-pt = {
     description = "qbittorrent BitTorrent client";
-    wants = [ "network-online.target" ];
+    wants = [ "network-online.target" "remote-fs.target" ];
     after = [
       "local-fs.target"
       "network-online.target"
       "nss-lookup.target"
+      "remote-fs.target"
     ];
     wantedBy = [ "multi-user.target" ];
 
@@ -25,6 +27,7 @@ in
     # WebUI authentication enabled while restoring qBittorrent's old localhost
     # behavior expected by that job.
     preStart = ''
+      downloadPath=${downloadPath}
       oldDir=/var/lib/qbittorrent-pt/qBittorrent
       instanceDir=/var/lib/qbittorrent-pt/qBittorrent_pt
       if [ -d "$oldDir" ] && [ ! -e "$instanceDir" ]; then
@@ -32,10 +35,15 @@ in
       fi
 
       config=$instanceDir/config/qBittorrent.conf
-      if [ -f "$config" ]; then
-        sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
-        sed -i '/^\[Preferences\]$/a WebUI\\LocalHostAuth=false' "$config"
+      mkdir -p "$(dirname "$config")" "$downloadPath"
+      touch "$config"
+      if ! grep -q '^\[Preferences\]$' "$config"; then
+        printf '[Preferences]\n' >> "$config"
       fi
+      sed -i '/^Downloads\\SavePath=/d' "$config"
+      sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
+      sed -i "/^\[Preferences\]$/a Downloads\\SavePath=$downloadPath/" "$config"
+      sed -i "/^\[Preferences\]$/a WebUI\\LocalHostAuth=false" "$config"
     '';
 
     serviceConfig = LT.serviceHarden // {

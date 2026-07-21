@@ -27,6 +27,20 @@
     IOSchedulingPriority = "7";
   };
 
+  systemd.services.qbittorrent.wants = [ "remote-fs.target" ];
+  systemd.services.qbittorrent.after = [ "remote-fs.target" ];
+  systemd.services.qbittorrent.preStart = ''
+    downloadPath=/mnt/storage/.downloads-qb
+    config=/var/lib/qbittorrent/qBittorrent/config/qBittorrent.conf
+    mkdir -p "$(dirname "$config")" "$downloadPath"
+    touch "$config"
+    if ! grep -q '^\[Preferences\]$' "$config"; then
+      printf '[Preferences]\n' >> "$config"
+    fi
+    sed -i '/^Downloads\\SavePath=/d' "$config"
+    sed -i "/^\[Preferences\]$/a Downloads\\SavePath=$downloadPath/" "$config"
+  '';
+
   lantian.nginxVhosts = {
     "bt.${config.networking.hostName}.zhyi.cc" = {
       locations = {
