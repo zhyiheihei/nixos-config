@@ -131,9 +131,9 @@ let
   '';
 in
 {
-  lantian.nginxVhosts."sip.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."sip.zhyi.xin" = {
     root = dialPlanDir;
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

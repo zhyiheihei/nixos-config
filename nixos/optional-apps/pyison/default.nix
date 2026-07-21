@@ -76,7 +76,7 @@ in
     ];
   };
 
-  lantian.nginxVhosts."posts.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."posts.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.Pyison}";
@@ -86,7 +86,7 @@ in
         '';
       };
     };
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

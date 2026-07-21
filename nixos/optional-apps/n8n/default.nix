@@ -86,7 +86,7 @@
   };
   users.groups.n8n = { };
 
-  lantian.nginxVhosts."n8n.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."n8n.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";
       proxyWebsockets = true;
@@ -102,7 +102,7 @@
       '';
     };
 
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 

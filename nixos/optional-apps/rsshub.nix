@@ -13,14 +13,14 @@
     redis.createLocally = true;
   };
 
-  lantian.nginxVhosts."rsshub.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."rsshub.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.RSSHub}";
       };
     };
 
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
     accessibleBy = "private";
   };

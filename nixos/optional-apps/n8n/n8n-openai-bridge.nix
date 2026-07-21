@@ -68,7 +68,7 @@ in
   };
   users.groups.n8n-openai-bridge = { };
 
-  lantian.nginxVhosts."n8n.${config.networking.hostName}.zhyi.cc".locations."/v1/" = {
+  lantian.nginxVhosts."n8n.zhyi.xin".locations."/v1/" = {
     proxyPass = "http://127.0.0.1:${LT.portStr.N8N-OpenAI-Bridge}";
     proxyNoTimeout = true;
   };
