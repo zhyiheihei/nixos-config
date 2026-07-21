@@ -11,6 +11,7 @@ rec {
     Hack3ricFlow = 180;
     LDAP = 389;
     HTTPS = 443;
+    HTTPSRelay = 8443;
     CUPS = 631;
     LDAPS = 636;
     Rsync = 873;

@@ -131,13 +131,13 @@
     }
 
     server {
-      listen ${LT.this.interconnect.IPv4}:443;
+      listen ${LT.this.interconnect.IPv4}:${LT.portStr.HTTPSRelay};
       proxy_pass $lan_https_upstream;
       ssl_preread on;
     }
 
     server {
-      listen ${LT.this.ltnet.IPv4}:443;
+      listen ${LT.this.ltnet.IPv4}:${LT.portStr.HTTPSRelay};
       proxy_pass $ltnet_https_upstream;
       ssl_preread on;
     }
