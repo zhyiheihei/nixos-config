@@ -22,24 +22,6 @@ in
     ];
     wantedBy = [ "multi-user.target" ];
 
-    # Match the author's design: no WebUI authentication. Security relies
-    # on accessibleBy="private" (network-level IP whitelist). This ensures
-    # localhost API calls (Radarr, Sonarr, cleanup job) work without credentials.
-    # Strip any manually-set credentials on each start.
-    preStart = ''
-      instanceDir=/var/lib/qbittorrent-pt/qBittorrent_pt
-      config=$instanceDir/config/qBittorrent.conf
-      mkdir -p "$(dirname "$config")"
-      touch "$config"
-      if ! grep -q '^\[Preferences\]$' "$config"; then
-        printf '[Preferences]\n' >> "$config"
-      fi
-      sed -i '/^WebUI\\Username=/d' "$config"
-      sed -i '/^WebUI\\Password_PBKDF2=/d' "$config"
-      sed -i '/^WebUILocalHostAuth=/d' "$config"
-      sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
-    '';
-
     serviceConfig = LT.serviceHarden // {
       User = user;
       Group = group;
@@ -49,7 +31,6 @@ in
       ExecStart = utils.escapeSystemdExecArgs [
         (lib.getExe pkgs.qbittorrent-nox)
         "--profile=/var/lib/qbittorrent-pt"
-        "--configuration=pt"
         "--webui-port=${LT.portStr.qBitTorrentPT.WebUI}"
         "--torrenting-port=${builtins.toString (LT.this.wg-zhyi.forwardStart + 1)}"
         "--confirm-legal-notice"
