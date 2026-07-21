@@ -19,7 +19,7 @@
         autoSetupRemote = true;
       };
       user = {
-        name = "moli-pp";
+        name = "Zhyi";
         email = "molishanguang@outlook.com";
       };
 

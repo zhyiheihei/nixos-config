@@ -32,7 +32,7 @@
         # Prepend isn't working now, not sure why
         "/zhyi-prepend".extraConfig = ''
           internal;
-          return 200 "% ZHYI Nginx-based WHOIS Server\n% GET $request_uri:\n\n";
+          return 200 "% Zhyi Nginx-based WHOIS Server\n% GET $request_uri:\n\n";
         '';
       };
 
