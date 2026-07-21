@@ -32,12 +32,12 @@
     RestartSec = 5;
   };
 
-  lantian.nginxVhosts."cal.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."cal.zhyi.xin" = {
     locations = {
       "/".proxyPass = "http://127.0.0.1:${LT.portStr.Radicale}";
     };
 
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     blockDotfiles = false;
     noIndex.enable = true;
   };
