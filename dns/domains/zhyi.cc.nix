@@ -26,6 +26,7 @@ let
     "cnvm"
     "colocrossing"
     "jpvm"
+    "sgvm"
     "ml-builder"
     "ml-home-vm"
     "pve-2700"
