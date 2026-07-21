@@ -76,35 +76,6 @@
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ "openclash.zhyi.cc" ];
     "${LT.this.ltnet.IPv4}" = [ "sftp.ml-home-vm.zhyi.cc" ];
-    "${LT.hosts.colocrossing.interconnect.IPv4}" = [
-      "api.zhyi.xin"
-      "attic.zhyi.xin"
-      "avatar.zhyi.xin"
-      "cal.zhyi.xin"
-      "colocrossing.zhyi.cc"
-      "couchdb.zhyi.cc"
-      "element.zhyi.xin"
-      "flapalerted.zhyi.cc"
-      "git.zhyi.xin"
-      "hydra.zhyi.cc"
-      "lemmy.zhyi.xin"
-      "lg.zhyi.cc"
-      "matrix-client.zhyi.xin"
-      "netbox.zhyi.cc"
-      "pb.zhyi.xin"
-      "posts.zhyi.xin"
-      "qnap.zhyi.cc"
-      "rss.zhyi.xin"
-      "rsshub.zhyi.xin"
-      "stats.zhyi.xin"
-      "syncthing.colocrossing.zhyi.cc"
-      "tools.zhyi.xin"
-      "vaults3.zhyi.cc"
-    ];
-    "${LT.hosts.cnvm.ltnet.IPv4}" = [
-      "id.zhyi.xin"
-      "login.zhyi.xin"
-    ];
     "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
     "${LT.hosts."pve-5700u".interconnect.IPv4}" = [ "pve-5700u.zhyi.cc" ];
   };

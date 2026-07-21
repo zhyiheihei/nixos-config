@@ -1,13 +1,12 @@
 { LT, ... }:
 let
-  publicVpsTarget = "cnvm.zhyi.cc.";
+  publicVpsTarget = "home-ddns.zhyi.cc.";
 
   publicServices = [
     "ai"
     "api"
     "autoconfig"
     "avatar"
-    "bitwarden"
     "cal"
     "element"
     "filebox"
@@ -16,14 +15,13 @@ let
     "google-ssl"
     "google-test-ssl"
     "gopher"
+    "hidden"
     "homepage"
-    "id"
     "index"
     "index-helper"
     "lemmy"
     "letsencrypt-ssl"
     "letsencrypt-test-ssl"
-    "login"
     "mail"
     "matrix"
     "matrix-client"
@@ -38,6 +36,12 @@ let
     "whois"
     "www"
     "zerossl"
+  ];
+
+  cnvmServices = [
+    "bitwarden"
+    "id"
+    "login"
   ];
 
   highTrafficServices = [ "attic" ];
@@ -55,7 +59,6 @@ in
       domain = "zhyi.xin";
       registrar = "none";
       providers = [ "gcore" ];
-      enableWildcard = true;
       records = [
         {
           recordType = "A";
@@ -63,14 +66,9 @@ in
           address = LT.hosts.cnvm.public.IPv4;
           ttl = "10m";
         }
-        {
-          recordType = "CNAME";
-          name = "*";
-          target = publicVpsTarget;
-          ttl = "10m";
-        }
       ]
       ++ map (mkCname publicVpsTarget) publicServices
+      ++ map (mkCname "cnvm.zhyi.cc.") cnvmServices
       ++ map (mkCname "home-ddns.zhyi.cc.") highTrafficServices;
     }
   ];
