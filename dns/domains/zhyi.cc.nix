@@ -84,7 +84,7 @@ in
         {
           recordType = "CNAME";
           name = "*.ml-home-vm";
-          target = publicVpsTarget;
+          target = "ml-home-vm.ltnet.zhyi.cc.";
           ttl = "10m";
         }
         {

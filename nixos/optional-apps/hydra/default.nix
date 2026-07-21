@@ -94,7 +94,7 @@ in
     preStart = ''
       if [ ! -f "$HOME/.config/attic/config.toml" ]; then
         ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
-          https://attic.zhyi.xin:8443 \
+          https://attic.zhyi.xin \
           $(cat ${config.sops.secrets.attic-upload-key.path})
       fi
     '';

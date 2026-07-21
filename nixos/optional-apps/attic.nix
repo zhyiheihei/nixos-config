@@ -22,8 +22,8 @@
     mode = "monolithic";
     settings = lib.mkForce {
       listen = "[::1]:${LT.portStr.Attic}";
-      api-endpoint = "https://attic.zhyi.xin:8443/";
-      substituter-endpoint = "https://attic.zhyi.xin:8443/";
+      api-endpoint = "https://attic.zhyi.xin/";
+      substituter-endpoint = "https://attic.zhyi.xin/";
       database = {
         url = "postgres://atticd?host=/run/postgresql&user=atticd";
         heartbeat = true;
@@ -33,7 +33,7 @@
         type = "s3";
         region = "us-east-1";
         bucket = "nix-cache";
-        endpoint = "https://vaults3.zhyi.cc:8443";
+        endpoint = "https://vaults3.zhyi.cc";
       };
       # Disable chunking to use S3 direct download.
       chunking = {
