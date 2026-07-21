@@ -28,6 +28,7 @@ let
     "US" = [ "united-states" ];
     "DE" = [ "germany" ];
     "JP" = [ "japan" ];
+    "SG" = [ "singapore" ];
     "NO" = [ "sweden" ];
   };
 in
