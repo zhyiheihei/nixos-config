@@ -33,6 +33,17 @@
             {
               name = "node_exporter";
               rules = [
+                {
+                  alert = "node_exporter_down";
+                  expr = ''up{job="node"} == 0'';
+                  for = "15m";
+                  labels.severity = "warning";
+                  annotations = {
+                    summary = "⚠️ Node exporter on {{$labels.instance}} is unreachable.";
+                    description = "Prometheus has not been able to scrape node metrics from {{$labels.instance}} for 15 minutes.";
+                  };
+                }
+
                 # # SystemD service
                 # {
                 #   alert = "node_systemd_service_failed";
@@ -52,8 +63,8 @@
                   for = "10m";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ {{$labels.alias}}: Filesystem is running out of space soon.";
-                    description = "{{$labels.alias}} device {{$labels.device}} on {{$labels.mountpoint}} got less than 10% space left on its filesystem.";
+                    summary = "⚠️ {{$labels.instance}}: Filesystem is running out of space soon.";
+                    description = "{{$labels.instance}} device {{$labels.device}} on {{$labels.mountpoint}} has less than 10% free space.";
                   };
                 }
                 {
@@ -62,8 +73,8 @@
                   for = "1m";
                   labels.severity = "critical";
                   annotations = {
-                    summary = "⚠️ {{$labels.alias}}: Filesystem is readonly.";
-                    description = "{{$labels.alias}} device {{$labels.device}} on {{$labels.mountpoint}} is readonly.";
+                    summary = "⚠️ {{$labels.instance}}: Filesystem is readonly.";
+                    description = "{{$labels.instance}} device {{$labels.device}} on {{$labels.mountpoint}} is readonly.";
                   };
                 }
 
@@ -87,8 +98,8 @@
                   for = "10m";
                   labels.severity = "critical";
                   annotations = {
-                    summary = "⚠️ {{$labels.alias}}: MySQL down.";
-                    description = "{{$labels.alias}} MySQL instance is down.";
+                    summary = "⚠️ {{$labels.instance}}: MySQL down.";
+                    description = "{{$labels.instance}} MySQL exporter reports the database as unavailable.";
                   };
                 }
 
@@ -99,8 +110,8 @@
                   for = "10m";
                   labels.severity = "critical";
                   annotations = {
-                    summary = "⚠️ {{$labels.alias}}: PostgreSQL down.";
-                    description = "{{$labels.alias}} PostgreSQL instance is down.";
+                    summary = "⚠️ {{$labels.instance}}: PostgreSQL down.";
+                    description = "{{$labels.instance}} PostgreSQL exporter reports the database as unavailable.";
                   };
                 }
 
@@ -111,8 +122,8 @@
                   for = "1h";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ {{$labels.alias}}: High CPU utilization.";
-                    description = "{{$labels.alias}} has total CPU utilization over 95% for ${for}.";
+                    summary = "⚠️ {{$labels.instance}}: High CPU utilization.";
+                    description = "{{$labels.instance}} has total CPU utilization over 95% for ${for}.";
                   };
                 }
 
@@ -123,8 +134,8 @@
                   for = "30m";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ {{$labels.alias}}: Using lots of RAM.";
-                    description = "{{$labels.alias}} is using at least 90% of its RAM for ${for}.";
+                    summary = "⚠️ {{$labels.instance}}: Using lots of RAM.";
+                    description = "{{$labels.instance}} is using at least 90% of its RAM for ${for}.";
                   };
                 }
 
@@ -135,7 +146,7 @@
                   for = "30m";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ {{$labels.alias}}: {{$labels.name}} on {{$labels.instance}} is frequently reconnecting.";
+                    summary = "⚠️ {{$labels.name}} on {{$labels.instance}} is frequently reconnecting.";
                     description = "{{$labels.name}} on {{$labels.instance}} is frequently reconnecting.";
                   };
                 }
@@ -147,7 +158,7 @@
                   for = "30m";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ {{$labels.alias}}: Storage box {{$labels.name}} has <100G free space.";
+                    summary = "⚠️ Storage box {{$labels.name}} has <100G free space.";
                     description = "Storage box {{$labels.name}} has <100G free space.";
                   };
                 }
