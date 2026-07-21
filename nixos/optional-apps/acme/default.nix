@@ -2,7 +2,6 @@
   inputs,
   config,
   lib,
-  pkgs,
   ...
 }:
 let
@@ -23,7 +22,7 @@ in
 
   security.acme = {
     acceptTerms = true;
-    maxConcurrentRenewals = 1;
+    maxConcurrentRenewals = 0;
 
     defaults = {
       dnsProvider = "gcore";
@@ -38,32 +37,17 @@ in
     };
   };
 
-  systemd.services =
-    lib.mapAttrs' (
-      k: _:
-      lib.nameValuePair "acme-${k}" {
-        environment = {
-          LEGO_DEBUG_CLIENT_VERBOSE_ERROR = "true";
-          LEGO_DEBUG_ACME_HTTP_CLIENT = "true";
-        };
-        serviceConfig = {
-          Restart = "on-failure";
-          TimeoutStartSec = "900";
-        };
-      }
-    ) config.security.acme.certs
-    // lib.mapAttrs' (
-      k: _:
-      let
-        needsEab = lib.hasPrefix "google-" k || lib.hasPrefix "zerossl-" k;
-      in
-      lib.nameValuePair "acme-order-renew-${k}" (
-        lib.optionalAttrs needsEab {
-          serviceConfig.ExecCondition = [
-            "${pkgs.gnugrep}/bin/grep -qE ^LEGO_EAB_KID=.+$ ${config.sops.secrets.lego-env.path}"
-            "${pkgs.gnugrep}/bin/grep -qE ^LEGO_EAB_HMAC=.+$ ${config.sops.secrets.lego-env.path}"
-          ];
-        }
-      )
-    ) config.security.acme.certs;
+  systemd.services = lib.mapAttrs' (
+    k: v:
+    lib.nameValuePair "acme-${k}" {
+      environment = {
+        LEGO_DEBUG_CLIENT_VERBOSE_ERROR = "true";
+        LEGO_DEBUG_ACME_HTTP_CLIENT = "true";
+      };
+      serviceConfig = {
+        Restart = "on-failure";
+        TimeoutStartSec = "900";
+      };
+    }
+  ) config.security.acme.certs;
 }
