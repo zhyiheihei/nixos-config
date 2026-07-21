@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  config,
   LT,
   ...
 }:
@@ -34,12 +33,12 @@
     };
   };
 
-  lantian.nginxVhosts."ca.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."ca.zhyi.xin" = {
     locations = {
       "/".return = "https://ca.zhyi.xin:444$request_uri";
     };
 
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 

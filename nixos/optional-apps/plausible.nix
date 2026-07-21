@@ -53,7 +53,7 @@ in
     };
   };
 
-  lantian.nginxVhosts."stats.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."stats.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://${config.lantian.netns.plausible.ipv4}:${LT.portStr.Plausible}";
@@ -61,7 +61,7 @@ in
       };
     };
 
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
   };
 
   systemd.services = {

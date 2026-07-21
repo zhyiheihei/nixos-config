@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  config,
   ...
 }:
 {
@@ -33,7 +32,7 @@
     adminCredentialsFile = pkgs.writeText "dummy" "DUMMY=1";
   };
 
-  lantian.nginxVhosts."rss.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."rss.zhyi.xin" = {
     locations = {
       "/" = {
         enableOAuth = true;
@@ -41,7 +40,7 @@
       };
     };
 
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 

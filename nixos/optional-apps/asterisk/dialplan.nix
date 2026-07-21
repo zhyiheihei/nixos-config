@@ -1,4 +1,4 @@
-{ pkgs, lib, config, ... }@args:
+{ pkgs, lib, ... }@args:
 let
   inherit (pkgs.callPackage ./common.nix args) prefixZeros;
   inherit (pkgs.callPackage ./local-devices.nix args) destLocalDialPlan;

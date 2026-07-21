@@ -1,5 +1,5 @@
-{ config, ... }: {
-  lantian.nginxVhosts."api.${config.networking.hostName}.zhyi.cc" = {
+_: {
+  lantian.nginxVhosts."api.zhyi.xin" = {
     root = "/var/empty";
     locations = {
       # https://soha.moe/post/test-capport-rfc.html
@@ -80,7 +80,7 @@
       };
     };
 
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

@@ -367,7 +367,7 @@
 
       sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
       noIndex.enable = true;
-      accessibleBy = "public";
+      accessibleBy = "private";
     };
     "homepage.localhost" = {
       listenHTTP.enable = true;
