@@ -36,7 +36,7 @@
       jp.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
       uni-api.jpvm.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
       ai-api.zhyi.cc 127.0.0.1:${LT.portStr.HTTPS};
-      default ${LT.hosts.colocrossing.ltnet.IPv4}:443;
+      default ${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.HTTPSRelay};
     }
 
     server {
