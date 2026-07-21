@@ -34,8 +34,8 @@ in
         printf '[Preferences]\n' >> "$config"
       fi
       sed -i '/^WebUILocalHostAuth=/d' "$config"
-      sed -i '/^WebUI\\\\LocalHostAuth=/d' "$config"
-      sed -i "/^\[Preferences\]$/a WebUI\\\\LocalHostAuth=false" "$config"
+      sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
+      sed -i "/^\[Preferences\]$/a WebUI\\LocalHostAuth=false" "$config"
     '';
 
     serviceConfig = LT.serviceHarden // {
