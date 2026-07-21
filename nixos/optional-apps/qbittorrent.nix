@@ -27,29 +27,6 @@
     IOSchedulingPriority = "7";
   };
 
-  systemd.services.qbittorrent.wants = [ "mnt-storage.mount" ];
-  systemd.services.qbittorrent.after = [ "mnt-storage.mount" ];
-  systemd.services.qbittorrent.preStart = ''
-    downloadPath=/mnt/storage/downloads-qb
-    config=/var/lib/qbittorrent/qBittorrent/config/qBittorrent.conf
-    mkdir -p "$(dirname "$config")"
-    touch "$config"
-    if ! grep -q '^\[Preferences\]$' "$config"; then
-      printf '[Preferences]\n' >> "$config"
-    fi
-    sed -i '/^DownloadsSavePath=/d' "$config"
-    sed -i '/^Downloads\\\\SavePath=/d' "$config"
-    sed -i "/^\[Preferences\]$/a Downloads\\\\SavePath=$downloadPath/" "$config"
-  '';
-
-  systemd.tmpfiles.settings.qbittorrent = {
-    "/mnt/storage/downloads-qb"."d" = {
-      mode = "755";
-      user = "zhyi";
-      group = "users";
-    };
-  };
-
   lantian.nginxVhosts = {
     "bt.${config.networking.hostName}.zhyi.cc" = {
       locations = {
