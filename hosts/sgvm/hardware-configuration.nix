@@ -7,7 +7,7 @@ _: {
   boot.loader.grub.device = "/dev/vda";
 
   fileSystems."/nix" = {
-    device = "/dev/vda2";
+    device = "/dev/vda3";
     fsType = "btrfs";
     neededForBoot = true;
     options = [
@@ -19,7 +19,7 @@ _: {
   };
 
   fileSystems."/boot" = {
-    device = "/dev/vda1";
+    device = "/dev/vda2";
     fsType = "ext4";
   };
 
