@@ -9,7 +9,6 @@
 let
   user = "zhyi";
   group = "users";
-  downloadPath = "/mnt/storage/downloads";
 in
 {
   systemd.services.qbittorrent-pt = {
@@ -27,24 +26,15 @@ in
     # WebUI authentication enabled while restoring qBittorrent's old localhost
     # behavior expected by that job.
     preStart = ''
-      downloadPath=${downloadPath}
-      oldDir=/var/lib/qbittorrent-pt/qBittorrent
       instanceDir=/var/lib/qbittorrent-pt/qBittorrent_pt
-      if [ -d "$oldDir" ] && [ ! -e "$instanceDir" ]; then
-        cp -a "$oldDir" "$instanceDir"
-      fi
-
       config=$instanceDir/config/qBittorrent.conf
       mkdir -p "$(dirname "$config")"
       touch "$config"
       if ! grep -q '^\[Preferences\]$' "$config"; then
         printf '[Preferences]\n' >> "$config"
       fi
-      sed -i '/^DownloadsSavePath=/d' "$config"
-      sed -i '/^Downloads\\\\SavePath=/d' "$config"
       sed -i '/^WebUILocalHostAuth=/d' "$config"
       sed -i '/^WebUI\\\\LocalHostAuth=/d' "$config"
-      sed -i "/^\[Preferences\]$/a Downloads\\\\SavePath=$downloadPath/" "$config"
       sed -i "/^\[Preferences\]$/a WebUI\\\\LocalHostAuth=false" "$config"
     '';
 
@@ -66,7 +56,6 @@ in
 
       # https://github.com/qbittorrent/qBittorrent/pull/6806#discussion_r121478661
       PrivateTmp = false;
-      ReadWritePaths = [ downloadPath ];
       RestrictAddressFamilies = [
         "AF_UNIX"
         "AF_INET"
@@ -89,10 +78,6 @@ in
         inherit user group;
       };
       "/var/lib/qbittorrent-pt/qBittorrent/config/"."d" = {
-        mode = "755";
-        inherit user group;
-      };
-      "/mnt/storage/downloads"."d" = {
         mode = "755";
         inherit user group;
       };

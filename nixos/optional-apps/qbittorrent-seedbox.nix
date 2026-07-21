@@ -9,7 +9,6 @@
 let
   user = "zhyi";
   group = "users";
-  downloadPath = "/mnt/storage/downloads-seedbox";
 in
 {
   systemd.services.qbittorrent-seedbox = {
@@ -24,7 +23,6 @@ in
     wantedBy = [ "multi-user.target" ];
 
     preStart = ''
-      downloadPath=${downloadPath}
       instanceDir=/var/lib/qbittorrent-seedbox/qBittorrent_seedbox
       config=$instanceDir/config/qBittorrent.conf
       mkdir -p "$(dirname "$config")"
@@ -32,11 +30,8 @@ in
       if ! grep -q '^\[Preferences\]$' "$config"; then
         printf '[Preferences]\n' >> "$config"
       fi
-      sed -i '/^DownloadsSavePath=/d' "$config"
-      sed -i '/^Downloads\\\\SavePath=/d' "$config"
       sed -i '/^WebUILocalHostAuth=/d' "$config"
       sed -i '/^WebUI\\\\LocalHostAuth=/d' "$config"
-      sed -i "/^\[Preferences\]$/a Downloads\\\\SavePath=$downloadPath/" "$config"
       sed -i "/^\[Preferences\]$/a WebUI\\\\LocalHostAuth=false" "$config"
     '';
 
@@ -55,7 +50,6 @@ in
       ];
       TimeoutStopSec = 1800;
       PrivateTmp = false;
-      ReadWritePaths = [ downloadPath ];
       RestrictAddressFamilies = [
         "AF_UNIX"
         "AF_INET"
@@ -74,10 +68,6 @@ in
 
   systemd.tmpfiles.settings.qbittorrent-seedbox = {
     "/var/lib/qbittorrent-seedbox/qBittorrent_seedbox/config".d = {
-      mode = "755";
-      inherit user group;
-    };
-    "/mnt/storage/downloads-seedbox"."d" = {
       mode = "755";
       inherit user group;
     };
