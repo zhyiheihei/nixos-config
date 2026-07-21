@@ -14,18 +14,20 @@ in
 {
   systemd.services.qbittorrent-seedbox = {
     description = "qBittorrent seedbox client";
-    wants = [ "network-online.target" ];
+    wants = [ "network-online.target" "remote-fs.target" ];
     after = [
       "local-fs.target"
       "network-online.target"
       "nss-lookup.target"
+      "remote-fs.target"
     ];
     wantedBy = [ "multi-user.target" ];
 
     preStart = ''
+      downloadPath=${downloadPath}
       instanceDir=/var/lib/qbittorrent-seedbox/qBittorrent_seedbox
       config=$instanceDir/config/qBittorrent.conf
-      mkdir -p "$(dirname "$config")"
+      mkdir -p "$(dirname "$config")" "$downloadPath"
       touch "$config"
       if ! grep -q '^\[Preferences\]$' "$config"; then
         printf '[Preferences]\n' >> "$config"
