@@ -9,17 +9,17 @@
 let
   user = "zhyi";
   group = "users";
-  downloadPath = "/mnt/storage/.downloads-qb-pt";
+  downloadPath = "/mnt/storage/downloads";
 in
 {
   systemd.services.qbittorrent-pt = {
     description = "qbittorrent BitTorrent client";
-    wants = [ "network-online.target" "remote-fs.target" ];
+    wants = [ "network-online.target" "mnt-storage.mount" ];
     after = [
       "local-fs.target"
       "network-online.target"
       "nss-lookup.target"
-      "remote-fs.target"
+      "mnt-storage.mount"
     ];
     wantedBy = [ "multi-user.target" ];
 
@@ -35,15 +35,17 @@ in
       fi
 
       config=$instanceDir/config/qBittorrent.conf
-      mkdir -p "$(dirname "$config")" "$downloadPath"
+      mkdir -p "$(dirname "$config")"
       touch "$config"
       if ! grep -q '^\[Preferences\]$' "$config"; then
         printf '[Preferences]\n' >> "$config"
       fi
-      sed -i '/^Downloads\\SavePath=/d' "$config"
-      sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
-      sed -i "/^\[Preferences\]$/a Downloads\\SavePath=$downloadPath/" "$config"
-      sed -i "/^\[Preferences\]$/a WebUI\\LocalHostAuth=false" "$config"
+      sed -i '/^DownloadsSavePath=/d' "$config"
+      sed -i '/^Downloads\\\\SavePath=/d' "$config"
+      sed -i '/^WebUILocalHostAuth=/d' "$config"
+      sed -i '/^WebUI\\\\LocalHostAuth=/d' "$config"
+      sed -i "/^\[Preferences\]$/a Downloads\\\\SavePath=$downloadPath/" "$config"
+      sed -i "/^\[Preferences\]$/a WebUI\\\\LocalHostAuth=false" "$config"
     '';
 
     serviceConfig = LT.serviceHarden // {
@@ -64,6 +66,7 @@ in
 
       # https://github.com/qbittorrent/qBittorrent/pull/6806#discussion_r121478661
       PrivateTmp = false;
+      ReadWritePaths = [ downloadPath ];
       RestrictAddressFamilies = [
         "AF_UNIX"
         "AF_INET"
@@ -86,6 +89,10 @@ in
         inherit user group;
       };
       "/var/lib/qbittorrent-pt/qBittorrent/config/"."d" = {
+        mode = "755";
+        inherit user group;
+      };
+      "/mnt/storage/downloads"."d" = {
         mode = "755";
         inherit user group;
       };

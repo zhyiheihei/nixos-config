@@ -9,17 +9,17 @@
 let
   user = "zhyi";
   group = "users";
-  downloadPath = "/mnt/storage/.downloads-qb-seedbox";
+  downloadPath = "/mnt/storage/downloads-seedbox";
 in
 {
   systemd.services.qbittorrent-seedbox = {
     description = "qBittorrent seedbox client";
-    wants = [ "network-online.target" "remote-fs.target" ];
+    wants = [ "network-online.target" "mnt-storage.mount" ];
     after = [
       "local-fs.target"
       "network-online.target"
       "nss-lookup.target"
-      "remote-fs.target"
+      "mnt-storage.mount"
     ];
     wantedBy = [ "multi-user.target" ];
 
@@ -27,15 +27,17 @@ in
       downloadPath=${downloadPath}
       instanceDir=/var/lib/qbittorrent-seedbox/qBittorrent_seedbox
       config=$instanceDir/config/qBittorrent.conf
-      mkdir -p "$(dirname "$config")" "$downloadPath"
+      mkdir -p "$(dirname "$config")"
       touch "$config"
       if ! grep -q '^\[Preferences\]$' "$config"; then
         printf '[Preferences]\n' >> "$config"
       fi
-      sed -i '/^Downloads\\SavePath=/d' "$config"
-      sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
-      sed -i "/^\[Preferences\]$/a Downloads\\SavePath=$downloadPath/" "$config"
-      sed -i "/^\[Preferences\]$/a WebUI\\LocalHostAuth=false" "$config"
+      sed -i '/^DownloadsSavePath=/d' "$config"
+      sed -i '/^Downloads\\\\SavePath=/d' "$config"
+      sed -i '/^WebUILocalHostAuth=/d' "$config"
+      sed -i '/^WebUI\\\\LocalHostAuth=/d' "$config"
+      sed -i "/^\[Preferences\]$/a Downloads\\\\SavePath=$downloadPath/" "$config"
+      sed -i "/^\[Preferences\]$/a WebUI\\\\LocalHostAuth=false" "$config"
     '';
 
     serviceConfig = LT.serviceHarden // {
@@ -53,6 +55,7 @@ in
       ];
       TimeoutStopSec = 1800;
       PrivateTmp = false;
+      ReadWritePaths = [ downloadPath ];
       RestrictAddressFamilies = [
         "AF_UNIX"
         "AF_INET"
@@ -71,6 +74,10 @@ in
 
   systemd.tmpfiles.settings.qbittorrent-seedbox = {
     "/var/lib/qbittorrent-seedbox/qBittorrent_seedbox/config".d = {
+      mode = "755";
+      inherit user group;
+    };
+    "/mnt/storage/downloads-seedbox"."d" = {
       mode = "755";
       inherit user group;
     };
