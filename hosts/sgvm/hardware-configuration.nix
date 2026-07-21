@@ -9,6 +9,7 @@ _: {
   fileSystems."/nix" = {
     device = "/dev/vda2";
     fsType = "btrfs";
+    neededForBoot = true;
     options = [
       "compress-force=zstd"
       "autodefrag"
