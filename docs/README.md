@@ -21,6 +21,8 @@
 - [自建 Attic + S3 构建缓存](./attic-s3-cache.md)
 - [自有 Attic 优先与完整闭包缓存](./attic-owned-cache-priority.md)
 - [Attic 手动补推缓存流程](./attic-full-store-push.md)
+- [AI API 网关链路与初始化规范](./ai-api-gateway-chain.md)
+- [Prometheus / Grafana 监控链路](./monitoring.md)
 
 ## 主机与服务
 

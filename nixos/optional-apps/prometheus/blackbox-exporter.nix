@@ -189,8 +189,8 @@ in
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "⚠️ {{$labels.alias}}: Web service {{$labels.name}} failed.";
-                  description = "{{$labels.alias}} is not returning status code 200 for {{$labels.name}}.";
+                  summary = "⚠️ Web service {{$labels.instance}} failed.";
+                  description = "Blackbox probe for {{$labels.instance}} did not return an accepted HTTPS response.";
                 };
               }
               {
@@ -199,8 +199,8 @@ in
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "⚠️ {{$labels.alias}}: DNS service {{$labels.name}} failed.";
-                  description = "{{$labels.alias}} is not returning DNS response for {{$labels.name}}.";
+                  summary = "⚠️ DNS service {{$labels.instance}} failed.";
+                  description = "Blackbox probe for {{$labels.instance}} did not return the expected DNS response.";
                 };
               }
               {
@@ -209,8 +209,8 @@ in
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "⚠️ {{$labels.alias}}: Gopher service {{$labels.name}} failed.";
-                  description = "{{$labels.alias}} is not returning Gopher response for {{$labels.name}}.";
+                  summary = "⚠️ Gopher service {{$labels.instance}} failed.";
+                  description = "Blackbox probe for {{$labels.instance}} did not return the expected Gopher response.";
                 };
               }
               {
@@ -219,8 +219,8 @@ in
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "⚠️ {{$labels.alias}}: WHOIS service {{$labels.name}} failed.";
-                  description = "{{$labels.alias}} is not returning WHOIS response for {{$labels.name}}.";
+                  summary = "⚠️ WHOIS service {{$labels.instance}} failed.";
+                  description = "Blackbox probe for {{$labels.instance}} did not return the expected WHOIS response.";
                 };
               }
             ];
