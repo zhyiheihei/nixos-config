@@ -1,4 +1,4 @@
-# Lan Tian's NixOS Configuration
+# Zhyi's NixOS Configuration
 
 ## AI 代理使用说明
 
