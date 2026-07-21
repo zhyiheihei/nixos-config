@@ -32,7 +32,7 @@
     adminCredentialsFile = pkgs.writeText "dummy" "DUMMY=1";
   };
 
-  lantian.nginxVhosts."rss.zhyi.xin" = {
+  lantian.nginxVhosts."rss.${config.networking.hostName}.zhyi.cc" = {
     locations = {
       "/" = {
         enableOAuth = true;
@@ -40,7 +40,7 @@
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
     noIndex.enable = true;
   };
 

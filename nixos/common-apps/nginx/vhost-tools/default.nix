@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  config,
   LT,
   ...
 }:
@@ -22,7 +23,7 @@ let
   };
 in
 lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
-  lantian.nginxVhosts."tools.zhyi.xin" = {
+  lantian.nginxVhosts."tools.${config.networking.hostName}.zhyi.cc" = {
     root = pkgs.linkFarm "tools" tools;
     locations = {
       "/" = {
@@ -31,7 +32,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
         tryFiles = "$uri $uri/ =404";
       };
     };
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
     noIndex.enable = true;
     disableLiveCompression = true;
   };

@@ -88,12 +88,12 @@
   };
   users.groups.pocket-id.members = [ "nginx" ];
 
-  lantian.nginxVhosts."id.zhyi.xin" = {
+  lantian.nginxVhosts."id.${config.networking.hostName}.zhyi.cc" = {
     locations."/" = {
       proxyPass = "http://unix:/run/pocket-id/pocket-id.sock";
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
     noIndex.enable = true;
   };
 }

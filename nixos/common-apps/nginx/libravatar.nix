@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 let
   avatars = pkgs.stdenv.mkDerivation rec {
     pname = "avatars";
@@ -19,12 +19,12 @@ let
   };
 in
 {
-  lantian.nginxVhosts."avatar.zhyi.xin" = {
+  lantian.nginxVhosts."avatar.${config.networking.hostName}.zhyi.cc" = {
     root = avatars;
     locations = {
       "/".tryFiles = "/avatar-$arg_s.jpg /avatar-80.jpg =404";
     };
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
     noIndex.enable = true;
   };
 }

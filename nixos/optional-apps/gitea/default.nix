@@ -162,7 +162,7 @@ in
 
   users.groups.gitea = { };
 
-  lantian.nginxVhosts."git.zhyi.xin" = {
+  lantian.nginxVhosts."git.${config.networking.hostName}.zhyi.cc" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:/run/gitea/gitea.sock";
@@ -175,6 +175,6 @@ in
     };
 
     blockDotfiles = false;
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
   };
 }

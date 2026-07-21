@@ -374,20 +374,7 @@ let
       '');
 
     # Passthrough upstream options
-    inherit (config) serverName;
-    serverAliases =
-      let
-        prefix = lib.head (lib.splitString "." name);
-        ltnetAlias = "${prefix}.${osConfig.networking.hostName}.zhyi.cc";
-      in
-      config.serverAliases
-      ++ lib.optionals (
-        lib.hasInfix "." name
-        && !lib.hasPrefix "_" name
-        && !lib.hasPrefix "gopher." name
-        && !lib.hasPrefix "whois." name
-        && prefix != name
-      ) [ ltnetAlias ];
+    inherit (config) serverName serverAliases;
 
     # I set up HTTP2/HTTP3 listening by myself
     http2 = false;

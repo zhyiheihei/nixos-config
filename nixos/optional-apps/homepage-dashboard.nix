@@ -355,7 +355,7 @@
   environment.etc."homepage-dashboard/assets".source = ./homepage-dashboard-assets;
 
   lantian.nginxVhosts = {
-    "homepage.zhyi.xin" = {
+    "homepage.${config.networking.hostName}.zhyi.cc" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
@@ -365,7 +365,7 @@
         "/homepage-assets/".alias = "/etc/homepage-dashboard/assets/";
       };
 
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
       noIndex.enable = true;
       accessibleBy = "public";
     };
