@@ -59,6 +59,7 @@ _: [
   "cnvm.zhyi.cc"
   "flapalerted.zhyi.cc"
   "jp.zhyi.cc"
+  "sg.zhyi.cc"
   "lg.zhyi.cc"
   "lg.zhyi.dn42"
   "sub.zhyi.cc"

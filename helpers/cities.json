@@ -48,6 +48,14 @@
     "name": "Tokyo"
   },
   {
+    "admin1": "01",
+    "admin2": "",
+    "country": "SG",
+    "lat": "1.28967",
+    "lng": "103.85007",
+    "name": "Singapore"
+  },
+  {
     "admin1": "02",
     "admin2": "3302",
     "country": "CN",
