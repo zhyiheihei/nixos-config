@@ -25,20 +25,18 @@ CNVM 本机承载 Dex、Pocket ID 与 Vaultwarden；colocrossing 承载 Gitea、
 等服务。SNI 为 `ai`、`filebox`、`homepage`、`index`、`index-helper` 和 `n8n` 的请求
 继续转发到 `ml-home-vm`。这样 DNS 不再把同一域名的一部分服务绕过 CNVM 直连家庭 DDNS。
 
-`attic.zhyi.xin` 是例外：它直接 CNAME 到 `home-ddns.zhyi.cc`，不经 CNVM。
-Attic 与其 `vaults3.zhyi.cc` 数据面流量较大，固定由 colocrossing 的家庭出口承载，
-避免占用低配公网入口的带宽与连接资源。访问端口为 `:8443`（路由器将公网
-IP:8443 转发到 colocrossing:443），所有客户端统一使用
-`https://attic.zhyi.xin:8443/lantian` 作为 substituter URL。
+`attic.zhyi.xin` 是例外：它 CNAME 到 `cnvm.zhyi.cc`，由 cnvm 本机 Nginx
+直接服务。Attic 与其 `vaults3.zhyi.cc` S3 后端分离：VaultS3 位于家庭网络
+（`home-ddns.zhyi.cc`），Attic 服务端通过公网访问它。客户端统一使用
+`https://attic.zhyi.xin/lantian` 作为 substituter URL（标准 443 端口）。
 
 ### `zhyi.cc`
 
 `zhyi.cc` 承载主机和基础设施名称。所有 Web 服务记录，包括通配符和
 `*.ml-home-vm.zhyi.cc`，统一通过 `jpvm.zhyi.cc:443` 进入，再由 colocrossing 按 SNI
 分发。主机管理记录仍指向各主机的公网、LTNET 或 DDNS 地址，不经过 JPVM；这是
-作者将服务 CNAME 与主机地址记录分离的做法。`attic.zhyi.xin` 和
-`vaults3.zhyi.cc` 指向家庭 DDNS，专用于缓存数据面；`colocrossing.zhyi.cc`
-保持主机直连记录。
+作者将服务 CNAME 与主机地址记录分离的做法。`vaults3.zhyi.cc` 指向家庭
+DDNS，专用于 S3 存储后端；`colocrossing.zhyi.cc` 保持主机直连记录。
 
 ### `moliy.site`
 
