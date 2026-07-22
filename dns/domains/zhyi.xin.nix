@@ -1,14 +1,12 @@
 { LT, ... }:
 let
-  publicVpsTarget = "cnvm.zhyi.cc.";
+  publicVpsTarget = "home-ddns.zhyi.cc.";
 
   publicServices = [
     "ai"
     "api"
-    "attic"
     "autoconfig"
     "avatar"
-    "bitwarden"
     "cal"
     "element"
     "filebox"
@@ -19,13 +17,11 @@ let
     "gopher"
     "hidden"
     "homepage"
-    "id"
     "index"
     "index-helper"
     "lemmy"
     "letsencrypt-ssl"
     "letsencrypt-test-ssl"
-    "login"
     "mail"
     "matrix"
     "matrix-client"
@@ -42,7 +38,12 @@ let
     "zerossl"
   ];
 
-  highTrafficServices = [ ];
+  cnvmServices = [
+    "attic"
+    "bitwarden"
+    "id"
+    "login"
+  ];
 
   mkCname = target: name: {
     recordType = "CNAME";
@@ -66,7 +67,7 @@ in
         }
       ]
       ++ map (mkCname publicVpsTarget) publicServices
-      ++ map (mkCname "home-ddns.zhyi.cc.") highTrafficServices;
+      ++ map (mkCname "cnvm.zhyi.cc.") cnvmServices;
     }
   ];
 }
