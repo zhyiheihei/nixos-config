@@ -1,6 +1,6 @@
 # 域名与服务编排
 
-最后整理：2026-07-19
+最后整理：2026-07-21
 
 本仓库保留三个自有域名。对应作者的三域结构，但使用当前实际入口与服务位置。
 
@@ -27,7 +27,9 @@ CNVM 本机承载 Dex、Pocket ID 与 Vaultwarden；colocrossing 承载 Gitea、
 
 `attic.zhyi.xin` 是例外：它直接 CNAME 到 `home-ddns.zhyi.cc`，不经 CNVM。
 Attic 与其 `vaults3.zhyi.cc` 数据面流量较大，固定由 colocrossing 的家庭出口承载，
-避免占用低配公网入口的带宽与连接资源。
+避免占用低配公网入口的带宽与连接资源。访问端口为 `:8443`（路由器将公网
+IP:8443 转发到 colocrossing:443），所有客户端统一使用
+`https://attic.zhyi.xin:8443/lantian` 作为 substituter URL。
 
 ### `zhyi.cc`
 
