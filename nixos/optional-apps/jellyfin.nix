@@ -37,9 +37,8 @@ in
         };
       };
 
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
       noIndex.enable = true;
-      accessibleBy = "private";
     };
     "jellyfin.localhost" = {
       listenHTTP.enable = true;
