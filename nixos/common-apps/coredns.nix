@@ -92,10 +92,10 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
         defaultForwarder =
           if config.services.lancache.enable or false then
             forwardToLancache
-          else if config.networking.networkmanager.enable then
-            forwardToResolvConf
           else if LT.this.city.country == "CN" then
             forwardToAliDNS
+          else if config.networking.networkmanager.enable then
+            forwardToResolvConf
           else
             forwardToGoogleDNS;
 
