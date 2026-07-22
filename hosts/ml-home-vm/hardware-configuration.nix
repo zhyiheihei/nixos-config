@@ -24,7 +24,6 @@
     options = [
       "_netdev"
       "noatime"
-      "clientaddr=192.168.2.51"
       "hard"
       "vers=4.1"
       "nconnect=16"
