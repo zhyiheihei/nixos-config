@@ -342,7 +342,7 @@
     SystemCallFilter = lib.mkForce [ ];
   };
   systemd.services.homepage-dashboard.environment.HOMEPAGE_ALLOWED_HOSTS = lib.mkForce (
-    "homepage.zhyi.xin,homepage.localhost,"
+    "homepage.zhyi.xin,homepage.localhost,homepage.${config.networking.hostName}.zhyi.cc,"
     + "localhost:${LT.portStr.HomepageDashboard},127.0.0.1:${LT.portStr.HomepageDashboard}"
   );
 
