@@ -20,6 +20,7 @@
   fileSystems."/nix" = {
     device = "/dev/disk/by-uuid/cc86ac68-e7cf-4d88-859c-4e6582d28d21";
     fsType = "btrfs";
+    neededForBoot = true;
     options = [
       "compress-force=zstd"
       "autodefrag"
