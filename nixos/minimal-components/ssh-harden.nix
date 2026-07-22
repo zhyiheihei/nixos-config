@@ -50,24 +50,18 @@ in
           lib.mapAttrsToList (
             n: v:
             let
-              hostNames = lib.unique (
-                [
-                  "${n}.zhyi.cc"
-                  "[${n}.zhyi.cc]:2222"
-                  v.hostname
-                  "[${v.hostname}]:2222"
-                ]
-                ++ lib.optionals (n == "colocrossing") [
-                  "git.zhyi.xin"
-                  "[git.zhyi.xin]:${LT.portStr.Gitea.SSH}"
-                ]
-              );
+              hostNames = [
+                "${n}.zhyi.xin"
+                "[${n}.zhyi.xin]:2222"
+                "${n}.zhyi.cc"
+                "[${n}.zhyi.cc]:2222"
+              ];
             in
-            lib.optional (v.ssh.ed25519 != null) {
+            lib.optional (LT.hosts."${n}".ssh.ed25519 != null) {
               name = "${n}-ed25519";
               value = {
                 inherit hostNames;
-                publicKey = v.ssh.ed25519;
+                publicKey = LT.hosts."${n}".ssh.ed25519;
               };
             }
           ) LT.hosts
@@ -122,15 +116,18 @@ in
       Port 22
       PubkeyAcceptedKeyTypes ssh-ed25519
 
-    Host sftp.ml-home-vm.zhyi.cc
-      HostName ml-home-vm.zhyi.cc
+    Host sftp.ml-home-vm.ltnet.zhyi.cc
+      HostName ml-home-vm.ltnet.zhyi.cc
       User sftp
       IdentityFile ${config.sops.secrets.sftp-privkey.path}
       ${ltnetSSHConfig}
 
     Host git.zhyi.xin
       User git
-      Port ${LT.portStr.Gitea.SSH}
+      ${ltnetSSHConfig}
+
+    Host *.zhyi.xin
+      User root
       ${ltnetSSHConfig}
 
     Host *.zhyi.cc

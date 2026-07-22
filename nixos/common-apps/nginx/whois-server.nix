@@ -35,7 +35,7 @@
         '';
       };
 
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "zerossl-zhyi.xin";
     };
 
     "stage1.whois.local" = {

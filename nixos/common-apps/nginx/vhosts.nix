@@ -144,19 +144,19 @@ in
     };
 
     "zhyi.xin" = addConfLantianPub {
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "zerossl-zhyi.xin";
     };
     "zhyi.dn42" = addConfLantianPub {
       listenHTTP.enable = true;
       serverAliases = [ "${config.networking.hostName}.zhyi.dn42" ];
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "zerossl-zhyi.xin";
     };
 
     # Don't use globalRedirect, it adds http:// prefix
     "www.zhyi.xin" = {
       locations."/".return = "307 https://zhyi.xin$request_uri";
       enableCommonLocationOptions = false;
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "zerossl-zhyi.xin";
     };
 
     "gopher.zhyi.xin" = {
@@ -185,7 +185,7 @@ in
       enableCommonLocationOptions = false;
       noIndex.enable = true;
 
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "zerossl-zhyi.xin";
 
       extraConfig = ''
         error_page 404 /404.gopher;
@@ -211,7 +211,7 @@ in
       enableCommonLocationOptions = false;
       noIndex.enable = true;
 
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "zerossl-zhyi.xin";
 
       extraConfig = ''
         error_page 404 /404.gopher;
