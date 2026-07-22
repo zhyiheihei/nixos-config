@@ -26,6 +26,19 @@
         ensurePermissions."halo.*" = "ALL PRIVILEGES";
       }
     ];
+    # MySQL 专用于 Halo，大幅降低内存占用（cnvm 2GB 总内存）
+    settings.mysqld = {
+      max_connections = lib.mkForce 20;
+      innodb_buffer_pool_size = lib.mkForce "32M";
+      innodb_log_buffer_size = lib.mkForce "4M";
+      key_buffer_size = lib.mkForce "4M";
+      table_open_cache = lib.mkForce 64;
+      thread_cache_size = lib.mkForce 4;
+      sort_buffer_size = lib.mkForce "1M";
+      read_buffer_size = lib.mkForce "1M";
+      tmp_table_size = lib.mkForce "8M";
+      max_heap_table_size = lib.mkForce "8M";
+    };
   };
 
   systemd.services.halo-mysql-password = {
