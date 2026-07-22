@@ -22,8 +22,8 @@
     mode = "monolithic";
     settings = lib.mkForce {
       listen = "[::1]:${LT.portStr.Attic}";
-      api-endpoint = "https://attic.zhyi.xin/";
-      substituter-endpoint = "https://attic.zhyi.xin/";
+      api-endpoint = "https://attic.zhyi.xin:8443/";
+      substituter-endpoint = "https://attic.zhyi.xin:8443/";
       database = {
         url = "postgres://atticd?host=/run/postgresql&user=atticd";
         heartbeat = true;
