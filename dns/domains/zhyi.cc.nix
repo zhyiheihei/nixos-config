@@ -6,7 +6,7 @@
 }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
-  publicVpsTarget = "jp.zhyi.cc.";
+  publicVpsTarget = "jpvm.zhyi.cc.";
 
   mkPublicVpsCname = name: {
     recordType = "CNAME";
@@ -63,12 +63,6 @@ in
         {
           recordType = "A";
           name = "@";
-          address = LT.hosts.jpvm.public.IPv4;
-          ttl = "10m";
-        }
-        {
-          recordType = "A";
-          name = "jp";
           address = LT.hosts.jpvm.public.IPv4;
           ttl = "10m";
         }

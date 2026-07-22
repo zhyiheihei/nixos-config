@@ -29,18 +29,18 @@ in
       proxies:
         - name: jpvm
           type: vless
-          server: jp.zhyi.cc
+          server: jpvm.zhyi.cc
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: jp.zhyi.cc
+          servername: jpvm.zhyi.cc
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: jp.zhyi.cc
+            host: jpvm.zhyi.cc
             mode: stream-up
 
       proxy-groups:
@@ -112,18 +112,18 @@ in
       proxies:
         - name: jpvm
           type: vless
-          server: jp.zhyi.cc
+          server: jpvm.zhyi.cc
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: jp.zhyi.cc
+          servername: jpvm.zhyi.cc
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: jp.zhyi.cc
+            host: jpvm.zhyi.cc
             mode: stream-up
 
       proxy-groups:
