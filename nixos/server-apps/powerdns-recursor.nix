@@ -45,8 +45,17 @@ let
           forwarders = [ "172.31.0.5" ];
         }
       ];
+
+      # Split-horizon: resolve public domains to LTNET IPs for internal clients
+      ltnetSplitHorizon = builtins.map (k: {
+        zone = k;
+        forwarders = [
+          "198.19.0.254"
+          "fdd8:1938:4e88:3712::54"
+        ];
+      }) [ "zhyi.xin" "zhyi.cc" ];
     in
-    authoritative ++ emercoin ++ yggdrasilAlfis ++ hack;
+    authoritative ++ emercoin ++ yggdrasilAlfis ++ hack ++ ltnetSplitHorizon;
 
   forwardZonesRecurse =
     let
