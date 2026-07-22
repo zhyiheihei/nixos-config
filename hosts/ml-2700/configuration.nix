@@ -25,7 +25,5 @@
 
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
-    # LAN 直连 colocrossing，绕过 hairpin NAT 访问 attic
-    "${LT.hosts.colocrossing.interconnect.IPv4}" = [ "attic.zhyi.xin" ];
   };
 }
