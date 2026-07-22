@@ -5,6 +5,7 @@ let
   publicServices = [
     "ai"
     "api"
+    "attic"
     "autoconfig"
     "avatar"
     "bitwarden"
@@ -41,7 +42,7 @@ let
     "zerossl"
   ];
 
-  highTrafficServices = [ "attic" ];
+  highTrafficServices = [ ];
 
   mkCname = target: name: {
     recordType = "CNAME";
