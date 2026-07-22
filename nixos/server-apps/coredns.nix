@@ -407,16 +407,12 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
               path = "ltnet-scripts/zones/asn.zhyi.dn42";
             }
             {
-              domain = "184/29.76.22.172.in-addr.arpa";
-              path = "ltnet-zones/184_29.76.22.172.in-addr.arpa";
+              domain = "224/27.46.20.172.in-addr.arpa";
+              path = "ltnet-zones/224_27.46.20.172.in-addr.arpa";
             }
             {
-              domain = "96/27.76.22.172.in-addr.arpa";
-              path = "ltnet-zones/96_27.76.22.172.in-addr.arpa";
-            }
-            {
-              domain = "d.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa";
-              path = "ltnet-zones/d.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa";
+              domain = "8.8.e.4.8.3.9.1.8.d.d.f.ip6.arpa";
+              path = "ltnet-zones/8.8.e.4.8.3.9.1.8.d.d.f.ip6.arpa";
             }
             {
               domain = "7.4.5.2.4.2.4.0.tel.dn42";
