@@ -15,7 +15,7 @@
 
   interconnect = {
     name = "home-lan";
-    IPv4 = "192.168.2.55";
+    IPv4 = "192.168.0.55";
   };
 
   zerotier = "cba3cdffbf";

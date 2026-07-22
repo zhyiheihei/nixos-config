@@ -27,7 +27,7 @@
 
   interconnect = {
     name = "home-lan";
-    IPv4 = "192.168.2.51";
+    IPv4 = "192.168.0.51";
   };
 
   ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
