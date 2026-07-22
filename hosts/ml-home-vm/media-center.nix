@@ -11,8 +11,6 @@ let
   qBitTorrentSonarrDownloadPath = "/mnt/storage/.downloads-qb";
   qBitTorrentSeedboxDownloadPath = "/mnt/storage/.downloads-qb-seedbox";
   flexgetAutoDownloadPath = "/mnt/storage/.downloads-auto";
-  cloudMusicPath = "/mnt/storage/media/CloudMusic";
-  cloudMusicArchivePath = "/mnt/storage/media/CloudMusicArchive";
   radarrMediaPath = "/mnt/storage/media-radarr";
   sonarrMediaPath = "/mnt/storage/media-sonarr";
 in
@@ -64,14 +62,6 @@ in
       mode = "755";
       user = "zhyi";
       group = "users";
-    };
-    "${cloudMusicPath}".d = {
-      mode = "755";
-      inherit (config.services.syncthing) user group;
-    };
-    "${cloudMusicArchivePath}".d = {
-      mode = "755";
-      inherit (config.services.syncthing) user group;
     };
     "${radarrMediaPath}".d = {
       mode = "755";
@@ -142,21 +132,5 @@ in
     after = [ "mnt-storage.mount" ];
     requires = [ "mnt-storage.mount" ];
     serviceConfig.BindPaths = [ qBitTorrentSeedboxDownloadPath ];
-  };
-
-  systemd.services.podman-archivebox = {
-    environment = {
-      HTTP_PROXY = "http://openclash.zhyi.cc:7892";
-      HTTPS_PROXY = "http://openclash.zhyi.cc:7892";
-      NO_PROXY = "localhost,127.0.0.1,::1,.zhyi.cc,.zhyi.xin,192.168.0.0/16";
-    };
-  };
-
-  systemd.services.podman-handbrake = {
-    environment = {
-      HTTP_PROXY = "http://openclash.zhyi.cc:7892";
-      HTTPS_PROXY = "http://openclash.zhyi.cc:7892";
-      NO_PROXY = "localhost,127.0.0.1,::1,.zhyi.cc,.zhyi.xin,192.168.0.0/16";
-    };
   };
 }
