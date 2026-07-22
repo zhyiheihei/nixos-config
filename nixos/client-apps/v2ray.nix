@@ -76,42 +76,6 @@ let
               }
             ];
           }
-          {
-            address = LT.publicIPv4For "cnvm";
-            port = 443;
-            users = [
-              {
-                id = {
-                  _secret = config.sops.secrets.v2ray-key.path;
-                };
-                encryption = "none";
-              }
-            ];
-          }
-          {
-            address = LT.publicIPv4For "sgvm";
-            port = 443;
-            users = [
-              {
-                id = {
-                  _secret = config.sops.secrets.v2ray-key.path;
-                };
-                encryption = "none";
-              }
-            ];
-          }
-          {
-            address = LT.publicIPv4For "usvm";
-            port = 443;
-            users = [
-              {
-                id = {
-                  _secret = config.sops.secrets.v2ray-key.path;
-                };
-                encryption = "none";
-              }
-            ];
-          }
         ];
         streamSettings =
           let
