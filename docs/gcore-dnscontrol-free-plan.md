@@ -19,7 +19,7 @@
 
 ## 当前约定
 
-- `zhyi.cc` 的公开服务使用静态 `CNAME -> jp.zhyi.cc.`，包括 `ha.zhyi.cc`；
+- `zhyi.cc` 的公开服务使用静态 `CNAME -> jpvm.zhyi.cc.`，包括 `ha.zhyi.cc`；
   `zhyi.xin` 的公开服务使用静态 `CNAME -> cnvm.zhyi.cc.`。
 - `twvm` 已退出生产拓扑，公网入口和 LTNET 中继统一由 `jpvm` 承担。
 - 目前不实施公网自动故障转移。未来若恢复该需求，应先升级 Gcore 套餐或迁移到

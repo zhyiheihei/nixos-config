@@ -58,7 +58,7 @@ _: [
   # keep-sorted start
   "cnvm.zhyi.cc"
   "flapalerted.zhyi.cc"
-  "jp.zhyi.cc"
+  "jpvm.zhyi.cc"
   "sgvm.zhyi.cc"
   "lg.zhyi.cc"
   "lg.zhyi.dn42"

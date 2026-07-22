@@ -110,7 +110,9 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
         ++ (builtins.map forwardToLtnet (
           with LT.constants.zones;
           (DN42 ++ NeoNetwork ++ OpenNIC ++ Emercoin ++ CRXN ++ Meshname ++ YggdrasilAlfis ++ Ltnet ++ Others)
-        ));
+        ))
+        # Split-horizon: resolve public domains to LTNET IPs for internal access
+        ++ (builtins.map forwardToLtnet [ "zhyi.xin" "zhyi.cc" ]);
       in
       lib.concatStrings cfgEntries;
   };

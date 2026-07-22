@@ -41,7 +41,7 @@ in
   services.openssh.settings.MaxStartups = "64:30:128";
 
   programs.ssh.extraConfig = lib.mkBefore ''
-    Host *.zhyi.cc 36.50.85.113
+    Host *.zhyi.cc
       IdentityFile ${deploySSHKeyFile}
       IdentitiesOnly yes
   '';

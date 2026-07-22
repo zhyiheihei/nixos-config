@@ -52,7 +52,6 @@ let
         (mkHostLine cnvmIPv4 "cnvm.zhyi.cc")
         (mkHostLine mlHomeVmIPv4 "ml-home-vm.zhyi.cc")
         (mkHostLine jpvmIPv4 "jpvm.zhyi.cc")
-        (mkHostLine jpvmIPv4 "jp.zhyi.cc")
         (mkHostLine sgvmIPv4 "sgvm.zhyi.cc")
         (mkHostLine mlBuilderIPv4 "ml-builder.zhyi.cc")
         (mkHostLine pve2700IPv4 "pve-2700.zhyi.cc")

@@ -17,7 +17,7 @@
   zerotier = "ecd09d7bc2";
 
   ltnet.tcpTransportDomain = "cnvm.zhyi.cc";
-  ltnet.tcpTransportPeers.jpvm = "jp.zhyi.cc";
+  ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
 
   dn42 = {
     IPv4 = "172.20.46.229";
