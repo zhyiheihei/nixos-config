@@ -32,7 +32,6 @@
     ../../nixos/optional-apps/freshrss.nix
     ../../nixos/optional-apps/glauth.nix
     ../../nixos/optional-apps/handbrake-server.nix
-    ../../nixos/optional-apps/halo.nix
     ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/homepage-dashboard.nix
     ../../nixos/optional-apps/immich.nix

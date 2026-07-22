@@ -74,7 +74,12 @@ in
         }
         (mkPublicVpsCname "archivebox.ml-home-vm")
         (mkPublicVpsCname "syncthing.ml-home-vm")
-        (mkPublicVpsCname "halo.ml-home-vm")
+        {
+          recordType = "CNAME";
+          name = "halo.cnvm";
+          target = "cnvm.ltnet.zhyi.cc.";
+          ttl = "10m";
+        }
         (mkPublicVpsCname "linkwarden.ml-home-vm")
         (mkPublicVpsCname "excalidraw.ml-home-vm")
         (mkPublicVpsCname "freshrss.ml-home-vm")
