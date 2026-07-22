@@ -11,9 +11,6 @@
 
     ../../nixos/optional-apps/grafana.nix
     ../../nixos/optional-apps/prometheus
-    ../../nixos/optional-apps/uni-api.nix
-
-    "${inputs.secrets}/nixos-hidden-module/aacd9f37de95f98d"
   ];
 
   systemd.network.networks.eth0 = {
