@@ -12,12 +12,13 @@
   };
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/12CE-A600";
+    device = "/dev/disk/by-uuid/6737-200C";
     fsType = "vfat";
+    options = [ "fmask=0077" "dmask=0077" ];
   };
 
   fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/9dd2cdc4-7f79-4c50-92de-08724989daf6";
+    device = "/dev/disk/by-uuid/cc86ac68-e7cf-4d88-859c-4e6582d28d21";
     fsType = "btrfs";
     options = [
       "compress-force=zstd"
