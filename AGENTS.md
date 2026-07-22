@@ -81,6 +81,9 @@ Flake 入口文件，定义了：
 - 物理 client 的磁盘至少应包含 FAT32 EFI `/boot` 和持久化 `/nix`。作者常用
   Btrfs 挂载 `/nix`，选项为 `compress-force=zstd`、`autodefrag`、`nosuid`、
   `nodev`；简单设备可让 `/nix/persistent` 直接位于该 Btrfs 文件系统内。
+- `/nix` 是独立文件系统时必须设置 `fileSystems."/nix".neededForBoot = true`。
+  system closure 和 profile 都位于该文件系统；缺少早期挂载声明时，即使闭包复制
+  和安装命令成功，冷启动仍可能因找不到 closure 而失败。
 - 不要把已经运行的普通 ext4-root NixOS 直接在线 `switch` 到 tmpfs-root /
   preservation 架构。首次适配应从安装环境按目标挂载结构重新安装，否则服务
   重载可能停在旧根目录与新持久化结构之间，导致 systemd 和 SSH 激活失败。

@@ -98,6 +98,7 @@ fileSystems."/boot" = {
 fileSystems."/nix" = {
   device = "/dev/disk/by-uuid/<NIX_UUID>";
   fsType = "btrfs";
+  neededForBoot = true;
   options = [ "compress-force=zstd" "autodefrag" "nosuid" "nodev" ];
 };
 ```
@@ -132,6 +133,11 @@ fileSystems."/nix" = {
 
 云平台设备名稳定时仓库中可能仍使用 `/dev/sda2` 或 `/dev/vda3`。新接入设备默认
 使用 UUID；只有确认平台设备名稳定并有明确理由时才保留设备路径。
+
+`/nix` 是独立文件系统时，`neededForBoot = true` 是硬性要求，不是优化项。system
+closure、system profile 和持久化 SSH host key 都在 `/nix`；initrd 必须先挂载它，
+再寻找要启动的 closure。缺少该声明时，即使 `nix copy` 和 `nixos-install` 都成功，
+冷启动仍可能在 `initrd-find-nixos-closure.service` 处失败。
 
 ## 3. 公共分区步骤
 
@@ -208,6 +214,21 @@ blkid "$BOOT_DEV" "$NIX_DEV"
 把现场读取的 UUID 更新到
 `hosts/<hostname>/hardware-configuration.nix`，不要照抄其他机器的 UUID。
 
+更新仓库后，在构建机确认求值结果，而不只是阅读源码：
+
+```bash
+cd /nix/src/nixos-config
+HOST=usvm
+
+nix eval --raw \
+  ".#nixosConfigurations.${HOST}.config.fileSystems.\"/nix\".device"
+nix eval --json \
+  ".#nixosConfigurations.${HOST}.config.fileSystems.\"/nix\".neededForBoot"
+```
+
+第一条必须与现场设备或 UUID 一致，第二条必须输出 `true`。修改硬件声明后必须重新
+构建 closure；旧 closure 不会自动包含新挂载配置。
+
 ### 3.4 准备正式 host key
 
 如果已有私钥，从安全介质安装：
@@ -277,12 +298,17 @@ CLOSURE=$(nix build --no-link --print-out-paths \
 printf 'CLOSURE=%s\n' "$CLOSURE"
 ```
 
-先确认闭包存在：
+先确认构建机上的闭包和全部引用存在，并把唯一的 store path 留作安装记录：
 
 ```bash
 test -x "$CLOSURE/bin/switch-to-configuration"
-nix-store --query --requisites "$CLOSURE" >/dev/null
+nix path-info --recursive "$CLOSURE" > "/tmp/${HOST}-closure-paths"
+nix store verify --recursive --no-trust "$CLOSURE"
+printf '%s\n' "$CLOSURE" > "/tmp/${HOST}-closure"
 ```
+
+后续所有步骤必须使用这一个完整的 `CLOSURE` 值。不要重新求值后凭名称或最新时间
+猜另一个 closure。
 
 ### 4.3 把闭包直接写入目标 store
 
@@ -299,6 +325,24 @@ NIX_SSHOPTS="-p ${INSTALL_SSH_PORT} -o IdentitiesOnly=yes" \
   "$CLOSURE"
 ```
 
+`nix copy` 返回成功只表示传输命令结束，不能单独作为重启依据。回到 NixOS ISO，
+直接查询目标磁盘上的 Nix 数据库并校验内容：
+
+```bash
+CLOSURE=/nix/store/<hash>-nixos-system-<hostname>-<version>
+TARGET_STORE=/mnt
+
+nix path-info --store "$TARGET_STORE" --recursive "$CLOSURE" \
+  > /tmp/target-closure-paths
+nix store verify --store "$TARGET_STORE" \
+  --recursive --no-trust "$CLOSURE"
+test -e "/mnt${CLOSURE}/init"
+test -x "/mnt${CLOSURE}/bin/switch-to-configuration"
+```
+
+这里必须检查 `/mnt${CLOSURE}`。检查 ISO 自己的 `$CLOSURE` 会误读安装介质的
+临时 `/nix`，无法证明闭包已经写入目标 Btrfs。
+
 使用 Bitwarden SSH agent 时，给 `NIX_SSHOPTS` 增加一个只包含目标公钥的
 `-i /path/to/login-key.pub`，避免 `Too many authentication failures`。
 
@@ -309,7 +353,9 @@ NIX_SSHOPTS="-p ${INSTALL_SSH_PORT} -o IdentitiesOnly=yes" \
 ```bash
 CLOSURE=/nix/store/<hash>-nixos-system-<hostname>-<version>
 
-test -x "$CLOSURE/bin/switch-to-configuration"
+test -e "/mnt${CLOSURE}/init"
+test -x "/mnt${CLOSURE}/bin/switch-to-configuration"
+nix path-info --store /mnt "$CLOSURE"
 # 使用 --no-root-passwd 前，必须确认该闭包已包含正式个人登录公钥。
 nixos-install --root /mnt --system "$CLOSURE" \
   --no-root-passwd --no-channel-copy
@@ -366,9 +412,13 @@ apk add bash coreutils curl btrfs-progs dosfstools e2fsprogs \
 ```bash
 mkdir -p /nix
 mount --bind /mnt/nix /nix
-findmnt /nix
-findmnt /mnt/nix
+test "$(findmnt -no MAJ:MIN /nix)" = \
+  "$(findmnt -no MAJ:MIN /mnt/nix)"
+findmnt -no TARGET,SOURCE,FSTYPE,OPTIONS /nix /mnt/nix
 ```
+
+该比较必须通过。否则后续 `nix copy` 可能写入 Alpine RAM 的临时 `/nix`，重启后
+闭包会随救援环境一起消失。
 
 启用与当前 Alpine 版本一致的 community 仓库；禁止混用不同 Alpine 分支：
 
@@ -425,6 +475,17 @@ NIX_SSHOPTS="-p ${INSTALL_SSH_PORT} -o IdentitiesOnly=yes" \
   "$CLOSURE" "$INSTALL_TOOLS"
 ```
 
+回到 Alpine RAM，验证默认 store 确实就是目标 Btrfs，并校验完整 closure：
+
+```bash
+test "$(findmnt -no MAJ:MIN /nix)" = \
+  "$(findmnt -no MAJ:MIN /mnt/nix)"
+nix path-info --recursive "$CLOSURE" > /tmp/target-closure-paths
+nix store verify --recursive --no-trust "$CLOSURE"
+test -e "$CLOSURE/init"
+test -x "$CLOSURE/bin/switch-to-configuration"
+```
+
 如果目标内存较小，保持目标机只接收闭包；不要在 Alpine 中运行 flake 求值或构建。
 
 ### 5.5 使用官方安装工具安装
@@ -448,25 +509,102 @@ test -x "$INSTALL_TOOLS/bin/nixos-install"
 
 ## 6. 重启前验收
 
-任何入口都必须完成以下检查后才能重启。
+任何入口都必须完成以下四层检查后才能重启。缺一层都只能继续修复，不能用一次
+重启来碰运气。
 
-### 6.1 文件系统和 profile
+在同一个安装环境 shell 中先启用失败即停，并重新填入现场变量：
+
+```bash
+set -euo pipefail
+
+CLOSURE=/nix/store/<hash>-nixos-system-<hostname>-<version>
+BOOT_DEV=/dev/<boot-partition>
+NIX_DEV=/dev/<nix-partition>
+
+: "${CLOSURE:?CLOSURE is required}"
+: "${BOOT_DEV:?BOOT_DEV is required}"
+: "${NIX_DEV:?NIX_DEV is required}"
+```
+
+以下任意命令非零退出都会中止验收。不要临时加 `|| true`，也不要在失败后直接跳到
+第 6.5 节。
+
+### 6.1 文件系统与早期挂载
 
 ```bash
 findmnt -R /mnt
 lsblk -f
 blkid "$BOOT_DEV" "$NIX_DEV"
 
-readlink -f /mnt/nix/var/nix/profiles/system
-test -x /mnt/nix/var/nix/profiles/system/bin/switch-to-configuration
 test -f /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key
 ssh-keygen -lf /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key.pub
 ```
 
-profile 必须指向目标 Btrfs 内真实存在的闭包。这里缺失会导致
-`initrd-find-nixos-closure.service` 启动失败。
+在构建机再次确认安装的同一个 closure 含有正确的 `/nix` 设备声明，且
+`neededForBoot` 为 `true`。现场 UUID、仓库声明、构建 closure 三者任何一个不一致，
+都应重新构建并重新执行安装，不能继续重启。
 
-### 6.2 引导文件
+### 6.2 目标 store 完整性
+
+在安装环境设置本次唯一的 closure：
+
+```bash
+TARGET_STORE=/mnt
+
+nix path-info --store "$TARGET_STORE" --recursive "$CLOSURE" \
+  > /tmp/target-closure-paths
+nix store verify --store "$TARGET_STORE" \
+  --recursive --no-trust "$CLOSURE"
+
+missing=0
+while IFS= read -r path; do
+  if ! test -e "/mnt${path}"; then
+    printf 'MISSING %s\n' "$path" >&2
+    missing=1
+  fi
+done < /tmp/target-closure-paths
+test "$missing" -eq 0
+
+test -e "/mnt${CLOSURE}/init"
+test -x "/mnt${CLOSURE}/bin/switch-to-configuration"
+```
+
+这同时验证目标 Nix 数据库、closure 的递归引用和磁盘上的真实文件。只运行
+`ls /mnt/nix/store | grep nixos-system` 不足以证明 closure 完整。
+
+### 6.3 System profile 与 closure 一致
+
+不要在安装环境使用 `readlink -f /mnt/nix/var/nix/profiles/system`。generation 的
+第二层链接通常是绝对 `/nix/store/...`，`readlink -f` 可能错误解析到安装环境的
+临时 `/nix`。用下面的逐层读取检查目标 profile：
+
+```bash
+PROFILE=/mnt/nix/var/nix/profiles/system
+GENERATION=$(readlink "$PROFILE")
+
+case "$GENERATION" in
+  /nix/store/*)
+    PROFILE_SYSTEM=$GENERATION
+    ;;
+  /*)
+    printf 'Unexpected absolute profile link: %s\n' "$GENERATION" >&2
+    exit 1
+    ;;
+  *)
+    PROFILE_SYSTEM=$(readlink "$(dirname "$PROFILE")/$GENERATION")
+    ;;
+esac
+
+printf 'profile=%s\nexpected=%s\n' "$PROFILE_SYSTEM" "$CLOSURE"
+test "$PROFILE_SYSTEM" = "$CLOSURE"
+test -e "/mnt${PROFILE_SYSTEM}/init"
+```
+
+system profile 位于目标 `/nix/var/nix/profiles`，它既决定默认系统 generation，也
+保护 closure 不被 GC。profile 不存在、指向其他 generation 或指向缺失路径时禁止
+重启。
+
+### 6.4 引导文件与 closure 一致
 
 UEFI：
 
@@ -492,7 +630,31 @@ test -f /mnt/boot/grub/i386-pc/btrfs.mod
 
 缺少这两个模块时不要重启，否则可能进入 `grub rescue>`。
 
-### 6.3 卸载并重启
+最后确认引导配置引用的是同一个 closure，而不是旧 generation：
+
+```bash
+if test -f /mnt/boot/grub/grub.cfg; then
+  grep -F "$CLOSURE/init" /mnt/boot/grub/grub.cfg
+elif test -d /mnt/boot/loader/entries; then
+  grep -R -F "$CLOSURE/init" /mnt/boot/loader/entries
+else
+  echo 'No GRUB or systemd-boot configuration found' >&2
+  exit 1
+fi
+```
+
+grep 必须至少返回一行。目标 store、system profile、bootloader 三处必须引用同一
+个完整 store path。
+
+四层检查全部完成后，在卸载前明确记录：
+
+```bash
+printf 'REBOOT_GATE=PASS closure=%s\n' "$CLOSURE"
+```
+
+没有看到这一行就不允许执行 `reboot`。
+
+### 6.5 卸载并重启
 
 NixOS ISO：
 
@@ -584,10 +746,16 @@ nix run .#colmena -- apply --on <hostname>
 
 ```bash
 FINAL=/nix/store/<hash>-nixos-system-<hostname>-<version>
+nix path-info --recursive "$FINAL" >/tmp/final-closure-paths
+nix store verify --recursive --no-trust "$FINAL"
 nix-env -p /nix/var/nix/profiles/system --set "$FINAL"
 "$FINAL/bin/switch-to-configuration" boot
+test "$(readlink /nix/var/nix/profiles/$(readlink \
+  /nix/var/nix/profiles/system))" = "$FINAL"
 systemctl reboot
 ```
+
+两阶段安装也必须执行第 6 节中等价的 store、profile 和 bootloader 一致性检查。
 
 完整实操参考 [`old/ml-2700u/reinstall-log.md`](./old/ml-2700u/reinstall-log.md)。
 
@@ -595,7 +763,7 @@ systemctl reboot
 
 | 现象 | 优先检查 | 处理原则 |
 | --- | --- | --- |
-| `initrd-find-nixos-closure.service` 失败 | `/nix` 是否挂载、system profile 是否指向存在的闭包 | 从救援环境重新挂载并修 profile，不要再次格式化 |
+| `initrd-find-nixos-closure.service` 失败 | `/nix` 是否 `neededForBoot`、profile 和引导项是否指向目标 store 中存在的同一 closure | 从救援环境重新挂载并修声明、profile 或引导，不要再次格式化 |
 | `grub rescue>` | BIOS GRUB 的 `normal.mod`、`btrfs.mod` 和安装磁盘 | 修复 GRUB 文件或重装 bootloader，不动 `/nix` |
 | EFI 找不到启动项 | 对应架构的 `EFI/BOOT/BOOT*.EFI`、NVRAM 启动项 | 补 fallback 引导文件或修云平台启动顺序 |
 | SSH host key 改变 | 持久化私钥是否为安装前确定的那把 | 先核对指纹，再更新 `known_hosts` |
@@ -606,11 +774,30 @@ systemctl reboot
 | `Too many authentication failures` | SSH agent 提供了过多密钥 | 使用 `IdentitiesOnly=yes` 和公钥 selector 文件 |
 | 闭包复制看似长时间无输出 | 目标 substituter 超时或正在复制大路径 | 检查进程；必要时使用 Colmena `--no-substitute` 直接传输 |
 
+### 9.1 闭包找不到时的无损恢复
+
+如果已经停在 `initrd-find-nixos-closure.service`，不要重分区。重新进入 NixOS ISO
+或 Alpine RAM，按第 3.3 节挂载原有 `/boot` 和 `/nix`，然后：
+
+1. 从 `/mnt/boot/grub/grub.cfg` 或 `/mnt/boot/loader/entries/` 读取失败启动项引用的
+   完整 closure path。
+2. 用第 6.2 节确认该 closure 是否完整存在于目标 store。
+3. 路径缺失或校验失败时，从构建机重新复制这个精确 closure。
+4. profile 不一致时重新运行
+   `nixos-install --root /mnt --system "$CLOSURE" --no-root-passwd --no-channel-copy`，
+   让它同时重设 profile 和引导项。
+5. 如果 `/nix` 没有在 initrd 阶段挂载，先把 `neededForBoot = true` 写回主机配置，
+   重新构建新 closure，再复制和安装；单纯补传旧 closure不能修复挂载顺序。
+6. 完整通过第 6 节后才重启。
+
 ## 10. 安装完成清单
 
 - [ ] 目标磁盘、固件模式和分区表有安装记录。
 - [ ] `hardware-configuration.nix` 与现场 UUID、文件系统一致。
+- [ ] 独立 `/nix` 的 `neededForBoot` 求值结果为 `true`。
 - [ ] `/`、`/boot`、`/nix` 挂载符合本仓库结构。
+- [ ] 目标 store 的 closure 递归校验通过，无缺失引用。
+- [ ] system profile 和 bootloader 引用同一个目标 closure。
 - [ ] 正式 SSH host 私钥已持久化，并在 Bitwarden 有恢复副本。
 - [ ] host 公钥、SOPS recipient 和 secrets rekey 已提交。
 - [ ] 冷启动后 SSH 2222、SOPS 和当前 closure 已验证。

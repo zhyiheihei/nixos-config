@@ -41,6 +41,7 @@ peer 必须在两端配置成对，否则一端会持续发送数据但永远没
 - ext4 `/boot`
 - 可选磁盘 swap
 - Btrfs `/nix`，使用 `compress-force=zstd`、`autodefrag`、`nosuid`、`nodev`
+- 独立 `/nix` 必须声明 `neededForBoot = true`
 
 加密 swap 的 `device` 必须使用 `/dev/disk/by-partuuid/...`。不要把文件系统 UUID
 误写成 PARTUUID。
@@ -60,7 +61,8 @@ test -f /boot/grub/i386-pc/btrfs.mod
 
 物理 client 继续遵循 `AGENTS.md`：EFI `/boot`、Btrfs `/nix`、tmpfs `/`，并在
 安装环境中提前准备 `/mnt/nix/persistent/etc/ssh`。不要在线把普通 ext4 根系统
-直接切换到该布局。
+直接切换到该布局。这里的独立 `/nix` 同样必须设置 `neededForBoot = true`，确保
+initrd 挂载它以后再寻找 system closure。
 
 ## 4. SSH host key 和 SOPS
 
@@ -153,6 +155,10 @@ nix copy --no-check-sigs \
 nixos-install --root /mnt --system <system-closure> \
   --no-root-passwd --no-channel-copy
 ```
+
+`nix copy` 成功不等于系统可启动。重启前必须按完整重装指南逐项证明：目标 store
+拥有 closure 的全部递归引用、目标 system profile 指向该 closure、bootloader
+引用同一 closure，而且 `/nix` 会在 initrd 阶段挂载。
 
 ## 7. PVE VM 设置
 
