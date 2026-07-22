@@ -74,18 +74,7 @@ in
           ttl = "10m";
         }
         (mkPublicVpsCname "ha")
-        {
-          recordType = "CNAME";
-          name = "*.ml-home-vm";
-          target = "ml-home-vm.ltnet.zhyi.cc.";
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "*.sgvm";
-          target = "sgvm.ltnet.zhyi.cc.";
-          ttl = "10m";
-        }
+
         {
           recordType = "CNAME";
           name = "*";
@@ -123,15 +112,9 @@ in
         # High-volume cache data stays on the home ingress.
         (mkHomeIngressCname "vaults3")
 
-        (builtins.filter
-          (
-            record:
-            !(record.recordType == "CNAME" && record.name == "*.ml-home-vm.zhyi.cc.")
-          )
-          (hostRecords domain (
-            host: if config.common.hostRecs.hasPublicIP host then host.public else host.ltnet
-          ))
-        )
+        (hostRecords domain (
+          host: if config.common.hostRecs.hasPublicIP host then host.public else host.ltnet
+        ))
         (hostRecords "ltnet.${domain}" (host: host.ltnet))
       ];
     }
