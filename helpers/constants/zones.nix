@@ -10,27 +10,6 @@ _: {
       "31.172.in-addr.arpa"
       "d.f.ip6.arpa"
     ];
-    NeoNetwork = [ "neo" ];
-    # .neo zone not included for conflict with NeoNetwork
-    OpenNIC = [
-      "bbs"
-      "chan"
-      "cyb"
-      "dns.opennic.glue"
-      "dyn"
-      "epic"
-      "geek"
-      "gopher"
-      "indy"
-      "libre"
-      "null"
-      "o"
-      "opennic.glue"
-      "oss"
-      "oz"
-      "parody"
-      "pirate"
-    ];
     Emercoin = [
       "bazar"
       "coin"
