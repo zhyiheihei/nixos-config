@@ -100,6 +100,26 @@ in
         (mkHomeIngressCname "netbox")
         (mkPublicVpsCname "sub")
 
+        # Monitoring stack (sgvm)
+        {
+          recordType = "CNAME";
+          name = "prometheus";
+          target = "sgvm.zhyi.cc.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "dashboard";
+          target = "sgvm.zhyi.cc.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "alert";
+          target = "sgvm.zhyi.cc.";
+          ttl = "10m";
+        }
+
         # High-volume cache data stays on the home ingress.
         (mkHomeIngressCname "vaults3")
 
