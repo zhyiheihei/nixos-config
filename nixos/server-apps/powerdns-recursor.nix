@@ -20,7 +20,7 @@ let
             ];
           })
           # NeoNetwork is covered by fwd-dn42-interconnect
-          (with LT.constants.zones; (DN42 ++ OpenNIC ++ CRXN ++ Meshname ++ Ltnet));
+          (with LT.constants.zones; (DN42 ++ CRXN ++ Meshname ++ Ltnet));
 
       emercoin = builtins.map (k: {
         zone = k;
@@ -100,7 +100,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
       let
         ntaRecords = lib.concatMapStringsSep "\n" (n: "addNTA(\"${n}\")") (
           with LT.constants.zones;
-          (DN42 ++ OpenNIC ++ Emercoin ++ CRXN ++ Meshname ++ YggdrasilAlfis ++ Ltnet ++ Others)
+          (DN42 ++ Emercoin ++ CRXN ++ Meshname ++ YggdrasilAlfis ++ Ltnet ++ Others)
         );
       in
       ''

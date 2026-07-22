@@ -109,7 +109,7 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
         # ++ lib.optional config.services.avahi.enable (mdns "local")
         ++ (builtins.map forwardToLtnet (
           with LT.constants.zones;
-          (DN42 ++ NeoNetwork ++ OpenNIC ++ Emercoin ++ CRXN ++ Meshname ++ YggdrasilAlfis ++ Ltnet ++ Others)
+          (DN42 ++ Emercoin ++ CRXN ++ Meshname ++ YggdrasilAlfis ++ Ltnet ++ Others)
         ));
       in
       lib.concatStrings cfgEntries;

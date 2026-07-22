@@ -64,10 +64,6 @@ let
       ${forwardZone "d.f.ip6.arpa" null}
       ${forwardZone "tel.dn42" null}
 
-      # NeoNetwork Authoritative
-      ${forwardZone "neo" null}
-      ${forwardZone "127.10.in-addr.arpa" null}
-
       # LTNET Active Directory
       ${forwardZone "ad.zhyi.cc" null}
 
@@ -79,26 +75,6 @@ let
       ${forwardZone "19.198.in-addr.arpa" null}
 
       # Public Internet Authoritative
-
-      # OpenNIC Authoritative
-      ${forwardZone "opennic.glue" null}
-      ${forwardZone "dns.opennic.glue" null}
-      ${forwardZone "bbs" null}
-      ${forwardZone "chan" null}
-      ${forwardZone "cyb" null}
-      ${forwardZone "dyn" null}
-      ${forwardZone "epic" null}
-      ${forwardZone "fur" null}
-      ${forwardZone "geek" null}
-      ${forwardZone "gopher" null}
-      ${forwardZone "indy" null}
-      ${forwardZone "libre" null}
-      ${forwardZone "null" null}
-      ${forwardZone "o" null}
-      ${forwardZone "oss" null}
-      ${forwardZone "oz" null}
-      ${forwardZone "parody" null}
-      ${forwardZone "pirate" null}
 
       # Lan Tian Mobile VoLTE
       ${forwardZone "mnc001.mcc001.3gppnetwork.org" null}
@@ -159,18 +135,6 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
           "allow_transfer"
         ];
       };
-      mkOpennicZone = name: {
-        domain = name;
-        storage = "/var/cache/zones/";
-        file = "${if name == "." then "root" else name}.zone";
-        refresh-min-interval = "1h";
-        refresh-max-interval = "1d";
-        master = "opennic";
-        acl = [
-          "opennic_notify"
-          "allow_transfer"
-        ];
-      };
       mkLtnetAdZone = name: {
         domain = name;
         storage = "/var/cache/zones/";
@@ -228,23 +192,6 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
             ];
           }
           {
-            id = "opennic";
-            via = [
-              config.lantian.netns.coredns-authoritative.ipv4
-              config.lantian.netns.coredns-authoritative.ipv6
-            ];
-            address = [
-              "161.97.219.84@${LT.portStr.DNS}"
-              "94.103.153.176@${LT.portStr.DNS}"
-              "178.63.116.152@${LT.portStr.DNS}"
-              "188.226.146.136@${LT.portStr.DNS}"
-              "144.76.103.143@${LT.portStr.DNS}"
-              "2a02:990:219:1:ba:1337:cafe:3@${LT.portStr.DNS}"
-              "2a01:4f8:141:4281::999@${LT.portStr.DNS}"
-              "2a01:4f8:192:43a5::2@${LT.portStr.DNS}"
-            ];
-          }
-          {
             id = "ltnet_ad";
             via = [
               config.lantian.netns.coredns-authoritative.ipv4
@@ -267,20 +214,6 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
             ];
           }
           {
-            id = "opennic_notify";
-            action = "notify";
-            address = [
-              "161.97.219.84"
-              "94.103.153.176"
-              "178.63.116.152"
-              "188.226.146.136"
-              "144.76.103.143"
-              "2a02:990:219:1:ba:1337:cafe:3"
-              "2a01:4f8:141:4281::999"
-              "2a01:4f8:192:43a5::2"
-            ];
-          }
-          {
             id = "ltnet_ad_notify";
             action = "notify";
             address = [
@@ -300,7 +233,6 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
 
         zone =
           (map mkDn42Zone LT.constants.zones.DN42)
-          ++ (map mkOpennicZone ([ "." ] ++ LT.constants.zones.OpenNIC))
           ++ (map mkLtnetAdZone [
             "ad.zhyi.cc"
             "_msdcs.ad.zhyi.cc"
@@ -341,14 +273,6 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
             {
               domain = "19.198.in-addr.arpa";
               path = "ltnet-zones/19.198.in-addr.arpa";
-            }
-            {
-              domain = "neo";
-              path = "ltnet-scripts/zones/neo";
-            }
-            {
-              domain = "127.10.in-addr.arpa";
-              path = "ltnet-scripts/zones/127.10.in-addr.arpa";
             }
             {
               domain = "mnc001.mcc001.3gppnetwork.org";
