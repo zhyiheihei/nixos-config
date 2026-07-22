@@ -46,6 +46,6 @@
     "2001:4860:4860::8844"
   ];
 
-  lantian.nginxVhosts."sg.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  lantian.nginxVhosts."sgvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
 }
