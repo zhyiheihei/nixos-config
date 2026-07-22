@@ -1,6 +1,7 @@
 {
   LT,
   lib,
+  config,
   ...
 }:
 let
@@ -11,6 +12,17 @@ let
       elements = { ${builtins.concatStringsSep ", " value} }
     }
   '';
+
+  publicFirewalledPorts = [
+    # Samba
+    137
+    138
+    139
+    445
+    LT.port.CUPS
+    LT.port.Rsync
+    LT.port.mDNS
+  ];
 in
 {
   networking.nftables.tables.lantian.content = lib.mkForce ''
@@ -42,6 +54,9 @@ in
 
     chain FILTER_OUTPUT {
       type filter hook output priority 5; policy accept;
+
+      # Block mDNS on WAN
+      fib saddr type local oifname "eth0" jump PUBLIC_OUTPUT
     }
 
     chain NAT_PREROUTING {
@@ -77,13 +92,19 @@ in
       type inet_service
       flags constant
       elements = {
-        137,138,139,445,${LT.portStr.CUPS},${LT.portStr.Rsync},${LT.portStr.mDNS}
+        ${lib.concatMapStringsSep "," builtins.toString publicFirewalledPorts}
       }
     }
 
     chain PUBLIC_INPUT {
       tcp dport @PUBLIC_FIREWALLED_PORTS reject with tcp reset
       udp dport @PUBLIC_FIREWALLED_PORTS reject with icmpx type port-unreachable
+      return
+    }
+
+    chain PUBLIC_OUTPUT {
+      tcp sport @PUBLIC_FIREWALLED_PORTS drop
+      udp sport @PUBLIC_FIREWALLED_PORTS drop
       return
     }
 
