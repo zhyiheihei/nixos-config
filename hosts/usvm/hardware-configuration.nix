@@ -6,10 +6,13 @@ _: {
     ../../nixos/hardware/qemu.nix
   ];
 
-  boot.loader.grub.device = "/dev/vda";
+  boot.loader.grub = {
+    efiSupport = true;
+    device = "nodev";
+  };
 
   fileSystems."/nix" = {
-    device = "/dev/vda3";
+    device = "/dev/sda2";
     fsType = "btrfs";
     options = [
       "compress-force=zstd"
@@ -20,7 +23,7 @@ _: {
   };
 
   fileSystems."/boot" = {
-    device = "/dev/vda2";
+    device = "/dev/sda1";
     fsType = "vfat";
     options = [
       "fmask=0077"
