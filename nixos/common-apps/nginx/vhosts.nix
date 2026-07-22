@@ -151,10 +151,6 @@ in
       serverAliases = [ "${config.networking.hostName}.zhyi.dn42" ];
       sslCertificate = "lets-encrypt-zhyi.xin";
     };
-    "lantian.neo" = addConfLantianPub {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
-    };
 
     # Don't use globalRedirect, it adds http:// prefix
     "www.zhyi.xin" = {
@@ -175,7 +171,6 @@ in
       root = "/nix/sync-servers/www/zhyi.xin";
       serverAliases = [
         "gopher.zhyi.dn42"
-        "gopher.lantian.neo"
       ];
 
       locations."/" = {
@@ -209,7 +204,6 @@ in
       root = "/nix/sync-servers/www/zhyi.xin";
       serverAliases = [
         "gemini.zhyi.dn42"
-        "gemini.lantian.neo"
       ];
 
       locations."/".index = "index.gmi";
