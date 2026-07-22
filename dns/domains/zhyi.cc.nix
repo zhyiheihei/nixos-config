@@ -67,19 +67,12 @@ in
           address = LT.hosts.jpvm.public.IPv4;
           ttl = "10m";
         }
-        (mkPublicVpsCname "archivebox.ml-home-vm")
-        (mkPublicVpsCname "syncthing.ml-home-vm")
         {
           recordType = "CNAME";
           name = "halo.cnvm";
           target = "cnvm.ltnet.zhyi.cc.";
           ttl = "10m";
         }
-        (mkPublicVpsCname "linkwarden.ml-home-vm")
-        (mkPublicVpsCname "excalidraw.ml-home-vm")
-        (mkPublicVpsCname "freshrss.ml-home-vm")
-        (mkPublicVpsCname "memos.ml-home-vm")
-        (mkPublicVpsCname "vertex.ml-home-vm")
         (mkPublicVpsCname "ha")
         {
           recordType = "CNAME";
