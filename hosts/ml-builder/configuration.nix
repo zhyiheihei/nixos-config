@@ -36,8 +36,6 @@ in
     ];
     "${LT.hosts."pve-5700u".interconnect.IPv4}" = [ "pve-5700u.zhyi.cc" ];
     "${LT.hosts.logvm.interconnect.IPv4}" = [ "logvm.zhyi.cc" ];
-    # LAN 直连 colocrossing，绕过 hairpin NAT 访问 attic
-    "${LT.hosts.colocrossing.interconnect.IPv4}" = [ "attic.zhyi.xin" ];
   };
 
   services.openssh.settings.MaxStartups = "64:30:128";

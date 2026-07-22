@@ -59,8 +59,6 @@
     "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
     "${LT.hosts."ml-home-vm".interconnect.IPv4}" = [ "ml-home-vm.zhyi.cc" ];
     "${LT.hosts.logvm.interconnect.IPv4}" = [ "logvm.zhyi.cc" ];
-    # LAN 直连 colocrossing，绕过 hairpin NAT 访问 attic
-    "${LT.hosts.colocrossing.interconnect.IPv4}" = [ "attic.zhyi.xin" ];
   };
 
   systemd.network.netdevs.br0 = {
