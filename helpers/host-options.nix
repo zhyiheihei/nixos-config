@@ -171,19 +171,19 @@
 
     neonetwork = {
       IPv4 = lib.mkOption {
-        type = lib.types.str;
+        type = lib.types.nullOr lib.types.str;
         readOnly = true;
-        default = "10.127.10.${builtins.toString config.index}";
+        default = null;
       };
       IPv6 = lib.mkOption {
-        type = lib.types.str;
+        type = lib.types.nullOr lib.types.str;
         readOnly = true;
-        default = "fd10:127:10:${builtins.toString config.index}::1";
+        default = null;
       };
       IPv6Prefix = lib.mkOption {
-        type = lib.types.str;
+        type = lib.types.nullOr lib.types.str;
         readOnly = true;
-        default = "fd10:127:10:${builtins.toString config.index}";
+        default = null;
       };
     };
 

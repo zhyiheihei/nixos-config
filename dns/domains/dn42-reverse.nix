@@ -50,29 +50,5 @@
         (config.common.hostRecs.DN42ReverseIPv4 "zhyi.dn42." 224 255)
       ];
     }
-
-    rec {
-      domain = "10.127.10.0/24";
-      reverse = true;
-      providers = [ "bind" ];
-      records = lib.flatten [
-        config.common.nameservers.NeoNetwork
-        config.common.soa.NeoNetwork
-        (config.common.hostRecs.LTNetReverseIPv4_24 "lantian.neo.")
-      ];
-    }
-
-    rec {
-      domain = "fd10:127:10::/48";
-      reverse = true;
-      providers = [ "bind" ];
-      records = lib.flatten [
-        config.common.nameservers.NeoNetwork
-        config.common.soa.NeoNetwork
-        (config.common.hostRecs.LTNetReverseIPv6_48 "lantian.neo.")
-        (config.common.hostRecs.LTNetReverseIPv6_64in48 "lantian.neo.")
-        (config.common.manosaba true "fd10:127:10:6d61:6e6f:7361:6261:" 2)
-      ];
-    }
   ];
 }

@@ -16,10 +16,6 @@ let
     "ns1.zhyi.dn42."
   ];
 
-  NeoNetworkServers = [
-    "ns-anycast.lantian.neo."
-  ];
-
   mapNameservers = builtins.map (n: {
     recordType = "NAMESERVER";
     name = n;
@@ -42,9 +38,6 @@ in
 
     DN42 = mapNameservers DN42Servers;
     DN42NSRecords = mapNSRecords DN42Servers;
-
-    NeoNetwork = mapNameservers NeoNetworkServers;
-    NeoNetworkRecords = mapNSRecords NeoNetworkServers;
   };
 
   common.soa = {
@@ -53,16 +46,6 @@ in
       name = "@";
       nameserver = "ns1.zhyi.dn42.";
       email = "molishanguang.outlook.com.";
-      refresh = 360;
-      retry = 600;
-      expire = 604800;
-      minimum = 600;
-    };
-    NeoNetwork = {
-      recordType = "SOA";
-      name = "@";
-      nameserver = "ns-anycast.lantian.neo.";
-      email = "lantian.lantian.neo.";
       refresh = 360;
       retry = 600;
       expire = 604800;

@@ -131,12 +131,6 @@ let
       # LTNET Active Directory
       ${forwardZone "ad.zhyi.cc" null}
 
-      # NeoNetwork Lan Tian Authoritative
-      ${forwardZone "lantian.neo" "Klantian.neo.+013+47346"}
-      ${forwardZone "asn.lantian.neo" null}
-      ${forwardZone "10.127.10.in-addr.arpa" "K10.127.10.in-addr.arpa.+013+53292"}
-      ${forwardZone "0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa" "K0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa.+013+11807"}
-
       # LTNET Public Facing Addressing
       ${forwardZone "asn.zhyi.cc" "Kasn.zhyi.cc.+013+54715"}
 
@@ -224,11 +218,9 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
     announcedIPv4 = [
       "172.20.46.227"
       "198.19.0.254"
-      "10.127.10.254"
     ];
     announcedIPv6 = [
       "fdd8:1938:4e88:3712::54"
-      "fd10:127:10:2547::54"
     ];
     birdBindTo = [ "coredns-authoritative.service" ];
   };
@@ -327,10 +319,8 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
               "178.63.116.152@${LT.portStr.DNS}"
               "188.226.146.136@${LT.portStr.DNS}"
               "144.76.103.143@${LT.portStr.DNS}"
-              "2001:470:4212:10:0:100:53:10@${LT.portStr.DNS}"
               "2a02:990:219:1:ba:1337:cafe:3@${LT.portStr.DNS}"
               "2a01:4f8:141:4281::999@${LT.portStr.DNS}"
-              "2a03:b0c0:0:1010::13f:6001@${LT.portStr.DNS}"
               "2a01:4f8:192:43a5::2@${LT.portStr.DNS}"
             ];
           }
@@ -365,10 +355,8 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
               "178.63.116.152"
               "188.226.146.136"
               "144.76.103.143"
-              "2001:470:4212:10:0:100:53:10"
               "2a02:990:219:1:ba:1337:cafe:3"
               "2a01:4f8:141:4281::999"
-              "2a03:b0c0:0:1010::13f:6001"
               "2a01:4f8:192:43a5::2"
             ];
           }
@@ -421,22 +409,6 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
             {
               domain = "tel.dn42";
               path = "ltnet-scripts/zones/tel.dn42";
-            }
-            {
-              domain = "lantian.neo";
-              path = "ltnet-zones/lantian.neo";
-            }
-            {
-              domain = "asn.lantian.neo";
-              path = "ltnet-scripts/zones/asn.lantian.neo";
-            }
-            {
-              domain = "10.127.10.in-addr.arpa";
-              path = "ltnet-zones/10.127.10.in-addr.arpa";
-            }
-            {
-              domain = "0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa";
-              path = "ltnet-zones/0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa";
             }
             {
               domain = "asn.zhyi.cc";

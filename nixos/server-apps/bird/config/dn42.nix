@@ -142,7 +142,6 @@ in
       if ${community.NO_ADVERTISE} ~ bgp_community then reject;
 
       if net ~ [ 172.20.46.224/27+ ] then bgp_path.prepend(${DN42_AS});
-      if net ~ [ 10.127.10.0/24+ ] then bgp_path.prepend(${NEO_AS});
 
       bgp_path.delete(local_asn);
       bgp_path.delete([4225470000..4225479999]);
@@ -186,7 +185,6 @@ in
       if ${community.NO_ADVERTISE} ~ bgp_community then reject;
 
       if net ~ [ fdd8:1938:4e88::/48+ ] then bgp_path.prepend(${DN42_AS});
-      if net ~ [ fd10:127:10::/48+ ] then bgp_path.prepend(${NEO_AS});
 
       bgp_path.delete(local_asn);
       bgp_path.delete([4225470000..4225479999]);
