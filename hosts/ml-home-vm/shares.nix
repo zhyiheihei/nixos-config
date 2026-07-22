@@ -21,18 +21,20 @@
       /run/nfs/storage ${hostOpts}
     '';
 
-  services.samba.settings.storage = {
-    path = "/mnt/storage";
-    browseable = "yes";
-    "read only" = "no";
-    "guest ok" = "no";
-    "create mask" = "0644";
-    "directory mask" = "0755";
-    "force user" = "root";
-    "force group" = "users";
-    "valid users" = "zhyi";
-    "veto files" = "/._*/.DS_Store/Thumbs.db/";
-    "delete veto files" = "yes";
+  services.samba.settings = {
+    "storage" = {
+      "path" = "/mnt/storage";
+      "browseable" = "yes";
+      "read only" = "no";
+      "guest ok" = "no";
+      "create mask" = "0644";
+      "directory mask" = "0755";
+      "force user" = "root";
+      "force group" = "users";
+      "valid users" = "zhyi";
+      "veto files" = "/._*/.DS_Store/Thumbs.db/";
+      "delete veto files" = "yes";
+    };
   };
 
   lantian.syncthing.storage = "/mnt/storage/media";
@@ -41,9 +43,7 @@
     "/run/sftp" = lib.mkForce {
       device = "/mnt/storage";
       fsType = "fuse.bindfs";
-      depends = [ "/mnt/storage" ];
       options = LT.constants.bindfsMountOptions' [
-        "_netdev"
         "force-user=sftp"
         "force-group=sftp"
         "perms=700"
@@ -56,9 +56,7 @@
     "/run/nfs/storage" = {
       device = "/mnt/storage";
       fsType = "fuse.bindfs";
-      depends = [ "/mnt/storage" ];
       options = LT.constants.bindfsMountOptions' [
-        "_netdev"
         "force-user=zhyi"
         "force-group=zhyi"
         "perms=700"
