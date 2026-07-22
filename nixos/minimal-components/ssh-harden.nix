@@ -137,6 +137,11 @@ in
     Host localhost
       ${ltnetSSHConfig}
 
+    Host vscode-remote
+      HostName ml-builder.ltnet.zhyi.cc
+      User zhyi
+      ${ltnetSSHConfig}
+
     Host *
       ForwardAgent no
       Compression no
