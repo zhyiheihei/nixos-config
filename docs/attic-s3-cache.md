@@ -9,16 +9,16 @@
 ```text
 Hydra (pve-5700u) / 手动构建 (ml-builder)
   -> attic push lantian
-  -> Attic (colocrossing)
-  -> PostgreSQL + VaultS3 bucket nix-cache
+  -> Attic (cnvm)
+  -> PostgreSQL + VaultS3 (home-ddns) bucket nix-cache
   -> Nix clients
 ```
 
 - Attic 服务、Nginx vhost 与 S3 参数定义在
   [`nixos/optional-apps/attic.nix`](../nixos/optional-apps/attic.nix)，由
-  `hosts/colocrossing/configuration.nix` 导入。
+  `hosts/cnvm/configuration.nix` 导入。
 - Attic 只监听回环地址，由同机 Nginx 发布；外部数据面使用
-  `https://attic.zhyi.xin:8443/lantian`。
+  `https://attic.zhyi.xin/lantian`（标准 443 端口）。
 - S3 凭据与上传 token 只在私有 secrets 仓库的 `common/attic.yaml` 中以 SOPS 加密
   保存。修改它必须遵循 secrets 仓库的 `docs/sops-manual.md`。
 - Hydra 在
@@ -40,11 +40,11 @@ Attic，再回退到本机 NCPS；该顺序定义在
 在任意已配置客户端上：
 
 ```bash
-curl -fsS https://attic.zhyi.xin:8443/lantian/nix-cache-info
-nix store ping --store https://attic.zhyi.xin:8443/lantian
+curl -fsS https://attic.zhyi.xin/lantian/nix-cache-info
+nix store ping --store https://attic.zhyi.xin/lantian
 ```
 
-在 colocrossing 上：
+在 cnvm 上：
 
 ```bash
 systemctl is-active atticd nginx postgresql

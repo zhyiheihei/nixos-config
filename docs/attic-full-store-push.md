@@ -27,7 +27,7 @@ ROOT=/root/cache-roots/ml-home-vm
 TOKEN=$(cat /run/secrets/attic-upload-key)
 
 nix shell nixpkgs#attic-client -c attic login --set-default lantian \
-  https://attic.zhyi.xin:8443 "$TOKEN"
+  https://attic.zhyi.xin "$TOKEN"
 nix shell nixpkgs#attic-client -c attic push lantian "$ROOT"
 ```
 
@@ -44,7 +44,7 @@ make push-cache
 
 ```bash
 P=$(readlink -f "$ROOT")
-nix copy --from https://attic.zhyi.xin:8443/lantian \
+nix copy --from https://attic.zhyi.xin/lantian \
   --to file:///tmp/attic-copy-test "$P"
 rm -rf /tmp/attic-copy-test
 ```

@@ -47,7 +47,7 @@ The active Nix cache order on NCPS clients is:
 Attic -> NCPS -> public upstream caches
 ```
 
-Attic is `https://attic.zhyi.xin:8443/lantian`. NCPS runs on
+Attic is `https://attic.zhyi.xin/lantian` (served by cnvm). NCPS runs on
 `ml-home-vm:13851`. The TUNA binary cache was removed because it returned a
 valid narinfo followed by HTTP 403 for the referenced NAR, which made NCPS
 return HTTP 500 instead of falling back. The same failed store path was
@@ -84,7 +84,7 @@ errors, even though a new HTTP/2 request made with curl still succeeds.
 birdc show protocols | grep ltnet_
 wg show
 systemctl start rsync-nix-sync-servers.service
-curl -fsS https://attic.zhyi.xin:8443/lantian/nix-cache-info
+curl -fsS https://attic.zhyi.xin/lantian/nix-cache-info
 ```
 
 Expected BGP sessions are:

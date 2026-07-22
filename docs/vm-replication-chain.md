@@ -47,7 +47,7 @@ ml-home-vm /mnt/storage --> QNAP .93:/nixos (NFSv4.1)
 systemctl is-system-running
 systemctl --failed
 getent ahostsv4 attic.zhyi.xin vaults3.zhyi.cc
-curl -fsS https://attic.zhyi.xin:8443/lantian/nix-cache-info
+curl -fsS https://attic.zhyi.xin/lantian/nix-cache-info
 curl -fsS http://192.168.2.51:13851/nix-cache-info
 ```
 

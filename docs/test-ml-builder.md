@@ -34,7 +34,7 @@ cd /nix/src/nixos-config
 git pull --ff-only
 
 nix show-config | grep -E '^(substituters|trusted-public-keys) ='
-curl -fsS https://attic.zhyi.xin:8443/lantian/nix-cache-info
+curl -fsS https://attic.zhyi.xin/lantian/nix-cache-info
 ```
 
 缓存 URL 和公钥以 `helpers/constants/nix.nix` 为准。若 Attic 不可达，先检查
