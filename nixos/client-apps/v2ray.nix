@@ -65,7 +65,43 @@ let
         protocol = "vless";
         settings.vnext = [
           {
-            address = LT.publicIPv4For "bwg-lax";
+            address = LT.publicIPv4For "jpvm";
+            port = 443;
+            users = [
+              {
+                id = {
+                  _secret = config.sops.secrets.v2ray-key.path;
+                };
+                encryption = "none";
+              }
+            ];
+          }
+          {
+            address = LT.publicIPv4For "cnvm";
+            port = 443;
+            users = [
+              {
+                id = {
+                  _secret = config.sops.secrets.v2ray-key.path;
+                };
+                encryption = "none";
+              }
+            ];
+          }
+          {
+            address = LT.publicIPv4For "sgvm";
+            port = 443;
+            users = [
+              {
+                id = {
+                  _secret = config.sops.secrets.v2ray-key.path;
+                };
+                encryption = "none";
+              }
+            ];
+          }
+          {
+            address = LT.publicIPv4For "usvm";
             port = 443;
             users = [
               {
@@ -100,7 +136,7 @@ let
             xhttpSettings = xhttpSettings // {
               mode = "stream-up";
               downloadSettings = {
-                address = LT.publicIPv4For "bwg-lax";
+                address = LT.publicIPv4For "jpvm";
                 port = 443;
                 inherit
                   network

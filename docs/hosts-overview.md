@@ -1,14 +1,15 @@
 # 当前 hosts 概览
 
 `hosts/<name>/host.nix` 保存主机元数据，`configuration.nix` 保存主机配置，
-`hardware-configuration.nix` 保存硬件与文件系统信息。`hosts/` 只保存 8 台自有
+`hardware-configuration.nix` 保存硬件与文件系统信息。`hosts/` 只保存 10 台自有
 主机；作者原版的独立 checkout 位于仓库上级目录 `../nixos-config-exam`，仅用于人工
 对照，不参与当前 flake 求值或部署。
 
 ## 当前自有拓扑
 
 当前日常在线主机为：
-`ml-builder`、`ml-home-vm`、`pve-5700u`、`colocrossing`、`jpvm`、`logvm`、`cnvm`。
+`ml-builder`、`ml-home-vm`、`pve-5700u`、`colocrossing`、`jpvm`、`cnvm`、
+`sgvm`、`usvm`、`logvm`。
 `pve-2700` 是自有保留主机。`Makefile` 沿用作者的 Colmena 标签目标，并增加安全的
 默认帮助；实际部署命令见 [构建与部署](./deployment.md)。
 
@@ -18,8 +19,10 @@
 | `ml-home-vm` | 115 | `server` | `ml-home-vm.zhyi.cc` | 家庭应用 VM 与 NCPS；不参与远程构建。 |
 | `pve-5700u` | 116 | `nix-builder` / PVE | `pve-5700u.zhyi.cc` | PVE 宿主、Hydra 与本机构建能力。 |
 | `colocrossing` | 18 | `server` / DN42 / 公网入口 | `colocrossing.zhyi.cc` | Attic、家庭入口与 LTNET 路由反射端。 |
-| `jpvm` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP 公网入口及 LTNET 中继。 |
-| `cnvm` | 119 | `server` / DN42 / 公网入口 | `cnvm.zhyi.cc` | `zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
+| `jpvm` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.cc` 通配符公网入口。 |
+| `cnvm` | 119 | `server` / 公网入口 | `cnvm.zhyi.cc` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
+| `sgvm` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；监控栈（Prometheus、Grafana）。 |
+| `usvm` | 117 | `server` / 公网入口 | `35.212.152.140` | US VPS（GCP）。 |
 | `logvm` | 118 | `server` | `logvm.zhyi.cc` | 家庭网络内的日志/基础服务节点。 |
 | `pve-2700` | 113 | PVE 保留主机 | `pve-2700.zhyi.cc` | 不属于日常部署集合；仅在机器状态明确时单独处理。 |
 

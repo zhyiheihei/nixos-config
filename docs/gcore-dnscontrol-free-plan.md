@@ -21,7 +21,8 @@
 
 - `zhyi.cc` 的公开服务使用静态 `CNAME -> jpvm.zhyi.cc.`，包括 `ha.zhyi.cc`；
   `zhyi.xin` 的公开服务使用静态 `CNAME -> cnvm.zhyi.cc.`。
-- `twvm` 已退出生产拓扑，公网入口和 LTNET 中继统一由 `jpvm` 承担。
+- `twvm` 已退出生产拓扑。当前公网 VPS 为 `jpvm`、`cnvm`、`sgvm`、`usvm`；
+  `zhyi.cc` 通配符入口指向 `jpvm`，`zhyi.xin` 通配符入口指向 `cnvm`。
 - 目前不实施公网自动故障转移。未来若恢复该需求，应先升级 Gcore 套餐或迁移到
   支持多条健康检查记录的 DNS 提供商；不要在免费套餐上重新批量改 GEO。
 
