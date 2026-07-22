@@ -62,7 +62,7 @@
 
   systemd.network.networks.eth0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
-    gateway = [ "192.168.2.2" ];
+    gateway = [ "192.168.0.1" ];
     matchConfig.Name = "eth0";
     networkConfig.IPv6AcceptRA = "yes";
     ipv6AcceptRAConfig.DHCPv6Client = "no";
