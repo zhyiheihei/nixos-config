@@ -22,26 +22,40 @@ let
     ttl = "10m";
   };
 
-  ownHosts = [
-    "cnvm"
-    "colocrossing"
-    "jpvm"
-    "sgvm"
-    "ml-builder"
-    "ml-home-vm"
-    "ml-2700"
-    "usvm"
-  ];
+  internalServices = [
+    (mkPublicVpsCname "ha")
+    (mkPublicVpsCname "autoconfig")
+    (mkHomeIngressCname "flapalerted")
+    (mkPublicVpsCname "lg")
+    (mkPublicVpsCname "um")
+    (mkHomeIngressCname "vaults3")
+    {
+      recordType = "CNAME";
+      name = "halo.cnvm";
+      target = "cnvm.ltnet.zhyi.cc.";
+      ttl = "10m";
+    }
 
-  hostRecords =
-    domain: addressFor:
-    lib.concatMap (
-      name:
-      config.common.hostRecs.mapAddresses {
-        name = "${name}.${domain}.";
-        addresses = addressFor LT.hosts.${name};
-      }
-    ) ownHosts;
+    # Monitoring stack (sgvm)
+    {
+      recordType = "CNAME";
+      name = "prometheus";
+      target = "sgvm.zhyi.cc.";
+      ttl = "10m";
+    }
+    {
+      recordType = "CNAME";
+      name = "dashboard";
+      target = "sgvm.zhyi.cc.";
+      ttl = "10m";
+    }
+    {
+      recordType = "CNAME";
+      name = "alert";
+      target = "sgvm.zhyi.cc.";
+      ttl = "10m";
+    }
+  ];
 in
 {
   domains = [
@@ -52,6 +66,29 @@ in
       enableWildcard = true;
       records = lib.flatten [
         {
+          recordType = "A";
+          name = "@";
+          address = LT.hosts.jpvm.public.IPv4;
+          ttl = "10m";
+        }
+        {
+          recordType = "HTTPS";
+          name = "@";
+          priority = 1;
+          target = ".";
+          modifiers = "alpn=h3,h2";
+        }
+        {
+          recordType = "CNAME";
+          name = "www";
+          target = "@";
+          ttl = "5m";
+        }
+
+        config.common.hostRecs.CAA
+        (config.common.hostRecs.Normal "${domain}.")
+
+        {
           recordType = "IGNORE";
           name = "home-ddns";
           type = "A,AAAA";
@@ -61,89 +98,11 @@ in
           name = "wg-home";
           type = "A,AAAA";
         }
-        {
-          recordType = "A";
-          name = "@";
-          address = LT.hosts.jpvm.public.IPv4;
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "halo.cnvm";
-          target = "cnvm.ltnet.zhyi.cc.";
-          ttl = "10m";
-        }
-        (mkPublicVpsCname "ha")
 
-        # 按主机名通配符，避免 `*` catch-all 覆盖更具体的通配符（Gcore 不支持通配符优先级排序）
-        {
-          recordType = "CNAME";
-          name = "*.ml-home-vm";
-          target = "ml-home-vm.ltnet.zhyi.cc.";
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "*.jpvm";
-          target = "jpvm.ltnet.zhyi.cc.";
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "*.cnvm";
-          target = "cnvm.ltnet.zhyi.cc.";
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "*.colocrossing";
-          target = "colocrossing.ltnet.zhyi.cc.";
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "*.sgvm";
-          target = "sgvm.ltnet.zhyi.cc.";
-          ttl = "10m";
-        }
-        (mkPublicVpsCname "autoconfig")
-        (mkHomeIngressCname "flapalerted")
-        (mkPublicVpsCname "lg")
-        (mkPublicVpsCname "um")
-        (mkHomeIngressCname "hydra")
-        (mkHomeIngressCname "netbox")
-        (mkPublicVpsCname "sub")
+        (config.common.hostRecs.LTNet "ltnet.${domain}.")
+        (config.common.hostRecs.DN42 "dn42.${domain}.")
 
-        # Monitoring stack (sgvm)
-        {
-          recordType = "CNAME";
-          name = "prometheus";
-          target = "sgvm.zhyi.cc.";
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "dashboard";
-          target = "sgvm.zhyi.cc.";
-          ttl = "10m";
-        }
-        {
-          recordType = "CNAME";
-          name = "alert";
-          target = "sgvm.zhyi.cc.";
-          ttl = "10m";
-        }
-
-        # High-volume cache data stays on the home ingress.
-        (mkHomeIngressCname "vaults3")
-
-        (builtins.filter
-          (r: !(r.recordType or "" == "CNAME" && builtins.match "\\*\\.(ml-home-vm|jpvm|cnvm|colocrossing|sgvm)\\.zhyi\\.cc\\." (r.name or "") != null))
-          (hostRecords domain (
-            host: if config.common.hostRecs.hasPublicIP host then host.public else host.ltnet
-          ))
-        )
-        (hostRecords "ltnet.${domain}" (host: host.ltnet))
+        internalServices
       ];
     }
   ];
