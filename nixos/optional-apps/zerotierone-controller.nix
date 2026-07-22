@@ -48,6 +48,9 @@ in
         relays = lib.mapAttrsToList (n: v: v.zerotier) (
           lib.filterAttrs (n: v: v.zerotier != null) (LT.hostsWithTag LT.tags.server)
         );
+        dns = {
+          servers = [ "198.19.0.253" "fdd8:1938:4e88:3712::53" ];
+        };
       };
     };
   };

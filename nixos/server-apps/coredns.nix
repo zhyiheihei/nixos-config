@@ -9,6 +9,67 @@
 let
   netns = config.lantian.netns.coredns-authoritative;
 
+  # Split-horizon DNS: resolve public domains to LTNET IPs for internal clients
+  ltnetHostsFile = pkgs.writeText "ltnet-split-horizon.hosts" (
+    let
+      mkHostLine = ip: name: "${ip} ${name}";
+      colocrossingIPv4 = LT.hosts.colocrossing.ltnet.IPv4;
+      cnvmIPv4 = LT.hosts.cnvm.ltnet.IPv4;
+      mlHomeVmIPv4 = LT.hosts.ml-home-vm.ltnet.IPv4;
+      jpvmIPv4 = LT.hosts.jpvm.ltnet.IPv4;
+      sgvmIPv4 = LT.hosts.sgvm.ltnet.IPv4;
+      mlBuilderIPv4 = LT.hosts.ml-builder.ltnet.IPv4;
+      pve2700IPv4 = LT.hosts.pve-2700.ltnet.IPv4;
+
+      # zhyi.xin services on colocrossing
+      zhyiXinColocrossing = [
+        "ai" "api" "autoconfig" "avatar" "cal" "element" "filebox" "gemini"
+        "git" "google-ssl" "google-test-ssl" "gopher" "hidden" "homepage"
+        "index" "index-helper" "lemmy" "letsencrypt-ssl" "letsencrypt-test-ssl"
+        "mail" "matrix" "matrix-client" "matrix-federation" "n8n" "pb"
+        "posts" "rss" "rsshub" "stats" "tools" "whois" "www" "zerossl" "attic"
+      ];
+      # zhyi.xin services on cnvm
+      zhyiXinCnvm = [ "bitwarden" "id" "login" ];
+
+      # zhyi.cc services
+      zhyiCcColocrossing = [
+        "home-ddns" "flapalerted" "hydra" "netbox" "vaults3"
+        "colocrossing" "wg-home"
+      ];
+    in
+    lib.concatStringsSep "\n" (
+      # zhyi.xin → colocrossing LTNET
+      (map (n: mkHostLine colocrossingIPv4 "${n}.zhyi.xin") zhyiXinColocrossing)
+      # zhyi.xin → cnvm LTNET
+      ++ (map (n: mkHostLine cnvmIPv4 "${n}.zhyi.xin") zhyiXinCnvm)
+      # zhyi.xin apex → cnvm
+      ++ [ (mkHostLine cnvmIPv4 "zhyi.xin") ]
+      # zhyi.cc → colocrossing LTNET
+      ++ (map (n: mkHostLine colocrossingIPv4 "${n}.zhyi.cc") zhyiCcColocrossing)
+      # zhyi.cc host records → respective LTNET IPs
+      ++ [
+        (mkHostLine cnvmIPv4 "cnvm.zhyi.cc")
+        (mkHostLine mlHomeVmIPv4 "ml-home-vm.zhyi.cc")
+        (mkHostLine jpvmIPv4 "jpvm.zhyi.cc")
+        (mkHostLine jpvmIPv4 "jp.zhyi.cc")
+        (mkHostLine sgvmIPv4 "sgvm.zhyi.cc")
+        (mkHostLine mlBuilderIPv4 "ml-builder.zhyi.cc")
+        (mkHostLine pve2700IPv4 "pve-2700.zhyi.cc")
+        # zhyi.cc apex → jpvm
+        (mkHostLine jpvmIPv4 "zhyi.cc")
+        # ltnet.zhyi.cc host records
+        (mkHostLine colocrossingIPv4 "colocrossing.ltnet.zhyi.cc")
+        (mkHostLine cnvmIPv4 "cnvm.ltnet.zhyi.cc")
+        (mkHostLine mlHomeVmIPv4 "ml-home-vm.ltnet.zhyi.cc")
+        (mkHostLine jpvmIPv4 "jpvm.ltnet.zhyi.cc")
+        (mkHostLine sgvmIPv4 "sgvm.ltnet.zhyi.cc")
+        (mkHostLine mlBuilderIPv4 "ml-builder.ltnet.zhyi.cc")
+        (mkHostLine pve2700IPv4 "pve-2700.ltnet.zhyi.cc")
+      ]
+    ) + "\n"
+  );
+
   corednsConfig =
     let
       dnssec =
@@ -110,6 +171,26 @@ let
       ${forwardZone "mnc001.mcc001.3gppnetwork.org" null}
       ${forwardZone "mnc010.mcc315.3gppnetwork.org" null}
       ${forwardZone "mnc999.mcc999.3gppnetwork.org" null}
+
+      # LTNET Split-Horizon: public domains → LTNET IPs
+      zhyi.xin:53 {
+        bind ${config.lantian.netns.coredns-authoritative.ipv4}
+        prometheus ${config.lantian.netns.coredns-authoritative.ipv4}:${LT.portStr.Prometheus.CoreDNS}
+        hosts ${ltnetHostsFile} {
+          no_reverse
+          fallthrough
+        }
+        forward . 127.0.0.1:${LT.portStr.DNSLocal}
+      }
+      zhyi.cc:53 {
+        bind ${config.lantian.netns.coredns-authoritative.ipv4}
+        prometheus ${config.lantian.netns.coredns-authoritative.ipv4}:${LT.portStr.Prometheus.CoreDNS}
+        hosts ${ltnetHostsFile} {
+          no_reverse
+          fallthrough
+        }
+        forward . 127.0.0.1:${LT.portStr.DNSLocal}
+      }
 
       # Meshname
       meshname {

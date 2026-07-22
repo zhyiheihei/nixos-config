@@ -54,10 +54,24 @@ let
       };
     };
 
+  dnsOptions = _: {
+    options = {
+      domain = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "Domain name for ZeroTier-managed DNS (null = global DNS)";
+      };
+      servers = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        description = "DNS server addresses to push to ZeroTier members";
+      };
+    };
+  };
+
   networkOptions =
     { name, config, ... }:
     let
-      jsonPayload = builtins.toJSON {
+      jsonPayload = builtins.toJSON ({
         inherit (config)
           name
           enableBroadcast
@@ -70,7 +84,14 @@ let
           routes
           relays
           ;
-      };
+      }
+      // lib.optionalAttrs (config.dns != null) {
+        dns = {
+          inherit (config.dns) servers;
+        } // lib.optionalAttrs (config.dns.domain != null) {
+          inherit (config.dns) domain;
+        };
+      });
       generatedSetupScript = ''
         ZTADDR=$(${ztcurl} "${zturl}/status" | ${lib.getExe pkgs.jq} -r ".address")
         ${ztcurl} -XPOST "${zturl}/controller/network/''${ZTADDR}${name}" -d ${lib.escapeShellArg jsonPayload}
@@ -130,6 +151,11 @@ let
         relays = lib.mkOption {
           type = lib.types.listOf lib.types.str;
           default = [ ];
+        };
+        dns = lib.mkOption {
+          type = lib.types.nullOr (lib.types.submodule dnsOptions);
+          default = null;
+          description = "DNS configuration to push to ZeroTier members";
         };
 
         members = lib.mkOption {
