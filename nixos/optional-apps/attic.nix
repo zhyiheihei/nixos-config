@@ -33,7 +33,7 @@
         type = "s3";
         region = "us-east-1";
         bucket = "nix-cache";
-        endpoint = "https://vaults3.zhyi.cc";
+        endpoint = "https://vaults3.zhyi.cc:8443";
       };
       # Disable chunking to use S3 direct download.
       chunking = {
