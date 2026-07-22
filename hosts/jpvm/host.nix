@@ -5,7 +5,6 @@
     dn42
     low-disk
     low-ram
-    public-facing
     server
   ];
   cpuThreads = 1;

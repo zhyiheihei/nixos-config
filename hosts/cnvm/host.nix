@@ -4,7 +4,6 @@
   tags = with tags; [
     low-disk
     low-ram
-    public-facing
     server
   ];
   cpuThreads = 2;
