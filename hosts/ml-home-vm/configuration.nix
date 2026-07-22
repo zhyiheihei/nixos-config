@@ -1,5 +1,4 @@
 {
-  config,
   inputs,
   LT,
   lib,
@@ -64,15 +63,18 @@
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     gateway = [ "192.168.0.1" ];
     matchConfig.Name = "eth0";
+    linkConfig.MTUBytes = "9000";
     networkConfig.IPv6AcceptRA = "yes";
-    ipv6AcceptRAConfig.DHCPv6Client = "no";
-  };
-
-  networking.hosts = {
-    "${LT.this.interconnect.IPv4}" = [ "openclash.zhyi.cc" ];
-    "${LT.this.ltnet.IPv4}" = [ "sftp.ml-home-vm.zhyi.cc" ];
-    "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
-    "${LT.hosts."pve-5700u".interconnect.IPv4}" = [ "pve-5700u.zhyi.cc" ];
+    ipv6AcceptRAConfig = {
+      Token = "::10";
+      DHCPv6Client = "no";
+    };
+    routes = [
+      {
+        Destination = "64:ff9b::/96";
+        Gateway = "_ipv6ra";
+      }
+    ];
   };
 
   environment.systemPackages = with pkgs; [
@@ -82,18 +84,7 @@
     ssh-to-age
   ];
 
-  services.ncps.cache.maxSize = lib.mkForce "50G";
-
-  # Keep the temporary edp-panel database role confined to its own database.
-  # These entries must precede the shared LTNET PostgreSQL HBA rules.
-  services.postgresql.authentication = lib.mkBefore ''
-    host "edp-panel" "edp-panel" 198.18.0.0/15 md5
-    host "edp-panel" "edp-panel" fdd8:1938:4e88::/48 md5
-    host all "edp-panel" 198.18.0.0/15 reject
-    host all "edp-panel" fdd8:1938:4e88::/48 reject
-  '';
-
-  services.calibre-cops.libraryPath = "/mnt/storage/Calibre Library";
+  services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
 
   services.printing = {
     browsing = true;
@@ -107,30 +98,7 @@
 
   lantian.immich.storage = "/mnt/storage/immich";
   lantian.syncthing.storage = "/mnt/storage/media";
-  fileSystems."/run/syncthing-files".options = lib.mkAfter [ "_netdev" ];
   lantian.archivebox.storage = "/mnt/storage/archivebox";
-
-  # n8n OpenAI Bridge runs on sgvm; UniAPI here calls it back via LTNET.
-  lantian.llm-providers = lib.mkBefore [
-    {
-      name = "n8n";
-      baseURL = "https://n8n-bridge.sgvm.zhyi.cc/v1/chat/completions";
-      providerTags = [ "paid" ];
-      apiKeyPath = config.sops.secrets."uni-api-admin-api-key".path;
-      modelJsonFile = null;
-    }
-  ];
-
-  systemd.services.podman-epic-awesome-gamer.serviceConfig.ExecCondition =
-    pkgs.writeShellScript "epic-awesome-gamer-credentials-ready" ''
-      envFile=${lib.escapeShellArg config.sops.secrets.epic-awesome-gamer-env.path}
-      for key in GEMINI_API_KEY EPIC_EMAIL EPIC_PASSWORD; do
-        if ! ${lib.getExe pkgs.gnugrep} -q "^$key=." "$envFile"; then
-          echo "Skipping epic-awesome-gamer: $key is not configured"
-          exit 1
-        fi
-      done
-    '';
 
   systemd.services.radicale-calendar-sync.serviceConfig = {
     AmbientCapabilities = [ "CAP_DAC_OVERRIDE" ];

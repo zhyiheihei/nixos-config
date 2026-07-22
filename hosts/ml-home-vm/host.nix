@@ -9,8 +9,6 @@
   # 家庭服务虚拟机，不参与 Hydra 远程构建。
   cpuThreads = 14;
 
-  hostname = "ml-home-vm.zhyi.cc";
-
   city = geo.cities."CN Ningbo";
 
   # 当前虚拟机的 SSH host public key。
@@ -18,12 +16,7 @@
 
   zerotier = "c340ae9a91";
 
-  # 家用 NAT 后面的客户端通常没有公网 IP，先不要写 public。
-  # 如果以后有公网地址，再按下面格式开启：
-  # public = {
-  #   IPv4 = "1.2.3.4";
-  #   IPv6 = "2001:db8::1";
-  # };
+  firewalled = true;
 
   interconnect = {
     name = "home-lan";
