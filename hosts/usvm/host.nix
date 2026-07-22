@@ -10,7 +10,7 @@
   cpuThreads = 2;
   hostname = "35.212.152.140";
   city = geo.cities."JP Tokyo";
-  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIYKVNgghOCp0JSDff/CtsY1H17eTjjkp/X82m2bPG/e";
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFdTsRnGGIr6WOBU0eG0fmaURyYUd5BIUlwBUpsmqHJT molishanguang@gmail.com";
   ltnet.tcpTransportDomain = "usvm.zhyi.cc";
   public = {
     IPv4 = "35.212.152.140";
