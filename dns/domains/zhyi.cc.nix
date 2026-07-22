@@ -75,10 +75,35 @@ in
         }
         (mkPublicVpsCname "ha")
 
+        # 按主机名通配符，避免 `*` catch-all 覆盖更具体的通配符（Gcore 不支持通配符优先级排序）
         {
           recordType = "CNAME";
-          name = "*";
-          target = publicVpsTarget;
+          name = "*.ml-home-vm";
+          target = "ml-home-vm.ltnet.zhyi.cc.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "*.jpvm";
+          target = "jpvm.ltnet.zhyi.cc.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "*.cnvm";
+          target = "cnvm.ltnet.zhyi.cc.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "*.colocrossing";
+          target = "colocrossing.ltnet.zhyi.cc.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "*.sgvm";
+          target = "sgvm.ltnet.zhyi.cc.";
           ttl = "10m";
         }
         (mkPublicVpsCname "autoconfig")
