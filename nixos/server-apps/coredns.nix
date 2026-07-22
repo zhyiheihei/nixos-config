@@ -167,7 +167,6 @@ let
 
       # LTNET Split-Horizon: public domains → LTNET IPs
       zhyi.xin:53 {
-        bind ${config.lantian.netns.coredns-authoritative.ipv4}
         prometheus ${config.lantian.netns.coredns-authoritative.ipv4}:${LT.portStr.Prometheus.CoreDNS}
         hosts ${ltnetHostsFile} {
           no_reverse
@@ -176,7 +175,6 @@ let
         forward . 127.0.0.1:${LT.portStr.DNSLocal}
       }
       zhyi.cc:53 {
-        bind ${config.lantian.netns.coredns-authoritative.ipv4}
         prometheus ${config.lantian.netns.coredns-authoritative.ipv4}:${LT.portStr.Prometheus.CoreDNS}
         hosts ${ltnetHostsFile} {
           no_reverse

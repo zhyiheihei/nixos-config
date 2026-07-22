@@ -77,7 +77,6 @@ in
       listenHTTP.enable = true;
       listenHTTPS.enable = false;
 
-      serverAliases = [ "lg.lantian.neo" ];
       locations = {
         "/" = {
           proxyPass = "http://unix:/run/bird-lg-go/bird-lg-go.sock";

@@ -15,7 +15,6 @@
 
       serverAliases = [
         "whois.zhyi.dn42"
-        "whois.lantian.neo"
       ];
       locations = {
         "/".extraConfig = ''
