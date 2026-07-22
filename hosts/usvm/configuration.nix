@@ -21,6 +21,6 @@
     "1.1.1.1"
   ];
 
-  lantian.nginxVhosts."jpvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  lantian.nginxVhosts."usvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
 }
