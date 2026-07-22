@@ -9,7 +9,11 @@
 
     ./hardware-configuration.nix
 
+    ../../nixos/optional-apps/axonhub.nix
     ../../nixos/optional-apps/grafana.nix
+    ../../nixos/optional-apps/metapi.nix
+    ../../nixos/optional-apps/n8n
+    ../../nixos/optional-apps/open-webui
     ../../nixos/optional-apps/prometheus
   ];
 

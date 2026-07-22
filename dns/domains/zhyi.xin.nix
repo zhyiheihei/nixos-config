@@ -3,7 +3,6 @@ let
   publicVpsTarget = "home-ddns.zhyi.cc.";
 
   publicServices = [
-    "ai"
     "api"
     "autoconfig"
     "avatar"
@@ -26,7 +25,6 @@ let
     "matrix"
     "matrix-client"
     "matrix-federation"
-    "n8n"
     "pb"
     "posts"
     "rss"
@@ -67,7 +65,12 @@ in
         }
       ]
       ++ map (mkCname publicVpsTarget) publicServices
-      ++ map (mkCname "cnvm.zhyi.cc.") cnvmServices;
+      ++ map (mkCname "cnvm.zhyi.cc.") cnvmServices
+      ++ [
+        # AI services migrated to sgvm
+        (mkCname "sgvm.zhyi.cc." "ai")
+        (mkCname "sgvm.zhyi.cc." "n8n")
+      ];
     }
   ];
 }

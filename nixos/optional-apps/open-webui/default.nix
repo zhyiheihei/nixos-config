@@ -16,7 +16,10 @@
     # ../openedai-speech.nix
     ../postgresql.nix
     ../tika.nix
-    ../uni-api.nix
+
+    # Only import the provider registry (option + data) without the UniAPI service.
+    # The full UniAPI service runs on ml-home-vm; this host accesses it via LTNET.
+    (inputs.secrets + "/uni-api")
   ];
 
   sops.secrets.open-webui-env.sopsFile = inputs.secrets + "/open-webui.yaml";
@@ -50,7 +53,7 @@
 
       WEBUI_URL = "https://ai.zhyi.xin";
       WEBUI_SESSION_COOKIE_SECURE = "True";
-      OPENAI_API_BASE_URL = "http://uni-api.localhost/v1";
+      OPENAI_API_BASE_URL = "https://uni-api.ml-home-vm.zhyi.cc/v1";
 
       ENABLE_LOGIN_FORM = "False";
       ENABLE_SIGNUP = "False";

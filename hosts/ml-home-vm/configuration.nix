@@ -21,7 +21,6 @@
     ../../nixos/optional-apps/archivebox.nix
     ../../nixos/optional-apps/archiveteam.nix
     ../../nixos/optional-apps/asf.nix
-    ../../nixos/optional-apps/axonhub.nix
     ../../nixos/optional-apps/calibre-cops.nix
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/clawemail.nix
@@ -39,13 +38,10 @@
     ../../nixos/optional-apps/llama-cpp.nix
     ../../nixos/optional-apps/linkwarden.nix
     ../../nixos/optional-apps/metacubexd.nix
-    ../../nixos/optional-apps/metapi.nix
     ../../nixos/optional-apps/memos.nix
-    ../../nixos/optional-apps/n8n
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/nginx-openspeedtest.nix
-    ../../nixos/optional-apps/open-webui
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/sun-panel.nix
@@ -113,6 +109,17 @@
   lantian.syncthing.storage = "/mnt/storage/media";
   fileSystems."/run/syncthing-files".options = lib.mkAfter [ "_netdev" ];
   lantian.archivebox.storage = "/mnt/storage/archivebox";
+
+  # n8n OpenAI Bridge runs on sgvm; UniAPI here calls it back via LTNET.
+  lantian.llm-providers = lib.mkBefore [
+    {
+      name = "n8n";
+      baseURL = "https://n8n-bridge.sgvm.zhyi.cc/v1/chat/completions";
+      providerTags = [ "paid" ];
+      apiKeyPath = config.sops.secrets."uni-api-admin-api-key".path;
+      modelJsonFile = null;
+    }
+  ];
 
   systemd.services.podman-epic-awesome-gamer.serviceConfig.ExecCondition =
     pkgs.writeShellScript "epic-awesome-gamer-credentials-ready" ''
