@@ -14,6 +14,7 @@
     eth1 = {
       matchConfig.Name = "eth1";
       address = [ "192.168.0.1/24" ];
+      linkConfig.MTUBytes = "9000";
     };
   };
 

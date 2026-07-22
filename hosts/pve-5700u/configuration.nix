@@ -107,6 +107,7 @@
     br-lan = {
       matchConfig.Name = "br-lan";
       address = [ "192.168.0.254/24" ];
+      linkConfig.MTUBytes = "9000";
     };
   };
 }
