@@ -23,6 +23,7 @@
   ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
   ltnet.tcpTransportPeers.cnvm = "cnvm.zhyi.cc";
   ltnet.tcpTransportPeers.sgvm = "sgvm.zhyi.cc";
+  ltnet.tcpTransportPeers.usvm = "usvm.zhyi.cc";
 
   dn42 = {
     IPv4 = "172.20.46.228";
