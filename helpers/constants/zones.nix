@@ -55,13 +55,10 @@ _: {
       "meship"
     ];
     Ltnet = [
-      "0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa"
-      "10.127.10.in-addr.arpa"
       "18.198.in-addr.arpa"
       "19.198.in-addr.arpa"
       "d.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa"
       "zhyi.dn42"
-      "lantian.neo"
       # Lan Tian Mobile VoLTE
       "mnc001.mcc001.3gppnetwork.org"
       "mnc010.mcc315.3gppnetwork.org"

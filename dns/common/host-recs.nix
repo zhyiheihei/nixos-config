@@ -417,16 +417,6 @@ in
             target = concatDomain "${ptrPrefix v}${n}" domain;
           }
         ]
-      ) (lib.filterAttrs (n: v: v.dn42.IPv4 != null) LT.hosts);
-
-    NeoNetwork =
-      domain:
-      forEachHost (
-        n: v:
-        mapAddresses {
-          name = concatDomain n domain;
-          addresses = v.neonetwork;
-        }
-      );
+      ) (lib.filterAttrs (n: v: v.dn42.IPv4 != null) LT.hosts    );
   };
 }

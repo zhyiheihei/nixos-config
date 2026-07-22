@@ -160,11 +160,7 @@
     DN42Email = domain: [
       (config.common.hostRecs.mapAddresses {
         name = "mx.${domain}.";
-        addresses =
-          if lib.hasSuffix ".neo" domain then
-            LT.hosts."colocrossing".neonetwork
-          else
-            LT.hosts."colocrossing".dn42;
+        addresses = LT.hosts."colocrossing".dn42;
       })
       {
         recordType = "MX";

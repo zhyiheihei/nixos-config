@@ -13,7 +13,6 @@ _: [
   "google-ssl.zhyi.xin"
   "google-test-ssl.zhyi.xin"
   "gopher.zhyi.xin"
-  "lantian.neo"
   "letsencrypt-ssl.zhyi.xin"
   "letsencrypt-test-ssl.zhyi.xin"
   "posts.zhyi.xin"
