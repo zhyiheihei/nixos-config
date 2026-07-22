@@ -137,9 +137,12 @@ in
         # High-volume cache data stays on the home ingress.
         (mkHomeIngressCname "vaults3")
 
-        (hostRecords domain (
-          host: if config.common.hostRecs.hasPublicIP host then host.public else host.ltnet
-        ))
+        (builtins.filter
+          (r: !(r.recordType or "" == "CNAME" && builtins.match "\\*\\.(ml-home-vm|jpvm|cnvm|colocrossing|sgvm)\\.zhyi\\.cc\\." (r.name or "") != null))
+          (hostRecords domain (
+            host: if config.common.hostRecs.hasPublicIP host then host.public else host.ltnet
+          ))
+        )
         (hostRecords "ltnet.${domain}" (host: host.ltnet))
       ];
     }
