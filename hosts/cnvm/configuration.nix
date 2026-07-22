@@ -28,4 +28,13 @@
   ];
 
   lantian.nginxVhosts."cnvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+
+  # cnvm 在国内，Docker Hub 不可达，配置镜像加速
+  environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
+    [[registry]]
+    location = "docker.io"
+
+    [[registry.mirror]]
+    location = "docker.m.daocloud.io"
+  '';
 }
