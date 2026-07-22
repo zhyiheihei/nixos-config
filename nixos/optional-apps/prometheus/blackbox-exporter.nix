@@ -19,7 +19,7 @@ let
     # Services under zhyi.xin
     "https://ai.zhyi.xin"
     "https://api.zhyi.xin"
-    "https://attic.zhyi.xin"
+    "https://attic.zhyi.xin:8443"
     "https://avatar.zhyi.xin"
     "https://bitwarden.zhyi.xin"
     "https://cal.zhyi.xin"
