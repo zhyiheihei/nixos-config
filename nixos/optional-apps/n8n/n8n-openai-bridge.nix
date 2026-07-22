@@ -68,18 +68,21 @@ in
   };
   users.groups.n8n-openai-bridge = { };
 
-  lantian.nginxVhosts."n8n.zhyi.xin".locations."/v1/" = {
-    proxyPass = "http://127.0.0.1:${LT.portStr.N8N-OpenAI-Bridge}";
-    proxyNoTimeout = true;
-  };
+  lantian.nginxVhosts = {
+    "n8n.zhyi.xin".locations."/v1/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.N8N-OpenAI-Bridge}";
+      proxyNoTimeout = true;
+    };
 
-  lantian.llm-providers = lib.mkBefore [
-    {
-      name = "n8n";
-      baseURL = "http://127.0.0.1:${LT.portStr.N8N-OpenAI-Bridge}/v1/chat/completions";
-      providerTags = [ "paid" ];
-      apiKeyPath = config.sops.secrets."uni-api-admin-api-key".path;
-      modelJsonFile = null;
-    }
-  ];
+    # Private vhost for UniAPI on ml-home-vm to call back via LTNET
+    "n8n-bridge.${config.networking.hostName}.zhyi.cc" = {
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.N8N-OpenAI-Bridge}";
+        proxyNoTimeout = true;
+      };
+      accessibleBy = "private";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      noIndex.enable = true;
+    };
+  };
 }

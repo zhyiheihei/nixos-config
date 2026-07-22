@@ -27,24 +27,28 @@ Open WebUI / n8n      AxonHub / Metapi
 Open WebUI  ──────────────────────> ml-home-vm UniAPI ─> Provider
 AxonHub     ──────────────────────> ml-home-vm UniAPI ─> Provider
 Metapi      ──────────────────────> ml-home-vm UniAPI ─> Provider
-ml-home-vm UniAPI ─> n8n OpenAI Bridge ─> n8n 工作流
+ml-home-vm UniAPI ─> n8n OpenAI Bridge (sgvm) ─> n8n 工作流
 
 ai-api.zhyi.cc ───────────────────> jpvm UniAPI ─────────> Provider
 ```
 
 `ai-api.zhyi.cc` 是 JPVM 上的独立公开 UniAPI 入口；它也从同一份 secrets Provider
-注册表导入配置，但不依赖 ml-home-vm 的 AxonHub 或 Metapi。
+注册表导入配置，但不依赖 sgvm 的 AxonHub 或 Metapi。
+
+Open WebUI、AxonHub、Metapi、n8n 运行在 `sgvm`，通过 LTNET 访问 ml-home-vm 上的
+UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI 通过 LTNET 回调 sgvm 上
+的 n8n Bridge（`https://n8n-bridge.sgvm.zhyi.cc/v1`）。
 
 ## 服务职责与位置
 
 | 服务 | 主机 | 作用 | 上游或依赖 |
 | --- | --- | --- | --- |
 | UniAPI | `ml-home-vm`、`jpvm` | Provider 注册表、模型别名与 OpenAI 兼容 API | 私有 `uni-api/` secrets |
-| Open WebUI | `ml-home-vm` | 交互式 AI 前端，使用 Dex OIDC 登录 | 本机 `uni-api.localhost` |
-| n8n | `ml-home-vm` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
-| n8n OpenAI Bridge | `ml-home-vm` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
-| AxonHub | `ml-home-vm` | 可选 AI 网关、渠道管理、观测与独立下游 API 管理 | PostgreSQL、Redis、本机 UniAPI |
-| Metapi | `ml-home-vm` | 可选元聚合网关、站点/账户/模型路由管理 | 本机 UniAPI；SQLite 状态目录 |
+| Open WebUI | `sgvm` | 交互式 AI 前端，使用 Dex OIDC 登录 | LTNET `uni-api.ml-home-vm.zhyi.cc` |
+| n8n | `sgvm` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
+| n8n OpenAI Bridge | `sgvm` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
+| AxonHub | `sgvm` | 可选 AI 网关、渠道管理、观测与独立下游 API 管理 | PostgreSQL、Redis、LTNET UniAPI |
+| Metapi | `sgvm` | 可选元聚合网关、站点/账户/模型路由管理 | LTNET UniAPI；SQLite 状态目录 |
 
 核心实现位置：
 
@@ -53,6 +57,7 @@ ai-api.zhyi.cc ───────────────────> jpvm U
 - [`nixos/optional-apps/n8n/n8n-openai-bridge.nix`](../nixos/optional-apps/n8n/n8n-openai-bridge.nix)
 - [`nixos/optional-apps/axonhub.nix`](../nixos/optional-apps/axonhub.nix)
 - [`nixos/optional-apps/metapi.nix`](../nixos/optional-apps/metapi.nix)
+- [`hosts/sgvm/configuration.nix`](../hosts/sgvm/configuration.nix)
 - [`hosts/ml-home-vm/configuration.nix`](../hosts/ml-home-vm/configuration.nix)
 - [`hosts/jpvm/configuration.nix`](../hosts/jpvm/configuration.nix)
 
@@ -64,9 +69,9 @@ ai-api.zhyi.cc ───────────────────> jpvm U
 当前已经完成以下初始化，记录日期为 2026-07-21：
 
 - AxonHub：默认项目中有一个名为 `UniAPI` 的 `openai` channel，指向
-  `http://uni-api.localhost/v1`，并导入 UniAPI 当前模型目录。
+  `https://uni-api.ml-home-vm.zhyi.cc/v1`，并导入 UniAPI 当前模型目录。
 - Metapi：有一个名为 `UniAPI` 的 `openai` 站点，指向
-  `http://uni-api.localhost`；有一个对应的 API-key 账户；已执行官方的模型刷新与路由
+  `https://uni-api.ml-home-vm.zhyi.cc`；有一个对应的 API-key 账户；已执行官方的模型刷新与路由
   重建。
 - 初始化时两个网关均识别到 `162` 个模型；这个数字随 Provider 注册表改变，不是
   配置常量。
@@ -76,8 +81,8 @@ ai-api.zhyi.cc ───────────────────> jpvm U
 - Metapi 的管理口令是 `default-pw`，其下游 `PROXY_TOKEN` 使用
   `uni-api-admin-api-key`。这是当前模块的作者式全局 secrets 约定。
 
-不要删除 AxonHub PostgreSQL 数据库、Redis 数据或 `/var/lib/metapi`，除非明确要废弃
-相应网关；否则会丢失上述运行态初始化和应用内管理数据。
+不要删除 AxonHub PostgreSQL 数据库、Redis 数据或 `/var/lib/metapi`（位于 sgvm），
+除非明确要废弃相应网关；否则会丢失上述运行态初始化和应用内管理数据。
 
 ## Secrets 与密钥边界
 
@@ -101,29 +106,30 @@ ai-api.zhyi.cc ───────────────────> jpvm U
 
 ## 维护规则
 
-- **不要改主调用路径。** Open WebUI 的 `OPENAI_API_BASE_URL` 直接指向本机 UniAPI；
-  n8n Bridge 作为 `lantian.llm-providers` 的 `n8n` Provider 被 UniAPI 调用。两者都
+- **不要改主调用路径。** Open WebUI 的 `OPENAI_API_BASE_URL` 直接指向 LTNET 上的
+  UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）；n8n Bridge 作为 `lantian.llm-providers`
+  的 `n8n` Provider 被 UniAPI 通过 `https://n8n-bridge.sgvm.zhyi.cc/v1` 调用。两者都
   不能改为 AxonHub 或 Metapi，除非明确迁移整个调用契约并单独验证。
 - **不要制造回环。** 禁止将 `axonhub.*`、`metapi.*` 或 `ai-api.zhyi.cc` 配成 UniAPI
   的 Provider；禁止给 Metapi/AxonHub 再添加指向自身的上游。
 - **不重复保存外部 Provider 凭据。** AxonHub 与 Metapi 当前只保存对本机 UniAPI 的
   凭据。新增外部 Provider 时优先更新 `uni-api/` secrets，而不是分别塞入三个网关。
-- **保留私有访问边界。** `axonhub.ml-home-vm.zhyi.cc` 与
-  `metapi.ml-home-vm.zhyi.cc` 是 private vhost，不应为了方便直接公开；公开 API 入口
+- **保留私有访问边界。** `axonhub.sgvm.zhyi.cc` 与
+  `metapi.sgvm.zhyi.cc` 是 private vhost，不应为了方便就直接公开；公开 API 入口
   由 `ai-api.zhyi.cc` 的 JPVM UniAPI 承担。
 - **不把运行态当 Nix 声明。** Nix 负责服务存在和 secret 文件挂载；应用内 channel、
   account、route、管理员、工作流等数据由各自数据库持久化和备份。
 
 ## 健康检查
 
-以下命令在 `ml-home-vm` 以 root 执行；只验证，不打印密钥：
+以下命令在 `sgvm` 以 root 执行；只验证，不打印密钥：
 
 ```bash
-systemctl is-active axonhub metapi uni-api n8n n8n-openai-bridge open-webui
+systemctl is-active axonhub metapi n8n n8n-openai-bridge open-webui
 
 curl -fsS \
   -H "Authorization: Bearer $(cat /run/secrets/uni-api-admin-api-key)" \
-  http://uni-api.localhost/v1/models | jq '(.data // []) | length'
+  https://uni-api.ml-home-vm.zhyi.cc/v1/models | jq '(.data // []) | length'
 
 curl -fsS \
   -H "Authorization: Bearer $(cat /run/secrets/uni-api-admin-api-key)" \
@@ -134,7 +140,9 @@ curl -fsS \
 的结果；模型数为 `0`、服务反复重启或两个数不一致时，先检查：
 
 ```bash
-journalctl -u uni-api -u metapi -u axonhub --since '30 minutes ago' --no-pager
+journalctl -u metapi -u axonhub --since '30 minutes ago' --no-pager
+# 在 ml-home-vm 上检查 UniAPI：
+# journalctl -u uni-api --since '30 minutes ago' --no-pager
 ```
 
 再检查对应 SOPS secret 是否已加载，不要先重置数据库：
@@ -148,11 +156,11 @@ test -s /run/secrets/default-pw
 
 只有在应用数据库被明确新建或清空后，才需要再次初始化：
 
-1. 先部署并确认 UniAPI 有模型。
+1. 先部署并确认 UniAPI（ml-home-vm）有模型。
 2. 在 AxonHub 的首次向导创建管理员；在默认项目创建唯一的 `UniAPI`、`openai` 类型
-   channel，地址为 `http://uni-api.localhost/v1`，导入 UniAPI 模型列表。
+   channel，地址为 `https://uni-api.ml-home-vm.zhyi.cc/v1`，导入 UniAPI 模型列表。
 3. 在 Metapi 创建唯一 `UniAPI`、`openai` 站点，地址为
-   `http://uni-api.localhost`；添加 API-key 账户并执行“刷新模型并重建路由”。
+   `https://uni-api.ml-home-vm.zhyi.cc`；添加 API-key 账户并执行“刷新模型并重建路由”。
 4. 用“健康检查”验证模型数一致，再恢复应用自身的备份数据。
 
 若目标只是修复服务启动、证书或 Nix 配置，不要重新执行这套初始化，也不要重置运行态

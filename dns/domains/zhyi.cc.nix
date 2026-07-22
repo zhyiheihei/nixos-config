@@ -82,6 +82,12 @@ in
         }
         {
           recordType = "CNAME";
+          name = "*.sgvm";
+          target = "sgvm.ltnet.zhyi.cc.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
           name = "*";
           target = publicVpsTarget;
           ttl = "10m";
