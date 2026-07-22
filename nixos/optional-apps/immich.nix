@@ -31,9 +31,8 @@
           };
         };
 
-        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
         noIndex.enable = true;
-        accessibleBy = "private";
       };
       "immich.localhost" = {
         listenHTTP.enable = true;

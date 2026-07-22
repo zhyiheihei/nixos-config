@@ -13,12 +13,11 @@ in
 {
   systemd.services.qbittorrent-pt = {
     description = "qbittorrent BitTorrent client";
-    wants = [ "network-online.target" "mnt-storage.mount" ];
+    wants = [ "network-online.target" ];
     after = [
       "local-fs.target"
       "network-online.target"
       "nss-lookup.target"
-      "mnt-storage.mount"
     ];
     wantedBy = [ "multi-user.target" ];
 
@@ -77,7 +76,7 @@ in
       };
 
       accessibleBy = "private";
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
       noIndex.enable = true;
     };
     "pt.localhost" = {

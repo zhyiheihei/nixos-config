@@ -15,5 +15,10 @@
   boot.kernelModules = [ ];
   boot.extraModulePackages = [ ];
 
+  boot.loader.grub = {
+    efiSupport = true;
+    device = "nodev";
+  };
+
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }
