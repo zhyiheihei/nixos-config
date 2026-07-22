@@ -7,6 +7,8 @@
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
+
+    ../../nixos/optional-apps/elasticsearch.nix
   ];
 
   systemd.network.networks.ens18 = {
