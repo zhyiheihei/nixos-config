@@ -29,7 +29,7 @@ let
     "sgvm"
     "ml-builder"
     "ml-home-vm"
-    "pve-2700"
+    "ml-2700"
   ];
 
   hostRecords =

@@ -253,7 +253,7 @@
             "jpvm"
             "ml-builder"
             "ml-home-vm"
-            "pve-2700"
+            "ml-2700"
             "pve-5700u"
           ] (name: self.nixosConfigurations.${name}.config.system.build.toplevel);
         };
