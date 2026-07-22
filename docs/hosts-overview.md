@@ -38,7 +38,7 @@
 | `tags` | 决定导入 server/client/builder 等模块。 |
 | `hostname` | Colmena 默认 SSH 目标；DNS 或 IP 改动必须同步检查。 |
 | `ssh.ed25519` | SSH host key，不是登录私钥。重装后需重新采集并提交。 |
-| `interconnect` | 家庭 LAN 直连地址；当前为 `192.168.2.0/24`。 |
+| `interconnect` | 家庭 LAN 直连地址；VM 位于 Router VM 后的 `192.168.0.0/24`。 |
 | `zerotier` / `ltnet` | ZeroTier 成员和 LTNET/WireGuard/BIRD 对等关系。 |
 | `public` / `dn42` | 仅拥有对应地址和路由条件时声明。 |
 | `manualDeploy` | 该机不应被默认部署选择器误操作；仍可显式 `--on <host>`。 |
