@@ -14,7 +14,7 @@
   zerotier = "a073934677";
   ltnet.tcpTransportDomain = "usvm.zhyi.cc";
   public = {
-    IPv4 = "36.50.85.113";
+    IPv4 = "35.212.152.140";
   };
   dn42 = {
     IPv4 = "172.20.46.227";

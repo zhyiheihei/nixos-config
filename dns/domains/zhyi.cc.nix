@@ -30,6 +30,7 @@ let
     "ml-builder"
     "ml-home-vm"
     "ml-2700"
+    "usvm"
   ];
 
   hostRecords =
