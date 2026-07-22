@@ -116,6 +116,8 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
   };
 
   systemd.services.coredns = netns.bind {
+    after = lib.optional config.networking.networkmanager.enable "NetworkManager.service";
+    wants = lib.optional config.networking.networkmanager.enable "NetworkManager.service";
     serviceConfig = {
       Restart = lib.mkForce "always";
       RestartSec = lib.mkForce "5";
