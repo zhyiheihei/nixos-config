@@ -94,11 +94,11 @@ in
           ttl = "10m";
         }
         (mkPublicVpsCname "autoconfig")
-        (mkHomeIngressCname "flapalerted")
+        (mkPublicVpsCname "flapalerted")
         (mkPublicVpsCname "lg")
         (mkPublicVpsCname "um")
-        (mkHomeIngressCname "hydra")
-        (mkHomeIngressCname "netbox")
+        (mkPublicVpsCname "hydra")
+        (mkPublicVpsCname "netbox")
         (mkPublicVpsCname "sub")
 
         # Monitoring stack (sgvm)

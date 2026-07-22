@@ -1,5 +1,6 @@
 {
   LT,
+  lib,
   ...
 }:
 {
@@ -28,6 +29,31 @@
   ];
 
   lantian.nginxVhosts."cnvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+
+  lantian.nginxVhosts."_default_https" = {
+    sslCertificate = "lets-encrypt-zhyi.xin";
+    locations."/" = {
+      return = lib.mkForce null;
+      proxyPass = "https://${LT.hosts.colocrossing.ltnet.IPv4}:443";
+      proxyWebsockets = true;
+      extraConfig = ''
+        proxy_ssl_name $host;
+        proxy_ssl_server_name on;
+      '';
+    };
+  };
+
+  lantian.nginxVhosts."zhyi.xin" = {
+    root = lib.mkForce null;
+    locations."/" = lib.mkForce {
+      proxyPass = "https://${LT.hosts.colocrossing.ltnet.IPv4}:443";
+      proxyWebsockets = true;
+      extraConfig = ''
+        proxy_ssl_name $host;
+        proxy_ssl_server_name on;
+      '';
+    };
+  };
 
   # cnvm 在国内，Docker Hub 不可达，配置镜像加速
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
