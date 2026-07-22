@@ -1,6 +1,7 @@
 {
   inputs,
   LT,
+  lib,
   ...
 }:
 {
@@ -26,5 +27,21 @@
   ];
 
   lantian.nginxVhosts."jpvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+
+  lantian.nginxVhosts = lib.genAttrs [
+    "flapalerted.zhyi.cc"
+    "netbox.zhyi.cc"
+  ] (hostname: {
+    locations."/" = {
+      proxyPass = "https://${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.HTTPS}";
+      proxyWebsockets = true;
+      extraConfig = ''
+        proxy_ssl_name ${hostname};
+        proxy_ssl_server_name on;
+      '';
+    };
+    sslCertificate = "lets-encrypt-zhyi.cc";
+    noIndex.enable = true;
+  });
 
 }
