@@ -66,8 +66,8 @@ in
       type nat hook prerouting priority -95; policy accept;
 
       # Port forwarding: WAN → colocrossing
-      fib daddr type local tcp dport { 80, 443, 2222 } iifname "eth0" dnat ip to 192.168.0.52
-      fib daddr type local udp dport { 80, 443 } iifname "eth0" dnat ip to 192.168.0.52
+      ip daddr 192.168.2.5 tcp dport { 80, 443, 2222 } iifname "eth0" dnat ip to 192.168.0.52
+      ip daddr 192.168.2.5 udp dport { 80, 443 } iifname "eth0" dnat ip to 192.168.0.52
 
       # Hairpin NAT: LAN accessing public IP gets redirected to colocrossing
       fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to 192.168.0.52

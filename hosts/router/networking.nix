@@ -11,10 +11,10 @@
       };
     };
 
-    gretap-ml-builder = {
+    gt-builder = {
       netdevConfig = {
         Kind = "gretap";
-        Name = "gretap-ml-builder";
+        Name = "gt-builder";
       };
       tunnelConfig = {
         Local = "192.168.2.5";
@@ -46,8 +46,8 @@
       linkConfig.RequiredForOnline = "enslaved";
     };
 
-    gretap-ml-builder = {
-      matchConfig.Name = "gretap-ml-builder";
+    gt-builder = {
+      matchConfig.Name = "gt-builder";
       networkConfig.Bridge = "br-lan";
     };
 
