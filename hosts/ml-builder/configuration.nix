@@ -35,22 +35,13 @@ in
 
   systemd.network.networks.eth0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
-    gateway = [ "192.168.2.2" ];
+    gateway = [ "192.168.0.1" ];
     matchConfig.Name = "eth0";
     networkConfig.IPv6AcceptRA = "yes";
     ipv6AcceptRAConfig.DHCPv6Client = "no";
   };
 
   networking.networkmanager.enable = lib.mkForce false;
-
-  networking.hosts = {
-    "${LT.hosts.ml-home-vm.interconnect.IPv4}" = [
-      "ml-home-vm.zhyi.cc"
-      "openclash.zhyi.cc"
-    ];
-    "${LT.hosts."pve-5700u".interconnect.IPv4}" = [ "pve-5700u.zhyi.cc" ];
-    "${LT.hosts.logvm.interconnect.IPv4}" = [ "logvm.zhyi.cc" ];
-  };
 
   services.openssh.settings.MaxStartups = "64:30:128";
 
