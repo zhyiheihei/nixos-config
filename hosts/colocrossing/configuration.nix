@@ -131,6 +131,20 @@
     noIndex.enable = true;
   };
 
+  lantian.nginxVhosts."homepage.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "https://${LT.hosts.ml-home-vm.ltnet.IPv4}:${LT.portStr.HTTPS}";
+      proxyWebsockets = true;
+      enableOAuth = true;
+      extraConfig = ''
+        proxy_ssl_name homepage.ml-home-vm.zhyi.cc;
+        proxy_ssl_server_name on;
+      '';
+    };
+    sslCertificate = "lets-encrypt-zhyi.xin";
+    noIndex.enable = true;
+  };
+
   virtualisation.oci-containers.containers.byparr.ports = [
     "${LT.this.ltnet.IPv4}:${LT.portStr.FlareSolverr}:8191"
   ];
