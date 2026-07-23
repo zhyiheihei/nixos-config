@@ -26,6 +26,9 @@
     extraConfig = {
       code-challenge-method = "S256";
       cookie-csrf-expire = "15m";
+      # 与作者(nixos-config-exam)对齐，保留 per-request CSRF cookie。
+      # 因 homepage 等页面已改为 accessibleBy=private 不再叠加 OAuth，不会
+      # 因多资源路径累积 _oauth2_proxy_csrf cookie 撑爆 header buffer。
       cookie-csrf-per-request = true;
       oidc-issuer-url = "https://login.zhyi.xin";
       insecure-oidc-skip-issuer-verification = "true";
