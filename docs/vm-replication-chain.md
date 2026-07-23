@@ -11,7 +11,7 @@
 | `pve-5700u` | `pve-epyc` | PVE 虚拟化宿主、Hydra、远程构建调度 |
 
 CPU 数量、磁盘设备、网卡名、MAC、城市、域名和局域网网段必须使用当前硬件的真实值，
-不能复制作者环境中的值。`pve-5700u` 使用 Linux bridge `br0`，因为作者的
+不能复制作者环境中的值。`pve-5700u` 使用 Linux bridge `br-lan`，因为作者的
 Open vSwitch 文件硬编码了作者机器的四张网卡。
 
 ## 当前链路
