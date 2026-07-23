@@ -52,7 +52,10 @@ in
       eth0 = {
         address = [ "192.168.2.50/24" ];
         matchConfig.Name = "eth0";
-        networkConfig.IPv6AcceptRA = "yes";
+        networkConfig = {
+          IPv6AcceptRA = "yes";
+          Tunnel = "gt-router";
+        };
         ipv6AcceptRAConfig.DHCPv6Client = "no";
         routes = [
           {
