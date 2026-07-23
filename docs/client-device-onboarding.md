@@ -177,7 +177,7 @@ https://sonarr.ml-home-vm.zhyi.cc   # Sonarr
 设备 (ZeroTier 198.18.0.x)
   → DNS: *.ml-home-vm.zhyi.cc → jpvm.zhyi.cc (36.50.85.113)
   → jpvm nginx (TLS 终止，源 IP 198.18.0.x 命中 private 白名单)
-    → colocrossing (LTNET 198.18.0.18)
+    → colocrossing (LTNET 198.18.0.120)
       → ml-home-vm (LTNET 198.18.0.115，实际服务)
 ```
 

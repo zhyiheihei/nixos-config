@@ -35,34 +35,22 @@
 
         (config.common.hostRecs.mapAddresses {
           name = "gopher.${domain}.";
-          addresses = {
-            IPv4 = "172.20.46.225";
-            IPv6 = "fdd8:1938:4e88:18::1";
-          };
+          addresses = LT.hosts.colocrossing.dn42;
         })
 
         (config.common.hostRecs.mapAddresses {
           name = "whois.${domain}.";
-          addresses = {
-            IPv4 = "172.20.46.225";
-            IPv6 = "fdd8:1938:4e88:18::1";
-          };
+          addresses = LT.hosts.colocrossing.dn42;
         })
 
         (config.common.hostRecs.mapAddresses {
           name = "dns-authoritative.${domain}.";
-          addresses = {
-            IPv4 = "172.20.46.225";
-            IPv6 = "fdd8:1938:4e88:18::1";
-          };
+          addresses = LT.hosts.colocrossing.dn42;
         })
 
         (config.common.hostRecs.mapAddresses {
           name = "dns-recursive.${domain}.";
-          addresses = {
-            IPv4 = "172.20.46.225";
-            IPv6 = "fdd8:1938:4e88:18::1";
-          };
+          addresses = LT.hosts.colocrossing.dn42;
         })
 
         (config.common.records.DN42Email domain)
