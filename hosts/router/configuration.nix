@@ -32,8 +32,42 @@
   };
 
   services.ncps.cache = {
-    dataPath = "/mnt/unreliable-cache/ncps";
+    storage.local = "/mnt/unreliable-cache/ncps";
     tempPath = "/mnt/unreliable-cache/ncps-tmp";
     maxSize = lib.mkForce "50G";
+  };
+
+  systemd.tmpfiles.settings.router-cache = {
+    "/mnt/unreliable-cache/lancache/cache"."d" = {
+      mode = "0755";
+      user = "root";
+      group = "root";
+    };
+    "/mnt/unreliable-cache/lancache/logs"."d" = {
+      mode = "0755";
+      user = "root";
+      group = "root";
+    };
+    "/mnt/unreliable-cache/ncps"."d" = {
+      mode = "0711";
+      user = "ncps";
+      group = "ncps";
+    };
+    "/mnt/unreliable-cache/ncps/db"."d" = {
+      mode = "0711";
+      user = "ncps";
+      group = "ncps";
+    };
+    "/mnt/unreliable-cache/ncps-tmp"."d" = {
+      mode = "0711";
+      user = "ncps";
+      group = "ncps";
+    };
+  };
+
+  systemd.services = {
+    ncps.after = [ "systemd-tmpfiles-resetup.service" ];
+    podman-lancache-dns.after = [ "systemd-tmpfiles-resetup.service" ];
+    podman-lancache-monolithic.after = [ "systemd-tmpfiles-resetup.service" ];
   };
 }
