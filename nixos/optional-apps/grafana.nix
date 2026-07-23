@@ -52,10 +52,6 @@ in
       "auth.generic_oauth" = {
         enabled = "true";
         name = "Dex";
-        # 必须显式给出与 Dex staticClients 中 id 匹配的 client_id。
-        # Grafana 默认 client_id 是 "some_id"，Dex 侧无此 client，会在 /auth
-        # 阶段报 invalid client_id 导致登录失败(见 cnvm dex 日志)。
-        client_id = "grafana";
         allow_sign_up = "true";
         scopes = "openid profile email groups offline_access";
         auth_url = "https://login.zhyi.xin/auth";
