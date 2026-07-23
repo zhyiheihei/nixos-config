@@ -40,7 +40,42 @@
     };
   };
 
+  services.kea.dhcp6 = {
+    enable = true;
+    settings = {
+      interfaces-config.interfaces = [ "br-lan/240e:390:2568:fa81::1" ];
+      lease-database = {
+        name = "/var/lib/kea/dhcp6.leases";
+        persist = true;
+        type = "memfile";
+      };
+
+      rebind-timer = 3600 * 6;
+      renew-timer = 3600 * 3;
+      valid-lifetime = 3600 * 12;
+
+      subnet6 = [
+        {
+          id = 1;
+          subnet = "240e:390:2568:fa81::/64";
+          interface = "br-lan";
+          pools = [ { pool = "240e:390:2568:fa81::ff00 - 240e:390:2568:fa81::ffff"; } ];
+          option-data = [
+            {
+              name = "dns-servers";
+              data = "240e:390:2568:fa81::1";
+            }
+          ];
+        }
+      ];
+    };
+  };
+
   systemd.services.kea-dhcp4-server.serviceConfig = {
+    Restart = lib.mkForce "always";
+    RestartSec = 3;
+  };
+  systemd.services.kea-dhcp6-server.serviceConfig = {
     Restart = lib.mkForce "always";
     RestartSec = 3;
   };

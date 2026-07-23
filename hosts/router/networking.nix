@@ -57,6 +57,7 @@
       matchConfig.Name = "br-lan";
       address = [
         "192.168.0.1/24"
+        "192.168.0.4/24"
         "240e:390:2568:fa81::1/64"
         "fc00:192:168:0::1/64"
       ];
@@ -65,8 +66,8 @@
       ipv6SendRAConfig = {
         EmitDNS = true;
         DNS = "240e:390:2568:fa81::1";
-        Managed = false;
-        OtherInformation = false;
+        Managed = true;
+        OtherInformation = true;
       };
       ipv6Prefixes = [
         { Prefix = "240e:390:2568:fa81::/64"; }
