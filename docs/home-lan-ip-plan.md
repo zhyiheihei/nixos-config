@@ -21,7 +21,6 @@
 | --- | --- | --- |
 | `192.168.0.1` | `router` VM | 网关 / NAT / DDNS |
 | `192.168.0.51` | `ml-home-vm` | 家庭服务 VM |
-| `192.168.0.52` | `colocrossing` VM | Attic / 家庭入口 |
 | `192.168.0.55` | `logvm` | 日志 / 基础服务 |
 
 ## 备注
@@ -30,3 +29,5 @@
   访问 NAS），`clientaddr=192.168.2.51`。
 - 部署 `ml-home-vm` 前需在 QNAP NFS export 中放行对应客户端地址。
 - Router VM 提供 IPv6 RA 广播，VM 通过 SLAAC 获取 IPv6 地址。
+- 原 `192.168.0.52` 的 colocrossing VM 已迁移到 SG 公网节点，不再占用家庭
+  虚拟 LAN 地址。

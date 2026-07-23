@@ -25,7 +25,7 @@
 
   ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
   ltnet.tcpTransportPeers.cnvm = "cnvm.zhyi.cc";
-  ltnet.tcpTransportPeers.sgvm = "sgvm.zhyi.cc";
+  ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
   ltnet.tcpTransportPeers.usvm = "usvm.zhyi.cc";
 
   # Keep author-style server metadata even without enabling the dn42 tag;

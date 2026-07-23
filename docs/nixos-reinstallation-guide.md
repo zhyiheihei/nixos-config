@@ -105,7 +105,7 @@ fileSystems."/nix" = {
 
 ### 2.2 BIOS 三分区布局
 
-适用于 `sgvm` 这类 BIOS QEMU VM：
+适用于 `colocrossing` 这类 BIOS QEMU VM：
 
 | 分区 | 大小 | 文件系统 | 挂载点 |
 | --- | --- | --- | --- |
