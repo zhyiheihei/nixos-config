@@ -34,11 +34,6 @@
 
   lantian.backup.enable = true;
   lantian.backup.paths = {
-    nvme-nixos-colocrossing = {
-      snapshotFrom = "/nix/persistent/var/lib/vz/virtiofs";
-      snapshotTo = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-colocrossing";
-      backupPath = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-colocrossing/virtiofs/nixos-colocrossing/persistent";
-    };
     nvme-nixos-home-vm = {
       snapshotFrom = "/nix/persistent/var/lib/vz/virtiofs";
       snapshotTo = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-home-vm";

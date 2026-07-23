@@ -196,11 +196,11 @@ The migration completed on 2026-07-16 with VM ID 105 on `pve-5700u`.
   path. Keep it for at least one week and until an independent restore test
   has passed.
 
-During the migration, a full PVE storage pool paused VM 200 with a QEMU I/O
-error. Free PVE storage and verify `qm status` before resuming a paused VM;
-do not treat the resulting guest time jump or service failures as independent
-application faults. VM 200 now has the QEMU guest agent enabled so the host can
-resynchronize its clock after pause and resume events.
+During the migration, a full PVE storage pool paused the former colocrossing
+VM 200 with a QEMU I/O error. Free PVE storage and verify `qm status` before
+resuming a paused VM; do not treat the resulting guest time jump or service
+failures as independent application faults. Colocrossing was later migrated to
+the SG public host and VM 200 was retired.
 
 ## Additional NixOS guests
 
@@ -210,7 +210,6 @@ per-guest VirtioFS layout as the upstream `pve-epyc` configuration:
 | VM ID | Guest | Directory mapping | Backing directory |
 | --- | --- | --- | --- |
 | 105 | `ml-home-vm` | `virtiofs-nixos-home-vm` | `virtiofs/nixos-home-vm` |
-| 200 | `colocrossing` | `virtiofs-nixos-colocrossing` | `virtiofs/nixos-colocrossing` |
 | 201 | `logvm` | `virtiofs-nixos-logvm` | `virtiofs/nixos-logvm` |
 
 Each guest has its own writable `/nix`. Never attach one guest's mapping to a
