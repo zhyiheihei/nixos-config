@@ -34,10 +34,10 @@ in
   ];
 
   systemd.network = {
-    netdevs.gretap-router = {
+    netdevs.gt-router = {
       netdevConfig = {
         Kind = "gretap";
-        Name = "gretap-router";
+        Name = "gt-router";
       };
       tunnelConfig = {
         Local = "192.168.2.50";
@@ -48,7 +48,7 @@ in
     networks = {
       # Keep the existing VMware LAN only as the GRETAP transport and an
       # emergency management path.  The primary default route is the Router
-      # subnet carried by gretap-router below.
+      # subnet carried by gt-router below.
       eth0 = {
         address = [ "192.168.2.50/24" ];
         matchConfig.Name = "eth0";
@@ -56,25 +56,21 @@ in
         ipv6AcceptRAConfig.DHCPv6Client = "no";
         routes = [
           {
-            routeConfig = {
-              Destination = "0.0.0.0/0";
-              Gateway = "192.168.2.2";
-              Metric = 2000;
-            };
+            Destination = "0.0.0.0/0";
+            Gateway = "192.168.2.2";
+            Metric = 2000;
           }
         ];
       };
 
-      gretap-router = {
+      gt-router = {
         address = [ "${LT.this.interconnect.IPv4}/24" ];
-        matchConfig.Name = "gretap-router";
+        matchConfig.Name = "gt-router";
         routes = [
           {
-            routeConfig = {
-              Destination = "0.0.0.0/0";
-              Gateway = "192.168.0.1";
-              Metric = 100;
-            };
+            Destination = "0.0.0.0/0";
+            Gateway = "192.168.0.1";
+            Metric = 100;
           }
         ];
       };
