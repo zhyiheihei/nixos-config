@@ -65,8 +65,8 @@
       ipv6SendRAConfig = {
         EmitDNS = true;
         DNS = "240e:390:2568:fa81::1";
-        Managed = true;
-        OtherInformation = true;
+        Managed = false;
+        OtherInformation = false;
       };
       ipv6Prefixes = [
         { Prefix = "240e:390:2568:fa81::/64"; }
