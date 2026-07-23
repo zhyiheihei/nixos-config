@@ -48,6 +48,9 @@ in
       # Allow DNATed connections
       ct status dnat accept
 
+      # Allow physical LAN (192.168.2.0/24) to reach virtual LAN
+      iifname "eth0" ip saddr 192.168.2.0/24 ip daddr 192.168.0.0/24 accept
+
       # Block forwarding from public interface
       iifname "eth0" drop
     }
