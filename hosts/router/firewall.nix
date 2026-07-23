@@ -69,6 +69,13 @@ in
       ip daddr 192.168.2.5 tcp dport { 80, 443, 2222 } iifname "eth0" dnat ip to 192.168.0.52
       ip daddr 192.168.2.5 udp dport { 80, 443 } iifname "eth0" dnat ip to 192.168.0.52
 
+      # Redirect LAN DNS requests to the isolated CoreDNS client namespace.
+      # eth1 is the physical LAN; gt-builder keeps the build host on that LAN.
+      fib daddr type local tcp dport ${LT.portStr.DNS} iifname { "eth1", "gt-builder" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
+      fib daddr type local tcp dport ${LT.portStr.DNS} iifname { "eth1", "gt-builder" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
+      fib daddr type local udp dport ${LT.portStr.DNS} iifname { "eth1", "gt-builder" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
+      fib daddr type local udp dport ${LT.portStr.DNS} iifname { "eth1", "gt-builder" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
+
       # Hairpin NAT: LAN accessing public IP gets redirected to colocrossing
       fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to 192.168.0.52
     }
