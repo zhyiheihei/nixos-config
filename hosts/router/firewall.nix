@@ -75,8 +75,8 @@ in
       type nat hook prerouting priority -95; policy accept;
 
       # Port forwarding: WAN → colocrossing
-      ip daddr 192.168.2.5 tcp dport { 80, 443, 2222 } iifname "eth0" dnat ip to 192.168.0.52
-      ip daddr 192.168.2.5 udp dport { 80, 443 } iifname "eth0" dnat ip to 192.168.0.52
+      ip daddr 192.168.2.5 tcp dport { 80, 443, 2222 } iifname "eth0" dnat ip to 192.168.0.51
+      ip daddr 192.168.2.5 udp dport { 80, 443 } iifname "eth0" dnat ip to 192.168.0.51
 
       # Redirect LAN DNS requests to the isolated CoreDNS client namespace.
       # br-lan is the bridge ingress seen by LAN guests; eth1 and gt-builder
@@ -87,7 +87,7 @@ in
       fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1", "gt-builder" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
 
       # Hairpin NAT: LAN accessing public IP gets redirected to colocrossing
-      fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to 192.168.0.52
+      fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to 192.168.0.51
     }
 
     chain NAT_INPUT {
