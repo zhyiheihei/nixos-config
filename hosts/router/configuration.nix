@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 {
   imports = [
     ../../nixos/minimal.nix
@@ -34,6 +34,6 @@
   services.ncps.cache = {
     dataPath = "/mnt/unreliable-cache/ncps";
     tempPath = "/mnt/unreliable-cache/ncps-tmp";
-    maxSize = "50G";
+    maxSize = lib.mkForce "50G";
   };
 }
