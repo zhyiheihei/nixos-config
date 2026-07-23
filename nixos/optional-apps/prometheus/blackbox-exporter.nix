@@ -49,7 +49,7 @@ let
     "https://netbox.zhyi.cc"
     "https://prometheus.zhyi.cc"
     "https://qnap.zhyi.cc"
-    "https://vaults3.zhyi.cc"
+    "https://vaults3.zhyi.cc:8443/health"
   ];
 
   monitoredHosts = lib.filterAttrs (
