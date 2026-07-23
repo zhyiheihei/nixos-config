@@ -21,6 +21,7 @@ let
     445
     LT.port.CUPS
     LT.port.Rsync
+    LT.port.NMEA
     LT.port.mDNS
   ];
 in
@@ -32,6 +33,10 @@ in
       # Drop timestamp ICMP pkts
       meta l4proto icmp icmp type timestamp-reply drop
       meta l4proto icmp icmp type timestamp-request drop
+
+      # Block Avahi multicast DNS on ZeroTier.
+      iifname "zt*" udp sport 5353 reject
+      iifname "zt*" udp dport 5353 reject
 
       iifname "eth0" jump PUBLIC_INPUT
     }
@@ -57,6 +62,10 @@ in
 
     chain FILTER_OUTPUT {
       type filter hook output priority 5; policy accept;
+
+      # Block Avahi multicast DNS on ZeroTier.
+      oifname "zt*" udp sport 5353 reject
+      oifname "zt*" udp dport 5353 reject
 
       # Block mDNS on WAN
       fib saddr type local oifname "eth0" jump PUBLIC_OUTPUT
