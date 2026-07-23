@@ -6,10 +6,10 @@ the peer layout to the links that are actually reachable.
 ## Active topology
 
 ```text
-ml-home-vm -- LAN -- colocrossing -- public IPv4 -- jpvm -- public IPv4 -- cnvm
+ml-home-vm -- LTNET -- colocrossing -- public IPv4 -- jpvm -- public IPv4 -- cnvm
 ```
 
-- `colocrossing` reflects routes to `ml-home-vm`.
+- `colocrossing` is the SG public node and reflects routes to `ml-home-vm`.
 - `jpvm` reflects routes between `colocrossing` and `cnvm`.
 - `jpvm` is the active external DN42 ingress and public LTNET relay.
 - ZeroTier remains the management and discovery network. It is not the normal
@@ -29,12 +29,11 @@ restricted to JPVM's two local WireGuard ports.
 
 ## Rsync path
 
-The author's rsync service used the direct ZeroTier address
-`198.18.0.18`. Direct overlay traffic was unstable across the current relays,
-so both the listener and clients use the advertised LTNET address instead:
+The author's rsync service uses the primary server's routed LTNET address.
+After moving colocrossing to the SG node, both the listener and clients use:
 
 ```text
-198.18.18.1:873
+198.18.120.1:873
 ```
 
 This keeps rsync on the same routed WireGuard/BIRD path as the rest of LTNET.
