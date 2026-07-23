@@ -70,7 +70,7 @@ in
       fib daddr type local udp dport { 80, 443 } iifname "eth0" dnat ip to 192.168.0.52
 
       # Hairpin NAT: LAN accessing public IP gets redirected to colocrossing
-      fib daddr type local iifname "eth1" ip daddr != @RESERVED_IPV4 dnat ip to 192.168.0.52
+      fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to 192.168.0.52
     }
 
     chain NAT_INPUT {
@@ -88,7 +88,7 @@ in
       meta nfproto ipv4 oifname "eth0" masquerade
 
       # Masquerade DNATed (hairpin) traffic so return path goes through router
-      meta nfproto ipv4 oifname "eth1" ct status dnat masquerade
+      meta nfproto ipv4 oifname "br-lan" ct status dnat masquerade
     }
 
     set PUBLIC_FIREWALLED_PORTS {

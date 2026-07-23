@@ -1,5 +1,28 @@
 { pkgs, ... }:
 {
+  # Extend the isolated PVE LAN to the VMware-based builder over the existing
+  # 192.168.2.0/24 management network.  The builder keeps that network solely
+  # for tunnel transport and recovery; its service address lives on br-lan.
+  systemd.network.netdevs = {
+    br-lan = {
+      netdevConfig = {
+        Kind = "bridge";
+        Name = "br-lan";
+      };
+    };
+
+    gretap-ml-builder = {
+      netdevConfig = {
+        Kind = "gretap";
+        Name = "gretap-ml-builder";
+      };
+      tunnelConfig = {
+        Local = "192.168.2.5";
+        Remote = "192.168.2.50";
+      };
+    };
+  };
+
   systemd.network.networks = {
     # WAN: static IPv4 on OpenWrt LAN + DHCPv6-PD for IPv6 prefix
     eth0 = {
@@ -16,9 +39,21 @@
       };
     };
 
-    # LAN: static gateway for VMs, IPv6 RA with GUA + ULA
+    # LAN bridge: local PVE VMs and the builder GRETAP endpoint.
     eth1 = {
       matchConfig.Name = "eth1";
+      networkConfig.Bridge = "br-lan";
+      linkConfig.RequiredForOnline = "enslaved";
+    };
+
+    gretap-ml-builder = {
+      matchConfig.Name = "gretap-ml-builder";
+      networkConfig.Bridge = "br-lan";
+    };
+
+    # Static gateway for the bridged LAN, with IPv6 RA for local guests.
+    br-lan = {
+      matchConfig.Name = "br-lan";
       address = [
         "192.168.0.1/24"
         "240e:390:2568:fa81::1/64"

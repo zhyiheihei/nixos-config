@@ -33,12 +33,52 @@ in
     ../../nixos/optional-apps/picoclaw.nix
   ];
 
-  systemd.network.networks.eth0 = {
-    address = [ "${LT.this.interconnect.IPv4}/24" ];
-    gateway = [ "192.168.0.1" ];
-    matchConfig.Name = "eth0";
-    networkConfig.IPv6AcceptRA = "yes";
-    ipv6AcceptRAConfig.DHCPv6Client = "no";
+  systemd.network = {
+    netdevs.gretap-router = {
+      netdevConfig = {
+        Kind = "gretap";
+        Name = "gretap-router";
+      };
+      tunnelConfig = {
+        Local = "192.168.2.50";
+        Remote = "192.168.2.5";
+      };
+    };
+
+    networks = {
+      # Keep the existing VMware LAN only as the GRETAP transport and an
+      # emergency management path.  The primary default route is the Router
+      # subnet carried by gretap-router below.
+      eth0 = {
+        address = [ "192.168.2.50/24" ];
+        matchConfig.Name = "eth0";
+        networkConfig.IPv6AcceptRA = "yes";
+        ipv6AcceptRAConfig.DHCPv6Client = "no";
+        routes = [
+          {
+            routeConfig = {
+              Destination = "0.0.0.0/0";
+              Gateway = "192.168.2.2";
+              Metric = 2000;
+            };
+          }
+        ];
+      };
+
+      gretap-router = {
+        address = [ "${LT.this.interconnect.IPv4}/24" ];
+        matchConfig.Name = "gretap-router";
+        routes = [
+          {
+            routeConfig = {
+              Destination = "0.0.0.0/0";
+              Gateway = "192.168.0.1";
+              Metric = 100;
+            };
+          }
+        ];
+      };
+    };
   };
 
   networking.networkmanager.enable = lib.mkForce false;
