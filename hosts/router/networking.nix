@@ -32,6 +32,7 @@
       networkConfig = {
         IPv6AcceptRA = "yes";
         DHCP = "ipv6";
+        Tunnel = "gt-builder";
       };
       dhcpV6Config = {
         UseDelegatedPrefix = "yes";
