@@ -60,7 +60,7 @@ _: [
   "cnvm.zhyi.cc"
   "flapalerted.zhyi.cc"
   "jpvm.zhyi.cc"
-  "sgvm.zhyi.cc"
+  "colocrossing.zhyi.cc"
   "usvm.zhyi.cc"
   "lg.zhyi.cc"
   "lg.zhyi.dn42"

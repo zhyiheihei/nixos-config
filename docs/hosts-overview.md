@@ -9,7 +9,7 @@
 
 当前日常在线主机为：
 `ml-builder`、`ml-home-vm`、`pve-5700u`、`colocrossing`、`jpvm`、`cnvm`、
-`sgvm`、`usvm`、`logvm`。
+`usvm`、`logvm`。
 `pve-2700` 是自有保留主机。`Makefile` 沿用作者的 Colmena 标签目标，并增加安全的
 默认帮助；实际部署命令见 [构建与部署](./deployment.md)。
 
@@ -21,7 +21,7 @@
 | `colocrossing` | 18 | `server` / DN42 / 公网入口 | `colocrossing.zhyi.cc` | Attic、家庭入口与 LTNET 路由反射端。 |
 | `jpvm` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.cc` 通配符公网入口。 |
 | `cnvm` | 119 | `server` / 公网入口 | `cnvm.zhyi.cc` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
-| `sgvm` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；监控栈（Prometheus、Grafana）。 |
+| `colocrossing` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、监控栈与 ZeroTier controller。 |
 | `usvm` | 117 | `server` / 公网入口 | `35.212.152.140` | US VPS（GCP）。 |
 | `logvm` | 118 | `server` | `logvm.zhyi.cc` | 家庭网络内的日志/基础服务节点。 |
 | `pve-2700` | 113 | PVE 保留主机 | `pve-2700.zhyi.cc` | 不属于日常部署集合；仅在机器状态明确时单独处理。 |

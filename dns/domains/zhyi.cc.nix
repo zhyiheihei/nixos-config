@@ -36,23 +36,23 @@ let
       ttl = "10m";
     }
 
-    # Monitoring stack (sgvm)
+    # Monitoring stack (colocrossing)
     {
       recordType = "CNAME";
       name = "prometheus";
-      target = "sgvm.zhyi.cc.";
+      target = "colocrossing.zhyi.cc.";
       ttl = "10m";
     }
     {
       recordType = "CNAME";
       name = "dashboard";
-      target = "sgvm.zhyi.cc.";
+      target = "colocrossing.zhyi.cc.";
       ttl = "10m";
     }
     {
       recordType = "CNAME";
       name = "alert";
-      target = "sgvm.zhyi.cc.";
+      target = "colocrossing.zhyi.cc.";
       ttl = "10m";
     }
   ];

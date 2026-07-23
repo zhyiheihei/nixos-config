@@ -11,6 +11,7 @@
     # ../../nixos/optional-apps/attic-watch-store.nix
 
     ./hardware-configuration.nix
+    ./home-lan-vhosts.nix
     ./media-center.nix
     ./shares.nix
 

@@ -1,8 +1,10 @@
-{ ... }:
+{ LT, ... }:
 let
   qnapAddress = "192.168.2.93";
 in
 {
+  networking.hosts.${LT.this.interconnect.IPv4} = [ "vaults3.zhyi.cc" ];
+
   lantian.nginxVhosts = {
     "vaults3.zhyi.cc" = {
       locations."/" = {

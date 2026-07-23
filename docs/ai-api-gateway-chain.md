@@ -27,28 +27,29 @@ Open WebUI / n8n      AxonHub / Metapi
 Open WebUI  ──────────────────────> ml-home-vm UniAPI ─> Provider
 AxonHub     ──────────────────────> ml-home-vm UniAPI ─> Provider
 Metapi      ──────────────────────> ml-home-vm UniAPI ─> Provider
-ml-home-vm UniAPI ─> n8n OpenAI Bridge (sgvm) ─> n8n 工作流
+ml-home-vm UniAPI ─> n8n OpenAI Bridge (colocrossing) ─> n8n 工作流
 
 ai-api.zhyi.cc ───────────────────> jpvm UniAPI ─────────> Provider
 ```
 
 `ai-api.zhyi.cc` 是 JPVM 上的独立公开 UniAPI 入口；它也从同一份 secrets Provider
-注册表导入配置，但不依赖 sgvm 的 AxonHub 或 Metapi。
+注册表导入配置，但不依赖 colocrossing 的 AxonHub 或 Metapi。
 
-Open WebUI、AxonHub、Metapi、n8n 运行在 `sgvm`，通过 LTNET 访问 ml-home-vm 上的
-UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI 通过 LTNET 回调 sgvm 上
-的 n8n Bridge（`https://n8n-bridge.sgvm.zhyi.cc/v1`）。
+Open WebUI、AxonHub、Metapi、n8n 运行在 `colocrossing`，通过 LTNET 访问
+ml-home-vm 上的 UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI
+通过 LTNET 回调 colocrossing 上的 n8n Bridge
+（`https://n8n-bridge.colocrossing.zhyi.cc/v1`）。
 
 ## 服务职责与位置
 
 | 服务 | 主机 | 作用 | 上游或依赖 |
 | --- | --- | --- | --- |
 | UniAPI | `ml-home-vm`、`jpvm` | Provider 注册表、模型别名与 OpenAI 兼容 API | 私有 `uni-api/` secrets |
-| Open WebUI | `sgvm` | 交互式 AI 前端，使用 Dex OIDC 登录 | LTNET `uni-api.ml-home-vm.zhyi.cc` |
-| n8n | `sgvm` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
-| n8n OpenAI Bridge | `sgvm` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
-| AxonHub | `sgvm` | 可选 AI 网关、渠道管理、观测与独立下游 API 管理 | PostgreSQL、Redis、LTNET UniAPI |
-| Metapi | `sgvm` | 可选元聚合网关、站点/账户/模型路由管理 | LTNET UniAPI；SQLite 状态目录 |
+| Open WebUI | `colocrossing` | 交互式 AI 前端，使用 Dex OIDC 登录 | LTNET `uni-api.ml-home-vm.zhyi.cc` |
+| n8n | `colocrossing` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
+| n8n OpenAI Bridge | `colocrossing` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
+| AxonHub | `colocrossing` | 可选 AI 网关、渠道管理、观测与独立下游 API 管理 | PostgreSQL、Redis、LTNET UniAPI |
+| Metapi | `colocrossing` | 可选元聚合网关、站点/账户/模型路由管理 | LTNET UniAPI；SQLite 状态目录 |
 
 核心实现位置：
 
@@ -57,7 +58,7 @@ UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI 通过 LTNET 回调
 - [`nixos/optional-apps/n8n/n8n-openai-bridge.nix`](../nixos/optional-apps/n8n/n8n-openai-bridge.nix)
 - [`nixos/optional-apps/axonhub.nix`](../nixos/optional-apps/axonhub.nix)
 - [`nixos/optional-apps/metapi.nix`](../nixos/optional-apps/metapi.nix)
-- [`hosts/sgvm/configuration.nix`](../hosts/sgvm/configuration.nix)
+- [`hosts/colocrossing/configuration.nix`](../hosts/colocrossing/configuration.nix)
 - [`hosts/ml-home-vm/configuration.nix`](../hosts/ml-home-vm/configuration.nix)
 - [`hosts/jpvm/configuration.nix`](../hosts/jpvm/configuration.nix)
 
@@ -81,7 +82,7 @@ UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI 通过 LTNET 回调
 - Metapi 的管理口令是 `default-pw`，其下游 `PROXY_TOKEN` 使用
   `uni-api-admin-api-key`。这是当前模块的作者式全局 secrets 约定。
 
-不要删除 AxonHub PostgreSQL 数据库、Redis 数据或 `/var/lib/metapi`（位于 sgvm），
+不要删除 AxonHub PostgreSQL 数据库、Redis 数据或 `/var/lib/metapi`（位于 colocrossing），
 除非明确要废弃相应网关；否则会丢失上述运行态初始化和应用内管理数据。
 
 ## Secrets 与密钥边界
@@ -108,21 +109,21 @@ UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI 通过 LTNET 回调
 
 - **不要改主调用路径。** Open WebUI 的 `OPENAI_API_BASE_URL` 直接指向 LTNET 上的
   UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）；n8n Bridge 作为 `lantian.llm-providers`
-  的 `n8n` Provider 被 UniAPI 通过 `https://n8n-bridge.sgvm.zhyi.cc/v1` 调用。两者都
+  的 `n8n` Provider 被 UniAPI 通过 `https://n8n-bridge.colocrossing.zhyi.cc/v1` 调用。两者都
   不能改为 AxonHub 或 Metapi，除非明确迁移整个调用契约并单独验证。
 - **不要制造回环。** 禁止将 `axonhub.*`、`metapi.*` 或 `ai-api.zhyi.cc` 配成 UniAPI
   的 Provider；禁止给 Metapi/AxonHub 再添加指向自身的上游。
 - **不重复保存外部 Provider 凭据。** AxonHub 与 Metapi 当前只保存对本机 UniAPI 的
   凭据。新增外部 Provider 时优先更新 `uni-api/` secrets，而不是分别塞入三个网关。
-- **保留私有访问边界。** `axonhub.sgvm.zhyi.cc` 与
-  `metapi.sgvm.zhyi.cc` 是 private vhost，不应为了方便就直接公开；公开 API 入口
+- **保留私有访问边界。** `axonhub.colocrossing.zhyi.cc` 与
+  `metapi.colocrossing.zhyi.cc` 是 private vhost，不应为了方便就直接公开；公开 API 入口
   由 `ai-api.zhyi.cc` 的 JPVM UniAPI 承担。
 - **不把运行态当 Nix 声明。** Nix 负责服务存在和 secret 文件挂载；应用内 channel、
   account、route、管理员、工作流等数据由各自数据库持久化和备份。
 
 ## 健康检查
 
-以下命令在 `sgvm` 以 root 执行；只验证，不打印密钥：
+以下命令在 `colocrossing` 以 root 执行；只验证，不打印密钥：
 
 ```bash
 systemctl is-active axonhub metapi n8n n8n-openai-bridge open-webui

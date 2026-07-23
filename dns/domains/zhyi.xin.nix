@@ -1,6 +1,6 @@
 { LT, ... }:
 let
-  publicVpsTarget = "home-ddns.zhyi.cc.";
+  publicVpsTarget = "colocrossing.zhyi.cc.";
 
   publicServices = [
     "api"
@@ -67,9 +67,9 @@ in
       ++ map (mkCname publicVpsTarget) publicServices
       ++ map (mkCname "cnvm.zhyi.cc.") cnvmServices
       ++ [
-        # AI services migrated to sgvm
-        (mkCname "sgvm.zhyi.cc." "ai")
-        (mkCname "sgvm.zhyi.cc." "n8n")
+        # AI services run on colocrossing.
+        (mkCname "colocrossing.zhyi.cc." "ai")
+        (mkCname "colocrossing.zhyi.cc." "n8n")
       ];
     }
   ];
