@@ -85,3 +85,19 @@ Attic、Dex、GLAuth、Pocket ID、Halo 和 Vaultwarden 已由 `cnvm` 承载，
 
 任何一步失败时，先停止新机对应服务，再重新启动旧 VM 的服务。DNS 和路由
 清理必须放在验收之后，确保回退路径仍然存在。
+
+## 完成状态
+
+迁移已于 2026-07-24 完成：
+
+- 迁移前 `colocrossing` 与 `sgvm` 的 NixOS 服务模块并集已全部由新
+  `colocrossing` 导入。
+- `vaults3.zhyi.cc`、`qnap.zhyi.cc` 和 `couchdb.zhyi.cc` 已迁移至
+  `ml-home-vm`，其三个 NAS 后端均可达。
+- 新 `colocrossing` 使用 index 120、LTNET 地址 `198.18.0.120` 和原
+  `sgvm` 的主机密钥及 ZeroTier 身份。
+- `cnvm`、`jpvm`、`logvm`、`ml-home-vm` 和 `usvm` 到新
+  `colocrossing` 的 WireGuard 与 BGP 会话均已恢复，rsync 主服务器统一为
+  `198.18.120.1`。
+- PVE VM 200、`virtiofs-nixos-colocrossing` 映射、旧 VirtioFS 数据和对应
+  备份任务均已删除。仓库、DNS 和运行时网络中不再保留旧 index 18 身份。
