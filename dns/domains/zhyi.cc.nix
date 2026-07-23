@@ -55,6 +55,12 @@ let
       target = "colocrossing.zhyi.cc.";
       ttl = "10m";
     }
+    {
+      recordType = "CNAME";
+      name = "rsync-ci";
+      target = "colocrossing.zhyi.cc.";
+      ttl = "10m";
+    }
   ];
 in
 {
