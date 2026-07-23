@@ -51,7 +51,7 @@
     };
   };
 
-  services.proxmox-ve.bridges = [ "br0" "br-wan" "br-lan" ];
+  services.proxmox-ve.bridges = [ "br-wan" "br-lan" ];
   services.proxmox-ve.ipAddress = LT.this.interconnect.IPv4;
 
   networking.hosts = {
@@ -61,14 +61,7 @@
     "${LT.hosts.logvm.interconnect.IPv4}" = [ "logvm.zhyi.cc" ];
   };
 
-  systemd.network.netdevs.br0 = {
-    netdevConfig = {
-      Kind = "bridge";
-      Name = "br0";
-    };
-  };
-
-  # WAN bridge: unused eth1 NIC → Router VM uplink
+  # WAN bridge: eth1 → Router VM uplink from OpenWrt LAN.
   systemd.network.netdevs.br-wan = {
     netdevConfig = {
       Kind = "bridge";
@@ -76,7 +69,7 @@
     };
   };
 
-  # LAN bridge: virtual network for VMs behind Router VM
+  # LAN bridge: eth0 and VMs behind Router VM.
   systemd.network.netdevs.br-lan = {
     netdevConfig = {
       Kind = "bridge";
@@ -85,9 +78,9 @@
   };
 
   systemd.network.networks = {
-    "10-pve-uplink" = {
+    "10-pve-lan" = {
       matchConfig.Name = "eth0";
-      networkConfig.Bridge = "br0";
+      networkConfig.Bridge = "br-lan";
       linkConfig.RequiredForOnline = "enslaved";
     };
 
@@ -97,17 +90,11 @@
       linkConfig.RequiredForOnline = "no";
     };
 
-    br0 = {
-      address = [ "${LT.this.interconnect.IPv4}/24" ];
-      gateway = [ "192.168.2.2" ];
-      matchConfig.Name = "br0";
-      networkConfig.IPv6AcceptRA = "yes";
-    };
-
     br-lan = {
+      address = [ "${LT.this.interconnect.IPv4}/24" ];
+      gateway = [ "192.168.0.1" ];
       matchConfig.Name = "br-lan";
-      address = [ "192.168.0.254/24" ];
-      linkConfig.MTUBytes = "9000";
+      networkConfig.IPv6AcceptRA = "yes";
     };
   };
 }
