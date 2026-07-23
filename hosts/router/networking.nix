@@ -58,8 +58,16 @@
       address = [
         "192.168.0.1/24"
         "192.168.0.4/24"
+        "192.168.2.6/32"
         "240e:390:2568:fa81::1/64"
         "fc00:192:168:0::1/64"
+      ];
+      routes = [
+        {
+          Destination = "192.168.2.93/32";
+          PreferredSource = "192.168.2.6";
+          Scope = "link";
+        }
       ];
       linkConfig.MTUBytes = "9000";
       networkConfig.IPv6SendRA = "yes";

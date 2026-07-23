@@ -106,6 +106,9 @@ in
 
       # Masquerade DNATed (hairpin) traffic so return path goes through router
       meta nfproto ipv4 oifname "br-lan" ct status dnat masquerade
+
+      # Keep the QNAP return path on br-lan while it retains its old LAN address.
+      ip daddr 192.168.2.93 oifname "br-lan" snat ip to 192.168.2.6
     }
 
     set PUBLIC_FIREWALLED_PORTS {
