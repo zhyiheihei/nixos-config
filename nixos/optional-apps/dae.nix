@@ -59,7 +59,7 @@ in
         node {
           v2ray: "socks5://localhost:${LT.portStr.V2Ray.SocksClient}"
           v2ray_unblock_cn: "socks5://localhost:${LT.portStr.V2Ray.UnblockCNClient}"
-          colocrossing: "socks5://${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
+          usvm: "socks5://${LT.hosts.usvm.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
         }
 
         dns {
@@ -82,15 +82,15 @@ in
 
         group {
           proxy {
-            filter: name(colocrossing)
+            filter: name(usvm)
             policy: fixed(0)
           }
           unblock_cn {
             filter: name(v2ray_unblock_cn)
             policy: fixed(0)
           }
-          colocrossing {
-            filter: name(colocrossing)
+          usvm {
+            filter: name(usvm)
             policy: fixed(0)
           }
         }
@@ -107,11 +107,6 @@ in
 
           domain(geosite:category-ads) -> block
           domain(geosite:category-ads-all) -> block
-          ${lib.optionalString (
-            cfg.proxyDomains != [ ]
-          ) "l4proto(udp) && dport(443) && domain(${lib.concatMapStringsSep ", " (
-            domain: "suffix: ${domain}"
-          ) cfg.proxyDomains}) -> block"}
           ${lib.optionalString (
             cfg.proxyDomains != [ ]
           ) "domain(${lib.concatMapStringsSep ", " (domain: "suffix: ${domain}") cfg.proxyDomains}) -> proxy"}
