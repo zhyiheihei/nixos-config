@@ -13,6 +13,14 @@ let
     }
   '';
 
+  ipv6Set = name: value: ''
+    set ${name} {
+      type ipv6_addr
+      flags constant, interval
+      elements = { ${builtins.concatStringsSep ", " value} }
+    }
+  '';
+
   publicFirewalledPorts = [
     # Samba
     137
@@ -38,7 +46,7 @@ in
       iifname "zt*" udp sport 5353 reject
       iifname "zt*" udp dport 5353 reject
 
-      iifname "eth0" jump PUBLIC_INPUT
+      iifname "ppp0" jump PUBLIC_INPUT
     }
 
     chain FILTER_FORWARD {
@@ -53,11 +61,8 @@ in
       # Allow DNATed connections
       ct status dnat accept
 
-      # Allow physical LAN (192.168.2.0/24) to reach virtual LAN
-      iifname "eth0" ip saddr 192.168.2.0/24 ip daddr 192.168.0.0/24 accept
-
       # Block forwarding from public interface
-      iifname "eth0" drop
+      iifname "ppp0" drop
     }
 
     chain FILTER_OUTPUT {
@@ -68,26 +73,33 @@ in
       oifname "zt*" udp dport 5353 reject
 
       # Block mDNS on WAN
-      fib saddr type local oifname "eth0" jump PUBLIC_OUTPUT
+      fib saddr type local oifname "ppp0" jump PUBLIC_OUTPUT
     }
 
     chain NAT_PREROUTING {
       type nat hook prerouting priority -95; policy accept;
 
-      # Port forwarding: WAN → colocrossing
-      ip daddr 192.168.2.5 tcp dport { 80, 443, 2222 } iifname "eth0" dnat ip to 192.168.0.51
-      ip daddr 192.168.2.5 udp dport { 80, 443 } iifname "eth0" dnat ip to 192.168.0.51
+      # Public services: direct PPPoE WAN → colocrossing.
+      fib daddr type local tcp dport { 80, 443, 2222 } iifname "ppp0" dnat ip to 192.168.0.51
+      fib daddr type local udp dport 443 iifname "ppp0" dnat ip to 192.168.0.51
+      fib daddr type local tcp dport { 80, 443, 2222 } iifname "ppp0" dnat ip6 to [fc00:192:168::10]
+      fib daddr type local udp dport 443 iifname "ppp0" dnat ip6 to [fc00:192:168::10]
+
+      # Compatibility endpoints previously forwarded by OpenWrt.
+      fib daddr type local tcp dport 8443 iifname "ppp0" dnat ip to 192.168.0.51:443
+      fib daddr type local tcp dport 4000 iifname "ppp0" dnat ip to 192.168.0.51:443
 
       # Redirect LAN DNS requests to the isolated CoreDNS client namespace.
-      # br-lan is the bridge ingress seen by LAN guests; eth1 and gt-builder
-      # cover direct physical and GRETAP traffic respectively.
-      fib daddr type local tcp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1", "gt-builder" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
-      fib daddr type local tcp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1", "gt-builder" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
-      fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1", "gt-builder" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
-      fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1", "gt-builder" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
+      # br-lan is the bridge ingress seen by LAN guests; eth1 covers direct
+      # physical traffic.
+      fib daddr type local tcp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
+      fib daddr type local tcp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
+      fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
+      fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
 
       # Hairpin NAT: LAN accessing public IP gets redirected to colocrossing
       fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to 192.168.0.51
+      fib daddr type local iifname "br-lan" ip6 daddr != @RESERVED_IPV6 dnat ip6 to [fc00:192:168::10]
     }
 
     chain NAT_INPUT {
@@ -102,7 +114,7 @@ in
       type nat hook postrouting priority 105; policy accept;
 
       # Masquerade outbound to WAN
-      meta nfproto ipv4 oifname "eth0" masquerade
+      meta nfproto ipv4 oifname "ppp0" masquerade
 
       # Masquerade DNATed (hairpin) traffic so return path goes through router
       meta nfproto ipv4 oifname "br-lan" ct status dnat masquerade
@@ -133,5 +145,6 @@ in
 
     # IP Sets
     ${ipv4Set "RESERVED_IPV4" LT.constants.reserved.IPv4}
+    ${ipv6Set "RESERVED_IPV6" LT.constants.reserved.IPv6}
   '';
 }
