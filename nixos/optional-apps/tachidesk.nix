@@ -43,7 +43,7 @@
   };
 
   lantian.nginxVhosts = {
-    "tachidesk.${config.networking.hostName}.zhyi.cc" = {
+    "tachidesk.zhyi.xin" = {
       locations = {
         "/" = {
           enableBasicAuth = true;
@@ -52,7 +52,7 @@
         };
       };
 
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
     "tachidesk.localhost" = {

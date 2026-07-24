@@ -1,4 +1,4 @@
-{ config, ... }:
+{ ... }:
 {
   virtualisation.oci-containers.containers.asf = {
     image = "ghcr.io/justarchinet/archisteamfarm:released";
@@ -31,7 +31,7 @@
   };
 
   lantian.nginxVhosts = {
-    "asf.${config.networking.hostName}.zhyi.cc" = {
+    "asf.zhyi.xin" = {
       locations = {
         "/" = {
           enableOAuth = true;
@@ -44,7 +44,7 @@
         };
       };
 
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
     "asf.localhost" = {

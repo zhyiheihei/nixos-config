@@ -22,7 +22,7 @@
     };
 
     lantian.nginxVhosts = {
-      "immich.${config.networking.hostName}.zhyi.cc" = {
+      "immich.zhyi.xin" = {
         locations = {
           "/" = {
             proxyPass = "http://127.0.0.1:${LT.portStr.Immich}";
@@ -31,7 +31,7 @@
           };
         };
 
-        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
+        sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
       "immich.localhost" = {
