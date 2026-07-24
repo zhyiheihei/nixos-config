@@ -6,27 +6,6 @@
   pkgs,
   ...
 }:
-let
-  mlHomePublicServices = [
-    "asf.zhyi.xin"
-    "books.zhyi.xin"
-    "filebox.zhyi.xin"
-    "immich.zhyi.xin"
-    "index-helper.zhyi.xin"
-    "index.zhyi.xin"
-    "jellyfin.zhyi.xin"
-    "tachidesk.zhyi.xin"
-  ];
-  mlHomeOAuthServices = [
-    "asf.zhyi.xin"
-    "index-helper.zhyi.xin"
-    "index.zhyi.xin"
-  ];
-  mlHomeBasicAuthServices = [
-    "books.zhyi.xin"
-    "tachidesk.zhyi.xin"
-  ];
-in
 {
   imports = [
     ../../nixos/server.nix
@@ -128,47 +107,7 @@ in
     };
   };
 
-  lantian.nginxVhosts =
-    lib.genAttrs mlHomePublicServices (serverName: {
-      locations."/" = {
-        proxyPass = "https://${LT.hosts.ml-home-vm.ltnet.IPv4}:${LT.portStr.HTTPS}";
-        proxyWebsockets = true;
-        proxyNoTimeout = true;
-        enableOAuth = builtins.elem serverName mlHomeOAuthServices;
-        enableBasicAuth = builtins.elem serverName mlHomeBasicAuthServices;
-        extraConfig = ''
-          proxy_ssl_name ${serverName};
-          proxy_ssl_server_name on;
-        '';
-      };
-      sslCertificate = "lets-encrypt-zhyi.xin";
-      noIndex.enable = true;
-    })
-    // {
-      "colocrossing.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
-
-      "sub.zhyi.cc" = {
-        locations = {
-          "/" = {
-            proxyPass = "https://${LT.hosts.ml-home-vm.ltnet.IPv4}:${LT.portStr.HTTPS}";
-            enableOAuth = true;
-            extraConfig = ''
-              proxy_ssl_name sub.zhyi.cc;
-              proxy_ssl_server_name on;
-            '';
-          };
-          "= /mihomo.yaml" = {
-            proxyPass = "https://${LT.hosts.ml-home-vm.ltnet.IPv4}:${LT.portStr.HTTPS}";
-            extraConfig = ''
-              proxy_ssl_name sub.zhyi.cc;
-              proxy_ssl_server_name on;
-            '';
-          };
-        };
-        sslCertificate = "lets-encrypt-zhyi.cc";
-        noIndex.enable = true;
-      };
-    };
+  lantian.nginxVhosts."colocrossing.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
   virtualisation.oci-containers.containers.byparr.ports = [
     "${LT.this.ltnet.IPv4}:${LT.portStr.FlareSolverr}:8191"

@@ -17,7 +17,7 @@
   city = geo.cities."CN Ningbo";
 
   # SSH host public key。重装后从固定局域网地址重新读取：
-  #   ssh-keyscan -p 2222 192.168.2.50 2>/dev/null | grep ssh-ed25519
+  #   ssh-keyscan -p 2222 192.168.0.50 2>/dev/null | grep ssh-ed25519
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEL+VnRYwULTdXkJtOCqoKY4COzWxHNz9glsndnSbZxl";
 
   zerotier = "2c86750714";

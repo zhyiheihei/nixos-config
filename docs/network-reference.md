@@ -6,7 +6,7 @@
 
 | 层次 | 作用 | 地址/接口来源 |
 | --- | --- | --- |
-| 家庭局域网 | 同一 `home-lan` 的直接管理与服务访问 | `hosts/*/host.nix` 中的 `interconnect.IPv4`；物理层 `192.168.2.0/24`，虚拟层 `192.168.0.0/24`（Router VM 后，MTU 9000） |
+| 家庭局域网 | 同一 `home-lan` 的直接管理与服务访问 | `hosts/*/host.nix` 中的 `interconnect.IPv4`；当前统一使用 `192.168.0.0/24`（Router VM 后，MTU 9000） |
 | ZeroTier | 设备可达性与无公网节点之间的 WireGuard 建链 | 网络 `466270de75000001`，接口 `zttalxbxtu` |
 | LTNET | 内部服务地址与路由前缀 | `198.18.0.<index>`、`198.18.<index>.0/24`、`fdd8:1938:4e88::<index>` |
 | WireGuard mesh | LTNET 的加密点对点传输 | `wgmesh<peer-index>`；本机 UDP 端口为 `10000 + 本机 index` |
@@ -18,7 +18,7 @@
 
 | 主机 | index | 家庭局域网 IPv4 | ZeroTier 节点 ID | LTNET IPv4 | WireGuard/LTNET 声明 |
 | --- | ---: | --- | --- | --- | --- |
-| `ml-builder` | 114 | `192.168.2.50` | `2c86750714` | `198.18.0.114` | 仅最小系统；不声明 server mesh 对等 |
+| `ml-builder` | 114 | `192.168.0.50` | `2c86750714` | `198.18.0.114` | 仅最小系统；不声明 server mesh 对等 |
 | `ml-home-vm` | 115 | `192.168.0.51` | `c340ae9a91` | `198.18.0.115` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
 | `colocrossing` | 120 | 无 | `76d1b20a73` | `198.18.0.120` | SG 公网节点；server mesh、DN42 与 ZeroTier controller |
 | `pve-2700` | 113 | `192.168.2.53` | `214f8619a9` | `198.18.0.113` | 当前没有 server mesh 声明 |
@@ -53,30 +53,39 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 
 ## 域名与入口
 
-DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆盖解析，优先级高于公网 DNS。`home-ddns.zhyi.cc` 与 `wg-home.zhyi.cc` 在 DNSControl 中标记为 `IGNORE`，由 colocrossing 的 Gcore DDNS 脚本维护。
+DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆盖解析，优先级高于公网 DNS。`home-ddns.zhyi.cc` 与 `wg-home.zhyi.cc` 在 DNSControl 中标记为 `IGNORE`，其中 `home-ddns.zhyi.cc` 由 router 上的 Gcore DDNS 服务维护。
 
 | 域名/模式 | DNS 声明 | 服务入口/后端 |
 | --- | --- | --- |
-| `*.zhyi.cc` | 默认 CNAME 到 `jpvm.zhyi.cc` | JPVM `443` Web 入口；主机精确记录优先并保持直连 |
-| `*.ml-home-vm.zhyi.cc` | CNAME 到 `jpvm.zhyi.cc` | JPVM 经 colocrossing LTNET 转发到 `ml-home-vm:8443`，对外只使用标准 `443` |
-| `archivebox.ml-home-vm.zhyi.cc`、`syncthing.ml-home-vm.zhyi.cc`、`halo.ml-home-vm.zhyi.cc`、`linkwarden.ml-home-vm.zhyi.cc`、`excalidraw.ml-home-vm.zhyi.cc`、`freshrss.ml-home-vm.zhyi.cc`、`memos.ml-home-vm.zhyi.cc`、`vertex.ml-home-vm.zhyi.cc` | CNAME 到 `jpvm.zhyi.cc` | `jpvm:443` 的 TLS SNI 转发至 colocrossing LTNET 入口，再转发到 `ml-home-vm:8443`；正式入口受 OAuth 保护 |
-| `ha.zhyi.cc` | CNAME 到 `jpvm.zhyi.cc` | JP VPS 的 TLS SNI 转发至家庭服务 |
-| `hydra.zhyi.cc` | CNAME 到 `jpvm.zhyi.cc` | Hydra vhost 反代到 `pve-5700u` 的 Hydra 端口 |
-| `sub.zhyi.cc` | CNAME 到 `jpvm.zhyi.cc` | 标准 `443` 经 JP VPS 与 colocrossing 转发至 `ml-home-vm:8443`，订阅地址由本机服务生成并受 OAuth 保护 |
-| `attic.zhyi.xin`、`vaults3.zhyi.cc` | CNAME 到 `home-ddns.zhyi.cc` | 高流量缓存数据面和家庭入口 DDNS；Attic URL 为 `https://attic.zhyi.xin:8443/lantian` |
+| `主机.zhyi.cc`、`*.主机.zhyi.cc` | `host-recs.nix` 按主机公网或 LTNET 地址生成 | 作者式主机与私有服务命名；不经过统一公网入口 |
+| `*.ml-home-vm.zhyi.cc` | CNAME 到 `ml-home-vm.zhyi.cc` | 家庭服务的私有 LTNET 入口 |
+| `ha.zhyi.cc`、`sub.zhyi.cc`、`vaults3.zhyi.cc` | CNAME 到 `home-ddns.zhyi.cc` | 家庭动态公网入口 |
+| `hydra.zhyi.cc` | CNAME 到 `jpvm.zhyi.cc` | 对应作者 `bwg-lax -> pve-epyc.ltnet`，由 JPVM 反代到 `pve-5700u` 的 Hydra 端口 |
+| `attic.zhyi.xin` | CNAME 到 `cnvm.zhyi.cc` | CNVM 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
 | `colocrossing.zhyi.cc` | A `203.55.176.158` | SSH、Colmena、ZeroTier controller 与公共服务入口 |
-| `zhyi.xin` | A `101.96.199.157` | CNVM 公网入口 |
-| `*.zhyi.xin` | CNAME 到 `cnvm.zhyi.cc` | CNVM 公网入口的兜底记录；`attic` 精确记录优先 |
-| `www` 与所有具名 `zhyi.xin` Web 服务 | CNAME 到 `cnvm.zhyi.cc` | CNVM TLS SNI 入口；colocrossing 再按承载主机分发 |
+| `zhyi.xin` | A `101.96.199.157` | CNVM 上的公开根站入口 |
+| 具名 `zhyi.xin` Web 服务 | 显式 CNAME 到 `home-ddns`、`colocrossing` 或 `cnvm` | 按作者服务角色逐项声明，不使用统一通配符兜底 |
 | `jpvm.zhyi.cc` | A `36.50.85.113` | `jpvm` 自身服务 |
 | `autoconfig.moliy.site` | CNAME 到 `home-ddns.zhyi.cc` | 家庭公网入口 |
+
+家庭公网封锁标准 `443`。DNS、Nginx vhost、OAuth 回调和应用自身 URL 仍保持
+作者的标准 HTTPS 结构；需要从公网直接访问 `home-ddns` 承载的服务时，客户端
+显式使用 `https://域名:8443/`，router 将公网 `8443` 转发到家庭入口的
+`443`。不要把 `8443` 固化进 DNS 或应用配置。
+
+作者的 Hydra 公网入口 `bwg-lax` 通过 HE.net SIT tunnel 拥有公网 IPv6，家庭
+`pve-epyc` 也有公网 IPv6，因此 ZeroTier 可以绕开 IPv4 双 NAT。当前 JPVM
+只有 IPv4 链路本地地址，家庭 PVE 虽有公网 IPv6，但无法与 JPVM 建立 IPv6
+物理路径；在补齐 JPVM 的原生 IPv6 或作者同类 HE.net tunnel 前，IPv4 UDP
+打洞可能被双层 NAT 阻断。不要把 Hydra 临时改到 CNVM 或家庭 LAN 地址来掩盖
+这个前置条件。
 
 ## 局域网覆盖
 
 | 生效主机 | 覆盖关系 | 用途 |
 | --- | --- | --- |
 | `ml-builder` | `openclash.zhyi.cc -> 192.168.0.51`；`pve-5700u.zhyi.cc -> 192.168.0.2`；`logvm.zhyi.cc -> 192.168.0.55` | 构建机经 LAN 直达 MetaCubeXD 和其他主机 |
-| `pve-5700u` | `ml-builder.zhyi.cc -> 192.168.2.50`；`ml-home-vm.zhyi.cc -> 192.168.0.51`；`logvm.zhyi.cc -> 192.168.0.55` | LAN 内主机互访 |
+| `pve-5700u` | `ml-builder.zhyi.cc -> 192.168.0.50`；`ml-home-vm.zhyi.cc -> 192.168.0.51`；`logvm.zhyi.cc -> 192.168.0.55` | LAN 内主机互访 |
 | `ml-home-vm` | `vaults3.zhyi.cc ->` 本机 interconnect 地址 | NAS S3 数据面经家庭局域网直连 |
 
 MetaCubeXD 运行于 `ml-home-vm`（`192.168.0.51:7892`）；控制界面和 Clash API 仅绑定回环地址，并经 `metacubexd.ml-home-vm.zhyi.cc` 的私有 Nginx vhost 访问。Halo 已迁移至 `ml-home-vm`，根域 `zhyi.xin` 经 CNVM 和 colocrossing 转发到该服务。

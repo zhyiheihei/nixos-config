@@ -23,6 +23,7 @@ _: [
   "whois.zhyi.xin"
   "www.zhyi.xin"
   "zerossl.zhyi.xin"
+  "zhyi.cc"
   "zhyi.dn42"
   "zhyi.xin"
   # keep-sorted end

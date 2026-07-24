@@ -6,42 +6,112 @@
 }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
-  colocrossingTarget = "colocrossing.zhyi.cc.";
-  jpvmTarget = "jpvm.zhyi.cc.";
-  mlHomeVmLtnetTarget = "ml-home-vm.ltnet.zhyi.cc.";
-
-  mkCname = target: name: {
-    recordType = "CNAME";
-    inherit name;
-    inherit target;
-    ttl = "10m";
-  };
 
   internalServices = [
-    (mkCname jpvmTarget "ai-api")
-    (mkCname jpvmTarget "autoconfig")
-    (mkCname jpvmTarget "hydra")
-    (mkCname mlHomeVmLtnetTarget "um")
+    {
+      recordType = "CNAME";
+      name = "ai-api";
+      target = "jpvm";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "autoconfig";
+      target = "jpvm";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "hydra";
+      target = "jpvm";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "um";
+      target = "ml-home-vm.ltnet.zhyi.cc.";
+      ttl = "1h";
+    }
 
-    (mkCname colocrossingTarget "alert")
-    (mkCname colocrossingTarget "dashboard")
-    (mkCname colocrossingTarget "flapalerted")
-    (mkCname colocrossingTarget "lg")
-    (mkCname colocrossingTarget "netbox")
-    (mkCname colocrossingTarget "prometheus")
-    (mkCname colocrossingTarget "rsync-ci")
-    (mkCname colocrossingTarget "sub")
+    {
+      recordType = "CNAME";
+      name = "alert";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "dashboard";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "flapalerted";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "lg";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "netbox";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "prometheus";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "rsync-ci";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "sub";
+      target = homeDdnsTarget;
+      ttl = "1h";
+    }
 
-    (mkCname homeDdnsTarget "couchdb")
-    (mkCname homeDdnsTarget "ha")
-    (mkCname homeDdnsTarget "qnap")
-    (mkCname homeDdnsTarget "vaults3")
+    {
+      recordType = "CNAME";
+      name = "couchdb";
+      target = homeDdnsTarget;
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "ha";
+      target = homeDdnsTarget;
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "qnap";
+      target = homeDdnsTarget;
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "vaults3";
+      target = homeDdnsTarget;
+      ttl = "1h";
+    }
 
     {
       recordType = "CNAME";
       name = "halo.cnvm";
       target = "cnvm.ltnet.zhyi.cc.";
-      ttl = "10m";
+      ttl = "1h";
     }
   ];
 in
