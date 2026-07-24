@@ -113,8 +113,8 @@ in
     chain NAT_POSTROUTING {
       type nat hook postrouting priority 105; policy accept;
 
-      # Masquerade outbound to WAN
-      meta nfproto ipv4 oifname "ppp0" masquerade
+      # Masquerade traffic leaving the LAN, including WAN and overlay networks.
+      meta nfproto ipv4 oifname != "br-lan" masquerade
 
       # Masquerade DNATed (hairpin) traffic so return path goes through router
       meta nfproto ipv4 oifname "br-lan" ct status dnat masquerade
