@@ -15,6 +15,10 @@ in
       type = lib.types.listOf lib.types.str;
       default = [ ];
     };
+    proxyDomains = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+    };
     cnAction = lib.mkOption {
       type = lib.types.str;
       default = "unblock_cn";
@@ -103,6 +107,9 @@ in
 
           domain(geosite:category-ads) -> block
           domain(geosite:category-ads-all) -> block
+          ${lib.optionalString (
+            cfg.proxyDomains != [ ]
+          ) "domain(${lib.concatMapStringsSep ", " (domain: "suffix: ${domain}") cfg.proxyDomains}) -> proxy"}
           domain(geosite:private) -> must_direct
           domain(geosite:cn) -> must_direct
           domain(geosite:category-games@cn) -> must_direct

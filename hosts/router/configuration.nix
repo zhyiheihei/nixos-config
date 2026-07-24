@@ -26,7 +26,19 @@
 
   lantian.dae = {
     lanInterfaces = [ "br-lan" ];
-    intlAction = "proxy";
+    proxyDomains = [
+      "chatgpt.com"
+      "dns.google"
+      "ghcr.io"
+      "github.com"
+      "githubassets.com"
+      "githubcopilot.com"
+      "githubusercontent.com"
+      "oaistatic.com"
+      "oaiusercontent.com"
+      "openai.com"
+    ];
+    intlAction = "must_direct";
   };
 
   services.lancache.environment = {
