@@ -5,7 +5,7 @@
 本文档描述 ml-home-vm 上完整的下载与媒体链路：从 PT 站找片、自动追番、音乐同步，
 到最终在 Jellyfin 观看的全流程。
 
-导航页入口：<https://homepage.zhyi.xin>（"下载与媒体链路"分组）
+导航页入口：<https://homepage.ml-home-vm.zhyi.cc>（"下载与媒体链路"分组）
 
 ## 链路总览
 
@@ -137,7 +137,7 @@ ssh ml-home-vm 'journalctl -u flexget-runner --since "1 hour ago"'
 | HandBrake | <https://handbrake.ml-home-vm.zhyi.cc> | 视频转码（NVENC 硬编），存储路径 /mnt/storage/handbrake-server/ |
 | IYUUPlus | <https://iyuuplus.ml-home-vm.zhyi.cc> | 辅种工具：自动将已有文件匹配到其他站点种子 |
 | Vertex | <https://vertex.ml-home-vm.zhyi.cc> | PT 站点数据面板 + 刷流任务管理 |
-| Jellyfin | <https://jellyfin.ml-home-vm.zhyi.cc> | 媒体服务器：链路终点，观看电影/剧集 |
+| Jellyfin | <https://jellyfin.zhyi.xin> | 媒体服务器：链路终点，观看电影/剧集 |
 
 ### 无 WebUI 的后台组件
 

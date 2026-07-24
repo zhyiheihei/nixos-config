@@ -27,7 +27,7 @@ in
   lantian.netns.jellyfin.ipSuffix = "48";
 
   lantian.nginxVhosts = {
-    "jellyfin.${config.networking.hostName}.zhyi.cc" = {
+    "jellyfin.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://unix:/run/jellyfin/socket";
@@ -37,7 +37,7 @@ in
         };
       };
 
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
     "jellyfin.localhost" = {
@@ -63,7 +63,7 @@ in
       JELLYFIN_kestrel__socket = "true";
       JELLYFIN_kestrel__socketPath = "/run/jellyfin/socket";
       JELLYFIN_kestrel__socketPermissions = "0777";
-      JELLYFIN_PublishedServerUrl = "https://jellyfin.${config.networking.hostName}.zhyi.cc";
+      JELLYFIN_PublishedServerUrl = "https://jellyfin.zhyi.xin";
     };
     serviceConfig = {
       RuntimeDirectory = "jellyfin";

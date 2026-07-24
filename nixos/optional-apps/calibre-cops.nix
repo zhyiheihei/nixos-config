@@ -70,8 +70,8 @@ in
     };
 
     lantian.nginxVhosts = {
-      "books.${config.networking.hostName}.zhyi.cc" = copsVhost // {
-        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      "books.zhyi.xin" = copsVhost // {
+        sslCertificate = "lets-encrypt-zhyi.xin";
       };
       "books.localhost" = copsVhost // {
         listenHTTP.enable = true;
@@ -102,7 +102,7 @@ in
       $config['cops_author_split_first_letter'] = '0';
       $config['cops_epub_reader'] = 'epubjs';
       # $config['cops_front_controller'] = 'index.php';
-      $config['cops_full_url'] = 'https://books.${config.networking.hostName}.zhyi.cc/';
+      $config['cops_full_url'] = 'https://books.zhyi.xin/';
       $config['cops_generate_invalid_opds_stream'] = '1';
       $config['cops_ignored_categories'] = array('publisher', 'rating');
       $config['cops_kepubify_path'] = '${lib.getExe' pkgs.kepubify "kepubify"}';

@@ -167,7 +167,7 @@ ping 198.18.0.115           # ml-home-vm 可达
 在浏览器中访问任意 private 服务：
 ```
 https://bt.ml-home-vm.zhyi.cc      # qBittorrent
-https://jellyfin.ml-home-vm.zhyi.cc # Jellyfin
+https://jellyfin.zhyi.xin # Jellyfin
 https://sonarr.ml-home-vm.zhyi.cc   # Sonarr
 ```
 
