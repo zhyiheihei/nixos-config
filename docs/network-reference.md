@@ -26,6 +26,7 @@
 | `logvm` | 118 | `192.168.0.55` | `cba3cdffbf` | `198.18.0.118` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
 | `jpvm` | 117 | 无 | `a073934677` | `198.18.0.117` | server mesh 全互联；为 WSS/TCP WireGuard transport 服务端 |
 | `cnvm` | 119 | 无 | `ecd09d7bc2` | `198.18.0.119` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
+| `usvm` | 121 | 无 | `47c75f186a` | `198.18.0.121` | server mesh 全互联；公网节点 |
 | `molishanguang-macbook` | 200 | 无 | `174ea952dd` | `198.18.0.200` | 额外 ZeroTier 客户端；不参与 server mesh |
 
 ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index>`，IPv6 为 `fdd8:1938:4e88::<index>`。额外客户端的声明来源仍是 secrets 的 `zerotier-additional-hosts.nix`；上表只记录已授权的 Mac 固定分配。
@@ -36,7 +37,7 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 | --- | --- |
 | 私钥 | 每台启用 mesh 的主机从 `per-host/wg-priv/<hostname>.yaml` 由 SOPS 解密 |
 | 公钥 | 由 secrets 的 `wg-pubkey.nix` 提供；不在仓库文档中复制 |
-| 对等选择 | 当前五台 `server` 主机全互联：`ml-home-vm`、`colocrossing`、`jpvm`、`logvm`、`cnvm` |
+| 对等选择 | 当前六台 `server` 主机全互联：`ml-home-vm`、`colocrossing`、`jpvm`、`logvm`、`cnvm`、`usvm` |
 | 端点选择 | 同一 `interconnect.name` 时走局域网；通常跨网段走公网或 LTNET/ZeroTier 可达地址；到 `jpvm` 的四条跨网段链路由 WSS/TCP transport 接管 |
 | TCP transport | `ml-home-vm`、`colocrossing`、`logvm`、`cnvm` 将到 `jpvm` 的 WireGuard UDP 封装进本地 WSS/TCP `443`；WireGuard 本体只在本机回环与 `wstunnel` 间通信 |
 | 路由 | BIRD 通过每条 `wgmesh<peer-index>` 链路上的 IPv6 link-local iBGP 交换 LTNET、DN42 与附加路由 |

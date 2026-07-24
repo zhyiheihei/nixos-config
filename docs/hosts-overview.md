@@ -7,24 +7,21 @@
 
 ## 当前自有拓扑
 
-当前日常在线主机为：
-`ml-builder`、`ml-home-vm`、`pve-5700u`、`colocrossing`、`jpvm`、`cnvm`、
-`usvm`、`logvm`。
-`pve-2700` 是自有保留主机。`Makefile` 沿用作者的 Colmena 标签目标，并增加安全的
-默认帮助；实际部署命令见 [构建与部署](./deployment.md)。
+当前 `hosts/` 中声明的主机如下。`Makefile` 沿用作者的 Colmena 标签目标，并增加
+安全的默认帮助；实际部署命令见 [构建与部署](./deployment.md)。
 
 | 主机 | index | 角色 | 主机元数据地址 | 说明 |
 | --- | ---: | --- | --- | --- |
+| `router` | 112 | 家庭路由器 | `192.168.0.1` | PPPoE、LAN 网关、DHCP、DNS 与 DDNS。 |
+| `ml-2700` | 113 | `client` | `ml-2700.zhyi.cc` | 家庭客户端，LAN 地址 `192.168.0.53`。 |
 | `ml-builder` | 114 | `nix-builder` | `ml-builder.zhyi.cc` | 强构建机，28 vCPU；不运行自动 Attic watch-store。 |
 | `ml-home-vm` | 115 | `server` | `ml-home-vm.zhyi.cc` | 家庭应用 VM 与 NCPS；不参与远程构建。 |
 | `pve-5700u` | 116 | `nix-builder` / PVE | `pve-5700u.zhyi.cc` | PVE 宿主、Hydra 与本机构建能力。 |
-| `colocrossing` | 18 | `server` / DN42 / 公网入口 | `colocrossing.zhyi.cc` | Attic、家庭入口与 LTNET 路由反射端。 |
 | `jpvm` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.cc` 通配符公网入口。 |
+| `logvm` | 118 | `server` | `logvm.zhyi.cc` | 家庭网络内的日志/基础服务节点。 |
 | `cnvm` | 119 | `server` / 公网入口 | `cnvm.zhyi.cc` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
 | `colocrossing` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、监控栈与 ZeroTier controller。 |
-| `usvm` | 117 | `server` / 公网入口 | `35.212.152.140` | US VPS（GCP）。 |
-| `logvm` | 118 | `server` | `logvm.zhyi.cc` | 家庭网络内的日志/基础服务节点。 |
-| `pve-2700` | 113 | PVE 保留主机 | `pve-2700.zhyi.cc` | 不属于日常部署集合；仅在机器状态明确时单独处理。 |
+| `usvm` | 121 | `server` / 公网入口 | `35.212.152.140` | US VPS（GCP）。 |
 
 家庭局域网地址、MAC 与 DHCP 边界以 [家庭局域网 IP 规划](./home-lan-ip-plan.md)
 为准；LTNET、ZeroTier、WireGuard 与 DN42 关系以
