@@ -159,6 +159,13 @@ in
       sslCertificate = "zerossl-zhyi.xin";
     };
 
+    "zhyi.cc" = {
+      serverAliases = [ "www.zhyi.cc" ];
+      locations."/".return = "307 https://zhyi.xin$request_uri";
+      enableCommonLocationOptions = false;
+      sslCertificate = "lets-encrypt-zhyi.cc";
+    };
+
     "gopher.zhyi.xin" = {
       listenHTTP.enable = true;
       listenPlainSocket = {
