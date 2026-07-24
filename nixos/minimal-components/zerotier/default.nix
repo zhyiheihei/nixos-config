@@ -79,10 +79,13 @@ in
     bindsTo = [ "zerotierone.service" ];
     after = [ "zerotierone.service" ];
     serviceConfig.Type = "oneshot";
-    path = [ pkgs.iproute2 ];
+    path = [
+      pkgs.gnugrep
+      pkgs.iproute2
+    ];
     script = ''
-      while ! ip link show zttalxbxtu; do
-        echo "Waiting for ZeroTier to setup device"
+      while ! ip -4 address show dev zttalxbxtu | grep -q '198\.18\.0\.'; do
+        echo "Waiting for ZeroTier to configure LTNET"
         sleep 1
       done
     ''

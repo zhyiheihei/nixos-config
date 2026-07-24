@@ -8,6 +8,7 @@ let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
   colocrossingTarget = "colocrossing.zhyi.cc.";
   jpvmTarget = "jpvm.zhyi.cc.";
+  mlHomeVmLtnetTarget = "ml-home-vm.ltnet.zhyi.cc.";
 
   mkCname = target: name: {
     recordType = "CNAME";
@@ -20,7 +21,7 @@ let
     (mkCname jpvmTarget "ai-api")
     (mkCname jpvmTarget "autoconfig")
     (mkCname jpvmTarget "hydra")
-    (mkCname jpvmTarget "um")
+    (mkCname mlHomeVmLtnetTarget "um")
 
     (mkCname colocrossingTarget "alert")
     (mkCname colocrossingTarget "dashboard")
