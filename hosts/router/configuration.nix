@@ -28,6 +28,8 @@
     lanInterfaces = [ "br-lan" ];
     proxyDomains = [
       "chatgpt.com"
+      "challenges.cloudflare.com"
+      "cursor.sh"
       "dns.google"
       "ghcr.io"
       "github.com"
@@ -37,6 +39,7 @@
       "oaistatic.com"
       "oaiusercontent.com"
       "openai.com"
+      "vscode-cdn.net"
     ];
     intlAction = "must_direct";
   };
