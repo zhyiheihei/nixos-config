@@ -1,6 +1,6 @@
 { LT, ... }:
 let
-  qnapAddress = "192.168.2.93";
+  qnapAddress = "192.168.0.40";
 in
 {
   networking.hosts.${LT.this.interconnect.IPv4} = [ "vaults3.zhyi.cc" ];
