@@ -12,6 +12,7 @@
     ../../nixos/common-apps/coredns.nix
     ../../nixos/client-components/multicast-dns.nix
     ../../nixos/optional-apps/lancache.nix
+    ../../nixos/optional-apps/dae.nix
     ../../nixos/optional-apps/miniupnpd.nix
     ../../nixos/optional-apps/nmea-static-gps-server.nix
     ../../nixos/optional-apps/ncps.nix
@@ -21,6 +22,11 @@
   services.miniupnpd = {
     externalInterface = "ppp0";
     internalIPs = [ "br-lan" ];
+  };
+
+  lantian.dae = {
+    lanInterfaces = [ "br-lan" ];
+    intlAction = "proxy";
   };
 
   services.lancache.environment = {
