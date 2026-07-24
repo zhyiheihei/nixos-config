@@ -56,6 +56,8 @@ in
           v2ray: "socks5://localhost:${LT.portStr.V2Ray.SocksClient}"
           v2ray_unblock_cn: "socks5://localhost:${LT.portStr.V2Ray.UnblockCNClient}"
           jpvm: "socks5://${LT.hosts.jpvm.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
+          colocrossing: "socks5://${LT.hosts.colocrossing.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
+          usvm: "socks5://${LT.hosts.usvm.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
         }
 
         dns {
@@ -78,8 +80,8 @@ in
 
         group {
           proxy {
-            filter: name(v2ray)
-            policy: fixed(0)
+            filter: name(jpvm, colocrossing, usvm)
+            policy: min_moving_avg
           }
           unblock_cn {
             filter: name(v2ray_unblock_cn)
