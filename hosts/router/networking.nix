@@ -61,7 +61,11 @@
       "sops-install-secrets.service"
       "sys-subsystem-net-devices-eth0.device"
     ];
-    serviceConfig.RuntimeDirectory = "pppd";
+    serviceConfig = {
+      Environment = "HOME=/run/pppd";
+      RuntimeDirectory = "pppd";
+      SuccessExitStatus = 5;
+    };
   };
 
   systemd.network.netdevs.br-lan = {
