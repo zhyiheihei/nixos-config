@@ -82,7 +82,7 @@ in
 
         group {
           proxy {
-            filter: name(usvm)
+            filter: name(v2ray)
             policy: fixed(0)
           }
           unblock_cn {
