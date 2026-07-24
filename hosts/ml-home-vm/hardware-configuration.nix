@@ -19,7 +19,7 @@
   };
 
   fileSystems."/mnt/storage" = {
-    device = "192.168.2.93:/nixos";
+    device = "192.168.0.40:/nixos";
     fsType = "nfs";
     options = [
       "_netdev"
