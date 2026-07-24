@@ -19,7 +19,7 @@
   ];
 
   services.miniupnpd = {
-    externalInterface = "eth0";
+    externalInterface = "ppp0";
     internalIPs = [ "br-lan" ];
   };
 
