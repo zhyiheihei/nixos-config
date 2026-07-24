@@ -51,6 +51,9 @@ in
             - DIRECT
 
       rules:
+        - DOMAIN-SUFFIX,zhyi.cc,DIRECT
+        - IP-CIDR,198.18.0.0/15,DIRECT,no-resolve
+        - IP-CIDR6,fdd8:1938:4e88::/48,DIRECT,no-resolve
         - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
         - IP-CIDR,10.0.0.0/8,DIRECT,no-resolve
         - IP-CIDR,172.16.0.0/12,DIRECT,no-resolve
@@ -134,6 +137,9 @@ in
             - DIRECT
 
       rules:
+        - DOMAIN-SUFFIX,zhyi.cc,DIRECT
+        - IP-CIDR,198.18.0.0/15,DIRECT,no-resolve
+        - IP-CIDR6,fdd8:1938:4e88::/48,DIRECT,no-resolve
         - GEOIP,CN,DIRECT,no-resolve
         - MATCH,PROXY
     '';
