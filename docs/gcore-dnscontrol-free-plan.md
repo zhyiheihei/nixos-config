@@ -19,10 +19,12 @@
 
 ## 当前约定
 
-- `zhyi.cc` 的公开服务使用静态 `CNAME -> jpvm.zhyi.cc.`，包括 `ha.zhyi.cc`；
-  `zhyi.xin` 的公开服务使用静态 `CNAME -> cnvm.zhyi.cc.`。
+- 公开服务使用逐项声明的静态 CNAME：按实际入口指向 `jpvm.zhyi.cc.`、
+  `cnvm.zhyi.cc.`、`colocrossing.zhyi.cc.` 或 `home-ddns.zhyi.cc.`。
+- `home-ddns.zhyi.cc` 是当前唯一由 Gcore DDNS 维护的动态 RRSet；DNSControl
+  使用 `IGNORE` 保留它。
 - `twvm` 已退出生产拓扑。当前公网 VPS 为 `jpvm`、`cnvm`、`colocrossing`、`usvm`；
-  `zhyi.cc` 通配符入口指向 `jpvm`，`zhyi.xin` 通配符入口指向 `cnvm`。
+  根域 `zhyi.cc` 指向 `jpvm`，根域 `zhyi.xin` 指向 `cnvm`。
 - 目前不实施公网自动故障转移。未来若恢复该需求，应先升级 Gcore 套餐或迁移到
   支持多条健康检查记录的 DNS 提供商；不要在免费套餐上重新批量改 GEO。
 
