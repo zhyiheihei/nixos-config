@@ -17,6 +17,15 @@ let
     "jellyfin.zhyi.xin"
     "tachidesk.zhyi.xin"
   ];
+  mlHomeOAuthServices = [
+    "asf.zhyi.xin"
+    "index-helper.zhyi.xin"
+    "index.zhyi.xin"
+  ];
+  mlHomeBasicAuthServices = [
+    "books.zhyi.xin"
+    "tachidesk.zhyi.xin"
+  ];
 in
 {
   imports = [
@@ -125,6 +134,8 @@ in
         proxyPass = "https://${LT.hosts.ml-home-vm.ltnet.IPv4}:${LT.portStr.HTTPS}";
         proxyWebsockets = true;
         proxyNoTimeout = true;
+        enableOAuth = builtins.elem serverName mlHomeOAuthServices;
+        enableBasicAuth = builtins.elem serverName mlHomeBasicAuthServices;
         extraConfig = ''
           proxy_ssl_name ${serverName};
           proxy_ssl_server_name on;
