@@ -7,6 +7,10 @@ in
 
   lantian.nginxVhosts = {
     "vaults3.zhyi.cc" = {
+      extraConfig = ''
+        listen 0.0.0.0:8443 ssl;
+        listen [::]:8443 ssl;
+      '';
       locations."/" = {
         proxyPass = "http://${qnapAddress}:9000";
         proxyOverrideHost = "$http_host";
