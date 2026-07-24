@@ -6,59 +6,40 @@
 }:
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
-  publicVpsTarget = "jpvm.zhyi.cc.";
+  colocrossingTarget = "colocrossing.zhyi.cc.";
+  jpvmTarget = "jpvm.zhyi.cc.";
 
-  mkPublicVpsCname = name: {
+  mkCname = target: name: {
     recordType = "CNAME";
     inherit name;
-    target = publicVpsTarget;
-    ttl = "10m";
-  };
-
-  mkHomeIngressCname = name: {
-    recordType = "CNAME";
-    inherit name;
-    target = homeDdnsTarget;
+    inherit target;
     ttl = "10m";
   };
 
   internalServices = [
-    (mkPublicVpsCname "ha")
-    (mkPublicVpsCname "autoconfig")
-    (mkHomeIngressCname "flapalerted")
-    (mkPublicVpsCname "lg")
-    (mkPublicVpsCname "um")
-    (mkHomeIngressCname "vaults3")
+    (mkCname jpvmTarget "ai-api")
+    (mkCname jpvmTarget "autoconfig")
+    (mkCname jpvmTarget "hydra")
+    (mkCname jpvmTarget "um")
+
+    (mkCname colocrossingTarget "alert")
+    (mkCname colocrossingTarget "dashboard")
+    (mkCname colocrossingTarget "flapalerted")
+    (mkCname colocrossingTarget "lg")
+    (mkCname colocrossingTarget "netbox")
+    (mkCname colocrossingTarget "prometheus")
+    (mkCname colocrossingTarget "rsync-ci")
+    (mkCname colocrossingTarget "sub")
+
+    (mkCname homeDdnsTarget "couchdb")
+    (mkCname homeDdnsTarget "ha")
+    (mkCname homeDdnsTarget "qnap")
+    (mkCname homeDdnsTarget "vaults3")
+
     {
       recordType = "CNAME";
       name = "halo.cnvm";
       target = "cnvm.ltnet.zhyi.cc.";
-      ttl = "10m";
-    }
-
-    # Monitoring stack (colocrossing)
-    {
-      recordType = "CNAME";
-      name = "prometheus";
-      target = "colocrossing.zhyi.cc.";
-      ttl = "10m";
-    }
-    {
-      recordType = "CNAME";
-      name = "dashboard";
-      target = "colocrossing.zhyi.cc.";
-      ttl = "10m";
-    }
-    {
-      recordType = "CNAME";
-      name = "alert";
-      target = "colocrossing.zhyi.cc.";
-      ttl = "10m";
-    }
-    {
-      recordType = "CNAME";
-      name = "rsync-ci";
-      target = "colocrossing.zhyi.cc.";
       ttl = "10m";
     }
   ];
