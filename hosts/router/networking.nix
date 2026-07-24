@@ -39,7 +39,6 @@
 
       defaultroute
       replacedefaultroute
-      usepeerdns
       mtu 1492
       mru 1492
 
@@ -62,6 +61,7 @@
       "sops-install-secrets.service"
       "sys-subsystem-net-devices-eth0.device"
     ];
+    serviceConfig.RuntimeDirectory = "pppd";
   };
 
   systemd.network.netdevs.br-lan = {
