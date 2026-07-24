@@ -109,6 +109,11 @@ in
           domain(geosite:category-ads-all) -> block
           ${lib.optionalString (
             cfg.proxyDomains != [ ]
+          ) "l4proto(udp) && dport(443) && domain(${lib.concatMapStringsSep ", " (
+            domain: "suffix: ${domain}"
+          ) cfg.proxyDomains}) -> block"}
+          ${lib.optionalString (
+            cfg.proxyDomains != [ ]
           ) "domain(${lib.concatMapStringsSep ", " (domain: "suffix: ${domain}") cfg.proxyDomains}) -> proxy"}
           domain(geosite:private) -> must_direct
           domain(geosite:cn) -> must_direct
