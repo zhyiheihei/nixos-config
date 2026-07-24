@@ -1,33 +1,24 @@
 # Home LAN IP Plan
 
-家庭网络分为两层：
+家庭网络统一使用 `192.168.0.0/24`。Router VM 直连光猫并作为
+`192.168.0.1` 网关，PVE 的 `br-lan` 将物理设备和 VM 接入同一 LAN。基础设施
+使用 DHCP 池外的静态地址，Router 的 DHCP 池为 `192.168.0.100-249`。
 
-- **物理 LAN**（`192.168.2.0/24`）：光猫/OpenWrt 为网关，PVE 宿主机和 NAS 位于此层。
-- **虚拟 LAN**（`192.168.0.0/24`）：Router VM 为网关（`192.168.0.1`），通过 PVE
-  `br-lan` 桥接，VM 服务位于此层。MTU 全链路 9000。
-
-## 物理 LAN（192.168.2.0/24）
-
-| Address | Host | Status |
-| --- | --- | --- |
-| `192.168.2.2` | OpenWrt 路由器 | 网关 |
-| `192.168.2.50` | `ml-builder` | 强构建机 |
-| `192.168.0.2` | `pve-5700u` | PVE 宿主 / Hydra |
-| `192.168.2.93` | QNAP NAS | NFS 与 S3 存储 |
-
-## 虚拟 LAN（192.168.0.0/24，Router VM 后）
+## 家庭 LAN
 
 | Address | Host | Status |
 | --- | --- | --- |
 | `192.168.0.1` | `router` VM | 网关 / NAT / DDNS |
+| `192.168.0.2` | `pve-5700u` | PVE 宿主 / Hydra |
+| `192.168.0.40` | QNAP NAS | NFS 与 S3 存储 |
+| `192.168.0.50` | `ml-builder` | 强构建机 |
 | `192.168.0.51` | `ml-home-vm` | 家庭服务 VM |
+| `192.168.0.53` | `ml-2700` | 客户端 |
 | `192.168.0.55` | `logvm` | 日志 / 基础服务 |
 
 ## 备注
 
-- `ml-home-vm` 的 NFS 挂载源为 `192.168.2.93:/nixos`（跨子网经 Router VM NAT
-  访问 NAS），`clientaddr=192.168.2.51`。
+- `ml-home-vm` 的 NFS 挂载源为 `192.168.0.40:/nixos`。
 - 部署 `ml-home-vm` 前需在 QNAP NFS export 中放行对应客户端地址。
 - Router VM 提供 IPv6 RA 广播，VM 通过 SLAAC 获取 IPv6 地址。
-- 原 `192.168.0.52` 的 colocrossing VM 已迁移到 SG 公网节点，不再占用家庭
-  虚拟 LAN 地址。
+- `colocrossing` 已迁移到 SG 公网节点，不占用家庭 LAN 地址。
