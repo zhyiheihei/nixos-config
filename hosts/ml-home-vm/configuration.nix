@@ -64,7 +64,10 @@
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     gateway = [ "192.168.0.1" ];
     matchConfig.Name = "eth0";
-    linkConfig.MTUBytes = "9000";
+    linkConfig = {
+      MTUBytes = "9000";
+      RequiredForOnline = "routable";
+    };
     networkConfig.IPv6AcceptRA = "yes";
     ipv6AcceptRAConfig = {
       Token = "::10";
