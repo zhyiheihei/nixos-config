@@ -8,6 +8,7 @@
     ./firewall.nix
     ./hardware-configuration.nix
     ./networking.nix
+    ./prometheus.nix
 
     ../../nixos/common-apps/coredns.nix
     ../../nixos/client-components/multicast-dns.nix
