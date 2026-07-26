@@ -30,7 +30,7 @@ let
           "# TYPE router_dhcp_active_leases gauge",
           "# HELP router_dhcp_lease_info Active DHCPv4 lease information.",
           "# TYPE router_dhcp_lease_info gauge",
-          "# HELP router_neighbor_info Current IPv4 neighbor information.",
+          "# HELP router_neighbor_info Current LAN neighbor information.",
           "# TYPE router_neighbor_info gauge",
           "# HELP router_neighbors Number of IPv4 neighbors grouped by state.",
           "# TYPE router_neighbors gauge",
@@ -79,11 +79,12 @@ let
           states[state] = states.get(state, 0) + 1
           address = neighbor.get("dst", "")
           hostname = leases.get(address, {}).get("hostname", "")
-          device = neighbor.get("dev") or ""
+          device = neighbor.get("dev") or "br-lan"
+          family = "IPv6" if ":" in address else "IPv4"
           lines.append(
               "router_neighbor_info"
               f"{{address={label(address)},mac={label(mac)},hostname={label(hostname)},"
-              f"device={label(device)},state={label(state)}}} 1"
+              f"device={label(device)},family={label(family)},state={label(state)}}} 1"
           )
       for state, count in sorted(states.items()):
           lines.append(f"router_neighbors{{state={label(state)}}} {count}")
@@ -143,6 +144,8 @@ in
   systemd.services.router-prometheus-metrics = {
     description = "Export router DHCP and neighbor metrics";
     serviceConfig = LT.networkToolHarden // {
+      AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
+      CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
       Type = "oneshot";
       ExecStart = "${routerMetrics}/bin/router-prometheus-metrics";
       ReadWritePaths = [ metricsDir ];
