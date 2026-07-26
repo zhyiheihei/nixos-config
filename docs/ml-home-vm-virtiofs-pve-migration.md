@@ -202,20 +202,19 @@ resuming a paused VM; do not treat the resulting guest time jump or service
 failures as independent application faults. Colocrossing was later migrated to
 the SG public host and VM 200 was retired.
 
-## Additional NixOS guests
+## NixOS guest
 
-The remaining running NixOS guests were migrated on 2026-07-19 using the same
-per-guest VirtioFS layout as the upstream `pve-epyc` configuration:
+The remaining NixOS guest was migrated on 2026-07-19 using the same VirtioFS
+layout as the upstream `pve-epyc` configuration:
 
 | VM ID | Guest | Directory mapping | Backing directory |
 | --- | --- | --- | --- |
 | 105 | `ml-home-vm` | `virtiofs-nixos-home-vm` | `virtiofs/nixos-home-vm` |
-| 201 | `logvm` | `virtiofs-nixos-logvm` | `virtiofs/nixos-logvm` |
 
-Each guest has its own writable `/nix`. Never attach one guest's mapping to a
-second running guest: their Nix databases, profiles, and garbage collection
-must remain independent. The original `scsi0` disks remain attached and
-unchanged as rollback sources.
+The guest has its own writable `/nix`. Never attach its mapping to a second
+running guest: their Nix databases, profiles, and garbage collection must
+remain independent. The original `scsi0` disk remains attached and unchanged
+as a rollback source.
 
 For the cold copy, shut down one guest at a time and expose its old `/nix`
 partition through a read-only NBD device. The PVE-packaged `qemu-nbd` may be in

@@ -23,7 +23,6 @@
 | `colocrossing` | 120 | 无 | `76d1b20a73` | `198.18.0.120` | SG 公网节点；server mesh、DN42 与 ZeroTier controller |
 | `ml-2700` | 113 | `192.168.0.53` | `214f8619a9` | `198.18.0.113` | 当前没有 server mesh 声明 |
 | `pve-5700u` | 116 | `192.168.0.2` | `706ba6d04d` | `198.18.0.116` | 当前没有 server mesh 声明 |
-| `logvm` | 118 | `192.168.0.55` | `cba3cdffbf` | `198.18.0.118` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
 | `jpvm` | 117 | 无 | `a073934677` | `198.18.0.117` | server mesh 全互联；为 WSS/TCP WireGuard transport 服务端 |
 | `cnvm` | 119 | 无 | `ecd09d7bc2` | `198.18.0.119` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
 | `usvm` | 121 | 无 | `47c75f186a` | `198.18.0.121` | server mesh 全互联；公网节点 |
@@ -37,9 +36,9 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 | --- | --- |
 | 私钥 | 每台启用 mesh 的主机从 `per-host/wg-priv/<hostname>.yaml` 由 SOPS 解密 |
 | 公钥 | 由 secrets 的 `wg-pubkey.nix` 提供；不在仓库文档中复制 |
-| 对等选择 | 当前六台 `server` 主机全互联：`ml-home-vm`、`colocrossing`、`jpvm`、`logvm`、`cnvm`、`usvm` |
-| 端点选择 | 同一 `interconnect.name` 时走局域网；通常跨网段走公网或 LTNET/ZeroTier 可达地址；到 `jpvm` 的四条跨网段链路由 WSS/TCP transport 接管 |
-| TCP transport | `ml-home-vm`、`colocrossing`、`logvm`、`cnvm` 将到 `jpvm` 的 WireGuard UDP 封装进本地 WSS/TCP `443`；WireGuard 本体只在本机回环与 `wstunnel` 间通信 |
+| 对等选择 | 当前五台 `server` 主机全互联：`ml-home-vm`、`colocrossing`、`jpvm`、`cnvm`、`usvm` |
+| 端点选择 | 同一 `interconnect.name` 时走局域网；跨网段优先使用各 host 声明的 WSS/TCP transport |
+| TCP transport | `ml-home-vm` 到四台公网 server，以及 `cnvm` 到 `jpvm` 的 WireGuard UDP，经本地 WSS/TCP `443` 封装；WireGuard 本体只在本机回环与 `wstunnel` 间通信 |
 | 路由 | BIRD 通过每条 `wgmesh<peer-index>` 链路上的 IPv6 link-local iBGP 交换 LTNET、DN42 与附加路由 |
 | 可观察性 | WireGuard exporter 监听本机 LTNET IPv4；BIRD 配置见 `nixos/server-apps/bird/config/ltnet.nix` |
 
@@ -85,8 +84,8 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 
 | 生效主机 | 覆盖关系 | 用途 |
 | --- | --- | --- |
-| `ml-builder` | `openclash.zhyi.cc -> 192.168.0.51`；`pve-5700u.zhyi.cc -> 192.168.0.2`；`logvm.zhyi.cc -> 192.168.0.55` | 构建机经 LAN 直达 MetaCubeXD 和其他主机 |
-| `pve-5700u` | `ml-builder.zhyi.cc -> 192.168.0.50`；`ml-home-vm.zhyi.cc -> 192.168.0.51`；`logvm.zhyi.cc -> 192.168.0.55` | LAN 内主机互访 |
+| `ml-builder` | `openclash.zhyi.cc -> 192.168.0.51`；`pve-5700u.zhyi.cc -> 192.168.0.2` | 构建机经 LAN 直达 MetaCubeXD 和 PVE |
+| `pve-5700u` | `ml-builder.zhyi.cc -> 192.168.0.50`；`ml-home-vm.zhyi.cc -> 192.168.0.51` | LAN 内主机互访 |
 | `ml-home-vm` | `vaults3.zhyi.cc ->` 本机 interconnect 地址 | NAS S3 数据面经家庭局域网直连 |
 
 MetaCubeXD 运行于 `ml-home-vm`（`192.168.0.51:7892`）；控制界面和 Clash API 仅绑定回环地址，并经 `metacubexd.ml-home-vm.zhyi.cc` 的私有 Nginx vhost 访问。Halo 已迁移至 `ml-home-vm`，根域 `zhyi.xin` 经 CNVM 和 colocrossing 转发到该服务。

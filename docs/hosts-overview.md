@@ -1,7 +1,7 @@
 # 当前 hosts 概览
 
 `hosts/<name>/host.nix` 保存主机元数据，`configuration.nix` 保存主机配置，
-`hardware-configuration.nix` 保存硬件与文件系统信息。`hosts/` 只保存 10 台自有
+`hardware-configuration.nix` 保存硬件与文件系统信息。`hosts/` 只保存 9 台自有
 主机；作者原版的独立 checkout 位于仓库上级目录 `../nixos-config-exam`，仅用于人工
 对照，不参与当前 flake 求值或部署。
 
@@ -18,10 +18,9 @@
 | `ml-home-vm` | 115 | `server` | `ml-home-vm.zhyi.cc` | 家庭应用 VM 与 NCPS；不参与远程构建。 |
 | `pve-5700u` | 116 | `nix-builder` / PVE | `pve-5700u.zhyi.cc` | PVE 宿主、Hydra 与本机构建能力。 |
 | `jpvm` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.cc` 通配符公网入口。 |
-| `logvm` | 118 | `server` | `logvm.zhyi.cc` | 家庭网络内的日志/基础服务节点。 |
 | `cnvm` | 119 | `server` / 公网入口 | `cnvm.zhyi.cc` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
 | `colocrossing` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、监控栈与 ZeroTier controller。 |
-| `usvm` | 121 | `server` / 公网入口 | `35.212.152.140` | US VPS（GCP）。 |
+| `usvm` | 121 | `server` / 公网入口 / 日志 | `35.212.152.140` | US VPS（GCP）；运行低资源 Elasticsearch 日志入口。 |
 
 家庭局域网地址、MAC 与 DHCP 边界以 [家庭局域网 IP 规划](./home-lan-ip-plan.md)
 为准；LTNET、ZeroTier、WireGuard 与 DN42 关系以

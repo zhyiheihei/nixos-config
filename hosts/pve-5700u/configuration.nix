@@ -41,11 +41,6 @@
       snapshotTo = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-home-vm";
       backupPath = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-home-vm/virtiofs/nixos-home-vm/persistent";
     };
-    nvme-nixos-logvm = {
-      snapshotFrom = "/nix/persistent/var/lib/vz/virtiofs";
-      snapshotTo = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-logvm";
-      backupPath = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-logvm/virtiofs/nixos-logvm/persistent";
-    };
   };
 
   services.proxmox-ve.bridges = [ "br-wan" "br-lan" ];
@@ -55,7 +50,6 @@
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
     "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
     "${LT.hosts."ml-home-vm".interconnect.IPv4}" = [ "ml-home-vm.zhyi.cc" ];
-    "${LT.hosts.logvm.interconnect.IPv4}" = [ "logvm.zhyi.cc" ];
   };
   networking.nameservers = lib.mkForce [
     "198.19.0.253"
