@@ -41,6 +41,8 @@
 
   systemd.services.elasticsearch-index-retention = {
     description = "Remove expired daily Elasticsearch log indices";
+    after = [ "elasticsearch.service" ];
+    requires = [ "elasticsearch.service" ];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = pkgs.writeShellScript "elasticsearch-index-retention" ''
