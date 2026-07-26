@@ -47,6 +47,7 @@
       "gitlab-static.net"
       "google.com"
       "ghcr.io"
+      "elastic.co"
     ];
     intlAction = "must_direct";
   };
