@@ -131,55 +131,53 @@
     SystemMaxUse=100M
   '';
 
-  security = (lib.optionalAttrs pkgs.stdenv.hostPlatform.isx86_64 {
-    openssl = {
-      oqs-provider = {
-        enable = true;
-        package = pkgs.nur-xddxdd.openssl-oqs-provider;
-        curves = [
-          # Client: use generic curves first before OQS ones
-          "x25519"
-          "prime256v1"
-          "x448"
-          "secp521r1"
-          "secp384r1"
-          # OQS curves
-          "X25519MLKEM768"
-          "SecP256r1MLKEM768"
-          "x25519_frodo640aes"
-          "p256_frodo640aes"
-          "x25519_bikel1"
-          "p256_bikel1"
-        ];
-      };
-      gost-engine = {
-        enable = true;
-        package = pkgs.nur-xddxdd.gost-engine;
-      };
+  security.openssl = {
+    oqs-provider = {
+      enable = true;
+      package = pkgs.nur-xddxdd.openssl-oqs-provider;
+      curves = [
+        # Client: use generic curves first before OQS ones
+        "x25519"
+        "prime256v1"
+        "x448"
+        "secp521r1"
+        "secp384r1"
+        # OQS curves
+        "X25519MLKEM768"
+        "SecP256r1MLKEM768"
+        "x25519_frodo640aes"
+        "p256_frodo640aes"
+        "x25519_bikel1"
+        "p256_bikel1"
+      ];
     };
-  }) // {
-    wrappers = {
-      bwrap = {
-        source = pkgs.bubblewrap + "/bin/bwrap";
-        owner = "root";
-        group = "root";
-        setuid = true;
-        setgid = true;
-      };
-      netns-exec = {
-        source = pkgs.nur-xddxdd.netns-exec + "/bin/netns-exec";
-        owner = "root";
-        group = "root";
-        setuid = true;
-        setgid = true;
-      };
-      netns-exec-dbus = {
-        source = pkgs.nur-xddxdd.netns-exec + "/bin/netns-exec-dbus";
-        owner = "root";
-        group = "root";
-        setuid = true;
-        setgid = true;
-      };
+    gost-engine = {
+      enable = true;
+      package = pkgs.nur-xddxdd.gost-engine;
+    };
+  };
+
+  security.wrappers = {
+    bwrap = {
+      source = pkgs.bubblewrap + "/bin/bwrap";
+      owner = "root";
+      group = "root";
+      setuid = true;
+      setgid = true;
+    };
+    netns-exec = {
+      source = pkgs.nur-xddxdd.netns-exec + "/bin/netns-exec";
+      owner = "root";
+      group = "root";
+      setuid = true;
+      setgid = true;
+    };
+    netns-exec-dbus = {
+      source = pkgs.nur-xddxdd.netns-exec + "/bin/netns-exec-dbus";
+      owner = "root";
+      group = "root";
+      setuid = true;
+      setgid = true;
     };
   };
 
