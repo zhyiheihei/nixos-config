@@ -124,7 +124,7 @@ birdc show protocols
 ## 6. 构建和安装
 
 完整安装命令按入口环境拆分在
-[NixOS 完整重装指南](./nixos-reinstallation-guide.md)：已经挂载 NixOS ISO 时
+[NixOS 完整重装指南](../operations/nixos-reinstallation-guide.md)：已经挂载 NixOS ISO 时
 直接使用 ISO 安装；原系统不是 NixOS 且无法挂载 ISO 时，先进入 Alpine RAM
 救援环境。不要把一键脚本生成的普通磁盘根布局当作本仓库最终布局。
 

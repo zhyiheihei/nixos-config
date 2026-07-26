@@ -6,9 +6,9 @@
 - 主要构建和部署命令见 `Makefile`；首选命令包括 `make build`、`make all`、`make update`、`nix flake check`、`nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel`。
 - `hosts/` 子目录包含每个主机的 `host.nix`、`configuration.nix` 和 `hardware-configuration.nix`。修改主机配置前，请确认是否为目标主机改动。
 - `helpers/default.nix` 导出 `LT` 工具集，仓库中的许多模块和 host 配置都依赖它。
-- 不要直接改动 secrets 相关输入或硬件配置，除非用户明确要求。优先链接现有文档：`README.md`、`docs/adapt-own-device.md`。
+- 不要直接改动 secrets 相关输入或硬件配置，除非用户明确要求。优先链接现有文档：`README.md`、`docs/getting-started/adapt-own-device.md`。
 - 修改后请优先验证：`nix flake check` 或 `make build`，并保留 Nix 文件中的原有结构和命名习惯。
-- AI 网关链路以 [`docs/ai-api-gateway-chain.md`](docs/ai-api-gateway-chain.md) 为准：UniAPI 是唯一 Provider 汇聚点；Open WebUI 直连本机 UniAPI，n8n Bridge 是 UniAPI 的 Provider，AxonHub 与 Metapi 是并列管理网关。禁止把任一网关反向配置为 UniAPI Provider 或擅自重置其运行态数据库。
+- AI 网关链路以 [`docs/infrastructure/ai-api-gateway-chain.md`](docs/infrastructure/ai-api-gateway-chain.md) 为准：UniAPI 是唯一 Provider 汇聚点；Open WebUI 直连本机 UniAPI，n8n Bridge 是 UniAPI 的 Provider，AxonHub 与 Metapi 是并列管理网关。禁止把任一网关反向配置为 UniAPI Provider 或擅自重置其运行态数据库。
 
 ## 项目概述
 

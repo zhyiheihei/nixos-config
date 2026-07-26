@@ -1,9 +1,9 @@
 # ml-builder 验收与排障
 
 `ml-builder` 是当前强构建机，主机元数据在
-[`hosts/ml-builder/host.nix`](../hosts/ml-builder/host.nix)。它的部署地址为
+[`hosts/ml-builder/host.nix`](../../hosts/ml-builder/host.nix)。它的部署地址为
 `ml-builder.zhyi.cc`，SSH 使用端口 `2222`，局域网固定地址以
-[家庭局域网 IP 规划](./home-lan-ip-plan.md) 为准。
+[家庭局域网 IP 规划](../network/home-lan-ip-plan.md) 为准。
 
 ## 连接与基础状态
 

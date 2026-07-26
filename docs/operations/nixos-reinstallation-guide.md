@@ -16,7 +16,7 @@ host key 时，不得执行分区步骤。
 
 ### 1.1 仓库侧准备
 
-先按[新主机接入规范](./new-host-standard.md)准备：
+先按[新主机接入规范](../getting-started/new-host-standard.md)准备：
 
 - `hosts/<hostname>/host.nix`
 - `hosts/<hostname>/configuration.nix`
@@ -757,7 +757,7 @@ systemctl reboot
 
 两阶段安装也必须执行第 6 节中等价的 store、profile 和 bootloader 一致性检查。
 
-完整实操参考 [`old/ml-2700u/reinstall-log.md`](./old/ml-2700u/reinstall-log.md)。
+完整实操参考 [`old/ml-2700u/reinstall-log.md`](../old/ml-2700u/reinstall-log.md)。
 
 ## 9. 常见故障判断
 

@@ -53,14 +53,14 @@ ml-home-vm 上的 UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI
 
 核心实现位置：
 
-- [`nixos/optional-apps/uni-api.nix`](../nixos/optional-apps/uni-api.nix)
-- [`nixos/optional-apps/open-webui/default.nix`](../nixos/optional-apps/open-webui/default.nix)
-- [`nixos/optional-apps/n8n/n8n-openai-bridge.nix`](../nixos/optional-apps/n8n/n8n-openai-bridge.nix)
-- [`nixos/optional-apps/axonhub.nix`](../nixos/optional-apps/axonhub.nix)
-- [`nixos/optional-apps/metapi.nix`](../nixos/optional-apps/metapi.nix)
-- [`hosts/colocrossing/configuration.nix`](../hosts/colocrossing/configuration.nix)
-- [`hosts/ml-home-vm/configuration.nix`](../hosts/ml-home-vm/configuration.nix)
-- [`hosts/jpvm/configuration.nix`](../hosts/jpvm/configuration.nix)
+- [`nixos/optional-apps/uni-api.nix`](../../nixos/optional-apps/uni-api.nix)
+- [`nixos/optional-apps/open-webui/default.nix`](../../nixos/optional-apps/open-webui/default.nix)
+- [`nixos/optional-apps/n8n/n8n-openai-bridge.nix`](../../nixos/optional-apps/n8n/n8n-openai-bridge.nix)
+- [`nixos/optional-apps/axonhub.nix`](../../nixos/optional-apps/axonhub.nix)
+- [`nixos/optional-apps/metapi.nix`](../../nixos/optional-apps/metapi.nix)
+- [`hosts/colocrossing/configuration.nix`](../../hosts/colocrossing/configuration.nix)
+- [`hosts/ml-home-vm/configuration.nix`](../../hosts/ml-home-vm/configuration.nix)
+- [`hosts/jpvm/configuration.nix`](../../hosts/jpvm/configuration.nix)
 
 ## 已完成的运行态初始化
 

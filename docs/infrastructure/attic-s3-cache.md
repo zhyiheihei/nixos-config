@@ -1,7 +1,7 @@
 # Attic + S3 缓存架构
 
 当前缓存名、公开端点与公钥只以
-[`helpers/constants/nix.nix`](../helpers/constants/nix.nix) 为准。不要在文档、Shell
+[`helpers/constants/nix.nix`](../../helpers/constants/nix.nix) 为准。不要在文档、Shell
 历史或 Git 提交中复制上传 token、S3 access key、S3 secret key 或 Attic 私钥。
 
 ## 当前结构
@@ -15,14 +15,14 @@ Hydra (pve-5700u) / 手动构建 (ml-builder)
 ```
 
 - Attic 服务、Nginx vhost 与 S3 参数定义在
-  [`nixos/optional-apps/attic.nix`](../nixos/optional-apps/attic.nix)，由
+  [`nixos/optional-apps/attic.nix`](../../nixos/optional-apps/attic.nix)，由
   `hosts/cnvm/configuration.nix` 导入。
 - Attic 只监听回环地址，由同机 Nginx 发布；外部数据面使用
   `https://attic.zhyi.xin/lantian`（标准 443 端口）。
 - S3 凭据与上传 token 只在私有 secrets 仓库的 `common/attic.yaml` 中以 SOPS 加密
   保存。修改它必须遵循 secrets 仓库的 `docs/sops-manual.md`。
 - Hydra 在
-  [`nixos/optional-apps/hydra/default.nix`](../nixos/optional-apps/hydra/default.nix)
+  [`nixos/optional-apps/hydra/default.nix`](../../nixos/optional-apps/hydra/default.nix)
   中通过 post-build hook 上传成功构建的输出。不要同时在多台机器启用
   `attic-watch-store`，否则会制造重复上传和难以判断的失败日志。
 
@@ -30,7 +30,7 @@ Hydra (pve-5700u) / 手动构建 (ml-builder)
 
 客户端的默认 substituter 与公钥由 `LT.nix.attic` 统一提供。NCPS 客户端先请求
 Attic，再回退到本机 NCPS；该顺序定义在
-[`nixos/optional-apps/ncps-client.nix`](../nixos/optional-apps/ncps-client.nix)。
+[`nixos/optional-apps/ncps-client.nix`](../../nixos/optional-apps/ncps-client.nix)。
 
 安装环境或临时 shell 不应手写长期 `/etc/nix/nix.conf`。仅在尚未加载目标配置时，
 从 `helpers/constants/nix.nix` 读取当前 URL 和公钥后，以一次性的 `NIX_CONFIG` 传入。

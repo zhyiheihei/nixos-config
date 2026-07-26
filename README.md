@@ -10,8 +10,9 @@ secrets repository, hardware, and daily desktop workflow.
 
 ## Documentation
 
-- [Adapt this project to your own NixOS device](docs/adapt-own-device.md)
-- [NanoPi R5C NixOS image build and installation](docs/nanopi-r5c.md)
+- [Documentation index](docs/README.md)
+- [Adapt this project to your own NixOS device](docs/getting-started/adapt-own-device.md)
+- [NanoPi R5C NixOS image build and installation](docs/hardware/nanopi-r5c.md)
 
 ## License
 
@@ -23,7 +24,7 @@ different license is added by this fork.
 ## Features
 
 - [Full system root-on-tmpfs](nixos/minimal-components/impermanence.nix), using [impermanence](https://github.com/nix-community/impermanence)
-- [Nftables instead of iptables](nixos/minimal-components/firewall/nft-rules.nix)
+- [Nftables instead of iptables](nixos/minimal-components/firewall.nix)
 - Secret management with [sops-nix](https://github.com/Mic92/sops-nix)
 - [QEMU user mode emulation for most architectures](https://github.com/xddxdd/nur-packages/blob/master/modules/qemu-user-static-binfmt.nix)
 - [Nix Flakes with Nixpkgs patching](flake.nix)
