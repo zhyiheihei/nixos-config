@@ -50,6 +50,17 @@ let
 
   forwardZonesRecurse =
     let
+      publicResolvers =
+        if LT.this.city.country == "CN" then
+          [
+            "223.5.5.5"
+            "223.6.6.6"
+          ]
+        else
+          [
+            "8.8.8.8"
+            "2001:4860:4860::8888"
+          ];
       azurePrivateDNS = [
         {
           zone = "database.azure.com";
@@ -59,10 +70,7 @@ let
       all = [
         {
           zone = ".";
-          forwarders = [
-            "8.8.8.8"
-            "2001:4860:4860::8888"
-          ];
+          forwarders = publicResolvers;
         }
       ];
     in
@@ -101,6 +109,9 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
         ntaRecords = lib.concatMapStringsSep "\n" (n: "addNTA(\"${n}\")") (
           with LT.constants.zones;
           (DN42 ++ Emercoin ++ CRXN ++ Meshname ++ YggdrasilAlfis ++ Ltnet ++ Others)
+          # Recursive forwarders can omit RRSIGs from this Cloudflare-backed
+          # response, so validating it again would return SERVFAIL.
+          ++ [ "m-team.cc" ]
         );
       in
       ''
