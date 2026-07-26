@@ -46,6 +46,13 @@
       listenHTTPS.enable = false;
 
       locations = {
+        "/healthz" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.PeerBanHelper}/";
+          extraConfig = ''
+            proxy_method GET;
+            proxy_set_header User-Agent "homepage-healthcheck";
+          '';
+        };
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.PeerBanHelper}";
         };
