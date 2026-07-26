@@ -3,7 +3,16 @@ let
   qnapAddress = "192.168.0.40";
 in
 {
-  networking.hosts.${LT.this.interconnect.IPv4} = [ "vaults3.zhyi.cc" ];
+  networking.hosts = {
+    "${LT.this.interconnect.IPv4}" = [ "vaults3.zhyi.cc" ];
+    "${LT.hosts.colocrossing.ltnet.IPv4}" = [
+      "axonhub.colocrossing.zhyi.cc"
+      "metapi.colocrossing.zhyi.cc"
+      "n8n.zhyi.xin"
+      "openai-edge-tts.colocrossing.zhyi.cc"
+      "rsshub.zhyi.xin"
+    ];
+  };
 
   lantian.nginxVhosts = {
     "vaults3.zhyi.cc" = {
