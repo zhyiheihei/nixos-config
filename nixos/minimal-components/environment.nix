@@ -131,7 +131,7 @@
     SystemMaxUse=100M
   '';
 
-  security.openssl = {
+  security.openssl = lib.mkIf pkgs.stdenv.hostPlatform.isx86_64 {
     oqs-provider = {
       enable = true;
       package = pkgs.nur-xddxdd.openssl-oqs-provider;
