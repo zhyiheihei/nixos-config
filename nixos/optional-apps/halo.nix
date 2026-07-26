@@ -106,7 +106,10 @@
           proxyWebsockets = true;
           enableOAuth = true;
         };
-        "/actuator/health/readiness".proxyPass = "http://127.0.0.1:${LT.portStr.Halo}";
+        "/actuator/health/readiness" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.Halo}";
+          extraConfig = "proxy_method GET;";
+        };
       };
       accessibleBy = "private";
       sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
