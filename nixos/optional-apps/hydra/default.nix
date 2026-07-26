@@ -18,6 +18,11 @@ let
     pkgs.jq
     pkgs.attic-client
   ];
+  atticLogin = ''
+    ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
+      https://attic.zhyi.xin \
+      "$(cat ${config.sops.secrets.attic-upload-key.path})"
+  '';
 in
 {
   imports = [
@@ -91,22 +96,19 @@ in
   services.fast-nix-gc.noVacuum = true;
 
   systemd.services.hydra-notify = {
-    preStart = ''
-      if [ ! -f "$HOME/.config/attic/config.toml" ]; then
-        ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
-          https://attic.zhyi.xin \
-          $(cat ${config.sops.secrets.attic-upload-key.path})
-      fi
-    '';
+    preStart = atticLogin;
   };
   systemd.services.hydra-evaluator.environment.GIT_SSH_COMMAND =
     "${lib.getExe pkgs.openssh} -i ${config.sops.secrets.hydra-ssh-privkey.path} -o IdentitiesOnly=yes";
   systemd.services.hydra-attic-repush = {
+    preStart = atticLogin;
     script = ''
+      HAS_ERROR=0
       for F in /nix/var/nix/gcroots/hydra/*; do
         STORE_PATH="/nix/store/$(basename "$F")"
-        ${lib.getExe pkgs.attic-client} push ${LT.nix.attic.cacheName} "$STORE_PATH" || true
+        ${lib.getExe pkgs.attic-client} push ${LT.nix.attic.cacheName} "$STORE_PATH" || HAS_ERROR=1
       done
+      exit "$HAS_ERROR"
     '';
     serviceConfig = LT.serviceHarden // {
       Type = "oneshot";

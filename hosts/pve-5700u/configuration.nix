@@ -33,7 +33,9 @@
   };
 
   lantian.backup.enable = true;
-  lantian.backup.paths = {
+  # The active Btrfs swapfile prevents snapshotting the whole /nix filesystem.
+  # Back up only the dedicated VirtioFS data volume on this host.
+  lantian.backup.paths = lib.mkForce {
     nvme-nixos-home-vm = {
       snapshotFrom = "/nix/persistent/var/lib/vz/virtiofs";
       snapshotTo = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-home-vm";
