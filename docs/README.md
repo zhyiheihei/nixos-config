@@ -10,6 +10,7 @@
 - [NixOS 完整重装指南](./nixos-reinstallation-guide.md)
 - [新主机接入规范](./new-host-standard.md)
 - [适配自己的 NixOS 设备](./adapt-own-device.md)
+- [NanoPi R5C NixOS 镜像适配与安装](./nanopi-r5c.md)
 - [Gcore 免费套餐 DNSControl 发布规范](./gcore-dnscontrol-free-plan.md)
 
 ## 基础设施
