@@ -72,5 +72,5 @@ readlink -f /run/current-system
 ```
 
 服务变更还应检查对应的 systemd 单元、Nginx 配置和正式 URL。缓存、网络与 Hydra
-的专项验证分别以 [网络参照](./network-reference.md)、[Attic 手册](./attic-s3-cache.md)
-和 [PVE 验收](./vm-replication-chain.md) 为准。
+的专项验证分别以 [网络参照](../network/reference.md)、[Attic 手册](../infrastructure/attic-s3-cache.md)
+和 [PVE 验收](../migrations/vm-replication-chain.md) 为准。

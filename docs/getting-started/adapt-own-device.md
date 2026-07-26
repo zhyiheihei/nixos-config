@@ -1,7 +1,7 @@
 # 适配自己的 NixOS 设备
 
 这是第一次阅读本仓库时的入口说明；真正的安装与接入约束以
-[新主机接入规范](./new-host-standard.md) 和根目录 `AGENTS.md` 为准。
+[新主机接入规范](./new-host-standard.md) 和根目录 [`AGENTS.md`](../../AGENTS.md) 为准。
 
 ## 先确认三件事
 
@@ -45,4 +45,4 @@ systemctl is-active sshd sops-install-secrets
 ```
 
 加入 WireGuard、ZeroTier 或 DN42 的机器还应按[新主机接入规范](./new-host-standard.md)
-检查握手、路由与 BIRD 状态。完整部署命令见[构建与部署当前主机](./deployment.md)。
+检查握手、路由与 BIRD 状态。完整部署命令见[构建与部署当前主机](../operations/deployment.md)。

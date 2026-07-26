@@ -8,7 +8,7 @@
 - Btrfs `/nix`，卷标 `NIXOS_NIX`
 - 持久化目录 `/nix/persistent`
 
-当前主机配置位于 [`hosts/nanopi-r5c/`](../hosts/nanopi-r5c/)。
+当前主机配置位于 [`hosts/nanopi-r5c/`](../../hosts/nanopi-r5c/)。
 
 ## 1. 构建环境与分工
 
@@ -372,6 +372,6 @@ readlink -f /nix/var/nix/profiles/system
 - 重启和完全断电后的冷启动正常；
 - 无串口条件下可持续通过 DHCP、mDNS 和 SSH 找回设备。
 
-首次启动稳定后，再按[新主机接入规范](./new-host-standard.md)补正式 host key、
+首次启动稳定后，再按[新主机接入规范](../getting-started/new-host-standard.md)补正式 host key、
 SOPS recipient、固定网络身份和后续服务，不能把首次启动自动生成的密钥遗漏在
 正式 secrets 流程之外。

@@ -8,7 +8,7 @@
 ## 当前自有拓扑
 
 当前 `hosts/` 中声明的主机如下。`Makefile` 沿用作者的 Colmena 标签目标，并增加
-安全的默认帮助；实际部署命令见 [构建与部署](./deployment.md)。
+安全的默认帮助；实际部署命令见 [构建与部署](../operations/deployment.md)。
 
 | 主机 | index | 角色 | 主机元数据地址 | 说明 |
 | --- | ---: | --- | --- | --- |
@@ -22,9 +22,9 @@
 | `colocrossing` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、监控栈与 ZeroTier controller。 |
 | `usvm` | 121 | `server` / 公网入口 / 日志 | `35.212.152.140` | US VPS（GCP）；运行低资源 Elasticsearch 日志入口。 |
 
-家庭局域网地址、MAC 与 DHCP 边界以 [家庭局域网 IP 规划](./home-lan-ip-plan.md)
+家庭局域网地址、MAC 与 DHCP 边界以 [家庭局域网 IP 规划](../network/home-lan-ip-plan.md)
 为准；LTNET、ZeroTier、WireGuard 与 DN42 关系以
-[网络参照](./network-reference.md) 为准。
+[网络参照](../network/reference.md) 为准。
 
 ## 关键字段
 
@@ -42,6 +42,6 @@
 ## 新主机流程
 
 新设备不要复用现有 `host.nix` 中的地址或密钥。按
-[新主机接入规范](./new-host-standard.md) 先确认磁盘、持久 SSH host key、SOPS
+[新主机接入规范](../getting-started/new-host-standard.md) 先确认磁盘、持久 SSH host key、SOPS
 recipient 与网络，再添加 host 元数据和硬件配置。物理 client 的首次安装必须从
 安装环境完成目标文件系统布局，不能从普通 ext4 根在线切换到 tmpfs/preservation。

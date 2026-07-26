@@ -29,7 +29,7 @@ ml-home-vm /nix         --> pve-5700u VirtioFS
 ml-home-vm /mnt/storage --> QNAP .93:/nixos (NFSv4.1)
 ```
 
-局域网固定地址以 [home-lan-ip-plan.md](./home-lan-ip-plan.md) 为准。
+局域网固定地址以 [home-lan-ip-plan.md](../network/home-lan-ip-plan.md) 为准。
 
 ## 应有运行状态
 
