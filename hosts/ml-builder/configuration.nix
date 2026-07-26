@@ -60,5 +60,6 @@ in
     gnumake
     sops
     ssh-to-age
+    tmux
   ];
 }
