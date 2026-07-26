@@ -57,6 +57,10 @@
     "${LT.hosts."ml-home-vm".interconnect.IPv4}" = [ "ml-home-vm.zhyi.cc" ];
     "${LT.hosts.logvm.interconnect.IPv4}" = [ "logvm.zhyi.cc" ];
   };
+  networking.nameservers = lib.mkForce [
+    "198.19.0.253"
+    "223.5.5.5"
+  ];
 
   # WAN bridge: eth1 → Router VM uplink from OpenWrt LAN.
   systemd.network.netdevs.br-wan = {
