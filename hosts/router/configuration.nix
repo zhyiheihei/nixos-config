@@ -41,6 +41,11 @@
       "oaiusercontent.com"
       "openai.com"
       "vscode-cdn.net"
+      "kernel.org"
+      "gitlab.com"
+      "gitlab.io"
+      "gitlab-static.net"
+      "google.com"
     ];
     intlAction = "must_direct";
   };
