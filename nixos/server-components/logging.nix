@@ -6,7 +6,7 @@
   ...
 }:
 {
-  networking.hosts."${LT.hosts.logvm.ltnet.IPv4}" = [ "es-ingest.logvm.zhyi.cc" ];
+  networking.hosts."${LT.hosts.usvm.ltnet.IPv4}" = [ "es-ingest.usvm.zhyi.cc" ];
 
   services.filebeat = {
     enable = !(LT.this.hasTag LT.tags.low-ram);
@@ -35,15 +35,16 @@
     settings = {
       logging.level = "warning";
       output.elasticsearch = {
-        hosts = [ "https://es-ingest.logvm.zhyi.cc:${LT.portStr.HTTPS}" ];
+        hosts = [ "https://es-ingest.usvm.zhyi.cc:${LT.portStr.HTTPS}" ];
         ssl.certificate_authorities = [ "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" ];
         compression_level = 6;
-        index = "beat";
+        index = "beat-%{+yyyy.MM.dd}";
       };
       setup.ilm.enabled = false;
       setup.template = {
         name = "beat";
-        pattern = "beat";
+        pattern = "beat-*";
+        settings.index.number_of_replicas = 0;
       };
     };
   };

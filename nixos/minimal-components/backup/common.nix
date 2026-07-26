@@ -98,8 +98,8 @@ rec {
   };
 
   maintenanceHosts = {
-    "logvm" = [ "storagebox" ];
     "ml-home-vm" = [ "home" ];
+    "usvm" = [ "storagebox" ];
   };
 
   resticCommands = lib.mapAttrsToList (
