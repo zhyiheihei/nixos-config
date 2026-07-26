@@ -7,6 +7,11 @@
   ...
 }:
 let
+  prometheusDatasourceUid = "PBFA97CFB590B2093";
+
+  dashboardDir = import ./grafana/dashboards.nix {
+    inherit pkgs prometheusDatasourceUid;
+  };
 
   mkPlugin =
     pluginSrc:
@@ -46,6 +51,10 @@ in
         oauth_auto_login = "true";
         oauth_allow_insecure_email_lookup = "true";
       };
+      users = {
+        default_language = "zh-Hans";
+        default_theme = "dark";
+      };
       "auth.anonymous" = {
         enabled = "false";
       };
@@ -64,6 +73,7 @@ in
         host = "/run/mysqld/mysqld.sock";
         user = "grafana";
       };
+      dashboards.default_home_dashboard_path = "${dashboardDir}/infrastructure-overview.json";
       log = {
         mode = "syslog";
         level = "error";
@@ -87,6 +97,46 @@ in
       };
       unified_alerting = {
         enabled = "true";
+      };
+    };
+
+    provision = {
+      enable = true;
+      datasources.settings = {
+        apiVersion = 1;
+        prune = true;
+        datasources = [
+          {
+            name = "Prometheus";
+            uid = prometheusDatasourceUid;
+            type = "prometheus";
+            access = "proxy";
+            url = "http://127.0.0.1:${LT.portStr.Prometheus.Daemon}";
+            isDefault = true;
+            editable = false;
+            jsonData = {
+              httpMethod = "POST";
+              timeInterval = "15s";
+            };
+          }
+        ];
+      };
+      dashboards.settings = {
+        apiVersion = 1;
+        providers = [
+          {
+            name = "zhyi-infrastructure";
+            orgId = 1;
+            folder = "基础设施";
+            folderUid = "zhyi-infrastructure";
+            type = "file";
+            disableDeletion = false;
+            editable = true;
+            allowUiUpdates = true;
+            updateIntervalSeconds = 30;
+            options.path = dashboardDir;
+          }
+        ];
       };
     };
   };
