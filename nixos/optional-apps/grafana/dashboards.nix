@@ -774,6 +774,7 @@ let
           mac = "MAC 地址";
           hostname = "主机名";
           device = "接口";
+          family = "地址族";
           state = "邻居状态";
         };
         sortBy = [
