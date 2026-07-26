@@ -11,6 +11,7 @@ secrets repository, hardware, and daily desktop workflow.
 ## Documentation
 
 - [Adapt this project to your own NixOS device](docs/adapt-own-device.md)
+- [NanoPi R5C NixOS image build and installation](docs/nanopi-r5c.md)
 
 ## License
 
