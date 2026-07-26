@@ -1023,18 +1023,14 @@ let
       })
     ];
   };
+  infrastructureOverviewJson =
+    pkgs.writeText "infrastructure-overview.json" (builtins.toJSON infrastructureOverview);
+  routerOverviewJson = pkgs.writeText "router-overview.json" (builtins.toJSON routerOverview);
+  serviceHealthJson = pkgs.writeText "service-health.json" (builtins.toJSON serviceHealth);
 in
-pkgs.linkFarm "grafana-dashboards" [
-  {
-    name = "infrastructure-overview.json";
-    path = pkgs.writeText "infrastructure-overview.json" (builtins.toJSON infrastructureOverview);
-  }
-  {
-    name = "router-overview.json";
-    path = pkgs.writeText "router-overview.json" (builtins.toJSON routerOverview);
-  }
-  {
-    name = "service-health.json";
-    path = pkgs.writeText "service-health.json" (builtins.toJSON serviceHealth);
-  }
-]
+pkgs.runCommand "grafana-dashboards" { } ''
+  mkdir -p "$out"
+  install -m 0444 ${infrastructureOverviewJson} "$out/infrastructure-overview.json"
+  install -m 0444 ${routerOverviewJson} "$out/router-overview.json"
+  install -m 0444 ${serviceHealthJson} "$out/service-health.json"
+''
