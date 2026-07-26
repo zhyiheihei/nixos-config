@@ -92,6 +92,7 @@
       proxyWebsockets = true;
       enableOAuth = true;
     };
+    locations."/healthz".proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";
     locations."/webhook/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";
       proxyWebsockets = true;

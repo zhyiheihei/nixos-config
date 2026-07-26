@@ -100,10 +100,13 @@
       };
     };
     "halo.${config.networking.hostName}.zhyi.cc" = {
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.Halo}";
-        proxyWebsockets = true;
-        enableOAuth = true;
+      locations = {
+        "/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.Halo}";
+          proxyWebsockets = true;
+          enableOAuth = true;
+        };
+        "/actuator/health/readiness".proxyPass = "http://127.0.0.1:${LT.portStr.Halo}";
       };
       accessibleBy = "private";
       sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
