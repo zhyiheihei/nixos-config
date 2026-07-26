@@ -25,7 +25,6 @@ in
     ];
     initrd.kernelModules = [ "r8169" ];
     kernelModules = [ "r8169" ];
-    kernelPackages = lib.mkForce pkgs.linuxPackages_6_18;
     kernelParams = [
       "console=ttyS2,1500000"
       "console=tty0"
@@ -42,6 +41,10 @@ in
       grub.enable = lib.mkForce false;
     };
   };
+
+  # Keep the author's kernel package wrapper so its custom module attributes
+  # remain available on ARM, just as on lt-rpi4.
+  lantian.kernel = lib.mkForce pkgs.linux_6_18;
 
   hardware.deviceTree.name = "rockchip/rk3568-nanopi-r5c.dtb";
 
