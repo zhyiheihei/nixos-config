@@ -148,6 +148,7 @@ in
       CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
       Type = "oneshot";
       ExecStart = "${routerMetrics}/bin/router-prometheus-metrics";
+      ProcSubset = "all";
       ReadWritePaths = [ metricsDir ];
     };
   };
