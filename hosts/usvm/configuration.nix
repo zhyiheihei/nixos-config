@@ -1,6 +1,7 @@
 {
   inputs,
   LT,
+  lib,
   pkgs,
   ...
 }:
@@ -31,7 +32,8 @@
       "-Xms384m"
       "-Xmx384m"
     ];
-    extraConf = ''
+    extraConf = lib.mkForce ''
+      xpack.security.enabled: false
       xpack.ml.enabled: false
       ingest.geoip.downloader.enabled: false
     '';
