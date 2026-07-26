@@ -8,6 +8,7 @@ in
     "${LT.hosts.colocrossing.ltnet.IPv4}" = [
       "axonhub.colocrossing.zhyi.cc"
       "metapi.colocrossing.zhyi.cc"
+      "n8n-bridge.colocrossing.zhyi.cc"
       "n8n.zhyi.xin"
       "openai-edge-tts.colocrossing.zhyi.cc"
       "rsshub.zhyi.xin"
