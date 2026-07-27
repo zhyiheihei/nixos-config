@@ -11,6 +11,13 @@ let
   ubootNanoPiR5C = pkgs.ubootNanoPiR5S.override {
     defconfig = "nanopi-r5c-rk3568_defconfig";
   };
+  r5cKernel = pkgs.linux_6_18.override {
+    structuredExtraConfig = with lib.kernel; {
+      # Expose all four RTL8125 PHY LED outputs through /sys/class/leds.
+      # The R5C RJ45 jacks physically use two of them (green and yellow).
+      R8169_LEDS = yes;
+    };
+  };
   savedClock = "/nix/persistent/var/lib/r5c-clock/epoch";
   saveClock = pkgs.writeShellScript "r5c-save-clock" ''
     install -d -m 0700 "$(dirname ${savedClock})"
@@ -103,7 +110,7 @@ in
 
   # Keep the author's kernel package wrapper so its custom module attributes
   # remain available on ARM, just as on lt-rpi4.
-  lantian.kernel = lib.mkForce pkgs.linux_6_18;
+  lantian.kernel = lib.mkForce r5cKernel;
 
   hardware.deviceTree = {
     name = "rockchip/rk3568-nanopi-r5c.dtb";
