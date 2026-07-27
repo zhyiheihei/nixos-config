@@ -26,6 +26,13 @@ in
     initrd.kernelModules = [ "r8169" ];
     kernelModules = [ "r8169" ];
     kernelParams = [
+      # The vendor U-Boot currently present on eMMC reaches the kernel entry
+      # point, then the board resets before the regular console is registered.
+      # Keep the RK3568 debug UART active from the first decompressed instruction
+      # so the failure remains visible on the 1.5 Mbaud debug header.
+      "earlycon=uart8250,mmio32,0xfe660000,1500000"
+      "keep_bootcon"
+      "ignore_loglevel"
       "console=ttyS2,1500000"
       "console=tty0"
     ];
