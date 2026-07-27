@@ -18,6 +18,25 @@ let
       R8169_LEDS = yes;
     };
   };
+  # The installed MT7921 requests only these six blobs.  Copy their contents
+  # instead of retaining the complete linux-firmware package (roughly 800 MiB)
+  # in every R5C system closure.
+  mt7921Firmware = pkgs.runCommand "mt7921-firmware" { } ''
+    source=${pkgs.linux-firmware}/lib/firmware/mediatek
+    destination=$out/lib/firmware/mediatek
+    mkdir -p "$destination"
+    for firmware in \
+      WIFI_MT7922_patch_mcu_1_1_hdr.bin \
+      WIFI_RAM_CODE_MT7922_1.bin \
+      WIFI_MT7961_patch_mcu_1_2_hdr.bin \
+      WIFI_RAM_CODE_MT7961_1.bin \
+      WIFI_MT7961_patch_mcu_1a_2_hdr.bin \
+      WIFI_RAM_CODE_MT7961_1a.bin
+    do
+      test -e "$source/$firmware"
+      cp -L "$source/$firmware" "$destination/$firmware"
+    done
+  '';
   savedClock = "/nix/persistent/var/lib/r5c-clock/epoch";
   saveClock = pkgs.writeShellScript "r5c-save-clock" ''
     install -d -m 0700 "$(dirname ${savedClock})"
@@ -103,14 +122,33 @@ in
     zfs.forceImportRoot = false;
 
     loader = {
-      generic-extlinux-compatible.enable = lib.mkForce true;
-      grub.enable = lib.mkForce false;
+      generic-extlinux-compatible = {
+        enable = lib.mkForce true;
+        # Two complete generations fit in the 256 MiB FAT partition.  The
+        # repository-wide default of 20 eventually fills /boot on this board.
+        configurationLimit = lib.mkForce 2;
+      };
+      grub = {
+        enable = lib.mkForce false;
+        extraInstallCommands = lib.mkForce "";
+      };
     };
   };
 
   # Keep the author's kernel package wrapper so its custom module attributes
   # remain available on ARM, just as on lt-rpi4.
   lantian.kernel = lib.mkForce r5cKernel;
+
+  # This headless extlinux board has no GRUB theme directory.  Disable both the
+  # theme module and the common installer service so their large source archive
+  # is not retained by the system closure.
+  honkai-railway-grub-theme.enable = lib.mkForce false;
+  systemd.services.install-random-star-rail-grub-theme.enable = false;
+
+  hardware = {
+    enableRedistributableFirmware = lib.mkForce false;
+    firmware = [ mt7921Firmware ];
+  };
 
   hardware.deviceTree = {
     name = "rockchip/rk3568-nanopi-r5c.dtb";
