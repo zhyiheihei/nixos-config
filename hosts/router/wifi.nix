@@ -60,12 +60,7 @@
     };
   };
 
-  # Put wireless stations on the same LAN as eth0. Kea, CoreDNS, IPv6 RA and
-  # the router firewall already operate on br-lan, so no parallel subnet or
-  # NAT rules are required.
-  systemd.network.networks.wlan0 = {
-    matchConfig.Name = "wlan0";
-    networkConfig.Bridge = "br-lan";
-    linkConfig.RequiredForOnline = "no";
-  };
+  # hostapd changes wlan0 from managed to AP mode before adding it to br-lan.
+  # systemd-networkd must not try to enslave the still-managed interface first.
+  # Kea, CoreDNS, IPv6 RA and the firewall already operate on br-lan.
 }
