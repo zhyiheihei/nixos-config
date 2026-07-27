@@ -11,7 +11,12 @@ let
   ubootNanoPiR5C = pkgs.ubootNanoPiR5S.override {
     defconfig = "nanopi-r5c-rk3568_defconfig";
   };
+  # Use Armbian's Rockchip 6.18 config as the platform baseline instead of
+  # Nixpkgs' very broad arm64 config.  The baseline was checked against the
+  # R5C/R5S DTS compatibles and the modules used by the running router.  NixOS
+  # storage, networking, namespaces and firewall requirements remain enabled.
   r5cKernel = pkgs.linux_6_18.override {
+    configfile = ./kernel-config;
     structuredExtraConfig = with lib.kernel; {
       # Expose all four RTL8125 PHY LED outputs through /sys/class/leds.
       # The R5C RJ45 jacks physically use two of them (green and yellow).
@@ -94,11 +99,10 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 
   boot = {
-    initrd.availableKernelModules = [
-      "mmc_block"
-      "nvme"
-      "r8169"
-    ];
+    # MMC, NVMe and the RK3568 storage controllers are builtin in the trimmed
+    # Rockchip config.  Keep only the modular network driver in this list;
+    # Btrfs is pulled into the initrd through supportedFilesystems below.
+    initrd.availableKernelModules = [ "r8169" ];
     initrd.kernelModules = [ "r8169" ];
     kernelModules = [
       "ledtrig_netdev"
