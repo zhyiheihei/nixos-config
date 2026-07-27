@@ -1,4 +1,4 @@
-_final: prev: {
+_: _final: prev: {
   nur-xddxdd = prev.nur-xddxdd // {
     lantianCustomized = prev.nur-xddxdd.lantianCustomized // {
       coredns = prev.nur-xddxdd.lantianCustomized.coredns.overrideAttrs (old: {
