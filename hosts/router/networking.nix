@@ -118,7 +118,6 @@
       matchConfig.Name = "br-lan";
       address = [
         "192.168.0.1/24"
-        "192.168.0.4/24"
         "fc00:192:168::1/64"
       ];
       linkConfig.MTUBytes = "9000";
