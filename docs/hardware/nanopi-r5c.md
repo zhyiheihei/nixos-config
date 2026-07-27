@@ -263,6 +263,7 @@ defconfig；应分别通过串口启动来源和 Nix store 中的 U-Boot derivat
 ```text
 /nix/persistent/etc/machine-id
 /nix/persistent/etc/ssh
+/nix/var/nix/daemon-socket
 /nix/var/nix/profiles/system
 /nix/nix-path-registration
 ```
@@ -452,7 +453,7 @@ readlink -f /nix/var/nix/profiles/system
 
 正式替换 router 前仍需完成：
 
-- 确认两个物理网口与 `eth0` WAN、`eth1` LAN 的对应关系；
+- 按控制板丝印使用 `eth1` WAN、`eth0` LAN，并确认两端链路；
 - 迁移旧 router 的 SSH host keys、SOPS 身份、ZeroTier identity 和 Kea leases；
 - 在 ARM64 构建机完成 `nixosConfigurations.router` 求值与构建；
 - 断开旧 router 后启用 `192.168.0.1`，验证 PPPoE、DHCP、DNS、NAT 和监控。

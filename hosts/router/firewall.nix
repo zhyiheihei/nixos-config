@@ -90,12 +90,12 @@ in
       fib daddr type local tcp dport 4000 iifname "ppp0" dnat ip to 192.168.0.51:443
 
       # Redirect LAN DNS requests to the isolated CoreDNS client namespace.
-      # br-lan is the bridge ingress seen by LAN guests; eth1 covers direct
+      # br-lan is the bridge ingress seen by LAN guests; eth0 covers direct
       # physical traffic.
-      fib daddr type local tcp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
-      fib daddr type local tcp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
-      fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
-      fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth1" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
+      fib daddr type local tcp dport ${LT.portStr.DNS} iifname { "br-lan", "eth0" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
+      fib daddr type local tcp dport ${LT.portStr.DNS} iifname { "br-lan", "eth0" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
+      fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth0" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
+      fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth0" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
 
       # Hairpin NAT: LAN accessing public IP gets redirected to colocrossing
       fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to 192.168.0.51

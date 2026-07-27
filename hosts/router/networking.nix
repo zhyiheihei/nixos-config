@@ -14,7 +14,7 @@
   # Keep the WAN identity used by OpenWrt. Some ISPs bind the active PPPoE
   # session to the CPE MAC address.
   systemd.network.links."10-router-wan" = {
-    matchConfig.OriginalName = "eth0";
+    matchConfig.OriginalName = "eth1";
     linkConfig.MACAddress = "02:c8:90:df:19:eb";
   };
 
@@ -22,7 +22,7 @@
     enable = true;
     peers.wan.config = ''
       plugin pppoe.so
-      nic-eth0
+      nic-eth1
       ifname ppp0
       linkname wan
       ipparam wan
@@ -55,11 +55,11 @@
     after = [
       "sops-install-secrets.service"
       "systemd-networkd.service"
-      "sys-subsystem-net-devices-eth0.device"
+      "sys-subsystem-net-devices-eth1.device"
     ];
     requires = [
       "sops-install-secrets.service"
-      "sys-subsystem-net-devices-eth0.device"
+      "sys-subsystem-net-devices-eth1.device"
     ];
     serviceConfig = {
       Environment = "HOME=/run/pppd";
@@ -77,8 +77,8 @@
 
   systemd.network.networks = {
     # Physical WAN. PPPoE owns addressing and the default route.
-    eth0 = {
-      matchConfig.Name = "eth0";
+    eth1 = {
+      matchConfig.Name = "eth1";
       networkConfig = {
         DHCP = "no";
         IPv6AcceptRA = "no";
@@ -107,8 +107,8 @@
     };
 
     # LAN bridge: local PVE VMs and physical clients.
-    eth1 = {
-      matchConfig.Name = "eth1";
+    eth0 = {
+      matchConfig.Name = "eth0";
       networkConfig.Bridge = "br-lan";
       linkConfig.RequiredForOnline = "enslaved";
     };
