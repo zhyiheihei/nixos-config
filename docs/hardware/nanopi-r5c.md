@@ -8,6 +8,9 @@
 - Btrfs `/nix`，卷标 `NIXOS_NIX`
 - 持久化目录 `/nix/persistent`
 
+真机刷卡、USB-TTL 接线和完整串口日志采集步骤见
+[`nanopi-r5c-flash-and-serial.md`](./nanopi-r5c-flash-and-serial.md)。
+
 当前主机配置位于 [`hosts/nanopi-r5c/`](../../hosts/nanopi-r5c/)。
 
 ## 1. 构建环境与分工
