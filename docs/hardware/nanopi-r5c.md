@@ -210,9 +210,8 @@ Linux 注册普通 console 之前发生了硬复位。配置保留以下参数�
 
 ```text
 earlycon=uart8250,mmio32,0xfe660000
-keep_bootcon
-ignore_loglevel
 console=ttyS2,1500000n8
+console=tty0
 ```
 
 `uart8250` 的 `earlycon` 参数不能在 MMIO 地址后追加 `,1500000`。追加后 U-Boot
@@ -226,6 +225,11 @@ R5C 还必须导入 `nixos/hardware/disable-watchdog.nix`。公共 minimal 配�
 中，Nixpkgs 构建的 U-Boot 2026.04 搭配 DDR v1.23 和 BL31 v1.45 能进入 Linux，
 但会稳定停在内核约 3.16 秒、MMC 初始化之前；Armbian U-Boot 2026.01 搭配 DDR
 v1.21 和 BL31 v1.44 可以完整启动相同的 NixOS 6.18.37 内核及系统。
+
+R5C 直接导入通用 `sd-image.nix`，不导入 `sd-image-aarch64.nix`。后者会追加面向
+Tegra/QEMU 的 `ttyS0`、`ttyAMA0`；与 R5C 的 `ttyS2` 并存后，只能依赖
+`keep_bootcon` 持续写调试 UART，并可能在并发 printk 时停止进展。生产配置只保留
+`ttyS2`，让正式 8250 console 在注册后正常接管 earlycon。
 
 设备 eMMC 中原有的 OpenWrt U-Boot 可能显示 `Model: Easepi RK3568 Board`，并从
 SD 卡第 1 分区加载 NixOS。这不代表 Nix 构建的 U-Boot 产物使用了 Easepi
