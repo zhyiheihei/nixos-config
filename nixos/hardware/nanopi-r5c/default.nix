@@ -34,15 +34,29 @@ let
       fi
     }
 
-    set_trigger "red:power" "default-on"
-    # PCI domain 1 is eth0/LAN; PCI domain 2 is eth1/WAN on the R5C.
-    set_trigger "green:lan" "r8169-1-1100:00:link"
-    set_trigger "green:wan" "r8169-2-2100:00:link"
+    set_netdev_trigger() {
+      local led=$1
+      local device=$2
+      local led_path="/sys/class/leds/$led"
 
-    if test -L /sys/class/net/wlan0/phy80211; then
-      phy="$(basename "$(readlink -f /sys/class/net/wlan0/phy80211)")"
-      set_trigger "green:wlan" "''${phy}radio"
-    fi
+      if test -e "/sys/class/net/$device" \
+        && test -w "$led_path/trigger" \
+        && grep -qw "netdev" "$led_path/trigger"; then
+        echo "netdev" > "$led_path/trigger"
+        echo "$device" > "$led_path/device_name"
+        echo 1 > "$led_path/link"
+        echo 1 > "$led_path/rx"
+        echo 1 > "$led_path/tx"
+        echo 50 > "$led_path/interval"
+      fi
+    }
+
+    set_trigger "red:power" "default-on"
+    # Keep each green LED lit while its interface has carrier and flash it for
+    # both receive and transmit activity, like a disk activity indicator.
+    set_netdev_trigger "green:lan" "eth0"
+    set_netdev_trigger "green:wan" "eth1"
+    set_netdev_trigger "green:wlan" "wlan0"
   '';
 in
 {
@@ -60,7 +74,10 @@ in
       "r8169"
     ];
     initrd.kernelModules = [ "r8169" ];
-    kernelModules = [ "r8169" ];
+    kernelModules = [
+      "ledtrig_netdev"
+      "r8169"
+    ];
     kernelParams = [
       # The uart8250 earlycon parser must not be given the baud rate here; doing
       # so hides all output after U-Boot's "Starting kernel ..." line.
