@@ -221,15 +221,19 @@ R5C 还必须导入 `nixos/hardware/disable-watchdog.nix`。公共 minimal 配�
 20 秒运行时硬件 watchdog；该 watchdog 在此板上会造成系统完成启动、网卡建立
 链路后约 20 秒无日志硬复位。
 
-镜像必须使用 `hosts/nanopi-r5c/firmware/` 中固定的 Armbian 启动载荷。实机测试
-中，Nixpkgs 构建的 U-Boot 2026.04 搭配 DDR v1.23 和 BL31 v1.45 能进入 Linux，
-但会稳定停在内核约 3.16 秒、MMC 初始化之前；Armbian U-Boot 2026.01 搭配 DDR
-v1.21 和 BL31 v1.44 可以完整启动相同的 NixOS 6.18.37 内核及系统。
+2026-07-27 的受控 A/B 测试保持 SD 卡上的 kernel、DTB、initrd、system closure
+和清理后的 extlinux 参数完全不变，只替换开头 16 MiB 的 Rockchip 启动载荷。
+Nixpkgs U-Boot 2026.04（DDR v1.23、BL31 v1.45）能够正常初始化 MMC、挂载 Btrfs、
+进入真实 systemd，并使 RTL8125 网卡以 2.5Gbps 建立链路。因此仓库继续使用
+Nixpkgs derivation；此前约 3.16 秒停止并不是 U-Boot 固件差异导致。
 
 R5C 直接导入通用 `sd-image.nix`，不导入 `sd-image-aarch64.nix`。后者会追加面向
 Tegra/QEMU 的 `ttyS0`、`ttyAMA0`；与 R5C 的 `ttyS2` 并存后，只能依赖
 `keep_bootcon` 持续写调试 UART，并可能在并发 printk 时停止进展。生产配置只保留
 `ttyS2`，让正式 8250 console 在注册后正常接管 earlycon。
+
+实机枚举出的两个 RTL8125 PCIe 路径分别为 `pci-0001:11:00.0` 和
+`pci-0002:21:00.0`，systemd `.link` 规则应使用这两个路径。
 
 设备 eMMC 中原有的 OpenWrt U-Boot 可能显示 `Model: Easepi RK3568 Board`，并从
 SD 卡第 1 分区加载 NixOS。这不代表 Nix 构建的 U-Boot 产物使用了 Easepi

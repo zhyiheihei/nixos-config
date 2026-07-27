@@ -6,22 +6,11 @@
   ...
 }:
 let
-  # Keep the complete Armbian-tested RK3568 boot chain together. Building the
-  # same defconfig with newer rkbin firmware produced a bootloader that reached
-  # Linux but reproducibly stalled during early device initialization.
-  ubootNanoPiR5C = pkgs.runCommand "armbian-uboot-nanopi-r5c-2026.01" {
-    nativeBuildInputs = [ pkgs.dpkg ];
-  } ''
-    dpkg-deb -x \
-      ${./firmware/linux-u-boot-nanopi-r5c-current_26.08.0-trunk_arm64.deb} \
-      unpack
-    install -Dm0644 \
-      unpack/usr/lib/linux-u-boot-current-nanopi-r5c/idbloader.img \
-      "$out/idbloader.img"
-    install -Dm0644 \
-      unpack/usr/lib/linux-u-boot-current-nanopi-r5c/u-boot.itb \
-      "$out/u-boot.itb"
-  '';
+  # R5C and R5S share the RK3568 boot layout; select the board-specific
+  # upstream defconfig while retaining the Nixpkgs U-Boot package structure.
+  ubootNanoPiR5C = pkgs.ubootNanoPiR5S.override {
+    defconfig = "nanopi-r5c-rk3568_defconfig";
+  };
 in
 {
   imports = [
@@ -40,9 +29,8 @@ in
     initrd.kernelModules = [ "r8169" ];
     kernelModules = [ "r8169" ];
     kernelParams = [
-      # The vendor U-Boot currently present on eMMC reaches the kernel entry
-      # point. The uart8250 earlycon parser must not be given the baud rate here;
-      # doing so hides all output after U-Boot's "Starting kernel ..." line.
+      # The uart8250 earlycon parser must not be given the baud rate here; doing
+      # so hides all output after U-Boot's "Starting kernel ..." line.
       # The board-specific sd-image imports below deliberately avoid the generic
       # aarch64 image's ttyS0/ttyAMA0 parameters, leaving ttyS2 as the only
       # serial console so the real 8250 driver can replace earlycon cleanly.

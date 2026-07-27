@@ -24,14 +24,14 @@
   systemd.network = {
     enable = true;
 
-    # Match Armbian's stable R5C names for the two PCIe RTL8125 NICs.
+    # Give the two PCIe RTL8125 NICs stable names using their observed paths.
     links = {
       "10-r5c-lan" = {
-        matchConfig.Path = "pci-0001:01:00.0";
+        matchConfig.Path = "pci-0001:11:00.0";
         linkConfig.Name = "lan1";
       };
       "10-r5c-wan" = {
-        matchConfig.Path = "pci-0002:01:00.0";
+        matchConfig.Path = "pci-0002:21:00.0";
         linkConfig.Name = "wan1";
       };
     };
