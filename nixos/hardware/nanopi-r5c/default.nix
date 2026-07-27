@@ -23,6 +23,27 @@ let
       date --utc --set="@$(cat ${savedClock})"
     fi
   '';
+  configureLeds = pkgs.writeShellScript "r5c-configure-leds" ''
+    set_trigger() {
+      local led=$1
+      local trigger=$2
+      local trigger_file="/sys/class/leds/$led/trigger"
+
+      if test -w "$trigger_file" && grep -qw "$trigger" "$trigger_file"; then
+        echo "$trigger" > "$trigger_file"
+      fi
+    }
+
+    set_trigger "red:power" "default-on"
+    # PCI domain 1 is eth0/LAN; PCI domain 2 is eth1/WAN on the R5C.
+    set_trigger "green:lan" "r8169-1-1100:00:link"
+    set_trigger "green:wan" "r8169-2-2100:00:link"
+
+    if test -L /sys/class/net/wlan0/phy80211; then
+      phy="$(basename "$(readlink -f /sys/class/net/wlan0/phy80211)")"
+      set_trigger "green:wlan" "''${phy}radio"
+    fi
+  '';
 in
 {
   imports = [
@@ -96,6 +117,20 @@ in
         serviceConfig = {
           Type = "oneshot";
           ExecStart = saveClock;
+        };
+      };
+      r5c-leds = {
+        description = "Configure NanoPi R5C status LEDs";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "systemd-modules-load.service" ];
+        path = [
+          pkgs.coreutils
+          pkgs.gnugrep
+        ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = configureLeds;
         };
       };
     };
