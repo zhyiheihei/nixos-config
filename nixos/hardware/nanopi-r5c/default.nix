@@ -6,7 +6,7 @@
   ...
 }:
 let
-  # R5C and R5S share the RK3568 boot layout; select the board-specific
+  # NanoPi R5C and R5S share the RK3568 boot layout; select the board-specific
   # upstream defconfig while retaining the Nixpkgs U-Boot package structure.
   ubootNanoPiR5C = pkgs.ubootNanoPiR5S.override {
     defconfig = "nanopi-r5c-rk3568_defconfig";

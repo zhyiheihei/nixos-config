@@ -11,6 +11,7 @@
   fakeroot,
   zstd,
 }:
+# Build the persistent /nix filesystem used by the NanoPi R5C disk image.
 let
   closureInfo = pkgs.buildPackages.closureInfo { rootPaths = storePaths; };
 in
