@@ -118,6 +118,9 @@ in
     '';
     populateRootCommands = lib.mkForce ''
       mkdir -p files/persistent/etc/ssh files/var/nix/profiles
+      # preservation links /etc/machine-id here from the initrd.  Keep the
+      # target empty in the image so systemd assigns a unique ID on first boot.
+      touch files/persistent/etc/machine-id
       ln -s ${config.system.build.toplevel} files/var/nix/profiles/system
     '';
     postBuildCommands = ''
