@@ -17,11 +17,6 @@ let
   # storage, networking, namespaces and firewall requirements remain enabled.
   r5cKernel = pkgs.linux_6_18.override {
     configfile = ./kernel-config;
-    structuredExtraConfig = with lib.kernel; {
-      # Expose all four RTL8125 PHY LED outputs through /sys/class/leds.
-      # The R5C RJ45 jacks physically use two of them (green and yellow).
-      R8169_LEDS = yes;
-    };
   };
   # The installed MT7921 requests only these six blobs.  Copy their contents
   # instead of retaining the complete linux-firmware package (roughly 800 MiB)
@@ -102,13 +97,16 @@ in
 
   boot = {
     # MMC, NVMe and the RK3568 storage controllers are builtin in the trimmed
-    # Rockchip config.  Keep only the modular network driver in this list;
-    # Btrfs is pulled into the initrd through supportedFilesystems below.
-    initrd.availableKernelModules = [ "r8169" ];
-    initrd.kernelModules = [ "r8169" ];
+    # Rockchip config.  The RTL8125 NIC is driven by the Realtek vendor module
+    # r8125 (already in boot.extraModulePackages via kernel.nix).  Blacklist
+    # r8169 so the vendor driver claims the device and initializes the PHY LED
+    # registers that the mainline driver leaves unconfigured.
+    blacklistedKernelModules = [ "r8169" ];
+    initrd.availableKernelModules = [ ];
+    initrd.kernelModules = [ ];
     kernelModules = [
       "ledtrig_netdev"
-      "r8169"
+      "r8125"
     ];
     kernelParams = [
       # The uart8250 earlycon parser must not be given the baud rate here; doing
