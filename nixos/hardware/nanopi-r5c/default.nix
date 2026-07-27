@@ -51,7 +51,7 @@ let
       fi
     }
 
-    set_trigger "red:power" "default-on"
+    set_trigger "red:power" "heartbeat"
     # Keep each green LED lit while its interface has carrier and flash it for
     # both receive and transmit activity, like a disk activity indicator.
     set_netdev_trigger "green:lan" "eth0"
