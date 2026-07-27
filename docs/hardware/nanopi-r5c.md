@@ -164,6 +164,17 @@ Rockchip 引导文件写入整盘镜像的固定偏移：
 256 MiB；当前约 61 MiB 的 kernel Image 和 24 MiB 的 initrd 无法放入 Nixpkgs
 默认的 30 MiB firmware 分区。
 
+当前 Nixpkgs SD image 模块假设 extlinux 位于第 2 分区，因此默认把第 2 分区
+标记为 MBR bootable。R5C 镜像将 extlinux 放在第 1 个 FAT 分区，必须在
+`postBuildCommands` 中执行：
+
+```bash
+sfdisk --activate "$img" 1
+```
+
+否则 U-Boot 的 distro boot 可能只扫描第 2 分区而找不到 extlinux，表现为引导灯
+正常但系统没有 DHCP 或 SSH。
+
 ### 文件系统
 
 最终镜像包含：
@@ -182,6 +193,10 @@ Rockchip 引导文件写入整盘镜像的固定偏移：
 ```nix
 fileSystems."/nix".neededForBoot = true;
 ```
+
+通用 SD image 的 `expandOnBoot` 通过 `/` 推导待扩容分区，与 tmpfs `/` 不兼容，
+因此 R5C 将其禁用。首次启动验收成功后，应明确扩展第 2 分区，再执行
+`btrfs filesystem resize max /nix`。
 
 镜像预先创建：
 

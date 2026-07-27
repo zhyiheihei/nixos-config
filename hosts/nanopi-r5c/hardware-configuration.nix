@@ -97,6 +97,10 @@ in
     rootVolumeLabel = "NIXOS_NIX";
     nixPathRegistrationFile = "/nix/nix-path-registration";
     compressImage = true;
+    # The generic grow service inspects /, but this host uses tmpfs / and keeps
+    # the persistent filesystem at /nix. Grow partition 2 explicitly after the
+    # first successful boot instead.
+    expandOnBoot = false;
     populateFirmwareCommands = lib.mkForce ''
       ${config.boot.loader.generic-extlinux-compatible.populateCmd} \
         -g 0 \
@@ -108,6 +112,9 @@ in
       ln -s ${config.system.build.toplevel} files/var/nix/profiles/system
     '';
     postBuildCommands = ''
+      # Nixpkgs assumes extlinux lives on partition 2. This image puts it on the
+      # FAT partition, so mark partition 1 (and only partition 1) bootable.
+      sfdisk --activate "$img" 1
       dd if=${ubootNanoPiR5C}/idbloader.img of="$img" seek=64 conv=notrunc status=none
       dd if=${ubootNanoPiR5C}/u-boot.itb of="$img" seek=16384 conv=notrunc status=none
     '';
