@@ -44,7 +44,11 @@
       "gitlab.io"
       "gitlab-static.net"
       "google.com"
+      "golang.org"
       "ghcr.io"
+      "proxy.golang.org"
+      "storage.googleapis.com"
+      "sum.golang.org"
       "elastic.co"
     ];
     intlAction = "must_direct";
