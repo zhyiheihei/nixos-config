@@ -11,7 +11,9 @@
 真机刷卡、USB-TTL 接线和完整串口日志采集步骤见
 [`nanopi-r5c-flash-and-serial.md`](./nanopi-r5c-flash-and-serial.md)。
 
-当前主机配置位于 [`hosts/nanopi-r5c/`](../../hosts/nanopi-r5c/)。
+硬件适配位于 [`nixos/hardware/nanopi-r5c/`](../../nixos/hardware/nanopi-r5c/)，
+并由 [`hosts/router/`](../../hosts/router/) 直接使用；R5C 就是正式的 `router`
+主机，不再维护额外的 `nanopi-r5c` 主机定义。
 
 ## 1. 构建环境与分工
 
@@ -266,7 +268,7 @@ git pull --ff-only
 
 ```bash
 nix eval \
-  .#nixosConfigurations.nanopi-r5c.config.system.build.sdImage.drvPath \
+  .#nixosConfigurations.router.config.system.build.sdImage.drvPath \
   --show-trace
 ```
 
@@ -283,7 +285,7 @@ tmux new -s r5c-build
 cd /nix/src/nixos-config
 
 nix build \
-  .#nixosConfigurations.nanopi-r5c.config.system.build.sdImage \
+  .#nixosConfigurations.router.config.system.build.sdImage \
   --out-link result-r5c \
   --print-build-logs \
   --show-trace
@@ -323,7 +325,7 @@ the narinfo was purged
 
 ```bash
 nix build \
-  .#nixosConfigurations.nanopi-r5c.config.system.build.sdImage \
+  .#nixosConfigurations.router.config.system.build.sdImage \
   --out-link result-r5c \
   --print-build-logs \
   --show-trace \

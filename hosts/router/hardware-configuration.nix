@@ -2,6 +2,6 @@
 {
   imports = [
     ../../nixos/hardware/disable-watchdog.nix
-    ../nanopi-r5c/hardware-configuration.nix
+    ../../nixos/hardware/nanopi-r5c
   ];
 }

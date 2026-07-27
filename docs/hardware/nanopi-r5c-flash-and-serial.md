@@ -19,7 +19,7 @@
 cd /nix/src/nixos-config
 
 nix build \
-  .#nixosConfigurations.nanopi-r5c.config.system.build.sdImage \
+  .#nixosConfigurations.router.config.system.build.sdImage \
   --out-link result-r5c \
   --print-build-logs
 
