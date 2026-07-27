@@ -188,9 +188,8 @@ rockchip/rk3568-nanopi-r5c.dtb
 
 ```text
 earlycon=uart8250,mmio32,0xfe660000
-keep_bootcon
-ignore_loglevel
 console=ttyS2,1500000n8
+console=tty0
 ```
 
 不要把波特率追加到 `earlycon` 的 MMIO 地址后。错误写成
@@ -205,6 +204,10 @@ minimal 配置中的运行时硬件 watchdog。
 都停在 Linux 约 3.16 秒且没有出现 `mmcblk`，说明镜像写入了未经实机验证的
 Nixpkgs 启动链。仓库中的 R5C 镜像应写入 `hosts/nanopi-r5c/firmware/` 固定的
 Armbian U-Boot 2026.01、DDR v1.21/1560 MHz 和 BL31 v1.44。
+
+最终命令行不应同时出现 `console=ttyS0`、`console=ttyAMA0` 和
+`console=ttyS2`，也不应长期保留 `keep_bootcon`。R5C 只使用
+`console=ttyS2,1500000n8`；正式 8250 console 接管后，earlycon 应正常注销。
 
 如果显示：
 

@@ -25,7 +25,8 @@ let
 in
 {
   imports = [
-    (modulesPath + "/installer/sd-card/sd-image-aarch64.nix")
+    (modulesPath + "/profiles/base.nix")
+    (modulesPath + "/installer/sd-card/sd-image.nix")
   ];
 
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
@@ -42,10 +43,10 @@ in
       # The vendor U-Boot currently present on eMMC reaches the kernel entry
       # point. The uart8250 earlycon parser must not be given the baud rate here;
       # doing so hides all output after U-Boot's "Starting kernel ..." line.
-      # Keep the RK3568 debug UART active from the first decompressed instruction.
+      # The board-specific sd-image imports below deliberately avoid the generic
+      # aarch64 image's ttyS0/ttyAMA0 parameters, leaving ttyS2 as the only
+      # serial console so the real 8250 driver can replace earlycon cleanly.
       "earlycon=uart8250,mmio32,0xfe660000"
-      "keep_bootcon"
-      "ignore_loglevel"
       "console=ttyS2,1500000n8"
       "console=tty0"
     ];
