@@ -88,15 +88,17 @@ in
     firmwarePartitionOffset = 16;
     firmwarePartitionName = "FIRMWARE";
     rootFilesystemCreator = ./make-nix-btrfs-fs.nix;
+    rootPartitionUUID = "44444444-4444-4444-8888-888888888888";
     rootVolumeLabel = "NIXOS_NIX";
     nixPathRegistrationFile = "/nix/nix-path-registration";
     compressImage = true;
-    populateFirmwareCommands = ''
+    populateFirmwareCommands = lib.mkForce ''
       ${config.boot.loader.generic-extlinux-compatible.populateCmd} \
+        -g 0 \
         -c ${config.system.build.toplevel} \
         -d firmware
     '';
-    populateRootCommands = ''
+    populateRootCommands = lib.mkForce ''
       mkdir -p files/persistent/etc/ssh files/var/nix/profiles
       ln -s ${config.system.build.toplevel} files/var/nix/profiles/system
     '';
