@@ -27,13 +27,13 @@ in
     kernelModules = [ "r8169" ];
     kernelParams = [
       # The vendor U-Boot currently present on eMMC reaches the kernel entry
-      # point, then the board resets before the regular console is registered.
-      # Keep the RK3568 debug UART active from the first decompressed instruction
-      # so the failure remains visible on the 1.5 Mbaud debug header.
-      "earlycon=uart8250,mmio32,0xfe660000,1500000"
+      # point. The uart8250 earlycon parser must not be given the baud rate here;
+      # doing so hides all output after U-Boot's "Starting kernel ..." line.
+      # Keep the RK3568 debug UART active from the first decompressed instruction.
+      "earlycon=uart8250,mmio32,0xfe660000"
       "keep_bootcon"
       "ignore_loglevel"
-      "console=ttyS2,1500000"
+      "console=ttyS2,1500000n8"
       "console=tty0"
     ];
     supportedFilesystems = lib.mkForce [

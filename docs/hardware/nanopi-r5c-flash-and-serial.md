@@ -60,6 +60,9 @@ diskutil unmountDisk /dev/disk4
 无需先把压缩镜像复制到 Mac。通过 SSH 解压，并直接写入 macOS raw disk：
 
 ```bash
+diskutil list external physical
+diskutil unmountDisk /dev/disk4
+
 set -o pipefail
 
 ssh -A -p 2222 root@192.168.0.50 \
@@ -184,11 +187,19 @@ rockchip/rk3568-nanopi-r5c.dtb
 内核命令行应包含：
 
 ```text
-earlycon=uart8250,mmio32,0xfe660000,1500000
+earlycon=uart8250,mmio32,0xfe660000
 keep_bootcon
 ignore_loglevel
-console=ttyS2,1500000
+console=ttyS2,1500000n8
 ```
+
+不要把波特率追加到 `earlycon` 的 MMIO 地址后。错误写成
+`earlycon=uart8250,mmio32,0xfe660000,1500000` 时，内核可能已经正常运行，但串口
+会停留在 U-Boot 的 `Starting kernel ...`，看不到后续输出。
+
+如果系统已经进入 NixOS、网卡也已建立链路，却在约 20 秒后无日志复位，检查目标
+主机是否导入了 `nixos/hardware/disable-watchdog.nix`。R5C 当前需要禁用公共
+minimal 配置中的运行时硬件 watchdog。
 
 如果显示：
 
@@ -238,4 +249,3 @@ mmc 1: SD 卡，mmc@fe2b0000
 
 擦除命令具有破坏性，不能仅凭编号猜测目标。每次执行写入或擦除前，都必须重新用
 `mmc info` 核对容量和设备控制器。
-

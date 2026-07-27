@@ -209,11 +209,18 @@ Linux 注册普通 console 之前发生了硬复位。配置保留以下参数�
 的日志：
 
 ```text
-earlycon=uart8250,mmio32,0xfe660000,1500000
+earlycon=uart8250,mmio32,0xfe660000
 keep_bootcon
 ignore_loglevel
-console=ttyS2,1500000
+console=ttyS2,1500000n8
 ```
+
+`uart8250` 的 `earlycon` 参数不能在 MMIO 地址后追加 `,1500000`。追加后 U-Boot
+仍会显示 `Starting kernel ...`，但内核串口输出不可见，容易误判为内核卡死。
+
+R5C 还必须导入 `nixos/hardware/disable-watchdog.nix`。公共 minimal 配置默认启用
+20 秒运行时硬件 watchdog；该 watchdog 在此板上会造成系统完成启动、网卡建立
+链路后约 20 秒无日志硬复位。
 
 设备 eMMC 中原有的 OpenWrt U-Boot 可能显示 `Model: Easepi RK3568 Board`，并从
 SD 卡第 1 分区加载 NixOS。这不代表 Nix 构建的 U-Boot 产物使用了 Easepi
