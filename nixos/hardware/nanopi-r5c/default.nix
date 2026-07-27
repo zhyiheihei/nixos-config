@@ -82,7 +82,9 @@ let
       fi
     }
 
-    set_trigger "red:power" "heartbeat"
+    # The heartbeat trigger does not drive brightness on this board's
+    # red:power LED; use default-on so the power indicator stays lit.
+    set_trigger "red:power" "default-on"
     # Keep each green LED lit while its interface has carrier and flash it for
     # both receive and transmit activity, like a disk activity indicator.
     set_netdev_trigger "green:lan" "eth0"
@@ -188,7 +190,13 @@ in
       r5c-leds = {
         description = "Configure NanoPi R5C status LEDs";
         wantedBy = [ "multi-user.target" ];
-        after = [ "systemd-modules-load.service" ];
+        # wlan0 is created by the WiFi driver well after modules-load; wait for
+        # its sysfs device so the green:wlan netdev trigger is not skipped.
+        after = [
+          "systemd-modules-load.service"
+          "sys-subsystem-net-devices-wlan0.device"
+        ];
+        wants = [ "sys-subsystem-net-devices-wlan0.device" ];
         path = [
           pkgs.coreutils
           pkgs.gnugrep
