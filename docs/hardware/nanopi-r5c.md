@@ -134,8 +134,14 @@ lantian.kernel = lib.mkForce pkgs.linux_6_18;
 设备树选择：
 
 ```nix
-hardware.deviceTree.name = "rockchip/rk3568-nanopi-r5c.dtb";
+hardware.deviceTree = {
+  name = "rockchip/rk3568-nanopi-r5c.dtb";
+  filter = "rk3568-nanopi-r5c.dtb";
+};
 ```
+
+`name` 选择 extlinux 启动使用的 DTB，`filter` 则沿用作者 `lt-rpi4` 的做法，限制
+镜像只复制目标板 DTB，避免把全部 ARM64 平台的一千多个 DTB 放入 `/boot`。
 
 ### U-Boot
 

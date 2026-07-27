@@ -46,7 +46,11 @@ in
   # remain available on ARM, just as on lt-rpi4.
   lantian.kernel = lib.mkForce pkgs.linux_6_18;
 
-  hardware.deviceTree.name = "rockchip/rk3568-nanopi-r5c.dtb";
+  hardware.deviceTree = {
+    name = "rockchip/rk3568-nanopi-r5c.dtb";
+    # Follow lt-rpi4: only copy DTBs for the target board into /boot.
+    filter = "rk3568-nanopi-r5c.dtb";
+  };
 
   fileSystems = {
     "/" = lib.mkForce {
