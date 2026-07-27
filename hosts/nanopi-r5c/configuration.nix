@@ -6,6 +6,7 @@
 {
   imports = [
     ../../nixos/minimal.nix
+    ../../nixos/hardware/disable-watchdog.nix
     ./hardware-configuration.nix
   ];
 
