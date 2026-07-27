@@ -11,7 +11,35 @@ let
   # No defconfig override is needed.
   inherit (pkgs) ubootOrangePi5Plus;
 
-  opi5pKernel = pkgs.linux_6_18;
+  # Custom kernel for Orange Pi 5 Plus with redroid-rk3588 support.
+  # Reference: https://github.com/CNflysky/redroid-rk3588
+  opi5pKernel = pkgs.linux_6_18.override {
+    structuredExtraConfig = with lib.kernel; {
+      # ── Mali-G610 GPU (Panthor, mainline CSF driver) ──────────────
+      DRM = yes;
+      DRM_PANTHOR = module;
+
+      # ── Android Binder (redroid mandatory) ────────────────────────
+      ANDROID = yes;
+      ANDROID_BINDER_IPC = yes;
+      ANDROID_BINDERFS = yes;
+
+      # ── Pressure Stall Information (redroid mandatory) ────────────
+      PSI = yes;
+
+      # ── DMA-BUF heaps (redroid requires /dev/dma_heap/*) ──────────
+      DMABUF_HEAPS = yes;
+      DMABUF_HEAPS_SYSTEM = yes;
+      DMABUF_HEAPS_CMA = yes;
+
+      # ── 39-bit VA (redroid recommends; some apps crash on 48) ─────
+      ARM64_VA_BITS_39 = yes;
+
+      # ── Expose kernel config at /proc/config.gz ───────────────────
+      IKCONFIG = yes;
+      IKCONFIG_PROC = yes;
+    };
+  };
 
   savedClock = "/nix/persistent/var/lib/opi5p-clock/epoch";
   saveClock = pkgs.writeShellScript "opi5p-save-clock" ''
@@ -43,6 +71,7 @@ in
     ];
     initrd.kernelModules = [ "r8169" ];
     kernelModules = [
+      "panthor"
       "r8169"
     ];
     kernelParams = [
@@ -69,6 +98,9 @@ in
   # Keep the author's kernel package wrapper so its custom module attributes
   # remain available on ARM, just as on lt-rpi4 and nanopi-r5c.
   lantian.kernel = lib.mkForce opi5pKernel;
+
+  # Mali-G610 CSF firmware required by the Panthor GPU driver.
+  hardware.firmware = [ pkgs.linux-firmware ];
 
   hardware.deviceTree = {
     name = "rockchip/rk3588-orangepi-5-plus.dtb";
