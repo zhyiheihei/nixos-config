@@ -155,6 +155,7 @@ sdImage.postBuildCommands = ''
 ```text
 /nix/persistent/etc/machine-id
 /nix/persistent/etc/ssh
+/nix/var/nix/daemon-socket
 /nix/var/nix/profiles/system
 /nix/nix-path-registration
 ```
