@@ -37,18 +37,11 @@ let
       cp -L "$source/$firmware" "$destination/$firmware"
     done
   '';
-  savedClock = "/nix/persistent/var/lib/r5c-clock/epoch";
-  saveClock = pkgs.writeShellScript "r5c-save-clock" ''
-    install -d -m 0700 "$(dirname ${savedClock})"
-    date +%s > ${savedClock}.new
-    chmod 0600 ${savedClock}.new
-    mv ${savedClock}.new ${savedClock}
-  '';
-  restoreClock = pkgs.writeShellScript "r5c-restore-clock" ''
-    if test -s ${savedClock}; then
-      date --utc --set="@$(cat ${savedClock})"
-    fi
-  '';
+  # The RK3568 has no built-in RTC.  The RK808 PMIC RTC (rtc0) retains time
+  # for short power cycles via a capacitor but resets on long power loss.
+  # Sync from it at boot, write to it periodically, and let ntpd-rs do the
+  # precise correction after the WAN comes up.
+  hwclock = "${pkgs.util-linux}/bin/hwclock";
   configureLeds = pkgs.writeShellScript "r5c-configure-leds" ''
     set_trigger() {
       local led=$1
@@ -160,29 +153,25 @@ in
     filter = "rk3568-nanopi-r5c.dtb";
   };
 
-  # RK3568 boards may return to a firmware timestamp after losing power.  Keep
-  # a coarse clock on persistent storage so TLS works while ntpd-rs gathers
-  # enough agreeing sources to perform its precise startup correction.
+  # Sync system clock from the hardware RTC at boot, and write it back
+  # periodically so the RTC stays current for the next cold start.
   systemd = {
     services = {
-      r5c-restore-clock = {
-        description = "Restore NanoPi R5C software clock";
+      r5c-hwclock-restore = {
+        description = "Restore system clock from hardware RTC";
         wantedBy = [ "multi-user.target" ];
         before = [ "ntpd-rs.service" ];
-        requiredBy = [ "ntpd-rs.service" ];
-        unitConfig.RequiresMountsFor = [ "/nix/persistent" ];
         serviceConfig = {
           Type = "oneshot";
           RemainAfterExit = true;
-          ExecStart = restoreClock;
-          ExecStop = saveClock;
+          ExecStart = "${hwclock} -s --utc";
         };
       };
-      r5c-save-clock = {
-        description = "Save NanoPi R5C software clock";
+      r5c-hwclock-save = {
+        description = "Save system clock to hardware RTC";
         serviceConfig = {
           Type = "oneshot";
-          ExecStart = saveClock;
+          ExecStart = "${hwclock} -w --utc";
         };
       };
       r5c-leds = {
@@ -206,13 +195,13 @@ in
         };
       };
     };
-    timers.r5c-save-clock = {
-      description = "Periodically save NanoPi R5C software clock";
+    timers.r5c-hwclock-save = {
+      description = "Periodically save system clock to hardware RTC";
       wantedBy = [ "timers.target" ];
       timerConfig = {
         OnBootSec = "5min";
         OnUnitActiveSec = "1h";
-        Unit = "r5c-save-clock.service";
+        Unit = "r5c-hwclock-save.service";
       };
     };
   };
