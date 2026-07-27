@@ -10,24 +10,25 @@
 
 真机刷卡、USB-TTL 接线和完整串口日志采集步骤见
 [`nanopi-r5c-flash-and-serial.md`](./nanopi-r5c-flash-and-serial.md)。
+其他 ARM64 开发板应从
+[`arm-board-bring-up.md`](./arm-board-bring-up.md) 的通用流程开始，不要直接复制
+本板的串口地址、U-Boot 偏移或 DTB 名称。
 
 硬件适配位于 [`nixos/hardware/nanopi-r5c/`](../../nixos/hardware/nanopi-r5c/)，
 并由 [`hosts/router/`](../../hosts/router/) 直接使用；R5C 就是正式的 `router`
 主机，不再维护额外的 `nanopi-r5c` 主机定义。
 
-## 1. 构建环境与分工
+## 1. 当前构建环境
 
-本次使用两台机器：
+当前正式镜像只需要 NixOS ARM64 构建机：
 
 | 机器 | 系统 | 用途 |
 | --- | --- | --- |
-| `zhyi@192.168.0.60` | Ubuntu | 运行官方 Armbian build framework，验证内核、DTB 和 U-Boot |
 | `root@192.168.0.50:2222` | NixOS `ml-builder` | 求值并构建最终 NixOS SD 镜像 |
 
-Armbian 构建框架依赖 Debian/Ubuntu 宿主环境。直接在 NixOS 上执行
-`./compile.sh` 会缺少 `dialog`、`fuser`、`linux-version`、`locale-gen` 等宿主工具，
-且框架不能在非 Debian/Ubuntu 系统上自动安装依赖。因此 Armbian 侧使用 Ubuntu，
-最终镜像仍由 NixOS 构建机生成。
+早期曾使用 `zhyi@192.168.0.60` 的 Ubuntu 环境运行 Armbian build framework，
+用于确认 R5C 的 DTS、U-Boot defconfig、固件版本和硬件行为。该机器和
+`armbian-build` 工作树现在都不是 NixOS 镜像的输入。
 
 配置仓库以 Git 远端为唯一同步基准。修改必须先在本地提交并 push，再由构建机
 pull；不要用 `rsync` 覆盖构建机的正式工作树。
@@ -41,7 +42,10 @@ cd /nix/src/nixos-config
 git pull --ff-only
 ```
 
-## 2. Armbian 硬件支持验证
+## 2. 历史 Armbian 硬件验证
+
+本节是适配证据和故障对照，不是当前构建步骤。删除 Ubuntu 上的 Armbian 工作树
+不会影响 `nixosConfigurations.router` 的求值或构建。
 
 Armbian 的板级配置为：
 
@@ -117,6 +121,19 @@ Btrfs 和串口支持。
 这些 Armbian 产物用于确认硬件支持和提供故障回退依据。当前 NixOS 镜像不直接
 复制 Armbian 的 Debian 包，而是使用 Nixpkgs 的 Linux 6.18、R5C DTS 和 U-Boot
 源码完成可复现构建。
+
+当前依赖边界如下：
+
+| 组件 | 当前来源 | 是否依赖 Armbian |
+| --- | --- | --- |
+| Linux kernel | `pkgs.linux_6_18` | 否 |
+| R5C DTB | Linux 6.18 源码中的上游 DTS | 否 |
+| U-Boot | `pkgs.ubootNanoPiR5S` 覆盖 R5C defconfig | 否 |
+| DDR/BL31 等固件 | Nixpkgs U-Boot derivation 声明的输入 | 否 |
+| 分区与文件系统镜像 | 本仓库 Nix 模块 | 否 |
+
+仓库配置中没有 Armbian flake input、绝对路径或构建产物引用。Armbian 只在本文的
+历史命令和哈希记录中出现。
 
 ## 3. NixOS 配置设计
 
@@ -244,12 +261,14 @@ defconfig；应分别通过串口启动来源和 Nix store 中的 U-Boot derivat
 镜像预先创建：
 
 ```text
+/nix/persistent/etc/machine-id
 /nix/persistent/etc/ssh
 /nix/var/nix/profiles/system
 /nix/nix-path-registration
 ```
 
-首次启动时生成独立的 Ed25519 SSH host key，私钥不会进入 Nix store 或镜像
+`machine-id` 在镜像中为空文件，由 systemd 首次启动写入唯一 ID。正式 router 的
+SSH host key 和 SOPS 身份从旧 router 迁移，不把私钥嵌入 Nix store 或镜像
 derivation。
 
 ## 4. 求值与构建
@@ -278,7 +297,7 @@ nix eval \
 /nix/store/85ak4s247bkimdm3xzq8xh72vq6a0wxg-nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst.drv
 ```
 
-正式构建建议放入 tmux：
+正式构建建议放入 tmux。当前正式 host 和输出名均为 `router`：
 
 ```bash
 tmux new -s r5c-build
@@ -286,7 +305,7 @@ cd /nix/src/nixos-config
 
 nix build \
   .#nixosConfigurations.router.config.system.build.sdImage \
-  --out-link result-r5c \
+  --out-link result-router-r5c \
   --print-build-logs \
   --show-trace
 ```
@@ -300,9 +319,9 @@ tmux attach -t r5c-build
 成功后检查：
 
 ```bash
-find -L result-r5c -maxdepth 3 -type f -printf '%p  %s bytes\n'
+find -L result-router-r5c -maxdepth 3 -type f -printf '%p  %s bytes\n'
 
-IMAGE="$(find -L result-r5c/sd-image -type f -name '*.img.zst' -print -quit)"
+IMAGE="$(find -L result-router-r5c/sd-image -type f -name '*.img.zst' -print -quit)"
 test -n "$IMAGE"
 readlink -f "$IMAGE"
 sha256sum "$IMAGE"
@@ -326,7 +345,7 @@ the narinfo was purged
 ```bash
 nix build \
   .#nixosConfigurations.router.config.system.build.sdImage \
-  --out-link result-r5c \
+  --out-link result-router-r5c \
   --print-build-logs \
   --show-trace \
   --option substituters \
@@ -381,20 +400,13 @@ test -d /mnt/r5c-nix/persistent/etc/ssh
 umount /mnt/r5c-boot /mnt/r5c-nix
 ```
 
-## 6. 首次启动与验收
+## 6. 启动与验收
 
-串口不方便连接时，将两个网口中的任意一个接入带 DHCP 的局域网再上电。配置会在
-所有 Ethernet 接口请求 DHCP，并尝试把两个 PCIe RTL8125 网口命名为 `lan1` 和
-`wan1`。
+当前镜像是正式 `router` 配置，不是带 DHCP 和 `.98/.99` 地址的救援 host。首次
+切换前必须先迁移旧 router 的 SSH/SOPS、ZeroTier 和 Kea 状态，并确认 WAN/LAN
+物理端口。旧 router 与 R5C 不得同时使用 `192.168.0.1`。
 
-通过路由器租约查找地址，或尝试：
-
-```bash
-ping nanopi-r5c.local
-ssh -p 2222 root@nanopi-r5c.local
-```
-
-也可以使用 22 端口或实际 DHCP 地址。登录后检查：
+切换后从 LAN 侧通过串口或正式地址登录并检查：
 
 ```bash
 hostname
@@ -427,17 +439,20 @@ readlink -f /nix/var/nix/profiles/system
 - SSH host key 位于持久目录；
 - 冷启动后仍能找到 system closure 并正常进入系统。
 
-## 7. 尚待真机确认
+## 7. 已验证状态与切换前检查
 
-镜像构建成功不等于硬件验收完成。首次刷写后仍需确认：
+已在真机确认：
 
-- U-Boot 能从目标介质启动并读取 extlinux；
-- Linux 6.18 的 R5C DTB 与整机硬件版本匹配；
-- 两个 RTL8125 网口的 PCI 路径和 `lan1`/`wan1` 命名正确；
-- TF、eMMC、NVMe（如安装）工作正常；
-- 重启和完全断电后的冷启动正常；
-- 无串口条件下可持续通过 DHCP、mDNS 和 SSH 找回设备。
+- Nixpkgs U-Boot 可从 TF 和 eMMC 读取 extlinux；
+- Linux 6.18、R5C DTB、initrd 和真实 systemd 可以启动；
+- `/` 为 tmpfs，`/boot` 为 FAT32，`/nix` 为 Btrfs；
+- RTL8125 可以 2.5 Gbps 建立链路；
+- 修复持久化 `machine-id` 后，D-Bus、DHCP 和交互延迟正常；
+- eMMC 可独立冷启动，不依赖原 OpenWrt 系统。
 
-首次启动稳定后，再按[新主机接入规范](../getting-started/new-host-standard.md)补正式 host key、
-SOPS recipient、固定网络身份和后续服务，不能把首次启动自动生成的密钥遗漏在
-正式 secrets 流程之外。
+正式替换 router 前仍需完成：
+
+- 确认两个物理网口与 `eth0` WAN、`eth1` LAN 的对应关系；
+- 迁移旧 router 的 SSH host keys、SOPS 身份、ZeroTier identity 和 Kea leases；
+- 在 ARM64 构建机完成 `nixosConfigurations.router` 求值与构建；
+- 断开旧 router 后启用 `192.168.0.1`，验证 PPPoE、DHCP、DNS、NAT 和监控。

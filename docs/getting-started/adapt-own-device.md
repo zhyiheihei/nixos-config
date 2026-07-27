@@ -2,6 +2,8 @@
 
 这是第一次阅读本仓库时的入口说明；真正的安装与接入约束以
 [新主机接入规范](./new-host-standard.md) 和根目录 [`AGENTS.md`](../../AGENTS.md) 为准。
+ARM 开发板还应先阅读
+[ARM 开发板 NixOS 适配手册](../hardware/arm-board-bring-up.md)。
 
 ## 先确认三件事
 

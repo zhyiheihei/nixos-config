@@ -10,7 +10,7 @@
 
 ```text
 /nix/src/nixos-config
-/nix/src/nixos-config/result-r5c
+/nix/src/nixos-config/result-router-r5c
 ```
 
 构建并检查镜像：
@@ -20,10 +20,10 @@ cd /nix/src/nixos-config
 
 nix build \
   .#nixosConfigurations.router.config.system.build.sdImage \
-  --out-link result-r5c \
+  --out-link result-router-r5c \
   --print-build-logs
 
-IMAGE=/nix/src/nixos-config/result-r5c/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst
+IMAGE=/nix/src/nixos-config/result-router-r5c/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst
 test -f "$IMAGE"
 zstd --test "$IMAGE"
 sha256sum "$IMAGE"
@@ -66,7 +66,7 @@ diskutil unmountDisk /dev/disk4
 set -o pipefail
 
 ssh -A -p 2222 root@192.168.0.50 \
-  'zstd -dc /nix/src/nixos-config/result-r5c/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst' |
+  'zstd -dc /nix/src/nixos-config/result-router-r5c/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst' |
   sudo dd of=/dev/rdisk4 bs=8m
 ```
 
