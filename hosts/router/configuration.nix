@@ -9,6 +9,7 @@
     ./hardware-configuration.nix
     ./networking.nix
     ./prometheus.nix
+    ./wifi.nix
 
     ../../nixos/common-apps/coredns.nix
     ../../nixos/client-components/multicast-dns.nix
