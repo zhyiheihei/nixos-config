@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   LT,
   config,
@@ -20,7 +21,7 @@
       kmscon.enable = false;
     };
 
-    cursor = {
+    cursor = lib.mkIf (LT.this.hasTag LT.tags.client) {
       package = pkgs.nur-xddxdd.sam-toki-mouse-cursors;
       name = "STMCS_601_Genshin_Furina";
       size = 32;
