@@ -66,7 +66,7 @@ diskutil unmountDisk /dev/disk4
 set -o pipefail
 
 ssh -A -p 2222 root@192.168.0.50 \
-  'zstd -dc /nix/src/nixos-config/result-router-r5c/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst' |
+  'zstd -dc /nix/src/nixos-config/result-opi5p/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst' |
   sudo dd of=/dev/rdisk4 bs=8m
 ```
 
