@@ -100,6 +100,7 @@ in
     kernelModules = [
       "ledtrig_netdev"
       "r8125"
+      "rtc_rk808"
     ];
     kernelParams = [
       # The uart8250 earlycon parser must not be given the baud rate here; doing
@@ -160,6 +161,7 @@ in
       r5c-hwclock-restore = {
         description = "Restore system clock from hardware RTC";
         wantedBy = [ "multi-user.target" ];
+        after = [ "systemd-modules-load.service" ];
         before = [ "ntpd-rs.service" ];
         serviceConfig = {
           Type = "oneshot";
