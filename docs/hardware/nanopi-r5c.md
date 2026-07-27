@@ -198,6 +198,24 @@ fileSystems."/nix".neededForBoot = true;
 因此 R5C 将其禁用。首次启动验收成功后，应明确扩展第 2 分区，再执行
 `btrfs filesystem resize max /nix`。
 
+### 早期串口诊断
+
+R5C 的调试串口使用 3.3 V TTL、1500000 baud。若 U-Boot 已读取 kernel、initrd
+和 R5C DTB，但在 `Starting kernel ...` 后立即重新出现 DDR training，则设备在
+Linux 注册普通 console 之前发生了硬复位。配置保留以下参数以捕获内核入口阶段
+的日志：
+
+```text
+earlycon=uart8250,mmio32,0xfe660000,1500000
+keep_bootcon
+ignore_loglevel
+console=ttyS2,1500000
+```
+
+设备 eMMC 中原有的 OpenWrt U-Boot 可能显示 `Model: Easepi RK3568 Board`，并从
+SD 卡第 1 分区加载 NixOS。这不代表 Nix 构建的 U-Boot 产物使用了 Easepi
+defconfig；应分别通过串口启动来源和 Nix store 中的 U-Boot derivation 判断。
+
 镜像预先创建：
 
 ```text
