@@ -6,9 +6,22 @@
   ...
 }:
 let
-  ubootNanoPiR5C = pkgs.ubootNanoPiR5S.override {
-    defconfig = "nanopi-r5c-rk3568_defconfig";
-  };
+  # Keep the complete Armbian-tested RK3568 boot chain together. Building the
+  # same defconfig with newer rkbin firmware produced a bootloader that reached
+  # Linux but reproducibly stalled during early device initialization.
+  ubootNanoPiR5C = pkgs.runCommand "armbian-uboot-nanopi-r5c-2026.01" {
+    nativeBuildInputs = [ pkgs.dpkg ];
+  } ''
+    dpkg-deb -x \
+      ${./firmware/linux-u-boot-nanopi-r5c-current_26.08.0-trunk_arm64.deb} \
+      unpack
+    install -Dm0644 \
+      unpack/usr/lib/linux-u-boot-current-nanopi-r5c/idbloader.img \
+      "$out/idbloader.img"
+    install -Dm0644 \
+      unpack/usr/lib/linux-u-boot-current-nanopi-r5c/u-boot.itb \
+      "$out/u-boot.itb"
+  '';
 in
 {
   imports = [

@@ -201,6 +201,11 @@ console=ttyS2,1500000n8
 主机是否导入了 `nixos/hardware/disable-watchdog.nix`。R5C 当前需要禁用公共
 minimal 配置中的运行时硬件 watchdog。
 
+如果启动日志显示 U-Boot 2026.04、DDR v1.23/1056 MHz 和 BL31 v1.45，随后每次
+都停在 Linux 约 3.16 秒且没有出现 `mmcblk`，说明镜像写入了未经实机验证的
+Nixpkgs 启动链。仓库中的 R5C 镜像应写入 `hosts/nanopi-r5c/firmware/` 固定的
+Armbian U-Boot 2026.01、DDR v1.21/1560 MHz 和 BL31 v1.44。
+
 如果显示：
 
 ```text
