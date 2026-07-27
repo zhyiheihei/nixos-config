@@ -53,7 +53,7 @@ in
   # closes TLS connections from the current proxy exit, so fetch Go modules
   # directly from their repositories instead.
   systemd.services.nix-daemon.environment = {
-    GOPROXY = "direct";
+    GOPROXY = "https://goproxy.cn,direct";
     HTTP_PROXY = "http://192.168.0.51:7892";
     HTTPS_PROXY = "http://192.168.0.51:7892";
     NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
