@@ -42,8 +42,14 @@ pkgs.stdenv.mkDerivation {
     cp ${closureInfo}/registration rootImage/nix-path-registration
 
     touch "$img"
-    faketime -f "1970-01-01 00:00:01" \
-      fakeroot mkfs.btrfs -L ${volumeLabel} -U ${uuid} -r rootImage --shrink "$img"
+    # Run chown and mkfs in the same fakeroot session.  Otherwise mkfs records
+    # the sandbox builder's uid/gid in the image, which later makes security
+    # checks such as logrotate's reject files from /nix/store.
+    fakeroot sh -eu -c '
+      chown -R 0:0 rootImage
+      faketime -f "1970-01-01 00:00:01" \
+        mkfs.btrfs -L ${volumeLabel} -U ${uuid} -r rootImage --shrink "$1"
+    ' -- "$img"
     btrfs check "$img"
 
     ${lib.optionalString compressImage ''
