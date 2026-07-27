@@ -24,26 +24,27 @@
   systemd.network = {
     enable = true;
 
-    # Give the two PCIe RTL8125 NICs stable names using their observed paths.
-    links = {
-      "10-r5c-lan" = {
-        matchConfig.Path = "pci-0001:11:00.0";
-        linkConfig.Name = "lan1";
+    # Installation/rescue image: keep DHCP but also give each physical port a
+    # fixed address outside the router's DHCP pool. This guarantees SSH access
+    # without a serial console regardless of which port is connected.
+    networks = {
+      "20-r5c-eth0" = {
+        matchConfig.Name = "eth0";
+        address = [ "192.168.0.98/24" ];
+        networkConfig = {
+          DHCP = "yes";
+          IPv6AcceptRA = true;
+          MulticastDNS = true;
+        };
       };
-      "10-r5c-wan" = {
-        matchConfig.Path = "pci-0002:21:00.0";
-        linkConfig.Name = "wan1";
-      };
-    };
-
-    # Blind first boot: request DHCP on every Ethernet interface so either
-    # physical port can provide SSH access.
-    networks."20-wired-dhcp" = {
-      matchConfig.Type = "ether";
-      networkConfig = {
-        DHCP = "yes";
-        IPv6AcceptRA = true;
-        MulticastDNS = true;
+      "20-r5c-eth1" = {
+        matchConfig.Name = "eth1";
+        address = [ "192.168.0.99/24" ];
+        networkConfig = {
+          DHCP = "yes";
+          IPv6AcceptRA = true;
+          MulticastDNS = true;
+        };
       };
     };
   };
