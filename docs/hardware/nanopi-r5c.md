@@ -154,7 +154,9 @@ Rockchip 引导文件写入整盘镜像的固定偏移：
 | `idbloader.img` | 64 | 32 KiB |
 | `u-boot.itb` | 16384 | 8 MiB |
 
-镜像第一分区从 16 MiB 开始，避免覆盖两个引导载荷。
+镜像第一分区从 16 MiB 开始，避免覆盖两个引导载荷。`FIRMWARE` 分区固定为
+256 MiB；当前约 61 MiB 的 kernel Image 和 24 MiB 的 initrd 无法放入 Nixpkgs
+默认的 30 MiB firmware 分区。
 
 ### 文件系统
 
