@@ -11,18 +11,16 @@ let
   # No defconfig override is needed.
   inherit (pkgs) ubootOrangePi5Plus;
 
-  # Kernel built with Armbian's proven RK3588 config (linuxManualConfig).
-  # Approach follows gnull/nixos-rk3588: use the exact config that Armbian
-  # validates for this board, avoiding defconfig + generate-config.pl entirely.
+  # Use Armbian's proven RK3588 config as the platform baseline, same
+  # approach as nanopi-r5c: linux_6_18.override { configfile }.
+  # This produces a standard multi-output kernel (out/dev/modules) so
+  # out-of-tree modules (cryptodev, nullfsvfs, etc.) can find kernel.dev.
   # Source: armbian-build/config/kernel/linux-rockchip-rk3588-current.config
   # Already includes: DRM_PANTHOR=m, ANDROID_BINDER_IPC=y, ANDROID_BINDERFS=y,
   # DMABUF_HEAPS=y, PSI=y, IKCONFIG=y, STMMAC/DWMAC_ROCKCHIP=y, R8169=m,
   # BTRFS/EXT4/VFAT=y, MMC_SDHCI_OF_DWCMSHC=y, NVME_CORE=y.
-  opi5pKernel = pkgs.linuxManualConfig {
-    inherit (pkgs.linux_6_18) src version modDirVersion;
+  opi5pKernel = pkgs.linux_6_18.override {
     configfile = ./kernel-config;
-    config = import ./kernel-config.nix;
-    kernelPatches = [];
   };
 
   savedClock = "/nix/persistent/var/lib/opi5p-clock/epoch";
