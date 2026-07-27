@@ -11,34 +11,18 @@ let
   # No defconfig override is needed.
   inherit (pkgs) ubootOrangePi5Plus;
 
-  # Custom kernel for Orange Pi 5 Plus with redroid-rk3588 support.
-  # Reference: https://github.com/CNflysky/redroid-rk3588
-  opi5pKernel = pkgs.linux_6_18.override {
-    structuredExtraConfig = with lib.kernel; {
-      # ── Mali-G610 GPU (Panthor, mainline CSF driver) ──────────────
-      DRM = yes;
-      DRM_PANTHOR = module;
-
-      # ── Android Binder (redroid mandatory) ────────────────────────
-      ANDROID = yes;
-      ANDROID_BINDER_IPC = yes;
-      ANDROID_BINDERFS = yes;
-
-      # ── Pressure Stall Information (redroid mandatory) ────────────
-      PSI = yes;
-
-      # ── DMA-BUF heaps (redroid requires /dev/dma_heap/*) ──────────
-      DMABUF_HEAPS = yes;
-      DMABUF_HEAPS_SYSTEM = yes;
-      DMABUF_HEAPS_CMA = yes;
-
-      # ── 39-bit VA (redroid recommends; some apps crash on 48) ─────
-      ARM64_VA_BITS_39 = yes;
-
-      # ── Expose kernel config at /proc/config.gz ───────────────────
-      IKCONFIG = yes;
-      IKCONFIG_PROC = yes;
-    };
+  # Kernel built with Armbian's proven RK3588 config (linuxManualConfig).
+  # Approach follows gnull/nixos-rk3588: use the exact config that Armbian
+  # validates for this board, avoiding defconfig + generate-config.pl entirely.
+  # Source: armbian-build/config/kernel/linux-rockchip-rk3588-current.config
+  # Already includes: DRM_PANTHOR=m, ANDROID_BINDER_IPC=y, ANDROID_BINDERFS=y,
+  # DMABUF_HEAPS=y, PSI=y, IKCONFIG=y, STMMAC/DWMAC_ROCKCHIP=y, R8169=m,
+  # BTRFS/EXT4/VFAT=y, MMC_SDHCI_OF_DWCMSHC=y, NVME_CORE=y.
+  opi5pKernel = pkgs.linuxManualConfig {
+    inherit (pkgs.linux_6_18) src version modDirVersion;
+    configfile = ./kernel-config;
+    config = import ./kernel-config.nix;
+    kernelPatches = [];
   };
 
   savedClock = "/nix/persistent/var/lib/opi5p-clock/epoch";
@@ -53,6 +37,22 @@ let
       date --utc --set="@$(cat ${savedClock})"
     fi
   '';
+
+  # Mali-G610 CSF firmware required by the Panthor GPU driver.
+  # Only pull the specific firmware files instead of the full 500 MB+
+  # linux-firmware package.
+  maliFirmware = pkgs.runCommand "mali-g610-firmware" {} ''
+    fw=${pkgs.linux-firmware}
+    mkdir -p $out/lib/firmware/arm/mali/arch10.8
+    for f in $fw/lib/firmware/arm/mali/arch10.8/*; do
+      cp -L "$f" $out/lib/firmware/arm/mali/arch10.8/ 2>/dev/null || true
+    done
+    # Also provide the legacy path some drivers expect
+    mkdir -p $out/lib/firmware
+    for f in $fw/lib/firmware/mali_csffw*.bin; do
+      cp -L "$f" $out/lib/firmware/ 2>/dev/null || true
+    done
+  '';
 in
 {
   imports = [
@@ -63,14 +63,13 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 
   boot = {
-    initrd.availableKernelModules = [
-      "mmc_block"
-      "nvme"
-      "r8169"
-      "sdhci_of_dwcmshc"
-    ];
+    # With the Armbian-based config, storage drivers (MMC_SDHCI_OF_DWCMSHC,
+    # NVME_CORE, BTRFS, EXT4, VFAT) are all builtin (=y).  Only network
+    # modules are needed in the initrd for remote root scenarios.
+    initrd.availableKernelModules = [ "r8169" ];
     initrd.kernelModules = [ "r8169" ];
     kernelModules = [
+      "dwmac_motorcomm"
       "panthor"
       "r8169"
     ];
@@ -99,8 +98,7 @@ in
   # remain available on ARM, just as on lt-rpi4 and nanopi-r5c.
   lantian.kernel = lib.mkForce opi5pKernel;
 
-  # Mali-G610 CSF firmware required by the Panthor GPU driver.
-  hardware.firmware = [ pkgs.linux-firmware ];
+  hardware.firmware = [ maliFirmware ];
 
   hardware.deviceTree = {
     name = "rockchip/rk3588-orangepi-5-plus.dtb";
