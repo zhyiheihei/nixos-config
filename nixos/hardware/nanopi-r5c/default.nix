@@ -11,6 +11,18 @@ let
   ubootNanoPiR5C = pkgs.ubootNanoPiR5S.override {
     defconfig = "nanopi-r5c-rk3568_defconfig";
   };
+  savedClock = "/nix/persistent/var/lib/r5c-clock/epoch";
+  saveClock = pkgs.writeShellScript "r5c-save-clock" ''
+    install -d -m 0700 "$(dirname ${savedClock})"
+    date +%s > ${savedClock}.new
+    chmod 0600 ${savedClock}.new
+    mv ${savedClock}.new ${savedClock}
+  '';
+  restoreClock = pkgs.writeShellScript "r5c-restore-clock" ''
+    if test -s ${savedClock}; then
+      date --utc --set="@$(cat ${savedClock})"
+    fi
+  '';
 in
 {
   imports = [
@@ -59,6 +71,43 @@ in
     name = "rockchip/rk3568-nanopi-r5c.dtb";
     # Follow lt-rpi4: only copy DTBs for the target board into /boot.
     filter = "rk3568-nanopi-r5c.dtb";
+  };
+
+  # RK3568 boards may return to a firmware timestamp after losing power.  Keep
+  # a coarse clock on persistent storage so TLS works while ntpd-rs gathers
+  # enough agreeing sources to perform its precise startup correction.
+  systemd = {
+    services = {
+      r5c-restore-clock = {
+        description = "Restore NanoPi R5C software clock";
+        wantedBy = [ "multi-user.target" ];
+        before = [ "ntpd-rs.service" ];
+        requiredBy = [ "ntpd-rs.service" ];
+        unitConfig.RequiresMountsFor = [ "/nix/persistent" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = restoreClock;
+          ExecStop = saveClock;
+        };
+      };
+      r5c-save-clock = {
+        description = "Save NanoPi R5C software clock";
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = saveClock;
+        };
+      };
+    };
+    timers.r5c-save-clock = {
+      description = "Periodically save NanoPi R5C software clock";
+      wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnBootSec = "5min";
+        OnUnitActiveSec = "1h";
+        Unit = "r5c-save-clock.service";
+      };
+    };
   };
 
   fileSystems = {
