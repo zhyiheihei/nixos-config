@@ -115,7 +115,7 @@ friendlyarm,nanopi-r5c
 rockchip,rk3568
 ```
 
-Armbian 内核配置已确认包含 Rockchip、MMC、PCIe、DWMAC/STMMAC、RTL8169、ext4、
+Armbian 内核配置已确认包含 Rockchip、MMC、PCIe、DWMAC/STMMAC、RTL8125、ext4、
 Btrfs 和串口支持。
 
 这些 Armbian 产物用于确认硬件支持和提供故障回退依据。当前 NixOS 镜像不直接
@@ -253,6 +253,47 @@ Tegra/QEMU 的 `ttyS0`、`ttyAMA0`；与 R5C 的 `ttyS2` 并存后，只能依�
 
 实机枚举出的两个 RTL8125 PCIe 路径分别为 `pci-0001:11:00.0` 和
 `pci-0002:21:00.0`，systemd `.link` 规则应使用这两个路径。
+
+### 网卡驱动
+
+R5C 的两个 RTL8125 网口使用 Realtek 官方 `r8125` out-of-tree 驱动（已在
+`nixos/minimal-components/kernel.nix` 的 `boot.extraModulePackages` 中全局启用），
+主线 `r8169` 通过 `boot.blacklistedKernelModules` 禁止加载，避免抢占设备。
+
+```nix
+boot.kernelModules = [ "r8125" ];
+boot.blacklistedKernelModules = [ "r8169" ];
+```
+
+initrd 不包含任何网络驱动：`/nix` 是本地 Btrfs，initrd 无需网络即可找到 closure。
+
+### RTC 与时钟
+
+RK3568 没有内置 RTC。R5C 板载 RK808 PMIC RTC（`/dev/rtc0`）和 HYM8563 外置 RTC
+（`/dev/rtc1`，有 CR1220 电池接口但未安装电池）。RK808 RTC 靠电容能维持短时间
+断电，长时间断电后重置。
+
+时钟恢复机制（`nixos/hardware/nanopi-r5c/default.nix`）：
+
+- `rtc_rk808` 加入 `boot.kernelModules`，确保 RTC 驱动在 `systemd-modules-load`
+  阶段加载，远早于 `multi-user.target`。
+- `r5c-hwclock-restore` 服务在 `ntpd-rs` 之前执行 `hwclock -s --utc`，从 RTC
+  恢复系统时钟。
+- `r5c-hwclock-save` 定时器每小时执行 `hwclock -w --utc`，将系统时钟写回 RTC，
+  保持 RTC 时间准确。
+- `ntpd-rs` 联网后执行精确校时。
+
+### 状态 LED
+
+板载 4 个 GPIO LED：`red:power`、`green:lan`、`green:wan`、`green:wlan`。
+`r5c-leds` 服务在 `wlan0` 设备就绪后配置触发器：
+
+- `red:power`：`default-on`（heartbeat 触发器在此板不驱动亮度）
+- `green:lan`：netdev 触发器，关联 `eth0`
+- `green:wan`：netdev 触发器，关联 `eth1`
+- `green:wlan`：netdev 触发器，关联 `wlan0`
+
+RJ45 网口插座本身的 PHY 指示灯由 r8125 驱动在 probe 时初始化，无需软件配置。
 
 设备 eMMC 中原有的 OpenWrt U-Boot 可能显示 `Model: Easepi RK3568 Board`，并从
 SD 卡第 1 分区加载 NixOS。这不代表 Nix 构建的 U-Boot 产物使用了 Easepi
@@ -447,7 +488,11 @@ readlink -f /nix/var/nix/profiles/system
 - Nixpkgs U-Boot 可从 TF 和 eMMC 读取 extlinux；
 - Linux 6.18、R5C DTB、initrd 和真实 systemd 可以启动；
 - `/` 为 tmpfs，`/boot` 为 FAT32，`/nix` 为 Btrfs；
-- RTL8125 可以 2.5 Gbps 建立链路；
+- r8125 驱动正常加载，两个 RTL8125 网口以 2.5 Gbps 建立链路；
+- `hwclock -s --utc` 在 `rtc_rk808` 早期加载后成功从 RTC 恢复系统时钟；
+- `ntpd-rs` 联网后精确校时，无失败服务；
+- WiFi（MT7921）通过 hostapd 提供 `moli-rk-wifi` AP，加入 br-lan 桥接；
+- 板载状态 LED（red:power、green:lan、green:wan、green:wlan）正常工作；
 - 修复持久化 `machine-id` 后，D-Bus、DHCP 和交互延迟正常；
 - eMMC 可独立冷启动，不依赖原 OpenWrt 系统。
 
