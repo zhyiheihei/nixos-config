@@ -222,6 +222,11 @@ R5C 还必须导入 `nixos/hardware/disable-watchdog.nix`。公共 minimal 配�
 20 秒运行时硬件 watchdog；该 watchdog 在此板上会造成系统完成启动、网卡建立
 链路后约 20 秒无日志硬复位。
 
+镜像必须使用 `hosts/nanopi-r5c/firmware/` 中固定的 Armbian 启动载荷。实机测试
+中，Nixpkgs 构建的 U-Boot 2026.04 搭配 DDR v1.23 和 BL31 v1.45 能进入 Linux，
+但会稳定停在内核约 3.16 秒、MMC 初始化之前；Armbian U-Boot 2026.01 搭配 DDR
+v1.21 和 BL31 v1.44 可以完整启动相同的 NixOS 6.18.37 内核及系统。
+
 设备 eMMC 中原有的 OpenWrt U-Boot 可能显示 `Model: Easepi RK3568 Board`，并从
 SD 卡第 1 分区加载 NixOS。这不代表 Nix 构建的 U-Boot 产物使用了 Easepi
 defconfig；应分别通过串口启动来源和 Nix store 中的 U-Boot derivation 判断。
