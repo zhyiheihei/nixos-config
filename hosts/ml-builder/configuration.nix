@@ -47,6 +47,21 @@ in
 
   networking.networkmanager.enable = lib.mkForce false;
 
+  # Fixed-output derivations are allowed to inherit these variables from the
+  # multi-user Nix daemon.  Route public fetches through MetaCubeXD while
+  # keeping LAN caches and internal services direct.  The upstream Go proxy
+  # closes TLS connections from the current proxy exit, so fetch Go modules
+  # directly from their repositories instead.
+  systemd.services.nix-daemon.environment = {
+    GOPROXY = "direct";
+    HTTP_PROXY = "http://192.168.0.51:7892";
+    HTTPS_PROXY = "http://192.168.0.51:7892";
+    NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
+    http_proxy = "http://192.168.0.51:7892";
+    https_proxy = "http://192.168.0.51:7892";
+    no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
+  };
+
   services.openssh.settings.MaxStartups = "64:30:128";
 
   programs.ssh.extraConfig = lib.mkBefore ''
