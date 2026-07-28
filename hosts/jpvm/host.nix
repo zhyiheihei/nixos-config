@@ -7,6 +7,7 @@
 {
   index = 117;
   tags = with tags; [
+    cn-accel
     dn42
     low-disk
     low-ram
