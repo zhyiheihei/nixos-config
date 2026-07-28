@@ -11,15 +11,13 @@ let
   ubootNanoPiR5C = pkgs.ubootNanoPiR5S.override {
     defconfig = "nanopi-r5c-rk3568_defconfig";
   };
-  # Use Armbian's Rockchip 6.18 config as the platform baseline instead of
-  # Nixpkgs' very broad arm64 config.  The baseline was checked against the
-  # R5C/R5S DTS compatibles and the modules used by the running router.  NixOS
-  # storage, networking, namespaces and firewall requirements remain enabled.
-  r5cKernel = pkgs.linux_6_18.override {
-    enableCommonConfig = false;
-    # Nixpkgs' generic kernel builder expects legacy "OPTION value" lines,
-    # mechanically converted from the audited Armbian .config kept beside it.
-    extraConfig = builtins.readFile ./kernel-extra-config;
+  # Build the upstream kernel with the resolved Rockchip configuration
+  # directly.  Feeding a complete .config through generic.nix's question
+  # generator is lossy for selected/hidden symbols; linuxManualConfig preserves
+  # the olddefconfig result and still provides out/dev/modules outputs.
+  r5cKernel = pkgs.linuxManualConfig {
+    inherit (pkgs.linux_6_18) src version modDirVersion;
+    configfile = ./kernel-config;
   };
   # The installed MT7921 requests only these six blobs.  Copy their contents
   # instead of retaining the complete linux-firmware package (roughly 800 MiB)
@@ -149,6 +147,10 @@ in
   hardware = {
     enableRedistributableFirmware = lib.mkForce false;
     firmware = [ mt7921Firmware ];
+    # The MT7921 combo card provides both WiFi and Bluetooth.  Kernel modules
+    # (btusb, bluetooth) load automatically; this starts bluetoothd so the
+    # adapter is usable for BLE mesh, smart-home gateways, etc.
+    bluetooth.enable = true;
   };
 
   hardware.deviceTree = {
