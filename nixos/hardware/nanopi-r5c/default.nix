@@ -3,9 +3,19 @@
   lib,
   modulesPath,
   pkgs,
+  self,
   ...
 }:
 let
+  # The host configuration is evaluated with native aarch64 packages.  On an
+  # x86_64 builder that makes Nix execute the complete ARM64 GCC toolchain
+  # through qemu-user.  Build the large kernel derivation with a real cross
+  # toolchain instead: compiler processes run natively on x86_64 and emit
+  # aarch64 objects.  The resulting kernel still has aarch64-linux as its host
+  # platform and can be used by the otherwise unchanged system closure.
+  crossPkgs =
+    self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
+
   # NanoPi R5C and R5S share the RK3568 boot layout; select the board-specific
   # upstream defconfig while retaining the Nixpkgs U-Boot package structure.
   ubootNanoPiR5C = pkgs.ubootNanoPiR5S.override {
@@ -15,8 +25,8 @@ let
   # directly.  Feeding a complete .config through generic.nix's question
   # generator is lossy for selected/hidden symbols; linuxManualConfig preserves
   # the olddefconfig result and still provides out/dev/modules outputs.
-  r5cKernel = pkgs.linuxManualConfig {
-    inherit (pkgs.linux_6_18) src version modDirVersion;
+  r5cKernel = crossPkgs.linuxManualConfig {
+    inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = ./kernel-config;
   };
   # The installed MT7921 requests only these six blobs.  Copy their contents

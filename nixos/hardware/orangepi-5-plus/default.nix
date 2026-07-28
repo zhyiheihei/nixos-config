@@ -3,9 +3,16 @@
   lib,
   modulesPath,
   pkgs,
+  self,
   ...
 }:
 let
+  # Avoid running the ARM64 GCC, assembler and linker themselves through
+  # qemu-user on x86_64 builders.  This package set runs a native x86_64 cross
+  # toolchain and produces the same aarch64-linux kernel outputs.
+  crossPkgs =
+    self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
+
   # Nixpkgs already provides a complete RK3588 boot chain for this board:
   # U-Boot 2026.04 + armTrustedFirmwareRK3588 + rkbin TPL.
   # No defconfig override is needed.
@@ -19,8 +26,8 @@ let
   # Already includes: DRM_PANTHOR=m, ANDROID_BINDER_IPC=y, ANDROID_BINDERFS=y,
   # DMABUF_HEAPS=y, PSI=y, IKCONFIG=y, STMMAC/DWMAC_ROCKCHIP=y, R8169=m,
   # BTRFS/EXT4/VFAT=y, MMC_SDHCI_OF_DWCMSHC=y, NVME_CORE=y.
-  opi5pKernel = pkgs.linuxManualConfig {
-    inherit (pkgs.linux_6_18) src version modDirVersion;
+  opi5pKernel = crossPkgs.linuxManualConfig {
+    inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = ./kernel-config;
   };
 
