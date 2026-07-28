@@ -23,7 +23,7 @@ let
     {
       recordType = "CNAME";
       name = "hydra";
-      target = "jpvm";
+      target = homeDdnsTarget;
       ttl = "1h";
     }
     {
