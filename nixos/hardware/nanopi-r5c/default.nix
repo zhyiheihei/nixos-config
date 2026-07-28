@@ -100,17 +100,14 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 
   boot = {
-    # MMC, NVMe and the RK3568 storage controllers are builtin in the trimmed
-    # Rockchip config.  The RTL8125 NIC is driven by the Realtek vendor module
-    # r8125 (already in boot.extraModulePackages via kernel.nix).  Blacklist
-    # r8169 so the vendor driver claims the device and initializes the PHY LED
-    # registers that the mainline driver leaves unconfigured.
-    blacklistedKernelModules = [ "r8169" ];
+    # Match Armbian's NanoPi R5C support and use the in-tree r8169 driver for
+    # both RTL8125 NICs.  The vendor r8125 module has repeatedly stalled its TX
+    # queue under router traffic (NETDEV WATCHDOG), taking PPPoE down with it.
     initrd.availableKernelModules = [ ];
     initrd.kernelModules = [ ];
     kernelModules = [
       "ledtrig_netdev"
-      "r8125"
+      "r8169"
       "rtc_rk808"
     ];
     kernelParams = [
