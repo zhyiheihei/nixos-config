@@ -34,7 +34,6 @@ let
       extensions = {
         packages = with pkgs.firefox-addons; [
           # keep-sorted start
-          all-api-hub
           auto-novel-addon
           awardwallet
           bilisponsorblock
@@ -46,7 +45,6 @@ let
           downthemall
           fastforwardteam
           foxyproxy-standard
-          gemini-delete-for-firefox
           i-dont-care-about-cookies
           ipfs-companion
           lovely-forks

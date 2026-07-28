@@ -25,6 +25,7 @@ in
             "electron-36.9.5"
             "electron-38.8.4"
             "electron-39.8.10"
+            "electron-40.10.5"
             "jitsi-meet-1.0.8792"
             "libsoup-2.74.3"
             "mbedtls-2.28.10"
@@ -35,12 +36,10 @@ in
           ];
           overlays = [
             # keep-sorted start
-            inputs.angrr.overlays.default
             inputs.chinese-fonts-overlay.overlays.default
             inputs.colmena.overlay
             inputs.comfyui-nix.overlays.default
             inputs.firefox-addons.overlays.default
-            inputs.llm-agents.overlays.default
             inputs.nix-alien.overlays.default
             inputs.nix-cache-proxy.overlays.default
             inputs.nur-xddxdd.overlays.inSubTree-pinnedNixpkgs

@@ -171,6 +171,23 @@ in
         ~*sqlmap          1;
       }
 
+      map $http_ssl_ja4 $tls_sig_like_bot {
+        default 0;
+        t13d1516h2_8daaf6152771_d8a2da3f94cd 1;
+      }
+
+      limit_req_zone $binary_remote_network zone=slow:10m rate=1r/s;
+      limit_req_log_level info;
+
+      port_in_redirect off;
+      absolute_redirect off;
+      server_name_in_redirect off;
+
+      charset utf-8;
+
+      lua_package_path '${luaPackage}/?.lua;;';
+    ''
+    + lib.optionalString config.lantian.geoip.enable ''
       geoip2 /etc/geoip/GeoLite2-City.mmdb {
         auto_reload 5m;
         $geoip2_continent_code continent code;
@@ -189,17 +206,6 @@ in
         $geoip2_asn_code autonomous_system_number;
         $geoip2_asn_name autonomous_system_organization;
       }
-
-      limit_req_zone $binary_remote_network zone=slow:10m rate=1r/s;
-      limit_req_log_level info;
-
-      port_in_redirect off;
-      absolute_redirect off;
-      server_name_in_redirect off;
-
-      charset utf-8;
-
-      lua_package_path '${luaPackage}/?.lua;;';
     '';
 
     streamConfig = ''

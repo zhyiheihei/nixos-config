@@ -19,6 +19,8 @@ in
     ./postgresql.nix
   ];
 
+  lantian.geoip.enable = true;
+
   sops.secrets.plausible-secret = {
     sopsFile = inputs.secrets + "/plausible.yaml";
     owner = "plausible";

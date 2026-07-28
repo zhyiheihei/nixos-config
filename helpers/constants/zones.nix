@@ -1,4 +1,5 @@
-_: {
+{ lib, ... }:
+let
   zones = {
     DN42 = [
       "dn42"
@@ -44,7 +45,13 @@ _: {
       "mnc999.mcc999.3gppnetwork.org"
     ];
     Others = [
+      # Custom overrides
       "database.azure.com"
     ];
+  };
+in
+{
+  zones = zones // {
+    all = lib.flatten (builtins.attrValues zones);
   };
 }

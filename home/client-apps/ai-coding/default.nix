@@ -4,6 +4,7 @@
   lib,
   LT,
   config,
+  inputs,
   ...
 }:
 let
@@ -33,7 +34,10 @@ let
   '';
 in
 {
-  home.packages = [ (lib.hiPrio codexWrapper) ];
+  home.packages = [
+    (lib.hiPrio codexWrapper)
+    pkgs.rtk
+  ];
 
   programs.mcp = {
     enable = true;
@@ -43,7 +47,7 @@ in
   programs.claude-code = {
     enable = true;
     enableMcpIntegration = true;
-    package = pkgs.llm-agents.claude-code;
+    package = inputs.llm-agents.packages."${pkgs.stdenv.hostPlatform.system}".claude-code;
     inherit context;
   };
 
@@ -74,9 +78,17 @@ in
   programs.opencode = {
     enable = true;
     enableMcpIntegration = true;
-    package = pkgs.llm-agents.opencode;
+    package = inputs.llm-agents.packages."${pkgs.stdenv.hostPlatform.system}".opencode;
     settings = {
       autoupdate = false;
+      provider = {
+        linuxdo-hub = {
+          npm = "@ai-sdk/openai-compatible";
+          name = "Linux.DO Hub";
+          options.baseURL = "https://hub.linux.do/v1";
+          models."glm-5.2".name = "GLM 5.2";
+        };
+      };
       permission = {
         bash = "allow";
         edit = "allow";
@@ -101,6 +113,68 @@ in
     inherit context;
   };
   xdg.configFile."opencode/opencode.json".force = true;
+
+  programs.pi-coding-agent = {
+    enable = true;
+    package = inputs.llm-agents.packages."${pkgs.stdenv.hostPlatform.system}".pi;
+    # # Not implemented correctly in home manager
+    # configDir = "${config.xdg.configHome}/pi/agent";
+    inherit context;
+
+    extraPackages = [
+      pkgs.nodejs
+      pkgs.bun
+    ];
+
+    models.providers = {
+      linuxdo-hub = {
+        api = "openai-completions";
+        baseUrl = "https://hub.linux.do/v1";
+        models = [
+          { id = "glm-5.2"; }
+        ];
+      };
+    };
+
+    settings = {
+      quietStartup = true;
+      collapseChangelog = true;
+      enableInstallTelemetry = false;
+      enableAnalytics = false;
+      defaultProvider = "ollama-cloud";
+      defaultModel = "glm-5.2";
+      defaultThinkingLevel = "high";
+      showCacheMissNotices = true;
+
+      packages = [
+        # keep-sorted start
+        "npm:@juicesharp/rpiv-ask-user-question"
+        "npm:@juicesharp/rpiv-todo"
+        "npm:@monotykamary/pi-tps"
+        "npm:pi-btw"
+        "npm:pi-codex-goal"
+        "npm:pi-fast-resume"
+        "npm:pi-lens"
+        "npm:pi-mcp-adapter"
+        "npm:pi-ollama-cloud"
+        "npm:pi-rtk-optimizer"
+        "npm:pi-simplify"
+        "npm:pi-subagents"
+        # keep-sorted end
+      ];
+    };
+  };
+  home.file.".pi/agent/mcp.json".text = builtins.toJSON {
+    settings = {
+      directTools = true;
+      disableProxyTool = true;
+      idleTimeout = 5;
+      requestTimeoutMs = 60000;
+    };
+  };
+  home.file.".pi/agent/ollama-cloud.json".text = builtins.toJSON {
+    webTools = false;
+  };
 
   programs.zed-editor = {
     enable = true;
