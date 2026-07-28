@@ -7,11 +7,11 @@
 {
   index = 117;
   tags = with tags; [
-    cn-accel
     dn42
     low-disk
     low-ram
     server
+    xray-exit
   ];
   cpuThreads = 1;
   hostname = "36.50.85.113";

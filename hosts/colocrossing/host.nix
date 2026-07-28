@@ -7,10 +7,10 @@
 {
   index = 120;
   tags = with tags; [
-    cn-accel
     dn42
     public-facing
     server
+    xray-exit
   ];
   cpuThreads = 4;
   hostname = "203.55.176.158";
