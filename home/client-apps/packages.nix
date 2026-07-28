@@ -84,6 +84,8 @@ in
         handbrake
         imagemagick
         immich-cli
+        inputs.llm-agents.packages."${pkgs.stdenv.hostPlatform.system}".agentsview
+        inputs.llm-agents.packages."${pkgs.stdenv.hostPlatform.system}".ccusage
         inputs.markdown-apa7th-docx.packages."${pkgs.stdenv.hostPlatform.system}".default
         inputs.picoforge.packages."${pkgs.stdenv.hostPlatform.system}".picoforge
         jamesdsp
@@ -99,8 +101,6 @@ in
         libfaketime
         # libreoffice-qt6-fresh
         linphone
-        llm-agents.agentsview
-        llm-agents.ccusage
         lx-music-desktop
         macchanger
         mediainfo
@@ -108,26 +108,17 @@ in
         microcom
         microfetch
         moonlight-qt
-        nur-xddxdd.adspower
-        nur-xddxdd.baidunetdisk
         nur-xddxdd.baidupcs-go
         nur-xddxdd.bambu-studio-bin
-        nur-xddxdd.bilibili
-        # Disabled temporarily: upstream v0.46.0 AppImage is mutable and currently mismatches the hash pinned in nur-xddxdd.
-        # nur-xddxdd.browseros
+        nur-xddxdd.browseros
         nur-xddxdd.cardpointers-cli
-        nur-xddxdd.command-code
-        # nur-xddxdd.dingtalk
-        nur-xddxdd.easycli
-        nur-xddxdd.epub-to-xtc-converter
         nur-xddxdd.google-earth-pro
         nur-xddxdd.gopherus
-        nur-xddxdd.kikoplay
+        nur-xddxdd.kuake-cli
         nur-xddxdd.lantianCustomized.materialgram
         nur-xddxdd.ncmdump-rs
         nur-xddxdd.qqmusic
-        # nur-xddxdd.qqsp
-        nur-xddxdd.runpodctl
+        # nur-xddxdd.runpodctl
         nur-xddxdd.space-cadet-pinball-full-tilt
         nur-xddxdd.wechat-uos-sandboxed
         nvfetcher
@@ -147,6 +138,7 @@ in
         synadm
         tigervnc
         tor-browser
+        ulauncher
         unar
         ventoy-full
         virt-manager
@@ -163,7 +155,7 @@ in
         zoom-us
         # keep-sorted end
       ]
-      ++ lib.optionals (osConfig.networking.hostName != "ml-builder") [ nur-xddxdd.svp_4_6 ]
+      ++ lib.optionals (osConfig.networking.hostName != "lt-dell-wyse") [ nur-xddxdd.svp_4_6 ]
     );
 
   programs.nix-index.enable = true;

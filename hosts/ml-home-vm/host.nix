@@ -1,4 +1,9 @@
-{ tags, geo, ... }:
+{
+  tags,
+  geo,
+  constants,
+  ...
+}:
 {
   index = 115;
   tags = with tags; [
@@ -32,6 +37,6 @@
   # BIRD's LTNET config reads dn42.region for all server hosts.
   dn42 = {
     IPv4 = "172.20.46.226";
-    region = 42;
+    region = constants.dn42.region.Asia-E;
   };
 }

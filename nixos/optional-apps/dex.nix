@@ -118,14 +118,6 @@ let
           "https://*.*.zhyi.cc/oauth2/callback"
         ];
       }
-      {
-        id = "open-webui";
-        name = "Open WebUI";
-        secret = {
-          _secret = config.sops.secrets.dex-open-webui-secret.path;
-        };
-        redirectURIs = [ "https://ai.zhyi.xin/oauth/oidc/callback" ];
-      }
       # keep-sorted end
     ];
   };
@@ -169,7 +161,6 @@ in
         "linkwarden"
         "netbox"
         "oauth2-proxy"
-        "open-webui"
         # keep-sorted end
       ]
   );
