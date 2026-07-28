@@ -1,4 +1,9 @@
-{ tags, geo, ... }:
+{
+  tags,
+  geo,
+  constants,
+  ...
+}:
 {
   index = 121;
   tags = with tags; [
@@ -17,6 +22,6 @@
   };
   dn42 = {
     IPv4 = "172.20.46.231";
-    region = 52;
+    region = constants.dn42.region.Asia-E;
   };
 }

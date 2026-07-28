@@ -18,13 +18,13 @@ UniAPI 的 Provider，否则会形成请求循环、重复计费或无法诊断�
 UniAPI
     ^                     ^
     |                     |
-Open WebUI / n8n      AxonHub / Metapi
+LibreChat / n8n       AxonHub / Metapi
 ```
 
 应用调用路径与管理网关是并列关系，不是需要逐层穿透的串联关系：
 
 ```text
-Open WebUI  ──────────────────────> ml-home-vm UniAPI ─> Provider
+LibreChat   ──────────────────────> ml-home-vm UniAPI ─> Provider
 AxonHub     ──────────────────────> ml-home-vm UniAPI ─> Provider
 Metapi      ──────────────────────> ml-home-vm UniAPI ─> Provider
 ml-home-vm UniAPI ─> n8n OpenAI Bridge (colocrossing) ─> n8n 工作流
@@ -35,7 +35,7 @@ ai-api.zhyi.cc ───────────────────> jpvm U
 `ai-api.zhyi.cc` 是 JPVM 上的独立公开 UniAPI 入口；它也从同一份 secrets Provider
 注册表导入配置，但不依赖 colocrossing 的 AxonHub 或 Metapi。
 
-Open WebUI、AxonHub、Metapi、n8n 运行在 `colocrossing`，通过 LTNET 访问
+LibreChat、AxonHub、Metapi、n8n 运行在 `colocrossing`，通过 LTNET 访问
 ml-home-vm 上的 UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI
 通过 LTNET 回调 colocrossing 上的 n8n Bridge
 （`https://n8n-bridge.colocrossing.zhyi.cc/v1`）。
@@ -45,7 +45,7 @@ ml-home-vm 上的 UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI
 | 服务 | 主机 | 作用 | 上游或依赖 |
 | --- | --- | --- | --- |
 | UniAPI | `ml-home-vm`、`jpvm` | Provider 注册表、模型别名与 OpenAI 兼容 API | 私有 `uni-api/` secrets |
-| Open WebUI | `colocrossing` | 交互式 AI 前端，使用 Dex OIDC 登录 | LTNET `uni-api.ml-home-vm.zhyi.cc` |
+| LibreChat | `colocrossing` | 交互式 AI 前端，使用 Dex OIDC 登录 | LTNET `uni-api.ml-home-vm.zhyi.cc` |
 | n8n | `colocrossing` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
 | n8n OpenAI Bridge | `colocrossing` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
 | AxonHub | `colocrossing` | 可选 AI 网关、渠道管理、观测与独立下游 API 管理 | PostgreSQL、Redis、LTNET UniAPI |
@@ -54,7 +54,7 @@ ml-home-vm 上的 UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI
 核心实现位置：
 
 - [`nixos/optional-apps/uni-api.nix`](../../nixos/optional-apps/uni-api.nix)
-- [`nixos/optional-apps/open-webui/default.nix`](../../nixos/optional-apps/open-webui/default.nix)
+- [`nixos/optional-apps/librechat.nix`](../../nixos/optional-apps/librechat.nix)
 - [`nixos/optional-apps/n8n/n8n-openai-bridge.nix`](../../nixos/optional-apps/n8n/n8n-openai-bridge.nix)
 - [`nixos/optional-apps/axonhub.nix`](../../nixos/optional-apps/axonhub.nix)
 - [`nixos/optional-apps/metapi.nix`](../../nixos/optional-apps/metapi.nix)
@@ -91,8 +91,8 @@ ml-home-vm 上的 UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI
 | --- | --- | --- |
 | `uni-api/keys.yaml` 的 `uni-api-admin-api-key` | UniAPI 管理 API；n8n Bridge 客户端；Metapi 下游代理；AxonHub/Metapi 对本机 UniAPI 的上游访问 | 不输出、不提交明文；轮换时必须同步更新两套应用内上游凭据 |
 | `uni-api/providers/` 与 `uni-api/apis/` | 外部 Provider URL、API key 与模型映射 | 只在私有 secrets 仓库按 SOPS 规范维护 |
-| `uni-api/model-config.nix` | Open WebUI 模型显示与配置 | 与 Provider 注册表一起维护 |
-| `open-webui.yaml` 的 `open-webui-env` | Open WebUI 的 OIDC client secret 与 UniAPI key 环境变量 | 保持单个环境文件 secret，不拆成未受管的明文文件 |
+| `uni-api/` Provider 注册表 | LibreChat 模型列表与 UniAPI Provider 配置 | 与 UniAPI 配置一起维护 |
+| `librechat.yaml` 与 `common/dex.yaml` | LibreChat 会话、JWT、凭据加密与 OIDC client secret | 只通过 SOPS secret 文件注入 |
 | `n8n.yaml` | n8n runner/API 认证 | Bridge 只读取其所需的 token，不能输出或复制到普通配置 |
 
 轮换 `uni-api-admin-api-key` 的正确顺序：
@@ -107,7 +107,7 @@ ml-home-vm 上的 UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI
 
 ## 维护规则
 
-- **不要改主调用路径。** Open WebUI 的 `OPENAI_API_BASE_URL` 直接指向 LTNET 上的
+- **不要改主调用路径。** LibreChat 的自定义 UniAPI endpoint 直接指向 LTNET 上的
   UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）；n8n Bridge 作为 `lantian.llm-providers`
   的 `n8n` Provider 被 UniAPI 通过 `https://n8n-bridge.colocrossing.zhyi.cc/v1` 调用。两者都
   不能改为 AxonHub 或 Metapi，除非明确迁移整个调用契约并单独验证。
@@ -126,7 +126,7 @@ ml-home-vm 上的 UniAPI（`https://uni-api.ml-home-vm.zhyi.cc/v1`）。UniAPI
 以下命令在 `colocrossing` 以 root 执行；只验证，不打印密钥：
 
 ```bash
-systemctl is-active axonhub metapi n8n n8n-openai-bridge open-webui
+systemctl is-active axonhub librechat metapi n8n n8n-openai-bridge
 
 curl -fsS \
   -H "Authorization: Bearer $(cat /run/secrets/uni-api-admin-api-key)" \

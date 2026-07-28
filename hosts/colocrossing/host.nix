@@ -1,4 +1,9 @@
-{ tags, geo, ... }:
+{
+  tags,
+  geo,
+  constants,
+  ...
+}:
 {
   index = 120;
   tags = with tags; [
@@ -20,7 +25,7 @@
 
   dn42 = {
     IPv4 = "172.20.46.230";
-    region = 52;
+    region = constants.dn42.region.Asia-SE;
   };
 
   additionalRoutes = [

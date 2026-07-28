@@ -23,13 +23,14 @@
     ../../nixos/optional-apps/gitea-actions.nix
     ../../nixos/optional-apps/imapfilter.nix
     ../../nixos/optional-apps/lemmy.nix
+    ../../nixos/optional-apps/librechat.nix
     ../../nixos/optional-apps/maddy.nix
     ../../nixos/optional-apps/matrix-synapse
     ../../nixos/optional-apps/metapi.nix
     ../../nixos/optional-apps/miniflux.nix
     ../../nixos/optional-apps/n8n
     ../../nixos/optional-apps/netbox.nix
-    ../../nixos/optional-apps/open-webui
+    ../../nixos/optional-apps/nginx-api.nix
     ../../nixos/optional-apps/plausible.nix
     ../../nixos/optional-apps/prometheus
     ../../nixos/optional-apps/pyison
