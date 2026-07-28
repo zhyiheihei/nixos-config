@@ -58,6 +58,20 @@
       group = "root";
     };
 
+    # The mixed port is published on the host LAN address. Some subscriptions
+    # explicitly disable LAN access, which makes mihomo bind only inside the
+    # container and leaves the published port accepting no connections.
+    systemd.services.podman-metacubexd.preStart = lib.mkBefore ''
+      for profile in \
+        "${config.lantian.metacubexd.storage}/active.yaml" \
+        "${config.lantian.metacubexd.storage}"/profiles/*.yaml
+      do
+        if [ -f "$profile" ]; then
+          sed -i 's/^allow-lan:[[:space:]]*false[[:space:]]*$/allow-lan: true/' "$profile"
+        fi
+      done
+    '';
+
     lantian.nginxVhosts = {
       "metacubexd.${config.networking.hostName}.zhyi.cc" = {
         locations = {
