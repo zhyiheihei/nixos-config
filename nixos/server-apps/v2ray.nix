@@ -101,7 +101,7 @@ let
     };
   };
 in
-lib.mkIf (LT.this.hasTag LT.tags.cn-accel) {
+lib.mkIf (LT.this.hasTag LT.tags.xray-exit) {
   sops.secrets.v2ray-key = {
     sopsFile = inputs.secrets + "/common/v2ray.yaml";
     owner = "nginx";

@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   ...
 }:
 let
@@ -13,6 +14,8 @@ let
   };
 in
 {
+  sops.secrets.v2ray-key.sopsFile = inputs.secrets + "/common/v2ray.yaml";
+
   # The subscription is static apart from the VLESS UUID. Rendering it through
   # SOPS avoids keeping Wrangler's development runtime and file watcher alive.
   sops.templates."worker-vless2sub-mihomo.yaml" = {
