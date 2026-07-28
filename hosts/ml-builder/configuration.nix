@@ -1,18 +1,11 @@
 {
+  config,
   inputs,
   lib,
   pkgs,
   LT,
   ...
 }:
-let
-  adminSSHKeys = import (inputs.secrets + "/ssh/zhyi.nix");
-  deploySSHKey = lib.findFirst
-    (key: lib.hasSuffix " github-bot" key)
-    (throw "github-bot SSH public key not found")
-    adminSSHKeys;
-  deploySSHKeyFile = pkgs.writeText "github-bot.pub" "${deploySSHKey}\n";
-in
 {
   imports = [
     ../../nixos/minimal.nix
@@ -33,6 +26,14 @@ in
     ../../nixos/optional-apps/opencl.nix
     ../../nixos/optional-apps/picoclaw.nix
   ];
+
+  sops.secrets.ml-builder-distributed-ssh-key = {
+    sopsFile = inputs.secrets + "/hydra.yaml";
+    key = "hydra-ssh-privkey";
+    mode = "0400";
+  };
+  lantian.nix-distributed.sshKeyPath =
+    config.sops.secrets.ml-builder-distributed-ssh-key.path;
 
   systemd.network.networks.eth0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
@@ -84,12 +85,6 @@ in
   };
 
   services.openssh.settings.MaxStartups = "64:30:128";
-
-  programs.ssh.extraConfig = lib.mkBefore ''
-    Host *.zhyi.cc
-      IdentityFile ${deploySSHKeyFile}
-      IdentitiesOnly yes
-  '';
 
   environment.systemPackages = with pkgs; [
     age
