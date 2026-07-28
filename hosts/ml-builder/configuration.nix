@@ -84,6 +84,11 @@
     no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
   };
 
+  # Let the existing zstd zram swap absorb compiler memory spikes.  The
+  # generic nix-builder policy sets this to 0, which leaves swap idle until
+  # allocations are already failing.
+  boot.kernel.sysctl."vm.swappiness" = lib.mkForce 100;
+
   services.openssh.settings.MaxStartups = "64:30:128";
 
   environment.systemPackages = with pkgs; [
@@ -92,5 +97,6 @@
     sops
     ssh-to-age
     tmux
+    btop
   ];
 }
