@@ -19,10 +19,6 @@ in
       type = lib.types.listOf lib.types.str;
       default = [ ];
     };
-    cnAction = lib.mkOption {
-      type = lib.types.str;
-      default = "unblock_cn";
-    };
     intlAction = lib.mkOption {
       type = lib.types.str;
       default = "must_direct";
@@ -58,7 +54,6 @@ in
 
         node {
           v2ray: "socks5://localhost:${LT.portStr.V2Ray.SocksClient}"
-          v2ray_unblock_cn: "socks5://localhost:${LT.portStr.V2Ray.UnblockCNClient}"
           usvm: "socks5://${LT.hosts.usvm.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
         }
 
@@ -85,10 +80,6 @@ in
             filter: name(v2ray)
             policy: fixed(0)
           }
-          unblock_cn {
-            filter: name(v2ray_unblock_cn)
-            policy: fixed(0)
-          }
           usvm {
             filter: name(usvm)
             policy: fixed(0)
@@ -101,9 +92,6 @@ in
           pname(xray) -> must_direct
           pname(zerotier-one) -> must_direct
           dip(224.0.0.0/3, 'ff00::/8') -> must_direct
-
-          # Unblock CN
-          pname(qqmusic) -> ${cfg.cnAction}
 
           domain(geosite:category-ads) -> block
           domain(geosite:category-ads-all) -> block
