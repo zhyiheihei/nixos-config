@@ -55,56 +55,71 @@
   };
   delegacy-rpz = {
     pname = "delegacy-rpz";
-    version = "7f6460cdbc3e02f746ab38f5521c8a032789a3a7";
-    src = fetchgit {
-      url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz.git";
-      rev = "7f6460cdbc3e02f746ab38f5521c8a032789a3a7";
-      fetchSubmodules = false;
-      deepClone = false;
-      leaveDotGit = false;
-      sparseCheckout = [ ];
-      sha256 = "sha256-aUGohgtIV4Bjx306sC/V+V7c43LPr9OLlxxS4fZmVEU=";
+    version = "2026070201";
+    src = fetchurl {
+      url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026070201/rpz.delegacy.monostack.org.zone";
+      sha256 = "sha256-dZDUlatFR5wggefe+0GNLUZW11zLtHFPooqVuFlhodI=";
     };
-    date = "2026-07-03";
   };
   dn42-certificate-authority-client = {
     pname = "dn42-certificate-authority-client";
-    version = "1.1.1";
+    version = "1.1.2";
     src = fetchurl {
-      url = "https://dn42.g-load.eu/about/certificate-authority/client.sh?ver=1.1.1";
+      url = "https://dn42.g-load.eu/about/certificate-authority/client.sh?ver=1.1.2";
       name = "client.sh";
-      sha256 = "sha256-Q4FhNwlEaC10xJ5dXyWzE/tNzvah8z9RdPhxHUiVamY=";
+      sha256 = "sha256-1/QOigfUcc6LUGM9/Ud7CRo9odYSBtfEjDUfOYDxBT0=";
     };
+  };
+  dn42-peerfinder-client = {
+    pname = "dn42-peerfinder-client";
+    version = "1.0.6";
+    src = fetchurl {
+      url = "https://peerfinder.dn42.dev/agent/peerfinder-agent.py?ver=1.0.6";
+      name = "peerfinder-agent.py";
+      sha256 = "sha256-C6x25s3SlFI+ibREBxRsuVyYYkPPfNUw7u6wpG5NK7w=";
+    };
+  };
+  dnscontrol-xddxdd = {
+    pname = "dnscontrol-xddxdd";
+    version = "8dd76ec7fdc2c8e4db6c30001d3abf344dc5f627";
+    src = fetchFromGitHub {
+      owner = "xddxdd";
+      repo = "dnscontrol";
+      rev = "8dd76ec7fdc2c8e4db6c30001d3abf344dc5f627";
+      fetchSubmodules = false;
+      sha256 = "sha256-h3wdV7tkPIFnRAjbDBxMPspeV9rl6kqWWY6gpgIJHx4=";
+    };
+    date = "2026-07-14";
   };
   grafana-falconlogscale-datasource = {
     pname = "grafana-falconlogscale-datasource";
-    version = "1.10.0";
+    version = "1.10.1";
     src = fetchurl {
-      url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.0/grafana-falconlogscale-datasource-1.10.0.zip";
-      sha256 = "sha256-aB8bYJJpNgDVFhZ2uS7nXTjKC4UhMa4OQOBXFxW0bq4=";
+      url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.1/grafana-falconlogscale-datasource-1.10.1.zip";
+      sha256 = "sha256-QvEMAElkVVl29Lo1IKWfYW9vnbSRxjAdl6Tr3+EEcwg=";
     };
   };
   grafana-yesoreyeram-infinity-datasource = {
     pname = "grafana-yesoreyeram-infinity-datasource";
-    version = "3.8.0";
+    version = "3.11.1";
     src = fetchurl {
-      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v3.8.0/yesoreyeram-infinity-datasource-3.8.0.zip";
-      sha256 = "sha256-pwpQLRyWvZ/1vHT6eCLEU9BelL/PNeaHULLbor3Cmt8=";
+      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v3.11.1/yesoreyeram-infinity-datasource-3.11.1.zip";
+      sha256 = "sha256-r8JdbT3NqogPkw/6Qsut5aSjk3809n/qbj8bLVEdKW0=";
     };
   };
   lobe-icons = {
     pname = "lobe-icons";
-    version = "d7de8926a603276b71f50f139eeb282fe011a35e";
+    version = "f07e9be35aef452ce735f95ea8204a14ecc513f7";
     src = fetchgit {
       url = "https://github.com/lobehub/lobe-icons.git";
-      rev = "d7de8926a603276b71f50f139eeb282fe011a35e";
+      rev = "f07e9be35aef452ce735f95ea8204a14ecc513f7";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-R5X4soyKu3ydl0c60Z6FMMwjz5UBPoQYC0R4aPfbcAU=";
+      sha256 = "sha256-fpzHJ/OdvhVcRWfG6skxdrleXPfbuMF+D4PdAoUzH/U=";
     };
-    date = "2026-07-01";
+    date = "2026-07-24";
   };
   lyrica-customized = {
     pname = "lyrica-customized";
@@ -170,15 +185,15 @@
   };
   nvidia-patch = {
     pname = "nvidia-patch";
-    version = "884d205af2e5492e66234450d6b838cfc842691d";
+    version = "ad462e42c97fea52c0d58ce0507fe6dc36da675b";
     src = fetchFromGitHub {
       owner = "keylase";
       repo = "nvidia-patch";
-      rev = "884d205af2e5492e66234450d6b838cfc842691d";
+      rev = "ad462e42c97fea52c0d58ce0507fe6dc36da675b";
       fetchSubmodules = false;
-      sha256 = "sha256-m8puowrKGngB+pigCkgmA8RFuZDnsLYm4wLxjba0SZE=";
+      sha256 = "sha256-3qoGL7/S6W47fZfSr20giiFxXisdLQ323le38iQIJMI=";
     };
-    date = "2026-07-06";
+    date = "2026-07-13";
   };
   open5gs = {
     pname = "open5gs";
@@ -238,6 +253,186 @@
       sha256 = "sha256-dFqcTVAT7sBlbUtCqUtj1uLbBLLOhk0Gt0bPTJVjEyc=";
     };
     date = "2026-06-22";
+  };
+  ulauncher-albert-calculate-anything = {
+    pname = "ulauncher-albert-calculate-anything";
+    version = "037965a44e6f6f496e7ad71ec1651b9edfcde32d";
+    src = fetchFromGitHub {
+      owner = "tchar";
+      repo = "ulauncher-albert-calculate-anything";
+      rev = "037965a44e6f6f496e7ad71ec1651b9edfcde32d";
+      fetchSubmodules = false;
+      sha256 = "sha256-RUxkStLxM8wg4a5yicoQCTjLxSEsb3HQwDSwrQicc2U=";
+    };
+    date = "2024-05-29";
+  };
+  ulauncher-chrome-profiles = {
+    pname = "ulauncher-chrome-profiles";
+    version = "486fead44fcd195abdc62d60569a5facfb433d70";
+    src = fetchFromGitHub {
+      owner = "FloydJohn";
+      repo = "ulauncher-chrome-profiles";
+      rev = "486fead44fcd195abdc62d60569a5facfb433d70";
+      fetchSubmodules = false;
+      sha256 = "sha256-ggUBTW8VxnGpTsnnir+CG6iQfJMx9qVMVUsx1oR8MpI=";
+    };
+    date = "2019-06-30";
+  };
+  ulauncher-colorconverter = {
+    pname = "ulauncher-colorconverter";
+    version = "2d5e2bc17e89f1f1dc561f73e68ea574e0be844a";
+    src = fetchFromGitHub {
+      owner = "sergius02";
+      repo = "ulauncher-colorconverter";
+      rev = "2d5e2bc17e89f1f1dc561f73e68ea574e0be844a";
+      fetchSubmodules = false;
+      sha256 = "sha256-UfRU7BpQUj26THzE8kYLIRUfe7voGvAcGDBTsl+yCwU=";
+    };
+    date = "2020-12-06";
+  };
+  ulauncher-cursor-projects = {
+    pname = "ulauncher-cursor-projects";
+    version = "bd674a35959e8de9f5b59513a8f13ddd1d4ada74";
+    src = fetchFromGitHub {
+      owner = "rlvendramini";
+      repo = "ulauncher-cursor-projects-ext";
+      rev = "bd674a35959e8de9f5b59513a8f13ddd1d4ada74";
+      fetchSubmodules = false;
+      sha256 = "sha256-TdTpc4rlsQRdpEm4LJHu7ivIN25G1lie4vlRGsoHQF8=";
+    };
+    date = "2025-11-03";
+  };
+  ulauncher-emoji = {
+    pname = "ulauncher-emoji";
+    version = "195d167ea0cfdbb2169906b5acaac8097db84767";
+    src = fetchFromGitHub {
+      owner = "Ulauncher";
+      repo = "ulauncher-emoji";
+      rev = "195d167ea0cfdbb2169906b5acaac8097db84767";
+      fetchSubmodules = false;
+      sha256 = "sha256-DFOm8R5gP6rfvzYvGJAaBTRa6GGd1fyP+RShNR44aPA=";
+    };
+    date = "2025-10-05";
+  };
+  ulauncher-extension-list = {
+    pname = "ulauncher-extension-list";
+    version = "27d65fae4abc036e37a09792c8244287017dbc73";
+    src = fetchFromGitHub {
+      owner = "ralcaidev";
+      repo = "ulauncher-extension-list";
+      rev = "27d65fae4abc036e37a09792c8244287017dbc73";
+      fetchSubmodules = false;
+      sha256 = "sha256-E0o9WYWSnxPivxbXm7d2ohFzDeiYZ1NfpERnxoP0gyQ=";
+    };
+    date = "2022-11-10";
+  };
+  ulauncher-faker = {
+    pname = "ulauncher-faker";
+    version = "58832c94acc671a9f603ea7fbf5d4405110bb902";
+    src = fetchFromGitHub {
+      owner = "brpaz";
+      repo = "ulauncher-faker";
+      rev = "58832c94acc671a9f603ea7fbf5d4405110bb902";
+      fetchSubmodules = false;
+      sha256 = "sha256-oFlgKVZYY33NJVn3mS5YmvMHaKot10IsfLTwTCrquVY=";
+    };
+    date = "2021-12-12";
+  };
+  ulauncher-firefox-launcher = {
+    pname = "ulauncher-firefox-launcher";
+    version = "1dc79cbaba76998b144881028bbe3567218d8836";
+    src = fetchFromGitHub {
+      owner = "freisatz";
+      repo = "ulauncher-firefox-launcher";
+      rev = "1dc79cbaba76998b144881028bbe3567218d8836";
+      fetchSubmodules = false;
+      sha256 = "sha256-fewsb8DdRshH6PTJW6dK/v7tTleL1lIrpZTsG/P75B8=";
+    };
+    date = "2025-04-13";
+  };
+  ulauncher-kill = {
+    pname = "ulauncher-kill";
+    version = "00ffe8266dbb6c2aea7d86a6363e51cec4b1981f";
+    src = fetchFromGitHub {
+      owner = "Ulauncher";
+      repo = "ulauncher-kill";
+      rev = "00ffe8266dbb6c2aea7d86a6363e51cec4b1981f";
+      fetchSubmodules = false;
+      sha256 = "sha256-37XvKa+aD7W9yHxXQng0gtW87YDIDybRQEX5Tw426QQ=";
+    };
+    date = "2022-11-26";
+  };
+  ulauncher-meme-my-text = {
+    pname = "ulauncher-meme-my-text";
+    version = "5d62830a7a92983a731e15645831f53d48dad913";
+    src = fetchFromGitHub {
+      owner = "RNairn01";
+      repo = "ulauncher-meme-my-text";
+      rev = "5d62830a7a92983a731e15645831f53d48dad913";
+      fetchSubmodules = false;
+      sha256 = "sha256-vIWIl2qOWYVrCLhGoDXH4xTfhc+GhE9cVFuV1qjYaH0=";
+    };
+    date = "2021-05-07";
+  };
+  ulauncher-pwgen = {
+    pname = "ulauncher-pwgen";
+    version = "96880bb135720cae1ad039b6635062a9e285ca71";
+    src = fetchFromGitHub {
+      owner = "brpaz";
+      repo = "ulauncher-pwgen";
+      rev = "96880bb135720cae1ad039b6635062a9e285ca71";
+      fetchSubmodules = false;
+      sha256 = "sha256-oqPXrMzOXHvbN1ZKZBr2PP+2liD76x71p6hLtLwXYOQ=";
+    };
+    date = "2021-12-12";
+  };
+  ulauncher-timestamp = {
+    pname = "ulauncher-timestamp";
+    version = "e366a81f92b8130dddc0b1bddecad253124c49b9";
+    src = fetchFromGitHub {
+      owner = "brpaz";
+      repo = "ulauncher-timestamp";
+      rev = "e366a81f92b8130dddc0b1bddecad253124c49b9";
+      fetchSubmodules = false;
+      sha256 = "sha256-os3mbadDRB1XicEgyEa74fLgeFtN9mb4+7Oqc54Tv2s=";
+    };
+    date = "2021-12-12";
+  };
+  ulauncher-timezone = {
+    pname = "ulauncher-timezone";
+    version = "9f0749d6ab1fcb99545dae75934b698e5ff975b6";
+    src = fetchFromGitHub {
+      owner = "Epholys";
+      repo = "ultz";
+      rev = "9f0749d6ab1fcb99545dae75934b698e5ff975b6";
+      fetchSubmodules = false;
+      sha256 = "sha256-p2ESZTkVKiKQp+Z3esGz6vlsXxUs3wJxXce14bLOCCE=";
+    };
+    date = "2021-05-12";
+  };
+  ulauncher-tldr = {
+    pname = "ulauncher-tldr";
+    version = "2e5904451bf89dfa155280dfb6fa3d45ed4cab4c";
+    src = fetchFromGitHub {
+      owner = "dhelmr";
+      repo = "ulauncher-tldr";
+      rev = "2e5904451bf89dfa155280dfb6fa3d45ed4cab4c";
+      fetchSubmodules = false;
+      sha256 = "sha256-B/17gbGFUar2+PVfVQWZc7Eq8zADK4CeGW3XHQMqiAg=";
+    };
+    date = "2023-07-29";
+  };
+  ulauncher-vscode-recent = {
+    pname = "ulauncher-vscode-recent";
+    version = "4d879f70b7399de6580ee7de7b9aa6a4b2eed7a7";
+    src = fetchFromGitHub {
+      owner = "MoveCloudROY";
+      repo = "ulauncher-vscode-recent";
+      rev = "4d879f70b7399de6580ee7de7b9aa6a4b2eed7a7";
+      fetchSubmodules = false;
+      sha256 = "sha256-QO+Rsx+SBwNwKN3NFmt8eIt5lkvQDHYlk0rY01cQxTY=";
+    };
+    date = "2026-05-12";
   };
   um-react = {
     pname = "um-react";

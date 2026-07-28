@@ -6,13 +6,43 @@
   LT,
   ...
 }:
+let
+  common = {
+    # keep-sorted start block=yes
+    grok-search-rs = {
+      command = toString (
+        pkgs.writeShellScript "mcp-grok-search-rs" ''
+          export GROK_SEARCH_API_KEY=$(cat "${config.sops.secrets.mcp-grok-api-key.path}")
+          export GROK_SEARCH_MODEL=grok-4.3-fast-reasoning
+          export GROK_SEARCH_WEB_SEARCH=true
+          export GROK_SEARCH_X_SEARCH=true
+          export FIRECRAWL_API_KEY=$(cat "${config.sops.secrets.mcp-firecrawl-api-key.path}")
+          export TAVILY_API_KEY=$(cat "${config.sops.secrets.mcp-tavily-api-key.path}")
+          exec ${lib.getExe pkgs.nur-xddxdd.grok-search-rs}
+        ''
+      );
+    };
+    time = {
+      command = "uvx";
+      args = [
+        "mcp-server-time"
+        "--local-timezone=${config.time.timeZone}"
+      ];
+    };
+    # keep-sorted end
+  };
+in
 {
   options.lantian.mcp = {
     mcpServers = lib.mkOption {
       type = lib.types.attrs;
-      default = { };
+      default = config.lantian.mcp.codingMcpServers // config.lantian.mcp.toolMcpServers;
     };
     codingMcpServers = lib.mkOption {
+      type = lib.types.attrs;
+      default = { };
+    };
+    toolMcpServers = lib.mkOption {
       type = lib.types.attrs;
       default = { };
     };
@@ -51,12 +81,16 @@
       sopsFile = inputs.secrets + "/common/mcp.yaml";
       mode = "0444";
     };
+    sops.secrets.mcp-firecrawl-api-key = {
+      sopsFile = inputs.secrets + "/common/mcp.yaml";
+      mode = "0444";
+    };
     sops.secrets.mcp-tavily-api-key = {
       sopsFile = inputs.secrets + "/common/mcp.yaml";
       mode = "0444";
     };
 
-    lantian.mcp.codingMcpServers = {
+    lantian.mcp.codingMcpServers = common // {
       # keep-sorted start block=yes
       brave-search = {
         command = toString (
@@ -78,18 +112,6 @@
         type = "streamable-http";
         url = "https://mcp.deepwiki.com/mcp";
       };
-      grok-search-rs = {
-        command = toString (
-          pkgs.writeShellScript "mcp-grok-search-rs" ''
-            export GROK_SEARCH_API_KEY=$(cat "${config.sops.secrets.mcp-grok-api-key.path}")
-            export GROK_SEARCH_MODEL=grok-4.3-fast-reasoning
-            export GROK_SEARCH_WEB_SEARCH=true
-            export GROK_SEARCH_X_SEARCH=true
-            export TAVILY_API_KEY=$(cat "${config.sops.secrets.mcp-tavily-api-key.path}")
-            exec ${lib.getExe pkgs.nur-xddxdd.grok-search-rs}
-          ''
-        );
-      };
       mdn = {
         type = "streamable-http";
         url = "https://mcp.mdn.mozilla.net/";
@@ -98,17 +120,10 @@
         command = "uvx";
         args = [ "mcp-nixos" ];
       };
-      time = {
-        command = "uvx";
-        args = [
-          "mcp-server-time"
-          "--local-timezone=${config.time.timeZone}"
-        ];
-      };
       # keep-sorted end
     };
 
-    lantian.mcp.mcpServers = config.lantian.mcp.codingMcpServers // {
+    lantian.mcp.toolMcpServers = common // {
       # keep-sorted start block=yes
       adsb-lol = {
         command = "uvx";

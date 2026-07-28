@@ -37,7 +37,6 @@ let
       # keep-sorted start
       (inputs.srvos + "/shared/common/update-diff.nix")
       (inputs.srvos + "/shared/common/well-known-hosts.nix")
-      inputs.angrr.nixosModules.angrr
       inputs.colmena.nixosModules.deploymentOptions
       inputs.fast-nix-gc.nixosModules.default
       inputs.home-manager.nixosModules.home-manager
@@ -53,7 +52,6 @@ let
       inputs.proxmox-nixos.nixosModules.proxmox-ve
       inputs.sops-nix.nixosModules.sops
       inputs.srvos.nixosModules.mixins-terminfo
-      inputs.srvos.nixosModules.mixins-trusted-nix-caches
       inputs.stylix.nixosModules.stylix
       # keep-sorted end
 

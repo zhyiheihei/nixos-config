@@ -15,7 +15,6 @@ rec {
     LDAPS = 636;
     Rsync = 873;
     V2Ray.SocksClient = 1080;
-    V2Ray.UnblockCNClient = 1081;
     V2Ray.IPv4OnlyClient = 1082;
     KMS = 1688;
     Gemini = 1965;
@@ -82,12 +81,9 @@ rec {
     Hydra = 13300;
     N8N-OpenAI-Bridge = 13333;
     Dex = 13403;
-    OpenWebUI.UI = 13433;
-    OpenWebUI.Redis = 13435;
     Bifrost = 13436;
     UniAPI = 13437;
     CLIProxyAPI = 13438;
-    Mcpo = 13439;
     LanCacheDNS = 13453;
     Immich = 13466;
     Radicale = 13532;
@@ -98,6 +94,7 @@ rec {
     Tika = 13787;
     OpenAIEdgeTTS = 13789;
     MTranServer = 13791;
+    Mihomo = 13792;
     Plausible = 13800;
     ArchiveBox = 13801;
     Attic = 13803;
@@ -133,7 +130,9 @@ rec {
     IyuuPlus = 13878;
     LlamaCpp.Qwen3Reranker = 13880;
     LlamaCpp.Qwen3_6 = 13881;
+    Actual = 13882;
     ElasticSearch = 13892;
+    DN42Peerfinder = 13900;
     ADSB.RawInput = 13901;
     ADSB.RawOutput = 13902;
     ADSB.BaseStationOutput = 13903;

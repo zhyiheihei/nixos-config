@@ -18,13 +18,6 @@
     systems.url = "github:nix-systems/default";
 
     # keep-sorted start block=yes
-    angrr = {
-      url = "github:linyinfeng/angrr";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-compat.follows = "flake-compat";
-      inputs.flake-parts.follows = "flake-parts";
-      inputs.treefmt-nix.follows = "nur-xddxdd/treefmt-nix";
-    };
     betterfox-nix = {
       url = "github:HeitorAugustoLN/betterfox-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -49,14 +42,6 @@
     country-ip-blocks = {
       url = "github:ipverse/country-ip-blocks";
       flake = false;
-    };
-    dms = {
-      url = "github:AvengeMedia/DankMaterialShell/stable";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    dms-plugin-registry = {
-      url = "github:AvengeMedia/dms-plugin-registry";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     fast-nix-gc = {
       url = "github:Mic92/fast-nix-gc";
@@ -98,10 +83,6 @@
     };
     never-gonna-rust = {
       url = "github:xddxdd/never-gonna-rust";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    niri-flake = {
-      url = "github:sodiboo/niri-flake";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-alien = {

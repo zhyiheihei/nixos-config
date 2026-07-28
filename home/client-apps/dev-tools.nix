@@ -99,9 +99,6 @@ in
     kubernetes-helm
     lens
 
-    # LaTeX
-    texlive.combined.scheme-full
-
     # Linux headers
     LT.config.boot.kernelPackages.kernel.dev
 
@@ -168,8 +165,8 @@ in
     minicom
     nur-xddxdd.bin-cpuflags-x86
     oci-cli
-    scc
     tldr
+    tokei
   ];
 
   home.sessionVariables = {
