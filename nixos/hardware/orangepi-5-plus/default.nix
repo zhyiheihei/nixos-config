@@ -11,15 +11,16 @@ let
   # No defconfig override is needed.
   inherit (pkgs) ubootOrangePi5Plus;
 
-  # Use Armbian's proven RK3588 config as the platform baseline, same
-  # approach as nanopi-r5c: linux_6_18.override { configfile }.
-  # This produces a standard multi-output kernel (out/dev/modules) so
-  # out-of-tree modules (cryptodev, nullfsvfs, etc.) can find kernel.dev.
+  # Keep the mainline kernel while using Armbian's proven RK3588 config as the
+  # platform baseline.  linux_6_18.override silently ignores a configfile
+  # argument; linuxManualConfig actually applies the complete olddefconfig
+  # result and retains the standard out/dev/modules outputs.
   # Source: armbian-build/config/kernel/linux-rockchip-rk3588-current.config
   # Already includes: DRM_PANTHOR=m, ANDROID_BINDER_IPC=y, ANDROID_BINDERFS=y,
   # DMABUF_HEAPS=y, PSI=y, IKCONFIG=y, STMMAC/DWMAC_ROCKCHIP=y, R8169=m,
   # BTRFS/EXT4/VFAT=y, MMC_SDHCI_OF_DWCMSHC=y, NVME_CORE=y.
-  opi5pKernel = pkgs.linux_6_18.override {
+  opi5pKernel = pkgs.linuxManualConfig {
+    inherit (pkgs.linux_6_18) src version modDirVersion;
     configfile = ./kernel-config;
   };
 
@@ -87,8 +88,16 @@ in
     zfs.forceImportRoot = false;
 
     loader = {
-      generic-extlinux-compatible.enable = lib.mkForce true;
-      grub.enable = lib.mkForce false;
+      generic-extlinux-compatible = {
+        enable = lib.mkForce true;
+        # Keep two known-good generations without eventually filling the small
+        # FAT boot partition with old kernels and initrds.
+        configurationLimit = lib.mkForce 2;
+      };
+      grub = {
+        enable = lib.mkForce false;
+        extraInstallCommands = lib.mkForce "";
+      };
     };
   };
 
@@ -96,12 +105,29 @@ in
   # remain available on ARM, just as on lt-rpi4 and nanopi-r5c.
   lantian.kernel = lib.mkForce opi5pKernel;
 
-  hardware.firmware = [ maliFirmware ];
+  # This headless extlinux board never installs a GRUB theme.  Disable the
+  # common theme units so their large source archive is absent from the image.
+  honkai-railway-grub-theme.enable = lib.mkForce false;
+  systemd.services.install-random-star-rail-grub-theme.enable = false;
+
+  hardware = {
+    # Install only the firmware requested by Panthor rather than retaining the
+    # complete linux-firmware package in every system closure.
+    enableRedistributableFirmware = lib.mkForce false;
+    firmware = [ maliFirmware ];
+  };
 
   hardware.deviceTree = {
     name = "rockchip/rk3588-orangepi-5-plus.dtb";
     # Only copy the target board DTB into /boot, avoiding 1000+ ARM64 DTBs.
     filter = "rk3588-orangepi-5-plus.dtb";
+    overlays = [
+      {
+        name = "orangepi-5-plus-cooler-fan-curve";
+        filter = "rk3588-orangepi-5-plus.dtb";
+        dtsFile = ./cooler-fan-curve.dts;
+      }
+    ];
   };
 
   # RK3588 boards may return to a firmware timestamp after losing power.

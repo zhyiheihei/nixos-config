@@ -1,6 +1,5 @@
 {
   lib,
-  pkgs,
   LT,
   ...
 }:
@@ -37,4 +36,43 @@
   };
 
   networking.networkmanager.enable = lib.mkForce false;
+
+  # Mainline experiment: expose the RK3588 Panthor DRM render node to the
+  # upstream reDroid image.  Keep the container image out of the immutable
+  # system closure; Podman pulls it at runtime and stores persistent Android
+  # state on /nix.
+  virtualisation.oci-containers.containers.redroid = {
+    image = "docker.io/redroid/redroid:16.0.0_64only-latest";
+    labels."io.containers.autoupdate" = "registry";
+    privileged = true;
+    ports = [ "${LT.this.interconnect.IPv4}:5555:5555" ];
+    volumes = [
+      "/nix/persistent/var/lib/redroid:/data"
+    ];
+    cmd = [
+      "androidboot.use_memfd=true"
+      "androidboot.redroid_gpu_mode=host"
+      "androidboot.redroid_gpu_node=/dev/dri/renderD128"
+      "androidboot.redroid_width=1280"
+      "androidboot.redroid_height=720"
+      "androidboot.redroid_fps=60"
+    ];
+    extraOptions = [
+      "--device=/dev/dri/renderD128"
+    ];
+  };
+
+  systemd.tmpfiles.settings.redroid."/nix/persistent/var/lib/redroid"."d" = {
+    mode = "0700";
+    user = "root";
+    group = "root";
+  };
+
+  # The image is large and the board may start before Panthor creates its render
+  # node.  Wait for the device instead of repeatedly starting in software mode.
+  systemd.services.podman-redroid = {
+    after = [ "dev-dri-renderD128.device" ];
+    requires = [ "dev-dri-renderD128.device" ];
+    unitConfig.ConditionPathExists = "/dev/dri/renderD128";
+  };
 }
