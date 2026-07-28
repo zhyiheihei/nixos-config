@@ -42,12 +42,44 @@ in
             path: /ray
             host: jpvm.zhyi.cc
             mode: stream-up
+        - name: usvm
+          type: vless
+          server: usvm.zhyi.cc
+          port: 443
+          uuid: "${config.sops.placeholder.v2ray-key}"
+          network: xhttp
+          tls: true
+          udp: true
+          servername: usvm.zhyi.cc
+          client-fingerprint: chrome
+          encryption: ""
+          xhttp-opts:
+            path: /ray
+            host: usvm.zhyi.cc
+            mode: stream-up
+        - name: colocrossing
+          type: vless
+          server: colocrossing.zhyi.cc
+          port: 443
+          uuid: "${config.sops.placeholder.v2ray-key}"
+          network: xhttp
+          tls: true
+          udp: true
+          servername: colocrossing.zhyi.cc
+          client-fingerprint: chrome
+          encryption: ""
+          xhttp-opts:
+            path: /ray
+            host: colocrossing.zhyi.cc
+            mode: stream-up
 
       proxy-groups:
         - name: PROXY
           type: select
           proxies:
             - jpvm
+            - usvm
+            - colocrossing
             - DIRECT
 
       rules:
