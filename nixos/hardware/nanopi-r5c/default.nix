@@ -16,7 +16,8 @@ let
   # R5C/R5S DTS compatibles and the modules used by the running router.  NixOS
   # storage, networking, namespaces and firewall requirements remain enabled.
   r5cKernel = pkgs.linux_6_18.override {
-    configfile = ./kernel-config;
+    enableCommonConfig = false;
+    extraConfig = builtins.readFile ./kernel-config;
   };
   # The installed MT7921 requests only these six blobs.  Copy their contents
   # instead of retaining the complete linux-firmware package (roughly 800 MiB)
