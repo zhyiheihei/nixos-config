@@ -19,6 +19,7 @@ in
 
     ./hardware-configuration.nix
 
+    ../../nixos/common-apps/coredns.nix
     ../../nixos/common-apps/nginx
     ../../nixos/client-apps/gnupg.nix
     ../../nixos/client-apps/vscode-remote-env.nix
@@ -46,6 +47,26 @@ in
   };
 
   networking.networkmanager.enable = lib.mkForce false;
+
+  # Nix places sandbox build trees under /var/cache/nix.  Keep those
+  # short-lived, write-heavy files in memory instead of the persistent Btrfs
+  # filesystem.  The size is an upper limit; tmpfs does not reserve 64 GiB at
+  # boot and may use swap under memory pressure.
+  fileSystems."/var/cache/nix" = {
+    device = "tmpfs";
+    fsType = "tmpfs";
+    options = [
+      "mode=0755"
+      "nodev"
+      "nosuid"
+      "size=64G"
+    ];
+  };
+
+  # The repository-wide Nix setting uses build-dir=/var/cache/nix.  Make the
+  # mount ordering explicit so local, remote and Hydra-triggered builds cannot
+  # start against the underlying persistent directory.
+  systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
 
   # Fixed-output derivations are allowed to inherit these variables from the
   # multi-user Nix daemon.  Route public fetches through MetaCubeXD while
