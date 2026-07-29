@@ -261,7 +261,7 @@ in
     firmwarePartitionOffset = 16;
     firmwarePartitionName = "FIRMWARE";
     firmwareSize = 256;
-    rootFilesystemCreator = ./make-nix-btrfs-fs.nix;
+    rootFilesystemCreator = ../make-nix-btrfs-fs.nix;
     rootPartitionUUID = "44444444-4444-4444-8888-888888888888";
     rootVolumeLabel = "NIXOS_NIX";
     nixPathRegistrationFile = "/nix/nix-path-registration";

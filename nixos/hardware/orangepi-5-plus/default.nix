@@ -37,28 +37,6 @@ let
       date --utc --set="@$(cat ${savedClock})"
     fi
   '';
-  configureLeds = pkgs.writeShellScript "opi5p-configure-leds" ''
-    set_trigger() {
-      led=$1
-      trigger=$2
-      trigger_file="/sys/class/leds/$led/trigger"
-
-      if test -w "$trigger_file" && grep -qw "$trigger" "$trigger_file"; then
-        echo "$trigger" > "$trigger_file"
-      fi
-    }
-
-    # Orange Pi 5 Plus has three visible board indicators, but only blue and
-    # green are software-controlled in the mainline DT and exposed through
-    # /sys/class/leds.  The red LED is wired as the power-present indicator: it
-    # is expected to stay on whenever the board has power and has no trigger to
-    # configure.  Use blue heartbeat to distinguish a live system from a
-    # stalled one, and green disk activity for persistent-storage I/O.  RJ45
-    # link/activity LEDs remain controlled directly by the RTL8125 PHYs.
-    set_trigger "blue:indicator-1" "heartbeat"
-    set_trigger "green:indicator-2" "disk-activity"
-  '';
-
   # Keep only the firmware observed on the real board: Mali-G610 CSF for
   # Panthor, the installed Intel AX200NGW WiFi/Bluetooth card, and the RTL8125
   # NIC.  Install each blob once at the path requested by its kernel driver.
@@ -190,20 +168,6 @@ in
           ExecStart = saveClock;
         };
       };
-      opi5p-leds = {
-        description = "Configure Orange Pi 5 Plus status LEDs";
-        wantedBy = [ "multi-user.target" ];
-        after = [ "systemd-udev-settle.service" ];
-        path = [
-          pkgs.coreutils
-          pkgs.gnugrep
-        ];
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-          ExecStart = configureLeds;
-        };
-      };
     };
     timers.opi5p-save-clock = {
       description = "Periodically save Orange Pi 5 Plus software clock";
@@ -215,6 +179,14 @@ in
       };
     };
   };
+
+  # Red is a hardware power indicator. Configure the two software-controlled
+  # LEDs as soon as their devices appear: blue shows kernel liveness and green
+  # shows storage activity. RJ45 LEDs remain under PHY control.
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="leds", KERNEL=="blue:indicator-1", ATTR{trigger}="heartbeat"
+    ACTION=="add", SUBSYSTEM=="leds", KERNEL=="green:indicator-2", ATTR{trigger}="disk-activity"
+  '';
 
   fileSystems = {
     "/" = lib.mkForce {
@@ -258,7 +230,7 @@ in
     firmwarePartitionOffset = 32;
     firmwarePartitionName = "FIRMWARE";
     firmwareSize = 256;
-    rootFilesystemCreator = ./make-nix-btrfs-fs.nix;
+    rootFilesystemCreator = ../make-nix-btrfs-fs.nix;
     rootPartitionUUID = "55555555-5555-5555-8888-888888888888";
     rootVolumeLabel = "NIXOS_NIX";
     nixPathRegistrationFile = "/nix/nix-path-registration";

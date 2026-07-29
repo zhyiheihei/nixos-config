@@ -5,13 +5,13 @@
   compressImage ? false,
   populateImageCommands ? "",
   volumeLabel,
-  uuid ? "44444444-4444-4444-8888-888888888888",
+  uuid,
   btrfs-progs,
   libfaketime,
   fakeroot,
   zstd,
 }:
-# Build the persistent /nix filesystem used by the NanoPi R5C disk image.
+# Build the persistent /nix filesystem shared by ARM board disk images.
 let
   closureInfo = pkgs.buildPackages.closureInfo { rootPaths = storePaths; };
 in
@@ -42,9 +42,8 @@ pkgs.stdenv.mkDerivation {
     cp ${closureInfo}/registration rootImage/nix-path-registration
 
     touch "$img"
-    # Run chown and mkfs in the same fakeroot session.  Otherwise mkfs records
-    # the sandbox builder's uid/gid in the image, which later makes security
-    # checks such as logrotate's reject files from /nix/store.
+    # Keep ownership correction and mkfs in one fakeroot session so the image
+    # never records the sandbox builder's uid/gid.
     fakeroot sh -eu -c '
       chown -R 0:0 rootImage
       faketime -f "1970-01-01 00:00:01" \
