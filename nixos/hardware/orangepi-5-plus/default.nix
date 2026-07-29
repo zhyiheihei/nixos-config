@@ -287,6 +287,14 @@ in
       # Nixpkgs assumes extlinux lives on partition 2. This image puts it on the
       # FAT partition, so mark partition 1 (and only partition 1) bootable.
       sfdisk --activate "$img" 1
+
+      # Armbian's vendor U-Boot 2017.09 on this board incorrectly selects its
+      # EFI partition parser for the generic sd-image MBR and then refuses to
+      # fall back to DOS partitions. Convert the finished image in place to a
+      # valid GPT while preserving both partition starts and their contents.
+      # This also avoids relying on stale GPT metadata left at the end of a
+      # previously used SD card.
+      ${pkgs.buildPackages.gptfdisk}/bin/sgdisk --mbrtogpt "$img"
     '';
   };
 }
