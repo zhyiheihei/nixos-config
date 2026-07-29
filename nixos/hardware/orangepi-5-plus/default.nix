@@ -37,37 +37,10 @@ let
       date --utc --set="@$(cat ${savedClock})"
     fi
   '';
-  # Keep only the firmware observed on the real board: Mali-G610 CSF for
-  # Panthor, the installed Intel AX200NGW WiFi/Bluetooth card, and the RTL8125
-  # NIC.  Install each blob once at the path requested by its kernel driver.
-  opi5pFirmware = pkgs.runCommand "orangepi-5-plus-firmware" { } ''
-    source=${pkgs.linux-firmware}/lib/firmware
-    mkdir -p \
-      "$out/lib/firmware/arm/mali/arch10.8" \
-      "$out/lib/firmware/intel" \
-      "$out/lib/firmware/rtl_nic"
-
-    test -e "$source/arm/mali/arch10.8/mali_csffw.bin"
-    cp -L "$source/arm/mali/arch10.8/mali_csffw.bin" \
-      "$out/lib/firmware/arm/mali/arch10.8/mali_csffw.bin"
-    cp -L "$source/arm/mali/arch10.8/mali_csffw.bin" \
-      "$out/lib/firmware/mali_csffw.bin"
-
-    # Current linux-firmware keeps Intel WiFi under intel/iwlwifi.  The kernel
-    # firmware ABI still requests the AX200 blob from the firmware root.
-    test -e "$source/intel/iwlwifi/iwlwifi-cc-a0-77.ucode"
-    cp -L "$source/intel/iwlwifi/iwlwifi-cc-a0-77.ucode" \
-      "$out/lib/firmware/iwlwifi-cc-a0-77.ucode"
-
-    for firmware in ibt-20-1-3.sfi ibt-20-1-3.ddc; do
-      test -e "$source/intel/$firmware"
-      cp -L "$source/intel/$firmware" "$out/lib/firmware/intel/$firmware"
-    done
-
-    test -e "$source/rtl_nic/rtl8125b-2.fw"
-    cp -L "$source/rtl_nic/rtl8125b-2.fw" \
-      "$out/lib/firmware/rtl_nic/rtl8125b-2.fw"
-  '';
+  # The vendor kernel, its DTB and the Orange Pi firmware form one hardware
+  # support set. Keep the package pinned inside this host module, just like the
+  # kernel, instead of substituting a hand-picked linux-firmware subset.
+  opi5pFirmware = pkgs.callPackage (rk3588NixSource + "/pkgs/orangepi-firmware") { };
 in
 {
   imports = [
@@ -129,9 +102,9 @@ in
   systemd.services.install-random-star-rail-grub-theme.enable = false;
 
   hardware = {
-    # Install only firmware requested by devices observed in the serial log
-    # rather than retaining the complete linux-firmware package.
-    enableRedistributableFirmware = lib.mkForce false;
+    # Upstream installs both Orange Pi's vendor bundle and Nixpkgs firmware;
+    # the latter is also needed by add-on hardware such as the Intel AX200.
+    enableRedistributableFirmware = lib.mkForce true;
     firmware = [ opi5pFirmware ];
     bluetooth.enable = true;
     wirelessRegulatoryDatabase = true;
