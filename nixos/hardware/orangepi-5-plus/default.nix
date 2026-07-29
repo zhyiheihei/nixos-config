@@ -63,13 +63,21 @@ in
       "dwmac_motorcomm"
       "r8169"
     ];
-    kernelParams = [
+    # Keep these after the repository-wide defaults. In particular, override
+    # the common RCU-stall suppression while bringing this board up so a hard
+    # lockup identifies the exact initcall instead of going silent.
+    kernelParams = lib.mkAfter [
       # RK3588 UART2 is at 0xfeb50000 (different from RK3568's 0xfe660000).
       # Do NOT append baud rate after the MMIO address; doing so hides all
       # output after U-Boot's "Starting kernel ..." line.
       "earlycon=uart8250,mmio32,0xfeb50000"
       "console=ttyS2,1500000n8"
       "console=tty0"
+      "rootwait"
+      "rcuupdate.rcu_cpu_stall_suppress=0"
+      "initcall_debug"
+      "ignore_loglevel"
+      "loglevel=8"
     ];
     supportedFilesystems = lib.mkForce [
       "btrfs"
