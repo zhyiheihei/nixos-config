@@ -10,6 +10,8 @@
 
 真机刷卡、USB-TTL 接线和完整串口日志采集步骤见
 [`nanopi-r5c-flash-and-serial.md`](./nanopi-r5c-flash-and-serial.md)。
+内核、固件和系统闭包的体积审计及后续裁剪边界见
+[`nanopi-r5c-size-audit.md`](./nanopi-r5c-size-audit.md)。
 其他 ARM64 开发板应从
 [`arm-board-bring-up.md`](./arm-board-bring-up.md) 的通用流程开始，不要直接复制
 本板的串口地址、U-Boot 偏移或 DTB 名称。
@@ -146,11 +148,13 @@ boot.kernelPackages = pkgs.linuxPackages_6_18;
 ```
 
 这会绕过作者在 `nixos/minimal-components/kernel.nix` 中的
-`myKernelPackageFor`，导致 `nft-fullcone`、`nullfsvfs`、`r8125` 等自定义内核
-模块属性消失。R5C 与作者 `lt-rpi4` 使用同一接口：
+`myKernelPackageFor`，导致 `nft-fullcone`、`nullfsvfs` 等自定义内核模块属性
+消失。R5C 保留作者的 `lantian.kernel` 接口，但内核 derivation 使用
+`linuxManualConfig` 和本板的已解析配置；在 x86_64 构建机上则使用真实的 AArch64
+交叉工具链，避免通过 QEMU 执行整套 ARM64 编译器：
 
 ```nix
-lantian.kernel = lib.mkForce pkgs.linux_6_18;
+lantian.kernel = lib.mkForce r5cKernel;
 ```
 
 设备树选择：
@@ -256,16 +260,57 @@ Tegra/QEMU 的 `ttyS0`、`ttyAMA0`；与 R5C 的 `ttyS2` 并存后，只能依�
 
 ### 网卡驱动
 
-R5C 的两个 RTL8125 网口使用 Realtek 官方 `r8125` out-of-tree 驱动（已在
-`nixos/minimal-components/kernel.nix` 的 `boot.extraModulePackages` 中全局启用），
-主线 `r8169` 通过 `boot.blacklistedKernelModules` 禁止加载，避免抢占设备。
+R5C 的两个 RTL8125 网口使用主线 `r8169` 驱动，与当前 Armbian R5C 配置保持一致。
+真机压力测试中，Realtek 官方 `r8125` out-of-tree 驱动曾出现 TX queue
+`NETDEV WATCHDOG`，连带造成 PPPoE WAN 掉线，因此本板不再加载它。
 
 ```nix
-boot.kernelModules = [ "r8125" ];
-boot.blacklistedKernelModules = [ "r8169" ];
+boot.kernelModules = [ "r8169" ];
 ```
 
-initrd 不包含任何网络驱动：`/nix` 是本地 Btrfs，initrd 无需网络即可找到 closure。
+initrd 不包含通用网卡、NVMe、USB 存储或虚拟机驱动：`/nix` 是本地 Btrfs，
+initrd 无需网络即可找到 closure。不要恢复通用 ARM64 SD image 自动加入的驱动，
+否则会扩大 initrd，并可能引入与真实板卡无关的模块依赖。
+
+### Wi-Fi、蓝牙与固件
+
+PCIe MT7921 组合卡同时提供 Wi-Fi 和蓝牙。Wi-Fi 由 hostapd 建立 AP 并桥接到
+`br-lan`；蓝牙由 NixOS 的 BlueZ 服务管理：
+
+```nix
+hardware.bluetooth.enable = true;
+```
+
+系统不保留完整约 800 MiB 的 `linux-firmware`，而是在
+`nixos/hardware/nanopi-r5c/default.nix` 中只复制：
+
+- MT7921/MT7961 Wi-Fi 所需的六个 MediaTek 固件；
+- `BT_RAM_CODE_MT7961_1_2_hdr.bin` 蓝牙固件；
+- `rtl_nic/rtl8125b-2.fw`。
+
+Nixpkgs 中的固件可能以 Zstd 压缩形式进入 closure，因此内核必须同时启用
+`CONFIG_FW_LOADER_COMPRESS` 和 `CONFIG_FW_LOADER_COMPRESS_ZSTD`。只复制固件但关闭
+压缩固件加载，会表现为 `mt7921e` 已加载但 `wlan0` 不出现。
+
+当前蓝牙验收范围为控制器上电、BLE/GATT、central/peripheral 角色和普通配对。
+内核没有启用 BNEP，因此 BlueZ 会记录缺少 Bluetooth Network Encapsulation
+Protocol 的警告；除非明确需要蓝牙 PAN/网络共享，不应仅为消除该警告增加 BNEP。
+
+### 公共模块要求的内核能力
+
+R5C 的静态内核配置不能只满足启动硬件，还必须覆盖 `minimal.nix` 自动启用的公共
+功能：
+
+| 配置 | 使用方 | 缺失表现 |
+| --- | --- | --- |
+| `CONFIG_MPTCP` | `services.mptcpd`、`net.mptcp.enabled` | `mptcp.service` 退出，Colmena 将激活判为失败 |
+| `CONFIG_ZRAM=m` | 公共 hardening 的 `zramSwap` | 等待 `/dev/zram0` 超时，每次启动增加约 90 秒 |
+| `CONFIG_DEBUG_INFO_BTF` | DAE eBPF 程序 | DAE 报告当前内核没有 BTF |
+| `CONFIG_LEDS_TRIGGER_NETDEV` | 三个绿色状态 LED | sysfs 中没有 `netdev` trigger |
+
+`CONFIG_MPTCP` 是内建布尔项，因此公共模块仍尝试 `modprobe mptcp` 时可能出现一条
+找不到模块的警告；只要 `net.mptcp.enabled = 1` 且 `mptcp.service` 为 active，
+该警告不影响功能。
 
 ### RTC 与时钟
 
@@ -293,7 +338,8 @@ RK3568 没有内置 RTC。R5C 板载 RK808 PMIC RTC（`/dev/rtc0`）和 HYM8563 
 - `green:wan`：netdev 触发器，关联 `eth1`
 - `green:wlan`：netdev 触发器，关联 `wlan0`
 
-RJ45 网口插座本身的 PHY 指示灯由 r8125 驱动在 probe 时初始化，无需软件配置。
+RJ45 网口插座本身的 PHY 指示灯由 r8169/RTL8125 硬件在 probe 时初始化，无需
+`r5c-leds` 服务配置。
 
 设备 eMMC 中原有的 OpenWrt U-Boot 可能显示 `Model: Easepi RK3568 Board`，并从
 SD 卡第 1 分区加载 NixOS。这不代表 Nix 构建的 U-Boot 产物使用了 Easepi
@@ -312,6 +358,14 @@ defconfig；应分别通过串口启动来源和 Nix store 中的 U-Boot derivat
 `machine-id` 在镜像中为空文件，由 systemd 首次启动写入唯一 ID。正式 router 的
 SSH host key 和 SOPS 身份从旧 router 迁移，不把私钥嵌入 Nix store 或镜像
 derivation。
+
+`/nix` 和 `/nix/persistent` 顶层必须由 `root:root` 持有。若误设为普通用户，
+systemd-tmpfiles 会以 `unsafe path transition` 拒绝创建持久化文件，SOPS、SSH
+host key 和其他 preservation 项可能随之失败。检查命令：
+
+```bash
+stat -c '%U:%G %a %n' /nix /nix/persistent
+```
 
 ## 4. 求值与构建
 
@@ -467,9 +521,19 @@ lspci -nn
 systemctl is-system-running
 systemctl --failed --no-pager
 systemctl status sshd --no-pager
+systemctl status mptcp bluetooth hostapd dae --no-pager
+
+sysctl net.mptcp.enabled
+zramctl
+bluetoothctl show
+ip -br link show wlan0
 
 test -s /nix/persistent/etc/ssh/ssh_host_ed25519_key
 readlink -f /nix/var/nix/profiles/system
+
+systemd-analyze
+systemd-analyze critical-chain
+systemd-analyze blame | head -30
 ```
 
 必须确认：
@@ -479,6 +543,9 @@ readlink -f /nix/var/nix/profiles/system
 - `/nix` 来自 `NIXOS_NIX`，并启用预期的 Btrfs 选项；
 - 至少一个网口取得地址；
 - SSH host key 位于持久目录；
+- `/nix` 和 `/nix/persistent` 属于 `root:root`；
+- `/dev/zram0` 正常建立，不出现 90 秒设备等待；
+- MPTCP、DAE、Wi-Fi 和蓝牙服务正常；
 - 冷启动后仍能找到 system closure 并正常进入系统。
 
 ## 7. 已验证状态与切换前检查
@@ -488,17 +555,19 @@ readlink -f /nix/var/nix/profiles/system
 - Nixpkgs U-Boot 可从 TF 和 eMMC 读取 extlinux；
 - Linux 6.18、R5C DTB、initrd 和真实 systemd 可以启动；
 - `/` 为 tmpfs，`/boot` 为 FAT32，`/nix` 为 Btrfs；
-- r8125 驱动正常加载，两个 RTL8125 网口以 2.5 Gbps 建立链路；
+- 主线 r8169 驱动正常加载，两个 RTL8125 网口以 2.5 Gbps 建立链路；
 - `hwclock -s --utc` 在 `rtc_rk808` 早期加载后成功从 RTC 恢复系统时钟；
 - `ntpd-rs` 联网后精确校时，无失败服务；
 - WiFi（MT7921）通过 hostapd 提供 `moli-rk-wifi` AP，加入 br-lan 桥接；
+- MT7921 蓝牙控制器由 BlueZ 正常上电，支持 BLE central/peripheral；
+- MPTCP 和 DAE 在带 BTF 的 Linux 6.18 内核上正常运行；
+- 已补齐 ZRAM 内核模块配置；部署该内核后的冷启动必须用 `zramctl` 和
+  `systemd-analyze` 确认不再等待 `/dev/zram0`；
 - 板载状态 LED（red:power、green:lan、green:wan、green:wlan）正常工作；
 - 修复持久化 `machine-id` 后，D-Bus、DHCP 和交互延迟正常；
+- `/nix` 与 `/nix/persistent` 顶层属主为 `root:root`，tmpfiles 不再报告 unsafe
+  path transition；
 - eMMC 可独立冷启动，不依赖原 OpenWrt 系统。
 
-正式替换 router 前仍需完成：
-
-- 按控制板丝印使用 `eth1` WAN、`eth0` LAN，并确认两端链路；
-- 迁移旧 router 的 SSH host keys、SOPS 身份、ZeroTier identity 和 Kea leases；
-- 在 ARM64 构建机完成 `nixosConfigurations.router` 求值与构建；
-- 断开旧 router 后启用 `192.168.0.1`，验证 PPPoE、DHCP、DNS、NAT 和监控。
+当前已经作为正式 `router` 运行。后续升级应继续检查 PPPoE、DHCP、DNS、NAT、
+DDNS、监控和无线服务；涉及静态 `kernel-config` 的变更必须经过一次冷启动验证。
