@@ -24,6 +24,7 @@ let
     hash = "sha256-nHNgt6Kkn+rFrJW2vFDsTLd7DfYlZWQgCPyk67L2q/E=";
   };
   vendorKernelConfig = builtins.readFile (rk3588NixSource + "/pkgs/kernel/rk35xx_vendor_config");
+  vendorKernelConfigOptions = import (rk3588NixSource + "/pkgs/kernel/rk35xx_vendor_config.nix");
   opi5pKernelConfig =
     assert lib.hasInfix "# CONFIG_ARM64_VA_BITS_39 is not set" vendorKernelConfig;
     assert lib.hasInfix "CONFIG_ARM64_VA_BITS_48=y" vendorKernelConfig;
@@ -42,25 +43,18 @@ let
         ]
         vendorKernelConfig
     );
-  vendorLinuxManualConfig =
-    args:
-    crossPkgs.linuxManualConfig (
-      args
-      // {
-        configfile = opi5pKernelConfig;
-        config =
-          builtins.removeAttrs args.config [
-            "CONFIG_ARM64_VA_BITS_48"
-            "CONFIG_ARM64_VA_BITS"
-          ]
-          // {
-            CONFIG_ARM64_VA_BITS_39 = "y";
-            CONFIG_ARM64_VA_BITS = "9";
-          };
-      }
-    );
-  opi5pKernel = crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") {
-    linuxManualConfig = vendorLinuxManualConfig;
+  opi5pKernel =
+    (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { }).override {
+      configfile = opi5pKernelConfig;
+      config =
+        builtins.removeAttrs vendorKernelConfigOptions [
+          "CONFIG_ARM64_VA_BITS_48"
+          "CONFIG_ARM64_VA_BITS"
+        ]
+        // {
+          CONFIG_ARM64_VA_BITS_39 = "y";
+          CONFIG_ARM64_VA_BITS = "9";
+        };
   };
 
   savedClock = "/nix/persistent/var/lib/opi5p-clock/epoch";
