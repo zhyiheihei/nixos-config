@@ -29,6 +29,7 @@
   fileSystems."/nix" = {
     device = "/dev/sda2";
     fsType = "btrfs";
+    neededForBoot = true;
     options = [
       "compress-force=zstd"
       "autodefrag"
