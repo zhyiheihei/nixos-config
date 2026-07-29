@@ -89,11 +89,6 @@ in
             Type = "oneshot";
             CPUQuota = "40%";
             OOMScoreAdjust = "1000";
-            # SFTP repositories can be briefly unreachable. Retry the complete
-            # snapshot safely instead of leaving the daily backup failed until
-            # the next timer run.
-            Restart = "on-failure";
-            RestartSec = "30m";
             TimeoutStopSec = 600;
           };
           unitConfig = lib.optionalAttrs (!(LT.this.hasTag LT.tags.client)) {
