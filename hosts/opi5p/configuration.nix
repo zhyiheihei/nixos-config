@@ -18,8 +18,7 @@
   # Temporary SSH key for initial bring-up.  Remove after formal
   # host keys and SOPS are validated.
   users.users.root.openssh.authorizedKeys.keys = [
-    # TODO: replace with your actual temporary public key
-    # "ssh-ed25519 AAAA... your-key-comment"
+    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAXn2roZsbvURS+faytLLz2OE1gemC19RMNsPj3Ypnha 2386656187@qq.com"
   ];
 
   # Static network configuration for initial LAN access.
@@ -71,6 +70,10 @@
   # The image is large and the board may start before Panthor creates its render
   # node.  Wait for the device instead of repeatedly starting in software mode.
   systemd.services.podman-redroid = {
+    # Phase 1 must reach the serial console and SSH without waiting for a
+    # multi-gigabyte runtime image pull.  Remove this override only after the
+    # boot, storage, network and Panthor render-node gates have passed.
+    wantedBy = lib.mkForce [ ];
     after = [ "dev-dri-renderD128.device" ];
     requires = [ "dev-dri-renderD128.device" ];
     unitConfig.ConditionPathExists = "/dev/dri/renderD128";
