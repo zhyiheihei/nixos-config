@@ -13,11 +13,6 @@ let
   crossPkgs =
     self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
 
-  # Nixpkgs already provides a complete RK3588 boot chain for this board:
-  # U-Boot 2026.04 + armTrustedFirmwareRK3588 + rkbin TPL.
-  # No defconfig override is needed.
-  inherit (pkgs) ubootOrangePi5Plus;
-
   # Pin only gnull/nixos-rk3588's vendor-kernel packaging files here instead of
   # adding the whole repository as a Flake input. This remains an OPI5P-local
   # implementation detail and does not add its unrelated Flake dependencies to
@@ -166,15 +161,10 @@ in
 
   hardware.deviceTree = {
     name = "rockchip/rk3588-orangepi-5-plus.dtb";
-    # Only copy the target board DTB into /boot, avoiding 1000+ ARM64 DTBs.
+    # Only copy the vendor-kernel DTB for this board. Do not apply the previous
+    # mainline-only fan overlay to the structurally different vendor DT.
     filter = "rk3588-orangepi-5-plus.dtb";
-    overlays = [
-      {
-        name = "orangepi-5-plus-cooler-fan-curve";
-        filter = "rk3588-orangepi-5-plus.dtb";
-        dtsFile = ./cooler-fan-curve.dts;
-      }
-    ];
+    overlays = [ ];
   };
 
   # RK3588 boards may return to a firmware timestamp after losing power.
@@ -260,10 +250,12 @@ in
     };
   };
 
-  # RK3588 boot layout: idbloader.img at 32 KiB, u-boot.itb at 8 MiB.
-  # First partition starts at 16 MiB to avoid both payloads.
+  # Match gnull/nixos-rk3588's Orange Pi 5 Plus boot contract: Armbian/vendor
+  # U-Boot must already be installed in SPI NOR. This image deliberately does
+  # not mix Nixpkgs' mainline U-Boot/ATF with the Armbian vendor kernel.
+  # Keep the first 32 MiB free, as expected by the reference image layout.
   sdImage = {
-    firmwarePartitionOffset = 16;
+    firmwarePartitionOffset = 32;
     firmwarePartitionName = "FIRMWARE";
     firmwareSize = 256;
     rootFilesystemCreator = ./make-nix-btrfs-fs.nix;
@@ -295,8 +287,6 @@ in
       # Nixpkgs assumes extlinux lives on partition 2. This image puts it on the
       # FAT partition, so mark partition 1 (and only partition 1) bootable.
       sfdisk --activate "$img" 1
-      dd if=${ubootOrangePi5Plus}/idbloader.img of="$img" seek=64 conv=notrunc status=none
-      dd if=${ubootOrangePi5Plus}/u-boot.itb of="$img" seek=16384 conv=notrunc status=none
     '';
   };
 }
