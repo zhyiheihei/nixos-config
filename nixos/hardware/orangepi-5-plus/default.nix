@@ -70,10 +70,13 @@ in
 
   boot = {
     # With the Armbian-based config, storage drivers (MMC_SDHCI_OF_DWCMSHC,
-    # NVME_CORE, BTRFS, EXT4, VFAT) are all builtin (=y).  Only network
-    # modules are needed in the initrd for remote root scenarios.
-    initrd.availableKernelModules = [ "r8169" ];
-    initrd.kernelModules = [ "r8169" ];
+    # NVME_CORE, BTRFS, EXT4, VFAT) are all builtin (=y).  This SD image does
+    # not use a remote root, so do not inherit the generic ARM image's initrd
+    # module list (which includes drivers such as 3w-9xxx that this targeted
+    # kernel deliberately does not build).  Network drivers load after the
+    # persistent root is mounted.
+    initrd.availableKernelModules = lib.mkForce [ ];
+    initrd.kernelModules = [ ];
     kernelModules = [
       "dwmac_motorcomm"
       "panthor"
