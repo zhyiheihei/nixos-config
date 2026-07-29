@@ -85,7 +85,7 @@ sudo pkill -INFO -x dd
 
 ```bash
 sync
-diskutil eject /dev/disk4
+diskutil eject /dev/disk5
 ```
 
 ## 4. 连接 R5C 调试串口

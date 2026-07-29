@@ -43,6 +43,23 @@ let
       date --utc --set="@$(cat ${savedClock})"
     fi
   '';
+  configureLeds = pkgs.writeShellScript "opi5p-configure-leds" ''
+    set_trigger() {
+      led=$1
+      trigger=$2
+      trigger_file="/sys/class/leds/$led/trigger"
+
+      if test -w "$trigger_file" && grep -qw "$trigger" "$trigger_file"; then
+        echo "$trigger" > "$trigger_file"
+      fi
+    }
+
+    # The mainline DT exposes the GPIO indicator as blue and the PWM indicator
+    # as green.  Keep the blue power indicator on and use green as the system
+    # heartbeat; RJ45 LEDs remain controlled by the RTL8125 PHYs.
+    set_trigger "blue:indicator-1" "default-on"
+    set_trigger "green:indicator-2" "heartbeat"
+  '';
 
   # Keep only the firmware observed on the real board: Mali-G610 CSF for
   # Panthor, the installed Intel AX200NGW WiFi/Bluetooth card, and the RTL8125
@@ -50,12 +67,13 @@ let
   opi5pFirmware = pkgs.runCommand "orangepi-5-plus-firmware" { } ''
     source=${pkgs.linux-firmware}/lib/firmware
     mkdir -p \
+      "$out/lib/firmware/arm/mali/arch10.8" \
       "$out/lib/firmware/intel" \
       "$out/lib/firmware/rtl_nic"
 
     test -e "$source/arm/mali/arch10.8/mali_csffw.bin"
     cp -L "$source/arm/mali/arch10.8/mali_csffw.bin" \
-      "$out/lib/firmware/mali_csffw.bin"
+      "$out/lib/firmware/arm/mali/arch10.8/mali_csffw.bin"
 
     # Current linux-firmware keeps Intel WiFi under intel/iwlwifi.  The kernel
     # firmware ABI still requests the AX200 blob from the firmware root.
@@ -139,6 +157,7 @@ in
     enableRedistributableFirmware = lib.mkForce false;
     firmware = [ opi5pFirmware ];
     bluetooth.enable = true;
+    wirelessRegulatoryDatabase = true;
   };
 
   hardware.deviceTree = {
@@ -175,6 +194,20 @@ in
         serviceConfig = {
           Type = "oneshot";
           ExecStart = saveClock;
+        };
+      };
+      opi5p-leds = {
+        description = "Configure Orange Pi 5 Plus status LEDs";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "systemd-udev-settle.service" ];
+        path = [
+          pkgs.coreutils
+          pkgs.gnugrep
+        ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = configureLeds;
         };
       };
     };
