@@ -48,13 +48,6 @@
   # Keep ADB bound to the LAN address; do not expose this host publicly.
   boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
 
-  # Early images recorded the build user's ownership on a few persistent
-  # filesystem roots. Correct only these roots before tmpfiles validates path
-  # transitions; do not recursively alter Nix store or application data.
-  system.activationScripts.opi5p-persistent-root-ownership.text = ''
-    chown root:root /nix /nix/persistent /nix/var/nix
-  '';
-
   # CNflysky's RK3588 image is paired with the Armbian vendor kernel's Mali
   # CSF/Bifrost driver. Keep the image outside the immutable system closure;
   # Podman pulls it at runtime and stores Android state on persistent /nix.
@@ -92,9 +85,6 @@
       HTTP_PROXY = "http://192.168.0.51:7892";
       HTTPS_PROXY = "http://192.168.0.51:7892";
       NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
-      http_proxy = "http://192.168.0.51:7892";
-      https_proxy = "http://192.168.0.51:7892";
-      no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
     };
     preStart = lib.mkBefore ''
       install -d -m 0700 -o root -g root /nix/persistent/var/lib/redroid-rk3588-lineage20
