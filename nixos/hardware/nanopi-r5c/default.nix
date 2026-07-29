@@ -29,24 +29,25 @@ let
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = ./kernel-config;
   };
-  # The installed MT7921 requests only these six blobs.  Copy their contents
-  # instead of retaining the complete linux-firmware package (roughly 800 MiB)
-  # in every R5C system closure.
+  # Keep only the firmware requested by the installed MT7921/BT adapter and
+  # RTL8125 NICs instead of retaining the complete linux-firmware package
+  # (roughly 800 MiB) in every R5C system closure.
   mt7921Firmware = pkgs.runCommand "mt7921-firmware" { } ''
-    source=${pkgs.linux-firmware}/lib/firmware/mediatek
-    destination=$out/lib/firmware/mediatek
-    mkdir -p "$destination"
+    source=${pkgs.linux-firmware}/lib/firmware
+    mkdir -p "$out/lib/firmware/mediatek" "$out/lib/firmware/rtl_nic"
     for firmware in \
       WIFI_MT7922_patch_mcu_1_1_hdr.bin \
       WIFI_RAM_CODE_MT7922_1.bin \
       WIFI_MT7961_patch_mcu_1_2_hdr.bin \
       WIFI_RAM_CODE_MT7961_1.bin \
       WIFI_MT7961_patch_mcu_1a_2_hdr.bin \
-      WIFI_RAM_CODE_MT7961_1a.bin
+      WIFI_RAM_CODE_MT7961_1a.bin \
+      BT_RAM_CODE_MT7961_1_2_hdr.bin
     do
-      test -e "$source/$firmware"
-      cp -L "$source/$firmware" "$destination/$firmware"
+      test -e "$source/mediatek/$firmware"
+      cp -L "$source/mediatek/$firmware" "$out/lib/firmware/mediatek/$firmware"
     done
+    cp -L "$source/rtl_nic/rtl8125b-2.fw" "$out/lib/firmware/rtl_nic/"
   '';
   # The RK3568 has no built-in RTC.  The RK808 PMIC RTC (rtc0) retains time
   # for short power cycles via a capacitor but resets on long power loss.
