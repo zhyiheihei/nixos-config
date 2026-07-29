@@ -103,7 +103,7 @@ in
     # Match Armbian's NanoPi R5C support and use the in-tree r8169 driver for
     # both RTL8125 NICs.  The vendor r8125 module has repeatedly stalled its TX
     # queue under router traffic (NETDEV WATCHDOG), taking PPPoE down with it.
-    initrd.availableKernelModules = [ ];
+    initrd.availableKernelModules = lib.mkForce [ ];
     initrd.kernelModules = [ ];
     kernelModules = [
       "ledtrig_netdev"
