@@ -76,6 +76,11 @@ in
   # start against the underlying persistent directory.
   systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
 
+  # Follow the author's per-host override pattern (see lt-home-rdp) instead of
+  # changing the shared distributed-build topology.  Twenty-eight concurrent
+  # derivations caused repeated global OOM kills, including journald.
+  nix.settings.max-jobs = lib.mkForce 4;
+
   # Fixed-output derivations are allowed to inherit these variables from the
   # multi-user Nix daemon.  Route public fetches through MetaCubeXD while
   # keeping LAN caches and internal services direct.  The upstream Go proxy
