@@ -42,6 +42,19 @@
   };
   networking.networkmanager.enable = lib.mkForce false;
 
+  # Android's bpfloader requires this to remain writable/enabled. The common
+  # hardening policy sets it to the irreversible value 1, which cannot be
+  # changed back until reboot and makes every official reDroid image shut down.
+  # Keep ADB bound to the LAN address; do not expose this host publicly.
+  boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
+
+  # Early images recorded the build user's ownership on a few persistent
+  # filesystem roots. Correct only these roots before tmpfiles validates path
+  # transitions; do not recursively alter Nix store or application data.
+  system.activationScripts.opi5p-persistent-root-ownership.text = ''
+    chown root:root /nix /nix/persistent /nix/var/nix
+  '';
+
   # Mainline experiment: expose the RK3588 Panthor DRM render node to the
   # upstream reDroid image.  Keep the container image out of the immutable
   # system closure; Podman pulls it at runtime and stores persistent Android
