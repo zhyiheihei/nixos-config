@@ -2,7 +2,7 @@
 {
   index = 114;
   tags = with tags; [
-    client
+    server
     lan-access
     nix-builder
   ];
