@@ -33,6 +33,13 @@
       }
     ];
   };
+  # Bring up the second RTL8125 as well.  A distinct LAN-only rescue address
+  # avoids a competing default route while both physical ports are mapped.
+  systemd.network.networks.eth1 = {
+    address = [ "192.168.0.63/24" ];
+    matchConfig.Name = "eth1";
+    networkConfig.IPv6AcceptRA = "yes";
+  };
   networking.networkmanager.enable = lib.mkForce false;
 
   # Mainline experiment: expose the RK3588 Panthor DRM render node to the
@@ -69,10 +76,6 @@
   # The image is large and the board may start before Panthor creates its render
   # node.  Wait for the device instead of repeatedly starting in software mode.
   systemd.services.podman-redroid = {
-    # Phase 1 must reach the serial console and SSH without waiting for a
-    # multi-gigabyte runtime image pull.  Remove this override only after the
-    # boot, storage, network and Panthor render-node gates have passed.
-    wantedBy = lib.mkForce [ ];
     after = [ "dev-dri-renderD128.device" ];
     requires = [ "dev-dri-renderD128.device" ];
     unitConfig.ConditionPathExists = "/dev/dri/renderD128";
