@@ -13,4 +13,5 @@
     name = "home-lan";
     IPv4 = "192.168.0.62";
   };
+  zerotier = "145fbb435b";
 }
