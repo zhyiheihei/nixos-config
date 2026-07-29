@@ -8,8 +8,7 @@
   cpuThreads = 8;
   manualDeploy = true;
   city = geo.cities."CN Ningbo";
-  # TODO: generate and fill in after first boot or key generation.
-  ssh.ed25519 = null;
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKlmsqnQ9i2hjfwKGeWyoSbW6279ZBFmtEDRmEbP6Xju";
   interconnect = {
     name = "home-lan";
     IPv4 = "192.168.0.62";
