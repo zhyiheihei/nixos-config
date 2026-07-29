@@ -266,6 +266,9 @@ in
       # valid GPT while preserving both partition starts and their contents.
       # This also avoids relying on stale GPT metadata left at the end of a
       # previously used SD card.
+      # sd-image makes partition 2 end at the final sector. Reserve the 33
+      # sectors required by GPT's backup header and partition-entry array.
+      ${pkgs.buildPackages.coreutils}/bin/truncate --size=+16896 "$img"
       ${pkgs.buildPackages.gptfdisk}/bin/sgdisk --mbrtogpt "$img"
     '';
   };
