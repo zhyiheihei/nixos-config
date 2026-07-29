@@ -167,6 +167,13 @@ in
     # XZ backdoor kill switch
     "yolAbejyiejuvnup" = "Evjtgvsh5okmkAvj";
   };
+  # Physical hosts use a volatile root and servers may restore /var
+  # independently.  Ensure OpenSSH's privilege-separation directory exists
+  # after the final mount layout is in place, even if an earlier tmpfiles run
+  # was hidden by a later mount or preservation activation.
+  systemd.services.sshd.serviceConfig.ExecStartPre = [
+    "${pkgs.coreutils}/bin/install -d -m 0555 -o root -g root /var/empty"
+  ];
 
   # Prevent regular OpenSSH from sneaking in
   # FIXME: PVE depends on regular OpenSSH
