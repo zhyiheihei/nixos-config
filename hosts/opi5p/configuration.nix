@@ -46,6 +46,14 @@
   # upstream reDroid image.  Keep the container image out of the immutable
   # system closure; Podman pulls it at runtime and stores persistent Android
   # state on /nix.
+  environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
+    [[registry]]
+    location = "docker.io"
+
+    [[registry.mirror]]
+    location = "docker.m.daocloud.io"
+  '';
+
   virtualisation.oci-containers.containers.redroid = {
     image = "docker.io/redroid/redroid:16.0.0_64only-latest";
     labels."io.containers.autoupdate" = "registry";
@@ -77,6 +85,14 @@
   # node. /dev/dri/renderD128 does not necessarily have a corresponding active
   # systemd .device unit, so wait for the actual node before starting reDroid.
   systemd.services.podman-redroid = {
+    environment = {
+      HTTP_PROXY = "http://192.168.0.51:7892";
+      HTTPS_PROXY = "http://192.168.0.51:7892";
+      NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
+      http_proxy = "http://192.168.0.51:7892";
+      https_proxy = "http://192.168.0.51:7892";
+      no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
+    };
     preStart = lib.mkBefore ''
       for attempt in $(seq 1 120); do
         if test -e /dev/dri/renderD128; then
