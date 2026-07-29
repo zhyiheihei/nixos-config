@@ -60,8 +60,6 @@ in
         (LT.wrapNetns "tnl-buyvm" nur-xddxdd.amule-dlp)
         (LT.wrapNetns "tnl-buyvm" qbittorrent-enhanced)
         (hashcat.override { cudaSupport = true; })
-        # error: collision between `/nix/store/2vkk2dnf693fzhlx7v2wn2kcvflgkih9-qqmusic-1.1.5/opt/LICENSE.electron.txt' and `/nix/store/zwgihw847calnxy6ff341l1qkilmn8hm-qq-3.2.2-18394/opt/LICENSE.electron.txt'
-        (lib.hiPrio nur-xddxdd.qq)
         apache-directory-studio
         attic-client
         audacious
@@ -154,6 +152,10 @@ in
         z-library-desktop
         zoom-us
         # keep-sorted end
+      ]
+      ++ lib.optionals (osConfig.networking.hostName != "ml-builder") [
+        # error: collision between `/nix/store/2vkk2dnf693fzhlx7v2wn2kcvflgkih9-qqmusic-1.1.5/opt/LICENSE.electron.txt' and `/nix/store/zwgihw847calnxy6ff341l1qkilmn8hm-qq-3.2.2-18394/opt/LICENSE.electron.txt'
+        (lib.hiPrio nur-xddxdd.qq)
       ]
       ++ lib.optionals (osConfig.networking.hostName != "lt-dell-wyse") [ nur-xddxdd.svp_4_6 ]
     );
