@@ -18,18 +18,17 @@ let
   # No defconfig override is needed.
   inherit (pkgs) ubootOrangePi5Plus;
 
-  # Keep the mainline kernel while using Armbian's proven RK3588 config as the
-  # platform baseline.  linux_6_18.override silently ignores a configfile
-  # argument; linuxManualConfig actually applies the complete olddefconfig
-  # result and retains the standard out/dev/modules outputs.
-  # Source: armbian-build/config/kernel/linux-rockchip-rk3588-current.config
-  # Already includes: DRM_PANTHOR=m, ANDROID_BINDER_IPC=y, ANDROID_BINDERFS=y,
-  # DMABUF_HEAPS=y, PSI=y, IKCONFIG=y, STMMAC/DWMAC_ROCKCHIP=y, R8169=m,
-  # BTRFS/EXT4/VFAT=y, MMC_SDHCI_OF_DWCMSHC=y, NVME_CORE=y.
-  opi5pKernel = crossPkgs.linuxManualConfig {
-    inherit (crossPkgs.linux_6_18) src version modDirVersion;
-    configfile = ./kernel-config;
+  # Pin only gnull/nixos-rk3588's vendor-kernel packaging files here instead of
+  # adding the whole repository as a Flake input. This remains an OPI5P-local
+  # implementation detail and does not add its unrelated Flake dependencies to
+  # the global lock graph.
+  rk3588NixSource = crossPkgs.fetchFromGitHub {
+    owner = "gnull";
+    repo = "nixos-rk3588";
+    rev = "2a1add82960dda2e0d203051dcf1ae4c1bc8452c";
+    hash = "sha256-nHNgt6Kkn+rFrJW2vFDsTLd7DfYlZWQgCPyk67L2q/E=";
   };
+  opi5pKernel = crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { };
 
   savedClock = "/nix/persistent/var/lib/opi5p-clock/epoch";
   saveClock = pkgs.writeShellScript "opi5p-save-clock" ''
@@ -78,6 +77,8 @@ let
     test -e "$source/arm/mali/arch10.8/mali_csffw.bin"
     cp -L "$source/arm/mali/arch10.8/mali_csffw.bin" \
       "$out/lib/firmware/arm/mali/arch10.8/mali_csffw.bin"
+    cp -L "$source/arm/mali/arch10.8/mali_csffw.bin" \
+      "$out/lib/firmware/mali_csffw.bin"
 
     # Current linux-firmware keeps Intel WiFi under intel/iwlwifi.  The kernel
     # firmware ABI still requests the AX200 blob from the firmware root.
@@ -114,7 +115,6 @@ in
     initrd.kernelModules = [ ];
     kernelModules = [
       "dwmac_motorcomm"
-      "panthor"
       "r8169"
     ];
     kernelParams = [
