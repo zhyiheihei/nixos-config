@@ -55,10 +55,9 @@
     chown root:root /nix /nix/persistent /nix/var/nix
   '';
 
-  # Mainline experiment: expose the RK3588 Panthor DRM render node to the
-  # upstream reDroid image.  Keep the container image out of the immutable
-  # system closure; Podman pulls it at runtime and stores persistent Android
-  # state on /nix.
+  # CNflysky's RK3588 image is paired with the Armbian vendor kernel's Mali
+  # CSF/Bifrost driver. Keep the image outside the immutable system closure;
+  # Podman pulls it at runtime and stores Android state on persistent /nix.
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
     [[registry]]
     location = "docker.io"
@@ -68,38 +67,26 @@
   '';
 
   virtualisation.oci-containers.containers.redroid = {
-    # Use the regular Android 14 image so the arm64 instance retains support
-    # for 32-bit Android applications. Android 15+ rejects the current 6.18
-    # mainline kernel in bpfloader because it is not on Android's LTS allowlist.
-    image = "docker.io/redroid/redroid:14.0.0-latest";
+    image = "docker.io/cnflysky/redroid-rk3588:lineage-20";
     labels."io.containers.autoupdate" = "registry";
     privileged = true;
     ports = [ "${LT.this.interconnect.IPv4}:5555:5555" ];
     volumes = [
-      "/nix/persistent/var/lib/redroid-14:/data"
+      "/nix/persistent/var/lib/redroid-rk3588-lineage20:/data"
     ];
     cmd = [
-      "androidboot.use_memfd=true"
-      "androidboot.redroid_gpu_mode=host"
-      "androidboot.redroid_gpu_node=/dev/dri/renderD128"
       "androidboot.redroid_width=1280"
       "androidboot.redroid_height=720"
       "androidboot.redroid_fps=60"
     ];
-    extraOptions = [
-      "--device=/dev/dri/renderD128"
-    ];
   };
 
-  systemd.tmpfiles.settings.redroid."/nix/persistent/var/lib/redroid-14"."d" = {
+  systemd.tmpfiles.settings.redroid."/nix/persistent/var/lib/redroid-rk3588-lineage20"."d" = {
     mode = "0700";
     user = "root";
     group = "root";
   };
 
-  # The image is large and the board may start before Panthor creates its render
-  # node. /dev/dri/renderD128 does not necessarily have a corresponding active
-  # systemd .device unit, so wait for the actual node before starting reDroid.
   systemd.services.podman-redroid = {
     environment = {
       HTTP_PROXY = "http://192.168.0.51:7892";
@@ -110,17 +97,12 @@
       no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
     };
     preStart = lib.mkBefore ''
-      install -d -m 0700 -o root -g root /nix/persistent/var/lib/redroid-14
+      install -d -m 0700 -o root -g root /nix/persistent/var/lib/redroid-rk3588-lineage20
 
-      for attempt in $(seq 1 120); do
-        if test -e /dev/dri/renderD128; then
-          exit 0
-        fi
-        sleep 1
-      done
-
-      echo "Timed out waiting for /dev/dri/renderD128" >&2
-      exit 1
+      if ! test -c /dev/mali0; then
+        echo "Armbian Mali CSF device /dev/mali0 is unavailable" >&2
+        exit 1
+      fi
     '';
   };
 }
