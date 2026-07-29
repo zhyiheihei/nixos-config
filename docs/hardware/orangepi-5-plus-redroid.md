@@ -8,9 +8,28 @@ The Orange Pi 5 Plus configuration uses the RK3588 vendor GPU stack:
 - persistent Android data in
   `/nix/persistent/var/lib/redroid-rk3588-lineage20`.
 
-Only the kernel derivation is reused from `gnull/nixos-rk3588`. This repository
-continues to own the Orange Pi 5 Plus U-Boot, extlinux configuration, disk
-image, device configuration, persistence layout, and deployment metadata.
+The kernel derivation and boot-chain contract follow `gnull/nixos-rk3588`.
+This repository continues to own the extlinux configuration, disk partitions,
+persistence layout, networking, and deployment metadata.
+
+## Existing vendor bootloader in SPI
+
+The vendor kernel must not run below Nixpkgs' mainline RK3588 U-Boot/ATF. That
+combination was tested and failed with clock errors, PCIe resource failures,
+RCU stalls, and an asynchronous SError kernel panic.
+
+This board already has its vendor bootloader in SPI NOR from the earlier
+eMMC-first setup. Do not reinstall or erase SPI as part of this migration.
+
+The NixOS image intentionally leaves the first 32 MiB free and does not embed
+`idbloader.img` or `u-boot.itb`. Without the mainline SPL in the SD-card raw
+area taking precedence, Boot ROM can use the existing vendor bootloader from
+SPI. That bootloader retains the established eMMC/SD boot priority and loads
+extlinux from the selected device.
+
+An existing card that contains the previous mainline U-Boot must be rewritten
+with the complete new image. `colmena apply` only changes the NixOS system
+profile and boot files; it cannot replace or erase raw U-Boot sectors.
 
 The previous Linux 6.18 Panthor experiment could initialize the host render
 node, but the stock reDroid gralloc could not create a GBM device from it.
@@ -89,8 +108,8 @@ adb connect 192.168.0.62:5555
 
 ## Rollback
 
-Kernel deployment is a boot-critical change. Keep the current working
-generation in extlinux until the vendor generation has passed:
+The vendor boot chain must first be tested on a separate SD card. Keep the
+current mainline recovery card unchanged until the vendor image has passed:
 
 1. cold boot;
 2. both Ethernet ports;
@@ -99,6 +118,6 @@ generation in extlinux until the vendor generation has passed:
 5. Mali GPU initialization;
 6. reDroid boot and sustained GPU load.
 
-If the new generation does not boot, select the previous generation from the
-extlinux menu over serial console. Do not garbage-collect the old generation
-before completing these checks.
+If the new image does not boot, power off and restore the mainline recovery
+card. An extlinux generation alone cannot roll back raw bootloader changes.
+Do not garbage-collect the old system closure before completing these checks.
