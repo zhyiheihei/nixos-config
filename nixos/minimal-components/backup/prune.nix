@@ -17,6 +17,8 @@ in
     serviceConfig = {
       Type = "oneshot";
       CPUQuota = "40%";
+      Restart = "on-failure";
+      RestartSec = "30m";
     };
     unitConfig.OnFailure = "notify-email@%n.service";
 
