@@ -6,8 +6,6 @@
 }:
 let
   inherit (pkgs.callPackage ./common.nix { inherit config; })
-    mkGoogleCert
-    mkGoogleTestCert
     mkLetsEncryptCert
     mkLetsEncryptTestCert
     mkZeroSSLCert
@@ -15,8 +13,9 @@ let
 in
 {
   security.acme.certs = lib.mergeAttrsList [
-    (mkGoogleCert "google-ssl.zhyi.xin")
-    (mkGoogleTestCert "google-test-ssl.zhyi.xin")
+    # Google Public CA EAB credentials expire after seven days and require
+    # external account provisioning. Keep these probes disabled until there
+    # is an intentional credential-rotation workflow.
     (mkLetsEncryptCert "letsencrypt-ssl.zhyi.xin")
     (mkLetsEncryptTestCert "letsencrypt-test-ssl.zhyi.xin")
     (mkZeroSSLCert "zerossl.zhyi.xin")
