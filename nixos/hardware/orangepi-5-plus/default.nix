@@ -54,11 +54,15 @@ let
       fi
     }
 
-    # The mainline DT exposes the GPIO indicator as blue and the PWM indicator
-    # as green.  Keep the blue power indicator on and use green as the system
-    # heartbeat; RJ45 LEDs remain controlled by the RTL8125 PHYs.
-    set_trigger "blue:indicator-1" "default-on"
-    set_trigger "green:indicator-2" "heartbeat"
+    # Orange Pi 5 Plus has three visible board indicators, but only blue and
+    # green are software-controlled in the mainline DT and exposed through
+    # /sys/class/leds.  The red LED is wired as the power-present indicator: it
+    # is expected to stay on whenever the board has power and has no trigger to
+    # configure.  Use blue heartbeat to distinguish a live system from a
+    # stalled one, and green disk activity for persistent-storage I/O.  RJ45
+    # link/activity LEDs remain controlled directly by the RTL8125 PHYs.
+    set_trigger "blue:indicator-1" "heartbeat"
+    set_trigger "green:indicator-2" "disk-activity"
   '';
 
   # Keep only the firmware observed on the real board: Mali-G610 CSF for
