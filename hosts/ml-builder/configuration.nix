@@ -22,7 +22,7 @@
     # ../../nixos/optional-apps/llama-cpp.nix
     # ../../nixos/optional-apps/llama-cpp-qwen3_6.nix
     # ../../nixos/optional-apps/ncps-client.nix
-    # ../../nixos/optional-apps/nix-distributed.nix
+    ../../nixos/optional-apps/nix-distributed.nix
     # ../../nixos/optional-apps/opencl.nix
     # ../../nixos/optional-apps/picoclaw.nix
   ];
