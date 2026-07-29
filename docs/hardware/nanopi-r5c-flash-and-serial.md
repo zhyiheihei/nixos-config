@@ -61,13 +61,13 @@ diskutil unmountDisk /dev/disk4
 
 ```bash
 diskutil list external physical
-diskutil unmountDisk /dev/disk4
+diskutil unmountDisk /dev/disk5
 
 set -o pipefail
 
 ssh -A -p 2222 root@192.168.0.50 \
   'zstd -dc /nix/src/nixos-config/result-opi5p/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst' |
-  sudo dd of=/dev/rdisk4 bs=8m
+  sudo dd of=/dev/rdisk5 bs=8m
 ```
 
 `/dev/rdisk4` 是 `/dev/disk4` 对应的 raw device。macOS 自带 `dd` 未必支持

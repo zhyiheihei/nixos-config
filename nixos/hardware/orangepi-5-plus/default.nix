@@ -44,20 +44,47 @@ let
     fi
   '';
 
-  # Mali-G610 CSF firmware required by the Panthor GPU driver.
-  # Only pull the specific firmware files instead of the full 500 MB+
-  # linux-firmware package.
-  maliFirmware = pkgs.runCommand "mali-g610-firmware" {} ''
-    fw=${pkgs.linux-firmware}
-    mkdir -p $out/lib/firmware/arm/mali/arch10.8
-    for f in $fw/lib/firmware/arm/mali/arch10.8/*; do
-      cp -L "$f" $out/lib/firmware/arm/mali/arch10.8/ 2>/dev/null || true
-    done
-    # Also provide the legacy path some drivers expect
-    mkdir -p $out/lib/firmware
-    for f in $fw/lib/firmware/mali_csffw*.bin; do
-      cp -L "$f" $out/lib/firmware/ 2>/dev/null || true
-    done
+  # Keep only the firmware observed on the real board: Mali-G610 CSF for
+  # Panthor, the installed Intel AX200NGW WiFi/Bluetooth card, and the RTL8125
+  # NIC.  Panthor requests mali_csffw.bin at the firmware root even though
+  # linux-firmware stores it under arm/mali/arch10.8, so provide both paths.
+  opi5pFirmware = pkgs.runCommand "orangepi-5-plus-firmware" { } ''
+    source=${pkgs.linux-firmware}/lib/firmware
+
+    copy_matches() {
+      destination=$1
+      shift
+      found=0
+      for pattern in "$@"; do
+        for firmware in $pattern; do
+          if test -e "$firmware"; then
+            cp -L "$firmware" "$destination/"
+            found=1
+          fi
+        done
+      done
+      test "$found" = 1
+    }
+
+    mkdir -p \
+      "$out/lib/firmware/arm/mali/arch10.8" \
+      "$out/lib/firmware/intel" \
+      "$out/lib/firmware/rtl_nic"
+
+    copy_matches "$out/lib/firmware/arm/mali/arch10.8" \
+      "$source/arm/mali/arch10.8/*"
+    copy_matches "$out/lib/firmware" \
+      "$source/arm/mali/arch10.8/mali_csffw.bin*"
+    # linux-firmware moved Intel WiFi blobs below intel/iwlwifi in 2025.
+    # Accept both layouts and install the requested blob at the kernel ABI path.
+    copy_matches "$out/lib/firmware" \
+      "$source/iwlwifi-cc-a0-77.ucode*" \
+      "$source/intel/iwlwifi/iwlwifi-cc-a0-77.ucode*"
+    copy_matches "$out/lib/firmware/intel" \
+      "$source/intel/ibt-20-1-3.*"
+    copy_matches "$out/lib/firmware/rtl_nic" \
+      "$source/rtl_nic/rtl8125b-2.fw*" \
+      "$source/realtek/rtl_nic/rtl8125b-2.fw*"
   '';
 in
 {
@@ -121,10 +148,11 @@ in
   systemd.services.install-random-star-rail-grub-theme.enable = false;
 
   hardware = {
-    # Install only the firmware requested by Panthor rather than retaining the
-    # complete linux-firmware package in every system closure.
+    # Install only firmware requested by devices observed in the serial log
+    # rather than retaining the complete linux-firmware package.
     enableRedistributableFirmware = lib.mkForce false;
-    firmware = [ maliFirmware ];
+    firmware = [ opi5pFirmware ];
+    bluetooth.enable = true;
   };
 
   hardware.deviceTree = {
