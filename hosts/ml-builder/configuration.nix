@@ -6,6 +6,13 @@
   LT,
   ...
 }:
+let
+  sshKeys = import (inputs.secrets + "/ssh/zhyi.nix");
+  macBookPublicKey = lib.findFirst (
+    key: lib.hasSuffix "2386656187@qq.com" key
+  ) (throw "mac-book SSH public key is missing from secrets") sshKeys;
+  macBookIdentity = pkgs.writeText "mac-book-ssh-identity.pub" macBookPublicKey;
+in
 {
   imports = [
     ../../nixos/minimal.nix
@@ -90,6 +97,16 @@
   boot.kernel.sysctl."vm.swappiness" = lib.mkForce 100;
 
   services.openssh.settings.MaxStartups = "64:30:128";
+
+  # The forwarded desktop agent contains keys for many machines.  OpenSSH can
+  # hit MaxAuthTries before reaching the interactive Mac key, especially on a
+  # second hop from this builder.  Point internal deployment targets at the
+  # matching public identity; the private key remains in the forwarded agent.
+  programs.ssh.extraConfig = lib.mkBefore ''
+    Host *.zhyi.cc 192.168.0.* 198.18.* 198.19.* fdd8:1938:4e88::*
+      IdentityFile ${macBookIdentity}
+      IdentitiesOnly yes
+  '';
 
   environment.systemPackages = with pkgs; [
     age
