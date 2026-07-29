@@ -238,6 +238,47 @@ in
     };
   };
 
+  # sdImage contains a deliberately small Btrfs /nix filesystem so that it can
+  # be written to small cards.  This board uses tmpfs for /, therefore the
+  # generic sdImage grow service cannot discover the persistent partition.
+  # Expand the GPT partition and its mounted Btrfs filesystem once on the
+  # target's first boot instead.  The guard makes later boots a no-op.
+  systemd.services.opi5p-grow-nix = {
+    description = "Expand Orange Pi 5 Plus persistent Nix filesystem";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "nix.mount" ];
+    requires = [ "nix.mount" ];
+    before = [ "sops-install-secrets.service" "podman-redroid.service" ];
+    path = [
+      pkgs.btrfs-progs
+      pkgs.gptfdisk
+      pkgs.gnugrep
+      pkgs.gnused
+      pkgs.parted
+      pkgs.util-linux
+    ];
+    script = ''
+      disk=/dev/mmcblk0
+      partition=2
+
+      test -b "$disk"
+      current_end=$(sgdisk -i "$partition" "$disk" | sed -n 's/^Last sector: \([0-9][0-9]*\).*/\1/p')
+      usable_end=$(sgdisk -p "$disk" | sed -n 's/^First usable sector is [0-9][0-9]*, last usable sector is \([0-9][0-9]*\).*/\1/p')
+
+      if [ "$current_end" -lt "$usable_end" ]; then
+        sgdisk -e "$disk"
+        printf 'Yes\\n' | parted ---pretend-input-tty "$disk" resizepart "$partition" 100%
+        partx -u "$disk"
+      fi
+
+      btrfs filesystem resize max /nix
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+  };
+
   # Match gnull/nixos-rk3588's Orange Pi 5 Plus boot contract: Armbian/vendor
   # U-Boot must already be installed in SPI NOR. This image deliberately does
   # not mix Nixpkgs' mainline U-Boot/ATF with the Armbian vendor kernel.
