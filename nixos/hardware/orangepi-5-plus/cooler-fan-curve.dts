@@ -3,62 +3,23 @@
 
 / {
 	compatible = "xunlong,orangepi-5-plus";
-};
 
-/*
- * Mainline starts the fan at 55 C and only adds its second cooling map at
- * 65 C.  reDroid can keep both the CPU and Mali-G610 busy for long periods,
- * so start airflow earlier and reach full speed before the SoC approaches
- * its passive throttling trips.
- */
-&fan {
-	cooling-levels = <0 90 140 200 255>;
-};
-
-&package_fan0 {
-	temperature = <42000>;
-	hysteresis = <3000>;
-};
-
-&package_fan1 {
-	temperature = <48000>;
-	hysteresis = <3000>;
-};
-
-&package_thermal {
-	polling-delay = <1000>;
-
-	trips {
-		package_fan2: package-fan2 {
-			temperature = <55000>;
-			hysteresis = <3000>;
-			type = "active";
-		};
-
-		package_fan3: package-fan3 {
-			temperature = <62000>;
-			hysteresis = <3000>;
-			type = "active";
-		};
-	};
-
-	cooling-maps {
-		map0 {
-			cooling-device = <&fan 1 1>;
-		};
-
-		map1 {
-			cooling-device = <&fan 2 2>;
-		};
-
-		map2 {
-			trip = <&package_fan2>;
-			cooling-device = <&fan 3 3>;
-		};
-
-		map3 {
-			trip = <&package_fan3>;
-			cooling-device = <&fan 4 4>;
+	/*
+	 * The Armbian/Rockchip vendor DTB drives pwm-fan with its custom
+	 * rockchip,temp-trips property, rather than the mainline package_thermal
+	 * cooling maps.  Target the vendor node by its stable absolute path.
+	 */
+	fragment@0 {
+		target-path = "/pwm-fan";
+		__overlay__ {
+			cooling-levels = <0 90 140 200 255>;
+			rockchip,temp-trips = <
+				42000 1
+				48000 2
+				55000 3
+				62000 4
+				68000 5
+			>;
 		};
 	};
 };

@@ -149,10 +149,8 @@ in
 
   hardware.deviceTree = {
     name = "rockchip/rk3588-orangepi-5-plus.dtb";
-    # Only copy the vendor-kernel DTB for this board. Do not apply the previous
-    # mainline-only fan overlay to the structurally different vendor DT.
     filter = "rk3588-orangepi-5-plus.dtb";
-    overlays = [ ];
+    overlays = [ ./cooler-fan-curve.dts ];
   };
 
   # RK3588 boards may return to a firmware timestamp after losing power.
