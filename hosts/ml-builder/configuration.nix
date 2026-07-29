@@ -13,18 +13,18 @@
     ./hardware-configuration.nix
 
     ../../nixos/common-apps/coredns.nix
-    ../../nixos/common-apps/nginx
-    ../../nixos/client-apps/gnupg.nix
-    ../../nixos/client-apps/vscode-remote-env.nix
-    ../../nixos/client-components/impermanence.nix
+    # ../../nixos/common-apps/nginx
+    # ../../nixos/client-apps/gnupg.nix
+    # ../../nixos/client-apps/vscode-remote-env.nix
+    # ../../nixos/client-components/impermanence.nix
 
-    ../../nixos/optional-apps/handbrake-server.nix
-    ../../nixos/optional-apps/llama-cpp.nix
-    ../../nixos/optional-apps/llama-cpp-qwen3_6.nix
-    ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/nix-distributed.nix
-    ../../nixos/optional-apps/opencl.nix
-    ../../nixos/optional-apps/picoclaw.nix
+    # ../../nixos/optional-apps/handbrake-server.nix
+    # ../../nixos/optional-apps/llama-cpp.nix
+    # ../../nixos/optional-apps/llama-cpp-qwen3_6.nix
+    # ../../nixos/optional-apps/ncps-client.nix
+    # ../../nixos/optional-apps/nix-distributed.nix
+    # ../../nixos/optional-apps/opencl.nix
+    # ../../nixos/optional-apps/picoclaw.nix
   ];
 
   sops.secrets.ml-builder-distributed-ssh-key = {
