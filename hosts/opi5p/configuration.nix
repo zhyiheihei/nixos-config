@@ -74,10 +74,19 @@
   };
 
   # The image is large and the board may start before Panthor creates its render
-  # node.  Wait for the device instead of repeatedly starting in software mode.
+  # node. /dev/dri/renderD128 does not necessarily have a corresponding active
+  # systemd .device unit, so wait for the actual node before starting reDroid.
   systemd.services.podman-redroid = {
-    after = [ "dev-dri-renderD128.device" ];
-    requires = [ "dev-dri-renderD128.device" ];
-    unitConfig.ConditionPathExists = "/dev/dri/renderD128";
+    preStart = lib.mkBefore ''
+      for attempt in $(seq 1 120); do
+        if test -e /dev/dri/renderD128; then
+          exit 0
+        fi
+        sleep 1
+      done
+
+      echo "Timed out waiting for /dev/dri/renderD128" >&2
+      exit 1
+    '';
   };
 }
