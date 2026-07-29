@@ -46,45 +46,31 @@ let
 
   # Keep only the firmware observed on the real board: Mali-G610 CSF for
   # Panthor, the installed Intel AX200NGW WiFi/Bluetooth card, and the RTL8125
-  # NIC.  Panthor requests mali_csffw.bin at the firmware root even though
-  # linux-firmware stores it under arm/mali/arch10.8, so provide both paths.
+  # NIC.  Install each blob once at the path requested by its kernel driver.
   opi5pFirmware = pkgs.runCommand "orangepi-5-plus-firmware" { } ''
     source=${pkgs.linux-firmware}/lib/firmware
-
-    copy_matches() {
-      destination=$1
-      shift
-      found=0
-      for pattern in "$@"; do
-        for firmware in $pattern; do
-          if test -e "$firmware"; then
-            cp -L "$firmware" "$destination/"
-            found=1
-          fi
-        done
-      done
-      test "$found" = 1
-    }
-
     mkdir -p \
-      "$out/lib/firmware/arm/mali/arch10.8" \
       "$out/lib/firmware/intel" \
       "$out/lib/firmware/rtl_nic"
 
-    copy_matches "$out/lib/firmware/arm/mali/arch10.8" \
-      "$source/arm/mali/arch10.8/*"
-    copy_matches "$out/lib/firmware" \
-      "$source/arm/mali/arch10.8/mali_csffw.bin*"
-    # linux-firmware moved Intel WiFi blobs below intel/iwlwifi in 2025.
-    # Accept both layouts and install the requested blob at the kernel ABI path.
-    copy_matches "$out/lib/firmware" \
-      "$source/iwlwifi-cc-a0-77.ucode*" \
-      "$source/intel/iwlwifi/iwlwifi-cc-a0-77.ucode*"
-    copy_matches "$out/lib/firmware/intel" \
-      "$source/intel/ibt-20-1-3.*"
-    copy_matches "$out/lib/firmware/rtl_nic" \
-      "$source/rtl_nic/rtl8125b-2.fw*" \
-      "$source/realtek/rtl_nic/rtl8125b-2.fw*"
+    test -e "$source/arm/mali/arch10.8/mali_csffw.bin"
+    cp -L "$source/arm/mali/arch10.8/mali_csffw.bin" \
+      "$out/lib/firmware/mali_csffw.bin"
+
+    # Current linux-firmware keeps Intel WiFi under intel/iwlwifi.  The kernel
+    # firmware ABI still requests the AX200 blob from the firmware root.
+    test -e "$source/intel/iwlwifi/iwlwifi-cc-a0-77.ucode"
+    cp -L "$source/intel/iwlwifi/iwlwifi-cc-a0-77.ucode" \
+      "$out/lib/firmware/iwlwifi-cc-a0-77.ucode"
+
+    for firmware in ibt-20-1-3.sfi ibt-20-1-3.ddc; do
+      test -e "$source/intel/$firmware"
+      cp -L "$source/intel/$firmware" "$out/lib/firmware/intel/$firmware"
+    done
+
+    test -e "$source/rtl_nic/rtl8125b-2.fw"
+    cp -L "$source/rtl_nic/rtl8125b-2.fw" \
+      "$out/lib/firmware/rtl_nic/rtl8125b-2.fw"
   '';
 in
 {
