@@ -54,6 +54,7 @@ let
       config.nix.settings.extra-platforms
   );
   platforms = builtins.concatStringsSep "," localPlatforms;
+  localMaxJobs = lib.max 2 (builtins.div LT.this.cpuThreads 2);
 in
 {
   options.lantian.nix-distributed.sshKeyPath = lib.mkOption {
@@ -75,7 +76,7 @@ in
     };
 
     environment.etc."nix/machines-with-localhost".text = config.environment.etc."nix/machines".text + ''
-      localhost ${platforms} - 2 1 kvm,nixos-test,benchmark - -
+      localhost ${platforms} - ${builtins.toString localMaxJobs} ${builtins.toString localMaxJobs} kvm,nixos-test,benchmark - -
     '';
 
     environment.systemPackages = [
