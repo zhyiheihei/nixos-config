@@ -29,14 +29,24 @@
 
   services.elasticsearch = {
     extraJavaOptions = [
-      "-Xms384m"
-      "-Xmx384m"
+      # This host only has 1 GiB of RAM.  A 384 MiB heap makes the complete
+      # JVM consume about 500 MiB and repeatedly drives the host into OOM.
+      "-Xms256m"
+      "-Xmx256m"
     ];
     extraConf = lib.mkForce ''
       xpack.security.enabled: false
       xpack.ml.enabled: false
       ingest.geoip.downloader.enabled: false
     '';
+  };
+
+  # Give the 1 GiB VM enough compressed swap headroom for Elasticsearch and
+  # make the socket-activated Nix daemon recover after memory pressure.
+  zramSwap.memoryPercent = lib.mkForce 100;
+  systemd.services.nix-daemon.serviceConfig = {
+    Restart = lib.mkForce "on-failure";
+    RestartSec = "10s";
   };
 
   systemd.services.elasticsearch-index-retention = {
