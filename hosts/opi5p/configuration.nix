@@ -33,7 +33,6 @@
       }
     ];
   };
-
   networking.networkmanager.enable = lib.mkForce false;
 
   # Mainline experiment: expose the RK3588 Panthor DRM render node to the
