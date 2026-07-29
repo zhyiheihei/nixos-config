@@ -23,7 +23,45 @@ let
     rev = "2a1add82960dda2e0d203051dcf1ae4c1bc8452c";
     hash = "sha256-nHNgt6Kkn+rFrJW2vFDsTLd7DfYlZWQgCPyk67L2q/E=";
   };
-  opi5pKernel = crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { };
+  vendorKernelConfig = builtins.readFile (rk3588NixSource + "/pkgs/kernel/rk35xx_vendor_config");
+  opi5pKernelConfig =
+    assert lib.hasInfix "# CONFIG_ARM64_VA_BITS_39 is not set" vendorKernelConfig;
+    assert lib.hasInfix "CONFIG_ARM64_VA_BITS_48=y" vendorKernelConfig;
+    assert lib.hasInfix "CONFIG_ARM64_VA_BITS=48" vendorKernelConfig;
+    crossPkgs.writeText "rk35xx-vendor-opi5p-config" (
+      builtins.replaceStrings
+        [
+          "# CONFIG_ARM64_VA_BITS_39 is not set"
+          "CONFIG_ARM64_VA_BITS_48=y"
+          "CONFIG_ARM64_VA_BITS=48"
+        ]
+        [
+          "CONFIG_ARM64_VA_BITS_39=y"
+          "# CONFIG_ARM64_VA_BITS_48 is not set"
+          "CONFIG_ARM64_VA_BITS=39"
+        ]
+        vendorKernelConfig
+    );
+  vendorLinuxManualConfig =
+    args:
+    crossPkgs.linuxManualConfig (
+      args
+      // {
+        configfile = opi5pKernelConfig;
+        config =
+          builtins.removeAttrs args.config [
+            "CONFIG_ARM64_VA_BITS_48"
+            "CONFIG_ARM64_VA_BITS"
+          ]
+          // {
+            CONFIG_ARM64_VA_BITS_39 = "y";
+            CONFIG_ARM64_VA_BITS = "9";
+          };
+      }
+    );
+  opi5pKernel = crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") {
+    linuxManualConfig = vendorLinuxManualConfig;
+  };
 
   savedClock = "/nix/persistent/var/lib/opi5p-clock/epoch";
   saveClock = pkgs.writeShellScript "opi5p-save-clock" ''
@@ -75,9 +113,6 @@ in
       "console=tty0"
       "rootwait"
       "rcuupdate.rcu_cpu_stall_suppress=0"
-      "initcall_debug"
-      "ignore_loglevel"
-      "loglevel=8"
     ];
     supportedFilesystems = lib.mkForce [
       "btrfs"
