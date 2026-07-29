@@ -55,12 +55,15 @@
   '';
 
   virtualisation.oci-containers.containers.redroid = {
-    image = "docker.io/redroid/redroid:16.0.0_64only-latest";
+    # Use the regular Android 14 image so the arm64 instance retains support
+    # for 32-bit Android applications. Android 15+ rejects the current 6.18
+    # mainline kernel in bpfloader because it is not on Android's LTS allowlist.
+    image = "docker.io/redroid/redroid:14.0.0-latest";
     labels."io.containers.autoupdate" = "registry";
     privileged = true;
     ports = [ "${LT.this.interconnect.IPv4}:5555:5555" ];
     volumes = [
-      "/nix/persistent/var/lib/redroid:/data"
+      "/nix/persistent/var/lib/redroid-14:/data"
     ];
     cmd = [
       "androidboot.use_memfd=true"
@@ -75,7 +78,7 @@
     ];
   };
 
-  systemd.tmpfiles.settings.redroid."/nix/persistent/var/lib/redroid"."d" = {
+  systemd.tmpfiles.settings.redroid."/nix/persistent/var/lib/redroid-14"."d" = {
     mode = "0700";
     user = "root";
     group = "root";
@@ -94,6 +97,8 @@
       no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
     };
     preStart = lib.mkBefore ''
+      install -d -m 0700 -o root -g root /nix/persistent/var/lib/redroid-14
+
       for attempt in $(seq 1 120); do
         if test -e /dev/dri/renderD128; then
           exit 0
