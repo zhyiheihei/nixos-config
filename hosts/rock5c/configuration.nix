@@ -27,25 +27,6 @@
   };
   networking.networkmanager.enable = lib.mkForce false;
 
-  # This headless ARM image inherits the author's global Stylix defaults, but
-  # the custom Windows cursor converter executes target Python during install.
-  # Under an x86_64 cross build that falls back to qemu-aarch64 and crashes.
-  # Keep the author defaults untouched and replace only this host's cursor with
-  # a trivial freedesktop fallback theme.
-  stylix.cursor = {
-    package = lib.mkForce (
-      pkgs.runCommandNoCC "rock5c-default-cursor-theme" { } ''
-        mkdir -p "$out/share/icons/default"
-        cat > "$out/share/icons/default/index.theme" <<'EOF'
-        [Icon Theme]
-        Name=Default
-        Inherits=Adwaita
-        EOF
-      ''
-    );
-    name = lib.mkForce "default";
-  };
-
   boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
 
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
