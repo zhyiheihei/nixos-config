@@ -38,7 +38,7 @@ let
         ]
         vendorKernelConfig
     );
-  rock5cKernel =
+  rock5cKernel = (
     (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { }).override {
       configfile = rock5cKernelConfig;
       config =
@@ -50,20 +50,27 @@ let
           CONFIG_ARM64_VA_BITS_39 = "y";
           CONFIG_ARM64_VA_BITS = "9";
         };
-    };
+    }
+  ).overrideAttrs (old: {
+    requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+  });
 
   # ROCK 5C has no populated SPI NOR. Build upstream U-Boot and place both
   # Rockchip boot stages in the unused area before partition 1.
-  rock5cUBoot = crossPkgs.buildUBoot {
-    defconfig = "rock-5c-rk3588s_defconfig";
-    BL31 = "${crossPkgs.armTrustedFirmwareRK3588}/bl31.elf";
-    ROCKCHIP_TPL = crossPkgs.rkbin.TPL_RK3588;
-    filesToInstall = [
-      "idbloader.img"
-      "u-boot.itb"
-    ];
-    extraMeta.platforms = [ "aarch64-linux" ];
-  };
+  rock5cUBoot = (
+    crossPkgs.buildUBoot {
+      defconfig = "rock-5c-rk3588s_defconfig";
+      BL31 = "${crossPkgs.armTrustedFirmwareRK3588}/bl31.elf";
+      ROCKCHIP_TPL = crossPkgs.rkbin.TPL_RK3588;
+      filesToInstall = [
+        "idbloader.img"
+        "u-boot.itb"
+      ];
+      extraMeta.platforms = [ "aarch64-linux" ];
+    }
+  ).overrideAttrs (old: {
+    requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+  });
 
   savedClock = "/nix/persistent/var/lib/rock5c-clock/epoch";
   saveClock = pkgs.writeShellScript "rock5c-save-clock" ''

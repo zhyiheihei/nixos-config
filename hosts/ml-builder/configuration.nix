@@ -59,6 +59,11 @@ in
   lantian.nix-distributed.sshKeyPath =
     config.sops.secrets.ml-builder-distributed-ssh-key.path;
 
+  # Only this machine advertises the native x86_64 toolchain used for
+  # AArch64 cross builds. Ordinary x86_64 derivations remain distributable to
+  # the other builders.
+  nix.settings.extra-system-features = [ "aarch64-cross" ];
+
   # ARM system builds are delegated to the native opi5p builder. Keep explicit
   # cross derivations (kernel/U-Boot toolchains) local, but do not advertise
   # qemu-user as a general aarch64 execution platform: some install scripts
