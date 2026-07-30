@@ -291,7 +291,7 @@ in
   # Keep the first 32 MiB free, as expected by the reference image layout.
   sdImage = {
     firmwarePartitionOffset = 32;
-    firmwarePartitionName = "FIRMWARE";
+    firmwarePartitionName = "NVME_BOOT";
     firmwareSize = 256;
     rootFilesystemCreator = ../make-nix-btrfs-fs.nix;
     rootPartitionUUID = "55555555-5555-5555-8888-888888888888";

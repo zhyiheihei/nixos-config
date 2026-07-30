@@ -83,6 +83,10 @@ The generated image is converted to GPT after Nixpkgs creates it because the
 vendor boot chain expects a valid GPT. Partition 1 is the boot partition.
 eMMC is neither mounted nor required after SPI and NVMe cold-boot validation.
 
+This layout was cold-boot tested with the eMMC module physically removed. The
+SPI loader found `/extlinux/extlinux.conf` on `NVME_BOOT`; Linux then mounted
+both NVMe partitions, reached the current system closure, and started reDroid.
+
 On first boot, `opi5p-grow-nix.service` expands partition 2 and the mounted
 Btrfs filesystem to fill the card. `/nix` is marked `neededForBoot`; removing
 that setting makes cold boot unable to locate the system closure.
