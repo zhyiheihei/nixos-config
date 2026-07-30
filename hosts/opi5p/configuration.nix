@@ -138,7 +138,7 @@
   };
 
   systemd.services.redroid-landscape-navigation = {
-    description = "Configure reDroid landscape display and side navigation bar";
+    description = "Configure reDroid display, navigation, and application networking";
     wantedBy = [ "multi-user.target" ];
     after = [ "podman-redroid.service" ];
     requires = [ "podman-redroid.service" ];
@@ -154,6 +154,10 @@
           | ${pkgs.gnugrep}/bin/grep -qx 1; then
           ${pkgs.podman}/bin/podman exec redroid wm size reset
           ${pkgs.podman}/bin/podman exec redroid wm user-rotation lock 1
+          # The image enables Android's restricted networking mode by default.
+          # It blocks ordinary application UIDs (including TapTap) even while
+          # the container, DNS, and Android's validated default network work.
+          ${pkgs.podman}/bin/podman exec redroid settings put global restricted_networking_mode 0
           exit 0
         fi
         ${pkgs.coreutils}/bin/sleep 2
