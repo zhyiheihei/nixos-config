@@ -51,7 +51,7 @@ let
     [ pkgs.stdenv.hostPlatform.system ]
     ++ builtins.filter
       (platform: isLocalArmBuilder || !isArmPlatform platform)
-      config.nix.settings.extra-platforms
+      (config.nix.settings.extra-platforms or [ ])
   );
   localBuildMachine = {
     hostName = "localhost";
