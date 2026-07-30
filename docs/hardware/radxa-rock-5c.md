@@ -10,12 +10,17 @@
 - 板级模块：[`nixos/hardware/rock-5c/`](../../nixos/hardware/rock-5c/)
 - reDroid 主机配置：[`hosts/rock5c/configuration.nix`](../../hosts/rock5c/configuration.nix)
 - Linux DTB：`rockchip/rk3588s-rock-5c.dtb`
-- U-Boot defconfig：`rock-5c-rk3588s_defconfig`
+- U-Boot：Armbian `rock-5c` vendor 包（Radxa BSP + Armbian RK35xx 补丁）
 - 串口：UART2，1500000 8N1
 
-Linux 和 U-Boot 均使用当前固定源码中已有的 ROCK 5C 支持。最终镜像不依赖
-Armbian 工作目录；`gnull/nixos-rk3588` 只提供已经固定哈希的 vendor kernel
-Nix 包装，实际内核源码同样由 Nix derivation 获取。
+Linux 使用固定版本的 `gnull/nixos-rk3588` vendor kernel 包装。U-Boot 来自
+仓库内固定的 Armbian `linux-u-boot-rock-5c-vendor` 包，Nix 解包时会分别校验
+`idbloader.img` 和 `u-boot.itb`。最终镜像不依赖 Armbian 工作目录。
+
+主线 U-Boot 2026.07 虽能加载 extlinux 和 vendor 6.1 内核，但会让 RK806 PMIC
+和时钟处于不兼容状态。实机表现为 SPI 超时、MMC/GPU/RNG/PCIe 初始化失败、
+RCU stall，最后触发 `Asynchronous SError`。因此不得把 Nixpkgs 主线 U-Boot
+重新替换到这条 vendor 启动链。
 
 ## SD 卡启动布局
 
@@ -74,7 +79,7 @@ nix build \
   --show-trace
 ```
 
-写卡并上电后，串口应依次看到 DDR/TPL、主线 U-Boot、extlinux、kernel 和
+写卡并上电后，串口应依次看到 DDR/TPL、Armbian vendor U-Boot、extlinux、kernel 和
 `rk3588s-rock-5c.dtb` 的加载记录。若只看到 BootROM 重试，应先检查镜像开头的
 U-Boot 数据，而不是修改 Linux 配置：
 
