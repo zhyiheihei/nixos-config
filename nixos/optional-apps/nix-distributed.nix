@@ -17,7 +17,6 @@ let
   ];
 
   isArmPlatform = platform: builtins.elem platform armPlatforms;
-  isLocalArmBuilder = config.networking.hostName == "ml-builder";
 
   mkBuildMachine =
     n: v:
@@ -32,9 +31,11 @@ let
       # Hydra keys machines by store URI, so each host must have only one entry.
       [
         {
-          systems =
-            [ v.system ]
-            ++ lib.optionals isBigParallelBuilder armPlatforms;
+          # A builder advertises only its native platform. Cross derivations
+          # produced by pkgsCross have the build machine's native system and
+          # therefore go to ml-builder without pretending it can execute ARM
+          # binaries through QEMU.
+          systems = [ v.system ];
           hostName = "${n}.zhyi.cc";
           maxJobs = v.cpuThreads;
           # Hydra's build-remote path currently only supports legacy SSH stores.
@@ -50,7 +51,7 @@ let
   localPlatforms = lib.uniqueStrings (
     [ pkgs.stdenv.hostPlatform.system ]
     ++ builtins.filter
-      (platform: isLocalArmBuilder || !isArmPlatform platform)
+      (platform: !isArmPlatform platform)
       (config.nix.settings.extra-platforms or [ ])
   );
   localBuildMachine = {
