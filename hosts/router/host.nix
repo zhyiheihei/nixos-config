@@ -2,7 +2,8 @@
 {
   index = 112;
   system = "aarch64-linux";
-  tags = with tags; [ ];
+  # Included in `make all`, but kept out of automatic reboot groups.
+  tags = with tags; [ "default" ];
   hostname = "192.168.0.1";
   cpuThreads = 4;
   manualDeploy = true;
