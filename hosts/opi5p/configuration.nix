@@ -11,17 +11,6 @@
     ./hardware-configuration.nix
   ];
 
-  # ── Phase 1: Minimal boot validation ──────────────────────────────
-  # Only enable what is needed to validate the boot chain, serial
-  # console, network, and SSH access.  Do NOT add production services
-  # until Phase 4 gates are passed.
-
-  # Temporary SSH key for initial bring-up.  Remove after formal
-  # host keys and SOPS are validated.
-  users.users.root.openssh.authorizedKeys.keys = [
-    "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAXn2roZsbvURS+faytLLz2OE1gemC19RMNsPj3Ypnha 2386656187@qq.com"
-  ];
-
   # Both onboard NICs use the same RTL8125 driver, so eth0/eth1 follow PCIe
   # probe order and can swap between boots. Match the permanent MAC addresses
   # for activation safety and give the ports stable names for later services.
@@ -34,7 +23,7 @@
     linkConfig.Name = "lan1";
   };
 
-  # Static network configuration for initial LAN access.
+  # Static network configuration for LAN access.
   systemd.network.networks.lan0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     matchConfig.PermanentMACAddress = "c0:74:2b:ff:5c:fd";
