@@ -12,6 +12,9 @@ Orange Pi 5 Plus 的 vendor SPI/U-Boot、RK3588 vendor kernel、Mali GPU、
 PWM 风扇和 reDroid 实现见
 [`orangepi-5-plus-redroid.md`](./orangepi-5-plus-redroid.md)。
 
+Radxa ROCK 5C 的无 SPI、SD 卡内嵌 U-Boot 和 RK3588 reDroid 实现见
+[`radxa-rock-5c.md`](./radxa-rock-5c.md)。
+
 ## 1. 先拆分四层问题
 
 ARM 板适配应按以下顺序推进：
