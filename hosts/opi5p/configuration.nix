@@ -12,6 +12,11 @@
     ./hardware-configuration.nix
   ];
 
+  # This host is a native aarch64 builder. Registering qemu-arm through
+  # binfmt would intercept reDroid's 32-bit ARM HAL binaries instead of
+  # letting the kernel's native compat layer execute them.
+  lantian.qemu-user-static-binfmt.enable = lib.mkForce false;
+
   # Both onboard NICs use the same RTL8125 driver, so eth0/eth1 follow PCIe
   # probe order and can swap between boots. Match the permanent MAC addresses
   # for activation safety and give the ports stable names for later services.
