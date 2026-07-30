@@ -8,6 +8,10 @@ NanoPi R5C 的已验证实现见
 [`nixos/hardware/nanopi-r5c/`](../../nixos/hardware/nanopi-r5c/) 和
 [`nanopi-r5c.md`](./nanopi-r5c.md)。
 
+Orange Pi 5 Plus 的 vendor SPI/U-Boot、RK3588 vendor kernel、Mali GPU、
+PWM 风扇和 reDroid 实现见
+[`orangepi-5-plus-redroid.md`](./orangepi-5-plus-redroid.md)。
+
 ## 1. 先拆分四层问题
 
 ARM 板适配应按以下顺序推进：
