@@ -2,7 +2,8 @@
 {
   index = 122;
   system = "aarch64-linux";
-  tags = with tags; [ ];
+  # Included in `make all`, but kept out of automatic reboot groups.
+  tags = with tags; [ "default" ];
   # Temporary: use LAN IP until formal hostname is assigned.
   hostname = "192.168.0.62";
   cpuThreads = 8;
