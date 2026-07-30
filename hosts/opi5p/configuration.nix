@@ -116,30 +116,6 @@
       NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
     };
     preStart = lib.mkBefore ''
-      ensure_nocow_directory() {
-        directory="$1"
-        mode="$2"
-
-        install -d -m "$mode" -o root -g root "$directory"
-        case "$(${pkgs.e2fsprogs}/bin/lsattr -d "$directory" | ${pkgs.coreutils}/bin/cut -d ' ' -f 1)" in
-          *C*) ;;
-          *)
-            if ${pkgs.findutils}/bin/find "$directory" -mindepth 1 -print -quit \
-              | ${pkgs.gnugrep}/bin/grep -q .; then
-              echo "$directory contains CoW data; migrate it before starting reDroid" >&2
-              exit 1
-            fi
-            ${pkgs.e2fsprogs}/bin/chattr +C "$directory"
-            ;;
-        esac
-      }
-
-      # Android databases and Podman's overlay layer generate random writes.
-      # NOCOW also disables compression for newly created files below these
-      # directories, trading space for lower latency on this board's eMMC.
-      ensure_nocow_directory /nix/persistent/var/lib/redroid-rk3588-lineage20 0700
-      ensure_nocow_directory /nix/persistent/var/lib/containers 0710
-
       if ! test -c /dev/mali0; then
         echo "Armbian Mali CSF device /dev/mali0 is unavailable" >&2
         exit 1
