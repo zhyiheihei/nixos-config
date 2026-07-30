@@ -3,6 +3,9 @@
   config,
   ...
 }:
+let
+  proxy = "http://${LT.this.interconnect.IPv4}:7892";
+in
 {
   services.ncps = {
     enable = true;
@@ -20,6 +23,19 @@
       lru.schedule = "53 4 * * *";
       maxSize = "100G";
       signNarinfo = false;
+    };
+  };
+
+  systemd.services.ncps = {
+    after = [ "podman-metacubexd.service" ];
+    wants = [ "podman-metacubexd.service" ];
+    environment = {
+      HTTP_PROXY = proxy;
+      HTTPS_PROXY = proxy;
+      NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
+      http_proxy = proxy;
+      https_proxy = proxy;
+      no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
     };
   };
 }
