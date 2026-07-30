@@ -95,8 +95,11 @@ in
 
   boot = {
     initrd.availableKernelModules = lib.mkForce [ ];
-    initrd.kernelModules = [ ];
-    kernelModules = [ "dwmac_rk" ];
+    initrd.kernelModules = lib.mkForce [ ];
+    kernelModules = lib.mkForce [ "dwmac_rk" ];
+    # The generic out-of-tree modules use native ARM build tools and cannot
+    # build against this x86_64 cross-built vendor kernel.
+    extraModulePackages = lib.mkForce [ ];
     kernelParams = lib.mkAfter [
       "earlycon=uart8250,mmio32,0xfeb50000"
       "console=ttyS2,1500000n8"
@@ -121,6 +124,8 @@ in
       };
     };
   };
+
+  fileSystems."/run/nullfs".enable = lib.mkForce false;
 
   lantian.kernel = lib.mkForce rock5cKernel;
   honkai-railway-grub-theme.enable = lib.mkForce false;

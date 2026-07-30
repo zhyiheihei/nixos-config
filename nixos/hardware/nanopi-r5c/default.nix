@@ -107,12 +107,15 @@ in
     # both RTL8125 NICs.  The vendor r8125 module has repeatedly stalled its TX
     # queue under router traffic (NETDEV WATCHDOG), taking PPPoE down with it.
     initrd.availableKernelModules = lib.mkForce [ ];
-    initrd.kernelModules = [ ];
-    kernelModules = [
+    initrd.kernelModules = lib.mkForce [ ];
+    kernelModules = lib.mkForce [
       "ledtrig_netdev"
       "r8169"
       "rtc_rk808"
     ];
+    # The generic out-of-tree modules use native ARM build tools and cannot
+    # build against this x86_64 cross-built kernel. Use in-tree drivers here.
+    extraModulePackages = lib.mkForce [ ];
     kernelParams = [
       # The uart8250 earlycon parser must not be given the baud rate here; doing
       # so hides all output after U-Boot's "Starting kernel ..." line.
@@ -143,6 +146,8 @@ in
       };
     };
   };
+
+  fileSystems."/run/nullfs".enable = lib.mkForce false;
 
   # Keep the author's kernel package wrapper so its custom module attributes
   # remain available on ARM, just as on lt-rpi4.

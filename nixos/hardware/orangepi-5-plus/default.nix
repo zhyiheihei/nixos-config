@@ -98,11 +98,14 @@ in
     # kernel deliberately does not build).  Network drivers load after the
     # persistent root is mounted.
     initrd.availableKernelModules = lib.mkForce [ ];
-    initrd.kernelModules = [ ];
-    kernelModules = [
+    initrd.kernelModules = lib.mkForce [ ];
+    kernelModules = lib.mkForce [
       "dwmac_motorcomm"
       "r8169"
     ];
+    # The generic out-of-tree modules use native ARM build tools and cannot
+    # build against this x86_64 cross-built vendor kernel.
+    extraModulePackages = lib.mkForce [ ];
     # Keep these after the repository-wide defaults. In particular, override
     # the common RCU-stall suppression while bringing this board up so a hard
     # lockup identifies the exact initcall instead of going silent.
@@ -136,6 +139,8 @@ in
       };
     };
   };
+
+  fileSystems."/run/nullfs".enable = lib.mkForce false;
 
   # Keep the author's kernel package wrapper so its custom module attributes
   # remain available on ARM, just as on lt-rpi4 and nanopi-r5c.
