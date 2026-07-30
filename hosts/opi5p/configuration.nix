@@ -45,6 +45,22 @@
   };
   networking.networkmanager.enable = lib.mkForce false;
 
+  # Keep short-lived compiler objects off the relatively slow eMMC-backed
+  # Btrfs filesystem. The limit is not reserved at boot; unused memory remains
+  # available to reDroid and the kernel, with zram handling temporary pressure.
+  fileSystems."/var/cache/nix" = {
+    device = "tmpfs";
+    fsType = "tmpfs";
+    options = [
+      "mode=0755"
+      "nodev"
+      "nosuid"
+      "size=8G"
+    ];
+  };
+  systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
+  nix.settings.max-jobs = lib.mkForce 4;
+
   # Android's bpfloader requires this to remain writable/enabled. The common
   # hardening policy sets it to the irreversible value 1, which cannot be
   # changed back until reboot and makes every official reDroid image shut down.
