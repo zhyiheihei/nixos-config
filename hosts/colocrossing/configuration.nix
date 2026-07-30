@@ -134,4 +134,7 @@
   ];
   systemd.services.cleanup-github-notifications.serviceConfig.ExecCondition =
     "${pkgs.gnugrep}/bin/grep -qE ^GITHUB_TOKEN=.+$ ${config.sops.secrets.cleanup-github-notifications-env.path}";
+  environment.systemPackages = with pkgs; [
+    gnumake
+  ];
 }
