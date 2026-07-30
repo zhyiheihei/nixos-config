@@ -98,6 +98,15 @@
       "androidboot.redroid_width=720"
       "androidboot.redroid_height=1280"
       "androidboot.redroid_fps=60"
+      # reDroid is connected through the container's Ethernet interface.
+      # Some Android applications only start large downloads on Wi-Fi, so use
+      # the image's supported Fake WiFi compatibility layer.
+      "androidboot.redroid_fake_wifi=1"
+      # Enable the Kitsune Magisk integration bundled with this image.
+      "androidboot.redroid_magisk=1"
+      # Match the upstream compose example instead of advertising a TV or
+      # embedded-device product class to applications.
+      "ro.build.characteristics=default"
     ];
   };
 
