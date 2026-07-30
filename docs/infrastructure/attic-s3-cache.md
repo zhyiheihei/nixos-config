@@ -19,6 +19,8 @@ Hydra (pve-5700u) / 手动构建 (ml-builder)
   `hosts/cnvm/configuration.nix` 导入。
 - Attic 只监听回环地址，由同机 Nginx 发布；外部数据面使用
   `https://attic.zhyi.xin/lantian`（标准 443 端口）。
+- `lantian` 已于 2026-07-30 切换为 private；匿名请求返回 `401`，不再提供公开
+  substituter。
 - S3 凭据与上传 token 只在私有 secrets 仓库的 `common/attic.yaml` 中以 SOPS 加密
   保存。修改它必须遵循 secrets 仓库的 `docs/sops-manual.md`。
 - 全体受管主机只通过 `common/nix.yaml` 的 `nix-netrc` 获得 `lantian` 的读取权限。
@@ -58,22 +60,26 @@ Attic，再回退到本机 NCPS；该顺序定义在
 
 ```netrc
 machine attic.zhyi.xin
+login attic
 password <仅含 pull lantian 权限的 JWT>
 ```
 
 `nixos/minimal-components/nix.nix` 按作者原有模式，通过
-`nix.settings.netrc-file` 将该文件交给 Nix。在任意已配置客户端上：
-
-```bash
-nix store ping --store https://attic.zhyi.xin/lantian
-```
-
-普通 `curl` 不会自动读取 Nix 的 netrc。需要检查认证端点时显式指定：
+`nix.settings.netrc-file` 将该文件交给 Nix。这里必须使用真实换行，不能把 `\n`
+两个字符写进 SOPS 字符串。在任意已配置客户端上：
 
 ```bash
 curl --fail --netrc-file /run/secrets/nix-netrc \
   https://attic.zhyi.xin/lantian/nix-cache-info
 ```
+
+`nix store ping` 只验证 store URL，不能单独证明私有缓存认证和对象读取成功。
+普通 `curl` 也不会自动使用 Nix 的 netrc，因此检查时必须显式指定
+`--netrc-file`。
+
+当前已验证 `ml-builder`、`pve-5700u`、`router` 和 `opi5p` 的认证请求均返回
+`200`；同一 URL 的匿名请求返回 `401`。其中只有前两台存在
+`/run/secrets/attic-upload-key`。
 
 在 cnvm 上：
 
@@ -85,7 +91,7 @@ journalctl -u atticd.service --since '30 minutes ago' --no-pager
 缓存配置和权限需要管理员 token 时，使用 `attic cache info lantian` 检查；不要为了
 修改优先级或 upstream key 直接更新 PostgreSQL 表。
 
-## 从公开缓存切换为私有缓存
+## 从公开缓存切换为私有缓存（已完成）
 
 必须严格按以下顺序操作，避免所有主机同时失去 substituter：
 
@@ -95,11 +101,18 @@ journalctl -u atticd.service --since '30 minutes ago' --no-pager
 3. 更新主仓库的 `secrets` flake input，先部署全部受管主机。
 4. 在至少 `ml-builder`、`pve-5700u` 和一台普通客户端验证带认证的
    `nix-cache-info` 及一次真实 substitution。
-5. 使用含 `--configure-cache lantian` 权限的临时管理 token 登录 Attic，然后执行：
+5. 使用临时管理 token 登录 Attic，然后执行：
 
    ```bash
    attic cache configure lantian --private
    ```
+
+   当前 `attic-client 0.1.0` 在仅传 `--private` 时也会发送
+   `retention_period = Global`，所以临时 token 实际需要同时具有
+   `--pull lantian`、`--configure-cache lantian` 和
+   `--configure-cache-retention lantian`。这不会改变当前缓存策略，因为
+   `lantian` 原本就使用服务端全局的 3 个月 retention。临时 token 不需要且不应
+   具有 push、delete、create-cache 或 destroy-cache。
 
 6. 验证匿名请求返回 `401` 或 `403`，而配置了 netrc 的 Nix 请求仍成功：
 
@@ -112,6 +125,15 @@ journalctl -u atticd.service --since '30 minutes ago' --no-pager
 
 不要直接修改 PostgreSQL 的 `cache.is_public`。使用 Attic API 可以保留权限检查和
 兼容性；也不要执行 `--regenerate-keypair`，私有化不需要更换缓存签名密钥。
+
+更新 `common/nix.yaml` 后必须更新主仓库的 `secrets` lock 并部署主机；直接覆盖
+`/run/secrets/nix-netrc` 只能作为在线热修，重启后会丢失：
+
+```bash
+cd /nix/src/nixos-config
+git pull --ff-only
+make all
+```
 
 ## 上传
 
