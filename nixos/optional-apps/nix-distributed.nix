@@ -54,19 +54,7 @@ let
       (platform: !isArmPlatform platform)
       (config.nix.settings.extra-platforms or [ ])
   );
-  localBuildMachine = {
-    hostName = "localhost";
-    systems = localPlatforms;
-    protocol = null;
-    maxJobs = LT.this.cpuThreads;
-    speedFactor = LT.this.cpuThreads;
-    supportedFeatures = [
-      "benchmark"
-      "kvm"
-      "nixos-test"
-    ];
-    mandatoryFeatures = [ ];
-  };
+  localPlatformsString = builtins.concatStringsSep "," localPlatforms;
 in
 {
   options.lantian.nix-distributed.sshKeyPath = lib.mkOption {
@@ -84,11 +72,19 @@ in
               lib.filterAttrs (n: v: v.hasTag LT.tags.nix-builder) LT.otherHosts
             )
           )
-        )
-        ++ [ localBuildMachine ];
+        );
     };
 
-    environment.etc."nix/machines-with-localhost".text = config.environment.etc."nix/machines".text;
+    # Normal `nix build` already uses the local daemon directly. Advertising
+    # localhost as an SSH builder makes the daemon recursively delegate a
+    # derivation back to itself while holding its output lock. Hydra needs an
+    # explicit local machine entry, so keep it only in Hydra's dedicated file,
+    # matching the author's layout.
+    environment.etc."nix/machines-with-localhost".text =
+      config.environment.etc."nix/machines".text
+      + ''
+        localhost ${localPlatformsString} - ${toString LT.this.cpuThreads} ${toString LT.this.cpuThreads} kvm,nixos-test,benchmark - -
+      '';
 
     environment.systemPackages = [
       (pkgs.writeShellScriptBin "nix-remote-build-off" ''
