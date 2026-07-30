@@ -116,6 +116,20 @@
       NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
     };
     preStart = lib.mkBefore ''
+      for attempt in $(${pkgs.coreutils}/bin/seq 1 60); do
+        if ${pkgs.iproute2}/bin/ip -4 address show lan0 \
+          | ${pkgs.gnugrep}/bin/grep -qF "inet ${LT.this.interconnect.IPv4}/24"; then
+          break
+        fi
+        ${pkgs.coreutils}/bin/sleep 1
+      done
+
+      if ! ${pkgs.iproute2}/bin/ip -4 address show lan0 \
+        | ${pkgs.gnugrep}/bin/grep -qF "inet ${LT.this.interconnect.IPv4}/24"; then
+        echo "LAN address ${LT.this.interconnect.IPv4} is unavailable" >&2
+        exit 1
+      fi
+
       if ! test -c /dev/mali0; then
         echo "Armbian Mali CSF device /dev/mali0 is unavailable" >&2
         exit 1
