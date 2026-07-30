@@ -108,6 +108,8 @@
   };
 
   systemd.services.podman-redroid = {
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" ];
     environment = {
       HTTP_PROXY = "http://192.168.0.51:7892";
       HTTPS_PROXY = "http://192.168.0.51:7892";
