@@ -99,36 +99,11 @@ in
   # start against the underlying persistent directory.
   systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
 
-  # Follow the author's per-host override pattern (see lt-home-rdp) instead of
-  # changing the shared distributed-build topology.  Twenty-eight concurrent
-  # derivations caused repeated global OOM kills, including journald.
   nix.settings = {
-    max-jobs = lib.mkForce 4;
     # Five seconds is too short for GitHub archive redirects from this network,
     # even when the proxy is healthy.
     connect-timeout = lib.mkForce 15;
   };
-
-  # The shared module assigns remote builders a speed factor based on their
-  # CPU capacity. Give Nix's special local builder a value on the same scale;
-  # otherwise pve-5700u (16) wins over the implicit localhost default (1) even
-  # though this 28-thread machine is faster. Keep the OOM-tested concurrency
-  # limit above while allowing excess work to spill to remote builders.
-  nix.buildMachines = lib.mkAfter [
-    {
-      hostName = "localhost";
-      systems = [ pkgs.stdenv.hostPlatform.system ];
-      protocol = null;
-      maxJobs = 4;
-      speedFactor = LT.this.cpuThreads;
-      supportedFeatures = [
-        "benchmark"
-        "kvm"
-        "nixos-test"
-      ];
-      mandatoryFeatures = [ ];
-    }
-  ];
 
   # Flake lock updates fetch some inputs in the invoking client, while
   # fixed-output derivations fetch through the multi-user Nix daemon. Give

@@ -53,8 +53,19 @@ let
       (platform: isLocalArmBuilder || !isArmPlatform platform)
       config.nix.settings.extra-platforms
   );
-  platforms = builtins.concatStringsSep "," localPlatforms;
-  localMaxJobs = lib.max 2 (builtins.div LT.this.cpuThreads 2);
+  localBuildMachine = {
+    hostName = "localhost";
+    systems = localPlatforms;
+    protocol = null;
+    maxJobs = LT.this.cpuThreads;
+    speedFactor = LT.this.cpuThreads;
+    supportedFeatures = [
+      "benchmark"
+      "kvm"
+      "nixos-test"
+    ];
+    mandatoryFeatures = [ ];
+  };
 in
 {
   options.lantian.nix-distributed.sshKeyPath = lib.mkOption {
@@ -72,12 +83,11 @@ in
               lib.filterAttrs (n: v: v.hasTag LT.tags.nix-builder) LT.otherHosts
             )
           )
-        );
+        )
+        ++ [ localBuildMachine ];
     };
 
-    environment.etc."nix/machines-with-localhost".text = config.environment.etc."nix/machines".text + ''
-      localhost ${platforms} - ${builtins.toString localMaxJobs} ${builtins.toString localMaxJobs} kvm,nixos-test,benchmark - -
-    '';
+    environment.etc."nix/machines-with-localhost".text = config.environment.etc."nix/machines".text;
 
     environment.systemPackages = [
       (pkgs.writeShellScriptBin "nix-remote-build-off" ''
