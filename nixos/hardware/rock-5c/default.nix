@@ -54,21 +54,27 @@ let
     }
   );
 
-  # ROCK 5C has no populated SPI NOR. Build upstream U-Boot and place both
-  # Rockchip boot stages in the unused area before partition 1.
-  rock5cUBoot = crossPkgs.buildUBoot {
-    defconfig = "rock-5c-rk3588s_defconfig";
-    requiredSystemFeatures = [ "aarch64-cross" ];
-    env = {
-      BL31 = "${crossPkgs.armTrustedFirmwareRK3588}/bl31.elf";
-      ROCKCHIP_TPL = crossPkgs.rkbin.TPL_RK3588;
-    };
-    filesToInstall = [
-      "idbloader.img"
-      "u-boot.itb"
-    ];
-    extraMeta.platforms = [ "aarch64-linux" ];
-  };
+  # The vendor kernel, DTB, ATF and bootloader form one RK3588 BSP support
+  # set. Mainline U-Boot 2026.07 reached extlinux but left the RK806 PMIC and
+  # clocks in an incompatible state, causing SPI timeouts, RCU stalls and an
+  # asynchronous SError. Keep the exact Armbian ROCK 5C vendor artifacts that
+  # were built from Radxa U-Boot with Armbian's rk35xx patches.
+  rock5cArmbianUBootDeb =
+    ./linux-u-boot-rock-5c-vendor_26.08.0-trunk_arm64__2017.09-S39cd-Pdcf8-Hbe55-V1be2-B5da4-R448a.deb;
+  rock5cUBoot = pkgs.runCommand "rock5c-armbian-vendor-uboot" {
+    nativeBuildInputs = [ pkgs.dpkg ];
+  } ''
+    dpkg-deb -x ${rock5cArmbianUBootDeb} extracted
+    source=extracted/usr/lib/linux-u-boot-vendor-rock-5c
+
+    echo "d772bc9489e516ac0c38ed8cc2556f6c1ee4584f48cf3b87845e6bb6ad4afb7b  $source/idbloader.img" \
+      | sha256sum -c -
+    echo "8d8d5a3239673e6ea27bc3c1bd98b721370d063351a747cab4949669362ac415  $source/u-boot.itb" \
+      | sha256sum -c -
+
+    install -Dm0644 "$source/idbloader.img" "$out/idbloader.img"
+    install -Dm0644 "$source/u-boot.itb" "$out/u-boot.itb"
+  '';
 
   savedClock = "/nix/persistent/var/lib/rock5c-clock/epoch";
   saveClock = pkgs.writeShellScript "rock5c-save-clock" ''
