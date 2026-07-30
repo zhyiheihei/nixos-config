@@ -219,7 +219,7 @@ in
       ];
     };
     "/boot" = {
-      device = "/dev/disk/by-label/FIRMWARE";
+      device = "/dev/disk/by-label/NVME_BOOT";
       fsType = "vfat";
       options = [
         "fmask=0077"

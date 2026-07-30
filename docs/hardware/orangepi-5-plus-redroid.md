@@ -38,22 +38,26 @@ The kernel is cross-compiled on the x86_64 builder with
 `pkgsCross.aarch64-multiplatform`. The ARM compiler, assembler and linker do
 not run through qemu-user.
 
-## Existing vendor bootloader in SPI
+## Vendor bootloader in SPI
 
 The vendor kernel must not run below Nixpkgs' mainline RK3588 U-Boot/ATF. That
 combination was tested and failed with clock errors, PCIe resource failures,
 RCU stalls, and an asynchronous SError kernel panic.
 
-This board already has its vendor bootloader in SPI NOR from the earlier
-eMMC-first setup. Do not reinstall or erase SPI as part of this migration.
+Use Armbian's `orangepi5-plus` `vendor` bootloader instead. It is built from
+the Radxa RK3588 U-Boot tree with Armbian's board patches and produces the
+complete 16 MiB `rkspi_loader.img` intended for SPI NOR. Do not substitute
+Nixpkgs' `u-boot-rockchip-spi.bin`, despite its matching board name.
 
 The NixOS image intentionally leaves the first 32 MiB free and does not embed
-`idbloader.img` or `u-boot.itb`. Without the mainline SPL in the SD-card raw
-area taking precedence, Boot ROM can use the existing vendor bootloader from
-SPI. That bootloader retains the established eMMC/SD boot priority and loads
-extlinux from the selected device.
+`idbloader.img` or `u-boot.itb`. Boot ROM therefore starts the Armbian loader
+from SPI, which can load extlinux directly from the NVMe.
 
-An existing card that contains the previous mainline U-Boot must be rewritten
+Before writing SPI, copy a full `/dev/mtd0` backup off the board and verify its
+hash. Write only the complete `rkspi_loader.img`; keep a serial console and
+MaskROM recovery available until a cold boot has succeeded.
+
+An existing card that contains a previous mainline U-Boot must be rewritten
 with the complete new image. `colmena apply` only changes the NixOS system
 profile and boot files; it cannot replace or erase raw U-Boot sectors.
 
@@ -65,20 +69,19 @@ it is not retained as a second production route.
 
 ## Disk and boot layout
 
-The generated image deliberately follows the repository's physical-client
-persistence model:
+The installed system follows the repository's physical-client persistence
+model and lives entirely on the NVMe:
 
-| Region | Format | Mount point | Purpose |
+| NVMe region | Format | Mount point | Purpose |
 | --- | --- | --- | --- |
-| first 32 MiB | unused | - | Preserve the vendor SPI boot contract; do not embed mainline U-Boot |
-| partition 1 | FAT, 256 MiB | `/boot` | extlinux, kernel, initrd and the filtered board DTB |
-| partition 2 | Btrfs | `/nix` | Nix store, system profile and `/nix/persistent` |
+| first 32 MiB | unused | - | Keep bootloader payloads in SPI, not on the NVMe |
+| partition 1, `NVME_BOOT` | FAT, 256 MiB | `/boot` | extlinux, kernel, initrd and the filtered board DTB |
+| partition 2, `NIXOS_NIX` | Btrfs | `/nix` | Nix store, system profile and `/nix/persistent` |
 | runtime root | tmpfs | `/` | Ephemeral operating-system root |
 
-The image is converted to GPT after Nixpkgs creates it because the board's
-vendor U-Boot 2017.09 incorrectly selects its EFI partition parser for the
-generic MBR image and does not fall back to DOS partitions. Partition 1 is the
-boot partition.
+The generated image is converted to GPT after Nixpkgs creates it because the
+vendor boot chain expects a valid GPT. Partition 1 is the boot partition.
+eMMC is neither mounted nor required after SPI and NVMe cold-boot validation.
 
 On first boot, `opi5p-grow-nix.service` expands partition 2 and the mounted
 Btrfs filesystem to fill the card. `/nix` is marked `neededForBoot`; removing
