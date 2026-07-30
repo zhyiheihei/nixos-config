@@ -68,6 +68,9 @@ in
 
     environment = {
       DISABLE_DATABASE = "true";
+      # UniAPI started importing msgspec on 2026-07-28, but the current NUR
+      # package does not yet include it in the generated Python environment.
+      PYTHONPATH = "${pkgs.python3Packages.msgspec}/${pkgs.python3.sitePackages}";
       UVICORN_HOST = "127.0.0.1";
       UVICORN_PORT = LT.portStr.UniAPI;
     };
