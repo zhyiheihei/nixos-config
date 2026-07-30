@@ -7,7 +7,7 @@ The following items work together:
 
 - the vendor SPI bootloader and extlinux;
 - the Armbian/Rockchip Linux 6.1.115 vendor kernel;
-- SD-card boot with tmpfs `/` and persistent Btrfs `/nix`;
+- NVMe-only boot with tmpfs `/` and persistent Btrfs `/nix`;
 - both onboard RTL8125 Ethernet ports with stable names;
 - the Mali CSF/Bifrost driver and `/dev/mali0`;
 - the RK3588 PWM fan with a repository-defined temperature curve;
@@ -100,6 +100,194 @@ done
 systemctl status opi5p-grow-nix
 lsblk -o NAME,SIZE,FSTYPE,LABEL,MOUNTPOINTS
 ```
+
+## Migrating from eMMC to NVMe-only boot
+
+This is the validated migration procedure. Keep UART connected at 1500000
+baud throughout the SPI change and first cold boot.
+
+### 1. Build the matching Armbian vendor loader
+
+Use the Armbian build framework on Ubuntu. The `vendor` branch matters: the
+NixOS kernel and DTB come from the same Rockchip vendor stack.
+
+```bash
+cd ~/armbian-build
+
+./compile.sh uboot \
+  BOARD=orangepi5-plus \
+  BRANCH=vendor \
+  RELEASE=bookworm \
+  BUILD_DESKTOP=no \
+  KERNEL_CONFIGURE=no
+```
+
+The expected package name starts with
+`linux-u-boot-orangepi5-plus-vendor_`. Extract and identify the complete SPI
+image:
+
+```bash
+deb=$(find output/debs -maxdepth 1 \
+  -name 'linux-u-boot-orangepi5-plus-vendor_*.deb' |
+  sort | tail -1)
+
+workdir=$(mktemp -d)
+dpkg-deb -x "$deb" "$workdir"
+
+loader="$workdir/usr/lib/linux-u-boot-vendor-orangepi5-plus/rkspi_loader.img"
+stat -c '%s bytes' "$loader"
+sha256sum "$loader"
+```
+
+`rkspi_loader.img` must be exactly 16777216 bytes. The image validated on
+2026-07-30 was built by Armbian as
+`2017.09_armbian-2017.09-S39cd-Pdcf8-Hbe55-V5abd-B5da4-R448a`; its SHA-256
+was:
+
+```text
+97b52ca002b617a3cd1574953323442a645e3e7c0ec1e88e8bc3c31d65c2589b
+```
+
+The apparent `2017.09` version does not make it interchangeable with an
+OpenWrt/EasePi loader. Armbian applies its RK3588 and board patches and bundles
+the matching DDR firmware and ATF. Always verify a newly built artifact rather
+than requiring the historical hash above.
+
+### 2. Prepare the NVMe
+
+The target must contain:
+
+- GPT partition 1: FAT, label `NVME_BOOT`, mounted at `/boot`;
+- GPT partition 2: Btrfs, label `NIXOS_NIX`, mounted at `/nix`.
+
+Deploy the configuration after migrating the Nix store and persistent
+subvolume:
+
+```bash
+nix run .#colmena -- apply --on opi5p
+```
+
+Confirm that `/boot` is already the NVMe partition before rebuilding extlinux:
+
+```bash
+findmnt /boot
+findmnt /nix
+lsblk -o NAME,PATH,SIZE,FSTYPE,LABEL,MOUNTPOINTS
+```
+
+If a previous safety test renamed the boot directory to
+`extlinux.nvme-disabled`, restore it once:
+
+```bash
+test ! -e /boot/extlinux
+mv /boot/extlinux.nvme-disabled /boot/extlinux
+/run/current-system/bin/switch-to-configuration boot
+sync
+```
+
+The default extlinux entry must name the current system closure, and every
+referenced file must exist:
+
+```bash
+readlink -f /run/current-system
+sed -n '1,30p' /boot/extlinux/extlinux.conf
+
+awk '/^[[:space:]]+(LINUX|INITRD|FDT)[[:space:]]/ { print $2 }' \
+  /boot/extlinux/extlinux.conf |
+sort -u |
+while read -r relative; do
+  test -f "$(realpath -m "/boot/extlinux/$relative")"
+done
+```
+
+### 3. Back up and write SPI NOR
+
+Save the entire 16 MiB SPI contents on another machine. A backup left only on
+the board is not a recovery copy.
+
+```bash
+dd if=/dev/mtd0 of=/tmp/opi5p-spi-backup.bin bs=1M count=16
+sha256sum /tmp/opi5p-spi-backup.bin
+```
+
+Copy that file off the board before continuing. Then copy the new
+`rkspi_loader.img` to the board, verify its size and hash, and write it:
+
+```bash
+test "$(stat -c %s /tmp/opi5p-rkspi-loader.img)" = 16777216
+sha256sum /tmp/opi5p-rkspi-loader.img
+
+dd \
+  if=/tmp/opi5p-rkspi-loader.img \
+  of=/dev/mtdblock0 \
+  bs=64K \
+  conv=fsync,notrunc \
+  status=progress
+sync
+```
+
+Writing takes several minutes. Do not interrupt it. Read the complete SPI back
+and require an exact match before rebooting:
+
+```bash
+sha256sum /tmp/opi5p-rkspi-loader.img /dev/mtd0
+```
+
+`flashcp -v rkspi_loader.img /dev/mtd0` is also valid when `mtd-utils` is
+already installed. Do not trigger a full native toolchain build on the board
+solely to obtain it.
+
+### 4. Prove that eMMC is not required
+
+This is a physical test, not an inference from mount output:
+
+1. run `systemctl poweroff` and wait for `reboot: Power down` on UART;
+2. disconnect power;
+3. physically remove the eMMC module;
+4. leave only SPI NOR and NVMe installed;
+5. reconnect power and capture the complete UART log.
+
+The successful chain contains:
+
+```text
+U-Boot SPL ... armbian ...
+Model: Orange Pi 5 Plus
+Device 0: ... NVMe ...
+Scanning nvme 0:1...
+Found /extlinux/extlinux.conf
+Starting kernel ...
+Welcome to NixOS
+```
+
+After SSH becomes available, require all of the following:
+
+```bash
+test ! -e /dev/mmcblk0
+findmnt /boot
+findmnt /nix
+readlink -f /run/current-system
+nvme list
+systemctl is-active podman-redroid.service
+```
+
+Expected storage sources are `/dev/nvme0n1p1` for `/boot` and
+`/dev/nvme0n1p2` for `/nix`. No `mmcblk` device should exist.
+
+If U-Boot prints `Invalid FAT entry` but still reads the files, repair the boot
+filesystem immediately:
+
+```bash
+sync
+umount /boot
+fsck.fat -a -v /dev/nvme0n1p1
+mount /boot
+test -f /boot/extlinux/extlinux.conf
+```
+
+The vendor kernel may print `dw-pcie ... invalid resource` for several
+duplicated platform nodes before the working PCI domain probes. Judge the
+result by the later `nvme nvme0: pci function ...`, successful NVMe mounts,
+and the absence of I/O errors—not by those early lines alone.
 
 ## Stable onboard Ethernet names
 
@@ -292,19 +480,16 @@ frame.
 
 ## Rollback
 
-The vendor boot chain must first be tested on a separate SD card. Keep the
-current mainline recovery card unchanged until the vendor image has passed:
+Keep the off-board 16 MiB SPI backup until repeated cold boots, networking,
+GPU, fan and sustained reDroid I/O have passed. If the new loader does not
+start, enter RK3588 MaskROM mode from a recovery host, restore the saved SPI
+image, and boot the previous eMMC or recovery card. An extlinux generation
+cannot roll back raw SPI contents.
 
-1. cold boot;
-2. both Ethernet ports;
-3. Intel AX200 Wi-Fi and Bluetooth;
-4. `/nix` early mount;
-5. Mali GPU initialization;
-6. reDroid boot and sustained GPU load.
-
-If the new image does not boot, power off and restore the mainline recovery
-card. An extlinux generation alone cannot roll back raw bootloader changes.
-Do not garbage-collect the old system closure before completing these checks.
+If U-Boot starts but the NVMe system does not, use a temporary recovery card
+or reinstall eMMC, then inspect `NVME_BOOT`, its FAT filesystem and extlinux
+references. Do not erase the recovery media or garbage-collect the previous
+system closure before the NVMe-only cold boot is proven.
 
 When a configuration-only deployment fails after U-Boot has loaded extlinux,
 select the previous NixOS generation from the serial console instead. The boot
