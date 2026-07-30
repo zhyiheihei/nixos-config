@@ -21,8 +21,7 @@
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEL+VnRYwULTdXkJtOCqoKY4COzWxHNz9glsndnSbZxl";
 
   zerotier = "2c86750714";
-
-
+  manualDeploy = true;
   interconnect = {
     name = "home-lan";
     IPv4 = "192.168.0.50";
