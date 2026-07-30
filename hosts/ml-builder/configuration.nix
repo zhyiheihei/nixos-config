@@ -109,6 +109,27 @@ in
     connect-timeout = lib.mkForce 15;
   };
 
+  # The shared module assigns remote builders a speed factor based on their
+  # CPU capacity. Give Nix's special local builder a value on the same scale;
+  # otherwise pve-5700u (16) wins over the implicit localhost default (1) even
+  # though this 28-thread machine is faster. Keep the OOM-tested concurrency
+  # limit above while allowing excess work to spill to remote builders.
+  nix.buildMachines = lib.mkAfter [
+    {
+      hostName = "localhost";
+      systems = [ pkgs.stdenv.hostPlatform.system ];
+      protocol = null;
+      maxJobs = 4;
+      speedFactor = LT.this.cpuThreads;
+      supportedFeatures = [
+        "benchmark"
+        "kvm"
+        "nixos-test"
+      ];
+      mandatoryFeatures = [ ];
+    }
+  ];
+
   # Flake lock updates fetch some inputs in the invoking client, while
   # fixed-output derivations fetch through the multi-user Nix daemon. Give
   # both paths the same MetaCubeXD route and keep LAN services direct.
