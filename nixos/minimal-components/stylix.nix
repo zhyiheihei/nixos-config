@@ -14,7 +14,9 @@
     colorGeneration.scheme = "vibrant";
     colorGeneration.polarity = "dark";
 
-    autoEnable = LT.this.hasTag LT.tags.client;
+    # Set by the client role directly. Reading LT.this here causes a cycle with
+    # target defaults in newer Stylix releases.
+    autoEnable = false;
     targets = {
       console.enable = true;
       # FIXME: workaround stylix bug
