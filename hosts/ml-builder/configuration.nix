@@ -107,18 +107,7 @@ in
     # Five seconds is too short for GitHub archive redirects from this network,
     # even when the proxy is healthy.
     connect-timeout = lib.mkForce 15;
-    # The shared remote-only machines file gives pve-5700u a speed factor of
-    # 16, while Nix's implicit local builder has no comparable weight. Use the
-    # host-local table below so this stronger machine fills its four
-    # memory-safe local slots before spilling work to remote builders.
-    builders = lib.mkForce "@/etc/nix/machines-ml-builder";
   };
-
-  environment.etc."nix/machines-ml-builder".text =
-    config.environment.etc."nix/machines".text
-    + ''
-      localhost ${pkgs.stdenv.hostPlatform.system} - 4 ${builtins.toString LT.this.cpuThreads} kvm,nixos-test,benchmark - -
-    '';
 
   # Flake lock updates fetch some inputs in the invoking client, while
   # fixed-output derivations fetch through the multi-user Nix daemon. Give
