@@ -1,6 +1,7 @@
 {
   lib,
   LT,
+  pkgs,
   ...
 }:
 {
@@ -80,8 +81,11 @@
       "/nix/persistent/var/lib/redroid-rk3588-lineage20:/data"
     ];
     cmd = [
-      "androidboot.redroid_width=1280"
-      "androidboot.redroid_height=720"
+      # Define a portrait-native panel, then rotate it below. Android will
+      # still render at 1280x720, but SystemUI uses its landscape side-navbar
+      # layout instead of treating landscape as the natural rotation.
+      "androidboot.redroid_width=720"
+      "androidboot.redroid_height=1280"
       "androidboot.redroid_fps=60"
     ];
   };
@@ -105,6 +109,33 @@
         echo "Armbian Mali CSF device /dev/mali0 is unavailable" >&2
         exit 1
       fi
+    '';
+  };
+
+  systemd.services.redroid-landscape-navigation = {
+    description = "Configure reDroid landscape display and side navigation bar";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "podman-redroid.service" ];
+    requires = [ "podman-redroid.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+    script = ''
+      for attempt in $(${pkgs.coreutils}/bin/seq 1 90); do
+        if ${pkgs.podman}/bin/podman exec redroid getprop sys.boot_completed \
+          | ${pkgs.gnugrep}/bin/grep -qx 1; then
+          ${pkgs.podman}/bin/podman exec redroid wm size reset
+          ${pkgs.podman}/bin/podman exec redroid wm user-rotation lock 1
+          exit 0
+        fi
+        ${pkgs.coreutils}/bin/sleep 2
+      done
+
+      echo "reDroid did not finish booting within 180 seconds" >&2
+      exit 1
     '';
   };
 }
