@@ -105,6 +105,10 @@ in
   systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
 
   nix.settings = {
+    # Centralize downloads on ml-builder. Remote build machines receive all
+    # required inputs over the Nix store connection instead of independently
+    # reaching external substituters through inconsistent network routes.
+    builders-use-substitutes = lib.mkForce false;
     # Five seconds is too short for GitHub archive redirects from this network,
     # even when the proxy is healthy.
     connect-timeout = lib.mkForce 15;
