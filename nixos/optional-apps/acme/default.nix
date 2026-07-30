@@ -33,21 +33,24 @@ in
       postRun = ''
         CERT=$(basename $(pwd))
         install -Dm644 --owner=root -t /nix/sync-servers/acme/"$CERT" *
+        systemctl try-reload-or-restart nginx.service
       '';
     };
   };
 
-  systemd.services = lib.mapAttrs' (
-    k: v:
-    lib.nameValuePair "acme-${k}" {
-      environment = {
-        LEGO_DEBUG_CLIENT_VERBOSE_ERROR = "true";
-        LEGO_DEBUG_ACME_HTTP_CLIENT = "true";
+  systemd.services =
+    let
+      cfg = {
+        environment = {
+          LEGO_DEBUG_CLIENT_VERBOSE_ERROR = "true";
+          LEGO_DEBUG_ACME_HTTP_CLIENT = "true";
+        };
+        serviceConfig = {
+          Restart = "on-failure";
+          TimeoutStartSec = "900";
+        };
       };
-      serviceConfig = {
-        Restart = "on-failure";
-        TimeoutStartSec = "900";
-      };
-    }
-  ) config.security.acme.certs;
+    in
+    (lib.mapAttrs' (k: v: lib.nameValuePair "acme-${k}" cfg) config.security.acme.certs)
+    // (lib.mapAttrs' (k: v: lib.nameValuePair "acme-order-renew-${k}" cfg) config.security.acme.certs);
 }
