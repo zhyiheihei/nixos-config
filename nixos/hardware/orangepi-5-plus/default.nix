@@ -260,10 +260,14 @@ in
       pkgs.util-linux
     ];
     script = ''
-      disk=/dev/mmcblk0
-      partition=2
+      nix_device=$(findmnt --noheadings --output SOURCE --target /nix | sed 's/\[.*//')
+      nix_device=$(readlink -f "$nix_device")
+      disk="/dev/$(lsblk --noheadings --output PKNAME "$nix_device" | tr -d '[:space:]')"
+      partition=$(lsblk --noheadings --output PARTN "$nix_device" | tr -d '[:space:]')
 
+      test -b "$nix_device"
       test -b "$disk"
+      test -n "$partition"
       current_end=$(sgdisk -i "$partition" "$disk" | sed -n 's/^Last sector: \([0-9][0-9]*\).*/\1/p')
       usable_end=$(sgdisk -p "$disk" | sed -n 's/^First usable sector is [0-9][0-9]*, last usable sector is \([0-9][0-9]*\).*/\1/p')
 
