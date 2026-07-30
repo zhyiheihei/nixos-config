@@ -44,18 +44,25 @@ let
         vendorKernelConfig
     );
   opi5pKernel =
-    (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { }).override {
-      configfile = opi5pKernelConfig;
-      config =
-        builtins.removeAttrs vendorKernelConfigOptions [
-          "CONFIG_ARM64_VA_BITS_48"
-          "CONFIG_ARM64_VA_BITS"
-        ]
-        // {
-          CONFIG_ARM64_VA_BITS_39 = "y";
-          CONFIG_ARM64_VA_BITS = "9";
-        };
-  };
+    (
+      (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { }).override {
+        configfile = opi5pKernelConfig;
+        config =
+          builtins.removeAttrs vendorKernelConfigOptions [
+            "CONFIG_ARM64_VA_BITS_48"
+            "CONFIG_ARM64_VA_BITS"
+          ]
+          // {
+            CONFIG_ARM64_VA_BITS_39 = "y";
+            CONFIG_ARM64_VA_BITS = "9";
+          };
+      }
+    ).overrideAttrs
+      (old: {
+        # Patch the board's vendor DTS before the kernel builds its DTB. Using
+        # hardware.deviceTree.overlays here corrupts this non-mainline tree.
+        patches = (old.patches or [ ]) ++ [ ./vendor-fan-curve.patch ];
+      });
 
   savedClock = "/nix/persistent/var/lib/opi5p-clock/epoch";
   saveClock = pkgs.writeShellScript "opi5p-save-clock" ''
