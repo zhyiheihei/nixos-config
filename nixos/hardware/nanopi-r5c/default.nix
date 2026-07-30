@@ -25,10 +25,12 @@ let
   # directly.  Feeding a complete .config through generic.nix's question
   # generator is lossy for selected/hidden symbols; linuxManualConfig preserves
   # the olddefconfig result and still provides out/dev/modules outputs.
-  r5cKernel = crossPkgs.linuxManualConfig {
+  r5cKernel = (crossPkgs.linuxManualConfig {
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = ./kernel-config;
-  };
+  }).overrideAttrs (old: {
+    requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+  });
   # Keep only the firmware requested by the installed MT7921/BT adapter and
   # RTL8125 NICs instead of retaining the complete linux-firmware package
   # (roughly 800 MiB) in every R5C system closure.

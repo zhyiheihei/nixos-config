@@ -43,7 +43,10 @@ let
           speedFactor = v.cpuThreads;
           sshKey = cfg.sshKeyPath;
           sshUser = "nix-builder";
-          supportedFeatures = lib.optionals isBigParallelBuilder [ "big-parallel" ];
+          supportedFeatures = lib.optionals isBigParallelBuilder [
+            "aarch64-cross"
+            "big-parallel"
+          ];
           mandatoryFeatures = [ ];
         }
       ];
