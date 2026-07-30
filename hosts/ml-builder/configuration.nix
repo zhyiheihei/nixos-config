@@ -12,6 +12,17 @@ let
     key: lib.hasSuffix "2386656187@qq.com" key
   ) (throw "mac-book SSH public key is missing from secrets") sshKeys;
   macBookIdentity = pkgs.writeText "mac-book-ssh-identity.pub" macBookPublicKey;
+  outboundProxy = "http://192.168.0.51:7892";
+  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
+  proxyEnvironment = {
+    GOPROXY = "https://goproxy.cn,direct";
+    HTTP_PROXY = outboundProxy;
+    HTTPS_PROXY = outboundProxy;
+    NO_PROXY = proxyBypass;
+    http_proxy = outboundProxy;
+    https_proxy = outboundProxy;
+    no_proxy = proxyBypass;
+  };
 in
 {
   imports = [
@@ -79,22 +90,18 @@ in
   # Follow the author's per-host override pattern (see lt-home-rdp) instead of
   # changing the shared distributed-build topology.  Twenty-eight concurrent
   # derivations caused repeated global OOM kills, including journald.
-  nix.settings.max-jobs = lib.mkForce 4;
-
-  # Fixed-output derivations are allowed to inherit these variables from the
-  # multi-user Nix daemon.  Route public fetches through MetaCubeXD while
-  # keeping LAN caches and internal services direct.  The upstream Go proxy
-  # closes TLS connections from the current proxy exit, so fetch Go modules
-  # directly from their repositories instead.
-  systemd.services.nix-daemon.environment = {
-    GOPROXY = "https://goproxy.cn,direct";
-    HTTP_PROXY = "http://192.168.0.51:7892";
-    HTTPS_PROXY = "http://192.168.0.51:7892";
-    NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
-    http_proxy = "http://192.168.0.51:7892";
-    https_proxy = "http://192.168.0.51:7892";
-    no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
+  nix.settings = {
+    max-jobs = lib.mkForce 4;
+    # Five seconds is too short for GitHub archive redirects from this network,
+    # even when the proxy is healthy.
+    connect-timeout = lib.mkForce 15;
   };
+
+  # Flake lock updates fetch some inputs in the invoking client, while
+  # fixed-output derivations fetch through the multi-user Nix daemon. Give
+  # both paths the same MetaCubeXD route and keep LAN services direct.
+  environment.variables = proxyEnvironment;
+  systemd.services.nix-daemon.environment = proxyEnvironment;
 
   # Let the existing zstd zram swap absorb compiler memory spikes.  The
   # generic nix-builder policy sets this to 0, which leaves swap idle until
