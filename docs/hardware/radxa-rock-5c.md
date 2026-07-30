@@ -8,8 +8,7 @@
 
 - 主机身份：[`hosts/rock5c/`](../../hosts/rock5c/)
 - 板级模块：[`nixos/hardware/rock-5c/`](../../nixos/hardware/rock-5c/)
-- RK3588 共用 reDroid 模块：
-  [`nixos/hardware/rk3588-redroid.nix`](../../nixos/hardware/rk3588-redroid.nix)
+- reDroid 主机配置：[`hosts/rock5c/configuration.nix`](../../hosts/rock5c/configuration.nix)
 - Linux DTB：`rockchip/rk3588s-rock-5c.dtb`
 - U-Boot defconfig：`rock-5c-rk3588s_defconfig`
 - 串口：UART2，1500000 8N1
