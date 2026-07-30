@@ -59,6 +59,12 @@ in
   lantian.nix-distributed.sshKeyPath =
     config.sops.secrets.ml-builder-distributed-ssh-key.path;
 
+  # ARM system builds are delegated to the native opi5p builder. Keep explicit
+  # cross derivations (kernel/U-Boot toolchains) local, but do not advertise
+  # qemu-user as a general aarch64 execution platform: some install scripts
+  # execute target Python and can crash inside TCG.
+  lantian.qemu-user-static-binfmt.enable = lib.mkForce false;
+
   systemd.network.networks.eth0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     matchConfig.Name = "eth0";
