@@ -47,6 +47,7 @@ let
     (
       (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { }).override {
         configfile = opi5pKernelConfig;
+        requiredSystemFeatures = [ "aarch64-cross" ];
         config =
           builtins.removeAttrs vendorKernelConfigOptions [
             "CONFIG_ARM64_VA_BITS_48"
@@ -59,7 +60,6 @@ let
       }
     ).overrideAttrs
       (old: {
-        requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
         # Patch the board's vendor DTS before the kernel builds its DTB. Using
         # hardware.deviceTree.overlays here corrupts this non-mainline tree.
         patches = (old.patches or [ ]) ++ [ ./vendor-fan-curve.patch ];
