@@ -150,14 +150,10 @@ in
   hardware.deviceTree = {
     name = "rockchip/rk3588-orangepi-5-plus.dtb";
     filter = "rk3588-orangepi-5-plus.dtb";
-    # A bare path is interpreted as a precompiled .dtbo.  This is source DTS,
-    # so let NixOS compile it before applying it to the vendor board DTB.
-    overlays = [
-      {
-        name = "opi5p-vendor-fan-curve";
-        dtsFile = ./cooler-fan-curve.dts;
-      }
-    ];
+    # Keep the vendor DTB intact. Applying a mainline-style fan overlay to this
+    # vendor tree duplicates reserved-memory and SoC nodes, breaking PCIe, GPU,
+    # NPU and other platform resources before userspace starts.
+    overlays = [ ];
   };
 
   # RK3588 boards may return to a firmware timestamp after losing power.
