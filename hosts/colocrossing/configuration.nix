@@ -6,6 +6,15 @@
   pkgs,
   ...
 }:
+let
+  # NUR's AxonHub vendor hash was generated with a different Go dependency
+  # normalization result than this repository's pinned nixpkgs toolchain.
+  # Keep the author's package and service module, overriding only the fixed
+  # output hash verified by the builder.
+  axonhub = pkgs.nur-xddxdd.axonhub.overrideAttrs {
+    vendorHash = "sha256-cDeZ7bSe33ErqTNbtFSrdGnndFilL6lP2dCjRQdieqg=";
+  };
+in
 {
   imports = [
     ../../nixos/server.nix
@@ -55,6 +64,8 @@
   ];
 
   networking.domain = lib.mkForce "zhyi.xin";
+
+  systemd.services.axonhub.serviceConfig.ExecStart = lib.mkForce (lib.getExe axonhub);
 
   systemd.network.networks.eth0 = {
     matchConfig.Name = "eth0";
