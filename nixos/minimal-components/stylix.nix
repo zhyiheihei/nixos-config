@@ -16,7 +16,7 @@
 
     # Set by the client role directly. Reading LT.this here causes a cycle with
     # target defaults in newer Stylix releases.
-    autoEnable = false;
+    autoEnable = lib.mkDefault false;
     targets = {
       console.enable = true;
       # FIXME: workaround stylix bug
