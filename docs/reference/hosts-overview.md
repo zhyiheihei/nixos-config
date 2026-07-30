@@ -1,7 +1,7 @@
 # 当前 hosts 概览
 
 `hosts/<name>/host.nix` 保存主机元数据，`configuration.nix` 保存主机配置，
-`hardware-configuration.nix` 保存硬件与文件系统信息。`hosts/` 只保存 9 台自有
+`hardware-configuration.nix` 保存硬件与文件系统信息。`hosts/` 只保存自有
 主机；作者原版的独立 checkout 位于仓库上级目录 `../nixos-config-exam`，仅用于人工
 对照，不参与当前 flake 求值或部署。
 
@@ -21,6 +21,8 @@
 | `cnvm` | 119 | `server` / 公网入口 | `cnvm.zhyi.cc` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
 | `colocrossing` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、监控栈与 ZeroTier controller。 |
 | `usvm` | 121 | `server` / 公网入口 / 日志 | `35.212.152.140` | US VPS（GCP）；运行低资源 Elasticsearch 日志入口。 |
+| `opi5p` | 122 | RK3588 / reDroid | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU 与 SPI U-Boot。 |
+| `rock5c` | 123 | RK3588 / reDroid（适配中） | `192.168.0.64` | Radxa ROCK 5C；U-Boot 内嵌于 SD 卡镜像，暂不参与默认部署。 |
 
 家庭局域网地址、MAC 与 DHCP 边界以 [家庭局域网 IP 规划](../network/home-lan-ip-plan.md)
 为准；LTNET、ZeroTier、WireGuard 与 DN42 关系以
