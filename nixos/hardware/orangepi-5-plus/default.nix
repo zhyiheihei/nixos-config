@@ -273,7 +273,7 @@ in
 
       if [ "$current_end" -lt "$usable_end" ]; then
         sgdisk -e "$disk"
-        printf 'Yes\\n' | parted ---pretend-input-tty "$disk" resizepart "$partition" 100%
+        printf 'Yes\n' | parted ---pretend-input-tty "$disk" resizepart "$partition" 100%
         partx -u "$disk"
       fi
 
