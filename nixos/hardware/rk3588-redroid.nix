@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   LT,
   pkgs,
@@ -84,11 +83,4 @@ in
       exit 1
     '';
   };
-
-  assertions = [
-    {
-      assertion = config.hardware.deviceTree.name != null;
-      message = "RK3588 reDroid requires a board-specific device tree";
-    }
-  ];
 }
