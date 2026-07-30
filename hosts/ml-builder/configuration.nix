@@ -50,6 +50,12 @@ in
     key = "hydra-ssh-privkey";
     mode = "0400";
   };
+  # Only designated upload hosts receive this token.  Fleet-wide read access
+  # to the private cache is provided separately by nix-netrc.
+  sops.secrets.attic-upload-key = {
+    sopsFile = inputs.secrets + "/common/attic.yaml";
+    mode = "0400";
+  };
   lantian.nix-distributed.sshKeyPath =
     config.sops.secrets.ml-builder-distributed-ssh-key.path;
 
@@ -122,6 +128,7 @@ in
 
   environment.systemPackages = with pkgs; [
     age
+    attic-client
     gnumake
     sops
     ssh-to-age
