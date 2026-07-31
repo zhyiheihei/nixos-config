@@ -214,7 +214,7 @@ let
     {
       recordType = "CNAME";
       name = "rsshub";
-      target = "colocrossing.zhyi.cc.";
+      target = "colocrossing.ltnet.zhyi.cc.";
       ttl = "1h";
     }
     {

@@ -21,6 +21,6 @@
 
     sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
-    accessibleBy = "public";
+    accessibleBy = "private";
   };
 }

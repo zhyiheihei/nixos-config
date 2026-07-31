@@ -73,6 +73,10 @@
           style = "row";
           columns = 4;
         };
+        "私有 · 内容与通讯" = {
+          style = "row";
+          columns = 4;
+        };
         "私有 · 下载链路" = {
           style = "row";
           columns = 3;
