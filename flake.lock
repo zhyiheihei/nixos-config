@@ -1344,17 +1344,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1785502721,
-        "narHash": "sha256-c32WZgSHu7s8x4C+Xg+0HHu+5PAoqzUNTpOZF5RNjdU=",
-        "ref": "refs/heads/main",
-        "rev": "10f6ceb1c505574e1eefc3108a9ca3475c6fe32f",
-        "revCount": 195,
-        "type": "git",
-        "url": "ssh://git@github.com/zhyiheihei/nixos-secrets.git"
+        "lastModified": 1785504031,
+        "narHash": "sha256-z2LrhJcLxR8/BtZPH7K6w73rO8r53TFT8EDOfETn7F8=",
+        "owner": "zhyiheihei",
+        "repo": "nixos-secrets",
+        "rev": "c77dd1fe7f9f9d2eb5f9a2910c175565cf125ccf",
+        "type": "github"
       },
       "original": {
-        "type": "git",
-        "url": "ssh://git@github.com/zhyiheihei/nixos-secrets.git"
+        "owner": "zhyiheihei",
+        "repo": "nixos-secrets",
+        "type": "github"
       }
     },
     "sops-nix": {
