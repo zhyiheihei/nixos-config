@@ -28,7 +28,6 @@ let
   r5cKernel = crossPkgs.linuxManualConfig {
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = ./kernel-config;
-    requiredSystemFeatures = [ "aarch64-cross" ];
   };
   # Keep only the firmware requested by the installed MT7921/BT adapter and
   # RTL8125 NICs instead of retaining the complete linux-firmware package
