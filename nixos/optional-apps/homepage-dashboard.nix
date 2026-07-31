@@ -37,11 +37,35 @@
         opacity = 100;
       };
       layout = {
+        "身份链路" = {
+          style = "row";
+          columns = 4;
+        };
+        "AI 链路" = {
+          style = "row";
+          columns = 4;
+        };
+        "下载链路" = {
+          style = "row";
+          columns = 3;
+        };
+        "媒体链路" = {
+          style = "row";
+          columns = 3;
+        };
+        "监控链路" = {
+          style = "row";
+          columns = 4;
+        };
+        "网络链路" = {
+          style = "row";
+          columns = 4;
+        };
         "基础设施" = {
           style = "row";
           columns = 4;
         };
-        "公开服务" = {
+        "内容与通讯" = {
           style = "row";
           columns = 4;
         };
@@ -49,11 +73,7 @@
           style = "row";
           columns = 3;
         };
-        "下载与媒体链路" = {
-          style = "row";
-          columns = 3;
-        };
-        "本机工具" = {
+        "效率工具" = {
           style = "row";
           columns = 4;
         };
