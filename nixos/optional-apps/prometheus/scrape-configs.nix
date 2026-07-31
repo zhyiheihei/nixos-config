@@ -30,7 +30,7 @@ let
       metrics_path = metricsPath;
       # Prometheus 3.x is strict about Content-Type; fall back to text format
       # for exporters that omit or mis-set the header.
-      fallback_scrape_protocol = "PrometheusText";
+      fallback_scrape_protocol = "PrometheusText1.0.0";
       static_configs = builtins.map (
         n:
         let
@@ -54,7 +54,7 @@ in
   services.prometheus.scrapeConfigs = [
     {
       job_name = "prometheus";
-      fallback_scrape_protocol = "PrometheusText";
+      fallback_scrape_protocol = "PrometheusText1.0.0";
       static_configs = [
         {
           targets = [
@@ -259,7 +259,7 @@ in
     {
       job_name = "sakura-share";
       scheme = "https";
-      fallback_scrape_protocol = "PrometheusText";
+      fallback_scrape_protocol = "PrometheusText1.0.0";
       static_configs = [
         { targets = [ "sakura-share.one" ]; }
       ];
@@ -268,7 +268,7 @@ in
       job_name = "flapalerted";
       scheme = "https";
       metrics_path = "/flaps/metrics/prometheus";
-      fallback_scrape_protocol = "PrometheusText";
+      fallback_scrape_protocol = "PrometheusText1.0.0";
       static_configs = [
         { targets = [ "flapalerted.zhyi.cc" ]; }
       ];
