@@ -70,6 +70,11 @@ in
       BindPaths = [ "/nix/sync-servers" ];
       AmbientCapabilities = [ "CAP_CHOWN" ];
       CapabilityBoundingSet = [ "CAP_CHOWN" ];
+      SystemCallFilter = [
+        "@system-service"
+        "~@clock @cpu-emulation @debug @module @mount @obsolete @privileged @raw-io @reboot @swap"
+        "@chown"
+      ];
       ExecStart =
         if config.networking.hostName != primaryServer then
           builtins.concatStringsSep " " [
