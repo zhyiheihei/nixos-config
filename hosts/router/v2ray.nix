@@ -28,6 +28,8 @@ let
     "gitlab-static.net"
     "google.com"
     "elastic.co"
+    "themoviedb.org"
+    "tmdb.org"
   ];
 
   v2rayConf = {
