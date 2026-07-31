@@ -17,6 +17,10 @@
       "sonarr.service"
     ];
 
+    environment = {
+      LOGIN_ENABLED = "false";
+    };
+
     script = ''
       mkdir -p config database
       if [ ! -f config/application.yml ]; then
