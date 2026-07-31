@@ -52,7 +52,7 @@ in
           tls_implementation: utls
           utls_imitate: firefox_auto
 
-          mptcp: true
+          mptcp: false
         }
 
         node {
