@@ -1191,8 +1191,8 @@ let
         unit = "d";
         targets = [
           {
-            expr = ''(x509_cert_not_after{job="acme-cert"} - time()) / 86400'';
-            legendFormat = "{{instance}} {{cn}}";
+            expr = ''ssl_certificate_expiry_seconds{job="acme-cert"} / 86400'';
+            legendFormat = "{{hostname}} {{dns_names}}";
           }
         ];
       })
@@ -1212,13 +1212,25 @@ let
       })
       (timeseries {
         id = 33;
-        title = "Sonarr/Radarr 队列";
+        title = "Sonarr/Radarr 媒体状态";
         x = 0;
         y = 52;
         targets = [
           {
-            expr = ''exportarr_queue_total{job=~"sonarr|radarr"}'';
-            legendFormat = "{{job}} / {{instance}}";
+            expr = ''sonarr_episode_missing_total{job="sonarr"}'';
+            legendFormat = "sonarr 缺失";
+          }
+          {
+            expr = ''sonarr_episode_downloaded_total{job="sonarr"}'';
+            legendFormat = "sonarr 已下载";
+          }
+          {
+            expr = ''radarr_movie_missing_total{job="radarr"}'';
+            legendFormat = "radarr 缺失";
+          }
+          {
+            expr = ''radarr_movie_downloaded_total{job="radarr"}'';
+            legendFormat = "radarr 已下载";
           }
         ];
       })
@@ -1229,8 +1241,12 @@ let
         y = 52;
         targets = [
           {
-            expr = ''exportarr_indexer_total{job="prowlarr"}'';
+            expr = ''prowlarr_indexer_total{job="prowlarr"}'';
             legendFormat = "{{instance}} 索引器";
+          }
+          {
+            expr = ''prowlarr_indexer_enabled_total{job="prowlarr"}'';
+            legendFormat = "{{instance}} 已启用";
           }
         ];
       })
@@ -1315,24 +1331,9 @@ let
           }
         ];
       })
-      (timeseries {
-        id = 54;
-        title = "UPS 电池电量";
-        x = 12;
-        y = 78;
-        unit = "percent";
-        min = 0;
-        max = 100;
-        targets = [
-          {
-            expr = ''nut_battery_charge_percent{job="nut"}'';
-            legendFormat = "{{instance}} {{ups}}";
-          }
-        ];
-      })
       (row {
         id = 60;
-        title = "外部服务与电话";
+        title = "外部服务";
         y = 86;
       })
       (timeseries {
@@ -1349,53 +1350,20 @@ let
           }
         ];
       })
-      (timeseries {
-        id = 62;
-        title = "Asterisk 活跃通道";
-        x = 12;
-        y = 87;
-        targets = [
-          {
-            expr = ''asterisk_channels_count{job="asterisk"}'';
-            legendFormat = "{{instance}} 通道";
-          }
-          {
-            expr = ''asterisk_endpoints_count{job="asterisk"}'';
-            legendFormat = "{{instance}} 端点";
-          }
-        ];
-      })
       (row {
         id = 70;
-        title = "权威 DNS 与 UPS 详情";
+        title = "权威 DNS 详情";
         y = 95;
       })
       (timeseries {
         id = 71;
-        title = "Knot DNS 查询速率";
+        title = "Knot 区域数量";
         x = 0;
         y = 96;
-        unit = "qps";
         targets = [
           {
-            expr = ''sum by(instance) (rate(knot_dns_query_total{job="knot"}[5m]))'';
+            expr = ''sum by(instance) (knot_stats_zone_count{job="knot"})'';
             legendFormat = "{{instance}}";
-          }
-        ];
-      })
-      (timeseries {
-        id = 72;
-        title = "UPS 负载与状态";
-        x = 12;
-        y = 96;
-        targets = [
-          {
-            expr = ''nut_ups_load_percent{job="nut"}'';
-            legendFormat = "{{instance}} {{ups}} 负载";
-          }
-          {
-            expr = ''nut_ups_status{job="nut",flag="OL"}'';
-            legendFormat = "{{instance}} {{ups}} 市电";
           }
         ];
       })
