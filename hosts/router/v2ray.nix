@@ -33,7 +33,7 @@ let
   v2rayConf = {
     inbounds = [
       {
-        listen = LT.this.ltnet.IPv4;
+        listen = LT.this.interconnect.IPv4;
         port = LT.port.V2Ray.SocksClient;
         protocol = "socks";
         settings.udp = true;
@@ -139,7 +139,7 @@ let
           type = "field";
         }
         {
-          domain = map (d: "suffix:${d}") proxyDomains;
+          domain = proxyDomains;
           outboundTag = "proxy";
           type = "field";
         }
@@ -159,6 +159,11 @@ let
           ];
           outboundTag = "direct";
           type = "field";
+        }
+        {
+          outboundTag = "direct";
+          type = "field";
+          network = "tcp,udp";
         }
       ];
     };
