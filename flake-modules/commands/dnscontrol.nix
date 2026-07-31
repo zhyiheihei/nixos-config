@@ -10,6 +10,11 @@ let
     inherit (sources.dnscontrol-xddxdd) pname version src;
     vendorHash = "sha256-8YMOjHGzmWhPvgsrWXOER5elu327AugUYIECcqdR5n0=";
 
+    # Fetch Go modules through the Qiniu-maintained China proxy so builds
+    # work reliably from mainland networks (proxy.golang.org is often slow
+    # or unreachable from China, especially over IPv6).
+    env.GOPROXY = "https://goproxy.cn,direct";
+
     ldflags = [
       "-s"
       "-w"
