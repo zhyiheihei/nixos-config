@@ -592,11 +592,68 @@ let
           }
         ];
       })
+      (row {
+        id = 50;
+        title = "DNS 与路由";
+        y = 47;
+      })
+      (timeseries {
+        id = 51;
+        title = "CoreDNS 请求速率";
+        x = 0;
+        y = 48;
+        unit = "qps";
+        targets = [
+          {
+            expr = ''sum by(instance,job) (rate(coredns_dns_requests_total{job=~"coredns|coredns-authoritative"}[5m]))'';
+            legendFormat = "{{instance}} ({{job}})";
+          }
+        ];
+      })
+      (timeseries {
+        id = 52;
+        title = "BIRD 协议在线状态";
+        x = 12;
+        y = 48;
+        min = 0;
+        max = 1;
+        targets = [
+          {
+            expr = ''bird_protocol_up{job="bird"}'';
+            legendFormat = "{{instance}} / {{name}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 53;
+        title = "Prometheus 时序数量";
+        x = 0;
+        y = 56;
+        targets = [
+          {
+            expr = ''prometheus_tsdb_head_series{job="prometheus"}'';
+            legendFormat = "活跃时序";
+          }
+        ];
+      })
+      (timeseries {
+        id = 54;
+        title = "Prometheus 查询速率";
+        x = 12;
+        y = 56;
+        unit = "qps";
+        targets = [
+          {
+            expr = ''rate(prometheus_engine_query_duration_seconds_count{job="prometheus"}[5m])'';
+            legendFormat = "{{slice}}";
+          }
+        ];
+      })
       (table {
         id = 40;
         title = "采集目标状态";
         x = 0;
-        y = 47;
+        y = 64;
         h = 12;
         expr = "up";
         exclude = {
