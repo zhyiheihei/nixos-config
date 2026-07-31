@@ -1330,6 +1330,75 @@ let
           }
         ];
       })
+      (row {
+        id = 60;
+        title = "外部服务与电话";
+        y = 86;
+      })
+      (timeseries {
+        id = 61;
+        title = "外部服务可用性";
+        x = 0;
+        y = 87;
+        min = 0;
+        max = 1;
+        targets = [
+          {
+            expr = ''up{job=~"sakura-share|flapalerted"}'';
+            legendFormat = "{{job}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 62;
+        title = "Asterisk 活跃通道";
+        x = 12;
+        y = 87;
+        targets = [
+          {
+            expr = ''asterisk_channels_count{job="asterisk"}'';
+            legendFormat = "{{instance}} 通道";
+          }
+          {
+            expr = ''asterisk_endpoints_count{job="asterisk"}'';
+            legendFormat = "{{instance}} 端点";
+          }
+        ];
+      })
+      (row {
+        id = 70;
+        title = "权威 DNS 与 UPS 详情";
+        y = 95;
+      })
+      (timeseries {
+        id = 71;
+        title = "Knot DNS 查询速率";
+        x = 0;
+        y = 96;
+        unit = "qps";
+        targets = [
+          {
+            expr = ''sum by(instance) (rate(knot_dns_query_total{job="knot"}[5m]))'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 72;
+        title = "UPS 负载与状态";
+        x = 12;
+        y = 96;
+        targets = [
+          {
+            expr = ''nut_ups_load_percent{job="nut"}'';
+            legendFormat = "{{instance}} {{ups}} 负载";
+          }
+          {
+            expr = ''nut_ups_status{job="nut",flag="OL"}'';
+            legendFormat = "{{instance}} {{ups}} 市电";
+          }
+        ];
+      })
     ];
   };
   infrastructureOverviewJson =
