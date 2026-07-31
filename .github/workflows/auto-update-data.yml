@@ -28,13 +28,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup SSH key
-        run: |
-          mkdir -p "$HOME/.ssh"
-          echo "${{ secrets.DEPLOY_KEY }}" > "$HOME/.ssh/id_ed25519"
-          echo "StrictHostKeyChecking no" > "$HOME/.ssh/config"
-          chmod -R 500 "$HOME/.ssh"
-
       - name: Create nix daemon tmpdir path
         run: |
           sudo mkdir -p /nix/tmpdir
@@ -53,16 +46,14 @@ jobs:
 
       - name: Build nix packages
         run: |
-          mkdir -p "$HOME/Secrets"
           cat > secrets.toml <<EOF
           [keys]
           github = "${{ secrets.GH_PRIVATE_REPO_TOKEN }}"
           EOF
-          cp secrets.toml "$HOME/Secrets/nvfetcher.toml"
 
           nix run .#update-data
 
-          rm -f secrets.toml "$HOME/Secrets/nvfetcher.toml"
+          rm -f secrets.toml
 
       - name: Commit back to repository
         uses: stefanzweifel/git-auto-commit-action@v7

@@ -158,7 +158,7 @@
     };
     secrets = {
       # url = "/home/zhyi/Projects/nixos-secrets";
-      url = "git+ssh://git@github.com/zhyiheihei/nixos-secrets.git";
+      url = "github:zhyiheihei/nixos-secrets";
       inputs.flake-parts.follows = "flake-parts";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nur-xddxdd.follows = "nur-xddxdd";
