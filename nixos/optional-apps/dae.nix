@@ -37,11 +37,12 @@ in
             cfg.lanInterfaces != [ ]
           ) "lan_interface: ${builtins.concatStringsSep "," cfg.lanInterfaces}"}
           auto_config_kernel_parameter: false
+          log_level: warn
 
-          tcp_check_url: 'http://cp.cloudflare.com,1.1.1.1,2606:4700:4700::1111'
+          tcp_check_url: 'https://example.com'
           tcp_check_http_method: HEAD
           udp_check_dns: 'dns.google:53,8.8.8.8,2001:4860:4860::8888'
-          check_interval: 30s
+          check_interval: 600s
           check_tolerance: 50ms
 
           dial_mode: domain
@@ -50,6 +51,8 @@ in
 
           tls_implementation: utls
           utls_imitate: firefox_auto
+
+          mptcp: true
         }
 
         node {
@@ -77,12 +80,8 @@ in
 
         group {
           proxy {
-            filter: name(v2ray)
-            policy: fixed(0)
-          }
-          usvm {
-            filter: name(usvm)
-            policy: fixed(0)
+            filter: name(v2ray, usvm)
+            policy: min_moving_avg
           }
         }
 
@@ -111,10 +110,14 @@ in
       '';
     };
 
-    systemd.services.dae.serviceConfig = {
-      Type = "simple"; # Do not block boot on network online
-      Restart = "on-failure";
-      RestartSec = "5";
+    systemd.services.dae = {
+      after = [ "sops-install-secrets.service" ];
+      requires = [ "sops-install-secrets.service" ];
+      serviceConfig = {
+        Type = "simple"; # Do not block boot on network online
+        Restart = "on-failure";
+        RestartSec = "5";
+      };
     };
   };
 }
