@@ -8,7 +8,6 @@
   uuid,
   btrfs-progs,
   libfaketime,
-  fakeroot,
   zstd,
 }:
 # Build the persistent /nix filesystem shared by ARM board disk images.
@@ -20,8 +19,8 @@ pkgs.stdenv.mkDerivation {
 
   nativeBuildInputs = [
     btrfs-progs
-    fakeroot
     libfaketime
+    pkgs.buildPackages.util-linux
   ]
   ++ lib.optional compressImage zstd;
 
@@ -42,13 +41,12 @@ pkgs.stdenv.mkDerivation {
     cp ${closureInfo}/registration rootImage/nix-path-registration
 
     touch "$img"
-    # Keep ownership correction and mkfs in one fakeroot session so the image
-    # never records the sandbox builder's uid/gid.
-    fakeroot sh -eu -c '
-      chown -R 0:0 rootImage
-      faketime -f "1970-01-01 00:00:01" \
-        mkfs.btrfs -L ${volumeLabel} -U ${uuid} -r rootImage --shrink "$1"
-    ' -- "$img"
+    # Recent btrfs-progs obtains ownership through statx, which fakeroot does
+    # not intercept.  Present the build user's uid as uid 0 in a user namespace
+    # so mkfs records root ownership for the complete Nix store.
+    faketime -f "1970-01-01 00:00:01" \
+      unshare --user --map-root-user -- \
+      mkfs.btrfs -L ${volumeLabel} -U ${uuid} -r rootImage --shrink "$img"
     btrfs check "$img"
 
     ${lib.optionalString compressImage ''
