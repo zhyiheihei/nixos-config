@@ -6,13 +6,13 @@
   cpuThreads = 8;
   city = geo.cities."CN Ningbo";
 
-  # Keep the unfinished board outside make all until its persistent SSH host
-  # key, permanent MAC address and ZeroTier identity have been collected.
+  # Keep the unfinished board outside make all until reDroid and the remaining
+  # first-boot services have passed validation.
   manualDeploy = true;
-  ssh.ed25519 = null;
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOVPKMHQqr+gzsju2KvpM4GcO2G08O9AXFOxZ4UGJMJ9 root@rock5c";
   interconnect = {
     name = "home-lan";
     IPv4 = "192.168.0.64";
   };
-  zerotier = null;
+  zerotier = "8a55fde716";
 }

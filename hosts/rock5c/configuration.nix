@@ -11,12 +11,15 @@
     ./hardware-configuration.nix
   ];
 
-  # ROCK 5C has one onboard Gigabit Ethernet controller. The initial image
-  # deliberately matches its kernel name; replace this with PermanentMACAddress
-  # after the first successful boot, as done for opi5p.
+  # Match the onboard GMAC by its permanent address so future driver or probe
+  # ordering changes cannot silently move the static LAN configuration.
+  systemd.network.links."10-rock5c-lan" = {
+    matchConfig.PermanentMACAddress = "e2:dc:47:5e:02:24";
+    linkConfig.Name = "lan0";
+  };
   systemd.network.networks."10-rock5c-lan" = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
-    matchConfig.Name = "eth0";
+    matchConfig.PermanentMACAddress = "e2:dc:47:5e:02:24";
     networkConfig.IPv6AcceptRA = "yes";
     routes = [
       {
