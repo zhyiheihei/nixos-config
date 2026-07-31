@@ -54,6 +54,7 @@ in
   services.prometheus.scrapeConfigs = [
     {
       job_name = "prometheus";
+      fallback_scrape_protocol = "PrometheusText";
       static_configs = [
         {
           targets = [
@@ -171,18 +172,6 @@ in
     })
     (scrapeByAttr {
       jobName = "nut";
-      port = LT.port.Prometheus.NUTExporter;
-      metricsPath = "/ups_metrics";
-      attrPath = [
-        "services"
-        "prometheus"
-        "exporters"
-        "nut"
-        "enable"
-      ];
-    })
-    (scrapeByAttr {
-      jobName = "nut-exporter";
       port = LT.port.Prometheus.NUTExporter;
       attrPath = [
         "services"

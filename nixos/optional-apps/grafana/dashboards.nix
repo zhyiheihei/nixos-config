@@ -1268,7 +1268,7 @@ let
         max = 100;
         targets = [
           {
-            expr = ''nut_battery_charge_percent{job=~"nut|nut-exporter"}'';
+            expr = ''nut_battery_charge_percent{job="nut"}'';
             legendFormat = "{{instance}} {{ups}}";
           }
         ];
