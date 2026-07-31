@@ -24,7 +24,7 @@ in
 
     preStart = ''
       downloadPath=/mnt/storage/.downloads-qb-seedbox
-      instanceDir=/var/lib/qbittorrent-seedbox/qBittorrent_seedbox
+      instanceDir=/var/lib/qbittorrent-seedbox/qBittorrent
       config=$instanceDir/config/qBittorrent.conf
       mkdir -p "$(dirname "$config")"
       touch "$config"
@@ -38,8 +38,9 @@ in
       sed -i '/^Session\\DefaultSavePath=/d' "$config"
       sed -i '/^Downloads\\SavePath=/d' "$config"
       sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
-      sed -i "/^\[BitTorrent\]$/a Session\\DefaultSavePath=$downloadPath/" "$config"
-      sed -i "/^\[Preferences\]$/a WebUI\\LocalHostAuth=false" "$config"
+      sed -i '/^WebUILocalHostAuth=/d' "$config"
+      sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=$downloadPath/" "$config"
+      sed -i "/^\[Preferences\]$/a WebUI\\\\LocalHostAuth=true" "$config"
     '';
 
     serviceConfig = LT.serviceHarden // {
@@ -50,7 +51,6 @@ in
       ExecStart = utils.escapeSystemdExecArgs [
         (lib.getExe pkgs.qbittorrent-nox)
         "--profile=/var/lib/qbittorrent-seedbox"
-        "--configuration=seedbox"
         "--webui-port=${LT.portStr.qBitTorrentSeedbox.WebUI}"
         "--torrenting-port=${builtins.toString (LT.this.wg-zhyi.forwardStart + 2)}"
         "--confirm-legal-notice"
@@ -74,7 +74,7 @@ in
   };
 
   systemd.tmpfiles.settings.qbittorrent-seedbox = {
-    "/var/lib/qbittorrent-seedbox/qBittorrent_seedbox/config".d = {
+    "/var/lib/qbittorrent-seedbox/qBittorrent/config".d = {
       mode = "755";
       inherit user group;
     };
