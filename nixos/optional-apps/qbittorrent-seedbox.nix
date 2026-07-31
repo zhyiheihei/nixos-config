@@ -40,7 +40,6 @@ in
       sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
       sed -i '/^WebUILocalHostAuth=/d' "$config"
       sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=$downloadPath/" "$config"
-      sed -i "/^\[Preferences\]$/a WebUI\\\\LocalHostAuth=true" "$config"
     '';
 
     serviceConfig = LT.serviceHarden // {
