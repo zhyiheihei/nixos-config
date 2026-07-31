@@ -28,14 +28,17 @@ in
       config=$instanceDir/config/qBittorrent.conf
       mkdir -p "$(dirname "$config")"
       touch "$config"
+      # qBittorrent 5.x uses [BitTorrent] Session\DefaultSavePath
+      if ! grep -q '^\[BitTorrent\]$' "$config"; then
+        printf '[BitTorrent]\n' >> "$config"
+      fi
       if ! grep -q '^\[Preferences\]$' "$config"; then
         printf '[Preferences]\n' >> "$config"
       fi
-      sed -i '/^DownloadsSavePath=/d' "$config"
+      sed -i '/^Session\\DefaultSavePath=/d' "$config"
       sed -i '/^Downloads\\SavePath=/d' "$config"
-      sed -i '/^WebUILocalHostAuth=/d' "$config"
       sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
-      sed -i "/^\[Preferences\]$/a Downloads\\SavePath=$downloadPath/" "$config"
+      sed -i "/^\[BitTorrent\]$/a Session\\DefaultSavePath=$downloadPath/" "$config"
       sed -i "/^\[Preferences\]$/a WebUI\\LocalHostAuth=false" "$config"
     '';
 
