@@ -13,9 +13,20 @@
 
   # Keep the WAN identity used by OpenWrt. Some ISPs bind the active PPPoE
   # session to the CPE MAC address.
-  systemd.network.links."10-router-wan" = {
-    matchConfig.OriginalName = "eth1";
-    linkConfig.MACAddress = "02:c8:90:df:19:eb";
+  # Disable EEE on both RTL8125B ports: the PHY firmware (rtl8125b-2_0.0.2)
+  # fails to wake from EEE low-power idle, causing intermittent carrier loss.
+  systemd.network.links = {
+    "10-router-wan" = {
+      matchConfig.OriginalName = "eth1";
+      linkConfig = {
+        MACAddress = "02:c8:90:df:19:eb";
+        EEE = "off";
+      };
+    };
+    "10-router-lan" = {
+      matchConfig.OriginalName = "eth0";
+      linkConfig.EEE = "off";
+    };
   };
 
   services.pppd = {
