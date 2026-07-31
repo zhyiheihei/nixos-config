@@ -94,7 +94,7 @@ let
     '';
 
 in
-lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
+lib.mkIf (!(LT.this.hasTag LT.tags.low-ram) || LT.this.hasTag LT.tags.public-facing) {
   sops.secrets =
     let
       lines = lib.splitString "\n" (builtins.readFile (inputs.secrets + "/common/dnssec.yaml"));
