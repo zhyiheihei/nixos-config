@@ -73,6 +73,8 @@ in
           builtins.concatStringsSep " " [
             (lib.getExe pkgs.rsync)
             "-aczrq"
+            "--no-owner"
+            "--no-group"
             "--delete-after"
             "--timeout=300"
             "rsync://${syncAddress}/sync-servers/"
