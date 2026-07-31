@@ -196,11 +196,14 @@ in
 
           test -b "$disk"
           test -n "$partition"
+          # The image's backup GPT header still describes the original 5 GiB
+          # image. Move it to the physical end before asking for the last
+          # usable sector, otherwise a larger card is mistaken for a full one.
+          sgdisk -e "$disk"
           current_end=$(sgdisk -i "$partition" "$disk" | sed -n 's/^Last sector: \([0-9][0-9]*\).*/\1/p')
           usable_end=$(sgdisk -p "$disk" | sed -n 's/^First usable sector is [0-9][0-9]*, last usable sector is \([0-9][0-9]*\).*/\1/p')
 
           if [ "$current_end" -lt "$usable_end" ]; then
-            sgdisk -e "$disk"
             printf 'Yes\\n' | parted ---pretend-input-tty "$disk" resizepart "$partition" 100%
             partx -u "$disk"
           fi
