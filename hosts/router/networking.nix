@@ -13,19 +13,32 @@
 
   # Keep the WAN identity used by OpenWrt. Some ISPs bind the active PPPoE
   # session to the CPE MAC address.
+  systemd.network.links."10-router-wan" = {
+    matchConfig.OriginalName = "eth1";
+    linkConfig.MACAddress = "02:c8:90:df:19:eb";
+  };
+
   # Disable EEE on both RTL8125B ports: the PHY firmware (rtl8125b-2_0.0.2)
   # fails to wake from EEE low-power idle, causing intermittent carrier loss.
-  systemd.network.links = {
-    "10-router-wan" = {
-      matchConfig.OriginalName = "eth1";
-      linkConfig = {
-        MACAddress = "02:c8:90:df:19:eb";
-        EEE = "off";
-      };
-    };
-    "10-router-lan" = {
-      matchConfig.OriginalName = "eth0";
-      linkConfig.EEE = "off";
+  # The NixOS linkConfig type does not expose EEE, so use ethtool directly.
+  systemd.services.disable-eee = {
+    description = "Disable EEE on RTL8125B NICs";
+    wantedBy = [ "multi-user.target" ];
+    after = [
+      "sys-subsystem-net-devices-eth0.device"
+      "sys-subsystem-net-devices-eth1.device"
+    ];
+    wants = [
+      "sys-subsystem-net-devices-eth0.device"
+      "sys-subsystem-net-devices-eth1.device"
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = [
+        "${pkgs.ethtool}/bin/ethtool --set-eee eth0 eee off"
+        "${pkgs.ethtool}/bin/ethtool --set-eee eth1 eee off"
+      ];
     };
   };
 
