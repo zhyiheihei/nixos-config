@@ -13,7 +13,6 @@
     ./hardware-configuration.nix
 
     ../../nixos/optional-apps/acme
-    ../../nixos/optional-apps/axonhub.nix
     ../../nixos/optional-apps/bepasty.nix
     ../../nixos/optional-apps/bird-lg-go.nix
     ../../nixos/optional-apps/byparr.nix
