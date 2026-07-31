@@ -17,6 +17,16 @@
       "sonarr.service"
     ];
 
+    environment = {
+      # TMDB API is unreachable from the home network (blocked/dns-poisoned);
+      # route Java outbound through the router's SOCKS proxy while keeping
+      # LAN/LTNet targets direct.
+      # NOTE: router currently listens on its ltnet address; after the router
+      # is redeployed with the repo config, switch to ${LT.hosts.router.interconnect.IPv4}.
+      JAVA_TOOL_OPTIONS =
+        "-DsocksProxyHost=${LT.hosts.router.ltnet.IPv4} -DsocksProxyPort=${LT.portStr.V2Ray.SocksClient} -DsocksNonProxyHosts=localhost|127.0.0.1|192.168.0.*|198.18.*";
+    };
+
     script = ''
       mkdir -p config database
       if [ ! -f config/application.yml ]; then
