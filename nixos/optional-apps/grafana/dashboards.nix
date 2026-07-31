@@ -698,7 +698,7 @@ let
         title = "PPPoE WAN";
         x = 4;
         y = 0;
-        expr = ''node_network_up{job="node",instance="router",device="ppp0"}'';
+        expr = ''router_wan_address_info{instance="router"}'';
         colorMode = "background";
       })
       (stat {
@@ -864,7 +864,7 @@ let
         max = 1;
         targets = [
           {
-            expr = ''node_systemd_unit_state{job="node",instance="router",state="active",name=~"pppd-wan.service|kea-dhcp4-server.service|coredns.service|dae.service|nftables.service|zerotierone.service|systemd-networkd.service|ntpd-rs.service|node_exporter.service"}'';
+            expr = ''node_systemd_unit_state{job="node",instance="router",state="active",name=~"pppd-wan.service|kea-dhcp4-server.service|coredns.service|nftables.service|zerotierone.service|systemd-networkd.service|ntpd-rs.service|prometheus-node-exporter.service"}'';
             legendFormat = "{{name}}";
           }
         ];
@@ -965,6 +965,252 @@ let
           {
             expr = ''router_neighbors{instance="router"}'';
             legendFormat = "{{state}}";
+          }
+        ];
+      })
+      (row {
+        id = 50;
+        title = "硬件与系统";
+        y = 53;
+      })
+      (timeseries {
+        id = 51;
+        title = "温度";
+        x = 0;
+        y = 54;
+        unit = "celsius";
+        targets = [
+          {
+            expr = ''node_hwmon_temp_celsius{instance="router"}'';
+            legendFormat = "{{chip}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 52;
+        title = "系统负载";
+        x = 12;
+        y = 54;
+        targets = [
+          {
+            expr = ''node_load1{instance="router"}'';
+            legendFormat = "1 分钟";
+          }
+          {
+            expr = ''node_load5{instance="router"}'';
+            legendFormat = "5 分钟";
+          }
+          {
+            expr = ''node_load15{instance="router"}'';
+            legendFormat = "15 分钟";
+          }
+        ];
+      })
+      (timeseries {
+        id = 53;
+        title = "内存明细";
+        x = 0;
+        y = 62;
+        unit = "bytes";
+        targets = [
+          {
+            expr = ''node_memory_MemTotal_bytes{instance="router"} - node_memory_MemAvailable_bytes{instance="router"}'';
+            legendFormat = "已用";
+          }
+          {
+            expr = ''node_memory_MemAvailable_bytes{instance="router"}'';
+            legendFormat = "可用";
+          }
+          {
+            expr = ''node_memory_Cached_bytes{instance="router"}'';
+            legendFormat = "缓存";
+          }
+          {
+            expr = ''node_memory_Buffers_bytes{instance="router"}'';
+            legendFormat = "缓冲";
+          }
+        ];
+      })
+      (timeseries {
+        id = 54;
+        title = "磁盘读写速率";
+        x = 12;
+        y = 62;
+        unit = "Bps";
+        targets = [
+          {
+            expr = ''rate(node_disk_read_bytes_total{instance="router"}[5m])'';
+            legendFormat = "{{device}} 读";
+          }
+          {
+            expr = ''rate(node_disk_written_bytes_total{instance="router"}[5m])'';
+            legendFormat = "{{device}} 写";
+          }
+        ];
+      })
+      (row {
+        id = 60;
+        title = "存储";
+        y = 70;
+      })
+      (timeseries {
+        id = 61;
+        title = "文件系统使用率";
+        x = 0;
+        y = 71;
+        unit = "percent";
+        min = 0;
+        max = 100;
+        targets = [
+          {
+            expr = ''(1 - node_filesystem_avail_bytes{instance="router",fstype!~"tmpfs|overlay|proc|sysfs|devtmpfs|devpts|ramfs|cgroup"} / node_filesystem_size_bytes{instance="router",fstype!~"tmpfs|overlay|proc|sysfs|devtmpfs|devpts|ramfs|cgroup"}) * 100'';
+            legendFormat = "{{mountpoint}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 62;
+        title = "磁盘 IO 占用";
+        x = 12;
+        y = 71;
+        unit = "percent";
+        min = 0;
+        max = 100;
+        targets = [
+          {
+            expr = ''rate(node_disk_io_time_seconds_total{instance="router"}[5m]) * 100'';
+            legendFormat = "{{device}}";
+          }
+        ];
+      })
+      (row {
+        id = 70;
+        title = "DNS 性能";
+        y = 79;
+      })
+      (timeseries {
+        id = 71;
+        title = "缓存命中率";
+        x = 0;
+        y = 80;
+        unit = "percent";
+        min = 0;
+        max = 100;
+        targets = [
+          {
+            expr = ''100 * sum(rate(coredns_cache_hits_total{instance="router"}[5m])) / (sum(rate(coredns_cache_hits_total{instance="router"}[5m])) + sum(rate(coredns_cache_misses_total{instance="router"}[5m])))'';
+            legendFormat = "命中率";
+          }
+        ];
+      })
+      (timeseries {
+        id = 72;
+        title = "上游 DNS 延迟";
+        x = 12;
+        y = 80;
+        unit = "s";
+        targets = [
+          {
+            expr = ''coredns_proxy_request_duration_seconds{instance="router"}'';
+            legendFormat = "{{to}} {{rcode}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 73;
+        title = "DNS 异常";
+        x = 0;
+        y = 88;
+        targets = [
+          {
+            expr = ''rate(coredns_panics_total{instance="router"}[5m])'';
+            legendFormat = "panic";
+          }
+          {
+            expr = ''rate(coredns_reload_failed_total{instance="router"}[5m])'';
+            legendFormat = "重载失败";
+          }
+          {
+            expr = ''rate(coredns_forward_healthcheck_broken_total{instance="router"}[5m])'';
+            legendFormat = "上游健康检查断开";
+          }
+          {
+            expr = ''rate(coredns_forward_max_concurrent_rejects_total{instance="router"}[5m])'';
+            legendFormat = "并发超限拒绝";
+          }
+        ];
+      })
+      (timeseries {
+        id = 74;
+        title = "DNS 请求按类型";
+        x = 12;
+        y = 88;
+        unit = "qps";
+        targets = [
+          {
+            expr = ''sum by (type) (rate(coredns_dns_requests_total{instance="router"}[5m]))'';
+            legendFormat = "{{type}}";
+          }
+        ];
+      })
+      (row {
+        id = 80;
+        title = "接口总览";
+        y = 96;
+      })
+      (timeseries {
+        id = 81;
+        title = "各接口实时吞吐";
+        x = 0;
+        y = 97;
+        w = 24;
+        unit = "bps";
+        targets = [
+          {
+            expr = ''sum by (device) (rate(node_network_receive_bytes_total{instance="router"}[2m])) * 8'';
+            legendFormat = "{{device}} 下行";
+          }
+          {
+            expr = ''sum by (device) (rate(node_network_transmit_bytes_total{instance="router"}[2m])) * 8'';
+            legendFormat = "{{device}} 上行";
+          }
+        ];
+      })
+      (table {
+        id = 82;
+        title = "链路速率";
+        x = 0;
+        y = 105;
+        w = 12;
+        h = 8;
+        expr = ''node_network_speed_bytes{instance="router"}'';
+        exclude = {
+          Time = true;
+          "__name__" = true;
+          instance = true;
+          job = true;
+          Value = true;
+        };
+        rename = {
+          device = "接口";
+          speed = "链路速率";
+        };
+        sortBy = [
+          {
+            desc = false;
+            displayName = "接口";
+          }
+        ];
+      })
+      (timeseries {
+        id = 83;
+        title = "链路抖动 (载波变化)";
+        x = 12;
+        y = 105;
+        targets = [
+          {
+            expr = ''rate(node_network_carrier_changes_total{instance="router"}[5m])'';
+            legendFormat = "{{device}}";
           }
         ];
       })
