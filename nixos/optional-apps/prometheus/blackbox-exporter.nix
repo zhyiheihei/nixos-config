@@ -127,7 +127,7 @@ in
             timeout = "15s";
             tcp.query_response = [
               { send = "AS4242423712\r\n"; }
-              { expect = "LANTIAN-DN42"; }
+              { expect = "ZHYI-DN42"; }
             ];
           };
         };
