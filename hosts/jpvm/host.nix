@@ -9,7 +9,6 @@
   tags = with tags; [
     dn42
     low-disk
-    low-ram
     public-facing
     server
     xray-exit
