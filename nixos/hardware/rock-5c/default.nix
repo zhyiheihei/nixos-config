@@ -38,21 +38,27 @@ let
         ]
         vendorKernelConfig
     );
-  rock5cKernel = (
-    (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { }).override {
-      configfile = rock5cKernelConfig;
-      requiredSystemFeatures = [ "aarch64-cross" ];
-      config =
-        builtins.removeAttrs vendorKernelConfigOptions [
-          "CONFIG_ARM64_VA_BITS_48"
-          "CONFIG_ARM64_VA_BITS"
-        ]
-        // {
-          CONFIG_ARM64_VA_BITS_39 = "y";
-          CONFIG_ARM64_VA_BITS = "9";
-        };
-    }
-  );
+  rock5cKernel =
+    (
+      (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { }).override {
+        configfile = rock5cKernelConfig;
+        requiredSystemFeatures = [ "aarch64-cross" ];
+        config =
+          builtins.removeAttrs vendorKernelConfigOptions [
+            "CONFIG_ARM64_VA_BITS_48"
+            "CONFIG_ARM64_VA_BITS"
+          ]
+          // {
+            CONFIG_ARM64_VA_BITS_39 = "y";
+            CONFIG_ARM64_VA_BITS = "9";
+          };
+      }
+    ).overrideAttrs
+      (old: {
+        # Keep fan control in the vendor PWM driver, matching the proven
+        # Orange Pi 5 Plus curve instead of adding a userspace controller.
+        patches = (old.patches or [ ]) ++ [ ./vendor-fan-curve.patch ];
+      });
 
   # The vendor kernel, DTB, ATF and bootloader form one RK3588 BSP support
   # set. Mainline U-Boot 2026.07 reached extlinux but left the RK806 PMIC and
