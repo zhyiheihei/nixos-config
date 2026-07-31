@@ -12,6 +12,8 @@ in
     server.addr = "${LT.this.interconnect.IPv4}:${LT.portStr.Ncps}";
     cache = {
       inherit (config.networking) hostName;
+      dataPath = "/mnt/storage/.ncps";
+      tempPath = "/mnt/storage/.ncps-tmp";
       upstream = {
         # Attic's streamed compressed NARs omit FileSize, which ncps rejects.
         # Clients use Attic directly before falling back to ncps for public caches.
@@ -27,8 +29,9 @@ in
   };
 
   systemd.services.ncps = {
-    after = [ "podman-metacubexd.service" ];
+    after = [ "podman-metacubexd.service" "mnt-storage.mount" ];
     wants = [ "podman-metacubexd.service" ];
+    requires = [ "mnt-storage.mount" ];
     environment = {
       HTTP_PROXY = proxy;
       HTTPS_PROXY = proxy;
