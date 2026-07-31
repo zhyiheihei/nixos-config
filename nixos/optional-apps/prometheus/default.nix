@@ -19,9 +19,9 @@
     webExternalUrl = "https://prometheus.zhyi.cc";
     stateDir = "prometheus";
     checkConfig = "syntax-only";
+    retentionTime = "365d";
 
     extraFlags = [
-      "--storage.tsdb.retention.time=365d"
       "--storage.tsdb.retention.size=10GB"
     ];
   };

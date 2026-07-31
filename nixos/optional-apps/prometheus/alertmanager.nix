@@ -3,7 +3,6 @@
   lib,
   LT,
   config,
-  utils,
   inputs,
   ...
 }:
@@ -59,17 +58,17 @@
                 # Filesystem
                 {
                   alert = "node_filesystem_full_90percent";
-                  expr = ''sort(node_filesystem_free_bytes{mountpoint="/nix"} < node_filesystem_size_bytes{mountpoint="/nix"} * 0.1)'';
+                  expr = ''sort(node_filesystem_avail_bytes{mountpoint="/nix",fstype!~"tmpfs|overlay"} < node_filesystem_size_bytes{mountpoint="/nix",fstype!~"tmpfs|overlay"} * 0.1)'';
                   for = "10m";
                   labels.severity = "warning";
                   annotations = {
                     summary = "⚠️ {{$labels.instance}}: Filesystem is running out of space soon.";
-                    description = "{{$labels.instance}} device {{$labels.device}} on {{$labels.mountpoint}} has less than 10% free space.";
+                    description = "{{$labels.instance}} device {{$labels.device}} on {{$labels.mountpoint}} has less than 10% available space.";
                   };
                 }
                 {
                   alert = "node_filesystem_readonly";
-                  expr = ''node_filesystem_readonly{mountpoint="/nix"} == 1'';
+                  expr = ''node_filesystem_readonly{mountpoint="/nix",fstype!~"tmpfs|overlay"} == 1'';
                   for = "1m";
                   labels.severity = "critical";
                   annotations = {
@@ -208,9 +207,7 @@
           + ":"
           + builtins.toString config.programs.msmtp.accounts.default.port;
         smtp_auth_username = config.programs.msmtp.accounts.default.user;
-        smtp_auth_password = {
-          _secret = config.sops.secrets.smtp-pass.path;
-        };
+        smtp_auth_password_file = config.sops.secrets.smtp-pass.path;
         smtp_require_tls = config.programs.msmtp.accounts.default.tls_starttls;
       };
       route = {
@@ -245,12 +242,6 @@
         }
       ];
     };
-  };
-
-  systemd.services.alertmanager = {
-    preStart = lib.mkForce ''
-      ${utils.genJqSecretsReplacementSnippet config.services.prometheus.alertmanager.configuration "/tmp/alert-manager-substituted.yaml"}
-    '';
   };
 
   lantian.nginxVhosts."alert.zhyi.cc" = {
