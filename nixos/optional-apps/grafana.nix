@@ -48,7 +48,6 @@ in
 
     settings = {
       auth = {
-        oauth_auto_login = "true";
         oauth_allow_insecure_email_lookup = "true";
       };
       users = {
@@ -61,6 +60,7 @@ in
       "auth.generic_oauth" = {
         enabled = "true";
         name = "Dex";
+        auto_login = "true";
         allow_sign_up = "true";
         scopes = "openid profile email groups offline_access";
         auth_url = "https://login.zhyi.xin/auth";
@@ -94,9 +94,6 @@ in
         inherit host user;
         password = "$__file{${config.sops.secrets.smtp-pass.path}}";
         from_address = from;
-      };
-      unified_alerting = {
-        enabled = "true";
       };
     };
 

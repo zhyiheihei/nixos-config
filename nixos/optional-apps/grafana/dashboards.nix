@@ -327,7 +327,7 @@ let
       graphTooltip = 1;
       id = null;
       links = [ ];
-      liveNow = false;
+      preload = false;
       inherit
         panels
         refresh
@@ -335,8 +335,7 @@ let
         title
         uid
         ;
-      schemaVersion = 41;
-      style = "dark";
+      schemaVersion = 42;
       templating.list = [ ];
       time = {
         inherit from;
@@ -480,7 +479,7 @@ let
       })
       (timeseries {
         id = 14;
-        title = "/nix 文件系统使用率";
+        title = "文件系统使用率";
         x = 12;
         y = 13;
         unit = "percent";
@@ -488,8 +487,8 @@ let
         max = 100;
         targets = [
           {
-            expr = ''(1 - node_filesystem_avail_bytes{job="node",mountpoint="/nix",fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{job="node",mountpoint="/nix",fstype!~"tmpfs|overlay"}) * 100'';
-            legendFormat = "{{instance}}";
+            expr = ''(1 - node_filesystem_avail_bytes{job="node",fstype!~"tmpfs|overlay|devtmpfs|squashfs"} / node_filesystem_size_bytes{job="node",fstype!~"tmpfs|overlay|devtmpfs|squashfs"}) * 100'';
+            legendFormat = "{{instance}} {{mountpoint}}";
           }
         ];
       })
@@ -529,11 +528,75 @@ let
           }
         ];
       })
+      (row {
+        id = 30;
+        title = "数据库与反向代理";
+        y = 30;
+      })
+      (timeseries {
+        id = 31;
+        title = "MySQL 连接数";
+        x = 0;
+        y = 31;
+        targets = [
+          {
+            expr = ''mysql_global_status_threads_connected{job="mysql"}'';
+            legendFormat = "{{instance}} 连接";
+          }
+          {
+            expr = ''mysql_global_variables_max_connections{job="mysql"}'';
+            legendFormat = "{{instance}} 上限";
+          }
+        ];
+      })
+      (timeseries {
+        id = 32;
+        title = "Nginx 请求速率";
+        x = 12;
+        y = 31;
+        unit = "qps";
+        targets = [
+          {
+            expr = ''sum by(instance) (rate(nginx_vts_server_requests_total{job="nginx",code="total"}[5m]))'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 33;
+        title = "Nginx 流量吞吐";
+        x = 0;
+        y = 39;
+        unit = "bps";
+        targets = [
+          {
+            expr = ''sum by(instance) (rate(nginx_vts_server_bytes_total{job="nginx",direction="in"}[5m])) * 8'';
+            legendFormat = "{{instance}} 接收";
+          }
+          {
+            expr = ''sum by(instance) (rate(nginx_vts_server_bytes_total{job="nginx",direction="out"}[5m])) * 8'';
+            legendFormat = "{{instance}} 发送";
+          }
+        ];
+      })
+      (timeseries {
+        id = 34;
+        title = "MySQL 慢查询速率";
+        x = 12;
+        y = 39;
+        unit = "qps";
+        targets = [
+          {
+            expr = ''rate(mysql_global_status_slow_queries{job="mysql"}[5m])'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
       (table {
-        id = 23;
+        id = 40;
         title = "采集目标状态";
         x = 0;
-        y = 30;
+        y = 47;
         h = 12;
         expr = "up";
         exclude = {
@@ -744,7 +807,7 @@ let
         max = 1;
         targets = [
           {
-            expr = ''node_systemd_unit_state{job="node",instance="router",state="active",name=~"pppd-wan.service|kea-dhcp4-server.service|coredns.service|dae.service|nftables.service|zerotierone.service"}'';
+            expr = ''node_systemd_unit_state{job="node",instance="router",state="active",name=~"pppd-wan.service|kea-dhcp4-server.service|coredns.service|dae.service|nftables.service|zerotierone.service|systemd-networkd.service|ntpd-rs.service|node_exporter.service"}'';
             legendFormat = "{{name}}";
           }
         ];
@@ -808,6 +871,43 @@ let
           {
             desc = false;
             displayName = "IP 地址";
+          }
+        ];
+      })
+      (row {
+        id = 40;
+        title = "WAN 信息";
+        y = 43;
+      })
+      (table {
+        id = 41;
+        title = "当前 WAN 地址";
+        x = 0;
+        y = 44;
+        w = 12;
+        h = 4;
+        expr = ''router_wan_address_info{instance="router"}'';
+        exclude = {
+          Time = true;
+          "__name__" = true;
+          instance = true;
+          job = true;
+          Value = true;
+        };
+        rename = {
+          address = "WAN IP 地址";
+        };
+        sortBy = [ ];
+      })
+      (timeseries {
+        id = 42;
+        title = "邻居状态统计";
+        x = 12;
+        y = 44;
+        targets = [
+          {
+            expr = ''router_neighbors{instance="router"}'';
+            legendFormat = "{{state}}";
           }
         ];
       })
@@ -1018,6 +1118,158 @@ let
           {
             expr = "bird_protocol_up";
             legendFormat = "{{instance}} / {{name}}";
+          }
+        ];
+      })
+      (row {
+        id = 30;
+        title = "证书与媒体服务";
+        y = 43;
+      })
+      (timeseries {
+        id = 31;
+        title = "ACME 证书剩余天数";
+        x = 0;
+        y = 44;
+        unit = "d";
+        targets = [
+          {
+            expr = ''(x509_cert_not_after{job="acme-cert"} - time()) / 86400'';
+            legendFormat = "{{instance}} {{cn}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 32;
+        title = "媒体服务状态";
+        x = 12;
+        y = 44;
+        min = 0;
+        max = 1;
+        targets = [
+          {
+            expr = ''up{job=~"sonarr|radarr|prowlarr|bazarr"}'';
+            legendFormat = "{{job}} / {{instance}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 33;
+        title = "Sonarr/Radarr 队列";
+        x = 0;
+        y = 52;
+        targets = [
+          {
+            expr = ''exportarr_queue_total{job=~"sonarr|radarr"}'';
+            legendFormat = "{{job}} / {{instance}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 34;
+        title = "Prowlarr 索引器状态";
+        x = 12;
+        y = 52;
+        targets = [
+          {
+            expr = ''exportarr_indexer_total{job="prowlarr"}'';
+            legendFormat = "{{instance}} 索引器";
+          }
+        ];
+      })
+      (row {
+        id = 40;
+        title = "协议探测";
+        y = 60;
+      })
+      (timeseries {
+        id = 41;
+        title = "DNS 探测状态";
+        x = 0;
+        y = 61;
+        min = 0;
+        max = 1;
+        targets = [
+          {
+            expr = ''probe_success{job="dns"}'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 42;
+        title = "Gopher/WHOIS 探测状态";
+        x = 12;
+        y = 61;
+        min = 0;
+        max = 1;
+        targets = [
+          {
+            expr = ''probe_success{job="gopher"}'';
+            legendFormat = "gopher {{instance}}";
+          }
+          {
+            expr = ''probe_success{job="whois"}'';
+            legendFormat = "whois {{instance}}";
+          }
+        ];
+      })
+      (row {
+        id = 50;
+        title = "基础设施服务";
+        y = 69;
+      })
+      (timeseries {
+        id = 51;
+        title = "PostgreSQL 连接数";
+        x = 0;
+        y = 70;
+        targets = [
+          {
+            expr = ''sum by(instance) (pg_stat_activity_count{job="postgres"})'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 52;
+        title = "磁盘 SMART 健康";
+        x = 12;
+        y = 70;
+        min = 0;
+        max = 1;
+        targets = [
+          {
+            expr = ''smartctl_device_smart_status{job="smartctl"}'';
+            legendFormat = "{{instance}} {{device}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 53;
+        title = "磁盘温度";
+        x = 0;
+        y = 78;
+        unit = "celsius";
+        targets = [
+          {
+            expr = ''smartctl_device_temperature{job="smartctl"}'';
+            legendFormat = "{{instance}} {{device}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 54;
+        title = "UPS 电池电量";
+        x = 12;
+        y = 78;
+        unit = "percent";
+        min = 0;
+        max = 100;
+        targets = [
+          {
+            expr = ''nut_battery_charge_percent{job=~"nut|nut-exporter"}'';
+            legendFormat = "{{instance}} {{ups}}";
           }
         ];
       })
