@@ -18,7 +18,7 @@ let
 
     # Services under zhyi.xin
     "https://ai.zhyi.xin"
-    "https://api.zhyi.xin"
+    "https://api.zhyi.xin/geoip"
     "https://attic.zhyi.xin"
     "https://avatar.zhyi.xin"
     "https://bitwarden.zhyi.xin"
@@ -37,11 +37,9 @@ let
     "https://tools.zhyi.xin"
     "https://whois.zhyi.xin"
     "https://www.zhyi.xin"
-    "https://zhyi.xin"
 
     # Services under zhyi.cc
     "https://alert.zhyi.cc"
-    "https://couchdb.zhyi.cc"
     "https://dashboard.zhyi.cc"
     "https://flapalerted.zhyi.cc"
     "https://hydra.zhyi.cc"
