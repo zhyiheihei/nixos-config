@@ -68,13 +68,13 @@ in
     serviceConfig = LT.serviceHarden // {
       Type = "oneshot";
       BindPaths = [ "/nix/sync-servers" ];
+      AmbientCapabilities = [ "CAP_CHOWN" ];
+      CapabilityBoundingSet = [ "CAP_CHOWN" ];
       ExecStart =
         if config.networking.hostName != primaryServer then
           builtins.concatStringsSep " " [
             (lib.getExe pkgs.rsync)
             "-aczrq"
-            "--no-owner"
-            "--no-group"
             "--delete-after"
             "--timeout=300"
             "rsync://${syncAddress}/sync-servers/"
