@@ -1,0 +1,214 @@
+{
+  pkgs,
+  lib,
+  LT,
+  config,
+  utils,
+  inputs,
+  ...
+}:
+let
+  proxyDomains = [
+    "chatgpt.com"
+    "challenges.cloudflare.com"
+    "cursor.sh"
+    "dns.google"
+    "ghcr.io"
+    "github.com"
+    "githubassets.com"
+    "githubcopilot.com"
+    "githubusercontent.com"
+    "oaistatic.com"
+    "oaiusercontent.com"
+    "openai.com"
+    "vscode-cdn.net"
+    "kernel.org"
+    "gitlab.com"
+    "gitlab.io"
+    "gitlab-static.net"
+    "google.com"
+    "elastic.co"
+  ];
+
+  v2rayConf = {
+    inbounds = [
+      {
+        listen = LT.this.ltnet.IPv4;
+        port = LT.port.V2Ray.SocksClient;
+        protocol = "socks";
+        settings.udp = true;
+        sniffing = {
+          destOverride = [
+            "http"
+            "tls"
+            "quic"
+          ];
+          enabled = true;
+        };
+        tag = "inbound";
+      }
+    ];
+    log = {
+      access = "none";
+      loglevel = "warning";
+    };
+    outbounds = [
+      {
+        protocol = "vless";
+        settings.vnext = [
+          {
+            address = LT.publicIPv4For "colocrossing";
+            port = 443;
+            users = [
+              {
+                id = {
+                  _secret = config.sops.secrets.v2ray-key.path;
+                };
+                encryption = "none";
+              }
+            ];
+          }
+        ];
+        streamSettings =
+          let
+            network = "xhttp";
+            security = "tls";
+            tlsSettings = {
+              serverName = "zhyi.xin";
+              fingerprint = "firefox";
+            };
+            xhttpSettings = {
+              host = "zhyi.xin";
+              path = "/ray";
+              xmux = {
+                maxConcurrency = 128;
+                hMaxRequestTimes = 86400;
+                hMaxReusableSecs = 86400;
+              };
+            };
+          in
+          {
+            inherit network security tlsSettings;
+            xhttpSettings = xhttpSettings // {
+              mode = "stream-up";
+              downloadSettings = {
+                address = LT.publicIPv4For "colocrossing";
+                port = 443;
+                inherit
+                  network
+                  security
+                  tlsSettings
+                  xhttpSettings
+                  ;
+              };
+            };
+          };
+        tag = "proxy";
+      }
+      {
+        protocol = "freedom";
+        settings.domainStrategy = "UseIPv4";
+        tag = "direct";
+      }
+      {
+        protocol = "blackhole";
+        settings.response.type = "none";
+        tag = "block";
+      }
+    ];
+    policy.levels."0" = {
+      connIdle = 86400;
+      downlinkOnly = 0;
+      uplinkOnly = 0;
+    };
+    routing = {
+      balancers = [ ];
+      domainStrategy = "IPOnDemand";
+      rules = [
+        {
+          outboundTag = "block";
+          protocol = [ "bittorrent" ];
+          type = "field";
+        }
+        {
+          domain = [
+            "geosite:category-ads"
+            "geosite:category-ads-all"
+          ];
+          outboundTag = "block";
+          type = "field";
+        }
+        {
+          domain = map (d: "suffix:${d}") proxyDomains;
+          outboundTag = "proxy";
+          type = "field";
+        }
+        {
+          domain = [
+            "geosite:private"
+            "geosite:cn"
+            "category-games@cn"
+          ];
+          outboundTag = "direct";
+          type = "field";
+        }
+        {
+          ip = [
+            "geoip:private"
+            "geoip:cn"
+          ];
+          outboundTag = "direct";
+          type = "field";
+        }
+      ];
+    };
+  };
+in
+{
+  sops.secrets = lib.genAttrs [ "v2ray-key" ] (_: {
+    sopsFile = inputs.secrets + "/common/v2ray.yaml";
+    owner = "v2ray";
+    group = "v2ray";
+  });
+
+  systemd.services.v2ray = {
+    description = "v2ray Daemon";
+    after = [ "network.target" "sops-install-secrets.service" ];
+    requires = [ "sops-install-secrets.service" ];
+    wantedBy = [ "multi-user.target" ];
+    environment =
+      let
+        assets = pkgs.symlinkJoin {
+          name = "v2ray-assets";
+          paths = with pkgs; [
+            v2ray-geoip
+            v2ray-domain-list-community
+          ];
+        };
+      in
+      {
+        V2RAY_LOCATION_ASSET = "${assets}/share/v2ray";
+        XRAY_LOCATION_ASSET = "${assets}/share/v2ray";
+      };
+    script = ''
+      rm -f /run/v2ray/v2ray.sock
+
+      ${utils.genJqSecretsReplacementSnippet v2rayConf "/run/v2ray/config.json"}
+
+      exec ${lib.getExe pkgs.xray} -config /run/v2ray/config.json
+    '';
+    serviceConfig = LT.serviceHarden // {
+      User = "v2ray";
+      Group = "v2ray";
+      RuntimeDirectory = "v2ray";
+      Restart = "always";
+      RestartSec = 5;
+    };
+  };
+
+  users.users.v2ray = {
+    group = "v2ray";
+    isSystemUser = true;
+  };
+  users.groups.v2ray = { };
+}

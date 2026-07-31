@@ -13,7 +13,7 @@
 
     ../../nixos/common-apps/coredns.nix
     ../../nixos/client-components/multicast-dns.nix
-    ../../nixos/optional-apps/dae.nix
+    ./v2ray.nix
     ../../nixos/optional-apps/miniupnpd.nix
     ../../nixos/optional-apps/nmea-static-gps-server.nix
     ../../nixos/optional-apps/ncps-client.nix
@@ -23,32 +23,4 @@
     externalInterface = "ppp0";
     internalIPs = [ "br-lan" ];
   };
-
-  lantian.dae = {
-    lanInterfaces = [ "br-lan" ];
-    proxyDomains = [
-      "chatgpt.com"
-      "challenges.cloudflare.com"
-      "cursor.sh"
-      "dns.google"
-      "ghcr.io"
-      "github.com"
-      "githubassets.com"
-      "githubcopilot.com"
-      "githubusercontent.com"
-      "oaistatic.com"
-      "oaiusercontent.com"
-      "openai.com"
-      "vscode-cdn.net"
-      "kernel.org"
-      "gitlab.com"
-      "gitlab.io"
-      "gitlab-static.net"
-      "google.com"
-      "ghcr.io"
-      "elastic.co"
-    ];
-    intlAction = "must_direct";
-  };
-
 }
