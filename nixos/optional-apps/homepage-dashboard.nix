@@ -37,43 +37,67 @@
         opacity = 100;
       };
       layout = {
-        "身份链路" = {
+        "公开 · 身份链路" = {
           style = "row";
           columns = 4;
         };
-        "AI 链路" = {
+        "公开 · AI 链路" = {
           style = "row";
           columns = 4;
         };
-        "下载链路" = {
+        "公开 · 内容与通讯" = {
+          style = "row";
+          columns = 4;
+        };
+        "公开 · 效率工具" = {
+          style = "row";
+          columns = 4;
+        };
+        "公开 · 媒体链路" = {
+          style = "row";
+          columns = 4;
+        };
+        "公开 · 基础设施" = {
+          style = "row";
+          columns = 4;
+        };
+        "公开 · 监控链路" = {
+          style = "row";
+          columns = 4;
+        };
+        "公开 · 网络链路" = {
+          style = "row";
+          columns = 4;
+        };
+        "私有 · AI 链路" = {
+          style = "row";
+          columns = 4;
+        };
+        "私有 · 下载链路" = {
           style = "row";
           columns = 3;
         };
-        "媒体链路" = {
+        "私有 · 媒体链路" = {
           style = "row";
           columns = 3;
         };
-        "监控链路" = {
+        "私有 · 监控链路" = {
           style = "row";
           columns = 4;
         };
-        "网络链路" = {
+        "私有 · 网络链路" = {
           style = "row";
           columns = 4;
         };
-        "基础设施" = {
+        "私有 · 基础设施" = {
           style = "row";
           columns = 4;
         };
-        "内容与通讯" = {
-          style = "row";
-          columns = 4;
-        };
-        "家庭服务" = {
+        "私有 · 家庭服务" = {
           style = "row";
           columns = 3;
         };
-        "效率工具" = {
+        "私有 · 效率工具" = {
           style = "row";
           columns = 4;
         };
