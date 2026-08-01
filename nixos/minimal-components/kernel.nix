@@ -160,7 +160,7 @@ in
 {
   options = {
     lantian.kernel = lib.mkOption {
-      type = lib.types.attrs;
+      type = lib.types.package;
       default = if pkgs.stdenv.isx86_64 then pkgs.nur-xddxdd.lantianLinuxCachyOS.lts-lto else pkgs.linux;
     };
   };
