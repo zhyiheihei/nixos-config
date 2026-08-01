@@ -10,7 +10,7 @@
     dn42
     public-facing
     server
-    xray-exit
+    cn-accel
   ];
   cpuThreads = 4;
   hostname = "203.55.176.158";

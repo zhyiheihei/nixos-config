@@ -18,7 +18,6 @@
     "nix-builder"
     "public-facing"
     "server"
-    "xray-exit"
     "ipv4-only"
     "ipv6-only"
     "lan-access"
