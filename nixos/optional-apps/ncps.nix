@@ -5,6 +5,12 @@
 }:
 let
   proxy = "http://${LT.this.interconnect.IPv4}:7892";
+  brokenNcpsUpstreams = [
+    LT.nix.attic.url
+    # TUNA can return a valid narinfo followed by HTTP 403 for its NAR.
+    # ncps then purges the incomplete entry and returns HTTP 500.
+    "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
+  ];
 in
 {
   services.ncps = {
@@ -18,7 +24,9 @@ in
         # Attic's streamed compressed NARs omit FileSize, which ncps rejects.
         # Clients use Attic directly before falling back to ncps for public caches.
         urls =
-          builtins.filter (url: url != LT.nix.attic.url) LT.constants.nix.substituters
+          builtins.filter (
+            url: !(builtins.elem url brokenNcpsUpstreams)
+          ) LT.constants.nix.substituters
           ++ [ "https://cache.nixos.org" ];
         publicKeys = LT.constants.nix.trusted-public-keys;
       };

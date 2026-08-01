@@ -29,7 +29,6 @@
   };
 
   ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
-  ltnet.tcpTransportPeers.cnvm = "cnvm.zhyi.cc";
   ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
   ltnet.tcpTransportPeers.usvm = "usvm.zhyi.cc";
 
