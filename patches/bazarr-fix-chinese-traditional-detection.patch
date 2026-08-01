@@ -1,0 +1,14 @@
+--- a/bazarr/languages/custom_lang.py
++++ b/bazarr/languages/custom_lang.py
+@@ -147,7 +147,11 @@ class ChineseTraditional(CustomLanguage):
+     official_alpha3 = "zho"
+     name = "Chinese Traditional"
+     iso = "TW"
++    _possible_matches = (
++        "cht", "zh-tw", "zht", "zh-hant", "zhhant", "zh_hant", "hant", "big5", "traditional",
++        "taiwan", "繁体", "繁體", "繁體中文", "中文（繁體）", "中文(繁體)", "粵", "粵語", "cantonese",
++    )
+     # _scripts = (Script("Hant"),)
+     # We'll use literals for now
+     _scripts = ("Hant",)
+     _extensions = (
