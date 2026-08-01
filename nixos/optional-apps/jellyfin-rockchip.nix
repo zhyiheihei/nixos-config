@@ -14,6 +14,7 @@ let
     "rk3528"
     "rk3588"
   ];
+  hasHdrToneMapping = cfg.soc == "rk3588";
   loggingConf = {
     Serilog = {
       Using = [ "Serilog.Sinks.Console" ];
@@ -61,7 +62,9 @@ in
       forceEncodingConfig = true;
       transcoding = {
         enableHardwareEncoding = true;
-        enableToneMapping = true;
+        # RK3588 can keep the RKMPP -> OpenCL -> RKMPP path zero-copy. The
+        # other supported RK35 SoCs cannot perform hardware HDR tone mapping.
+        enableToneMapping = hasHdrToneMapping;
         hardwareDecodingCodecs = {
           h264 = true;
           hevc = true;
@@ -83,6 +86,15 @@ in
       "video"
       "render"
     ];
+
+    # Jellyfin's official Armbian 6.1 recipe pins this exact g24p0 runtime.
+    # Keep only its OpenCL shim in the graphics driver environment so the
+    # proprietary EGL/GLES/GBM libraries do not replace NixOS Mesa.
+    hardware.graphics = lib.mkIf hasHdrToneMapping {
+      enable = true;
+      extraPackages = [ pkgs.libmali-rockchip-g610 ];
+    };
+    hardware.firmware = lib.mkIf hasHdrToneMapping [ pkgs.libmali-rockchip-g610 ];
 
     lantian.netns.rk-jellyfin.ipSuffix = "49";
 
@@ -126,12 +138,23 @@ in
         # /proc/device-tree/compatible.  NixOS' generic Jellyfin hardening
         # uses ProcSubset=pid, which hides that non-process procfs subtree.
         ProcSubset = lib.mkForce "all";
+        # Preserve the numeric video/render supplementary groups inside the
+        # user namespace. The generic "self" mapping turns those device
+        # groups into nobody; "identity" retains capability isolation while
+        # keeping the low system UID/GID range stable.
+        PrivateUsers = lib.mkForce "identity";
         ExecStartPre = pkgs.writeShellScript "jellyfin-rockchip-pre" ''
           ${utils.genJqSecretsReplacementSnippet loggingConf "/var/lib/jellyfin/config/logging.json"}
         '';
         DeviceAllow = lib.mkAfter [
+          "/dev/mali0 rw"
           "/dev/mpp_service rw"
           "/dev/rga rw"
+          # MPP's DRM allocator opens the primary card node. The official
+          # Rockchip guide exposes the whole /dev/dri directory, not only the
+          # render nodes used by VA-API.
+          "/dev/dri/card0 rw"
+          "/dev/dri/card1 rw"
           "/dev/dri/renderD128 rw"
           "/dev/dri/renderD129 rw"
           "/dev/dma_heap/system rw"

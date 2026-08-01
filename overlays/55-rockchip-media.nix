@@ -5,6 +5,7 @@ final: prev: {
   # opt-in instead of replacing jellyfin-ffmpeg on every aarch64 host.
   rockchip-mpp = final.callPackage ../pkgs/rockchip-mpp { };
   librga = final.callPackage ../pkgs/librga { };
+  libmali-rockchip-g610 = final.callPackage ../pkgs/libmali-rockchip-g610 { };
 
   jellyfin-ffmpeg-rockchip = prev.jellyfin-ffmpeg.overrideAttrs (old: {
     buildInputs = old.buildInputs ++ [
