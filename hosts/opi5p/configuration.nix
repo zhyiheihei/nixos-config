@@ -11,6 +11,7 @@
     ../../nixos/optional-apps/jellyfin-rockchip.nix
 
     ./hardware-configuration.nix
+    ./media-automation.nix
   ];
 
   lantian.jellyfinRockchip.soc = "rk3588";

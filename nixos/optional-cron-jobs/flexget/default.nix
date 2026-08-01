@@ -97,6 +97,11 @@ in
       WorkingDirectory = "/var/lib/flexget";
     };
     script = ''
+      if test -z "''${HDHOME_AUTO_RSS_URL:-}"; then
+        echo "HDHOME_AUTO_RSS_URL is not configured; skipping FlexGet run"
+        exit 0
+      fi
+
       cat ${flexgetTemplate} | ${lib.getExe pkgs.envsubst} > flexget.yml
 
       mkdir -p plugins

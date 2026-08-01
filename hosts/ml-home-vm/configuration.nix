@@ -34,7 +34,6 @@
     ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/homepage-dashboard.nix
     ../../nixos/optional-apps/immich.nix
-    ../../nixos/optional-apps/iyuuplus.nix
     ../../nixos/optional-apps/llama-cpp.nix
     ../../nixos/optional-apps/linkwarden.nix
     ../../nixos/optional-apps/metacubexd.nix
@@ -53,7 +52,6 @@
     ../../nixos/optional-apps/webdav.nix
     ../../nixos/optional-apps/worker-vless2sub.nix
 
-    ../../nixos/optional-cron-jobs/qbittorrent-pt-cleanup
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
     ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
 
