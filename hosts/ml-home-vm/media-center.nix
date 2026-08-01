@@ -133,4 +133,6 @@ in
     requires = [ "mnt-storage.mount" ];
     serviceConfig.BindPaths = [ qBitTorrentSeedboxDownloadPath ];
   };
+
+  lantian.qbittorrent-seedbox.downloadPath = qBitTorrentSeedboxDownloadPath;
 }
