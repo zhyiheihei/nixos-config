@@ -206,6 +206,10 @@ in
     '';
   };
 
+  # Byparr includes a browser runtime and its first GHCR pull is large.  Keep
+  # the image pull on the same stable egress as the other OPI5P workloads.
+  systemd.services.podman-byparr.environment = proxyEnvironment;
+
   systemd.services.redroid-landscape-navigation = {
     description = "Configure reDroid display, navigation, and application networking";
     wantedBy = [ "multi-user.target" ];
