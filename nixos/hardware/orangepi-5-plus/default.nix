@@ -50,11 +50,16 @@ let
         ]
         vendorKernelConfig
     );
-  opi5pKernel =
-    (
-      (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { }).override {
+  # vendor.nix accepts linuxManualConfig as a dependency. Override that
+  # dependency rather than calling `.override { configfile = ...; }` on the
+  # callPackage result: the latter only adds unused outer function arguments
+  # and silently leaves the vendor config unchanged.
+  vendorLinuxManualConfig =
+    args:
+    crossPkgs.linuxManualConfig (
+      args
+      // {
         configfile = opi5pKernelConfig;
-        requiredSystemFeatures = [ "aarch64-cross" ];
         config =
           builtins.removeAttrs vendorKernelConfigOptions [
             "CONFIG_ARM64_VA_BITS_48"
@@ -66,8 +71,13 @@ let
             CONFIG_IPV6 = "y";
           };
       }
-    ).overrideAttrs
+    );
+  opi5pKernel =
+    (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") {
+      linuxManualConfig = vendorLinuxManualConfig;
+    }).overrideAttrs
       (old: {
+        requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
         # Patch the board's vendor DTS before the kernel builds its DTB. Using
         # hardware.deviceTree.overlays here corrupts this non-mainline tree.
         patches = (old.patches or [ ]) ++ [ ./vendor-fan-curve.patch ];

@@ -53,6 +53,11 @@
   };
   networking.networkmanager.enable = lib.mkForce false;
 
+  # The common network policy intentionally masks the global wait-online
+  # service. This host's NFS media mount must still wait for its physical LAN
+  # carrier, so enable systemd's scoped per-interface instance only.
+  systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@lan0.service" ];
+
   # Keep short-lived compiler objects off the relatively slow eMMC-backed
   # Btrfs filesystem. The limit is not reserved at boot; unused memory remains
   # available to reDroid and the kernel, with zram handling temporary pressure.
