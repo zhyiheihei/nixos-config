@@ -306,7 +306,10 @@
               );
           }
           // lib.optionalAttrs (system == "x86_64-linux") {
-            opi5p-kernel = pkgs.callPackage ./pkgs/opi5p-kernel { };
+            # Use the locked, unpatched nixpkgs input for this isolated cross
+            # toolchain. Referencing perSystem's patched `pkgs.pkgsCross` here
+            # feeds the package output back into NixOS host evaluation.
+            opi5p-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/opi5p-kernel { };
           };
 
           devshells.default = {
