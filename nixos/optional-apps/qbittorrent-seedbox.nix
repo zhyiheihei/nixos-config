@@ -19,96 +19,98 @@ in
     };
   };
 
-  systemd.services.qbittorrent-seedbox = {
-    description = "qBittorrent seedbox client";
-    wants = [ "network-online.target" "mnt-storage.mount" ];
-    after = [
-      "local-fs.target"
-      "network-online.target"
-      "nss-lookup.target"
-      "mnt-storage.mount"
-    ];
-    wantedBy = [ "multi-user.target" ];
-
-    preStart = ''
-      downloadPath=${cfg.downloadPath}
-      instanceDir=/var/lib/qbittorrent-seedbox/qBittorrent
-      config=$instanceDir/config/qBittorrent.conf
-      mkdir -p "$(dirname "$config")"
-      touch "$config"
-      # qBittorrent 5.x uses [BitTorrent] Session\DefaultSavePath
-      if ! grep -q '^\[BitTorrent\]$' "$config"; then
-        printf '[BitTorrent]\n' >> "$config"
-      fi
-      if ! grep -q '^\[Preferences\]$' "$config"; then
-        printf '[Preferences]\n' >> "$config"
-      fi
-      sed -i '/^Session\\DefaultSavePath=/d' "$config"
-      sed -i '/^Downloads\\SavePath=/d' "$config"
-      sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
-      sed -i '/^WebUILocalHostAuth=/d' "$config"
-      sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=$downloadPath/" "$config"
-    '';
-
-    serviceConfig = LT.serviceHarden // {
-      User = user;
-      Group = group;
-      StateDirectory = "qbittorrent-seedbox";
-
-      ExecStart = utils.escapeSystemdExecArgs [
-        (lib.getExe pkgs.qbittorrent-nox)
-        "--profile=/var/lib/qbittorrent-seedbox"
-        "--webui-port=${LT.portStr.qBitTorrentSeedbox.WebUI}"
-        "--torrenting-port=${builtins.toString (LT.this.wg-zhyi.forwardStart + 2)}"
-        "--confirm-legal-notice"
+  config = {
+    systemd.services.qbittorrent-seedbox = {
+      description = "qBittorrent seedbox client";
+      wants = [ "network-online.target" "mnt-storage.mount" ];
+      after = [
+        "local-fs.target"
+        "network-online.target"
+        "nss-lookup.target"
+        "mnt-storage.mount"
       ];
-      TimeoutStopSec = 1800;
-      PrivateTmp = false;
-      RestrictAddressFamilies = [
-        "AF_UNIX"
-        "AF_INET"
-        "AF_INET6"
-        "AF_NETLINK"
-      ];
+      wantedBy = [ "multi-user.target" ];
 
-      Restart = "always";
-      RestartSec = "5";
-      UMask = "0002";
-      LimitNOFILE = 1048576;
-      IOSchedulingClass = "idle";
-      IOSchedulingPriority = "7";
-    };
-  };
+      preStart = ''
+        downloadPath=${cfg.downloadPath}
+        instanceDir=/var/lib/qbittorrent-seedbox/qBittorrent
+        config=$instanceDir/config/qBittorrent.conf
+        mkdir -p "$(dirname "$config")"
+        touch "$config"
+        # qBittorrent 5.x uses [BitTorrent] Session\DefaultSavePath
+        if ! grep -q '^\[BitTorrent\]$' "$config"; then
+          printf '[BitTorrent]\n' >> "$config"
+        fi
+        if ! grep -q '^\[Preferences\]$' "$config"; then
+          printf '[Preferences]\n' >> "$config"
+        fi
+        sed -i '/^Session\\DefaultSavePath=/d' "$config"
+        sed -i '/^Downloads\\SavePath=/d' "$config"
+        sed -i '/^WebUI\\LocalHostAuth=/d' "$config"
+        sed -i '/^WebUILocalHostAuth=/d' "$config"
+        sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=$downloadPath/" "$config"
+      '';
 
-  systemd.tmpfiles.settings.qbittorrent-seedbox = {
-    "/var/lib/qbittorrent-seedbox/qBittorrent/config".d = {
-      mode = "755";
-      inherit user group;
-    };
-  };
+      serviceConfig = LT.serviceHarden // {
+        User = user;
+        Group = group;
+        StateDirectory = "qbittorrent-seedbox";
 
-  lantian.nginxVhosts = {
-    "seedbox.${config.networking.hostName}.zhyi.cc" = {
-      locations."/" = {
-        allowCORS = true;
-        proxyPass = "http://127.0.0.1:${LT.portStr.qBitTorrentSeedbox.WebUI}";
+        ExecStart = utils.escapeSystemdExecArgs [
+          (lib.getExe pkgs.qbittorrent-nox)
+          "--profile=/var/lib/qbittorrent-seedbox"
+          "--webui-port=${LT.portStr.qBitTorrentSeedbox.WebUI}"
+          "--torrenting-port=${builtins.toString (LT.this.wg-zhyi.forwardStart + 2)}"
+          "--confirm-legal-notice"
+        ];
+        TimeoutStopSec = 1800;
+        PrivateTmp = false;
+        RestrictAddressFamilies = [
+          "AF_UNIX"
+          "AF_INET"
+          "AF_INET6"
+          "AF_NETLINK"
+        ];
+
+        Restart = "always";
+        RestartSec = "5";
+        UMask = "0002";
+        LimitNOFILE = 1048576;
+        IOSchedulingClass = "idle";
+        IOSchedulingPriority = "7";
       };
-
-      accessibleBy = "private";
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
-      noIndex.enable = true;
     };
-    "seedbox.localhost" = {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
 
-      locations."/" = {
-        allowCORS = true;
-        proxyPass = "http://127.0.0.1:${LT.portStr.qBitTorrentSeedbox.WebUI}";
+    systemd.tmpfiles.settings.qbittorrent-seedbox = {
+      "/var/lib/qbittorrent-seedbox/qBittorrent/config".d = {
+        mode = "755";
+        inherit user group;
       };
+    };
 
-      noIndex.enable = true;
-      accessibleBy = "localhost";
+    lantian.nginxVhosts = {
+      "seedbox.${config.networking.hostName}.zhyi.cc" = {
+        locations."/" = {
+          allowCORS = true;
+          proxyPass = "http://127.0.0.1:${LT.portStr.qBitTorrentSeedbox.WebUI}";
+        };
+
+        accessibleBy = "private";
+        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
+        noIndex.enable = true;
+      };
+      "seedbox.localhost" = {
+        listenHTTP.enable = true;
+        listenHTTPS.enable = false;
+
+        locations."/" = {
+          allowCORS = true;
+          proxyPass = "http://127.0.0.1:${LT.portStr.qBitTorrentSeedbox.WebUI}";
+        };
+
+        noIndex.enable = true;
+        accessibleBy = "localhost";
+      };
     };
   };
 }
