@@ -153,7 +153,9 @@ in
           JELLYFIN_kestrel__socket = "true";
           JELLYFIN_kestrel__socketPath = "/run/jellyfin/socket";
           JELLYFIN_kestrel__socketPermissions = "0777";
-          JELLYFIN_PublishedServerUrl = "https://jellyfin.zhyi.xin";
+          # Home broadband filters inbound 443. The router exposes this TLS
+          # vhost publicly on 8443, matching the existing vaults3 pattern.
+          JELLYFIN_PublishedServerUrl = "https://jellyfin.zhyi.xin:8443";
         }
         // lib.optionalAttrs hasHdrToneMapping {
           # ocl-icd does not discover hardware.graphics' vendor directory by
