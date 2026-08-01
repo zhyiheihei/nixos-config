@@ -1,9 +1,17 @@
 {
   lib,
-  pkgsCross,
+  nixpkgsPath,
 }:
 let
-  crossPkgs = pkgsCross.aarch64-multiplatform;
+  # Instantiate one explicit cross package set. `pkgsCross` is itself a lazy
+  # package-set fixed point and recurses when this derivation is exposed as a
+  # package of the same Flake.
+  crossPkgs = import nixpkgsPath {
+    localSystem = "x86_64-linux";
+    crossSystem = lib.systems.examples.aarch64-multiplatform;
+    config = { };
+    overlays = [ ];
+  };
   rk3588NixSource = crossPkgs.fetchFromGitHub {
     owner = "gnull";
     repo = "nixos-rk3588";
