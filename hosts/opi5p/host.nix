@@ -1,4 +1,9 @@
-{ tags, geo, ... }:
+{
+  tags,
+  geo,
+  constants,
+  ...
+}:
 {
   index = 122;
   system = "aarch64-linux";
@@ -16,5 +21,7 @@
     name = "home-lan";
     IPv4 = "192.168.0.62";
   };
+  # Server-role BIRD configuration consumes the region even without dn42.
+  dn42.region = constants.dn42.region.Asia-E;
   zerotier = "7e7ce20750";
 }
