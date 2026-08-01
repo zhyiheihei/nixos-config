@@ -25,10 +25,11 @@
 
 CNVM 本机承载 Dex、Pocket ID、Vaultwarden 与 Attic，它们的 DNS 直接指向
 `cnvm.zhyi.cc`。colocrossing 承载 Gitea、Matrix、RSS、AI 和监控等服务。
-`asf`、`books`、`filebox`、`immich`、`index`、`index-helper`、`jellyfin` 与
-`tachidesk` 保持作者的独立公开域名形态。其应用与状态位于 `opi5p`，家庭公网入口
-仍由 `ml-home-vm` 终止 TLS 与 Basic Auth，再经私有 HTTP 后端转发；因此
-colocrossing 的既有转发目标无需改变。
+`asf`、`books`、`filebox`、`immich`、`index` 与 `index-helper` 保持作者的独立
+公开域名形态，并通过 `home-ddns.zhyi.cc` 进入家庭服务。`jellyfin` 与 `tachidesk`
+同样指向家庭 DDNS；它们的应用与状态位于 `opi5p`，由 `ml-home-vm` 终止 TLS
+（Tachidesk 同时执行 Basic Auth），再经私有 HTTP 后端转发。家庭入站 443 被运营商
+封锁，因此这两个服务的外部入口统一使用 8443。
 
 `attic.zhyi.xin` 是例外：它 CNAME 到 `cnvm.zhyi.cc`，由 cnvm 本机 Nginx
 直接服务。Attic 与其 `vaults3.zhyi.cc` S3 后端分离：VaultS3 位于家庭网络
