@@ -45,7 +45,6 @@
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/sun-panel.nix
     ../../nixos/optional-apps/syncthing
-    ../../nixos/optional-apps/tachidesk.nix
     ../../nixos/optional-apps/uni-api.nix
     ../../nixos/optional-apps/vertex.nix
     ../../nixos/optional-apps/vlmcsd.nix

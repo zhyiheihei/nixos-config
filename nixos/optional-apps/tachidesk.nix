@@ -1,6 +1,15 @@
-{ LT, config, ... }:
+{
+  LT,
+  config,
+  lib,
+  ...
+}:
 {
   imports = [ ./byparr.nix ];
+
+  options.lantian.tachidesk.publicFrontend = lib.mkEnableOption "the public Tachidesk frontend" // {
+    default = true;
+  };
 
   virtualisation.oci-containers.containers.tachidesk = {
     extraOptions = [ "--net=host" ];
@@ -43,7 +52,7 @@
   };
 
   lantian.nginxVhosts = {
-    "tachidesk.zhyi.xin" = {
+    "tachidesk.zhyi.xin" = lib.mkIf config.lantian.tachidesk.publicFrontend {
       locations = {
         "/" = {
           enableBasicAuth = true;
