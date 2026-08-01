@@ -15,6 +15,7 @@
     server
   ];
   cpuThreads = 8;
+  nixBuilder.supportedFeatures = [ "big-parallel" ];
   city = geo.cities."CN Ningbo";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIITTMAnkcLtBaK31sz6e7aGEvSkqKZuEeeJETBmK33Ef root@opi5p";
   interconnect = {

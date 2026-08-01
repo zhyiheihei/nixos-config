@@ -40,6 +40,11 @@
       type = lib.types.int;
       default = 0;
     };
+    nixBuilder.supportedFeatures = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = "Nix build features advertised by this host when used as a remote builder.";
+    };
 
     # Geolocation
     city = {
