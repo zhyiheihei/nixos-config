@@ -7,6 +7,10 @@ let
   proxy = "http://${LT.this.interconnect.IPv4}:7892";
   brokenNcpsUpstreams = [
     LT.nix.attic.url
+    # USTC can publish a valid narinfo before the referenced NAR is available.
+    # ncps stores that metadata, fails to fetch the NAR, purges the entry and
+    # responds with HTTP 500, which makes Nix disable the whole local cache.
+    "https://mirrors.ustc.edu.cn/nix-channels/store"
     # TUNA can return a valid narinfo followed by HTTP 403 for its NAR.
     # ncps then purges the incomplete entry and returns HTTP 500.
     "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
