@@ -3,97 +3,23 @@
   lib,
   modulesPath,
   pkgs,
+  self,
   ...
 }:
 let
-  # Avoid running the ARM64 GCC, assembler and linker themselves through
-  # qemu-user on x86_64 builders.  This package set runs a native x86_64 cross
-  # toolchain and produces the same aarch64-linux kernel outputs.
-  crossPkgs = import pkgs.path {
-    localSystem = "x86_64-linux";
-    crossSystem = lib.systems.examples.aarch64-multiplatform;
-    config = { };
-    overlays = [ ];
-  };
+  # The cross-built kernel is a regular x86_64 Flake package. Keeping its
+  # package set outside NixOS module evaluation avoids a nixpkgs fixed-point
+  # loop while still using native x86_64 build tools for the ARM64 output.
+  opi5pKernel = self.packages.x86_64-linux.opi5p-kernel;
 
-  # Pin only gnull/nixos-rk3588's vendor-kernel packaging files here instead of
-  # adding the whole repository as a Flake input. This remains an OPI5P-local
-  # implementation detail and does not add its unrelated Flake dependencies to
-  # the global lock graph.
-  rk3588NixSource = crossPkgs.fetchFromGitHub {
+  # Firmware is architecture independent; instantiate it from the host package
+  # set rather than pulling a second cross package set into module evaluation.
+  rk3588NixSource = pkgs.fetchFromGitHub {
     owner = "gnull";
     repo = "nixos-rk3588";
     rev = "2a1add82960dda2e0d203051dcf1ae4c1bc8452c";
     hash = "sha256-nHNgt6Kkn+rFrJW2vFDsTLd7DfYlZWQgCPyk67L2q/E=";
   };
-  vendorKernelConfig = builtins.readFile (rk3588NixSource + "/pkgs/kernel/rk35xx_vendor_config");
-  vendorKernelConfigOptions = import (rk3588NixSource + "/pkgs/kernel/rk35xx_vendor_config.nix");
-  opi5pKernelConfig =
-    assert lib.hasInfix "# CONFIG_ARM64_VA_BITS_39 is not set" vendorKernelConfig;
-    assert lib.hasInfix "CONFIG_ARM64_VA_BITS_48=y" vendorKernelConfig;
-    assert lib.hasInfix "CONFIG_ARM64_VA_BITS=48" vendorKernelConfig;
-    # MPTCP is built into the vendor kernel.  IPv6 must therefore be built in
-    # as well: when IPv6 is a module, the MPTCP protocol registers before IPv6
-    # exists and AF_INET6/SOCK_STREAM/IPPROTO_MPTCP remains unavailable.  The
-    # author's nginx listener uses `multipath` for both address families.
-    assert lib.hasInfix "CONFIG_IPV6=m" vendorKernelConfig;
-    builtins.toFile "rk35xx-vendor-opi5p-config" (
-      builtins.replaceStrings
-        [
-          "# CONFIG_ARM64_VA_BITS_39 is not set"
-          "CONFIG_ARM64_VA_BITS_48=y"
-          "CONFIG_ARM64_VA_BITS=48"
-          "CONFIG_IPV6=m"
-        ]
-        [
-          "CONFIG_ARM64_VA_BITS_39=y"
-          "# CONFIG_ARM64_VA_BITS_48 is not set"
-          "CONFIG_ARM64_VA_BITS=39"
-          "CONFIG_IPV6=y"
-        ]
-        vendorKernelConfig
-    );
-  opi5pKernel =
-    (crossPkgs.linuxManualConfig {
-      modDirVersion = "6.1.115";
-      version = "6.1.115-armbian";
-      extraMeta.branch = "rk-6.1-rkr5.1";
-      src = crossPkgs.fetchFromGitHub {
-        owner = "armbian";
-        repo = "linux-rockchip";
-        rev = "b908c7339f51eddcfe8402cd15d1e1f8f4e67c29";
-        hash = "sha256-70wGP16SJHs7I8HklhNdrJbWzfvcgJCupgfOq81e1U8=";
-      };
-      kernelPatches = [ ];
-      configfile = opi5pKernelConfig;
-      config =
-        builtins.removeAttrs vendorKernelConfigOptions [
-          "CONFIG_ARM64_VA_BITS_48"
-          "CONFIG_ARM64_VA_BITS"
-        ]
-        // {
-          CONFIG_ARM64_VA_BITS_39 = "y";
-          CONFIG_ARM64_VA_BITS = "9";
-          CONFIG_IPV6 = "y";
-        };
-    }).overrideAttrs
-      (old: {
-        name = "k";
-        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ crossPkgs.ubootTools ];
-        requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
-        # Patch the board's vendor DTS before the kernel builds its DTB. Using
-        # hardware.deviceTree.overlays here corrupts this non-mainline tree.
-        patches = (old.patches or [ ]) ++ [ ./vendor-fan-curve.patch ];
-        # Preserve gnull/nixos-rk3588's fix for the vendor driver's relative
-        # CSF firmware include path in reproducible out-of-tree builds.
-        postPatch = ''
-          sed -i "drivers/gpu/arm/bifrost/csf/mali_kbase_csf_firmware.c" \
-            -e "s:drivers/gpu/arm/bifrost/mali_csffw.bin:$src/drivers/gpu/arm/bifrost/mali_csffw.bin:"
-        ''
-        + "\n"
-        + (old.postPatch or "");
-      });
-
   savedClock = "/nix/persistent/var/lib/opi5p-clock/epoch";
   saveClock = pkgs.writeShellScript "opi5p-save-clock" ''
     install -d -m 0700 "$(dirname ${savedClock})"
