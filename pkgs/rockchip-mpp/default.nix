@@ -2,18 +2,17 @@
 
 # Rockchip MPP (Media Process Platform) userland library.
 #
-# Pin the same commit nyanmisaka/jellyfin-ffmpeg uses for its RK3588
-# zero-copy pipeline (builder/scripts.d/50-rkmpp.sh). The static build is
-# required so that jellyfin-ffmpeg links MPP directly into the binary.
+# Pin the exact commit used by jellyfin-ffmpeg's ARM64 builder
+# (builder/scripts.d/50-rkmpp.sh). The static build matches upstream.
 stdenv.mkDerivation rec {
   pname = "rockchip-mpp";
-  version = "jellyfin-mpp-next-48fb6aa";
+  version = "jellyfin-mpp-next-a9380ef";
 
   src = fetchFromGitHub {
     owner = "nyanmisaka";
-    repo = "mpp";
-    rev = "48fb6aa79c8b48e1ca98ced18233fcd8a6ac68c5";
-    sha256 = "0fy8dpmcjdipqyy6l113vfhmxpj8a9mns3kp0y8hrqvjiazmiknk";
+    repo = "rk-mirrors";
+    rev = "a9380ef333102ac318628f83b5f7a460d377749e";
+    hash = "sha256-W18KrNdd1HNcubDv0K+CmAEdbXiqB5y0ECb0FUefUrk=";
   };
 
   nativeBuildInputs = [ cmake ];
@@ -37,9 +36,7 @@ stdenv.mkDerivation rec {
         --replace-fail 'includedir=''${prefix}/'$out'/include' "includedir=$out/include"
     done
     substituteInPlace "$out/lib/pkgconfig/rockchip_mpp.pc" \
-      --replace-fail 'Libs: -L''${libdir} -lrockchip_mpp' \
-        'Libs: -L''${libdir} -lrockchip_mpp -lstdc++ -lm' \
-      --replace-fail 'Libs.private:' 'Libs.private: -lstdc++ -lm'
+      --replace-fail 'Libs.private:' 'Libs.private: -lstdc++'
   '';
 
   meta = {
