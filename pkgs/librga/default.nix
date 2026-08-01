@@ -3,9 +3,8 @@
 # librga (Rockchip 2D Raster Graphic Acceleration) userland library.
 #
 # Pin the exact commit used by jellyfin-ffmpeg's ARM64 builder
-# (builder/scripts.d/50-rkrga.sh). Static build, with the
-# meson target rewritten from shared_library to library exactly like the
-# upstream build script does.
+# (builder/scripts.d/50-rkrga.sh). Nix keeps the upstream shared-library target
+# so FFmpeg can use the normal Nixpkgs dependency model and RPATH handling.
 stdenv.mkDerivation rec {
   pname = "librga";
   version = "jellyfin-rga-next-1d330cc";
@@ -22,21 +21,13 @@ stdenv.mkDerivation rec {
     ninja
   ];
 
-  preConfigure = ''
-    sed -i 's/shared_library/library/g' meson.build
-  '';
-
   mesonFlags = [
     "--buildtype=release"
-    "--default-library=static"
+    "--default-library=shared"
     "-Dcpp_args=-fpermissive"
     "-Dlibdrm=false"
     "-Dlibrga_demo=false"
   ];
-
-  postInstall = ''
-    echo 'Libs.private: -lstdc++' >> "$out/lib/pkgconfig/librga.pc"
-  '';
 
   meta = {
     description = "Rockchip 2D Raster Graphic Acceleration library (jellyfin fork)";
