@@ -36,7 +36,10 @@ stdenv.mkDerivation rec {
         --replace-fail 'libdir=''${prefix}/'$out'/lib' "libdir=$out/lib" \
         --replace-fail 'includedir=''${prefix}/'$out'/include' "includedir=$out/include"
     done
-    echo "Libs.private: -lstdc++" >> "$out/lib/pkgconfig/rockchip_mpp.pc"
+    substituteInPlace "$out/lib/pkgconfig/rockchip_mpp.pc" \
+      --replace-fail 'Libs: -L''${libdir} -lrockchip_mpp' \
+        'Libs: -L''${libdir} -lrockchip_mpp -lstdc++ -lm' \
+      --replace-fail 'Libs.private:' 'Libs.private: -lstdc++ -lm'
   '';
 
   meta = {

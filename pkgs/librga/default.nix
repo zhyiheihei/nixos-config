@@ -35,7 +35,10 @@ stdenv.mkDerivation rec {
   ];
 
   postInstall = ''
-    echo "Libs.private: -lstdc++" >> "$out/lib/pkgconfig/librga.pc"
+    substituteInPlace "$out/lib/pkgconfig/librga.pc" \
+      --replace-fail 'Libs: -L''${libdir} -lrga -pthread' \
+        'Libs: -L''${libdir} -lrga -pthread -lstdc++' \
+      --replace-fail 'Libs.private:' 'Libs.private: -lstdc++'
   '';
 
   meta = {
