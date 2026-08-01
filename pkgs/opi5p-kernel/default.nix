@@ -20,12 +20,9 @@ let
   };
   vendorKernelConfig = builtins.readFile (rk3588NixSource + "/pkgs/kernel/rk35xx_vendor_config");
   vendorKernelConfigOptions = import (rk3588NixSource + "/pkgs/kernel/rk35xx_vendor_config.nix");
-  opi5pKernelConfig =
-    assert lib.hasInfix "# CONFIG_ARM64_VA_BITS_39 is not set" vendorKernelConfig;
-    assert lib.hasInfix "CONFIG_ARM64_VA_BITS_48=y" vendorKernelConfig;
-    assert lib.hasInfix "CONFIG_ARM64_VA_BITS=48" vendorKernelConfig;
-    assert lib.hasInfix "CONFIG_IPV6=m" vendorKernelConfig;
-    builtins.toFile "rk35xx-vendor-opi5p-config" (
+  # Do not use lib.hasInfix as a guard here: recursively scanning this very
+  # large generated .config exhausts Nix's evaluator stack.
+  opi5pKernelConfig = builtins.toFile "rk35xx-vendor-opi5p-config" (
       builtins.replaceStrings
         [
           "# CONFIG_ARM64_VA_BITS_39 is not set"
