@@ -73,7 +73,12 @@ let
       }
     );
   opi5pKernel =
-    (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") {
+    (import (rk3588NixSource + "/pkgs/kernel/vendor.nix") {
+      inherit (crossPkgs)
+        fetchFromGitHub
+        fetchurl
+        ubootTools
+        ;
       linuxManualConfig = vendorLinuxManualConfig;
     }).overrideAttrs
       (old: {
