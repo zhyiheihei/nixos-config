@@ -132,6 +132,12 @@
       "androidboot.redroid_width=720"
       "androidboot.redroid_height=1280"
       "androidboot.redroid_fps=60"
+      # CNflysky exposes ADB through the container Ethernet interface. Declare
+      # both settings explicitly instead of relying on image defaults, so a
+      # container/image refresh cannot silently disable network ADB. The host
+      # port remains bound only to the home-LAN address above.
+      "androidboot.redroid_adbd_bind_eth0=1"
+      "ro.adb.secure=0"
       # reDroid is connected through the container's Ethernet interface.
       # Some Android applications only start large downloads on Wi-Fi, so use
       # the image's supported Fake WiFi compatibility layer.
