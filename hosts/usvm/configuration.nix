@@ -26,4 +26,7 @@
     Restart = lib.mkForce "on-failure";
     RestartSec = "10s";
   };
+
+  # cn-accel is used for the v2ray exit; skip mihomo to save memory.
+  lantian.mihomo.enable = false;
 }

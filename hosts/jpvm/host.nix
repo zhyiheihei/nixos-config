@@ -11,7 +11,7 @@
     low-disk
     public-facing
     server
-    xray-exit
+    cn-accel
   ];
   cpuThreads = 1;
   hostname = "36.50.85.113";
