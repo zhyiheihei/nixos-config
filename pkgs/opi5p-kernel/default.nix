@@ -1,6 +1,7 @@
 {
   lib,
   nixpkgsPath,
+  ...
 }:
 let
   # Instantiate one explicit cross package set. `pkgsCross` is itself a lazy
