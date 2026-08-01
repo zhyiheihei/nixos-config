@@ -29,17 +29,24 @@ let
     assert lib.hasInfix "# CONFIG_ARM64_VA_BITS_39 is not set" vendorKernelConfig;
     assert lib.hasInfix "CONFIG_ARM64_VA_BITS_48=y" vendorKernelConfig;
     assert lib.hasInfix "CONFIG_ARM64_VA_BITS=48" vendorKernelConfig;
+    # MPTCP is built into the vendor kernel.  IPv6 must therefore be built in
+    # as well: when IPv6 is a module, the MPTCP protocol registers before IPv6
+    # exists and AF_INET6/SOCK_STREAM/IPPROTO_MPTCP remains unavailable.  The
+    # author's nginx listener uses `multipath` for both address families.
+    assert lib.hasInfix "CONFIG_IPV6=m" vendorKernelConfig;
     crossPkgs.writeText "rk35xx-vendor-opi5p-config" (
       builtins.replaceStrings
         [
           "# CONFIG_ARM64_VA_BITS_39 is not set"
           "CONFIG_ARM64_VA_BITS_48=y"
           "CONFIG_ARM64_VA_BITS=48"
+          "CONFIG_IPV6=m"
         ]
         [
           "CONFIG_ARM64_VA_BITS_39=y"
           "# CONFIG_ARM64_VA_BITS_48 is not set"
           "CONFIG_ARM64_VA_BITS=39"
+          "CONFIG_IPV6=y"
         ]
         vendorKernelConfig
     );
@@ -56,6 +63,7 @@ let
           // {
             CONFIG_ARM64_VA_BITS_39 = "y";
             CONFIG_ARM64_VA_BITS = "9";
+            CONFIG_IPV6 = "y";
           };
       }
     ).overrideAttrs

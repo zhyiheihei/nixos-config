@@ -122,6 +122,10 @@ in
       };
       serviceConfig = {
         RuntimeDirectory = "jellyfin";
+        # Rockchip MPP identifies the SoC through
+        # /proc/device-tree/compatible.  NixOS' generic Jellyfin hardening
+        # uses ProcSubset=pid, which hides that non-process procfs subtree.
+        ProcSubset = lib.mkForce "all";
         ExecStartPre = pkgs.writeShellScript "jellyfin-rockchip-pre" ''
           ${utils.genJqSecretsReplacementSnippet loggingConf "/var/lib/jellyfin/config/logging.json"}
         '';
