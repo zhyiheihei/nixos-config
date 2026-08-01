@@ -148,7 +148,7 @@ ssh -p 2222 root@opi5p.zhyi.cc \
 | IYUUPlus | <https://iyuuplus.ml-home-vm.zhyi.cc> | 辅种工具：自动将已有文件匹配到其他站点种子 |
 | Vertex | <https://vertex.ml-home-vm.zhyi.cc> | PT 站点数据面板 + 刷流任务管理 |
 | Jellyfin | <https://jellyfin.zhyi.xin:8443> | 媒体服务器：链路终点，观看电影/剧集 |
-| Tachidesk | <https://tachidesk.zhyi.xin> | 漫画源、书库、章节下载与阅读进度（Basic Auth） |
+| Tachidesk | <https://tachidesk.zhyi.xin:8443> | 漫画源、书库、章节下载与阅读进度（Basic Auth） |
 
 ### 无 WebUI 的后台组件
 
