@@ -30,6 +30,9 @@ rec {
       done
     '';
   });
+  bazarr = prev.bazarr.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ../patches/bazarr-fix-chinese-traditional-detection.patch ];
+  });
   hydra = prev.hydra.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/hydra-protect-private-project.patch ];
   });
