@@ -18,6 +18,12 @@ stdenv.mkDerivation rec {
 
   nativeBuildInputs = [ cmake ];
 
+  # The upstream helper is invoked directly by CMake and uses /bin/bash,
+  # which does not exist inside a Nix build sandbox.
+  postPatch = ''
+    patchShebangs merge_static_lib.sh
+  '';
+
   cmakeFlags = [
     "-DCMAKE_BUILD_TYPE=Release"
     "-DBUILD_TEST=OFF"
