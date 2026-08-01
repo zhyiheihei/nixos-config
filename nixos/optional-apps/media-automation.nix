@@ -23,6 +23,7 @@ in
     ./qbittorrent-seedbox.nix
     ./sonarr
     ./tachidesk.nix
+    ./vertex.nix
 
     ../optional-cron-jobs/flexget
     ../optional-cron-jobs/qbittorrent-pt-cleanup

@@ -8,6 +8,7 @@ let
     "bt"
     "pt"
     "seedbox"
+    "vertex"
     "sonarr"
     "radarr"
     "bazarr"

@@ -1,9 +1,10 @@
 # 下载与媒体链路使用指南
 
-最后整理：2026-07-23
+最后整理：2026-08-02
 
-本文档描述 ml-home-vm 上完整的下载与媒体链路：从 PT 站找片、自动追番、音乐同步，
-到最终在 Jellyfin 观看的全流程。
+本文档描述以 `opi5p` 为应用后端的完整下载与媒体链路：从 PT 站找片、自动追番、
+漫画阅读，到最终在 Rockchip Jellyfin 观看。`ml-home-vm` 保留稳定的旧域名、TLS
+和认证边缘，不再运行这组下载与媒体写服务。
 
 导航页入口：<https://homepage.ml-home-vm.zhyi.cc>（"下载与媒体链路"分组）
 
@@ -38,6 +39,14 @@
 │           ← /mnt/storage/media-sonarr            │
 └──────────────────────────────────────────────────┘
 
+漫画（独立链路）：
+  Tachidesk/Suwayomi → 漫画源与扩展 → 章节下载/书库/阅读进度
+
+运行位置：
+  opi5p       → 下载器、Arr、BitMagnet、IYUU、Tachidesk、Vertex、Jellyfin
+  ml-home-vm  → 公网 TLS/认证入口与旧私有域名代理
+  NAS         → 192.168.0.40:/nixos，由 opi5p 直接挂载
+
 音乐（独立链路）：
   手机/电脑 网易云音乐下载 → Syncthing 同步
   → /mnt/storage/media/CloudMusic
@@ -59,7 +68,7 @@
 
 ### 手动方式
 
-1. 打开 [qBittorrent PT](https://qbittorrent-pt.ml-home-vm.zhyi.cc)
+1. 打开 [qBittorrent PT](https://pt.ml-home-vm.zhyi.cc)
 2. 粘贴磁力链接或上传 .torrent 文件
 3. 保存路径选 `/mnt/storage/downloads`（通用下载目录）
 4. 下载完成后文件在 `/mnt/storage/downloads/` 中，自行处理
@@ -97,7 +106,8 @@ FlexGet 每 10 分钟执行一次，自动抓取 HDHome RSS 中的新种子：
 查看状态：
 
 ```bash
-ssh ml-home-vm 'journalctl -u flexget-runner --since "1 hour ago"'
+ssh -p 2222 root@opi5p.zhyi.cc \
+  'journalctl -u flexget-runner --since "1 hour ago"'
 ```
 
 ### 手动追番
@@ -120,7 +130,7 @@ ssh ml-home-vm 'journalctl -u flexget-runner --since "1 hour ago"'
 
 独立的刷流链路，与 PT 追剧链路隔离：
 
-1. 打开 [Seedbox](https://qbittorrent-seedbox.ml-home-vm.zhyi.cc)
+1. 打开 [Seedbox](https://seedbox.ml-home-vm.zhyi.cc)
 2. 添加种子，固定下载到 `/mnt/storage/.downloads-qb-seedbox`
 3. 配合 [Vertex](https://vertex.ml-home-vm.zhyi.cc) 管理站点数据和刷流任务
 4. [IYUUPlus](https://iyuuplus.ml-home-vm.zhyi.cc) 自动辅种到其他站点，提升上传量
@@ -138,6 +148,7 @@ ssh ml-home-vm 'journalctl -u flexget-runner --since "1 hour ago"'
 | IYUUPlus | <https://iyuuplus.ml-home-vm.zhyi.cc> | 辅种工具：自动将已有文件匹配到其他站点种子 |
 | Vertex | <https://vertex.ml-home-vm.zhyi.cc> | PT 站点数据面板 + 刷流任务管理 |
 | Jellyfin | <https://jellyfin.zhyi.xin:8443> | 媒体服务器：链路终点，观看电影/剧集 |
+| Tachidesk | <https://tachidesk.zhyi.xin> | 漫画源、书库、章节下载与阅读进度（Basic Auth） |
 
 ### 无 WebUI 的后台组件
 
@@ -151,7 +162,9 @@ ssh ml-home-vm 'journalctl -u flexget-runner --since "1 hour ago"'
 
 ## 存储路径速查
 
-所有路径位于 NFS 挂载 `/mnt/storage`（来自 192.168.2.93）：
+所有媒体与下载路径位于 OPI5P 的 NFS 挂载 `/mnt/storage`（直接来自
+`192.168.0.40:/nixos`）。Tachidesk 与 Vertex 的应用数据库位于 OPI5P 本机
+`/var/lib/tachidesk`、`/var/lib/vertex`，不放在 NFS 上：
 
 | 路径 | 用途 | 可写服务 |
 | --- | --- | --- |
@@ -191,7 +204,7 @@ ssh ml-home-vm 'journalctl -u flexget-runner --since "1 hour ago"'
 ### 磁盘空间不足？
 
 ```bash
-ssh ml-home-vm 'df -h /mnt/storage'
+ssh -p 2222 root@opi5p.zhyi.cc 'df -h /mnt/storage'
 ```
 
 清理优先级：`.downloads-auto`（自动清理）> `downloads/` 中的旧文件 >
@@ -201,7 +214,9 @@ seedbox 中已完成的老种子。
 
 | 配置 | 位置 |
 | --- | --- |
-| 路径与 BindPaths 编排 | `hosts/ml-home-vm/media-center.nix` |
+| 路径与 BindPaths 编排 | `nixos/optional-apps/media-automation.nix` |
+| OPI5P 门闩、代理和目标编排 | `hosts/opi5p/media-automation.nix` |
+| ml-home-vm 边缘兼容入口 | `hosts/ml-home-vm/media-center.nix` |
 | 下载器模块 | `nixos/optional-apps/qbittorrent*.nix` |
 | *arr 套件 | `nixos/optional-apps/sonarr/` |
 | FlexGet | `nixos/optional-cron-jobs/flexget/` |
