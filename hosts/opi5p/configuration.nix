@@ -39,6 +39,10 @@ in
   # relying on intermittent direct GitHub connectivity.
   environment.variables = proxyEnvironment;
   systemd.services.nix-daemon.environment = proxyEnvironment;
+  # The private Attic endpoint occasionally needs slightly more than Nix's
+  # five-second default to complete its public TLS handshake from this board.
+  # Match ml-builder so a healthy private cache is not disabled prematurely.
+  nix.settings.connect-timeout = lib.mkForce 15;
 
   # Both onboard NICs use the same RTL8125 driver, so eth0/eth1 follow PCIe
   # probe order and can swap between boots. Match the permanent MAC addresses
