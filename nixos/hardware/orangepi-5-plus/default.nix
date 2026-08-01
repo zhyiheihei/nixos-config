@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   lib,
   modulesPath,
   pkgs,
@@ -10,7 +9,7 @@ let
   # Avoid running the ARM64 GCC, assembler and linker themselves through
   # qemu-user on x86_64 builders.  This package set runs a native x86_64 cross
   # toolchain and produces the same aarch64-linux kernel outputs.
-  crossPkgs = import inputs.nixpkgs {
+  crossPkgs = import pkgs.path {
     localSystem = "x86_64-linux";
     crossSystem = lib.systems.examples.aarch64-multiplatform;
     config = { };
