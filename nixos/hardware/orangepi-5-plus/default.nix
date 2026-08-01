@@ -50,42 +50,45 @@ let
         ]
         vendorKernelConfig
     );
-  # vendor.nix accepts linuxManualConfig as a dependency. Override that
-  # dependency rather than calling `.override { configfile = ...; }` on the
-  # callPackage result: the latter only adds unused outer function arguments
-  # and silently leaves the vendor config unchanged.
-  vendorLinuxManualConfig =
-    args:
-    crossPkgs.linuxManualConfig (
-      args
-      // {
-        configfile = opi5pKernelConfig;
-        config =
-          builtins.removeAttrs vendorKernelConfigOptions [
-            "CONFIG_ARM64_VA_BITS_48"
-            "CONFIG_ARM64_VA_BITS"
-          ]
-          // {
-            CONFIG_ARM64_VA_BITS_39 = "y";
-            CONFIG_ARM64_VA_BITS = "9";
-            CONFIG_IPV6 = "y";
-          };
-      }
-    );
   opi5pKernel =
-    (import (rk3588NixSource + "/pkgs/kernel/vendor.nix") {
-      inherit (crossPkgs)
-        fetchFromGitHub
-        fetchurl
-        ubootTools
-        ;
-      linuxManualConfig = vendorLinuxManualConfig;
+    (crossPkgs.linuxManualConfig {
+      modDirVersion = "6.1.115";
+      version = "6.1.115-armbian";
+      extraMeta.branch = "rk-6.1-rkr5.1";
+      src = crossPkgs.fetchFromGitHub {
+        owner = "armbian";
+        repo = "linux-rockchip";
+        rev = "b908c7339f51eddcfe8402cd15d1e1f8f4e67c29";
+        hash = "sha256-70wGP16SJHs7I8HklhNdrJbWzfvcgJCupgfOq81e1U8=";
+      };
+      kernelPatches = [ ];
+      configfile = opi5pKernelConfig;
+      config =
+        builtins.removeAttrs vendorKernelConfigOptions [
+          "CONFIG_ARM64_VA_BITS_48"
+          "CONFIG_ARM64_VA_BITS"
+        ]
+        // {
+          CONFIG_ARM64_VA_BITS_39 = "y";
+          CONFIG_ARM64_VA_BITS = "9";
+          CONFIG_IPV6 = "y";
+        };
     }).overrideAttrs
       (old: {
+        name = "k";
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ crossPkgs.ubootTools ];
         requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
         # Patch the board's vendor DTS before the kernel builds its DTB. Using
         # hardware.deviceTree.overlays here corrupts this non-mainline tree.
         patches = (old.patches or [ ]) ++ [ ./vendor-fan-curve.patch ];
+        # Preserve gnull/nixos-rk3588's fix for the vendor driver's relative
+        # CSF firmware include path in reproducible out-of-tree builds.
+        postPatch = ''
+          sed -i "drivers/gpu/arm/bifrost/csf/mali_kbase_csf_firmware.c" \
+            -e "s:drivers/gpu/arm/bifrost/mali_csffw.bin:$src/drivers/gpu/arm/bifrost/mali_csffw.bin:"
+        ''
+        + "\n"
+        + (old.postPatch or "");
       });
 
   savedClock = "/nix/persistent/var/lib/opi5p-clock/epoch";
