@@ -66,6 +66,20 @@
   systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
   nix.settings.max-jobs = lib.mkForce 4;
 
+  # Media library is exported directly by the NAS; mount the same share the
+  # other media hosts use without routing through ml-home-vm.
+  fileSystems."/mnt/storage" = {
+    device = "192.168.0.40:/nixos";
+    fsType = "nfs";
+    options = [
+      "_netdev"
+      "noatime"
+      "hard"
+      "vers=4.1"
+      "nconnect=16"
+    ];
+  };
+
   # Android's bpfloader requires this to remain writable/enabled. The common
   # hardening policy sets it to the irreversible value 1, which cannot be
   # changed back until reboot and makes every official reDroid image shut down.
