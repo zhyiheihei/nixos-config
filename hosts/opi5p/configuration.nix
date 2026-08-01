@@ -66,6 +66,9 @@
   systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
   nix.settings.max-jobs = lib.mkForce 4;
 
+  # NFS client support (mount.nfs helper + rpcbind) for the NAS media share.
+  boot.supportedFilesystems = [ "nfs" ];
+
   # Media library is exported directly by the NAS; mount the same share the
   # other media hosts use without routing through ml-home-vm.
   fileSystems."/mnt/storage" = {
