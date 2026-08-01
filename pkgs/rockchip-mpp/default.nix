@@ -31,7 +31,11 @@ stdenv.mkDerivation rec {
   ];
 
   postInstall = ''
-    echo "Libs.private: -lstdc++" >> "$out/lib/pkgconfig/rockchip_mpp.pc"
+    pc="$out/lib/pkgconfig/rockchip_mpp.pc"
+    substituteInPlace "$pc" \
+      --replace-fail 'libdir=''${prefix}/'$out'/lib' "libdir=$out/lib" \
+      --replace-fail 'includedir=''${prefix}/'$out'/include' "includedir=$out/include"
+    echo "Libs.private: -lstdc++" >> "$pc"
   '';
 
   meta = {
