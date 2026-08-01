@@ -9,8 +9,16 @@
 let
   user = "zhyi";
   group = "users";
+  cfg = config.lantian.qbittorrent-seedbox;
 in
 {
+  options.lantian.qbittorrent-seedbox = {
+    downloadPath = lib.mkOption {
+      type = lib.types.str;
+      description = "Default download/save path for the seedbox qBittorrent instance.";
+    };
+  };
+
   systemd.services.qbittorrent-seedbox = {
     description = "qBittorrent seedbox client";
     wants = [ "network-online.target" "mnt-storage.mount" ];
@@ -23,7 +31,7 @@ in
     wantedBy = [ "multi-user.target" ];
 
     preStart = ''
-      downloadPath=/mnt/storage/.downloads-qb-seedbox
+      downloadPath=${cfg.downloadPath}
       instanceDir=/var/lib/qbittorrent-seedbox/qBittorrent
       config=$instanceDir/config/qBittorrent.conf
       mkdir -p "$(dirname "$config")"
