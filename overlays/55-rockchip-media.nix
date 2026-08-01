@@ -1,26 +1,19 @@
 { inputs, ... }:
-final: prev:
-let
-  inherit (final.stdenv.hostPlatform) isAarch64;
-in
-{
-  # Rockchip RK3588 media stack: MPP + RGA userland libraries and a
-  # jellyfin-ffmpeg with RKMPP/RKRGA enabled. Only relevant on aarch64.
+final: prev: {
+  # Rockchip RK35 media stack: MPP + RGA userland libraries and a
+  # jellyfin-ffmpeg with RKMPP/RKRGA enabled.  Keep the specialized FFmpeg
+  # opt-in instead of replacing jellyfin-ffmpeg on every aarch64 host.
   rockchip-mpp = final.callPackage ../pkgs/rockchip-mpp { };
   librga = final.callPackage ../pkgs/librga { };
 
-  jellyfin-ffmpeg =
-    if isAarch64 then
-      (prev.jellyfin-ffmpeg.overrideAttrs (old: {
-        buildInputs = old.buildInputs ++ [
-          final.rockchip-mpp
-          final.librga
-        ];
-        configureFlags = old.configureFlags ++ [
-          "--enable-rkmpp"
-          "--enable-rkrga"
-        ];
-      }))
-    else
-      prev.jellyfin-ffmpeg;
+  jellyfin-ffmpeg-rockchip = prev.jellyfin-ffmpeg.overrideAttrs (old: {
+    buildInputs = old.buildInputs ++ [
+      final.rockchip-mpp
+      final.librga
+    ];
+    configureFlags = old.configureFlags ++ [
+      "--enable-rkmpp"
+      "--enable-rkrga"
+    ];
+  });
 }

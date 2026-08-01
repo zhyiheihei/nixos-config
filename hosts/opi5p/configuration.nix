@@ -8,10 +8,13 @@
   imports = [
     ../../nixos/minimal.nix
     ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/jellyfin-rockchip.nix
 
     ./hardware-configuration.nix
     ./jellyfin.nix
   ];
+
+  lantian.jellyfinRockchip.soc = "rk3588";
 
   # This host is a native aarch64 builder. Registering qemu-arm through
   # binfmt would intercept reDroid's 32-bit ARM HAL binaries instead of
@@ -85,6 +88,12 @@
       "vers=4.1"
       "nconnect=16"
     ];
+  };
+
+  # Never scan an empty local directory when the direct NAS mount is absent.
+  systemd.services.jellyfin = {
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
   };
 
   # Android's bpfloader requires this to remain writable/enabled. The common
