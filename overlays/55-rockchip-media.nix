@@ -12,9 +12,6 @@ final: prev: {
       final.librga
     ];
     configureFlags = old.configureFlags ++ [
-      # jellyfin-ffmpeg's official ARM64 builder links MPP and RGA statically
-      # and exposes their C++ runtime through Libs.private.
-      "--pkg-config-flags=--static"
       "--enable-rkmpp"
       "--enable-rkrga"
     ];

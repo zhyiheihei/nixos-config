@@ -3,7 +3,8 @@
 # Rockchip MPP (Media Process Platform) userland library.
 #
 # Pin the exact commit used by jellyfin-ffmpeg's ARM64 builder
-# (builder/scripts.d/50-rkmpp.sh). The static build matches upstream.
+# (builder/scripts.d/50-rkmpp.sh). Nix builds it as a shared library so the
+# normal Nixpkgs FFmpeg dependency model and RPATH handling remain intact.
 stdenv.mkDerivation rec {
   pname = "rockchip-mpp";
   version = "jellyfin-mpp-next-a9380ef";
@@ -26,7 +27,7 @@ stdenv.mkDerivation rec {
   cmakeFlags = [
     "-DCMAKE_BUILD_TYPE=Release"
     "-DBUILD_TEST=OFF"
-    "-DBUILD_SHARED_LIBS=OFF"
+    "-DBUILD_SHARED_LIBS=ON"
   ];
 
   postInstall = ''
@@ -35,13 +36,11 @@ stdenv.mkDerivation rec {
         --replace-fail 'libdir=''${prefix}/'$out'/lib' "libdir=$out/lib" \
         --replace-fail 'includedir=''${prefix}/'$out'/include' "includedir=$out/include"
     done
-    substituteInPlace "$out/lib/pkgconfig/rockchip_mpp.pc" \
-      --replace-fail 'Libs.private:' 'Libs.private: -lstdc++'
   '';
 
   meta = {
     description = "Rockchip Media Process Platform userland library (jellyfin fork)";
-    homepage = "https://github.com/nyanmisaka/mpp";
+    homepage = "https://github.com/nyanmisaka/rk-mirrors";
     license = lib.licenses.asl20;
     platforms = [ "aarch64-linux" ];
   };
