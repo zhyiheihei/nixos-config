@@ -1,4 +1,8 @@
-{ lib, ... }:
+{
+  config,
+  lib,
+  ...
+}:
 let
   activationMarker = "/nix/persistent/var/lib/media-automation/ready";
   gatedServices = [
@@ -24,6 +28,25 @@ let
     "radarr"
     "sonarr"
   ];
+  proxiedServices = [
+    "bazarr"
+    "bitmagnet-dht"
+    "bitmagnet-http"
+    "bitmagnet-queue"
+    "flexget-runner"
+    "iyuuplus"
+    "prowlarr"
+    "radarr"
+    "sonarr"
+  ];
+  proxyEnvironment = lib.getAttrs [
+    "HTTP_PROXY"
+    "HTTPS_PROXY"
+    "NO_PROXY"
+    "http_proxy"
+    "https_proxy"
+    "no_proxy"
+  ] config.environment.variables;
 in
 {
   imports = [ ../../nixos/optional-apps/media-automation.nix ];
@@ -31,10 +54,19 @@ in
   # The old and new download stacks must never write the same NFS paths at
   # once.  Deploy all packages, units, users, secrets and databases first, but
   # keep every writer stopped until the state transfer has completed.
-  systemd.services = lib.genAttrs gatedServices (_: {
-    partOf = [ "media-automation.target" ];
-    unitConfig.ConditionPathExists = activationMarker;
-  });
+  systemd.services = lib.mkMerge [
+    (lib.genAttrs gatedServices (_: {
+      partOf = [ "media-automation.target" ];
+      unitConfig.ConditionPathExists = activationMarker;
+    }))
+    # OPI5P's direct route to GitHub, TMDB and scene-mapping APIs is
+    # intermittent or geo-blocked. Reuse the host's declared outbound proxy
+    # for metadata/indexer traffic while LAN and project domains stay direct
+    # through NO_PROXY. Torrent peer traffic is intentionally unaffected.
+    (lib.genAttrs proxiedServices (_: {
+      environment = proxyEnvironment;
+    }))
+  ];
   systemd.timers = lib.genAttrs [
     "flexget-runner"
     "qbittorrent-pt-cleanup"
@@ -45,6 +77,8 @@ in
 
   systemd.targets.media-automation = {
     description = "OPI5P media download and automation stack";
+    wantedBy = [ "multi-user.target" ];
+    unitConfig.ConditionPathExists = activationMarker;
     wants = map (name: "${name}.service") gatedServices ++ [
       "flexget-runner.timer"
       "qbittorrent-pt-cleanup.timer"
