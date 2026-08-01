@@ -102,6 +102,8 @@ let
     routing = {
       balancers = [ ];
       domainStrategy = "IPOnDemand";
+      # Unmatched traffic uses the first outbound (`proxy`) by default. Newer
+      # Xray rejects an empty `field` rule as "no effective fields".
       rules = [
         {
           outboundTag = "block";
@@ -131,10 +133,6 @@ let
             "geoip:cn"
           ];
           outboundTag = "direct";
-          type = "field";
-        }
-        {
-          outboundTag = "proxy";
           type = "field";
         }
       ];
