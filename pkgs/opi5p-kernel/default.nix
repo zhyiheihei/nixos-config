@@ -42,38 +42,29 @@ let
         vendorKernelConfig
     );
 in
-(crossPkgs.linuxManualConfig {
-  modDirVersion = "6.1.115";
-  version = "6.1.115-armbian";
-  extraMeta.branch = "rk-6.1-rkr5.1";
-  src = crossPkgs.fetchFromGitHub {
-    owner = "armbian";
-    repo = "linux-rockchip";
-    rev = "b908c7339f51eddcfe8402cd15d1e1f8f4e67c29";
-    hash = "sha256-70wGP16SJHs7I8HklhNdrJbWzfvcgJCupgfOq81e1U8=";
-  };
-  kernelPatches = [ ];
-  configfile = opi5pKernelConfig;
-  config =
-    builtins.removeAttrs vendorKernelConfigOptions [
-      "CONFIG_ARM64_VA_BITS_48"
-      "CONFIG_ARM64_VA_BITS"
-    ]
-    // {
-      CONFIG_ARM64_VA_BITS_39 = "y";
-      CONFIG_ARM64_VA_BITS = "9";
-      CONFIG_IPV6 = "y";
-    };
+(crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") {
+  # Keep gnull's tested Armbian vendor-kernel packaging intact and replace
+  # only the two configuration choices needed by this host.
+  linuxManualConfig =
+    args:
+    crossPkgs.linuxManualConfig (
+      args
+      // {
+        configfile = opi5pKernelConfig;
+        config =
+          builtins.removeAttrs vendorKernelConfigOptions [
+            "CONFIG_ARM64_VA_BITS_48"
+            "CONFIG_ARM64_VA_BITS"
+          ]
+          // {
+            CONFIG_ARM64_VA_BITS_39 = "y";
+            CONFIG_ARM64_VA_BITS = "9";
+            CONFIG_IPV6 = "y";
+          };
+      }
+    );
 }).overrideAttrs
   (old: {
-    name = "k";
-    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ crossPkgs.ubootTools ];
     requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
     patches = (old.patches or [ ]) ++ [ ../../nixos/hardware/orangepi-5-plus/vendor-fan-curve.patch ];
-    postPatch = ''
-      sed -i "drivers/gpu/arm/bifrost/csf/mali_kbase_csf_firmware.c" \
-        -e "s:drivers/gpu/arm/bifrost/mali_csffw.bin:$src/drivers/gpu/arm/bifrost/mali_csffw.bin:"
-    ''
-    + "\n"
-    + (old.postPatch or "");
   })
