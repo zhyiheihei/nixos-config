@@ -52,6 +52,7 @@ _: [
   "pb.zhyi.xin"
   "prometheus.zhyi.cc"
   "qnap.zhyi.cc"
+  "rk-jellyfin.zhyi.xin"
   "stats.zhyi.xin"
   "vaults3.zhyi.cc"
   # keep-sorted end
