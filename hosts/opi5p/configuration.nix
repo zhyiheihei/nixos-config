@@ -6,7 +6,7 @@
 }:
 {
   imports = [
-    ../../nixos/minimal.nix
+    ../../nixos/server.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/jellyfin-rockchip.nix
 

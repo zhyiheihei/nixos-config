@@ -7,6 +7,7 @@
   tags = with tags; [
     lan-access
     nix-builder
+    server
   ];
   cpuThreads = 8;
   city = geo.cities."CN Ningbo";
