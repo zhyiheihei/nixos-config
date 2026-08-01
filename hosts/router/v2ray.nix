@@ -8,30 +8,6 @@
   ...
 }:
 let
-  proxyDomains = [
-    "chatgpt.com"
-    "challenges.cloudflare.com"
-    "cursor.sh"
-    "dns.google"
-    "ghcr.io"
-    "github.com"
-    "githubassets.com"
-    "githubcopilot.com"
-    "githubusercontent.com"
-    "oaistatic.com"
-    "oaiusercontent.com"
-    "openai.com"
-    "vscode-cdn.net"
-    "kernel.org"
-    "gitlab.com"
-    "gitlab.io"
-    "gitlab-static.net"
-    "google.com"
-    "elastic.co"
-    "themoviedb.org"
-    "tmdb.org"
-  ];
-
   v2rayConf = {
     inbounds = [
       {
@@ -141,11 +117,6 @@ let
           type = "field";
         }
         {
-          domain = proxyDomains;
-          outboundTag = "proxy";
-          type = "field";
-        }
-        {
           domain = [
             "geosite:private"
             "geosite:cn"
@@ -163,9 +134,8 @@ let
           type = "field";
         }
         {
-          outboundTag = "direct";
+          outboundTag = "proxy";
           type = "field";
-          network = "tcp,udp";
         }
       ];
     };
