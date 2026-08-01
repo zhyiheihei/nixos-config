@@ -10,6 +10,7 @@
     ../../nixos/optional-apps/ncps-client.nix
 
     ./hardware-configuration.nix
+    ./jellyfin.nix
   ];
 
   # This host is a native aarch64 builder. Registering qemu-arm through
@@ -66,8 +67,11 @@
   systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
   nix.settings.max-jobs = lib.mkForce 4;
 
-  # NFS client support (mount.nfs helper + rpcbind) for the NAS media share.
+  # `boot.supportedFilesystems` loads the kernel client, while nfs-utils
+  # supplies mount.nfs.  Keep both host-local: this board reads the NAS
+  # directly and must not route media through ml-home-vm.
   boot.supportedFilesystems = [ "nfs" ];
+  environment.systemPackages = [ pkgs.nfs-utils ];
 
   # Media library is exported directly by the NAS; mount the same share the
   # other media hosts use without routing through ml-home-vm.
