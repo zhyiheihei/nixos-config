@@ -24,10 +24,16 @@ let
       POSTGRES_HOST = "/run/postgresql";
       POSTGRES_NAME = "bitmagnet";
       POSTGRES_USER = "bitmagnet";
-      TMDB_ENABLED = "true";
     };
     script = ''
-      export TMDB_API_KEY=$(cat ${config.sops.secrets.tmdb-api-key.path})
+      TMDB_API_KEY=$(cat ${config.sops.secrets.tmdb-api-key.path})
+      if [ -n "$TMDB_API_KEY" ] && [ "$TMDB_API_KEY" != placeholder ]; then
+        export TMDB_API_KEY TMDB_ENABLED=true
+      else
+        unset TMDB_API_KEY
+        export TMDB_ENABLED=false
+        echo "TMDB API key is not configured; metadata enrichment is disabled" >&2
+      fi
       export PROCESSOR_CONCURRENCY=$(nproc)
       exec ${lib.getExe bitmagnet} worker run --keys=${worker}
     '';
