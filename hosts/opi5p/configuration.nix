@@ -4,6 +4,19 @@
   pkgs,
   ...
 }:
+let
+  outboundProxy = "http://192.168.0.51:7892";
+  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
+  proxyEnvironment = {
+    GOPROXY = "https://goproxy.cn,direct";
+    HTTP_PROXY = outboundProxy;
+    HTTPS_PROXY = outboundProxy;
+    NO_PROXY = proxyBypass;
+    http_proxy = outboundProxy;
+    https_proxy = outboundProxy;
+    no_proxy = proxyBypass;
+  };
+in
 {
   imports = [
     ../../nixos/server.nix
@@ -20,6 +33,12 @@
   # binfmt would intercept reDroid's 32-bit ARM HAL binaries instead of
   # letting the kernel's native compat layer execute them.
   lantian.qemu-user-static-binfmt.enable = lib.mkForce false;
+
+  # Fixed-output derivations execute on this native ARM builder. Route their
+  # source downloads through the same stable egress as ml-builder instead of
+  # relying on intermittent direct GitHub connectivity.
+  environment.variables = proxyEnvironment;
+  systemd.services.nix-daemon.environment = proxyEnvironment;
 
   # Both onboard NICs use the same RTL8125 driver, so eth0/eth1 follow PCIe
   # probe order and can swap between boots. Match the permanent MAC addresses
