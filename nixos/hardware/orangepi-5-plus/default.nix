@@ -1,17 +1,16 @@
 {
   config,
+  inputs,
   lib,
   modulesPath,
   pkgs,
-  self,
   ...
 }:
 let
   # Avoid running the ARM64 GCC, assembler and linker themselves through
   # qemu-user on x86_64 builders.  This package set runs a native x86_64 cross
   # toolchain and produces the same aarch64-linux kernel outputs.
-  crossPkgs =
-    self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
+  crossPkgs = inputs.nixpkgs.legacyPackages.x86_64-linux.pkgsCross.aarch64-multiplatform;
 
   # Pin only gnull/nixos-rk3588's vendor-kernel packaging files here instead of
   # adding the whole repository as a Flake input. This remains an OPI5P-local
