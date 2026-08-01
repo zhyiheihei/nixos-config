@@ -7,6 +7,7 @@
 let
   activationMarker = "/nix/persistent/var/lib/media-automation/ready";
   tachideskActivationMarker = "/nix/persistent/var/lib/media-automation/tachidesk-ready";
+  vertexActivationMarker = "/nix/persistent/var/lib/media-automation/vertex-ready";
   mediaGatedServices = [
     "bazarr"
     "bitmagnet-dht"
@@ -30,7 +31,10 @@ let
     "radarr"
     "sonarr"
   ];
-  gatedServices = mediaGatedServices ++ [ "podman-tachidesk" ];
+  gatedServices = mediaGatedServices ++ [
+    "podman-tachidesk"
+    "podman-vertex"
+  ];
   proxiedServices = [
     "bazarr"
     "bitmagnet-dht"
@@ -39,6 +43,7 @@ let
     "flexget-runner"
     "iyuuplus"
     "podman-tachidesk"
+    "podman-vertex"
     "prowlarr"
     "radarr"
     "sonarr"
@@ -77,6 +82,10 @@ in
       podman-tachidesk = {
         partOf = [ "media-automation.target" ];
         unitConfig.ConditionPathExists = tachideskActivationMarker;
+      };
+      podman-vertex = {
+        partOf = [ "media-automation.target" ];
+        unitConfig.ConditionPathExists = vertexActivationMarker;
       };
     }
   ];

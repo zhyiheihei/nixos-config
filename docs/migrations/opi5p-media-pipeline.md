@@ -1,8 +1,8 @@
 # 下载与媒体链路迁移到 OPI5P
 
-状态：准备中。目标是把下载、索引、整理和字幕服务从 `ml-home-vm` 迁到
-`opi5p`；Jellyfin 已单独迁移，并继续使用 `jellyfin-rockchip.nix`，不属于本文的
-状态迁移范围。
+状态：已完成（2026-08-02）。下载、索引、整理、字幕、漫画和下载管理服务已从
+`ml-home-vm` 迁到 `opi5p`。Jellyfin 继续使用 `jellyfin-rockchip.nix`；
+`ml-home-vm` 只保留家庭公网 TLS/认证入口和旧私有域名的反向代理。
 
 ## 不变量
 
@@ -20,6 +20,13 @@ OPI5P 的写服务受以下文件保护：
 
 ```text
 /nix/persistent/var/lib/media-automation/ready
+```
+
+后续追加迁移的有状态容器各有独立门闩，避免部署配置时以空数据库抢跑：
+
+```text
+/nix/persistent/var/lib/media-automation/tachidesk-ready
+/nix/persistent/var/lib/media-automation/vertex-ready
 ```
 
 文件不存在时可以安全部署配置，PostgreSQL、MySQL、用户、密钥和 Nginx 配置会
@@ -49,7 +56,8 @@ ssh -p 2222 root@192.168.0.51 '
     decluttarr.service jproxy.service peerbanhelper.service \
     sonarr.service radarr.service bazarr.service prowlarr.service \
     bitmagnet-dht.service bitmagnet-queue.service bitmagnet-http.service \
-    iyuuplus.service podman-byparr.service
+    iyuuplus.service podman-byparr.service \
+    podman-tachidesk.service podman-vertex.service
   systemctl stop \
     qbittorrent.service qbittorrent-pt.service qbittorrent-seedbox.service
 '
@@ -73,7 +81,8 @@ ssh -p 2222 root@192.168.0.51 '
 ssh -p 2222 root@192.168.0.51 \
   'tar --acls --xattrs --numeric-owner -C /var/lib -cpf - \
     qbittorrent qbittorrent-pt qbittorrent-seedbox \
-    sonarr radarr bazarr prowlarr jproxy peerbanhelper flexget iyuu' |
+    sonarr radarr bazarr prowlarr jproxy peerbanhelper flexget iyuu \
+    tachidesk vertex' |
 ssh -p 2222 root@192.168.0.62 \
   'tar --acls --xattrs --numeric-owner -C /var/lib -xpf -'
 ```
@@ -106,6 +115,8 @@ ssh -p 2222 root@192.168.0.62 'mariadb iyuu'
 ```bash
 ssh -p 2222 root@192.168.0.62 '
   install -Dm600 /dev/null /nix/persistent/var/lib/media-automation/ready
+  install -Dm600 /dev/null /nix/persistent/var/lib/media-automation/tachidesk-ready
+  install -Dm600 /dev/null /nix/persistent/var/lib/media-automation/vertex-ready
   systemctl start media-automation.target
 '
 ```
@@ -127,6 +138,13 @@ ssh -p 2222 root@192.168.0.62 '
 4. Bitmagnet 数据库大小和搜索结果正常，IYUU 能读取三个下载器。
 5. 新下载能完成、导入、匹配字幕，并被 OPI5P 的 Rockchip Jellyfin 扫描到。
 6. Prometheus 的 Sonarr/Radarr/Prowlarr/Bazarr exporter 恢复为 `up=1`。
+7. Tachidesk 的 H2 数据库、漫画库和阅读进度存在，`tachidesk.zhyi.xin`
+   仍要求 Basic Auth；Vertex 的站点、下载器和种子历史存在。
+
+本次实际切换校验：Tachidesk 共 1242 个文件，源/目标逐文件哈希汇总均为
+`9a7fafe19f7672e6128de051004b28cb92075f43a8ca1aeffae8ea867588479a`；
+ARM64 容器启动后 H2 schema 从 58 正常迁移到 60。正式入口返回 401、内部边缘与
+OPI5P 私有后端均返回 200。
 
 FlexGet 的 SOPS 文件目前只有占位项，没有 `HDHOME_AUTO_RSS_URL`。模块会安全跳过
 本轮任务而不是持续失败；恢复 RSS 自动下载前必须通过 SOPS 补入真实变量。
@@ -137,15 +155,18 @@ FlexGet 的 SOPS 文件目前只有占位项，没有 `HDHOME_AUTO_RSS_URL`。�
 ssh -p 2222 root@192.168.0.62 '
   systemctl stop media-automation.target \
     qbittorrent qbittorrent-pt qbittorrent-seedbox \
-    sonarr radarr bazarr prowlarr
+    sonarr radarr bazarr prowlarr podman-tachidesk podman-vertex
   rm -f /nix/persistent/var/lib/media-automation/ready
+  rm -f /nix/persistent/var/lib/media-automation/tachidesk-ready
+  rm -f /nix/persistent/var/lib/media-automation/vertex-ready
 '
 
 ssh -p 2222 root@192.168.0.51 '
   systemctl start \
     qbittorrent qbittorrent-pt qbittorrent-seedbox \
     sonarr radarr bazarr prowlarr jproxy decluttarr peerbanhelper \
-    bitmagnet-http bitmagnet-queue bitmagnet-dht iyuuplus podman-byparr
+    bitmagnet-http bitmagnet-queue bitmagnet-dht iyuuplus podman-byparr \
+    podman-tachidesk podman-vertex
   systemctl start flexget-runner.timer qbittorrent-pt-cleanup.timer
 '
 ```
