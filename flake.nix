@@ -241,7 +241,7 @@
       };
 
       perSystem =
-        { pkgs, ... }:
+        { pkgs, system, ... }:
         let
           LT = import ./helpers {
             inherit lib inputs self;
@@ -304,6 +304,9 @@
                 ''
                 + (lib.concatMapStrings hostEntries (builtins.attrValues (LT.hostsWithTag LT.tags.dn42)))
               );
+          }
+          // lib.optionalAttrs (system == "x86_64-linux") {
+            opi5p-kernel = pkgs.callPackage ./pkgs/opi5p-kernel { };
           };
 
           devshells.default = {
