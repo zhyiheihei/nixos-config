@@ -2,19 +2,19 @@
 
 # librga (Rockchip 2D Raster Graphic Acceleration) userland library.
 #
-# Pin the same commit nyanmisaka/jellyfin-ffmpeg uses for its RK3588
-# zero-copy pipeline (builder/scripts.d/50-rkrga.sh). Static build, with the
+# Pin the exact commit used by jellyfin-ffmpeg's ARM64 builder
+# (builder/scripts.d/50-rkrga.sh). Static build, with the
 # meson target rewritten from shared_library to library exactly like the
 # upstream build script does.
 stdenv.mkDerivation rec {
   pname = "librga";
-  version = "jellyfin-rga-next-571a880";
+  version = "jellyfin-rga-next-1d330cc";
 
   src = fetchFromGitHub {
     owner = "nyanmisaka";
     repo = "rk-mirrors";
-    rev = "571a880951583a3b2a04e7e1fa900861653befde";
-    sha256 = "0m7vb9hv1x647lny1narm7289psq59ymwm2mg1c3g71f32czzcsv";
+    rev = "1d330cc28551943bed3380261a5a9c6fbd58ff53";
+    hash = "sha256-EO/YvkyaAgIyAZQJjXa8b5SEgCo4vfDpYoeKcJH1n4o=";
   };
 
   nativeBuildInputs = [
@@ -35,10 +35,7 @@ stdenv.mkDerivation rec {
   ];
 
   postInstall = ''
-    substituteInPlace "$out/lib/pkgconfig/librga.pc" \
-      --replace-fail 'Libs: -L''${libdir} -lrga -pthread' \
-        'Libs: -L''${libdir} -lrga -pthread -lstdc++ -lm'
-    echo 'Libs.private: -lstdc++ -lm' >> "$out/lib/pkgconfig/librga.pc"
+    echo 'Libs.private: -lstdc++' >> "$out/lib/pkgconfig/librga.pc"
   '';
 
   meta = {
