@@ -34,7 +34,7 @@ let
     # exists and AF_INET6/SOCK_STREAM/IPPROTO_MPTCP remains unavailable.  The
     # author's nginx listener uses `multipath` for both address families.
     assert lib.hasInfix "CONFIG_IPV6=m" vendorKernelConfig;
-    crossPkgs.writeText "rk35xx-vendor-opi5p-config" (
+    builtins.toFile "rk35xx-vendor-opi5p-config" (
       builtins.replaceStrings
         [
           "# CONFIG_ARM64_VA_BITS_39 is not set"
