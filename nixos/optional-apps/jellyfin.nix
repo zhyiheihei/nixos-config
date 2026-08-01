@@ -1,80 +1,32 @@
-{
-  pkgs,
-  config,
-  utils,
-  ...
-}:
+{ LT, ... }:
 let
-  loggingConf = {
-    Serilog = {
-      Using = [ "Serilog.Sinks.Console" ];
-      MinimumLevel = "Warning";
-      WriteTo = [ { Name = "Console"; } ];
-      Enrich = [
-        "FromLogContext"
-        "WithMachineName"
-        "WithThreadId"
-      ];
-      Properties.Application = "Jellyfin";
-    };
+  backend = "http://${LT.hosts.opi5p.interconnect.IPv4}";
+  backendHost = "jellyfin-backend.opi5p.zhyi.cc";
+  proxyLocation = {
+    proxyPass = backend;
+    proxyOverrideHost = backendHost;
+    proxyWebsockets = true;
+    proxyNoTimeout = true;
   };
-
-  netns = config.lantian.netns.jellyfin;
 in
 {
-  services.jellyfin.enable = true;
-
-  lantian.netns.jellyfin.ipSuffix = "48";
-
+  # Keep the public TLS endpoint on ml-home-vm, where the router forwards
+  # ports 80/443 for all home services. Only Jellyfin's application backend
+  # moves to OPI5P; changing the router's DNAT target would break the other
+  # public virtual hosts on this machine.
   lantian.nginxVhosts = {
     "jellyfin.zhyi.xin" = {
-      locations = {
-        "/" = {
-          proxyPass = "http://unix:/run/jellyfin/socket";
-        };
-        "= /web/" = {
-          proxyPass = "http://unix:/run/jellyfin/socket:/web/index.html";
-        };
-      };
-
+      locations."/" = proxyLocation;
       sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
+
     "jellyfin.localhost" = {
       listenHTTP.enable = true;
       listenHTTPS.enable = false;
-
-      locations = {
-        "/" = {
-          proxyPass = "http://unix:/run/jellyfin/socket";
-        };
-        "= /web/" = {
-          proxyPass = "http://unix:/run/jellyfin/socket:/web/index.html";
-        };
-      };
-
+      locations."/" = proxyLocation;
       noIndex.enable = true;
       accessibleBy = "localhost";
     };
   };
-
-  systemd.services.jellyfin = netns.bind {
-    environment = {
-      JELLYFIN_kestrel__socket = "true";
-      JELLYFIN_kestrel__socketPath = "/run/jellyfin/socket";
-      JELLYFIN_kestrel__socketPermissions = "0777";
-      JELLYFIN_PublishedServerUrl = "https://jellyfin.zhyi.xin";
-    };
-    serviceConfig = {
-      RuntimeDirectory = "jellyfin";
-      ExecStartPre = pkgs.writeShellScript "jellyfin-pre" ''
-        ${utils.genJqSecretsReplacementSnippet loggingConf "/var/lib/jellyfin/config/logging.json"}
-      '';
-    };
-  };
-
-  users.users.jellyfin.extraGroups = [
-    "video"
-    "render"
-  ];
 }

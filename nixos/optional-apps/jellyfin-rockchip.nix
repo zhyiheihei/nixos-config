@@ -99,19 +99,41 @@ in
     lantian.netns.rk-jellyfin.ipSuffix = "49";
 
     lantian.nginxVhosts = {
-      "rk-jellyfin.zhyi.xin" = {
+      "jellyfin.zhyi.xin" = {
+        serverAliases = [ "rk-jellyfin.zhyi.xin" ];
         locations = {
-          "/".proxyPass = "http://unix:/run/jellyfin/socket";
+          "/" = {
+            proxyPass = "http://unix:/run/jellyfin/socket";
+            proxyWebsockets = true;
+            proxyNoTimeout = true;
+          };
           "= /web/".proxyPass = "http://unix:/run/jellyfin/socket:/web/index.html";
         };
         sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
-      "rk-jellyfin.localhost" = {
+      # The public edge on ml-home-vm reaches this HTTP-only LAN vhost. Its
+      # private ACL keeps the application socket unreachable from the WAN.
+      "jellyfin-backend.opi5p.zhyi.cc" = {
+        listenHTTP.enable = true;
+        listenHTTPS.enable = false;
+        locations."/" = {
+          proxyPass = "http://unix:/run/jellyfin/socket";
+          proxyWebsockets = true;
+          proxyNoTimeout = true;
+        };
+        noIndex.enable = true;
+        accessibleBy = "private";
+      };
+      "jellyfin.localhost" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
         locations = {
-          "/".proxyPass = "http://unix:/run/jellyfin/socket";
+          "/" = {
+            proxyPass = "http://unix:/run/jellyfin/socket";
+            proxyWebsockets = true;
+            proxyNoTimeout = true;
+          };
           "= /web/".proxyPass = "http://unix:/run/jellyfin/socket:/web/index.html";
         };
         noIndex.enable = true;
@@ -131,7 +153,7 @@ in
           JELLYFIN_kestrel__socket = "true";
           JELLYFIN_kestrel__socketPath = "/run/jellyfin/socket";
           JELLYFIN_kestrel__socketPermissions = "0777";
-          JELLYFIN_PublishedServerUrl = "https://rk-jellyfin.zhyi.xin";
+          JELLYFIN_PublishedServerUrl = "https://jellyfin.zhyi.xin";
         }
         // lib.optionalAttrs hasHdrToneMapping {
           # ocl-icd does not discover hardware.graphics' vendor directory by
