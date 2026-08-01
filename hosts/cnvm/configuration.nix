@@ -28,6 +28,10 @@
     "119.29.29.29"
   ];
 
+  # Keep Attic's S3 data plane on LTNET.  The public home-DDNS path is less
+  # reliable for long uploads, while the direct WireGuard peer is stable.
+  networking.hosts."${LT.hosts."ml-home-vm".ltnet.IPv4}" = [ "vaults3.zhyi.cc" ];
+
   lantian.nginxVhosts."cnvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
   # cnvm 在国内，Docker Hub 不可达，配置镜像加速
