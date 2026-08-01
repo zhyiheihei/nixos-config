@@ -13,6 +13,7 @@
     ./hardware-configuration.nix
     ./home-lan-vhosts.nix
     ./media-center.nix
+    ./proxy.nix
     ./shares.nix
 
     ../../nixos/client-components/cups.nix
