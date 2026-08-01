@@ -1,5 +1,6 @@
 {
   lib,
+  LT,
   ...
 }:
 let
@@ -52,6 +53,13 @@ let
       };
     }
   ];
+  tachideskBackendHost = "tachidesk-backend.opi5p.zhyi.cc";
+  tachideskProxyLocation = {
+    proxyPass = "http://${LT.hosts.opi5p.interconnect.IPv4}";
+    proxyOverrideHost = tachideskBackendHost;
+    proxyWebsockets = true;
+    proxyNoTimeout = true;
+  };
 in
 {
   imports = [
@@ -66,7 +74,23 @@ in
   # The media writers now run exclusively on OPI5P. Keep the old private
   # URLs as stable edge endpoints, but never instantiate a second copy of the
   # downloaders, automation workers or their databases on this host again.
-  lantian.nginxVhosts = builtins.listToAttrs (
-    builtins.concatLists (map mkEdgeVhosts edgeServices)
-  );
+  lantian.nginxVhosts =
+    builtins.listToAttrs (builtins.concatLists (map mkEdgeVhosts edgeServices))
+    // {
+      "tachidesk.zhyi.xin" = {
+        locations."/" = tachideskProxyLocation // {
+          enableBasicAuth = true;
+        };
+        sslCertificate = "lets-encrypt-zhyi.xin";
+        noIndex.enable = true;
+      };
+
+      "tachidesk.localhost" = {
+        listenHTTP.enable = true;
+        listenHTTPS.enable = false;
+        locations."/" = tachideskProxyLocation;
+        accessibleBy = "localhost";
+        noIndex.enable = true;
+      };
+    };
 }

@@ -1,11 +1,13 @@
 {
   config,
   lib,
+  LT,
   ...
 }:
 let
   activationMarker = "/nix/persistent/var/lib/media-automation/ready";
-  gatedServices = [
+  tachideskActivationMarker = "/nix/persistent/var/lib/media-automation/tachidesk-ready";
+  mediaGatedServices = [
     "bazarr"
     "bitmagnet-dht"
     "bitmagnet-http"
@@ -28,6 +30,7 @@ let
     "radarr"
     "sonarr"
   ];
+  gatedServices = mediaGatedServices ++ [ "podman-tachidesk" ];
   proxiedServices = [
     "bazarr"
     "bitmagnet-dht"
@@ -35,6 +38,7 @@ let
     "bitmagnet-queue"
     "flexget-runner"
     "iyuuplus"
+    "podman-tachidesk"
     "prowlarr"
     "radarr"
     "sonarr"
@@ -55,7 +59,7 @@ in
   # once.  Deploy all packages, units, users, secrets and databases first, but
   # keep every writer stopped until the state transfer has completed.
   systemd.services = lib.mkMerge [
-    (lib.genAttrs gatedServices (_: {
+    (lib.genAttrs mediaGatedServices (_: {
       partOf = [ "media-automation.target" ];
       unitConfig.ConditionPathExists = activationMarker;
     }))
@@ -66,6 +70,15 @@ in
     (lib.genAttrs proxiedServices (_: {
       environment = proxyEnvironment;
     }))
+    # Tachidesk has its own cutover marker. The rest of the media stack is
+    # already live, so a configuration deployment must not start a fresh
+    # empty instance before its SQLite database and library are copied.
+    {
+      podman-tachidesk = {
+        partOf = [ "media-automation.target" ];
+        unitConfig.ConditionPathExists = tachideskActivationMarker;
+      };
+    }
   ];
   systemd.timers = lib.genAttrs [
     "flexget-runner"
@@ -107,4 +120,21 @@ in
       h.argument = "+C";
     };
   };
+
+  # Public TLS remains on ml-home-vm with the rest of the home edge. Expose a
+  # private HTTP-only backend here so the edge never loops through public DNS.
+  lantian.nginxVhosts."tachidesk-backend.opi5p.zhyi.cc" = {
+    listenHTTP.enable = true;
+    listenHTTPS.enable = false;
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.Tachidesk}";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
+    accessibleBy = "private";
+    noIndex.enable = true;
+  };
+
+  # The public name is served only by ml-home-vm after migration.
+  lantian.tachidesk.publicFrontend = false;
 }
