@@ -10,6 +10,7 @@ let
     "clamav-daemon"
     "clamav-fangfrisch"
     "clamav-freshclam"
+    "cups"
     "immich-machine-learning"
     "immich-server"
     "ncps"
@@ -25,6 +26,8 @@ let
     "podman-sun-panel-helper"
     "redis-immich"
     "redis-searx"
+    "radicale-calendar-sync"
+    "rsgain-cloudmusic"
     "searx-init"
     "syncthing"
     "uwsgi"
@@ -49,8 +52,13 @@ in
     ../../nixos/optional-apps/sun-panel.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/webdav.nix
+    ../../nixos/client-components/cups.nix
+    ../../nixos/client-components/multicast-dns.nix
+    ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
+    ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
 
     ./home-storage-shares.nix
+    ./vaults3.nix
   ];
 
   # NAS payloads remain on QNAP. Databases, container state and the NCPS
