@@ -36,6 +36,11 @@ in
       type = lib.types.listOf lib.types.str;
       default = builtins.attrNames resticRepos;
     };
+    sftpEndpoint = lib.mkOption {
+      type = lib.types.str;
+      default = "sftp.ml-home-vm.zhyi.cc";
+      description = "SFTP host that stores the home backup repositories.";
+    };
     schedule = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = "*-*-* 4:00:00";

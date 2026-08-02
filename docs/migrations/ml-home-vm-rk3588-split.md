@@ -151,4 +151,8 @@ and new databases during this phase.
   not advertise `big-parallel`; production service workloads have priority.
 - Databases, container layers and NCPS writes use OPI5P NVMe.
 - Media, backup and archive payloads use QNAP directly.
+- Migrated RK3588 backup clients connect directly to `opi5p.zhyi.cc:2222`;
+  OPI5P chroots the `sftp` user onto the QNAP-backed `/run/sftp` tree.  This is
+  selected per host through `lantian.backup.sftpEndpoint`, so unrelated hosts
+  retain the author's established endpoint until they are migrated explicitly.
 - ROCK 5C eMMC stores only its NixOS system and low-write control-plane state.
