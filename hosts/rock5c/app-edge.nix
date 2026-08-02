@@ -78,6 +78,17 @@ in
       // { accessibleBy = "private"; }
     ) legacyFrontends
     // {
+      # Clients and browser policy still use the pre-migration service name.
+      # Keep the host identity independent while preserving this service alias.
+      "homepage.ml-home-vm.zhyi.cc" = {
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
+          proxyOverrideHost = "homepage.rock5c.zhyi.cc";
+        };
+        accessibleBy = "private";
+        sslCertificate = "lets-encrypt-ml-home-vm.zhyi.cc";
+        noIndex.enable = true;
+      };
       "archiveteam.ml-home-vm.zhyi.cc" = mkX86Frontend LT.port.ArchiveTeam;
       "clawemail.ml-home-vm.zhyi.cc" = mkX86Frontend LT.port.ClawEmail;
     };
