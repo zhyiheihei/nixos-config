@@ -121,6 +121,8 @@ and new databases during this phase.
    SQLite database concurrently from two hosts.
 2. Move VaultS3 proxying to OPI5P and change Router TCP 8443 forwarding only
    after private and public health checks pass.
+   Keep the author's Hairpin NAT model: add an 8443-specific LAN rule before
+   the generic ROCK 5C hairpin so cache clients return directly to OPI5P.
 3. Move Syncthing/SFTP/WebDAV and any required file-sharing compatibility
    endpoints.  Prefer direct QNAP mounts for clients that support them.
 
