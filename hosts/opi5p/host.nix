@@ -19,7 +19,7 @@
   # builds available, but reserve most CPU and memory for production services.
   # In particular, do not advertise big-parallel: kernels and similarly heavy
   # jobs belong on the dedicated builder path.
-  nixBuilder.maxJobs = 2;
+  nixBuilder.maxJobs = 1;
   nixBuilder.supportedFeatures = [ ];
   city = geo.cities."CN Ningbo";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIITTMAnkcLtBaK31sz6e7aGEvSkqKZuEeeJETBmK33Ef root@opi5p";
