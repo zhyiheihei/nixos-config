@@ -36,7 +36,6 @@ in
     # ../../nixos/client-apps/vscode-remote-env.nix
     # ../../nixos/client-components/impermanence.nix
 
-    # ../../nixos/optional-apps/handbrake-server.nix
     # ../../nixos/optional-apps/llama-cpp.nix
     # ../../nixos/optional-apps/llama-cpp-qwen3_6.nix
     ../../nixos/optional-apps/ncps-client.nix
