@@ -144,7 +144,7 @@ ssh -p 2222 root@opi5p.zhyi.cc \
 | JProxy | <https://jproxy.ml-home-vm.zhyi.cc> | Sonarr/Radarr 与下载器之间的资源代理 |
 | PeerBanHelper | <https://peerbanhelper.ml-home-vm.zhyi.cc> | 反吸血：自动封禁不回报的 peer |
 | BitMagnet | <https://bitmagnet.ml-home-vm.zhyi.cc> | DHT 磁力搜索，不依赖 PT 站找资源 |
-| HandBrake | <https://handbrake.ml-home-vm.zhyi.cc> | 视频转码（NVENC 硬编），存储路径 /mnt/storage/handbrake-server/ |
+| HandBrake | <https://handbrake.ml-home-vm.zhyi.cc> | OPI5P 上的 RKMPP/RGA 硬件转码（保留 ml-home-vm 边缘入口），存储路径 /mnt/storage/handbrake-server/ |
 | IYUUPlus | <https://iyuuplus.ml-home-vm.zhyi.cc> | 辅种工具：自动将已有文件匹配到其他站点种子 |
 | Vertex | <https://vertex.ml-home-vm.zhyi.cc> | PT 站点数据面板 + 刷流任务管理 |
 | Jellyfin | <https://jellyfin.zhyi.xin:8443> | 媒体服务器：链路终点，观看电影/剧集 |
