@@ -61,6 +61,13 @@ let
     proxyWebsockets = true;
     proxyNoTimeout = true;
   };
+  handbrakeBackendHost = "handbrake-backend.opi5p.zhyi.cc";
+  handbrakeProxyLocation = {
+    proxyPass = "http://${LT.hosts.opi5p.interconnect.IPv4}";
+    proxyOverrideHost = handbrakeBackendHost;
+    proxyWebsockets = true;
+    proxyNoTimeout = true;
+  };
 in
 {
   imports = [
@@ -90,6 +97,23 @@ in
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
         locations."/" = tachideskProxyLocation;
+        accessibleBy = "localhost";
+        noIndex.enable = true;
+      };
+
+      # Preserve the original private URL while the application backend uses
+      # RKMPP/RGA on OPI5P instead of NVENC on this virtual machine.
+      "handbrake.ml-home-vm.zhyi.cc" = {
+        locations."/" = handbrakeProxyLocation;
+        accessibleBy = "private";
+        sslCertificate = "lets-encrypt-ml-home-vm.zhyi.cc";
+        noIndex.enable = true;
+      };
+
+      "handbrake.localhost" = {
+        listenHTTP.enable = true;
+        listenHTTPS.enable = false;
+        locations."/" = handbrakeProxyLocation;
         accessibleBy = "localhost";
         noIndex.enable = true;
       };

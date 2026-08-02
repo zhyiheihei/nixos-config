@@ -22,6 +22,7 @@ in
     ../../nixos/server.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/jellyfin-rockchip.nix
+    ../../nixos/optional-apps/handbrake-rockchip.nix
 
     ./hardware-configuration.nix
     ./media-automation.nix
