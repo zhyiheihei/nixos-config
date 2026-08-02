@@ -40,6 +40,8 @@ in
   };
 
   systemd.services."notify-email@" = {
+    after = [ "sops-install-secrets.service" ];
+    requires = [ "sops-install-secrets.service" ];
     environment = {
       HOSTNAME = config.networking.hostName;
       SYSTEMD_PAGER = "";

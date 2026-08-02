@@ -85,6 +85,8 @@ in
       systemd.services = lib.mapAttrs' (
         n: v:
         lib.nameValuePair "backup-${n}" {
+          after = [ "sops-install-secrets.service" ];
+          requires = [ "sops-install-secrets.service" ];
           serviceConfig = {
             Type = "oneshot";
             CPUQuota = "40%";
