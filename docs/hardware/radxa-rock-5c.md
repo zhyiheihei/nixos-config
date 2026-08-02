@@ -89,3 +89,10 @@ zstd -dc "$IMAGE" |
   dd bs=512 skip=64 count=32704 status=none |
   sha256sum
 ```
+
+## Podman 镜像清理
+
+ROCK 5C 没有可靠 RTC，冷启动后系统时间会发生大幅前跳。该主机因此单独禁用
+Podman 的日历式自动 prune；否则 `podman system prune -af` 会在容器启动前把
+离线导入的 MetaCubeXD 和 reDroid 镜像视为“未使用”并删除。此例外不修改公共
+Podman 模块，镜像清理由管理员在确认容器引用关系后手动执行。

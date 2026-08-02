@@ -36,6 +36,14 @@
   };
   networking.networkmanager.enable = lib.mkForce false;
 
+  # ROCK 5C has no reliable RTC. A calendar timer is armed while the clock is
+  # still months behind, then fires immediately when time synchronization
+  # jumps forward. The global `podman system prune -af` consequently deletes
+  # the imported MetaCubeXD and reDroid images before their units can start.
+  # Keep the author default globally and disable automatic pruning only here;
+  # image cleanup on this appliance is deliberate and manual.
+  virtualisation.podman.autoPrune.enable = lib.mkForce false;
+
   boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
 
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
