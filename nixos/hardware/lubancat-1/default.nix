@@ -19,18 +19,71 @@ let
   # families.  LubanCat-specific changes can move to a separate config after
   # the first hardware inventory; until then, sharing the R5C config also lets
   # the binary cache reuse the exact same cross-built kernel derivation.
-  lubanCatKernel = crossPkgs.linuxManualConfig {
+  lubanCatKernelConfig = builtins.toFile "lubancat1-kernel-config" (
+    builtins.replaceStrings
+      [
+        "# CONFIG_WLAN_VENDOR_REALTEK is not set"
+        "CONFIG_ZRAM=m"
+      ]
+      [
+        ''
+          CONFIG_WLAN_VENDOR_REALTEK=y
+          CONFIG_RTW88=m
+          CONFIG_RTW88_CORE=m
+          CONFIG_RTW88_PCI=m
+          CONFIG_RTW88_8822C=m
+          CONFIG_RTW88_8822CE=m
+          # CONFIG_RTW88_DEBUG is not set
+          # CONFIG_RTW88_DEBUGFS is not set
+          CONFIG_RTW88_LEDS=y
+        ''
+        ''
+          CONFIG_ZRAM=m
+          CONFIG_ZRAM_BACKEND_ZSTD=y
+          CONFIG_ZRAM_BACKEND_LZO=y
+          # CONFIG_ZRAM_DEF_COMP_LZORLE is not set
+          CONFIG_ZRAM_DEF_COMP_ZSTD=y
+          CONFIG_ZRAM_DEF_COMP="zstd"
+        ''
+      ]
+      (builtins.readFile ../nanopi-r5c/kernel-config)
+  );
+
+  lubanCatKernel = (crossPkgs.linuxManualConfig {
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
-    configfile = ../nanopi-r5c/kernel-config;
-  };
+    configfile = lubanCatKernelConfig;
+  }).overrideAttrs (old: {
+    requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+  });
+
+  # The installed Mini PCIe card is an RTL8822CE. Its Bluetooth USB function
+  # identifies as RTL8822CU. Copy only the matching Wi-Fi/Bluetooth firmware;
+  # retaining the complete linux-firmware package would dominate this 2 GiB
+  # board's deliberately small closure.
+  rtl8822Firmware = crossPkgs.buildPackages.runCommand "lubancat1-rtl8822-firmware" {
+    requiredSystemFeatures = [ "aarch64-cross" ];
+  } ''
+    # linux-firmware contains no target binaries; reuse the target package
+    # already present in the image build while executing this copy on x86_64.
+    source=${pkgs.linux-firmware}/lib/firmware
+    mkdir -p "$out/lib/firmware/rtw88" "$out/lib/firmware/rtl_bt"
+    cp -L "$source/rtw88/rtw8822c_fw.bin" "$out/lib/firmware/rtw88/"
+    cp -L "$source/rtw88/rtw8822c_wow_fw.bin" "$out/lib/firmware/rtw88/"
+    cp -L "$source/rtl_bt/rtl8822cu_fw.bin" "$out/lib/firmware/rtl_bt/"
+    if test -e "$source/rtl_bt/rtl8822cu_config.bin"; then
+      cp -L "$source/rtl_bt/rtl8822cu_config.bin" "$out/lib/firmware/rtl_bt/"
+    fi
+  '';
 
   # Mainline U-Boot has no LubanCat-1 defconfig. Its generic RK3568 target is
   # intentionally board-neutral and uses the same RK3566/RK3568 TPL and BL31
   # boot chain as Nixpkgs' Orange Pi 3B package. Linux later receives the exact
   # rk3566-lubancat-1 DTB from extlinux.
-  ubootLubanCat1 = pkgs.ubootOrangePi3B.override {
+  ubootLubanCat1 = (crossPkgs.ubootOrangePi3B.override {
     defconfig = "generic-rk3568_defconfig";
-  };
+  }).overrideAttrs (old: {
+    requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+  });
 in
 {
   imports = [
@@ -81,10 +134,12 @@ in
   honkai-railway-grub-theme.enable = lib.mkForce false;
   systemd.services.install-random-star-rail-grub-theme.enable = false;
 
-  # The base board has no wireless adapter and its onboard devices need no
-  # redistributable firmware. Add only the selected Mini PCIe card's firmware
-  # after it is installed and identified.
-  hardware.enableRedistributableFirmware = lib.mkForce false;
+  hardware = {
+    enableRedistributableFirmware = lib.mkForce false;
+    firmware = [ rtl8822Firmware ];
+    wirelessRegulatoryDatabase = true;
+    bluetooth.enable = true;
+  };
 
   hardware.deviceTree = {
     name = "rockchip/rk3566-lubancat-1.dtb";
@@ -122,6 +177,50 @@ in
         "nosuid"
         "nodev"
       ];
+    };
+  };
+
+  # The image contains a compact Btrfs filesystem and tmpfs `/`, so Nixpkgs'
+  # generic root-partition grow service cannot discover the persistent store.
+  # Grow partition 2 and /nix once after a fresh image is written. Repeated
+  # runs are harmless and only resize the filesystem to its existing maximum.
+  systemd.services.lubancat1-grow-nix = {
+    description = "Expand LubanCat-1 persistent Nix filesystem";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "nix.mount" ];
+    requires = [ "nix.mount" ];
+    before = [ "sops-install-secrets.service" ];
+    path = [
+      pkgs.btrfs-progs
+      pkgs.gptfdisk
+      pkgs.gnugrep
+      pkgs.gnused
+      pkgs.parted
+      pkgs.util-linux
+    ];
+    script = ''
+      nix_device=$(findmnt --noheadings --output SOURCE --target /nix | sed 's/\[.*//')
+      nix_device=$(readlink -f "$nix_device")
+      disk="/dev/$(lsblk --noheadings --output PKNAME "$nix_device" | tr -d '[:space:]')"
+      partition=$(lsblk --noheadings --output PARTN "$nix_device" | tr -d '[:space:]')
+
+      test -b "$nix_device"
+      test -b "$disk"
+      test -n "$partition"
+      current_end=$(sgdisk -i "$partition" "$disk" | sed -n 's/^Last sector: \([0-9][0-9]*\).*/\1/p')
+      usable_end=$(sgdisk -p "$disk" | sed -n 's/^First usable sector is [0-9][0-9]*, last usable sector is \([0-9][0-9]*\).*/\1/p')
+
+      if [ "$current_end" -lt "$usable_end" ]; then
+        sgdisk -e "$disk"
+        printf 'Yes\n' | parted ---pretend-input-tty "$disk" resizepart "$partition" 100%
+        partx -u "$disk"
+      fi
+
+      btrfs filesystem resize max /nix
+    '';
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
     };
   };
 
