@@ -13,6 +13,7 @@
   ];
 
   boot.swraid.enable = lib.mkForce true;
+  boot.swraid.mdadmConf = "MAILADDR root";
 
   services.lvm.dmeventd.enable = true;
 

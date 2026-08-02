@@ -13,6 +13,7 @@ _: {
   };
 
   home.pointerCursor = {
+    enable = true;
     # Tidy home folder
     dotIcons.enable = false;
   };

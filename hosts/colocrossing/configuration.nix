@@ -63,17 +63,13 @@
     ];
     routes = [
       {
-        routeConfig = {
-          Destination = "0.0.0.0/0";
-          Gateway = "203.55.176.254";
-        };
+        Destination = "0.0.0.0/0";
+        Gateway = "203.55.176.254";
       }
       {
-        routeConfig = {
-          Destination = "::/0";
-          Gateway = "2a11:8083:11::1";
-          GatewayOnLink = true;
-        };
+        Destination = "::/0";
+        Gateway = "2a11:8083:11::1";
+        GatewayOnLink = true;
       }
     ];
     networkConfig.IPv6AcceptRA = "no";
