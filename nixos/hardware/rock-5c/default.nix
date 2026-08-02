@@ -7,64 +7,9 @@
   ...
 }:
 let
-  # Build ARM artifacts with a native x86_64 cross toolchain. Running the ARM
-  # compiler itself through qemu-user makes kernel and U-Boot builds needlessly
-  # slow on ml-builder.
-  crossPkgs = self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
-
-  rk3588NixSource = crossPkgs.fetchFromGitHub {
-    owner = "gnull";
-    repo = "nixos-rk3588";
-    rev = "2a1add82960dda2e0d203051dcf1ae4c1bc8452c";
-    hash = "sha256-nHNgt6Kkn+rFrJW2vFDsTLd7DfYlZWQgCPyk67L2q/E=";
-  };
-  vendorKernelConfig = builtins.readFile (rk3588NixSource + "/pkgs/kernel/rk35xx_vendor_config");
-  vendorKernelConfigOptions = import (rk3588NixSource + "/pkgs/kernel/rk35xx_vendor_config.nix");
-  rock5cKernelConfig =
-    assert lib.hasInfix "# CONFIG_ARM64_VA_BITS_39 is not set" vendorKernelConfig;
-    assert lib.hasInfix "CONFIG_ARM64_VA_BITS_48=y" vendorKernelConfig;
-    assert lib.hasInfix "CONFIG_ARM64_VA_BITS=48" vendorKernelConfig;
-    assert lib.hasInfix "CONFIG_IPV6=m" vendorKernelConfig;
-    crossPkgs.writeText "rk35xx-vendor-rock5c-config" (
-      builtins.replaceStrings
-        [
-          "# CONFIG_ARM64_VA_BITS_39 is not set"
-          "CONFIG_ARM64_VA_BITS_48=y"
-          "CONFIG_ARM64_VA_BITS=48"
-          "CONFIG_IPV6=m"
-        ]
-        [
-          "CONFIG_ARM64_VA_BITS_39=y"
-          "# CONFIG_ARM64_VA_BITS_48 is not set"
-          "CONFIG_ARM64_VA_BITS=39"
-          "CONFIG_IPV6=y"
-        ]
-        vendorKernelConfig
-    );
-  rock5cKernel =
-    (
-      (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") { }).override {
-        configfile = rock5cKernelConfig;
-        requiredSystemFeatures = [ "aarch64-cross" ];
-        config =
-          builtins.removeAttrs vendorKernelConfigOptions [
-            "CONFIG_ARM64_VA_BITS_48"
-            "CONFIG_ARM64_VA_BITS"
-          ]
-          // {
-            CONFIG_ARM64_VA_BITS_39 = "y";
-            CONFIG_ARM64_VA_BITS = "9";
-            # MPTCP is built into the vendor kernel. IPv6 must therefore also
-            # be built in so MPTCP registers both address families at boot.
-            CONFIG_IPV6 = "y";
-          };
-      }
-    ).overrideAttrs
-      (old: {
-        # Keep fan control in the vendor PWM driver, matching the proven
-        # Orange Pi 5 Plus curve instead of adding a userspace controller.
-        patches = (old.patches or [ ]) ++ [ ./vendor-fan-curve.patch ];
-      });
+  # Keep the cross-built vendor kernel outside NixOS module evaluation, using
+  # the same package boundary as the working OPI5P configuration.
+  rock5cKernel = self.packages.x86_64-linux.rock5c-kernel;
 
   # The vendor kernel, DTB, ATF and bootloader form one RK3588 BSP support
   # set. Mainline U-Boot 2026.07 reached extlinux but left the RK806 PMIC and
