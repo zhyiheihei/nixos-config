@@ -14,7 +14,6 @@ let
     "ensure-printers"
     "immich-machine-learning"
     "immich-server"
-    "ncps"
     "phpfpm-calibre-cops"
     "podman-archivebox"
     "podman-asf"
