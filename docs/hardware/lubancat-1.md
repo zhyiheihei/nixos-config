@@ -83,6 +83,32 @@ rtl_bt/rtl8822cu_config.bin（上游存在时）
 `nix-builder` 标签。ml-builder 曾在高并发编译时出现宿主内核页状态损坏，因此
 首次构建固定为一个 derivation、八个编译线程。
 
+### 动态 kernel config 与 modules 输出
+
+R5C 直接把仓库内的 `kernel-config` Nix path 传给 `linuxManualConfig`，Nixpkgs 会
+解析其中的 `CONFIG_MODULES=y`。LubanCat-1 则以 R5C 配置为基线动态替换无线和 zram
+选项，`builtins.toFile` 返回的是 store-path 字符串，不满足 Nixpkgs 自动解析配置的
+类型检查。如果只传 `configfile`，kernel 虽会按文本完成编译，但 Nix derivation 会
+被误判为没有模块，只创建 `out` 而不创建 `modules`，随后出现：
+
+```text
+modules-shrunk/lib: No such file or directory
+Can not derive a closure of kernel modules because no modules were provided.
+```
+
+此时 kernel 本身可能已经编译成功，但名为 modules 的聚合目录里只有 `Image`、
+`dtbs` 和 `System.map`，没有 `lib/modules`。给 initrd 随意增加 `zram` 或无线模块
+不能解决该输出建模错误。当前模块会用与 Nixpkgs 相同的规则解析动态配置中的 `y/m`
+选项，并把结果显式传给 `linuxManualConfig`，确保生成真正的 `modules` 输出。
+
+不要再为此 kernel 额外增加调度 `overrideAttrs`。Nixpkgs kernel 本身要求
+`big-parallel`，而本仓库只有 ml-builder 宣告该 feature，已足以保证大型交叉内核
+不会调度到 pve-5700u 或 opi5p。
+
+initrd 日志中的 `Couldn't satisfy dependency libcrypto.so.4`、`libbpf.so.0` 是
+`make-initrd-ng` 扫描未选入 initrd 的 systemd 辅助程序时产生的警告；只要随后没有
+缺失 store 路径或构建退出，它们不是本次失败根因。
+
 ## 首次上电检查
 
 串口参数：

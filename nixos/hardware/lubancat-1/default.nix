@@ -19,7 +19,7 @@ let
   # families.  LubanCat-specific changes can move to a separate config after
   # the first hardware inventory; until then, sharing the R5C config also lets
   # the binary cache reuse the exact same cross-built kernel derivation.
-  lubanCatKernelConfig = builtins.toFile "lubancat1-kernel-config" (
+  lubanCatKernelConfigText =
     builtins.replaceStrings
       [
         "# CONFIG_WLAN_VENDOR_REALTEK is not set"
@@ -46,15 +46,33 @@ let
           CONFIG_ZRAM_DEF_COMP="zstd"
         ''
       ]
-      (builtins.readFile ../nanopi-r5c/kernel-config)
+      (builtins.readFile ../nanopi-r5c/kernel-config);
+  lubanCatKernelConfig = builtins.toFile "lubancat1-kernel-config" lubanCatKernelConfigText;
+
+  # linuxManualConfig automatically parses a literal Nix path, but
+  # builtins.toFile returns a store-path string. Parse the generated text with
+  # the same y/m rule as Nixpkgs so CONFIG_MODULES=y creates the real `modules`
+  # output instead of silently treating this as a monolithic kernel.
+  lubanCatKernelConfigAttrs = lib.listToAttrs (
+    lib.concatMap (
+      line:
+      let
+        match = builtins.match "(CONFIG_[^=]+)=([ym])" line;
+      in
+      lib.optional (match != null) {
+        name = builtins.elemAt match 0;
+        value = builtins.elemAt match 1;
+      }
+    ) (lib.splitString "\n" lubanCatKernelConfigText)
   );
 
-  lubanCatKernel = (crossPkgs.linuxManualConfig {
+  # The kernel builder already requires `big-parallel`, which this repository
+  # advertises only on ml-builder. Do not add a redundant scheduler override.
+  lubanCatKernel = crossPkgs.linuxManualConfig {
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = lubanCatKernelConfig;
-  }).overrideAttrs (old: {
-    requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
-  });
+    config = lubanCatKernelConfigAttrs;
+  };
 
   # The installed Mini PCIe card is an RTL8822CE. Its Bluetooth USB function
   # identifies as RTL8822CU. Copy only the matching Wi-Fi/Bluetooth firmware;
