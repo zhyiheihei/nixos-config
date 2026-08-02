@@ -24,17 +24,20 @@ let
     assert lib.hasInfix "# CONFIG_ARM64_VA_BITS_39 is not set" vendorKernelConfig;
     assert lib.hasInfix "CONFIG_ARM64_VA_BITS_48=y" vendorKernelConfig;
     assert lib.hasInfix "CONFIG_ARM64_VA_BITS=48" vendorKernelConfig;
+    assert lib.hasInfix "CONFIG_IPV6=m" vendorKernelConfig;
     crossPkgs.writeText "rk35xx-vendor-rock5c-config" (
       builtins.replaceStrings
         [
           "# CONFIG_ARM64_VA_BITS_39 is not set"
           "CONFIG_ARM64_VA_BITS_48=y"
           "CONFIG_ARM64_VA_BITS=48"
+          "CONFIG_IPV6=m"
         ]
         [
           "CONFIG_ARM64_VA_BITS_39=y"
           "# CONFIG_ARM64_VA_BITS_48 is not set"
           "CONFIG_ARM64_VA_BITS=39"
+          "CONFIG_IPV6=y"
         ]
         vendorKernelConfig
     );
@@ -51,6 +54,9 @@ let
           // {
             CONFIG_ARM64_VA_BITS_39 = "y";
             CONFIG_ARM64_VA_BITS = "9";
+            # MPTCP is built into the vendor kernel. IPv6 must therefore also
+            # be built in so MPTCP registers both address families at boot.
+            CONFIG_IPV6 = "y";
           };
       }
     ).overrideAttrs
@@ -106,7 +112,13 @@ in
   boot = {
     initrd.availableKernelModules = lib.mkForce [ ];
     initrd.kernelModules = lib.mkForce [ ];
-    kernelModules = lib.mkForce [ "dwmac_rk" ];
+    # This force replaces the repository-wide module list, so retain the
+    # modules required by the standard server role as well as the board NIC.
+    kernelModules = lib.mkForce [
+      "dwmac_rk"
+      "tls"
+      "wireguard"
+    ];
     # The generic out-of-tree modules use native ARM build tools and cannot
     # build against this x86_64 cross-built vendor kernel.
     extraModulePackages = lib.mkForce [ ];
