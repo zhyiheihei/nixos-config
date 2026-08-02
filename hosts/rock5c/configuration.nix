@@ -6,7 +6,12 @@
 }:
 {
   imports = [
-    ../../nixos/minimal.nix
+    ../../nixos/server.nix
+
+    # Phase 1 of the ml-home-vm split migration.  These services stay on the
+    # ROCK 5C address until the edge role has been verified and cut over.
+    ../../nixos/optional-apps/homepage-dashboard.nix
+    ../../nixos/optional-apps/metacubexd.nix
 
     ./hardware-configuration.nix
   ];
