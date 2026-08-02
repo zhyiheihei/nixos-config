@@ -127,6 +127,16 @@ test -f arch/arm64/boot/dts/vendor/board.dts
 如果 DTS 尚未上游，优先以小补丁加入目标内核 derivation；不要长期从其他发行版
 的输出目录复制一个来源不明的 DTB。
 
+使用 Nixpkgs 通用 arm64 kernel 制作 SD 镜像时，还要检查最终 initrd 模块集。
+`sd-image.nix` 默认启用 `hardware.enableAllHardware`，可能把 x86 RAID/SATA 模块
+（例如 `3w-9xxx`）带入 arm64 的 `modules-shrunk`。板级配置可以关闭
+`hardware.enableAllHardware` 和 `boot.initrd.includeDefaultModules`，但不要把
+`boot.initrd.kernelModules` 整体强制清空：如果持久化 `/nix` 使用模块形式的
+Btrfs，这会生成一个能求值、却无法在冷启动 stage 1 挂载 `/nix` 的镜像。应先检查
+目标 kernel config，再只禁用明确无用的模块，并求值确认最终的 available/forced
+列表。Orange Pi Zero 3 的实例见
+[`orangepi-zero3.md`](./orangepi-zero3.md)。
+
 ## 5. U-Boot 和写盘布局
 
 优先复用同 SoC、同启动布局的 Nixpkgs U-Boot derivation，再覆盖目标 defconfig：
