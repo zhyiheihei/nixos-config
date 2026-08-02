@@ -17,17 +17,21 @@ Open vSwitch 文件硬编码了作者机器的四张网卡。
 ## 当前链路
 
 ```text
-Hydra (pve-5700u .54)
-  |-- ARM/big-parallel --> ml-builder .50
-  `-- native kvm/test --> Hydra localhost
+Hydra (pve-5700u .2)
+  |-- x86 / big-parallel --> ml-builder .50
+  |-- native ARM fallback -> opi5p .62 (one job)
+  `-- native kvm/test ----> Hydra localhost (one job)
 
 Nix client
-  |-- priority 5  --> Attic (colocrossing .52) --> S3
-  `-- priority 10 --> NCPS (ml-home-vm .51) --> public caches
+  |-- first --> Attic (attic.zhyi.xin) --> S3
+  `-- then --> NCPS (opi5p .62) --> public caches
 
 ml-home-vm /nix         --> pve-5700u VirtioFS
-ml-home-vm /mnt/storage --> QNAP .93:/nixos (NFSv4.1)
+ml-home-vm /mnt/storage --> QNAP .40:/nixos (NFSv4.1)
 ```
+
+构建机选择、并发上限和事故背景以
+[Hydra 构建链路与并发约束](../infrastructure/hydra-build-chain.md) 为准。
 
 局域网固定地址以 [home-lan-ip-plan.md](../network/home-lan-ip-plan.md) 为准。
 
@@ -68,9 +72,10 @@ systemctl is-active hydra-evaluator hydra-queue-runner hydra-server
 cat /etc/nix/machines-with-localhost
 ```
 
-预期远程构建机表只包含 `ml-builder`。它声明 x86_64 和 ARM 平台，并支持
-`big-parallel`；Hydra localhost 只声明非 ARM 平台，`ml-home-vm` 不参与构建。
-这样 ARM 和大包都只交给强构建机。
+预期远程构建机表包含高并发 `ml-builder` 和单并发 `opi5p`；Hydra 专用文件另有
+单并发 localhost。`ml-builder` 只声明原生 x86 平台，并通过 `aarch64-cross`
+feature 承接可交叉构建的 ARM 任务；必须执行目标程序的原生 ARM derivation 才交给
+`opi5p`。`ml-home-vm` 不参与构建。
 
 ## 保留事项
 

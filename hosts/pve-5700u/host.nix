@@ -10,7 +10,7 @@
   # Hydra is coordinated here, but most RAM is reserved for the resident VMs.
   # Keep this as a low-concurrency fallback builder; large parallel builds are
   # advertised only by ml-builder.
-  nixBuilder.maxJobs = 2;
+  nixBuilder.maxJobs = 1;
   nixBuilder.supportedFeatures = [ ];
   hostname = "pve-5700u.zhyi.cc";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICo2gngU3agJnmKjwtp6qLF5YZH1EhmON8tKmdDyOGBd";

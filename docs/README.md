@@ -37,6 +37,7 @@
 - [自建 Attic + S3 构建缓存](./infrastructure/attic-s3-cache.md)
 - [自有 Attic 优先与完整闭包缓存](./infrastructure/attic-owned-cache-priority.md)
 - [Attic 手动补推缓存流程](./infrastructure/attic-full-store-push.md)
+- [Hydra 构建链路与并发约束](./infrastructure/hydra-build-chain.md)
 - [AI API 网关链路与初始化规范](./infrastructure/ai-api-gateway-chain.md)
 - [Prometheus / Grafana 监控链路](./infrastructure/monitoring.md)
 
