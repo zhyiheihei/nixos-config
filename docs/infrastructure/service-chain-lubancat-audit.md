@@ -6,6 +6,10 @@
 服务适合迁入 2 GiB RAM、SD 卡持久化的 LubanCat-1。本文只给出迁移决策和执行边界，
 不表示这些服务已经迁移。
 
+完整的 14 台主机服务归属、实机运行状态和跨主机调用关系见
+[`全主机服务归属与链路`](fleet-service-chain.md)。本文只保留与 LubanCat-1 容量和
+迁移批次直接相关的结论。
+
 ## 结论
 
 LubanCat-1 可以承担一组低写入、ARM64 原生、可由现有入口反向代理的轻服务。建议
@@ -213,12 +217,12 @@ Yggdrasil ALFIS 放在 colocrossing，把 FastAPI-DLS、UniAPI、vlmcsd 放在�
 允许的偏差只有：LubanCat-1 的 imports、服务 activation marker、资源限制和入口
 主机的反代目标。服务模块、端口常量、域名职责、AI 链路和身份链继续沿用作者结构。
 
-## 已发现的文档漂移
+## 审计时发现并已修正的文档漂移
 
-- `docs/services/homepage-link-audit.md` 仍把 Homepage 写成运行在 ml-home-vm；当前
-  配置实际运行在 ROCK 5C；
-- `docs/infrastructure/ai-api-gateway-chain.md` 的部分描述仍把主 UniAPI 写在
-  ml-home-vm；当前配置实际运行在 ROCK 5C；
+- `docs/services/homepage-link-audit.md` 曾把 Homepage 写成运行在 ml-home-vm；当前
+  已改为 ROCK 5C 实际运行、旧域名仅作兼容服务名；
+- `docs/infrastructure/ai-api-gateway-chain.md` 曾把主 UniAPI 写在 ml-home-vm；当前
+  已改为 ROCK 5C 实际运行，并把未部署的 AxonHub 从活动链路中移出；
 - `hosts/ml-home-vm/configuration.nix` 当前只导入 server 基线和硬件配置，不再承载
   上述用户应用。
 

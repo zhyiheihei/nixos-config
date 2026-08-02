@@ -24,9 +24,12 @@ colocrossing
 Prometheus、Alertmanager 和 Grafana 只监听本机，由 `colocrossing` 的 Nginx
 虚拟主机提供入口。不要为了监控直接向公网开放 exporter 端口。
 
-Elasticsearch 日志链路与监控栈彼此独立。Filebeat 将日志发送到
-`es-ingest.usvm.zhyi.cc`，Elasticsearch 运行在低资源 `usvm` 上，使用按日索引并
-只保留最近 3 天。不要把 Elasticsearch 数据目录或入口重新指向家庭 VM。
+Elasticsearch 日志链路与监控栈彼此独立。Filebeat 当前仍被声明为把日志发送到
+`es-ingest.usvm.zhyi.cc`，但 2026-08-03 审计确认 `hosts/usvm/configuration.nix`
+没有导入 Elasticsearch 模块，实机也没有 Elasticsearch unit 或容器。因此这条日志
+链目前不完整，不能把 Filebeat 的 `active` 当作日志已经成功落库。后续必须对照作者
+结构决定恢复 usvm Elasticsearch，或明确关闭/改写舰队 Filebeat 输出；不要在没有
+容量和持久化审计时把 Elasticsearch 临时塞入家庭 VM。
 
 ## 声明规则
 

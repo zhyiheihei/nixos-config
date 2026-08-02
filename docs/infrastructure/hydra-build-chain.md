@@ -15,6 +15,11 @@
 - `maxJobs` 限制同时运行的 derivation 数；`cores` 限制单个 derivation 获得的并行度。
   两者不能互相替代。
 
+> 运行态告警（2026-08-03）：ml-builder 当前 `/etc/nix/machines` 仍包含
+> `pve-5700u`，而 PVE 同时包含 `ml-builder`。这违反下面的目标拓扑，说明
+> `excludeHosts = [ "pve-5700u" ]` 所在配置尚未在 ml-builder 的运行代际生效。
+> 在重新部署并确认回边消失前，不能把当前构建链视为已经修复。
+
 ## 节点表
 
 | 节点 | 地址 | 架构 | 同时任务 | 单任务核心 | speed factor | 声明 feature | 角色 |
