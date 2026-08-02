@@ -299,9 +299,11 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
   systemd.services = {
     coredns-authoritative = netns.bind {
       description = "Coredns for authoritative zones";
-      after = [ "sops-install-secrets.service" ];
       requires = [ "sops-install-secrets.service" ];
-      after = [ "network.target" ];
+      after = [
+        "network.target"
+        "sops-install-secrets.service"
+      ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = LT.serviceHarden // {
         LimitNPROC = 512;
