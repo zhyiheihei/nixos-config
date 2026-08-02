@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   LT,
   pkgs,
@@ -98,7 +99,17 @@ in
     ];
   };
   systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
-  nix.settings.max-jobs = lib.mkForce 4;
+  # This is a production media/database/reDroid node first and an ARM builder
+  # only as a compatibility fallback. One derivation may use four cores, but
+  # multiple memory-heavy derivations must never run concurrently here.
+  nix.settings.max-jobs = lib.mkForce 1;
+  nix.settings.cores = lib.mkForce 4;
+  assertions = [
+    {
+      assertion = LT.this.nixBuilder.maxJobs == 1 && config.nix.settings.max-jobs == 1;
+      message = "opi5p must remain a single-job native ARM fallback builder; use ml-builder cross builds when possible";
+    }
+  ];
 
   # `boot.supportedFilesystems` loads the kernel client, while nfs-utils
   # supplies mount.nfs.  Keep both host-local: this board reads the NAS

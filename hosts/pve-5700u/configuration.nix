@@ -32,9 +32,18 @@
   # an undeclared large derivation cannot multiply into 16 full-core compiler
   # jobs and exhaust RAM together with the guests.
   nix.settings = {
-    max-jobs = lib.mkForce 2;
+    max-jobs = lib.mkForce 1;
     cores = lib.mkForce 4;
   };
+
+  # Do not let an upstream merge silently turn the VM host back into a
+  # high-concurrency builder. ml-builder is the only node allowed to do that.
+  assertions = [
+    {
+      assertion = LT.this.nixBuilder.maxJobs == 1 && config.nix.settings.max-jobs == 1;
+      message = "pve-5700u must remain a single-job fallback builder; use ml-builder for parallel builds";
+    }
+  ];
 
   boot.loader.grub = {
     efiSupport = true;

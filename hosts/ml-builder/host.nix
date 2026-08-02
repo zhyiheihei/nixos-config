@@ -15,6 +15,9 @@
   # 强机器/虚拟机作为 Nix 远程构建机使用。
   # 按实际分配给 VM 的 vCPU 数调整，影响远程构建并发。
   cpuThreads = 28;
+  # ml-builder is the only high-concurrency builder in this deployment.
+  # Production and hypervisor nodes are deliberately capped at one job.
+  nixBuilder.maxJobs = 28;
   nixBuilder.supportedFeatures = [
     "aarch64-cross"
     "big-parallel"
