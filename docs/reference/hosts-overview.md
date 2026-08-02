@@ -20,15 +20,21 @@
 | `jpvm` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.cc` 通配符公网入口。 |
 | `cnvm` | 119 | `server` / 公网入口 | `cnvm.zhyi.cc` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
 | `colocrossing` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、监控栈与 ZeroTier controller。 |
-| `usvm` | 121 | `server` / 公网入口 / 日志 | `35.212.152.140` | US VPS（GCP）；运行低资源 Elasticsearch 日志入口。 |
+| `usvm` | 121 | `server` / 公网入口 / 日志目标 | `35.212.152.140` | US VPS（GCP）；Filebeat 目标仍指向此机，但当前未部署 Elasticsearch，日志链待修复。 |
 | `opi5p` | 122 | RK3588 / reDroid | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。 |
 | `rock5c` | 123 | RK3588 / 家庭边缘 | `192.168.0.64` | Radxa ROCK 5C；边缘代理、控制链、MetaCubeXD 与 reDroid。 |
-| `lubancat1` | 124 | RK3566 / 最小系统（适配中） | DHCP | 原版 LubanCat-1（非 V2），2 GiB RAM、无 eMMC；从内嵌主线 U-Boot 的 SD 卡启动。 |
+| `lubancat1` | 124 | RK3566 / `server` / `low-ram` | `192.168.0.65` | 原版 LubanCat-1（非 V2），2 GiB RAM、无 eMMC；server 基线已上线，尚未迁入用户应用。 |
 | `h28k` | 125 | RK3528 / 异地路由器（预部署） | WAN DHCP / LAN `192.168.30.1` | HINLINK H28K；双千兆口、Kea、CoreDNS 与 nftables NAT；SSH/SOPS/ZeroTier 身份待首启采集。 |
+| `opi03` | 126 | H618 / reDroid 实验设备 | DHCP（未固定） | Orange Pi Zero 3；本地 Android 镜像和硬件加速仍在开发，尚未完成正式网络身份与实机验收。 |
 
 家庭局域网地址、MAC 与 DHCP 边界以 [家庭局域网 IP 规划](../network/home-lan-ip-plan.md)
 为准；LTNET、ZeroTier、WireGuard 与 DN42 关系以
 [网络参照](../network/reference.md) 为准。
+
+服务实际运行位置和跨主机依赖以
+[全主机服务归属与链路](../infrastructure/fleet-service-chain.md) 为准。旧服务域名中包含
+主机名不表示服务仍运行在该主机，例如多个 `*.ml-home-vm.zhyi.cc` 入口已由 ROCK 5C
+承载并反代到 OPI5P 或 PVE。
 
 ## 关键字段
 
