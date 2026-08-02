@@ -147,8 +147,8 @@ and new databases during this phase.
 ## Resource rules
 
 - If both reDroid instances remain, do not add stateful services to ROCK 5C.
-- OPI5P may remain an ARM builder only at low concurrency; production service
-  workloads have priority over builds.
+- OPI5P remains a native ARM builder with at most two concurrent jobs and does
+  not advertise `big-parallel`; production service workloads have priority.
 - Databases, container layers and NCPS writes use OPI5P NVMe.
 - Media, backup and archive payloads use QNAP directly.
 - ROCK 5C eMMC stores only its NixOS system and low-write control-plane state.
