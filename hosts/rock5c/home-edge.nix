@@ -19,6 +19,8 @@ in
     ../../nixos/optional-apps/vlmcsd.nix
     ../../nixos/optional-apps/worker-vless2sub.nix
 
+    ./app-edge.nix
+    ./home-lan-edge.nix
     ./media-edge.nix
   ];
 
