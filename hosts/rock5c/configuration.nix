@@ -14,6 +14,7 @@
     ../../nixos/optional-apps/metacubexd.nix
 
     ./hardware-configuration.nix
+    ./home-edge.nix
   ];
 
   # Match the onboard GMAC by its permanent address so future driver or probe

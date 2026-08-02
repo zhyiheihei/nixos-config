@@ -25,6 +25,7 @@ in
     ../../nixos/optional-apps/handbrake-rockchip.nix
 
     ./hardware-configuration.nix
+    ./home-services.nix
     ./media-automation.nix
   ];
 
