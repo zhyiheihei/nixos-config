@@ -43,7 +43,7 @@ let
     }
   );
 in
-lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
+lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
   lantian.nginxVhosts."element.zhyi.xin" = {
     listenHTTP.enable = true;
     root = builtins.toString (LT.nginx.compressStaticAssets pkgs.element-web);

@@ -21,7 +21,7 @@ let
     glibc-debian-openvz-files = pkgs.callPackage ./glibc-debian-openvz-files.nix { };
   };
 in
-lib.mkIf (!(LT.this.hasTag LT.tags.low-disk)) {
+lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
   lantian.nginxVhosts."tools.zhyi.xin" = {
     root = pkgs.linkFarm "tools" tools;
     locations = {
