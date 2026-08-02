@@ -45,7 +45,7 @@ rec {
 
       [repository.options]
       user = "sftp"
-      endpoint = "ssh://sftp.ml-home-vm.zhyi.cc:2222"
+      endpoint = "ssh://${config.lantian.backup.sftpEndpoint}:2222"
       key = "${config.sops.secrets.sftp-privkey.path}"
       root = "/backups/restic"
       known_hosts_strategy = "Accept"
@@ -74,7 +74,7 @@ rec {
 
       [repository.options]
       user = "sftp"
-      endpoint = "ssh://sftp.ml-home-vm.zhyi.cc:2222"
+      endpoint = "ssh://${config.lantian.backup.sftpEndpoint}:2222"
       key = "${config.sops.secrets.sftp-privkey.path}"
       root = "/backups/rustic-storagebox"
       known_hosts_strategy = "Accept"
