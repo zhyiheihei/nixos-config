@@ -11,6 +11,7 @@ let
     "clamav-fangfrisch"
     "clamav-freshclam"
     "cups"
+    "ensure-printers"
     "immich-machine-learning"
     "immich-server"
     "ncps"
@@ -81,6 +82,7 @@ in
     partOf = [ "ml-home-apps.target" ];
     unitConfig.ConditionPathExists = activationMarker;
   });
+  systemd.sockets.cups.unitConfig.ConditionPathExists = activationMarker;
   systemd.targets.ml-home-apps = {
     description = "Migrated ml-home-vm application and storage services";
     wantedBy = [ "multi-user.target" ];
