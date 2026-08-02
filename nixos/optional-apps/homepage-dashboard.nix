@@ -389,10 +389,8 @@
     MemoryDenyWriteExecute = lib.mkForce false;
     SystemCallFilter = lib.mkForce [ ];
   };
-  systemd.services.homepage-dashboard = {
-    after = [ "sops-install-secrets.service" ];
-    requires = [ "sops-install-secrets.service" ];
-  };
+  systemd.services.homepage-dashboard.after = [ "sops-install-secrets.service" ];
+  systemd.services.homepage-dashboard.requires = [ "sops-install-secrets.service" ];
   systemd.services.homepage-dashboard.environment.HOMEPAGE_ALLOWED_HOSTS = lib.mkForce (
     "homepage.localhost,homepage.${config.networking.hostName}.zhyi.cc,"
     + "localhost:${LT.portStr.HomepageDashboard},127.0.0.1:${LT.portStr.HomepageDashboard}"
