@@ -31,4 +31,10 @@
     IPv4 = "192.168.0.50";
   };
 
+  # This host is behind the home NAT. Carry its public-server mesh peers over
+  # the same WSS transport used by the other home server nodes.
+  ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
+  ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
+  ltnet.tcpTransportPeers.usvm = "usvm.zhyi.cc";
+
 }
