@@ -92,7 +92,6 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 | --- | --- | --- |
 | `pve-5700u` | `ml-builder.zhyi.cc -> 192.168.0.50`；`ml-home-vm.zhyi.cc -> 192.168.0.51` | LAN 内主机互访 |
 | `opi5p` | `vaults3.zhyi.cc ->` 本机 interconnect 地址 | VaultS3 本机访问不绕公网 |
-| `cnvm` | `vaults3.zhyi.cc -> opi5p` 的 LTNET 地址 | Attic 服务端经稳定的内部链路访问 S3 |
 
 MetaCubeXD 运行于 `rock5c`（`192.168.0.64:7892`）；控制界面和 Clash API 仅绑定回环地址，并经 `metacubexd.rock5c.zhyi.cc` 的私有 Nginx vhost 访问。Halo 与根域 `zhyi.xin` 由 CNVM 承载。
 

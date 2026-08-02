@@ -33,7 +33,8 @@ CNVM 本机承载 Dex、Pocket ID、Vaultwarden 与 Attic，它们的 DNS 直接
 
 `attic.zhyi.xin` 是例外：它 CNAME 到 `cnvm.zhyi.cc`，由 cnvm 本机 Nginx
 直接服务。Attic 与其 `vaults3.zhyi.cc` S3 后端分离：VaultS3 位于家庭网络
-（`home-ddns.zhyi.cc`），Attic 服务端通过公网访问它。客户端统一使用
+（`home-ddns.zhyi.cc`），Attic 服务端也通过公网 8443 访问它，再由 Router 转换到
+OPI5P 的标准 443。客户端统一使用
 `https://attic.zhyi.xin/lantian` 作为 substituter URL（标准 443 端口）。
 家庭 LAN 访问该数据面时沿用作者 Router 的 Hairpin NAT 模式：8443 在通用 Hairpin
 规则之前转换为 `opi5p:443`，不使用全局 DNS 覆盖，也不绕经 `rock5c`。
