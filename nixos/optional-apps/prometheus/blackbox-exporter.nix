@@ -24,7 +24,9 @@ let
     "https://bitwarden.zhyi.xin"
     "https://cal.zhyi.xin"
     "https://element.zhyi.xin"
-    "https://filebox.zhyi.xin"
+    # Home broadband blocks inbound 443; these public home services use the
+    # router's established 8443 -> ml-home-vm:443 compatibility endpoint.
+    "https://filebox.zhyi.xin:8443"
     "https://git.zhyi.xin"
     "https://id.zhyi.xin"
     "https://lemmy.zhyi.xin"
@@ -46,7 +48,7 @@ let
     "https://lg.zhyi.cc"
     "https://netbox.zhyi.cc"
     "https://prometheus.zhyi.cc"
-    "https://qnap.zhyi.cc"
+    "https://qnap.zhyi.cc:8443"
     "https://vaults3.zhyi.cc:8443/health"
   ];
 
