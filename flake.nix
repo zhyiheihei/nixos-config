@@ -91,11 +91,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nix-index-database.follows = "nix-index-database";
     };
-    nix-cache-proxy = {
-      url = "github:xddxdd/nix-cache-proxy";
-      inputs.flake-parts.follows = "flake-parts";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     nix-cachyos-kernel = {
       url = "github:xddxdd/nix-cachyos-kernel/release";
       inputs.flake-compat.follows = "flake-compat";
@@ -228,15 +223,8 @@
         ) self.allSystems;
 
         hydraJobs = {
-          inherit (self) packages;
-          nixosConfigurations = lib.genAttrs [
-            "colocrossing"
-            "jpvm"
-            "ml-builder"
-            "ml-home-vm"
-            "ml-2700"
-            "pve-5700u"
-          ] (name: self.nixosConfigurations.${name}.config.system.build.toplevel);
+          inherit (self) apps packages devShells;
+          nixosConfigurations = lib.mapAttrs (n: v: v.config.system.build.toplevel) self.nixosConfigurations;
         };
       };
 

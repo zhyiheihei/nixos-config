@@ -1,5 +1,5 @@
-{ LT, ... }:
-{
+{ lib, LT, ... }:
+lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
   lantian.nginxVhosts = {
     "hydra.zhyi.cc" = {
       locations = {
