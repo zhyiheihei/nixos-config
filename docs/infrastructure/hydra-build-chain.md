@@ -10,6 +10,8 @@
 - `pve-5700u` 负责运行 Hydra 和虚拟机，只作为单任务 x86 回退节点。
 - `opi5p` 首先是数据库、媒体和 reDroid 生产节点，只作为单任务原生 ARM 回退节点。
 - `rock5c`、`ml-home-vm`、Router 和其他业务主机不加入 `nix-builder`。
+- 构建派发图必须是有向无环图：PVE 可以派发到 ml-builder，ml-builder 不得反向派发
+  到 PVE；ml-builder 只保留 OPI5P 作为原生 ARM 下游。
 - `maxJobs` 限制同时运行的 derivation 数；`cores` 限制单个 derivation 获得的并行度。
   两者不能互相替代。
 
@@ -29,7 +31,8 @@
 | 阶段 | 来源 | 去向 | 选择依据 | 结果 |
 | --- | --- | --- | --- | --- |
 | 求值与排队 | Hydra（`pve-5700u`） | `/etc/nix/machines-with-localhost` | system、mandatory feature、可用槽位、speed factor | 选择实际 builder |
-| 普通 x86 构建 | Hydra 或 ml-builder | 优先 `ml-builder`，PVE 单任务回退 | `x86_64-linux`，主机速度与槽位 | 构建输出进入 Nix store |
+| 普通 x86 构建 | Hydra（PVE） | 优先 `ml-builder`，PVE localhost 单任务回退 | `x86_64-linux`，主机速度与槽位 | 构建输出进入 Nix store |
+| ml-builder 本地发起 | ml-builder | x86 留在本机；原生 ARM 可到 `opi5p` | ml-builder 的机器表明确排除 PVE | 不产生 PVE↔ml-builder 回路 |
 | 大型并行构建 | Hydra | 仅 `ml-builder` | derivation 要求 `big-parallel` | 不占用 PVE/OPI 业务资源 |
 | ARM 交叉构建 | Hydra 或 ml-builder | `ml-builder` | build platform 仍是 x86，并要求 `aarch64-cross` | 生成 ARM 产物但不执行 ARM 二进制 |
 | ARM 原生构建 | Hydra 或 ml-builder | `opi5p` | derivation 的 system 为 `aarch64-linux` | 单任务执行目标架构构建脚本 |
@@ -39,6 +42,12 @@
 Hydra 使用 `/etc/nix/machines-with-localhost`，因为它需要显式的 PVE localhost 项；普通
 `nix build` 使用 `/etc/nix/machines`。不要把 localhost 写入普通远程 builder 文件，
 否则 Nix daemon 可能在持有输出锁时把任务递归派回自己。
+
+同理，不允许 PVE 与 ml-builder 互相出现在对方的派发链路中。2026-08-02 的实际故障中，
+Hydra 从 PVE 把 derivation 交给 ml-builder 后，ml-builder 又把同一任务交回 PVE；两边
+各自持有输出锁并等待对方，表现为构建永久停在 `waiting for lock`。因此
+`ml-builder` 通过 `lantian.nix-distributed.excludeHosts = [ "pve-5700u" ];` 切断回边。
+这是拓扑约束，不是临时性能调优，不能仅因 PVE 空闲就删除。
 
 ## 为什么必须这样限制
 
@@ -70,6 +79,9 @@ Hydra 使用 `/etc/nix/machines-with-localhost`，因为它需要显式的 PVE l
    grep -E 'ml-builder|pve-5700u|opi5p' /etc/nix/machines
    grep -E 'ml-builder|pve-5700u|opi5p|localhost' /etc/nix/machines-with-localhost
    ```
+
+   ml-builder 的第一条命令必须看不到 `pve-5700u`；PVE 的第二条命令应同时看到
+   `ml-builder`、`opi5p` 与 `localhost`。若两端互相出现，禁止恢复 Hydra。
 
 4. 用一个受控构建验证 OPI5P；期间检查：
 

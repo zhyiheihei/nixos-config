@@ -56,9 +56,21 @@ let
   localPlatformsString = builtins.concatStringsSep "," localPlatforms;
 in
 {
-  options.lantian.nix-distributed.sshKeyPath = lib.mkOption {
-    type = lib.types.str;
-    default = "/home/zhyi/.ssh/id_ed25519";
+  options.lantian.nix-distributed = {
+    sshKeyPath = lib.mkOption {
+      type = lib.types.str;
+      default = "/home/zhyi/.ssh/id_ed25519";
+    };
+
+    excludeHosts = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [ ];
+      description = ''
+        Builder host names that this dispatcher must not call.  This is used
+        to keep the distributed-build graph acyclic while retaining the
+        author's shared builder-discovery mechanism.
+      '';
+    };
   };
 
   config = {
@@ -68,7 +80,11 @@ in
         lib.flatten (
           lib.filter (v: v != null) (
             lib.mapAttrsToList mkBuildMachine (
-              lib.filterAttrs (n: v: v.hasTag LT.tags.nix-builder) LT.otherHosts
+              lib.filterAttrs (
+                n: v:
+                v.hasTag LT.tags.nix-builder
+                && !(builtins.elem n cfg.excludeHosts)
+              ) LT.otherHosts
             )
           )
         );
