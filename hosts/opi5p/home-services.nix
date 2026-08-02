@@ -33,6 +33,7 @@ let
     "uwsgi"
     "webdav"
   ];
+  targetServices = builtins.filter (name: name != "clamav-fangfrisch") gatedServices;
 in
 {
   imports = [
@@ -86,7 +87,7 @@ in
     description = "Migrated ml-home-vm application and storage services";
     wantedBy = [ "multi-user.target" ];
     unitConfig.ConditionPathExists = activationMarker;
-    wants = map (name: "${name}.service") gatedServices;
+    wants = map (name: "${name}.service") targetServices;
     after = [
       "mnt-storage.mount"
       "postgresql.service"
