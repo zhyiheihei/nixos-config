@@ -38,16 +38,28 @@ let
     sslCertificate = certificate;
     noIndex.enable = true;
   };
+  mkFixedFrontend = frontend: backend: {
+    locations."/" =
+      (mkBackend backend)
+      // lib.optionalAttrs (frontend == "books.zhyi.xin") { enableBasicAuth = true; }
+      // lib.optionalAttrs (
+        builtins.elem frontend [
+          "asf.zhyi.xin"
+          "ha.zhyi.cc"
+          "index.zhyi.xin"
+          "index-helper.zhyi.xin"
+        ]
+      ) { enableOAuth = true; };
+    sslCertificate =
+      if lib.hasSuffix ".zhyi.xin" frontend then "lets-encrypt-zhyi.xin" else "lets-encrypt-zhyi.cc";
+    noIndex.enable = true;
+  };
 in
 {
   lantian.nginxVhosts =
     lib.mapAttrs' (
       frontend: backend:
-      lib.nameValuePair frontend (
-        mkFrontend
-          (if lib.hasSuffix ".zhyi.xin" frontend then "lets-encrypt-zhyi.xin" else "lets-encrypt-zhyi.cc")
-          backend
-      )
+      lib.nameValuePair frontend (mkFixedFrontend frontend backend)
     ) fixedFrontends
     // lib.mapAttrs (
       _: backend:
