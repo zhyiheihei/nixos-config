@@ -76,8 +76,8 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 家庭公网封锁标准 `443`。DNS、Nginx vhost、OAuth 回调和应用自身 URL 仍保持
 作者的标准 HTTPS 结构；需要从公网直接访问 `home-ddns` 承载的服务时，客户端
 显式使用 `https://域名:8443/`，router 将公网 `8443` 转发到家庭入口的
-`443`。VaultS3 是例外：其 OPI5P vhost 原生监听 8443，Router 的公网转发和 LAN
-Hairpin 都保持该端口直达 OPI5P。不要把 `8443` 固化进 DNS 记录。
+`443`。VaultS3 的公网转发和 LAN Hairpin 同样将外部 8443 转换为 OPI5P 的标准
+443；Nginx 不额外监听 8443。不要把 `8443` 固化进 DNS 记录或内部服务配置。
 
 作者的 Hydra 公网入口 `bwg-lax` 通过 HE.net SIT tunnel 拥有公网 IPv6，家庭
 `pve-epyc` 也有公网 IPv6，因此 ZeroTier 可以绕开 IPv4 双 NAT。当前 JPVM
