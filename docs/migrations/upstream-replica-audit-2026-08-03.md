@@ -212,6 +212,22 @@ import-from-derivation 路径上失败；现已将 SSHFP 改为由 `host.nix` �
 `ssh-keygen -r` 产生的预计算 SHA1/SHA256 值，并删除求值期 `runCommandLocal`。
 后续新增或轮换 host key 时必须同时更新 fingerprints。
 
+修复后在 ml-builder 的持久 Git worktree 中执行：
+
+```bash
+nix flake check --no-build --all-systems \
+  --option allow-import-from-derivation true
+```
+
+结果为 `all checks passed`，两种架构的 checks、packages、devShells、Hydra jobs
+以及全部 NixOS 主机均完成求值。Pocket ID v2、NetBox pepper、networkd route、
+mdadm、pointer cursor 和 OpenCode TUI 的本地弃用项也已处理。
+
+仍保留的 warning 来自作者同样使用的外部模块或 flake 输出形态：Regreet 模块仍
+声明旧选项、Stylix 的 KDE Qt target 尚未受支持、部分 app 缺少可选 description，
+以及项目自定义 flake outputs 不属于 Nix 内建检查类型。这些 warning 不影响求值，
+不通过主机特例或复制上游模块强行消除。
+
 ## 推荐执行顺序
 
 1. 在 Linux 构建机求值公开主机 `colocrossing` 和内网主机 `opi5p`；
