@@ -57,6 +57,10 @@
       "androidboot.redroid_width=720"
       "androidboot.redroid_height=1280"
       "androidboot.redroid_fps=60"
+      # Keep LAN ADB explicit so an image refresh cannot silently revert to a
+      # loopback-only daemon. The published port remains bound to this host's
+      # home-LAN address above.
+      "androidboot.redroid_adbd_bind_eth0=1"
       # reDroid is connected through the container's Ethernet interface.
       # Some Android applications only start large downloads on Wi-Fi, so use
       # the image's supported Fake WiFi compatibility layer.
@@ -76,19 +80,38 @@
   };
 
   systemd.services.podman-redroid = {
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" ];
     environment = {
       HTTP_PROXY = "http://192.168.0.51:7892";
       HTTPS_PROXY = "http://192.168.0.51:7892";
       NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
     };
     preStart = lib.mkBefore ''
+      for attempt in $(${pkgs.coreutils}/bin/seq 1 60); do
+        if ${pkgs.iproute2}/bin/ip -4 address show lan0 \
+          | ${pkgs.gnugrep}/bin/grep -qF "inet ${LT.this.interconnect.IPv4}/24"; then
+          break
+        fi
+        ${pkgs.coreutils}/bin/sleep 1
+      done
+
+      if ! ${pkgs.iproute2}/bin/ip -4 address show lan0 \
+        | ${pkgs.gnugrep}/bin/grep -qF "inet ${LT.this.interconnect.IPv4}/24"; then
+        echo "LAN address ${LT.this.interconnect.IPv4} is unavailable" >&2
+        exit 1
+      fi
+
       install -d -m 0700 -o root -g root /nix/persistent/var/lib/redroid-rk3588-lineage20
-      test -c /dev/mali0
+      if ! test -c /dev/mali0; then
+        echo "Armbian Mali CSF device /dev/mali0 is unavailable" >&2
+        exit 1
+      fi
     '';
   };
 
   systemd.services.redroid-landscape-navigation = {
-    description = "Configure reDroid landscape display and side navigation bar";
+    description = "Configure reDroid display, navigation, and application networking";
     wantedBy = [ "multi-user.target" ];
     after = [ "podman-redroid.service" ];
     requires = [ "podman-redroid.service" ];
@@ -104,6 +127,10 @@
           | ${pkgs.gnugrep}/bin/grep -qx 1; then
           ${pkgs.podman}/bin/podman exec redroid wm size reset
           ${pkgs.podman}/bin/podman exec redroid wm user-rotation lock 1
+          # Match the working OPI5P instance. This image otherwise blocks
+          # ordinary application UIDs despite Android reporting a validated
+          # default network.
+          ${pkgs.podman}/bin/podman exec redroid settings put global restricted_networking_mode 0
           exit 0
         fi
         ${pkgs.coreutils}/bin/sleep 2
