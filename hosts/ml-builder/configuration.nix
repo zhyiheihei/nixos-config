@@ -12,7 +12,7 @@ let
     key: lib.hasSuffix "2386656187@qq.com" key
   ) (throw "mac-book SSH public key is missing from secrets") sshKeys;
   macBookIdentity = pkgs.writeText "mac-book-ssh-identity.pub" macBookPublicKey;
-  outboundProxy = "http://192.168.0.51:7892";
+  outboundProxy = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
   proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
   proxyEnvironment = {
     GOPROXY = "https://goproxy.cn,direct";

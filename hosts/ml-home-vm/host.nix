@@ -6,20 +6,20 @@
 }:
 {
   index = 115;
-  system = "aarch64-linux";
   tags = with tags; [
     lan-access
     server
   ];
 
-  # The logical home-service identity is hosted by ROCK 5C after migration.
-  cpuThreads = 8;
+  # 家庭服务虚拟机，不参与 Hydra 远程构建。
+  cpuThreads = 14;
 
   city = geo.cities."CN Ningbo";
 
-  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOVPKMHQqr+gzsju2KvpM4GcO2G08O9AXFOxZ4UGJMJ9 root@rock5c";
+  # 当前虚拟机的 SSH host public key。
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDax7ee1Yjl1Ei1PqF5ef8QpThqI7YqTMDN5obfqL5+4";
 
-  zerotier = "8a55fde716";
+  zerotier = "c340ae9a91";
 
   firewalled = true;
 

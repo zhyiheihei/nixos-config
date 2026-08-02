@@ -5,6 +5,8 @@
   ...
 }:
 let
+  edgeAddress = LT.hosts.rock5c.interconnect.IPv4;
+
   ipv4Set = name: value: ''
     set ${name} {
       type ipv4_addr
@@ -80,15 +82,15 @@ in
       type nat hook prerouting priority -95; policy accept;
 
       # Public services: direct PPPoE WAN → colocrossing.
-      fib daddr type local tcp dport { 80, 443, 2222 } iifname "ppp0" dnat ip to 192.168.0.51
-      fib daddr type local udp dport 443 iifname "ppp0" dnat ip to 192.168.0.51
+      fib daddr type local tcp dport { 80, 443, 2222 } iifname "ppp0" dnat ip to ${edgeAddress}
+      fib daddr type local udp dport 443 iifname "ppp0" dnat ip to ${edgeAddress}
       fib daddr type local tcp dport { 80, 443, 2222 } iifname "ppp0" dnat ip6 to [fc00:192:168::10]
       fib daddr type local udp dport 443 iifname "ppp0" dnat ip6 to [fc00:192:168::10]
 
       # Compatibility endpoints previously forwarded by OpenWrt.
       # VaultS3 is a bulk data path and terminates directly on OPI5P/NVMe.
       fib daddr type local tcp dport 8443 iifname "ppp0" dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}:443
-      fib daddr type local tcp dport 4000 iifname "ppp0" dnat ip to 192.168.0.51:443
+      fib daddr type local tcp dport 4000 iifname "ppp0" dnat ip to ${edgeAddress}:443
 
       # Redirect LAN DNS requests to the isolated CoreDNS client namespace.
       # br-lan is the bridge ingress seen by LAN guests; eth0 covers direct
@@ -99,7 +101,7 @@ in
       fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth0" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
 
       # Hairpin NAT: LAN accessing public IP gets redirected to colocrossing
-      fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to 192.168.0.51
+      fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to ${edgeAddress}
       fib daddr type local iifname "br-lan" ip6 daddr != @RESERVED_IPV6 dnat ip6 to [fc00:192:168::10]
     }
 

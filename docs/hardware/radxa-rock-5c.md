@@ -2,14 +2,14 @@
 
 ROCK 5C 沿用 `opi5p` 已验证的 RK3588 vendor kernel、Mali CSF 和 reDroid
 配置，但启动介质不同：ROCK 5C 没有已安装的 SPI NOR，因此每个 SD 卡镜像必须
-自带 U-Boot。适配完成后，板卡承载稳定逻辑主机 `ml-home-vm`，不再额外保留
-`rock5c` 主机定义。
+自带 U-Boot。板卡始终使用独立的 `rock5c` 主机身份；迁移服务不复用
+`ml-home-vm` 的主机名、地址、SSH key 或 ZeroTier 身份。
 
 ## 实现边界
 
-- 主机身份：[`hosts/ml-home-vm/`](../../hosts/ml-home-vm/)
+- 主机身份：[`hosts/rock5c/`](../../hosts/rock5c/)
 - 板级模块：[`nixos/hardware/rock-5c/`](../../nixos/hardware/rock-5c/)
-- reDroid 主机配置：[`hosts/ml-home-vm/configuration.nix`](../../hosts/ml-home-vm/configuration.nix)
+- reDroid 主机配置：[`hosts/rock5c/configuration.nix`](../../hosts/rock5c/configuration.nix)
 - Linux DTB：`rockchip/rk3588s-rock-5c.dtb`
 - U-Boot：Armbian `rock-5c` vendor 包（Radxa BSP + Armbian RK35xx 补丁）
 - 串口：UART2，1500000 8N1
@@ -38,16 +38,14 @@ RCU stall，最后触发 `Asynchronous SError`。因此不得把 Nixpkgs 主线 
 `rock5c-grow-nix.service` 自动识别 `/nix` 所在整盘并扩展第二分区，不依赖
 设备恰好叫 `/dev/mmcblk0`。
 
-## 适配阶段与最终身份
+## 主机身份
 
-适配阶段曾使用：
+ROCK 5C 固定使用：
 
 - host index `123`
 - LAN 地址 `192.168.0.64`
-- `manualDeploy = true`
 
-完成采集、冷启动与服务迁移后，最终身份为 index `115`、LAN 地址
-`192.168.0.51` 和主机名 `ml-home-vm`。新板首次适配仍必须采集真实身份：
+`192.168.0.51` 继续属于原 x86 `ml-home-vm`。新板首次适配必须采集真实身份：
 
 ```bash
 cat /proc/device-tree/model
@@ -67,7 +65,7 @@ zerotier-cli info
 
 ```bash
 nix eval \
-  .#nixosConfigurations.ml-home-vm.config.system.build.sdImage.drvPath \
+  .#nixosConfigurations.rock5c.config.system.build.sdImage.drvPath \
   --show-trace
 ```
 
@@ -75,8 +73,8 @@ nix eval \
 
 ```bash
 nix build \
-  .#nixosConfigurations.ml-home-vm.config.system.build.sdImage \
-  --out-link result-ml-home-rock5c \
+  .#nixosConfigurations.rock5c.config.system.build.sdImage \
+  --out-link result-rock5c \
   --print-build-logs \
   --show-trace
 ```
@@ -86,7 +84,7 @@ nix build \
 U-Boot 数据，而不是修改 Linux 配置：
 
 ```bash
-IMAGE="$(find -L result-ml-home-rock5c/sd-image -name '*.img.zst' -print -quit)"
+IMAGE="$(find -L result-rock5c/sd-image -name '*.img.zst' -print -quit)"
 zstd -dc "$IMAGE" |
   dd bs=512 skip=64 count=32704 status=none |
   sha256sum
