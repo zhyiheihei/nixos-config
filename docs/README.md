@@ -19,6 +19,7 @@
 ## 硬件适配
 
 - [ARM 开发板 NixOS 适配手册](./hardware/arm-board-bring-up.md)
+- [HINLINK H28K（RK3528）NixOS 路由器适配](./hardware/hinlink-h28k.md)
 - [NanoPi R5C NixOS 镜像适配与安装](./hardware/nanopi-r5c.md)
 - [NanoPi R5C 内核与系统闭包裁剪审计](./hardware/nanopi-r5c-size-audit.md)
 - [NanoPi R5C：从 macOS 写入 SD 卡到读取串口日志](./hardware/nanopi-r5c-flash-and-serial.md)

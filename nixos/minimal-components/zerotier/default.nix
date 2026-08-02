@@ -75,7 +75,10 @@ in
 
   systemd.services.zerotierone-setup-neighbors = {
     description = "Setup neighbors entry for ZeroTier";
-    wantedBy = [ "multi-user.target" ];
+    # A new physical host must boot once to generate its ZeroTier node ID.
+    # Do not hold first boot in the address wait loop before that ID has been
+    # recorded in host.nix and authorized by the controller.
+    wantedBy = lib.optional (LT.this.zerotier != null) "multi-user.target";
     bindsTo = [ "zerotierone.service" ];
     after = [ "zerotierone.service" ];
     serviceConfig.Type = "oneshot";
