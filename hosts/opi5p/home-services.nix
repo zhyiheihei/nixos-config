@@ -70,7 +70,7 @@ in
   lantian.ncps = {
     dataPath = "/nix/persistent/var/cache/ncps";
     tempPath = "/nix/persistent/var/cache/ncps-tmp";
-    proxy = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
+    proxy = "http://${LT.hosts."ml-home-vm".interconnect.IPv4}:7892";
     proxyUnit = null;
     storageUnit = "nix.mount";
   };
