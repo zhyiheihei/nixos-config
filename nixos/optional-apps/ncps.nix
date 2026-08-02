@@ -47,25 +47,13 @@ in
   };
 
   config = {
-    systemd.tmpfiles.settings.ncps = {
-      "${cfg.dataPath}".d = {
-        mode = "0750";
-        user = "ncps";
-        group = "ncps";
-      };
-      "${cfg.tempPath}".d = {
-        mode = "0750";
-        user = "ncps";
-        group = "ncps";
-      };
-    };
-
     services.ncps = {
       enable = true;
       server.addr = "${LT.this.interconnect.IPv4}:${LT.portStr.Ncps}";
       cache = {
         inherit (config.networking) hostName;
-        inherit (cfg) dataPath tempPath;
+        tempPath = cfg.tempPath;
+        storage.local = cfg.dataPath;
         upstream = {
           # Attic's streamed compressed NARs omit FileSize, which ncps rejects.
           # Clients use Attic directly before falling back to ncps for public caches.
