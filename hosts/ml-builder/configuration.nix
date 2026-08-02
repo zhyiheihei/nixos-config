@@ -54,8 +54,15 @@ in
     sopsFile = inputs.secrets + "/common/attic.yaml";
     mode = "0400";
   };
-  lantian.nix-distributed.sshKeyPath =
-    config.sops.secrets.ml-builder-distributed-ssh-key.path;
+  lantian.nix-distributed = {
+    sshKeyPath = config.sops.secrets.ml-builder-distributed-ssh-key.path;
+
+    # Keep the builder graph directed: Hydra/PVE may dispatch to ml-builder,
+    # but an incoming build on ml-builder must never be sent back to PVE while
+    # PVE is still holding the same output lock.  OPI5P remains available for
+    # the small number of derivations that must execute natively on ARM.
+    excludeHosts = [ "pve-5700u" ];
+  };
 
   # Only this machine advertises the native x86_64 toolchain used for
   # AArch64 cross builds. Ordinary x86_64 derivations remain distributable to
