@@ -211,6 +211,10 @@ in
     '';
   };
 
+  # The RK3588 HandBrake image is not mirrored by DaoCloud.  Its initial pull
+  # and registry autoupdate therefore need the same stable egress as reDroid.
+  systemd.services.podman-handbrake.environment = proxyEnvironment;
+
   # Byparr includes a browser runtime and its first GHCR pull is large.  Keep
   # the image pull on the same stable egress as the other OPI5P workloads.
   systemd.services.podman-byparr.environment = proxyEnvironment;
