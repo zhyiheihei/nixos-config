@@ -12,6 +12,18 @@ let
   crossPkgs =
     self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
 
+  # Start from the repository's already validated RK356x kernel baseline.  It
+  # keeps the Rockchip clock, pinctrl, PM-domain, RK809 regulator, SD/MMC,
+  # DesignWare Ethernet, USB and serial drivers built in, while avoiding the
+  # generic arm64 configuration's unrelated GPU, media, wireless and joystick
+  # families.  LubanCat-specific changes can move to a separate config after
+  # the first hardware inventory; until then, sharing the R5C config also lets
+  # the binary cache reuse the exact same cross-built kernel derivation.
+  lubanCatKernel = crossPkgs.linuxManualConfig {
+    inherit (crossPkgs.linux_6_18) src version modDirVersion;
+    configfile = ../nanopi-r5c/kernel-config;
+  };
+
   # Mainline U-Boot has no LubanCat-1 defconfig. Its generic RK3568 target is
   # intentionally board-neutral and uses the same RK3566/RK3568 TPL and BL31
   # boot chain as Nixpkgs' Orange Pi 3B package. Linux later receives the exact
@@ -62,9 +74,9 @@ in
 
   fileSystems."/run/nullfs".enable = lib.mkForce false;
 
-  # Linux 6.18 already contains the original, non-V2 LubanCat-1 DTS. Use the
-  # cross package directly and retain the repository's kernel package wrapper.
-  lantian.kernel = lib.mkForce crossPkgs.linux_6_18;
+  # Linux 6.18 already contains the original, non-V2 LubanCat-1 DTS.  Keep the
+  # repository's kernel package wrapper around the targeted RK356x build.
+  lantian.kernel = lib.mkForce lubanCatKernel;
 
   honkai-railway-grub-theme.enable = lib.mkForce false;
   systemd.services.install-random-star-rail-grub-theme.enable = false;

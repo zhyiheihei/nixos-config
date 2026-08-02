@@ -36,7 +36,7 @@ let
           # binaries through QEMU.
           systems = [ v.system ];
           hostName = "${n}.zhyi.cc";
-          maxJobs = v.cpuThreads;
+          maxJobs = v.nixBuilder.maxJobs;
           # Hydra's build-remote path currently only supports legacy SSH stores.
           protocol = "ssh";
           speedFactor = v.cpuThreads;
@@ -82,7 +82,7 @@ in
     environment.etc."nix/machines-with-localhost".text =
       config.environment.etc."nix/machines".text
       + ''
-        localhost ${localPlatformsString} - ${toString LT.this.cpuThreads} ${toString LT.this.cpuThreads} kvm,nixos-test,benchmark - -
+        localhost ${localPlatformsString} - ${toString LT.this.nixBuilder.maxJobs} ${toString LT.this.cpuThreads} kvm,nixos-test,benchmark - -
       '';
 
     environment.systemPackages = [

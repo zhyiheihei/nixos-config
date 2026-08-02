@@ -9,7 +9,7 @@ LubanCat-2 不是本文目标，不能直接复用本模块。
 | 层级 | 当前选择 |
 | --- | --- |
 | SoC | RK3566，aarch64-linux |
-| Linux | Nixpkgs Linux 6.18，使用主线 `rk3566-lubancat-1.dtb` |
+| Linux | Nixpkgs Linux 6.18，共用已验证的 RK356x 手工配置，使用主线 `rk3566-lubancat-1.dtb` |
 | U-Boot | 主线 `generic-rk3568_defconfig`，RK3566/RK3568 TPL + BL31 |
 | 串口 | `ttyS2`，1500000-8-N-1，MMIO `0xfe660000` |
 | 网络 | 板载 GMAC/RTL8211F，首启 IPv4 DHCP |
@@ -50,7 +50,8 @@ nix build \
   '.#nixosConfigurations.lubancat1.config.system.build.sdImage' \
   --out-link result-lubancat1 \
   --print-build-logs \
-  --option max-jobs 4
+  --option max-jobs 1 \
+  --option cores 8
 ```
 
 镜像位于：
@@ -59,8 +60,14 @@ nix build \
 ls -lh result-lubancat1/sd-image/
 ```
 
-首版使用主线内核的通用配置，内核和 U-Boot derivation 在 x86_64 ml-builder 上
-交叉编译；不要把 LubanCat-1 加入 `nix-builder` 标签。
+首版内核共用 `nanopi-r5c/kernel-config` 作为 RK356x 启动基线。该配置保留 RK3566
+所需的时钟、pinctrl、电源域、RK809、SD/MMC、DesignWare GMAC、USB、LED 和串口，
+同时避免编译通用 ARM64 配置中的 Radeon、AMDGPU、Atheros、Tegra、ATM、XFS 和
+joystick 等无关驱动。完成真机硬件清单后，再决定是否拆分 LubanCat 专用配置。
+
+内核 derivation 在 x86_64 ml-builder 上交叉编译；不要把 LubanCat-1 加入
+`nix-builder` 标签。ml-builder 曾在高并发编译时出现宿主内核页状态损坏，因此
+首次构建固定为一个 derivation、八个编译线程。
 
 ## 首次上电检查
 
