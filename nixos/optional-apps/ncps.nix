@@ -1,10 +1,11 @@
 {
   LT,
   config,
+  lib,
   ...
 }:
 let
-  proxy = "http://${LT.this.interconnect.IPv4}:7892";
+  cfg = config.lantian.ncps;
   brokenNcpsUpstreams = [
     LT.nix.attic.url
     # USTC can publish a valid narinfo before the referenced NAR is available.
@@ -17,13 +18,53 @@ let
   ];
 in
 {
+  options.lantian.ncps = {
+    dataPath = lib.mkOption {
+      type = lib.types.str;
+      default = "/mnt/storage/.ncps";
+      description = "Persistent NCPS cache path";
+    };
+    tempPath = lib.mkOption {
+      type = lib.types.str;
+      default = "/mnt/storage/.ncps-tmp";
+      description = "Temporary NCPS download path";
+    };
+    proxy = lib.mkOption {
+      type = lib.types.str;
+      default = "http://${LT.this.interconnect.IPv4}:7892";
+      description = "HTTP proxy used for NCPS upstream downloads";
+    };
+    proxyUnit = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = "podman-metacubexd.service";
+      description = "Optional local proxy unit ordered before NCPS";
+    };
+    storageUnit = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = "mnt-storage.mount";
+      description = "Optional unit providing the NCPS cache filesystem";
+    };
+  };
+
+  systemd.tmpfiles.settings.ncps = {
+    "${cfg.dataPath}".d = {
+      mode = "0750";
+      user = "ncps";
+      group = "ncps";
+    };
+    "${cfg.tempPath}".d = {
+      mode = "0750";
+      user = "ncps";
+      group = "ncps";
+    };
+  };
+
   services.ncps = {
     enable = true;
     server.addr = "${LT.this.interconnect.IPv4}:${LT.portStr.Ncps}";
     cache = {
       inherit (config.networking) hostName;
-      dataPath = "/mnt/storage/.ncps";
-      tempPath = "/mnt/storage/.ncps-tmp";
+      inherit (cfg) dataPath tempPath;
       upstream = {
         # Attic's streamed compressed NARs omit FileSize, which ncps rejects.
         # Clients use Attic directly before falling back to ncps for public caches.
@@ -41,15 +82,16 @@ in
   };
 
   systemd.services.ncps = {
-    after = [ "podman-metacubexd.service" "mnt-storage.mount" ];
-    wants = [ "podman-metacubexd.service" ];
-    requires = [ "mnt-storage.mount" ];
+    after = lib.optionals (cfg.proxyUnit != null) [ cfg.proxyUnit ]
+      ++ lib.optionals (cfg.storageUnit != null) [ cfg.storageUnit ];
+    wants = lib.optionals (cfg.proxyUnit != null) [ cfg.proxyUnit ];
+    requires = lib.optionals (cfg.storageUnit != null) [ cfg.storageUnit ];
     environment = {
-      HTTP_PROXY = proxy;
-      HTTPS_PROXY = proxy;
+      HTTP_PROXY = cfg.proxy;
+      HTTPS_PROXY = cfg.proxy;
       NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
-      http_proxy = proxy;
-      https_proxy = proxy;
+      http_proxy = cfg.proxy;
+      https_proxy = cfg.proxy;
       no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
     };
   };
