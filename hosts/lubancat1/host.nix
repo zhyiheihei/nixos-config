@@ -8,8 +8,10 @@
   ];
   cpuThreads = 4;
   city = geo.cities."CN Ningbo";
-
-  # Keep the board out of bulk deployments until its mainline U-Boot and
-  # first-boot networking have been verified over the debug UART.
-  manualDeploy = true;
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOhJN9lnKi13oHi9Gdk9KkBiOg9p8qcp29Bm2+Jj2e5j root@lubancat1";
+  zerotier = "fde3beab16";
+  interconnect = {
+    name = "home-lan";
+    IPv4 = "192.168.0.65";
+  };
 }

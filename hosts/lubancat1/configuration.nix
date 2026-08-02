@@ -1,19 +1,29 @@
-{ lib, ... }:
+{
+  lib,
+  LT,
+  ...
+}:
 {
   imports = [
     ../../nixos/minimal.nix
     ./hardware-configuration.nix
   ];
 
-  # The first image has no fixed address. Match both the legacy eth0 name
-  # selected by the common networking module and systemd's embedded end0 name
-  # so DHCP remains available while the final host identity is undecided.
+  # The first-boot DHCP inventory is complete. Keep the board outside the
+  # router's dynamic .100-.249 pool and use the same static LAN layout as the
+  # other physical infrastructure hosts.
   systemd.network.networks."10-lubancat1-lan" = {
-    matchConfig.Name = "eth0 end0";
+    matchConfig.Name = "eth0";
+    address = [ "${LT.this.interconnect.IPv4}/24" ];
     networkConfig = {
-      DHCP = "ipv4";
       IPv6AcceptRA = true;
     };
+    routes = [
+      {
+        Destination = "0.0.0.0/0";
+        Gateway = "192.168.0.1";
+      }
+    ];
   };
 
   networking.networkmanager.enable = lib.mkForce false;
