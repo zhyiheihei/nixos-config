@@ -18,17 +18,17 @@
         foomatic-db-ppds-withNonfreeDb
         foomatic-filters
         gutenprint
-        gutenprintBin
         hplip
         hplipWithPlugin
         samsung-unified-linux-driver
         splix
       ])
       # Nixpkgs implements Brother's proprietary driver through pkgsi686Linux,
-      # which cannot be instantiated on native aarch64 hosts.
+      # and gutenprintBin is x86_64-only. Neither can be used on native aarch64.
       ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 (with pkgs; [
         brgenml1cupswrapper
         brgenml1lpr
+        gutenprintBin
       ]);
 
     cups-pdf = {
