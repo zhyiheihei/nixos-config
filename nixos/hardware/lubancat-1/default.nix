@@ -102,6 +102,22 @@ let
   }).overrideAttrs (old: {
     requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
   });
+
+  # The board has no battery-backed RTC. Preserve a recent epoch on the
+  # persistent filesystem so TLS, SOPS logs and service ordering do not start
+  # from the firmware's 2017 timestamp after every complete power loss.
+  savedClock = "/nix/persistent/var/lib/lubancat1-clock/epoch";
+  saveClock = pkgs.writeShellScript "lubancat1-save-clock" ''
+    install -d -m 0700 "$(dirname ${savedClock})"
+    date +%s > ${savedClock}.new
+    chmod 0600 ${savedClock}.new
+    mv ${savedClock}.new ${savedClock}
+  '';
+  restoreClock = pkgs.writeShellScript "lubancat1-restore-clock" ''
+    if test -s ${savedClock}; then
+      date --utc --set="@$(cat ${savedClock})"
+    fi
+  '';
 in
 {
   imports = [
@@ -162,6 +178,40 @@ in
   hardware.deviceTree = {
     name = "rockchip/rk3566-lubancat-1.dtb";
     filter = "rk3566-lubancat-1.dtb";
+  };
+
+  systemd = {
+    services = {
+      lubancat1-restore-clock = {
+        description = "Restore LubanCat-1 software clock";
+        wantedBy = [ "multi-user.target" ];
+        before = [ "ntpd-rs.service" ];
+        requiredBy = [ "ntpd-rs.service" ];
+        unitConfig.RequiresMountsFor = [ "/nix/persistent" ];
+        serviceConfig = {
+          Type = "oneshot";
+          RemainAfterExit = true;
+          ExecStart = restoreClock;
+          ExecStop = saveClock;
+        };
+      };
+      lubancat1-save-clock = {
+        description = "Save LubanCat-1 software clock";
+        serviceConfig = {
+          Type = "oneshot";
+          ExecStart = saveClock;
+        };
+      };
+    };
+    timers.lubancat1-save-clock = {
+      description = "Periodically save LubanCat-1 software clock";
+      wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnBootSec = "5min";
+        OnUnitActiveSec = "1h";
+        Unit = "lubancat1-save-clock.service";
+      };
+    };
   };
 
   fileSystems = {
