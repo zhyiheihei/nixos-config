@@ -89,13 +89,17 @@ ssh-keygen -t ed25519 -N '' \
 随后完成全部步骤：
 
 1. 将 `.pub` 内容写入 `hosts/<hostname>/host.nix` 的 `ssh.ed25519`。
-2. 用 `ssh-to-age` 从公钥计算 age recipient。
-3. 按 `nixos-secrets/docs/sops-manual.md` 把 recipient 加入 `.sops.yaml`。
-4. 重新加密全部受管 YAML，并验证每个文件都包含新 recipient。
-5. 如果主仓库引用该 host 的 hidden module，先在 secrets 中补对应模块。
-6. 把 host 私钥和公钥安全交付给设备所有者，核对 SHA256 指纹后保存到
+2. 运行 `ssh-keygen -r <hostname> -f ssh_host_ed25519_key.pub`，把输出中 type 1
+   和 type 2 的最后一列分别写入 `ssh.ed25519Fingerprints.sha1` 和
+   `ssh.ed25519Fingerprints.sha256`。DNS 直接使用预计算值，避免 SSHFP 生成引入
+   import-from-derivation。
+3. 用 `ssh-to-age` 从公钥计算 age recipient。
+4. 按 `nixos-secrets/docs/sops-manual.md` 把 recipient 加入 `.sops.yaml`。
+5. 重新加密全部受管 YAML，并验证每个文件都包含新 recipient。
+6. 如果主仓库引用该 host 的 hidden module，先在 secrets 中补对应模块。
+7. 把 host 私钥和公钥安全交付给设备所有者，核对 SHA256 指纹后保存到
    Bitwarden；不要把该私钥加载进日常 SSH agent。
-7. 用同一公钥配置管理端的 `known_hosts`，并验证首次连接显示的指纹一致。
+8. 用同一公钥配置管理端的 `known_hosts`，并验证首次连接显示的指纹一致。
 
 手动解密时先把 SSH host 私钥转换成临时 native age identity。不要直接把 SSH
 私钥路径交给 `SOPS_AGE_SSH_PRIVATE_KEY_FILE`。操作结束立即删除临时 identity。

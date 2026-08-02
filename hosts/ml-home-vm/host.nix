@@ -18,6 +18,10 @@
 
   # 当前虚拟机的 SSH host public key。
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDax7ee1Yjl1Ei1PqF5ef8QpThqI7YqTMDN5obfqL5+4";
+  ssh.ed25519Fingerprints = {
+    sha1 = "2a09220c63b401c38b968b0f016188bab6be8413";
+    sha256 = "7b586f3fc4b18ebae45eafaa820229c0c9705ebd1432324edc4c98a42dbc0d47";
+  };
 
   zerotier = "c340ae9a91";
 

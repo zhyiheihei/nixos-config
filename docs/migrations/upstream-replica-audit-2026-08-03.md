@@ -124,7 +124,7 @@
 本次已经删除上述 input、overlay、模块、端口和 lock 引用，同时保留 `flake.lock`
 中正在进行的 LubanCat/secrets 更新，没有用作者锁文件覆盖本地输入。
 
-### 已处理：Hydra 输出跟随作者
+### 已处理：Hydra 输出跟随作者，并排除无效 app job
 
 作者在 `4df34856` 后将 Hydra 输出定义为：
 
@@ -133,8 +133,13 @@
 - `devShells`；
 - 全部 `nixosConfigurations`。
 
-本仓库原先只导出 `packages` 和 6 台 x86 NixOS 主机。现已按作者改为导出
-`apps`、`packages`、`devShells` 和全部 `nixosConfigurations`。
+本仓库原先只导出 `packages` 和 6 台 x86 NixOS 主机。现已跟随作者导出
+`packages`、`devShells` 和全部 `nixosConfigurations`。
+
+作者当前还导出了 `apps`，但 `nix flake check` 会把 app 的 `type`、`program`
+字符串当成 Hydra job，并以 `expected a set but found a string: "app"` 拒绝整个
+jobset。因此本仓库明确保留一个最小例外：普通 flake `apps` 输出不变，只不把它
+嵌入 `hydraJobs`。
 
 ARM 内核体积、交叉编译成本和低并发 builder 约束仍由既有构建机特性、并发和
 定向 builder 图控制，不再通过缩减 Hydra 输出隐藏主机配置。
@@ -202,10 +207,10 @@ inputs.nur-xddxdd.nixosModules.nix-cache-attic
 
 ## 验证缺口
 
-本次以只读静态比较和既有运行验收为主，没有在含未提交 `flake.lock`/LubanCat
-改动的工作区执行全量构建。此前全局 `nix flake check --no-build` 曾在 DNS SSHFP
-的 import-from-derivation 路径上失败，而目标主机逐一求值成功。该问题应作为全局
-验收缺口单独解决，不能用单台部署成功代替整个仓库的 CI 检查。
+目标主机已经逐一求值成功。全局检查曾在 DNS SSHFP 的
+import-from-derivation 路径上失败；现已将 SSHFP 改为由 `host.nix` 保存
+`ssh-keygen -r` 产生的预计算 SHA1/SHA256 值，并删除求值期 `runCommandLocal`。
+后续新增或轮换 host key 时必须同时更新 fingerprints。
 
 ## 推荐执行顺序
 

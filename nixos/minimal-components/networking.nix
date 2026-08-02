@@ -71,6 +71,12 @@ in
     "net.ipv4.conf.default.arp_ignore" = 1;
     "net.ipv4.conf.all.arp_announce" = 0;
     "net.ipv4.conf.default.arp_announce" = 2;
+
+    # Throttle port unreachable ICMP messages
+    "net.ipv4.icmp_msgs_per_sec" = 10;
+
+    # Increase nftables max connections
+    "net.nf_conntrack_max" = 131072;
   };
 
   networking = {

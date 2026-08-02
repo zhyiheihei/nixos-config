@@ -70,8 +70,6 @@
     ];
 
     GeoDNSTarget = "zhyi.xin.";
-    GeoStorDNSTarget = "tools.zhyi.xin.";
-
     Libravatar = [
       {
         recordType = "fakeALIAS";
