@@ -192,6 +192,11 @@ host recipient 写入 secrets 并全库 rekey，后者等待 ZeroTier 控制器�
 
 ## Server 角色与资源预算
 
+服务链路、资源快照和迁移批次见
+[`服务链路与 LubanCat-1 迁移审计`](../infrastructure/service-chain-lubancat-audit.md)。
+该审计只批准把低写入轻服务作为后续独立批次迁入；本页记录的当前 server 基线不代表
+这些应用已经切换。
+
 主机直接导入作者已有的 `nixos/server.nix`，没有复制或裁剪公共 server 模块。
 `host.nix` 只增加角色标签、Asia-E 区域和家庭 NAT 主机沿用的 jpvm、colocrossing、
 usvm WSS peer。WireGuard/BIRD、CoreDNS、Nginx、Yggdrasil、Prometheus exporters、
