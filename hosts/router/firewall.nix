@@ -86,7 +86,8 @@ in
       fib daddr type local udp dport 443 iifname "ppp0" dnat ip6 to [fc00:192:168::10]
 
       # Compatibility endpoints previously forwarded by OpenWrt.
-      fib daddr type local tcp dport 8443 iifname "ppp0" dnat ip to 192.168.0.51:443
+      # VaultS3 is a bulk data path and terminates directly on OPI5P/NVMe.
+      fib daddr type local tcp dport 8443 iifname "ppp0" dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}:443
       fib daddr type local tcp dport 4000 iifname "ppp0" dnat ip to 192.168.0.51:443
 
       # Redirect LAN DNS requests to the isolated CoreDNS client namespace.
