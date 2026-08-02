@@ -25,7 +25,6 @@
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/clawemail.nix
     ../../nixos/optional-apps/epic-awesome-gamer
-    ../../nixos/optional-apps/excalidraw.nix
     ../../nixos/optional-apps/fastapi-dls.nix
     ../../nixos/optional-apps/filecodebox.nix
     ../../nixos/optional-apps/freshrss.nix

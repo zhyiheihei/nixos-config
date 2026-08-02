@@ -6,10 +6,10 @@ target until the final acceptance period has completed.
 
 ## Current state
 
-The cutover completed on 2026-08-02.  ROCK 5C now owns the stable
-`ml-home-vm` identity and `192.168.0.51`; the old x86 VM is powered off with
-its disk retained temporarily for rollback.  OPI5P owns the application/data
-chain and NCPS, while PVE runs the three amd64-only containers.
+The service cutover completed on 2026-08-02.  Host identities remain
+independent: the x86 `ml-home-vm` keeps `192.168.0.51`, while ROCK 5C keeps
+the `rock5c` identity at `192.168.0.64`.  OPI5P owns the application/data
+chain and NCPS, while PVE runs the remaining amd64-only containers.
 
 ## Target topology
 
@@ -81,15 +81,16 @@ emulation is not part of the production service chain.
 2. Start Homepage and MetaCubeXD on `192.168.0.64`.
 3. Verify DNS, BIRD, WireGuard, Nginx and the two applications without changing
    Router forwarding or the `192.168.0.51` address.
-4. Keep all clients pointed at MetaCubeXD on `192.168.0.51` until cutover.
+4. Change clients to MetaCubeXD on `192.168.0.64` only after its state has
+   been migrated and verified.
 
 Acceptance checks:
 
 ```bash
 systemctl --failed
 birdc show protocols
-curl -x http://192.168.0.51:7892 -fsSI https://github.com/
-curl --resolve homepage.ml-home-vm.zhyi.cc:443:192.168.0.51 \
+curl -x http://192.168.0.64:7892 -fsSI https://github.com/
+curl --resolve homepage.ml-home-vm.zhyi.cc:443:192.168.0.64 \
   -kI https://homepage.ml-home-vm.zhyi.cc/
 ```
 
@@ -123,24 +124,25 @@ and new databases during this phase.
 3. Move Syncthing/SFTP/WebDAV and any required file-sharing compatibility
    endpoints.  Prefer direct QNAP mounts for clients that support them.
 
-### Phase 5: edge identity cutover
+### Phase 5: edge service cutover
 
-1. Transfer the logical home-edge role and `192.168.0.51` to ROCK 5C.
-2. Update host metadata, SOPS recipients, SSH host identity, LTNET references
-   and hard-coded proxy addresses as one reviewed change.
-3. Change Router 80/443 forwarding to ROCK 5C.  Keep 8443 on OPI5P.
-4. Verify every public and private vhost before stopping ml-home-vm.
+1. Keep the x86 VM as `ml-home-vm` on `192.168.0.51` and ROCK 5C as
+   `rock5c` on `192.168.0.64`.
+2. Change Router 80/443 forwarding and MetaCubeXD clients to ROCK 5C.  Keep
+   TCP 8443 on OPI5P.
+3. Preserve legacy service domains such as `*.ml-home-vm.zhyi.cc` where
+   clients depend on them; a service domain does not transfer host identity.
+4. Verify every public and private vhost before disabling the old service
+   instances on ml-home-vm.
 
-Do not leave both machines using `192.168.0.51` at the same time.
-
-### Phase 6: soak and retirement
+### Phase 6: soak and old-host reuse
 
 - Run both RK3588 hosts through reboots and at least one backup cycle.
 - Test concurrent media playback, Immich indexing, NCPS downloads and Android
   activity while monitoring memory pressure and NFS latency.
 - Keep OPI5P out of heavy distributed builds during the test.
-- Delete the powered-off legacy VM only after the acceptance and rollback
-  retention period is complete.
+- Keep the x86 VM configuration deployable.  After the rollback retention
+  period, it may receive a new workload without reusing either ARM identity.
 
 ## Resource rules
 
