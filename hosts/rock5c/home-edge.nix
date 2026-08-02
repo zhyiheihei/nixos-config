@@ -4,14 +4,12 @@ let
   gatedServices = [
     "fastapi-dls"
     "glauth"
-    "podman-excalidraw"
     "uni-api"
     "vlmcsd"
   ];
 in
 {
   imports = [
-    ../../nixos/optional-apps/excalidraw.nix
     ../../nixos/optional-apps/fastapi-dls.nix
     ../../nixos/optional-apps/glauth.nix
     ../../nixos/optional-apps/nginx-openspeedtest.nix
