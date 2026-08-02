@@ -5,6 +5,7 @@
 }:
 let
   opiAddress = LT.hosts.opi5p.interconnect.IPv4;
+  pveAddress = LT.hosts."pve-5700u".interconnect.IPv4;
   mkBackend = backendHost: {
     proxyPass = "https://${opiAddress}";
     proxyOverrideHost = backendHost;
@@ -38,6 +39,16 @@ let
     sslCertificate = certificate;
     noIndex.enable = true;
   };
+  mkX86Frontend = port: {
+    locations."/" = {
+      proxyPass = "http://${pveAddress}:${builtins.toString port}";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-ml-home-vm.zhyi.cc";
+    noIndex.enable = true;
+  };
   mkFixedFrontend = frontend: backend: {
     locations."/" =
       (mkBackend backend)
@@ -65,5 +76,9 @@ in
       _: backend:
       (mkFrontend "lets-encrypt-ml-home-vm.zhyi.cc" backend)
       // { accessibleBy = "private"; }
-    ) legacyFrontends;
+    ) legacyFrontends
+    // {
+      "archiveteam.ml-home-vm.zhyi.cc" = mkX86Frontend LT.port.ArchiveTeam;
+      "clawemail.ml-home-vm.zhyi.cc" = mkX86Frontend LT.port.ClawEmail;
+    };
 }

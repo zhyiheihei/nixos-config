@@ -16,6 +16,7 @@
 
     ./enable-smart.nix
     ./hardware-configuration.nix
+    ./ml-home-x86.nix
   ];
 
   boot.kernelParams = [
