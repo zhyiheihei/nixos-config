@@ -30,7 +30,7 @@
 
   # Keep Attic's S3 data plane on LTNET.  The public home-DDNS path is less
   # reliable for long uploads, while the direct WireGuard peer is stable.
-  networking.hosts."${LT.hosts."ml-home-vm".ltnet.IPv4}" = [ "vaults3.zhyi.cc" ];
+  networking.hosts."${LT.hosts.opi5p.ltnet.IPv4}" = [ "vaults3.zhyi.cc" ];
 
   lantian.nginxVhosts."cnvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
