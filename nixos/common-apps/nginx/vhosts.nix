@@ -166,6 +166,8 @@ in
       sslCertificate = "lets-encrypt-zhyi.cc";
     };
 
+  }
+  // lib.optionalAttrs (LT.this.hasTag LT.tags.public-facing) {
     "gopher.zhyi.xin" = {
       listenHTTP.enable = true;
       listenPlainSocket = {
