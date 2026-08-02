@@ -8,6 +8,7 @@ let
   gatedServices = [
     "podman-archiveteam"
     "podman-clawemail"
+    "podman-excalidraw"
     "podman-epic-awesome-gamer"
   ];
 in
@@ -18,6 +19,7 @@ in
     ../../nixos/common-apps/nginx/vhost-options
     ../../nixos/optional-apps/archiveteam.nix
     ../../nixos/optional-apps/clawemail.nix
+    ../../nixos/optional-apps/excalidraw.nix
     ../../nixos/optional-apps/epic-awesome-gamer
   ];
 
@@ -27,6 +29,9 @@ in
     ];
     clawemail.ports = lib.mkForce [
       "${LT.this.interconnect.IPv4}:${LT.portStr.ClawEmail}:${LT.portStr.ClawEmail}"
+    ];
+    excalidraw.ports = lib.mkForce [
+      "${LT.this.interconnect.IPv4}:${LT.portStr.Excalidraw}:80"
     ];
   };
 
