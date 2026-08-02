@@ -27,6 +27,14 @@
   # swap usable so Hydra evaluation cannot force the kernel to kill a VM.
   boot.kernel.sysctl."vm.swappiness" = lib.mkForce 10;
 
+  # Hydra and two resident VMs share this host. Limit each fallback build so
+  # an undeclared large derivation cannot multiply into 16 full-core compiler
+  # jobs and exhaust RAM together with the guests.
+  nix.settings = {
+    max-jobs = lib.mkForce 2;
+    cores = lib.mkForce 4;
+  };
+
   boot.loader.grub = {
     efiSupport = true;
     device = "nodev";

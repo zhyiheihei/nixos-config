@@ -40,10 +40,17 @@
       type = lib.types.int;
       default = 0;
     };
-    nixBuilder.supportedFeatures = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
-      description = "Nix build features advertised by this host when used as a remote builder.";
+    nixBuilder = {
+      maxJobs = lib.mkOption {
+        type = lib.types.ints.positive;
+        default = lib.max 1 config.cpuThreads;
+        description = "Maximum concurrent Nix builds accepted by this host.";
+      };
+      supportedFeatures = lib.mkOption {
+        type = lib.types.listOf lib.types.str;
+        default = [ ];
+        description = "Nix build features advertised by this host when used as a remote builder.";
+      };
     };
 
     # Geolocation
