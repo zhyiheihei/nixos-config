@@ -77,6 +77,16 @@
       type = lib.types.nullOr lib.types.str;
       default = null;
     };
+    ssh.ed25519Fingerprints = {
+      sha1 = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+      };
+      sha256 = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+      };
+    };
 
     # LTNET Networking
     zerotier = lib.mkOption {
