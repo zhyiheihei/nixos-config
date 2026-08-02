@@ -26,6 +26,12 @@ in
     mode = "0660";
   };
 
+  # WireGuard netdevs read their private key while networkd creates them.
+  # Both networkd and sops-nix start during sysinit, so order them explicitly
+  # instead of relying on scheduler timing.  Do not make networkd require SOPS:
+  # the host must retain ordinary networking if secret installation fails.
+  systemd.services.systemd-networkd.after = [ "sops-install-secrets.service" ];
+
   systemd.network.netdevs = lib.mapAttrs' (
     n: v:
     let

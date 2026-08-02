@@ -109,6 +109,11 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
       group = "coredns";
     });
 
+  systemd.services.coredns-authoritative = {
+    after = [ "sops-install-secrets.service" ];
+    requires = [ "sops-install-secrets.service" ];
+  };
+
   lantian.netns.coredns-authoritative = {
     ipSuffix = "54";
     announcedIPv4 = [
