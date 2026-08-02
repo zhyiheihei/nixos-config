@@ -1,8 +1,9 @@
 # LubanCat-1（非 V2）NixOS 适配
 
-本页记录原版 EmbedFire LubanCat-1 的首启配置。目标实机为 RK3566、2 GiB RAM，
-未焊接 eMMC；系统和 bootloader 均位于 SD 卡。LubanCat-1 V2、LubanCat-1N 和
-LubanCat-2 不是本文目标，不能直接复用本模块。
+本页记录原版 EmbedFire LubanCat-1 的 NixOS 适配与实机验收。目标实机为 RK3566、
+2 GiB RAM，未焊接 eMMC；系统和 bootloader 均位于 SD 卡。设备当前使用项目既有
+`server` 角色，承担低内存常驻服务，但不参与 Nix 远程构建。LubanCat-1 V2、
+LubanCat-1N 和 LubanCat-2 不是本文目标，不能直接复用本模块。
 
 ## 当前启动契约
 
@@ -15,6 +16,7 @@ LubanCat-2 不是本文目标，不能直接复用本模块。
 | 网络 | 板载 GMAC/RTL8211F，固定 `192.168.0.65/24`，LTNET `198.18.0.124/24` |
 | 磁盘 | FAT32 `/boot`、Btrfs `/nix`、tmpfs `/` |
 | Mini PCIe | RTL8822CE Wi-Fi；同卡 USB 功能为 RTL8822CU Bluetooth |
+| 角色 | `server` + `low-ram` + `lan-access`；不含 `nix-builder` |
 
 主线 U-Boot 尚未提供 LubanCat-1 专用 defconfig。首版使用
 `generic-rk3568_defconfig`，让通用 RK356x SPL 初始化 SD 卡，再由 extlinux 向
@@ -146,7 +148,7 @@ DHCP 获得地址后，通过项目已有授权公钥登录：
 ssh -p 2222 root@ADDRESS
 ```
 
-2026-08-02 首启已完成，实机身份和网络参数为：
+2026-08-02 首启及 server 角色切换已完成，实机身份和网络参数为：
 
 ```text
 LAN              192.168.0.65/24（eth0，静态）
@@ -156,20 +158,30 @@ SSH              root@lubancat1.zhyi.cc:2222
 ```
 
 持久 SSH host 公钥已写入 `hosts/lubancat1/host.nix`，并作为 SOPS age identity 的
-权威来源。完成全库 rekey 和控制器授权后，主机退出 `manualDeploy` 阶段，参与常规
-Colmena 部署。
+权威来源。主机已有独立 WireGuard 私钥密文
+`per-host/wg-priv/lubancat1.yaml`；对应公钥登记在 secrets 仓库的
+`wg-pubkey.nix`。完成全库 rekey 和控制器授权后，主机已退出 `manualDeploy` 阶段，
+参与常规 Colmena 部署。
 
 ## 首启实机验收记录
 
 2026-08-02 使用 32 GiB SD 卡验证：
 
 - SPL、U-Boot、extlinux、Linux earlycon 和普通 `ttyS2` 控制台均正常；
-- RK3566、2 GiB LPDDR4X、CPU 408 MHz～1.8 GHz 调频与 RTC/NTP 正常；
+- RK3566、2 GiB LPDDR4X、CPU 408 MHz～1.8 GHz 调频正常；
 - 板载 GMAC 以 1000 Mbps/full duplex 建链，访问家庭网关无丢包；
 - 主线 PCIe 成功枚举 RTL8822CE，USB 成功枚举其 RTL8822CU Bluetooth 功能；
+- Wi-Fi 可扫描到周边 BSS，Bluetooth 服务正常启动；未配置无线接入时保持 Wi-Fi
+  接口关闭，避免无意义耗电；
 - tmpfs `/`、FAT32 `/boot` 和 `neededForBoot` 的 Btrfs `/nix` 挂载正常；
 - 初始 3.5 GiB Btrfs 分区已在线扩展到整张卡，约 29.5 GiB；
 - `lubancat1-grow-nix.service` 会在以后重新刷写镜像时自动完成同一扩容流程。
+
+板上没有电池供电的 RTC，完全断电后固件会回到 2017 年。硬件模块因此只为本机增加
+软件时钟持久化：每小时及关机时把 epoch 写入
+`/nix/persistent/var/lib/lubancat1-clock/epoch`，下次启动在 `ntpd-rs` 前恢复。
+冷断电复测后，日志从开机第一阶段即使用正确的 2026 时间；网络时间服务仍负责随后
+校准。该处理沿用项目内 OPI5P/ROCK5C 的板级写法，没有修改公共时间模块。
 
 首启时 SOPS 和 node-exporter 的失败均属于身份尚未注册的连带结果：前者需要把新
 host recipient 写入 secrets 并全库 rekey，后者等待 ZeroTier 控制器分配 LTNET
@@ -177,6 +189,35 @@ host recipient 写入 secrets 并全库 rekey，后者等待 ZeroTier 控制器�
 `198.18.0.124`，并通过 `sops-install-secrets -check-mode sopsfile` 实机验证新密文
 可由持久化 SSH host key 解密。切换新系统代际后仍须重新检查 `systemctl --failed`，
 不能把首启失败状态保留下来。
+
+## Server 角色与资源预算
+
+主机直接导入作者已有的 `nixos/server.nix`，没有复制或裁剪公共 server 模块。
+`host.nix` 只增加角色标签、Asia-E 区域和家庭 NAT 主机沿用的 jpvm、colocrossing、
+usvm WSS peer。WireGuard/BIRD、CoreDNS、Nginx、Yggdrasil、Prometheus exporters、
+rsync 等服务均来自作者的公共模块。它不带 `nix-builder` 标签，Hydra 和分布式 Nix
+不会向这块 2 GiB 板卡派发大包。
+
+对端部署后，LubanCat-1 到 colocrossing 的 `wgmesh120` 握手正常，双方 BIRD peer
+均为 `Established`，`198.18.120.1` 经该接口可达。此前因缺少直连路由失败的
+`rsync-nix-sync-servers.service` 已重新执行成功，并完成 Nginx reload；最终
+`systemctl --failed` 为 0，systemd 状态为 `running`。
+
+切换后实测内存约 453 MiB 已用、约 1.5 GiB 可用，984 MiB zram 尚未使用。主要常驻
+服务的 cgroup 内存量级为：Yggdrasil 约 32 MiB、Nginx 约 30 MiB、node-exporter
+约 17 MiB、CoreDNS 约 14 MiB、ZeroTier 约 10 MiB、BIRD 约 2 MiB。这个基线可用于
+后续迁入轻量服务；新增服务后应重新记录 idle 内存和 zram 使用，避免把数据库或大型
+构建任务迁入本机。
+
+从 `minimal` 在线切到 `server` 时，ZeroTier 的 `allowManaged` 策略改变可能让
+Colmena 使用的 LTNET SSH 在激活中自断。首次切换应保留 LAN 管理路径，必要时执行
+`networkctl reload` 和 `networkctl reconfigure zttalxbxtu`；稳定后的常规部署仍走
+项目统一的 2222 端口。此现象不需要修改作者的公共 networking 模块。
+
+冷启动耗时约 19.8 秒。以下日志目前属于已知非致命项，不应为了消除文字警告继续膨胀
+内核或公共模块：未焊 eMMC 的初始化失败、未使用 DWC3/PCIe 控制器的 probe 警告，
+以及与 R5C 相同的 BlueZ BNEP/default system config 提示。node-exporter 偶尔会在
+ZeroTier 地址出现前失败一次，既有 Restart 策略会在约 0.4 秒后恢复。
 
 ## 暂不验收的功能
 
