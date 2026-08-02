@@ -150,6 +150,28 @@ ssh -p 2222 root@opi5p.zhyi.cc \
 | Jellyfin | <https://jellyfin.zhyi.xin:8443> | 媒体服务器：链路终点，观看电影/剧集 |
 | Tachidesk | <https://tachidesk.zhyi.xin:8443> | 漫画源、书库、章节下载与阅读进度（Basic Auth） |
 
+### HandBrake Rockchip 后端
+
+HandBrake 应用后端运行在 OPI5P，使用
+`emcd39/handbrake-rk3588` 的 RKMPP/RGA 实验分支。`ml-home-vm` 只保留
+原有 TLS 入口，通过私有 HTTP 后端转发到 OPI5P；原 NVIDIA NVENC
+容器已移除。输入、监视与输出目录仍位于 NAS 上的
+`/mnt/storage/handbrake-server/`。
+
+运行状态和硬件编码器可用以下命令验证：
+
+```bash
+ssh -p 2222 root@opi5p.zhyi.cc \
+  'systemctl status podman-handbrake --no-pager'
+
+ssh -p 2222 root@opi5p.zhyi.cc \
+  'podman exec handbrake HandBrakeCLI --help | grep -i rkmpp'
+```
+
+2026-08-02 已实测 H.264 1280×720 输入通过 `h264_rkmpp` 输出
+60 帧 MP4，HandBrake 返回 `work result = 0`。该 fork 仍为实验项目，
+复杂滤镜、字幕烧录与长时间批量转码需要继续观察。
+
 ### 无 WebUI 的后台组件
 
 | 组件 | 触发方式 | 作用 |
