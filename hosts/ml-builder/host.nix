@@ -1,4 +1,9 @@
-{ tags, geo, ... }:
+{
+  tags,
+  geo,
+  constants,
+  ...
+}:
 {
   index = 114;
   tags = with tags; [
@@ -36,5 +41,6 @@
   ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
   ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
   ltnet.tcpTransportPeers.usvm = "usvm.zhyi.cc";
+  dn42.region = constants.dn42.region.Asia-E;
 
 }

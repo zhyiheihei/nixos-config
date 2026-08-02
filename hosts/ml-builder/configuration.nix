@@ -26,11 +26,10 @@ let
 in
 {
   imports = [
-    ../../nixos/minimal.nix
+    ../../nixos/server.nix
 
     ./hardware-configuration.nix
 
-    ../../nixos/common-apps/coredns.nix
     # ../../nixos/common-apps/nginx
     # ../../nixos/client-apps/gnupg.nix
     # ../../nixos/client-apps/vscode-remote-env.nix
