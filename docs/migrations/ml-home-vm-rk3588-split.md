@@ -4,6 +4,13 @@ This runbook moves the `ml-home-vm` workload by service chain instead of
 copying the x86_64 host closure onto ARM.  The old VM remains the rollback
 target until the final acceptance period has completed.
 
+## Current state
+
+The cutover completed on 2026-08-02.  ROCK 5C now owns the stable
+`ml-home-vm` identity and `192.168.0.51`; the old x86 VM is powered off with
+its disk retained temporarily for rollback.  OPI5P owns the application/data
+chain and NCPS, while PVE runs the three amd64-only containers.
+
 ## Target topology
 
 ```text
@@ -53,9 +60,8 @@ S3 or media payloads through ROCK 5C.
 ### Remaining x86_64 workloads
 
 The current images for ClawEmail, Epic Awesome Gamer and ArchiveTeam Warrior
-do not publish ARM64 variants.  They need replacement images, retirement, or
-a small x86_64 runtime.  QEMU user emulation is not an acceptable permanent
-service configuration.
+do not publish ARM64 variants.  They run natively on `pve-5700u`; QEMU user
+emulation is not part of the production service chain.
 
 ## Migration phases
 
@@ -82,9 +88,9 @@ Acceptance checks:
 ```bash
 systemctl --failed
 birdc show protocols
-curl -x http://192.168.0.64:7892 -fsSI https://github.com/
-curl --resolve homepage.rock5c.zhyi.cc:443:192.168.0.64 \
-  -kI https://homepage.rock5c.zhyi.cc/
+curl -x http://192.168.0.51:7892 -fsSI https://github.com/
+curl --resolve homepage.ml-home-vm.zhyi.cc:443:192.168.0.51 \
+  -kI https://homepage.ml-home-vm.zhyi.cc/
 ```
 
 ### Phase 2: stateless and light application moves
@@ -133,8 +139,8 @@ Do not leave both machines using `192.168.0.51` at the same time.
 - Test concurrent media playback, Immich indexing, NCPS downloads and Android
   activity while monitoring memory pressure and NFS latency.
 - Keep OPI5P out of heavy distributed builds during the test.
-- Retire ml-home-vm only after the x86-only workload decision and rollback
-  rehearsal are complete.
+- Delete the powered-off legacy VM only after the acceptance and rollback
+  retention period is complete.
 
 ## Resource rules
 
