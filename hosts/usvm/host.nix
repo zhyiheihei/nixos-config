@@ -7,7 +7,6 @@
 {
   index = 121;
   tags = with tags; [
-    low-disk
     public-facing
     server
     cn-accel

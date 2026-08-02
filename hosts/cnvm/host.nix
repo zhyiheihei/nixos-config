@@ -7,7 +7,6 @@
 {
   index = 119;
   tags = with tags; [
-    low-disk
     public-facing
     server
   ];
