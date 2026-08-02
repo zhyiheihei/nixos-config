@@ -20,21 +20,23 @@
 
 ```text
 客户端 -> colocrossing:443 -> 本机服务
-客户端 -> colocrossing:443 -> ml-home-vm LTNET:443 -> 家庭服务
+客户端 -> colocrossing:443 -> rock5c LTNET:443 -> 家庭服务
 ```
 
 CNVM 本机承载 Dex、Pocket ID、Vaultwarden 与 Attic，它们的 DNS 直接指向
 `cnvm.zhyi.cc`。colocrossing 承载 Gitea、Matrix、RSS、AI 和监控等服务。
 `asf`、`books`、`filebox`、`immich`、`index` 与 `index-helper` 保持作者的独立
 公开域名形态，并通过 `home-ddns.zhyi.cc` 进入家庭服务。`jellyfin` 与 `tachidesk`
-同样指向家庭 DDNS；它们的应用与状态位于 `opi5p`，由 `ml-home-vm` 终止 TLS
-（Tachidesk 同时执行 Basic Auth），再经私有 HTTP 后端转发。家庭入站 443 被运营商
-封锁，因此这两个服务的外部入口统一使用 8443。
+同样指向家庭 DDNS；它们的应用、状态与 8443 TLS 入口均位于 `opi5p`
+（Tachidesk 同时执行 Basic Auth）。家庭入站 443 被运营商封锁，因此这两个服务的
+外部入口统一使用 8443。
 
 `attic.zhyi.xin` 是例外：它 CNAME 到 `cnvm.zhyi.cc`，由 cnvm 本机 Nginx
 直接服务。Attic 与其 `vaults3.zhyi.cc` S3 后端分离：VaultS3 位于家庭网络
 （`home-ddns.zhyi.cc`），Attic 服务端通过公网访问它。客户端统一使用
 `https://attic.zhyi.xin/lantian` 作为 substituter URL（标准 443 端口）。
+家庭 LAN 访问该数据面时沿用作者 Router 的 Hairpin NAT 模式：8443 在通用 Hairpin
+规则之前直接回到 `opi5p`，不使用全局 DNS 覆盖，也不绕经 `rock5c`。
 
 ### `zhyi.cc`
 

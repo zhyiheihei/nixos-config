@@ -89,7 +89,7 @@ in
 
       # Compatibility endpoints previously forwarded by OpenWrt.
       # VaultS3 is a bulk data path and terminates directly on OPI5P/NVMe.
-      fib daddr type local tcp dport 8443 iifname "ppp0" dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}:443
+      fib daddr type local tcp dport 8443 iifname "ppp0" dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}
       fib daddr type local tcp dport 4000 iifname "ppp0" dnat ip to ${edgeAddress}:443
 
       # Redirect LAN DNS requests to the isolated CoreDNS client namespace.
@@ -100,7 +100,12 @@ in
       fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth0" } dnat ip to ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.DNS}
       fib daddr type local udp dport ${LT.portStr.DNS} iifname { "br-lan", "eth0" } dnat ip6 to [${config.lantian.netns.coredns-client.ipv6}]:${LT.portStr.DNS}
 
-      # Hairpin NAT: LAN accessing public IP gets redirected to colocrossing
+      # Hairpin NAT follows the author's router layout: LAN clients keep using
+      # public DNS, while traffic is returned to the actual home service host.
+      # VaultS3 is the one bulk endpoint owned by OPI5P rather than ROCK 5C.
+      fib daddr type local tcp dport 8443 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}
+
+      # All remaining public services are handled by the ROCK 5C edge.
       fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to ${edgeAddress}
       fib daddr type local iifname "br-lan" ip6 daddr != @RESERVED_IPV6 dnat ip6 to [fc00:192:168::10]
     }
