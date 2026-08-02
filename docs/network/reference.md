@@ -7,6 +7,7 @@
 | 层次 | 作用 | 地址/接口来源 |
 | --- | --- | --- |
 | 家庭局域网 | 同一 `home-lan` 的直接管理与服务访问 | `hosts/*/host.nix` 中的 `interconnect.IPv4`；当前统一使用 `192.168.0.0/24`（Router VM 后，MTU 9000） |
+| H28K 站点局域网 | 当前嵌套测试、以后迁往异地的独立 LAN | `192.168.30.0/24`；`h28k` 为 `192.168.30.1`，WAN 使用 DHCP |
 | ZeroTier | 设备可达性与无公网节点之间的 WireGuard 建链 | 网络 `466270de75000001`，接口 `zttalxbxtu` |
 | LTNET | 内部服务地址与路由前缀 | `198.18.0.<index>`、`198.18.<index>.0/24`、`fdd8:1938:4e88::<index>` |
 | WireGuard mesh | LTNET 的加密点对点传输 | `wgmesh<peer-index>`；本机 UDP 端口为 `10000 + 本机 index` |
@@ -26,9 +27,13 @@
 | `jpvm` | 117 | 无 | `a073934677` | `198.18.0.117` | server mesh 全互联；为 WSS/TCP WireGuard transport 服务端 |
 | `cnvm` | 119 | 无 | `ecd09d7bc2` | `198.18.0.119` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
 | `usvm` | 121 | 无 | `47c75f186a` | `198.18.0.121` | server mesh 全互联；公网节点 |
+| `h28k` | 125 | `192.168.30.1`（独立站点 LAN） | 待首启采集 | `198.18.0.125` | 预部署；以后承载附加路由 `192.168.30.0/24` |
 | `molishanguang-macbook` | 200 | 无 | `174ea952dd` | `198.18.0.200` | 额外 ZeroTier 客户端；不参与 server mesh |
 
 ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index>`，IPv6 为 `fdd8:1938:4e88::<index>`。额外客户端的声明来源仍是 secrets 的 `zerotier-additional-hosts.nix`；上表只记录已授权的 Mac 固定分配。
+
+`h28k` 行中的 LTNET 地址目前只是由 index 推导的目标地址；在真实 node ID 写回
+`host.nix`、controller 授权和 SOPS rekey 完成前，它不是已授权或已验证的在线节点。
 
 ## WireGuard 与 LTNET
 

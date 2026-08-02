@@ -15,6 +15,9 @@ PWM 风扇和 reDroid 实现见
 Radxa ROCK 5C 的无 SPI、SD 卡内嵌 U-Boot 和 RK3588 reDroid 实现见
 [`radxa-rock-5c.md`](./radxa-rock-5c.md)。
 
+HINLINK H28K 的 RK3528 上游 DTS 补丁、通用主线 U-Boot、双网口 DHCP/NAT 和
+独立站点 LAN 实现见 [`hinlink-h28k.md`](./hinlink-h28k.md)。
+
 ## 1. 先拆分四层问题
 
 ARM 板适配应按以下顺序推进：
