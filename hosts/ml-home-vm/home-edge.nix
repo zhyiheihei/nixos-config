@@ -1,6 +1,6 @@
 { lib, ... }:
 let
-  activationMarker = "/nix/persistent/var/lib/ml-home-migration/rock5c-edge-ready";
+  activationMarker = "/nix/persistent/var/lib/ml-home-migration/ml-home-edge-ready";
   gatedServices = [
     "fastapi-dls"
     "glauth"

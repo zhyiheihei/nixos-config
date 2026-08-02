@@ -109,7 +109,6 @@ rec {
     AxonHub.Web = 13815;
     AxonHub.Redis = 13816;
     WorkerVless2sub = 13817;
-    Excalidraw = 13818;
     Memos = 13819;
     FreshRSS = 13820;
     Vertex = 13821;

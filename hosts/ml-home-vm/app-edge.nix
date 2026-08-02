@@ -80,8 +80,5 @@ in
     // {
       "archiveteam.ml-home-vm.zhyi.cc" = mkX86Frontend LT.port.ArchiveTeam;
       "clawemail.ml-home-vm.zhyi.cc" = mkX86Frontend LT.port.ClawEmail;
-      "excalidraw.ml-home-vm.zhyi.cc" = lib.recursiveUpdate (mkX86Frontend LT.port.Excalidraw) {
-        locations."/".enableOAuth = true;
-      };
     };
 }

@@ -67,7 +67,17 @@
         "${config.lantian.metacubexd.storage}"/profiles/*.yaml
       do
         if [ -f "$profile" ]; then
-          sed -i 's/^allow-lan:[[:space:]]*false[[:space:]]*$/allow-lan: true/' "$profile"
+          if grep -q '^allow-lan:' "$profile"; then
+            sed -i 's/^allow-lan:.*/allow-lan: true/' "$profile"
+          else
+            printf '\nallow-lan: true\n' >> "$profile"
+          fi
+
+          if grep -q '^bind-address:' "$profile"; then
+            sed -i 's/^bind-address:.*/bind-address: 0.0.0.0/' "$profile"
+          else
+            printf 'bind-address: 0.0.0.0\n' >> "$profile"
+          fi
         fi
       done
     '';
