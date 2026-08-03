@@ -76,6 +76,46 @@ Rockchip PCIe/combphy、r8169、GPIO LED 和 netdev/heartbeat trigger。内核 d
 在 x86_64 上使用 aarch64 交叉工具链，调度要求仍为 `big-parallel`；当前只有
 `ml-builder` 宣告这一能力。
 
+## 上游提交跟进
+
+PHY 复位死锁修复以 RFC 形式提交 linux-rockchip 邮件列表，163 邮箱线程为主线：
+
+| 版本 | 方案 | 时间 | Message-ID |
+| --- | --- | --- | --- |
+| v1 | `snps,reset-gpios`（MAC 节点） | 2026-08-03 | `20260803104646.26836-1-zyheihei_123@163.com` |
+| v2 | MDIO 总线 reset（`&mdio1`） | 2026-08-04 | `178577533421.26919.15449256732994709630.h28k-rfc-v2@163.com` |
+
+v1 曾因 Outlook 误发产生一个重复线程（根 Message-ID
+`SJ2PR04MB851017E50140354C2F5B3FF3B5D52@SJ2PR04MB8510.namprd04.prod.outlook.com`）。
+v2 发送时按邮件礼仪以 163 主线回复，并在重复线程回帖说明 supersede，避免
+讨论继续分流。
+
+维护者反馈：
+
+- Andrew Lunn（回复在重复线程）：
+  [d2780faf-54e8-4c0a-8070-93d36c91cb19@lunn.ch](https://lore.kernel.org/linux-rockchip/d2780faf-54e8-4c0a-8070-93d36c91cb19@lunn.ch/)：
+  不要新增使用已废弃的 `snps,reset-gpios`，改用 mdio.yaml 的 reset 属性。
+- Chukun Pan（回复在主线）：
+  [20260803124000.840861-1-amadeus@jmu.edu.cn](https://lore.kernel.org/linux-rockchip/20260803124000.840861-1-amadeus@jmu.edu.cn/)：
+  复位应由 U-Boot 处理（参考 OpenWrt commit
+  [384127320e0b](https://github.com/openwrt/openwrt/commit/384127320e0b)），
+  不建议硬编码 PHY ID（RTL8211F/YT8531 都可能）。
+
+v2 按上述反馈收敛为 MDIO 总线级复位 + 不硬编码 PHY ID；U-Boot 侧（generic
+RK3528 DT 未初始化该复位线）在 changelog 中说明为 out of scope。依据
+`Documentation/process/coding-assistants.rst` 与
+`generated-content.rst`，提交带 AI 标注：
+
+```text
+Assisted-by: Codex:gpt-5
+```
+
+并在 changelog 说明 AI 参与根因分析与方案、真机验证由人完成。当前状态：v2
+已上线 lore（linux-rockchip 归档），等待维护者反馈。
+
+- v2：https://lore.kernel.org/linux-rockchip/178577533421.26919.15449256732994709630.h28k-rfc-v2@163.com/
+- supersede 说明：https://lore.kernel.org/linux-rockchip/178577533421.26919.15228893238527652331.h28k-rfc-v2-supersedes@163.com/
+
 ## U-Boot 与 SD 布局
 
 锁定的 U-Boot 2026.07 已包含 `generic-rk3528_defconfig`。Nixpkgs 的 rkbin
