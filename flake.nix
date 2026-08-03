@@ -293,17 +293,29 @@
                 + (lib.concatMapStrings hostEntries (builtins.attrValues (LT.hostsWithTag LT.tags.dn42)))
               );
           }
-          // lib.optionalAttrs (system == "x86_64-linux") {
-            # Use the locked, unpatched nixpkgs input for this isolated cross
-            # toolchain. Referencing perSystem's patched `pkgs.pkgsCross` here
-            # feeds the package output back into NixOS host evaluation.
-            opi5p-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/opi5p-kernel {
-              nixpkgsPath = inputs.nixpkgs.outPath;
-            };
-            rock5c-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/rock5c-kernel {
-              nixpkgsPath = inputs.nixpkgs.outPath;
-            };
-          };
+          // lib.optionalAttrs (system == "x86_64-linux") (
+            let
+              opi03RedroidKernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/opi03-redroid-kernel {
+                nixpkgsPath = inputs.nixpkgs.outPath;
+              };
+            in
+            {
+              # Use the locked, unpatched nixpkgs input for this isolated cross
+              # toolchain. Referencing perSystem's patched `pkgs.pkgsCross` here
+              # feeds the package output back into NixOS host evaluation.
+              opi5p-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/opi5p-kernel {
+                nixpkgsPath = inputs.nixpkgs.outPath;
+              };
+              opi03-redroid-kernel = opi03RedroidKernel;
+              opi03-mali-kbase = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/opi03-mali-kbase {
+                kernel = opi03RedroidKernel;
+                nixpkgsPath = inputs.nixpkgs.outPath;
+              };
+              rock5c-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/rock5c-kernel {
+                nixpkgsPath = inputs.nixpkgs.outPath;
+              };
+            }
+          );
 
           devshells.default = {
             packages = [
