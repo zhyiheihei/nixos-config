@@ -70,7 +70,6 @@
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
     "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
-    "${LT.hosts."ml-home-vm".interconnect.IPv4}" = [ "ml-home-vm.zhyi.cc" ];
   };
   networking.nameservers = lib.mkForce [
     "198.19.0.253"
