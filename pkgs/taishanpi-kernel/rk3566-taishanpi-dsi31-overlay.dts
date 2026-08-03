@@ -1,0 +1,97 @@
+// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+/*
+ * LCKFB Taishan Pi RK3566 - 3.1-inch MIPI DSI panel (ST7701 800x480) overlay.
+ *
+ * The mainline rk3566-lckfb-tspi.dts only wires HDMI (VP0).  This overlay adds
+ * the DSI1 output path for the LCKFB-mipi-3.1inch-screen extension board on
+ * VP1 (VP0 stays with HDMI, matching the mainline board DTS).
+ *
+ * Wiring follows the official vendor BSP dtsi (tspi-rk3566-dsi-v10.dtsi):
+ *   - pwm-backlight on PWM5 (25000 ns period)
+ *   - panel reset on GPIO3_C1 (active low)
+ *   - &dsi1 with the st7701 panel as a child node, 2 lanes, lane-rate 480
+ *
+ * The panel compatible is provided by the taishanpi-kernel patch
+ * (st7701-panel-lckfb-31inch.patch).
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/rockchip.h>
+#include <dt-bindings/soc/rockchip,vop2.h>
+
+&{/} {
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		pwms = <&pwm5 0 25000 0>;
+		brightness-levels = <0 20 40 60 80 100 120 140 160 180 200 220 240 255>;
+		default-brightness-level = <10>;
+	};
+};
+
+&dsi1 {
+	status = "okay";
+	rockchip,lane-rate = <480>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		dsi1_in: port@0 {
+			reg = <0>;
+			dsi1_in_vp1: endpoint {
+				remote-endpoint = <&vp1_out_dsi1>;
+			};
+		};
+
+		dsi1_out: port@1 {
+			reg = <1>;
+			dsi1_out_panel: endpoint {
+				remote-endpoint = <&panel_in_dsi1>;
+			};
+		};
+	};
+
+	panel: panel@0 {
+		compatible = "lckfb,3.1-inch-st7701";
+		reg = <0>;
+		backlight = <&backlight>;
+		reset-gpios = <&gpio3 RK_PC1 GPIO_ACTIVE_LOW>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&dsi1_rst_gpio>;
+		reset-delay-ms = <10>;
+		enable-delay-ms = <120>;
+		prepare-delay-ms = <20>;
+		unprepare-delay-ms = <20>;
+		disable-delay-ms = <50>;
+
+		port {
+			panel_in_dsi1: endpoint {
+				remote-endpoint = <&dsi1_out_panel>;
+			};
+		};
+	};
+};
+
+&vp1 {
+	vp1_out_dsi1: endpoint@ROCKCHIP_VOP2_EP_MIPI1 {
+		reg = <ROCKCHIP_VOP2_EP_MIPI1>;
+		remote-endpoint = <&dsi1_in_vp1>;
+	};
+};
+
+&pwm5 {
+	status = "okay";
+};
+
+&pinctrl {
+	lcd {
+		dsi1_rst_gpio: dsi1-rst-gpio {
+			rockchip,pins = <3 RK_PC1 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+};
