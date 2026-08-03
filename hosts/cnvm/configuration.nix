@@ -25,7 +25,9 @@
     "119.29.29.29"
   ];
 
-  lantian.nginxVhosts."cnvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  # cnvm serves the *.zhyi.xin entry domain; the cnvm.zhyi.cc vhost was a
+  # leftover shell with no service and no matching certificate, so it is
+  # removed (blackbox probes cnvm via its explicit zhyi.xin endpoints).
 
   # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
   # author's backup semantics by pointing the endpoint at the migrated host.

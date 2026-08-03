@@ -1,6 +1,8 @@
 { LT, lib, ... }:
 let
-  defaultGatewayHost = LT.hosts.ml-home-vm;
+  # ZT default gateway. ml-home-vm went offline on 2026-08-03; ROCK 5C (the
+  # home edge/control plane) now forwards ZT managed routes for the network.
+  defaultGatewayHost = LT.hosts.rock5c;
   managedIPv4Ranges = LT.constants.dn42.IPv4 ++ LT.constants.neonetwork.IPv4 ++ [ "198.18.0.0/15" ];
   managedIPv6Ranges =
     LT.constants.dn42.IPv6 ++ LT.constants.neonetwork.IPv6 ++ [ "fdd8:1938:4e88::/48" ];
