@@ -7,10 +7,8 @@
   manualDeploy = true;
   city = geo.cities."CN Ningbo";
 
-  # First boot generates this key under /nix/persistent/etc/ssh. Add the
-  # collected public key here before SOPS rekey and regular deployment.
-  ssh.ed25519 = null;
-  zerotier = null;
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEYeIr9Ar579oiuIYyPR7WplMRy9V5QbBufUD9PqItN7 root@h28k";
+  zerotier = "d58553ad47";
 
   # This is a separate site LAN, not another member of home-lan.
   interconnect = {
