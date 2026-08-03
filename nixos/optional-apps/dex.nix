@@ -58,7 +58,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-freshrss-secret.path;
         };
-        redirectURIs = [ "https://freshrss.ml-home-vm.zhyi.cc/i/oidc/" ];
+        redirectURIs = [ "https://freshrss.opi5p.zhyi.cc/i/oidc/" ];
       }
       {
         id = "gitea";
@@ -103,7 +103,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-linkwarden-secret.path;
         };
-        redirectURIs = [ "https://linkwarden.ml-home-vm.zhyi.cc/api/v1/auth/callback/oidc" ];
+        redirectURIs = [ "https://linkwarden.opi5p.zhyi.cc/api/v1/auth/callback/oidc" ];
       }
       {
         id = "oauth-proxy";

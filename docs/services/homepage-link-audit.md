@@ -1,7 +1,7 @@
 # Homepage 卡片与健康检查
 
-Homepage 实际运行在 `rock5c`，但为兼容现有书签和客户端继续使用
-`homepage.ml-home-vm.zhyi.cc` 作为服务域名。它的服务卡片属于私有配置，实际 YAML 由
+Homepage 运行在 `rock5c`，正式入口为
+`https://homepage.rock5c.zhyi.cc`。它的服务卡片属于私有配置，实际 YAML 由
 `nixos-secrets` 提供；主仓库只负责导入模块、Nginx vhost 与服务本身。因此卡片
 内容、认证方式和健康检查 URL 的最终来源不是本文，而是已生成的
 `/etc/homepage-dashboard/services.yaml`。
@@ -22,7 +22,7 @@ Homepage 实际运行在 `rock5c`，但为兼容现有书签和客户端继续�
 2. 在 `nixos-secrets` 的 Homepage 配置中添加或修改卡片。不要把 token、Basic
    Auth 密码或私有管理地址写入本仓库。
 3. Homepage 按作者结构使用承载主机域名，正式入口为
-   `https://homepage.ml-home-vm.zhyi.cc`，仅从家庭 LAN、LTNET 或 ZeroTier
+   `https://homepage.rock5c.zhyi.cc`，仅从家庭 LAN、LTNET 或 ZeroTier
    访问。卡片链接按服务实际公开边界分组：公开服务使用正式公开域，私有服务
    使用 `服务.承载主机.zhyi.cc`；Attic 仍是例外，固定使用
    `https://attic.zhyi.xin/lantian`，实际入口位于 cnvm。

@@ -61,7 +61,7 @@
 
       # Startup, Home page and New Tab page
       # HomepageLocation = "chrome://new-tab-page";
-      HomepageLocation = "https://homepage.ml-home-vm.zhyi.cc";
+      HomepageLocation = "https://homepage.rock5c.zhyi.cc";
       ShowHomeButton = true;
     };
   };
