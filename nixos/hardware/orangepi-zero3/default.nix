@@ -7,6 +7,9 @@
   ...
 }:
 let
+  opi03Kernel = self.packages.x86_64-linux.opi03-redroid-kernel;
+  opi03MaliKbase = self.packages.x86_64-linux.opi03-mali-kbase;
+
   # U-Boot is target firmware, but all compiler processes should execute
   # natively on the dedicated x86_64 builder rather than on a small ARM node.
   crossPkgs =
@@ -24,24 +27,15 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 
   boot = {
-    # Unlike the RK356x boards, this host uses the cached generic arm64 kernel.
-    # Keep the real SD/MMC host driver available in initrd: an empty
-    # modules-shrunk closure is invalid, while unrelated x86 storage modules
-    # from the generic SD-image profile are neither useful nor guaranteed to
-    # exist on arm64.
-    # The stock initrd set contains unrelated SATA/NVMe/USB drivers. Disable
-    # that generic set, then let filesystem modules append their own required
-    # drivers. In particular, NixOS must add and force-load btrfs because /nix
-    # is needed during stage 1 and BTRFS_FS=m in the generic arm64 kernel.
+    # The targeted vendor config builds MMC, Btrfs, VFAT and ext4 into the
+    # kernel.  Keep the generic SD-image profile from injecting unrelated SATA
+    # and RAID modules which this H618 kernel intentionally does not build.
     initrd.includeDefaultModules = false;
-    initrd.availableKernelModules = [ "sunxi_mmc" ];
+    initrd.availableKernelModules = lib.mkForce [ ];
+    initrd.kernelModules = lib.mkForce [ ];
     initrd.systemd.tpm2.enable = false;
-    # The common kernel module enables nullfsvfs unconditionally. This board
-    # deliberately drops that out-of-tree module, but must retain the btrfs
-    # module contributed by nixos/modules/tasks/filesystems/btrfs.nix.
-    initrd.kernelModules.nullfsvfs = lib.mkForce false;
-    kernelModules = lib.mkForce [ ];
-    extraModulePackages = lib.mkForce [ ];
+    kernelModules = lib.mkForce [ "mali_kbase" ];
+    extraModulePackages = lib.mkForce [ opi03MaliKbase ];
     kernelParams = [
       # H616/H618 UART0. Keep baud out of earlycon so the real 8250 driver can
       # take over cleanly; the normal console carries the 115200 setting.
@@ -49,12 +43,18 @@ in
       "console=ttyS0,115200n8"
       "console=tty0"
       "rootwait"
+      # Reserve enough contiguous memory for Mali buffers and Cedar video
+      # surfaces.  This matches CONFIG_CMA_SIZE_MBYTES in the vendor config.
+      "cma=256M"
     ];
     supportedFilesystems = lib.mkForce [
       "btrfs"
       "ext4"
       "vfat"
     ];
+    # Orange Pi's 5.4 BSP predates mainline MPTCP.  Remove the repository-wide
+    # sysctl instead of letting systemd-sysctl fail on a nonexistent key.
+    kernel.sysctl."net.mptcp.enabled" = lib.mkForce null;
     zfs.forceImportRoot = false;
 
     loader = {
@@ -69,11 +69,17 @@ in
     };
   };
 
+  # The same vendor-kernel limitation applies to the daemon and socket unit.
+  # TCP keeps rsync available without pretending that this kernel has MPTCP.
+  services.mptcpd.enable = lib.mkForce false;
+  systemd.sockets.rsync.socketConfig.SocketProtocol = lib.mkForce "tcp";
+
   fileSystems."/run/nullfs".enable = lib.mkForce false;
 
-  # Linux 6.18 has the Orange Pi Zero 3 DT and all boot-critical H618 drivers.
-  # Reuse the cacheable Nixpkgs kernel instead of cloning another full config.
-  lantian.kernel = lib.mkForce pkgs.linux_6_18;
+  # reDroid needs a single matched BSP: vendor kernel/DT, Kbase r20 userspace
+  # ABI and Cedar/ION.  Mixing the old Android blobs with mainline Panfrost is
+  # explicitly unsupported and was already shown not to meet this project.
+  lantian.kernel = lib.mkForce opi03Kernel;
 
   honkai-railway-grub-theme.enable = lib.mkForce false;
   systemd.services.install-random-star-rail-grub-theme.enable = false;
@@ -89,8 +95,8 @@ in
     enableRedistributableFirmware = lib.mkForce false;
     firmware = lib.mkForce [ ];
     deviceTree = {
-      name = "allwinner/sun50i-h618-orangepi-zero3.dtb";
-      filter = "sun50i-h618-orangepi-zero3.dtb";
+      name = "sunxi/sun50i-h616-orangepi-zero3.dtb";
+      filter = "sun50i-h616-orangepi-zero3.dtb";
     };
   };
 
