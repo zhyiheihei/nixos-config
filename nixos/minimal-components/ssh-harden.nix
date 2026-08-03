@@ -116,8 +116,8 @@ in
       Port 22
       PubkeyAcceptedKeyTypes ssh-ed25519
 
-    Host sftp.ml-home-vm.ltnet.zhyi.cc
-      HostName ml-home-vm.ltnet.zhyi.cc
+    Host sftp.opi5p.ltnet.zhyi.cc
+      HostName opi5p.ltnet.zhyi.cc
       User sftp
       IdentityFile ${config.sops.secrets.sftp-privkey.path}
       ${ltnetSSHConfig}

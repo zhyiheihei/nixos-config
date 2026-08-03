@@ -15,7 +15,7 @@
 | `router` | 112 | 家庭路由器 | `192.168.0.1` | PPPoE、LAN 网关、DHCP、DNS 与 DDNS。 |
 | `ml-2700` | 113 | `client` | `ml-2700.zhyi.cc` | 家庭客户端，LAN 地址 `192.168.0.53`。 |
 | `ml-builder` | 114 | `nix-builder` | `ml-builder.zhyi.cc` | 强构建机，28 vCPU；不运行自动 Attic watch-store。 |
-| `ml-home-vm` | 115 | x86_64 / 家庭服务 VM | `192.168.0.51` | 保留原 VM 身份；应用已迁出，可独立重新部署或分配新任务。 |
+| `ml-home-vm` | 115 | x86_64 / 家庭服务 VM | ~~`192.168.0.51`~~ | 已退役（2026-08-03）：应用迁至 ROCK5C/OPI5P/PVE，主机定义已从 flake 移除；`*.ml-home-vm.zhyi.cc` 服务别名由 ROCK 5C 继续承载。 |
 | `pve-5700u` | 116 | `nix-builder` / PVE | `pve-5700u.zhyi.cc` | PVE 宿主、Hydra 与本机构建能力。 |
 | `jpvm` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.cc` 通配符公网入口。 |
 | `cnvm` | 119 | `server` / 公网入口 | `cnvm.zhyi.cc` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |

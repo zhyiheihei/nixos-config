@@ -29,7 +29,8 @@ let
     {
       recordType = "CNAME";
       name = "um";
-      target = "ml-home-vm.ltnet.zhyi.cc.";
+      # ml-home-vm retired; private static assets now resolve via the home edge.
+      target = "rock5c.ltnet.zhyi.cc.";
       ttl = "1h";
     }
 

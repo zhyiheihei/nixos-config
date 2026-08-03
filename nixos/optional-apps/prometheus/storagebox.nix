@@ -9,17 +9,17 @@
             rules = [
               {
                 record = "storagebox_disk_quota";
-                expr = ''node_filesystem_size_bytes{instance="ml-home-vm",mountpoint="/mnt/storage"}'';
-                labels.name = "ml-home-vm";
+                expr = ''node_filesystem_size_bytes{instance="opi5p",mountpoint="/mnt/storage"}'';
+                labels.name = "opi5p";
               }
               {
                 record = "storagebox_disk_usage";
-                expr = ''node_filesystem_size_bytes{instance="ml-home-vm",mountpoint="/mnt/storage"} - node_filesystem_avail_bytes{instance="ml-home-vm",mountpoint="/mnt/storage"}'';
-                labels.name = "ml-home-vm";
+                expr = ''node_filesystem_size_bytes{instance="opi5p",mountpoint="/mnt/storage"} - node_filesystem_avail_bytes{instance="opi5p",mountpoint="/mnt/storage"}'';
+                labels.name = "opi5p";
               }
               {
                 alert = "storagebox_metrics_absent";
-                expr = ''absent(storagebox_disk_quota{name="ml-home-vm"})'';
+                expr = ''absent(storagebox_disk_quota{name="opi5p"})'';
                 for = "10m";
                 labels.severity = "critical";
                 annotations = {
