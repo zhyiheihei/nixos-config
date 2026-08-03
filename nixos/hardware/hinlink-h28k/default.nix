@@ -12,11 +12,14 @@ let
   crossPkgs =
     self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
 
-  # Linux 6.18 has the RK3528 SoC support but predates the H28K board DTS.
-  # Carry the exact patch accepted by the Rockchip maintainer until the locked
-  # kernel includes commit 145d4af4b204e1fb565a498c6c8f801525cc0a4e.
+  # Linux 7.1 has the rk3528 PCIe node that the H28K board DTS requires;
+  # 6.18 (the locked kernel this config used to carry) predates it, so the
+  # board DTS could not compile there. The board DTS itself is still not in
+  # any released kernel, so carry the patch accepted by the Rockchip
+  # maintainer (commit 145d4af4b204e1fb565a498c6c8f801525cc0a4e) minus its
+  # USB parts, which reference rk3528 nodes 7.1 does not have yet.
   h28kKernel = crossPkgs.linuxManualConfig {
-    inherit (crossPkgs.linux_6_18) src version modDirVersion;
+    inherit (crossPkgs.linux_7_1) src version modDirVersion;
     configfile = ../nanopi-r5c/kernel-config;
     kernelPatches = [
       {
