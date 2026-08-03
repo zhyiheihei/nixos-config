@@ -24,10 +24,6 @@
       iifname "eth1" udp sport 67 udp dport 68 accept
       iifname "eth1" udp dport 9993 accept
 
-      # Temporary staging access from the current home LAN. Only SSH is
-      # exposed; remove this rule after the board is reachable through LTNET.
-      iifname "eth1" ip saddr 192.168.0.0/24 tcp dport 2222 accept
-
       meta l4proto icmp accept
       meta l4proto ipv6-icmp accept
     }
