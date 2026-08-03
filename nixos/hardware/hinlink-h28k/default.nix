@@ -37,11 +37,14 @@ let
     cp -L "$source/rtl_nic/rtl8168h-2.fw" "$out/lib/firmware/rtl_nic/"
   '';
 
-  # Mainline U-Boot has generic RK3528 SD/eMMC support. The current rkbin
-  # package contains the matching RK3528 DDR TPL and BL31 even though Nixpkgs
-  # does not yet expose them as passthru attributes.
+  # Mainline U-Boot carries a board-specific HINLINK H28K target that
+  # resets the RTL8211F PHY before Linux starts (the generic RK3528 defconfig
+  # left the PHY reset line unconfigured). The current rkbin package contains
+  # the matching RK3528 DDR TPL and BL31 even though Nixpkgs does not yet
+  # expose them as passthru attributes.
   ubootH28K = crossPkgs.buildUBoot {
-    defconfig = "generic-rk3528_defconfig";
+    defconfig = "hinlink_h28k_rk3528_defconfig";
+    extraPatches = [ ./0001-board-rockchip-add-hinlink-h28k.patch ];
     extraMeta.platforms = [ "aarch64-linux" ];
     requiredSystemFeatures = [ "aarch64-cross" ];
     env = {
