@@ -37,6 +37,9 @@ Elasticsearch 日志链路与监控栈彼此独立。Filebeat 当前仍被声明
 - `scrape-configs.nix` 通过 NixOS option 自动发现已启用的 exporter。新服务应在
   自己的模块中声明 exporter，不要把 IP 手写进 Prometheus。
 - Blackbox 只保留实际入口。受 Dex 或应用认证保护的入口可以返回正常重定向。
+- Blackbox 自动生成 `<hostname>.zhyi.cc` 目标只对拥有该入口的主机有效；cnvm
+  属于 `zhyi.xin` 体系（无 `cnvm.zhyi.cc` 实际服务），其入口在
+  `httpMonitorTargets` 中显式声明。
 - 没有在任一 host 启用的静态抓取目标必须删除，不能留下永久 `down`。
 - node exporter 连续 15 分钟不可抓取会触发告警。应修复网络或正式移除主机，
   不能通过删探针制造绿色面板。
@@ -70,11 +73,15 @@ curl -fsS http://127.0.0.1:9090/api/v1/alerts \
 
 ## 变更与验证
 
-监控栈变更先在 `pve-5700u` 构建：
+所有求值、构建和部署在 `ml-builder` 执行（见
+[构建与部署](../operations/deployment.md)）。监控栈变更按 Colmena 流程构建并
+只部署 `colocrossing`：
 
 ```bash
+ssh -A -p 2222 root@ml-builder.zhyi.cc
 cd /nix/src/nixos-config
-nix build .#nixosConfigurations.colocrossing.config.system.build.toplevel -L
+nix run .#colmena -- build --on colocrossing
+nix run .#colmena -- apply --on colocrossing
 ```
 
 只部署 `colocrossing`，等待一个 scrape interval 后再复核。LTNet、DNS、HTTPS

@@ -34,7 +34,7 @@ flowchart LR
     OPI["opi5p\n应用 / 数据库 / 媒体 / NCPS"]
     PVE["pve-5700u\nPVE / Hydra / x86-only"]
     Builder["ml-builder\n主构建机 / ARM 交叉构建"]
-    OldVM["ml-home-vm\n当前仅 server 基线"]
+    OldVM["ml-home-vm\n已离线（2026-08-03）"]
     Luban["lubancat1\n当前仅 server 基线"]
   end
 
@@ -67,8 +67,8 @@ flowchart LR
 | `router` | 家庭路由器 | PPPoE、NAT/防火墙、Kea DHCP、CoreDNS、DDNS、hostapd、mDNS、MiniUPnP、NMEA、V2Ray、NCPS client | 运行，0 failed units |
 | `ml-2700` | `client` | 桌面客户端；无专用服务器应用 | LAN 与 LTNET 均不可达，只确认声明 |
 | `ml-builder` | 主 `nix-builder`、server | 高并发 x86 构建、ARM 交叉构建、分布式 Nix、NCPS client；server 网络/DNS/监控基线 | 运行；builder 表有回边漂移 |
-| `ml-home-vm` | server | BIRD、WG/WSS、CoreDNS authoritative、Knot、PowerDNS Recursor、Nginx、Filebeat、exporters | 运行；当前没有用户应用 |
-| `pve-5700u` | PVE、Hydra、回退 builder | Proxmox VE、Hydra、PostgreSQL、ArchiveTeam、ClawEmail、Epic Awesome Gamer、NCPS client、VM 数据备份 | 运行，0 failed units |
+| `ml-home-vm` | server | BIRD、WG/WSS、CoreDNS authoritative、Knot、PowerDNS Recursor、Nginx、Filebeat、exporters | 离线：2026-08-03 起 `192.168.0.51` 不可达；备份端点已迁移 OPI5P |
+| `pve-5700u` | PVE、Hydra、回退 builder | Proxmox VE、Hydra、PostgreSQL、ArchiveTeam、ClawEmail、Epic Awesome Gamer、NCPS client、VM 数据备份 | 运行；`backup-nvme-nixos-home-vm` 因备份端点迁移而失败（配置已修，待部署） |
 | `jpvm` | 公网、DN42、`cn-accel` | server 公共基线、公开 UniAPI、V2Ray/OpenVPN 加速 | 公网和 LTNET 均不可达，运行态未验证 |
 | `cnvm` | 公网 server | Attic、Dex、Pocket ID、Vaultwarden、GLAuth、Halo、OAuth2 Proxy、MySQL、PostgreSQL、DNS/Nginx | 运行，0 failed units |
 | `colocrossing` | 公网、DN42、协作与监控中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Prometheus、Grafana、ClickHouse、ZeroTier Controller 等 | 运行；OpenVPN 失败，系统 degraded |
