@@ -557,7 +557,7 @@ let
         unit = "qps";
         targets = [
           {
-            expr = ''sum by(instance) (rate(nginx_vts_server_requests_total{job="nginx",code="total"}[5m]))'';
+            expr = ''sum by(instance) (rate(nginx_vts_server_requests_total{job="nginx"}[5m]))'';
             legendFormat = "{{instance}}";
           }
         ];
