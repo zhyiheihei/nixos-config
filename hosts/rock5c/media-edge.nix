@@ -31,19 +31,6 @@ let
   ]) { allowCORS = true; };
   mkEdgeVhosts = service: [
     {
-      name = "${service}.ml-home-vm.zhyi.cc";
-      value = {
-        locations."/" = mkProxyLocation service;
-        accessibleBy = "private";
-        sslCertificate =
-          if service == "iyuu" then
-            "lets-encrypt-ml-home-vm.zhyi.cc"
-          else
-            "zerossl-ml-home-vm.zhyi.cc";
-        noIndex.enable = true;
-      };
-    }
-    {
       name = "${service}.localhost";
       value = {
         listenHTTP.enable = true;
@@ -79,12 +66,6 @@ in
         listenHTTPS.enable = false;
         locations."/" = backendLocation "tachidesk-backend.opi5p.zhyi.cc";
         accessibleBy = "localhost";
-        noIndex.enable = true;
-      };
-      "handbrake.ml-home-vm.zhyi.cc" = {
-        locations."/" = backendLocation "handbrake-backend.opi5p.zhyi.cc";
-        accessibleBy = "private";
-        sslCertificate = "lets-encrypt-ml-home-vm.zhyi.cc";
         noIndex.enable = true;
       };
       "handbrake.localhost" = {

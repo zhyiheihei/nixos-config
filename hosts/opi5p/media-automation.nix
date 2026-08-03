@@ -130,7 +130,7 @@ in
     };
   };
 
-  # Public TLS remains on ml-home-vm with the rest of the home edge. Expose a
+  # Public TLS remains on rock5c with the rest of the home edge. Expose a
   # private HTTP-only backend here so the edge never loops through public DNS.
   lantian.nginxVhosts."tachidesk-backend.opi5p.zhyi.cc" = {
     listenHTTP.enable = true;
@@ -144,6 +144,6 @@ in
     noIndex.enable = true;
   };
 
-  # The public name is served only by ml-home-vm after migration.
+  # The public name is served only by the rock5c edge.
   lantian.tachidesk.publicFrontend = false;
 }
