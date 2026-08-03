@@ -1,15 +1,18 @@
 { LT, ... }:
 {
   systemd.network.networks = {
-    # The board documentation and upstream DTS map the integrated GMAC/PHY to
-    # eth0. It is the isolated site LAN and never accepts a default route.
+    # The integrated GMAC/PHY is eth0. During staging both ports are DHCP
+    # clients so the board stays reachable whichever port is plugged into
+    # the upstream router (eth1 carries the primary route).
     "10-h28k-lan" = {
       matchConfig.Name = "eth0";
-      address = [ "${LT.this.interconnect.IPv4}/24" ];
       networkConfig = {
-        DHCP = "no";
+        DHCP = "ipv4";
         IPv6AcceptRA = false;
-        LinkLocalAddressing = "no";
+      };
+      dhcpV4Config = {
+        RouteMetric = 200;
+        UseDNS = false;
       };
       linkConfig.RequiredForOnline = "no";
     };
