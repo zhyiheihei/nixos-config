@@ -27,6 +27,10 @@
 
   lantian.nginxVhosts."cnvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
+  # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
+  # author's backup semantics by pointing the endpoint at the migrated host.
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
+
   # cnvm 在国内，Docker Hub 不可达，配置镜像加速
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
     [[registry]]

@@ -151,4 +151,8 @@ in
     tmux
     btop
   ];
+
+  # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
+  # author's backup semantics by pointing the endpoint at the migrated host.
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
 }
