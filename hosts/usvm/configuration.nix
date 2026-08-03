@@ -29,4 +29,8 @@
 
   # cn-accel is used for the v2ray exit; skip mihomo to save memory.
   lantian.mihomo.enable = false;
+
+  # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
+  # author's backup semantics by pointing the endpoint at the migrated host.
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
 }

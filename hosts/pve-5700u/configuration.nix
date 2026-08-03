@@ -51,6 +51,9 @@
   };
 
   lantian.backup.enable = true;
+  # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; the VirtioFS
+  # backup of the former home VM goes to the migrated backup server too.
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
   # The active Btrfs swapfile prevents snapshotting the whole /nix filesystem.
   # Back up only the dedicated VirtioFS data volume on this host.
   lantian.backup.paths = lib.mkForce {

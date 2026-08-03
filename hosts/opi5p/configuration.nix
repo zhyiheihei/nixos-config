@@ -261,4 +261,8 @@ in
       exit 1
     '';
   };
+
+  # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; this host is
+  # both the backup server and a backup client, so point it at itself.
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
 }
