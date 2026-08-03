@@ -16,23 +16,10 @@ Rockchip RK3528 SoC. It has the following features:
 Signed-off-by: Chukun Pan <amadeus@jmu.edu.cn>
 Link: https://patch.msgid.link/20260610100006.366963-3-amadeus@jmu.edu.cn
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-
-Local modifications (carried in this repository, not upstream):
-- Move the PHY reset to the MDIO bus level (mdio.yaml reset-gpios /
-  reset-delay-us / reset-post-delay-us): on the H28K the RTL8211F
-  reset line (gpio4 RK_PC2) reads low at power-on while the PHY-node
-  reset-gpios only run after the PHY is found on MDIO, deadlocking the
-  first probe (eth0 has no link). The MDIO bus reset is asserted and
-  released by mdiobus_register() before PHY scanning. The PHY node no
-  longer declares reset-gpios (same GPIO, second consumer would be
-  rejected with -EBUSY). RFC thread:
-  20260803104646.26836-1-zyheihei_123@163.com
-- Drop the USB nodes: the locked Linux 7.1 does not have the rk3528
-  USB2 nodes yet; restore once upstream lands them.
 ---
  arch/arm64/boot/dts/rockchip/Makefile              |   1 +
- .../boot/dts/rockchip/rk3528-hinlink-h28k.dts      | 302 +++++++++++++++++++++
- 2 files changed, 303 insertions(+)
+ .../boot/dts/rockchip/rk3528-hinlink-h28k.dts      | 318 +++++++++++++++++++++
+ 2 files changed, 319 insertions(+)
  create mode 100644 arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts
 
 diff --git a/arch/arm64/boot/dts/rockchip/Makefile b/arch/arm64/boot/dts/rockchip/Makefile
@@ -52,12 +39,7 @@ new file mode 100644
 index 0000000000000..0ec50e9156eb1
 --- /dev/null
 +++ b/arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts
-diff --git a/arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts b/arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts
-new file mode 100644
-index 0000000000000..059740161038
---- /dev/null
-+++ b/arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts
-@@ -0,0 +1,302 @@
+@@ -0,0 +1,316 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +
 +/dts-v1/;
@@ -251,6 +233,18 @@ index 0000000000000..059740161038
 +		    <&rgmii_rx_bus2>,
 +		    <&rgmii_rgmii_clk>,
 +		    <&rgmii_rgmii_bus>;
++	/* The RTL8211F reset line (gpio4 RK_PC2, i.e. pin 146) is left
++	 * unconfigured at power-on and reads low, holding the PHY in reset.
++	 * The PHY node reset-gpios only run after the PHY was found on MDIO,
++	 * which deadlocks the first probe; the MAC node owns the reset line
++	 * (snps,reset-gpios) and releases it before MDIO scanning. The PHY
++	 * node intentionally has no reset-gpios: a second consumer on the
++	 * same GPIO is rejected (-EBUSY) and breaks PHY bring-up.
++	 * snps,reset-delays-us: [pre-assert delay, assert hold, post-release
++	 * wait] = [0, 20000, 100000] us.
++	 */
++	snps,reset-gpios = <&gpio4 RK_PC2 GPIO_ACTIVE_LOW>;
++	snps,reset-delays-us = <0 20000 100000>;
 +	status = "okay";
 +};
 +
@@ -260,14 +254,16 @@ index 0000000000000..059740161038
 +};
 +
 +&mdio1 {
-+	reset-gpios = <&gpio4 RK_PC2 GPIO_ACTIVE_LOW>;
-+	reset-delay-us = <20000>;
-+	reset-post-delay-us = <100000>;
 +	rgmii_phy: ethernet-phy@1 {
 +		compatible = "ethernet-phy-ieee802.3-c22";
 +		reg = <0x1>;
 +		pinctrl-names = "default";
 +		pinctrl-0 = <&gmac1_rstn_l>;
++		/* reset-gpios is intentionally absent: the reset line is owned
++		 * by the MAC node (snps,reset-gpios), see &gmac1 below. A second
++		 * consumer request for the same GPIO is rejected with -EBUSY
++		 * and breaks PHY bring-up.
++		 */
 +	};
 +};
 +

@@ -46,11 +46,11 @@ RTL8111H 提供。上游 DTS 的别名把集成 GMAC 固定为 `ethernet0`；结
 
 ## 内核与 DTB
 
-本仓锁定的 Linux 6.18.40 已包含 `rk3528.dtsi`、时钟、pinctrl、PM domain、
-DesignWare Ethernet、PCIe、SD/MMC 和 USB 驱动，但它早于 H28K 板级 DTS 合入。
-因此 `nixos/hardware/hinlink-h28k/` 携带上游提交
-`145d4af4b204e1fb565a498c6c8f801525cc0a4e` 的补丁（含本地增量），并让
-`linuxManualConfig.kernelPatches` 应用它。
+H28K 内核使用 Nixpkgs 的 Linux 7.1（`linux_7_1`）：该版本的 `rk3528.dtsi`
+已包含 H28K 板级 DTS 所需的 PCIe 节点（USB 节点仍缺失，因此携带的上游补丁去掉
+USB 部分）。板级 DTS 本身尚未合入任何发布内核，仓库携带 Rockchip 维护者已接收
+的上游提交 `145d4af4b204e1fb565a498c6c8f801525cc0a4e` 的补丁（含 phy reset
+本地增量），并让 `linuxManualConfig.kernelPatches` 应用它。
 
 最终只复制：
 
@@ -62,30 +62,10 @@ rockchip/rk3528-hinlink-h28k.dtb
 锁定内核以后包含该提交时，可删除补丁中与上游一致的部分，但**必须保留 phy reset
 本地增量**：H28K 板的 RTL8211F 复位线（gpio4 RK_PC2）上电未配置、默认被拉低，
 而 phy 节点 `reset-gpios` 只在 PHY 被 MDIO 找到之后才执行，形成死锁（首次探测
-必然 `MDIO device at address 1 is missing`，PHY 注册失败、eth0 无 link）。修复
-采用 `mdio.yaml` 的标准总线级 reset：`&mdio1` 声明 `reset-gpios` +
-`reset-delay-us` + `reset-post-delay-us`，由 `mdiobus_register()` 在 PHY 扫描
-之前释放复位；phy 节点因此不再声明 `reset-gpios`（同一 GPIO 的双消费者会被
-gpiolib 以 -EBUSY 拒绝）。若上游修复了该板级问题，再删除增量并核对 DTB 哈希
-与真机行为。
-
-### 上游跟进（2026-08）
-
-H28K 板级 DTS 的上游提交 `145d4af4b204e1fb565a498c6c8f801525cc0a4e` 已在
-linux-rockchip for-next（Heiko Stuebner 2026-07-02 b4-ty 应用），无需重复提交。
-phy reset 死锁修复已作为 `[RFC PATCH v2]` 提交讨论（线程
-`20260803104646.26836-1-zyheihei_123@163.com`）：采用 `mdio.yaml` 总线级
-reset（Andrew Lunn 建议），不硬编码 PHY ID（兼容厂商 RTL8211F/YT8531 两种
-populate，Chukun Pan 提示）；U-Boot 侧（generic RK3528 DTS 未配置复位线）
-留待单独处理。若上游合入修复，再删除仓库内增量并核对 DTB 哈希与真机行为。
-- 上游合入后本仓保留增量即可正常工作，无紧迫性。
-
-若未来确认死锁普遍（如其他用户反馈 `MDIO device at address 1 is missing`），
-候选路径：在 linux-rockchip 邮件列表（To: Heiko Stuebner，Cc
-linux-arm-kernel/linux-rockchip/linux-kernel/devicetree + DT 维护者）先发 RFC 说明
-证据（dmesg 前后对比、pinmux 状态、PHY ID 0x001cc916），对齐方向后再提补丁；
-或改用标准方向（phy 节点保留 `reset-gpios`，把 `gmac1_rstn_l` 上拉并入 `&gmac1`
-的 `pinctrl-0` 提前释放复位，需重新验证上拉强度）。
+必然 `MDIO device at address 1 is missing`，PHY 注册失败、eth0 无 link）。`&gmac1`
+的 `snps,reset-gpios` + `snps,reset-delays-us` 让 stmmac 在 MDIO 扫描之前释放复位；
+phy 节点因此不再声明 `reset-gpios`（同一 GPIO 的双消费者会被 gpiolib 以 -EBUSY
+拒绝）。若上游修复了该板级问题，再删除增量并核对 DTB 哈希与真机行为。
 
 内核沿用已在 R5C 验证的 Rockchip 手工配置。该配置已包含 H28K 所需的 RK3528
 clock、Rockchip pinctrl/GPIO、PWM regulator、SDHCI/DW-MMC、DWMAC、Realtek PHY、
