@@ -14,4 +14,15 @@ in
     sslCertificate = "lets-encrypt-zhyi.cc";
     noIndex.enable = true;
   };
+
+  # QNAP NAS web UI, reachable from the public 8443 entry (router DNATs
+  # 8443 -> opi5p:443) just like the other home services.
+  lantian.nginxVhosts."qnap.zhyi.cc" = {
+    locations."/" = {
+      proxyPass = "http://${qnapAddress}:8080";
+      proxyWebsockets = true;
+    };
+    sslCertificate = "lets-encrypt-zhyi.cc";
+    noIndex.enable = true;
+  };
 }

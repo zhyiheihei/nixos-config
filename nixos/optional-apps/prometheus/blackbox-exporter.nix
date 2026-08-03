@@ -25,7 +25,8 @@ let
     "https://cal.zhyi.xin"
     "https://element.zhyi.xin"
     # Home broadband blocks inbound 443; these public home services use the
-    # router's established 8443 -> ml-home-vm:443 compatibility endpoint.
+    # router's established 8443 -> opi5p:443 compatibility endpoint (nginx
+    # keeps listening on 443 inside the LAN).
     "https://filebox.zhyi.xin:8443"
     "https://git.zhyi.xin"
     "https://id.zhyi.xin"
@@ -58,7 +59,11 @@ let
 
   monitoredHostsExceptSelf = lib.filterAttrs (n: _: n != config.networking.hostName) monitoredHosts;
 
-  httpPublicFacingHosts = lib.mapAttrsToList (n: _: "https://${n}.zhyi.cc") monitoredHosts;
+  httpPublicFacingHosts = lib.mapAttrsToList (n: _: "https://${n}.zhyi.cc") (
+    # cnvm serves the *.zhyi.xin entry domain; its <hostname>.zhyi.cc vhost
+    # carries no real service, so its public endpoints are listed explicitly.
+    lib.filterAttrs (n: _: n != "cnvm") monitoredHosts
+  );
 
   publicFacingHostsExceptSelf =
     port:
