@@ -98,7 +98,7 @@ rec {
   };
 
   maintenanceHosts = {
-    "ml-home-vm" = [ "home" ];
+    "opi5p" = [ "home" ];
     "usvm" = [ "storagebox" ];
   };
 

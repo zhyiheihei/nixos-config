@@ -38,7 +38,8 @@ in
     };
     sftpEndpoint = lib.mkOption {
       type = lib.types.str;
-      default = "sftp.ml-home-vm.zhyi.cc";
+      # ml-home-vm retired 2026-08-03; OPI5P is the backup server.
+      default = "opi5p.zhyi.cc";
       description = "SFTP host that stores the home backup repositories.";
     };
     schedule = lib.mkOption {
