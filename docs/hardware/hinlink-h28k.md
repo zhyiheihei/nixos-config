@@ -62,10 +62,13 @@ rockchip/rk3528-hinlink-h28k.dtb
 锁定内核以后包含该提交时，可删除补丁中与上游一致的部分，但**必须保留 phy reset
 本地增量**：H28K 板的 RTL8211F 复位线（gpio4 RK_PC2）上电未配置、默认被拉低，
 而 phy 节点 `reset-gpios` 只在 PHY 被 MDIO 找到之后才执行，形成死锁（首次探测
-必然 `MDIO device at address 1 is missing`，PHY 注册失败、eth0 无 link）。`&gmac1`
-的 `snps,reset-gpios` + `snps,reset-delays-us` 让 stmmac 在 MDIO 扫描之前释放复位；
+必然 `MDIO device at address 1 is missing`，PHY 注册失败、eth0 无 link）。复位放到
+`&mdio1` 总线级（mdio.yaml `reset-gpios` / `reset-delay-us` /
+`reset-post-delay-us`），`__mdiobus_register()` 在扫描 PHY 前 assert→deassert；
 phy 节点因此不再声明 `reset-gpios`（同一 GPIO 的双消费者会被 gpiolib 以 -EBUSY
-拒绝）。若上游修复了该板级问题，再删除增量并核对 DTB 哈希与真机行为。
+拒绝）。该方案已按 RFC v2 在 7.1 真机验证：`PHY [stmmac-0:01] driver
+[RTL8211F]`、`phy_id = 0x001cc916`。若上游修复了该板级问题，再删除增量并核对
+DTB 哈希与真机行为。
 
 内核沿用已在 R5C 验证的 Rockchip 手工配置。该配置已包含 H28K 所需的 RK3528
 clock、Rockchip pinctrl/GPIO、PWM regulator、SDHCI/DW-MMC、DWMAC、Realtek PHY、
