@@ -23,6 +23,8 @@
 - [NanoPi R5C NixOS 镜像适配与安装](./hardware/nanopi-r5c.md)
 - [NanoPi R5C 内核与系统闭包裁剪审计](./hardware/nanopi-r5c-size-audit.md)
 - [NanoPi R5C：从 macOS 写入 SD 卡到读取串口日志](./hardware/nanopi-r5c-flash-and-serial.md)
+- [Orange Pi Zero 3 NixOS 启动适配](./hardware/orangepi-zero3.md)
+- [Orange Pi Zero 3：H618 reDroid 12、Mali GPU 与 Cedar 硬解](./hardware/orangepi-zero3-redroid.md)
 
 ## 网络
 
