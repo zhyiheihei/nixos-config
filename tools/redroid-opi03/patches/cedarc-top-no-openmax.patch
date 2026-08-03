@@ -1,0 +1,12 @@
+--- a/frameworks/av/media/libcedarc/Android.bp
++++ b/frameworks/av/media/libcedarc/Android.bp
+@@ -1,7 +1,8 @@
++// The BSP OMX stack (openmax/) conflicts with reDroid prebuilts and is
++// not part of the Codec2 runtime, so it is excluded from the build.
+ subdirs = [
+     "base",
+     "memory",
+-    "openmax",
+     "ve",
+     "vdecoder",
+     "demo",

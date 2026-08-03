@@ -1,0 +1,8 @@
+--- a/hardware/redroid/omx/Android.mk
++++ b/hardware/redroid/omx/Android.mk
+@@ -1 +1,5 @@
++# reDroid Codec2 products (REDROID_DISABLE_OMX=true) do not build the OMX
++# stack; its libstagefrighthw requires libOmxCore which is not defined there.
++ifneq ($(strip $(REDROID_DISABLE_OMX)),true)
+ include $(call my-dir)/libstagefrighthw/Android.mk
++endif

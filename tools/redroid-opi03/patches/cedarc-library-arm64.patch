@@ -1,0 +1,290 @@
+--- a/frameworks/av/media/libcedarc/library/Android.bp
++++ b/frameworks/av/media/libcedarc/library/Android.bp
+@@ -6,7 +6,7 @@
+             srcs: ["androideabi_32/libVE.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libVE.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libVE.so"],
+         },
+     },
+ 
+@@ -23,7 +23,7 @@
+             srcs: ["androideabi_32/libvenc_common.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libvenc_common.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libvenc_common.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -39,7 +39,7 @@
+             srcs: ["androideabi_32/libvenc_h264.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libvenc_h264.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libvenc_h264.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -55,7 +55,7 @@
+             srcs: ["androideabi_32/libvenc_h265.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libvenc_h265.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libvenc_h265.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -71,7 +71,7 @@
+             srcs: ["androideabi_32/libvenc_jpeg.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libvenc_jpeg.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libvenc_jpeg.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -87,7 +87,7 @@
+             srcs: ["androideabi_32/libvideoengine.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libvideoengine.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libvideoengine.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -103,7 +103,7 @@
+             srcs: ["androideabi_32/libawavs.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawavs.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawavs.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -120,7 +120,7 @@
+             srcs: ["androideabi_32/libawh264.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawh264.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawh264.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -137,7 +137,7 @@
+             srcs: ["androideabi_32/libawh265.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawh265.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawh265.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -155,10 +155,15 @@
+             srcs: ["androideabi_32/libawh265soft.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawh265soft.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawh265soft.so"],
+         },
+     },
+     compile_multilib: "both",
++    target: {
++        android_arm64: {
++            enabled: false,
++        },
++    },
+     shared_libs: ["libMemAdapter", "libVE", "libbinder", "libc++", "libc",
+     "libcdc_base", "libcutils", "libdl", "liblog", "libm", "libui", "libutils",
+     "libsbm", "libfbm", "libvideoengine"],
+@@ -174,7 +179,7 @@
+             srcs: ["androideabi_32/libawmjpeg.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawmjpeg.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawmjpeg.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -191,7 +196,7 @@
+             srcs: ["androideabi_32/libawmjpegplus.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawmjpegplus.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawmjpegplus.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -208,7 +213,7 @@
+             srcs: ["androideabi_32/libawmpeg2.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawmpeg2.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawmpeg2.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -225,7 +230,7 @@
+             srcs: ["androideabi_32/libawmpeg4base.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawmpeg4base.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawmpeg4base.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -242,7 +247,7 @@
+             srcs: ["androideabi_32/libawmpeg4dx.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawmpeg4dx.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawmpeg4dx.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -259,7 +264,7 @@
+             srcs: ["androideabi_32/libawmpeg4h263.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawmpeg4h263.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawmpeg4h263.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -276,7 +281,7 @@
+             srcs: ["androideabi_32/libawmpeg4normal.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawmpeg4normal.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawmpeg4normal.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -293,7 +298,7 @@
+             srcs: ["androideabi_32/libawmpeg4vp6.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawmpeg4vp6.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawmpeg4vp6.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -310,10 +315,15 @@
+             srcs: ["androideabi_32/libawvp6soft.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawvp6soft.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawvp6soft.so"],
+         },
+     },
+     compile_multilib: "both",
++    target: {
++        android_arm64: {
++            enabled: false,
++        },
++    },
+     shared_libs: ["libVE", "libbinder", "libc++", "libc", "libcdc_base",
+     "libcutils", "libdl", "liblog", "libm", "libui", "libutils", "libsbm", "libfbm",
+     "libvideoengine"],
+@@ -328,7 +338,7 @@
+             srcs: ["androideabi_32/libawvp8.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawvp8.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawvp8.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -346,10 +356,16 @@
+             srcs: ["androideabi_32/libawvp9soft.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawvp9soft.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawvp9soft.so"],
+         },
+     },
+     compile_multilib: "both",
++    target: {
++        android_arm64: {
++            enabled: false,
++        },
++    },
++
+     shared_libs: ["libMemAdapter", "libVE", "libbinder", "libc++", "libc",
+     "libcdc_base", "libcutils", "libdl", "liblog", "libm", "libui", "libutils",
+     "libsbm", "libfbm", "libvideoengine"],
+@@ -365,7 +381,7 @@
+             srcs: ["androideabi_32/libawwmv3.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawwmv3.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawwmv3.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -383,10 +399,16 @@
+             srcs: ["androideabi_32/libawwmv12soft.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawwmv12soft.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawwmv12soft.so"],
+         },
+     },
+     compile_multilib: "both",
++    target: {
++        android_arm64: {
++            enabled: false,
++        },
++    },
++
+     shared_libs: ["libMemAdapter", "libVE",  "libc++", "libc",
+     "libcdc_base", "liblog",
+     "libsbm", "libfbm", "libvideoengine"],
+@@ -402,7 +424,7 @@
+             srcs: ["androideabi_32/libawvp9Hw.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawvp9Hw.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawvp9Hw.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -419,7 +441,7 @@
+             srcs: ["androideabi_32/libawvp9HwAL.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawvp9HwAL.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawvp9HwAL.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -436,7 +458,7 @@
+             srcs: ["androideabi_32/libawavs2.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libawavs2.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libawavs2.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -453,7 +475,7 @@
+             srcs: ["androideabi_32/libscaledown.so"],
+         },
+         arm64: {
+-            srcs: ["androideabi_64/libscaledown.so"],
++            srcs: ["toolchain-sunxi-aarch64-glibc/libscaledown.so"],
+         },
+     },
+     compile_multilib: "both",
+@@ -476,10 +498,8 @@
+         "libawmpeg4h263",
+         "libawmpeg4normal",
+         "libawmpeg4vp6",
+-        "libawvp6soft",
+         "libawvp8",
+         "libawwmv3",
+-        "libawwmv12soft",
+         "libawvp9HwAL",
+         "libawavs2",
+     ],
