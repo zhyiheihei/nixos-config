@@ -1,0 +1,13 @@
+--- a/device/redroid-prebuilts/Android.mk
++++ b/device/redroid-prebuilts/Android.mk
+@@ -147,7 +147,10 @@
+ 
+ 
+ ## libOmxCore
++# reDroid OMX prebuilt conflicts with vendor BSP libOmxCore; skip under Codec2
++ifneq ($(strip $(REDROID_DISABLE_OMX)),true)
+ $(eval $(call define-redroid-prebuilt-lib,libOmxCore,,libOmxCore.so, , ,$(va_libs) ))
++endif
+ 
+ 
+ ## libevdev
