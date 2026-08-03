@@ -67,6 +67,25 @@ rockchip/rk3528-hinlink-h28k.dtb
 phy 节点因此不再声明 `reset-gpios`（同一 GPIO 的双消费者会被 gpiolib 以 -EBUSY
 拒绝）。若上游修复了该板级问题，再删除增量并核对 DTB 哈希与真机行为。
 
+### 上游跟进（2026-08 调研结论，暂不主动提交）
+
+H28K 板级 DTS 的上游提交 `145d4af4b204e1fb565a498c6c8f801525cc0a4e` 已在
+linux-rockchip for-next（Heiko Stuebner 2026-07-02 b4-ty 应用），无需重复提交。
+phy reset 死锁修复暂不向上游提交，原因：
+
+- 死锁可能是个体差异：作者板子的 RTL8211F RST# 大概率有板上上拉，本仓真机
+  （pin146 上电读低、MDIO 全 0xFFFF）才触发；未确认其他 H28K 板子是否同样受影响。
+- 方向冲突：`snps,reset-gpios` 是 stmmac deprecated 属性，社区主流是移回 phy 节点
+  （标准 ethernet PHY reset binding），反向提交会被审阅者质疑。
+- 上游合入后本仓保留增量即可正常工作，无紧迫性。
+
+若未来确认死锁普遍（如其他用户反馈 `MDIO device at address 1 is missing`），
+候选路径：在 linux-rockchip 邮件列表（To: Heiko Stuebner，Cc
+linux-arm-kernel/linux-rockchip/linux-kernel/devicetree + DT 维护者）先发 RFC 说明
+证据（dmesg 前后对比、pinmux 状态、PHY ID 0x001cc916），对齐方向后再提补丁；
+或改用标准方向（phy 节点保留 `reset-gpios`，把 `gmac1_rstn_l` 上拉并入 `&gmac1`
+的 `pinctrl-0` 提前释放复位，需重新验证上拉强度）。
+
 内核沿用已在 R5C 验证的 Rockchip 手工配置。该配置已包含 H28K 所需的 RK3528
 clock、Rockchip pinctrl/GPIO、PWM regulator、SDHCI/DW-MMC、DWMAC、Realtek PHY、
 Rockchip PCIe/combphy、r8169、GPIO LED 和 netdev/heartbeat trigger。内核 derivation
