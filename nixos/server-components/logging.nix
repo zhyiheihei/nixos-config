@@ -3,10 +3,15 @@
   lib,
   LT,
   config,
+  inputs,
   ...
 }:
 {
-  networking.hosts."${LT.hosts.usvm.ltnet.IPv4}" = [ "es-ingest.usvm.zhyi.cc" ];
+  # Log ingestion goes to Axiom (hosted, ES-compatible endpoint), matching the
+  # author's Humio Cloud design: filebeat -> managed ES-compatible ingest.
+  # Basic auth (username=axiom, password=token) is accepted by Axiom's bulk
+  # emulation endpoint (verified with a live 201 ingest).
+  sops.secrets.filebeat-axiom-token.sopsFile = inputs.secrets + "/common/flebeat.yaml";
 
   services.filebeat = {
     enable = !(LT.this.hasTag LT.tags.low-ram);
@@ -35,7 +40,11 @@
     settings = {
       logging.level = "warning";
       output.elasticsearch = {
-        hosts = [ "https://es-ingest.usvm.zhyi.cc:${LT.portStr.HTTPS}" ];
+        hosts = [ "https://api.axiom.co/v1/datasets/nixos/elastic" ];
+        username = "axiom";
+        password = {
+          _secret = config.sops.secrets.filebeat-axiom-token.path;
+        };
         ssl.certificate_authorities = [ "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" ];
         compression_level = 6;
         index = "beat-%{+yyyy.MM.dd}";
