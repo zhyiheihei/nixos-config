@@ -1111,7 +1111,8 @@ let
         unit = "s";
         targets = [
           {
-            expr = ''coredns_proxy_request_duration_seconds{instance="router"}'';
+            # proxy 插件指标已废弃不再更新；改用核心请求处理延迟直方图
+            expr = ''coredns_dns_request_duration_seconds{instance="router"}'';
             legendFormat = "{{to}} {{rcode}}";
           }
         ];
