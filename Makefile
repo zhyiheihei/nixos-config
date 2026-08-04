@@ -19,23 +19,28 @@ help: FORCE
 		'make update-nur     只更新 nur-xddxdd input' \
 		'make push-cache     将 .gcroots 中的闭包推送到 Attic'
 
+# colmena hive v0.5 prints "Added input 'hive'..." warnings on every invocation
+# (it re-evaluates a temporary flake in /tmp whose lock file lacks the hive
+# self-input it injects).  The warnings are harmless; filter them out here.
+COL_MENA_FILTER = 2>&1 | grep -vE "Added input|not writing modified lock file|follows 'hive|^\s+follows 'hive/|^\s+'(github|git\+file|gitlab):|^\s+warning:"
+
 servers: FORCE
-	@nix run .#colmena -- apply --on @server
+	@nix run .#colmena -- apply --on @server $(COL_MENA_FILTER)
 
 all: FORCE
-	@nix run .#colmena -- apply --on @default
+	@nix run .#colmena -- apply --on @default $(COL_MENA_FILTER)
 
 all-all: FORCE
-	@nix run .#colmena -- apply --on @all
+	@nix run .#colmena -- apply --on @all $(COL_MENA_FILTER)
 
 all-boot: FORCE
-	@nix run .#colmena -- apply boot --on @default
+	@nix run .#colmena -- apply boot --on @default $(COL_MENA_FILTER)
 
 all-reboot: FORCE
-	@nix run .#colmena -- apply --reboot --on @default-non-local
+	@nix run .#colmena -- apply --reboot --on @default-non-local $(COL_MENA_FILTER)
 
 all-all-reboot: FORCE
-	@nix run .#colmena -- apply --reboot --on @non-local
+	@nix run .#colmena -- apply --reboot --on @non-local $(COL_MENA_FILTER)
 
 build: FORCE
 	@nix run .#colmena -- build
