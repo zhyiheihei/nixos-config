@@ -31,7 +31,7 @@ in
           "send.ahasend.com";
       port = 587;
       from = "postmaster@zhyi.cc";
-      user = "LyRZoFKp7S";
+      user = "EjG9ROGAei";
       passwordeval = "cat ${config.sops.secrets.smtp-pass.path}";
       tls = true;
       tls_starttls = true;
