@@ -79,19 +79,11 @@
           style = "row";
           columns = 4;
         };
-        "私有 · 下载链路" = {
-          style = "row";
-          columns = 3;
-        };
-        "私有 · 媒体链路" = {
-          style = "row";
-          columns = 3;
-        };
-        "私有 · 监控链路" = {
+        "私有 · 效率工具" = {
           style = "row";
           columns = 4;
         };
-        "私有 · 网络链路" = {
+        "私有 · 媒体链路" = {
           style = "row";
           columns = 4;
         };
@@ -99,11 +91,15 @@
           style = "row";
           columns = 4;
         };
-        "私有 · 家庭服务" = {
+        "私有 · 网络链路" = {
           style = "row";
-          columns = 3;
+          columns = 4;
         };
-        "私有 · 效率工具" = {
+        "私有 · 下载链路" = {
+          style = "row";
+          columns = 4;
+        };
+        "私有 · 家庭服务" = {
           style = "row";
           columns = 4;
         };
