@@ -32,8 +32,10 @@
       hideVersion = true;
       iconStyle = "theme";
       statusStyle = "dot";
+      # 液态玻璃风格：卡片玻璃模糊（背景保持清晰）
+      cardBlur = "xl";
       background = {
-        image = "/homepage-assets/infra-harbor-night.png";
+        image = "https://t.alcy.cc/ysz";
         opacity = 100;
       };
       layout = {
@@ -129,7 +131,7 @@
       body,
       #__next {
         min-height: 100%;
-        background: #070b10 url("/homepage-assets/infra-harbor-night.png") center / cover fixed no-repeat !important;
+        /* 背景交给 settings.background（随机壁纸 API），保持清晰 */
       }
 
       #background {
@@ -158,21 +160,26 @@
       #information-widgets {
         margin: 28px 32px 8px !important;
         padding: 8px !important;
-        border: 1px solid var(--dashboard-line) !important;
-        border-radius: 8px !important;
-        background: var(--dashboard-ink) !important;
+        /* iOS 液态玻璃 */
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        border-radius: 20px !important;
+        background: rgba(255, 255, 255, 0.06) !important;
+        backdrop-filter: blur(24px) saturate(160%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
         box-shadow:
-          inset 0 1px rgba(255, 255, 255, 0.06),
-          0 18px 44px rgba(0, 0, 0, 0.36);
+          inset 0 1px rgba(255, 255, 255, 0.10),
+          0 8px 32px rgba(0, 0, 0, 0.28);
       }
 
       .widget-container {
         min-height: 58px;
         margin: 4px;
         padding: 8px 12px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 5px;
-        background: rgba(16, 20, 25, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.10);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(16px) saturate(150%);
+        -webkit-backdrop-filter: blur(16px) saturate(150%);
       }
 
       .widget-container:nth-child(1) {
@@ -213,22 +220,25 @@
         position: relative;
         min-height: 72px;
         margin-bottom: 10px !important;
-        padding: 8px !important;
+        padding: 10px 12px !important;
         overflow: hidden;
-        border: 1px solid var(--dashboard-line) !important;
-        border-radius: 6px !important;
-        background-color: var(--dashboard-panel) !important;
+        /* iOS 液态玻璃卡片 */
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        border-radius: 20px !important;
+        background: rgba(255, 255, 255, 0.08) !important;
+        backdrop-filter: blur(24px) saturate(160%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
         box-shadow:
-          inset 0 1px rgba(255, 255, 255, 0.07),
-          inset 0 -1px rgba(0, 0, 0, 0.45),
-          0 10px 26px rgba(0, 0, 0, 0.28) !important;
-        transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
+          inset 0 1px rgba(255, 255, 255, 0.12),
+          0 8px 32px rgba(0, 0, 0, 0.28) !important;
+        transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease !important;
       }
 
       .service-card:hover {
         transform: translateY(-2px);
-        border-color: rgba(255, 255, 255, 0.28) !important;
-        box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34) !important;
+        background: rgba(255, 255, 255, 0.14) !important;
+        border-color: rgba(255, 255, 255, 0.26) !important;
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35) !important;
       }
 
       .service-name {
