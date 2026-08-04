@@ -69,11 +69,11 @@ in
   # the other builders.
   nix.settings.extra-system-features = [ "aarch64-cross" ];
 
-  # ARM system builds are delegated to the native opi5p builder. Keep explicit
-  # cross derivations (kernel/U-Boot toolchains) local, but do not advertise
-  # qemu-user as a general aarch64 execution platform: some install scripts
-  # execute target Python and can crash inside TCG.
-  lantian.qemu-user-static-binfmt.enable = lib.mkForce false;
+  # Follow the author's qemu-user-static-binfmt setup: let this x86_64 box
+  # also build aarch64 derivations locally via QEMU, on top of the native
+  # opi5p builder. Keep explicit cross derivations (kernel/U-Boot
+  # toolchains) local as well.
+  lantian.qemu-user-static-binfmt.enable = true;
 
   systemd.network.networks.eth0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
