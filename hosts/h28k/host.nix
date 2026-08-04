@@ -8,7 +8,9 @@
   city = geo.cities."CN Ningbo";
 
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEYeIr9Ar579oiuIYyPR7WplMRy9V5QbBufUD9PqItN7 root@h28k";
-  zerotier = "d58553ad47";
+  # Must match the node's live identity; the previous value (d58553ad47)
+  # was a different node, so the controller denied it (ACCESS_DENIED).
+  zerotier = "368d3cf42b";
 
   # This is a separate site LAN, not another member of home-lan.
   interconnect = {
