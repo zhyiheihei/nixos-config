@@ -100,6 +100,13 @@ in
   };
   systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
 
+  # Break the boot ordering cycle between yggdrasil (Before=network.target),
+  # the NFS mnt-storage mount (After=network.target) and nix-daemon.socket
+  # (local-fs.target -> sockets.target). With the cycle, systemd drops
+  # nix-daemon.socket at boot and ssh-ng deployment fails until the socket is
+  # started manually. Yggdrasil still starts via multi-user.target.
+  systemd.services.yggdrasil.unitConfig.Before = lib.mkForce [ ];
+
   # TEMPORARY: with reDroid disabled, expand zram to the full 8 GiB so the
   # immich RKNN build (onnxruntime) can proceed without OOM. Remove together
   # with the redroid disable above.
@@ -241,6 +248,11 @@ in
   # Byparr includes a browser runtime and its first GHCR pull is large.  Keep
   # the image pull on the same stable egress as the other OPI5P workloads.
   systemd.services.podman-byparr.environment = proxyEnvironment;
+
+  # Immich ML downloads models from HuggingFace; route them through the same
+  # stable egress as the other OPI5P containers so RKNN model pulls do not
+  # time out on the direct path.
+  systemd.services.podman-immich-machine-learning-rknn.environment = proxyEnvironment;
 
   systemd.services.redroid-landscape-navigation = {
     description = "Configure reDroid display, navigation, and application networking";
