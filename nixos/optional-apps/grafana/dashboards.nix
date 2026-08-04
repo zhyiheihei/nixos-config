@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   prometheusDatasourceUid,
 }:
@@ -7,6 +8,10 @@ let
     type = "prometheus";
     uid = prometheusDatasourceUid;
   };
+
+  # Grafana rejects multiple queries with the same refId inside one panel;
+  # assign each target a unique letter.
+  refIds = [ "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" ];
 
   query =
     {
@@ -200,7 +205,7 @@ let
           sort = "desc";
         };
       };
-      targets = map query targets;
+      targets = lib.imap1 (i: t: query (t // { refId = builtins.elemAt refIds (i - 1); })) targets;
     };
 
   table =

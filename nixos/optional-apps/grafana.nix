@@ -10,7 +10,7 @@ let
   prometheusDatasourceUid = "PBFA97CFB590B2093";
 
   dashboardDir = import ./grafana/dashboards.nix {
-    inherit pkgs prometheusDatasourceUid;
+    inherit lib pkgs prometheusDatasourceUid;
   };
 
   mkPlugin =
