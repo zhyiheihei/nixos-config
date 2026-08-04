@@ -10,6 +10,10 @@
   # 避免在 aarch64 上 nix 构建 scipy/onnxruntime 依赖链（f2py SIGABRT 问题）。
   services.immich.machine-learning.enable = lib.mkForce false;
 
+  # 清空 nix 版 ML 服务定义（含 immich.nix 还原后的 PrivateDevices 覆盖），
+  # 避免生成无 ExecStart 的坏单元；RKNN 推理交给下方容器。
+  systemd.services.immich-machine-learning = lib.mkForce { };
+
   virtualisation.oci-containers.containers.immich-machine-learning-rknn = {
     image = "ghcr.io/immich-app/immich-machine-learning:release-rknn";
     autoStart = true;
