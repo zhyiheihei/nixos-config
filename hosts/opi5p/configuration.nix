@@ -7,7 +7,7 @@
 }:
 let
   outboundProxy = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io";
+  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   proxyEnvironment = {
     GOPROXY = "https://goproxy.cn,direct";
     HTTP_PROXY = outboundProxy;
