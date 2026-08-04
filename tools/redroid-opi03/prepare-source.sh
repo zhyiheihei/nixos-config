@@ -236,6 +236,7 @@ apply_bsp_patch "$script_dir/patches/cedarc-top-no-openmax.patch"
 apply_bsp_patch "$script_dir/patches/cedarc-config-board-default.patch"
 apply_bsp_patch "$script_dir/patches/cedarx-config-board-default.patch"
 apply_bsp_patch "$script_dir/patches/c2codec-config-gpu-default.patch"
+apply_bsp_patch "$script_dir/patches/stagefright-foundation-abi-check.patch"
 apply_bsp_patch "$script_dir/patches/redroid-prebuilts-omx-conditional.patch"
 apply_bsp_patch "$script_dir/patches/redroid-omx-conditional.patch"
 

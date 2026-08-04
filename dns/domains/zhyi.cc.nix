@@ -23,7 +23,9 @@ let
     {
       recordType = "CNAME";
       name = "hydra";
-      target = homeDdnsTarget;
+      # hydra runs on colocrossing; the home-DDNS target was left from the
+      # pre-migration layout and made rock5c's siteMonitor fail.
+      target = "colocrossing";
       ttl = "1h";
     }
     {
