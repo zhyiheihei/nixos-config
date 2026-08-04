@@ -60,8 +60,10 @@ required_vendor_files=(
   etc/init/redroid.opi03.rc
   lib/egl/libGLES_mali.so
   lib/hw/gralloc.apollo.so
+  lib/hw/vulkan.apollo.so
   lib64/egl/libGLES_mali.so
   lib64/hw/gralloc.apollo.so
+  lib64/hw/vulkan.apollo.so
 )
 
 if [[ "$stage2_codec2" == true ]]; then

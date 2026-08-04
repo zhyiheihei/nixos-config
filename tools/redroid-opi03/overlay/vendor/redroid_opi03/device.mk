@@ -11,7 +11,9 @@ PRODUCT_BROKEN_VERIFY_USES_LIBRARIES := true
 # gralloc.apollo; it is independent of the CedarX video stack.  gralloc.apollo
 # is built from source and pulled in by gpu-package, but the prebuilt
 # libGLES_mali/vulkan copy targets are not registered under the reDroid arm64
-# board, so copy them explicitly.
+# board, so copy them explicitly.  The Mali blob is a merged library: the same
+# libGLES_mali.so provides EGL, GLES and Vulkan entry points, so the 32- and
+# 64-bit copies both serve as vulkan.<platform>.so for the HAL loader.
 PRODUCT_PACKAGES += \
     gpu-package
 
@@ -19,6 +21,7 @@ PRODUCT_COPY_FILES += \
     hardware/aw/gpu/mali-bifrost/mali-g31/arm64/lib/libGLES_mali.so:$(TARGET_COPY_OUT_VENDOR)/lib/egl/libGLES_mali.so \
     hardware/aw/gpu/mali-bifrost/mali-g31/arm64/lib/libGLES_mali.so:$(TARGET_COPY_OUT_VENDOR)/lib/hw/vulkan.apollo.so \
     hardware/aw/gpu/mali-bifrost/mali-g31/arm64/lib64/libGLES_mali.so:$(TARGET_COPY_OUT_VENDOR)/lib64/egl/libGLES_mali.so \
+    hardware/aw/gpu/mali-bifrost/mali-g31/arm64/lib64/libGLES_mali.so:$(TARGET_COPY_OUT_VENDOR)/lib64/hw/vulkan.apollo.so \
     vendor/redroid_opi03/redroid.opi03.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/redroid.opi03.rc
 
 PRODUCT_VENDOR_PROPERTIES += \

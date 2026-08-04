@@ -169,8 +169,9 @@ userspace 选择：
   [`libcdclist.mk`](https://github.com/YAJATapps/android_frameworks_av/blob/4069a322b9154c02184fb7f6c4fed29309ddf257/media/libcedarc/libcdclist.mk)。
   `android.hardware.media.aw.c2@1.0-service` 虽然直接链接 `libvdecoder`、`libVE`，实际
   H.264/H.265 等引擎仍依赖该清单安装的 `libawh264`、`libawh265` 及 vendor 变体。
-  本项目现在继承同一运行库清单；打包脚本会检查服务、VINTF、Mali 32/64 位库、
-  gralloc、Cedar 配置和 H.264/H.265 插件，缺一项就拒绝生成容器归档。
+  本项目现在继承同一运行库清单。打包脚本默认（Stage 1）检查服务、VINTF、Mali
+  32/64 位库、gralloc 与 `redroid.opi03.rc`；Cedar 配置和 H.264/H.265 插件属于
+  Stage 2，须以 `--stage2-codec2` 才会强制检查（见"打包也是长任务"段）。
 
 reDroid 官方只为通用 `auto`、`host`、`guest` GPU 模式定义了 DRM render-node 或
 SwiftShader 路径；H618 的闭源 BSP 使用 `/dev/mali0`、Apollo gralloc 和 ION，而不是
@@ -356,8 +357,11 @@ GDOWN_RETRY_SECONDS=1800 \
 Google 公共文件配额拒绝下载时，不要换成来源不明的压缩包。官方中文页的百度网盘
 备用入口是 `https://pan.baidu.com/s/1BUsudU_XahzB_4eR3s83Ug?pwd=umdt`；把下载出的
 `H618-Android12-Src.tar.gzaa` 至 `...gzar` 和 checksum manifest 放进上述输出目录的
-`parts/` 后重跑同一脚本。无论取自哪个官方入口，脚本都只在 18 片全部通过 MD5 后
-流式解压，并在实际 Android source root 写入固定 manifest 标记。
+`parts/` 后重跑同一脚本。**百度下载的文件若命名不同（如带额外前后缀），必须改名
+为 `H618-Android12-Src.tar.gz` + 后缀（aa..ar）**——脚本按 manifest 里的精确
+文件名匹配 `parts/`，文件名不符会被当成"本地没有"而重新走 gdown。无论取自哪个
+官方入口，脚本都只在 18 片全部通过 MD5 后流式解压，并在实际 Android source root
+写入固定 manifest 标记。
 
 ### 下载阶段踩过的坑
 
@@ -583,11 +587,28 @@ Docker 镜像 `sinovoip/bpi-build-android-11:ubuntu20.04`；不要把这个 Andr
   `m`；soong 缓存会残留已删除目录（例如 openmax）的模块索引，不清会继续引用
   已移走的模块。
 
-进入官方构建容器后执行：
+编译命令（注意：**主流程 Orange Pi 官方源在宿主 shell 直接跑，不需要容器**；
+只有 BPI 回退源才进它的容器）：
 
 ```bash
-cd /path/printed/by/download-orangepi-android12.sh
+# 主流程（Orange Pi 官方源，Ubuntu 宿主）：
+cd "$(download-orangepi-android12.sh 打印的 source root)"
+# 即 /home/zhyi/build/OPI03-H618-Android12-official/extracted/H618-Android12-Src
 source build/envsetup.sh
+lunch redroid_opi03-userdebug
+m -j8 systemimage vendorimage
+```
+
+```bash
+# BPI 回退源（用 sinovoip/bpi-build-android-11:ubuntu20.04 容器，源码须 bind
+# mount 进来；该镜像是 Android 11 环境，JDK 默认 8，而 Android 12 需要 JDK 11，
+# 进容器后必须补装并 export JAVA_HOME，否则 soong 会报 JDK 版本不匹配）：
+docker run --rm -it -v /home/zhyi/build/BPI-H618-Android12:/src \
+  sinovoip/bpi-build-android-11:ubuntu20.04 bash
+# 容器内：
+apt-get update && apt-get install -y openjdk-11-jdk
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 PATH=$JAVA_HOME/bin:$PATH
+cd /src && source build/envsetup.sh
 lunch redroid_opi03-userdebug
 m -j8 systemimage vendorimage
 ```
@@ -612,7 +633,9 @@ sudo /path/to/nixos-config/tools/redroid-opi03/pack-rootfs.sh \
   /home/zhyi/build/OPI03-H618-Android12-official/extracted/H618-Android12-Src
 ```
 
-输出为 `opi03-redroid-android12-h618-rootfs.tar.zst`（写到源码根的上一级）。
+输出为 `opi03-redroid-android12-h618-rootfs.tar.zst`，默认写到源码根的
+`$ANDROID_ROOT/opi03-redroid-android12-h618-rootfs.tar.zst`（脚本 25 行
+`output=${2:-"$android_root/..."}`，可用第二个参数改路径）。
 脚本遵循 reDroid 官方布局：
 system image 作为容器根，vendor image 放入 `/vendor`。压缩前会挂载两个镜像并验证
 Stage 1 必需的 Mali 32/64 位用户态与 Apollo gralloc，以及 `redroid.opi03.rc`；
@@ -627,6 +650,14 @@ codec XML、H.264/H.265 动态插件）属于 Stage 2，打包时用
 ```bash
 sudo /path/to/import-on-opi03.sh \
   /path/to/opi03-redroid-android12-h618-rootfs.tar.zst
+```
+
+**前置**：先确认 opi03 上 `/nix/persistent` 已挂载且可写（烧录后至少启动过一次
+NixOS，tmpfs `/` 下才挂上持久分区）。若在 `/nix/persistent` 不存在时导入，
+脚本的 `mkdir -p /nix/persistent/...` 会建到 tmpfs 根下、重启即丢。检查：
+
+```bash
+findmnt /nix/persistent   # 有输出=已挂载；无输出=先启动一次系统
 ```
 
 导入脚本创建本地镜像 `localhost/opi03-redroid:android12-h618`，确认镜像存在后才写
@@ -675,6 +706,11 @@ Stage 1 静态检查（GPU-only）：
 ```bash
 sudo opi03-redroid-check
 ```
+
+注意：脚本默认还会一并校验**主机四个设备节点**（`/dev/mali0`、`/dev/cedar_dev`、
+`/dev/ion`、`/dev/g2d`，见"vendor kernel 启动后先验证主机 ABI"）与
+`debug.stagefright.ccodec=4` 属性。这些属于"宿主前置条件"而不是 Stage 1 的 GPU
+门禁，但缺任一节点时 Mali 正常也会 FAIL——先保证内核侧节点齐全再跑验收。
 
 必须全部满足：
 
