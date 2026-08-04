@@ -32,7 +32,9 @@
       UI_CONFIG_DISABLED = true;
       ANALYTICS_DISABLED = true;
 
-      APP_NAME = "Lan Tian @ Login";
+      # AppName 不能含 @：go-kit 生成 From 头时不引号包裹 display name，
+      # 含 @ 会产出非法 From 头（AhaSend 报 421 technical difficulties）
+      APP_NAME = "Zhyi Login";
       EMAILS_VERIFIED = true;
       ALLOW_OWN_ACCOUNT_EDIT = false;
       DISABLE_ANIMATIONS = true;
