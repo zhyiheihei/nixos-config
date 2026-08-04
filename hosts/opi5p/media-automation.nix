@@ -9,34 +9,24 @@ let
   tachideskActivationMarker = "/nix/persistent/var/lib/media-automation/tachidesk-ready";
   vertexActivationMarker = "/nix/persistent/var/lib/media-automation/vertex-ready";
   mediaGatedServices = [
-    "bazarr"
     "bitmagnet-dht"
     "bitmagnet-http"
     "bitmagnet-queue"
-    "decluttarr"
     "flexget-runner"
     "iyuuplus"
     "jproxy"
     "peerbanhelper"
     "podman-byparr"
-    "prometheus-exportarr-bazarr-exporter"
-    "prometheus-exportarr-prowlarr-exporter"
-    "prometheus-exportarr-radarr-exporter"
-    "prometheus-exportarr-sonarr-exporter"
-    "prowlarr"
     "qbittorrent"
     "qbittorrent-pt"
     "qbittorrent-pt-cleanup"
     "qbittorrent-seedbox"
-    "radarr"
-    "sonarr"
   ];
   gatedServices = mediaGatedServices ++ [
     "podman-tachidesk"
     "podman-vertex"
   ];
   proxiedServices = [
-    "bazarr"
     "bitmagnet-dht"
     "bitmagnet-http"
     "bitmagnet-queue"
@@ -44,9 +34,6 @@ let
     "iyuuplus"
     "podman-tachidesk"
     "podman-vertex"
-    "prowlarr"
-    "radarr"
-    "sonarr"
   ];
   proxyEnvironment = lib.getAttrs [
     "HTTP_PROXY"
@@ -58,7 +45,7 @@ let
   ] config.environment.variables;
 in
 {
-  imports = [ ../../nixos/optional-apps/media-automation.nix ];
+  imports = [ ./media-download-chain.nix ];
 
   # The old and new download stacks must never write the same NFS paths at
   # once.  Deploy all packages, units, users, secrets and databases first, but
@@ -87,6 +74,13 @@ in
         partOf = [ "media-automation.target" ];
         unitConfig.ConditionPathExists = vertexActivationMarker;
       };
+      # Sonarr/Radarr/Prowlarr now run on rock5c; keep jproxy alive here but
+      # stop requiring the moved units. FlexGet follows the same Prowlarr hop.
+      jproxy = {
+        after = lib.mkForce [ "network.target" ];
+        requires = lib.mkForce [ "network.target" ];
+      };
+      flexget-runner.environment.PROWLARR_URL = lib.mkForce "https://prowlarr.rock5c.zhyi.cc";
     }
   ];
   systemd.timers = lib.genAttrs [

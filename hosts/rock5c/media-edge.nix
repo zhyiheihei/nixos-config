@@ -9,10 +9,6 @@ let
     "pt"
     "seedbox"
     "vertex"
-    "sonarr"
-    "radarr"
-    "bazarr"
-    "prowlarr"
     "jproxy"
     "peerbanhelper"
     "bitmagnet"
@@ -49,8 +45,6 @@ let
   };
 in
 {
-  imports = [ ../../nixos/optional-apps/jellyfin-rockchip.nix ];
-
   lantian.nginxVhosts =
     builtins.listToAttrs (builtins.concatLists (map mkEdgeVhosts edgeServices))
     // {
@@ -71,7 +65,11 @@ in
       "handbrake.localhost" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
-        locations."/" = backendLocation "handbrake-backend.opi5p.zhyi.cc";
+        locations."/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.HandBrake}";
+          proxyWebsockets = true;
+          proxyNoTimeout = true;
+        };
         accessibleBy = "localhost";
         noIndex.enable = true;
       };

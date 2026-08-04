@@ -22,15 +22,11 @@ in
   imports = [
     ../../nixos/server.nix
     ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/jellyfin-rockchip.nix
-    ../../nixos/optional-apps/handbrake-rockchip.nix
 
     ./hardware-configuration.nix
     ./home-services.nix
     ./media-automation.nix
   ];
-
-  lantian.jellyfinRockchip.soc = "rk3588";
 
   # This host is a native aarch64 builder. Registering qemu-arm through
   # binfmt would intercept reDroid's 32-bit ARM HAL binaries instead of
@@ -144,12 +140,6 @@ in
     ];
   };
 
-  # Never scan an empty local directory when the direct NAS mount is absent.
-  systemd.services.jellyfin = {
-    after = [ "mnt-storage.mount" ];
-    requires = [ "mnt-storage.mount" ];
-  };
-
   # Android's bpfloader requires this to remain writable/enabled. The common
   # hardening policy sets it to the irreversible value 1, which cannot be
   # changed back until reboot and makes every official reDroid image shut down.
@@ -240,10 +230,6 @@ in
       fi
     '';
   };
-
-  # The RK3588 HandBrake image is not mirrored by DaoCloud.  Its initial pull
-  # and registry autoupdate therefore need the same stable egress as reDroid.
-  systemd.services.podman-handbrake.environment = proxyEnvironment;
 
   # Byparr includes a browser runtime and its first GHCR pull is large.  Keep
   # the image pull on the same stable egress as the other OPI5P workloads.
