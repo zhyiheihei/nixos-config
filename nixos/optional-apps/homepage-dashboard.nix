@@ -167,6 +167,9 @@
       }
 
       .widget-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         min-height: 58px;
         margin: 4px;
         padding: 8px 12px;
@@ -307,7 +310,7 @@
           label = "rock5c";
           cpu = true;
           memory = true;
-          disk = "/nix/persistent";
+          disk = "/nix";
           uptime = true;
           refresh = 5000;
         };
