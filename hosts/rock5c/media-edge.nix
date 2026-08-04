@@ -49,7 +49,7 @@ let
   };
 in
 {
-  imports = [ ../../nixos/optional-apps/jellyfin.nix ];
+  imports = [ ../../nixos/optional-apps/jellyfin-rockchip.nix ];
 
   lantian.nginxVhosts =
     builtins.listToAttrs (builtins.concatLists (map mkEdgeVhosts edgeServices))
