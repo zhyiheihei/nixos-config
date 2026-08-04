@@ -17,6 +17,33 @@
     ./home-edge.nix
   ];
 
+  # Align with opi5p: the NAS exports the media library directly; mount the
+  # same share instead of routing media through another host.
+  boot.supportedFilesystems = [ "nfs" ];
+  environment.systemPackages = [ pkgs.nfs-utils ];
+
+  fileSystems."/mnt/storage" = {
+    device = "192.168.0.40:/nixos";
+    fsType = "nfs";
+    options = [
+      "_netdev"
+      "noatime"
+      "hard"
+      "vers=4.1"
+      "nconnect=16"
+    ];
+  };
+
+  # ROCK 5C carries a Rockchip RK3588S2 SoC (same VPU family as opi5p's
+  # RK3588): enable the rockchip jellyfin build with full AV1/HDR decode.
+  lantian.jellyfinRockchip.soc = "rk3588";
+
+  # Never scan an empty local directory when the direct NAS mount is absent.
+  systemd.services.jellyfin = {
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
+  };
+
   # Match the onboard GMAC by its permanent address so future driver or probe
   # ordering changes cannot silently move the static LAN configuration.
   systemd.network.links."10-rock5c-lan" = {

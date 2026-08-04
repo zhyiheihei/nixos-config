@@ -99,6 +99,12 @@ in
     ];
   };
   systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
+
+  # TEMPORARY: with reDroid disabled, expand zram to the full 8 GiB so the
+  # immich RKNN build (onnxruntime) can proceed without OOM. Remove together
+  # with the redroid disable above.
+  zramSwap.memoryPercent = lib.mkForce 100;
+
   # This is a production media/database/reDroid node first and an ARM builder
   # only as a compatibility fallback. One derivation may use four cores, but
   # multiple memory-heavy derivations must never run concurrently here.
@@ -155,6 +161,9 @@ in
   '';
 
   virtualisation.oci-containers.containers.redroid = {
+    # TEMPORARY: disabled while opi5p hosts the immich RKNN build and memory
+    # is tight (8 GiB total). Re-enable by removing this line.
+    autoStart = lib.mkForce false;
     image = "docker.io/cnflysky/redroid-rk3588:lineage-20";
     labels."io.containers.autoupdate" = "registry";
     privileged = true;
@@ -194,6 +203,8 @@ in
   };
 
   systemd.services.podman-redroid = {
+    # TEMPORARY: disabled together with the redroid container above.
+    enable = lib.mkForce false;
     wants = [ "network-online.target" ];
     after = [ "network-online.target" ];
     environment = {
