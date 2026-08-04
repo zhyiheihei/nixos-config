@@ -99,4 +99,13 @@ in
     user = "root";
     group = "root";
   };
+
+  # Manual import drop folder for the Immich external library. It lives on the
+  # NFS-backed /mnt/storage so both the immich service and zhyi (via SMB/SSH)
+  # can reach it without crossing the immich-only /mnt/storage/immich root.
+  systemd.tmpfiles.settings.immich-import."/mnt/storage/immich-import"."d" = {
+    mode = "0775";
+    user = "immich";
+    group = "users";
+  };
 }
