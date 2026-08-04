@@ -266,6 +266,33 @@ nix build \
 镜像尚未导入，`podman-redroid.service` 也只是 `ConditionPathExists` 未满足，不会让
 Colmena 激活失败。保留 extlinux 中两个 generation；冷启动失败时从串口选择上一代。
 
+串口控制台是 `ttyAS0`（vendor 5.4 的 sunxi-uart 驱动把 UART0 注册为 ttyAS0，
+不是 ttyS0），`console=ttyAS0,115200n8` 已写入 kernelParams。早期挂起（uart0
+probe 附近）时可用 `loglevel=8 ignore_loglevel` 参数（见
+`nixos/hardware/orangepi-zero3/default.nix`，提交 `11de0cfd`）让内核打印全部
+消息；`ignore_loglevel` 保证消息不被 console_loglevel 过滤。注意 `uname -r`
+显示的 `-aarch64-unknown-linux-gnu` 是交叉编译工具链前缀，不是运行架构。
+
+烧录 SD 卡（mac 侧，先把卡插到 MacBook，盘符按 `diskutil list external physical`
+实际值改）：
+
+```bash
+diskutil list external physical     # 确认盘符，例如 /dev/disk4
+diskutil unmountDisk /dev/disk4
+
+set -o pipefail
+ssh -A -p 2222 root@192.168.0.50 \
+  'zstd -dc /nix/src/nixos-config/result-opi03/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst' |
+  sudo dd of=/dev/rdisk4 bs=8m conv=fsync
+
+diskutil eject /dev/disk4
+```
+
+注意：macOS 对 FAT32 boot 分区以只读方式挂载（fskit），**无法直接改卡上
+`/extlinux/extlinux.conf`**；临时改日志参数应走 NixOS kernelParams 重建镜像，
+而不是改卡。
+
+
 vendor kernel 启动后先验证主机 ABI：
 
 ```bash
@@ -520,6 +547,26 @@ ADB 暂时只绑定主机 loopback。通过 SSH 转发：
 ssh -p 2222 -L 5555:127.0.0.1:5555 root@OPI03_ADDRESS
 adb connect 127.0.0.1:5555
 ```
+
+## 实机调试记录（2026-08-04）
+
+首次用 SD 镜像启动 Zero 3 的串口日志：
+
+- U-Boot 2026.07 → extlinux → NixOS kernel 5.4.125（opi03-h618-redroid）加载
+  initrd/DTB 正常，内核开始启动；
+- 早期 5 条告警均非致命：`axp2101-pek without irq`、`sunxi-rtc reset_control
+  failed`、`pinctrl_get for HDMI2.0 DDC fail`、`uart0 get regulator failed`、
+  `uart0 error to get fifo size property`；
+- 日志停在 `uart uart0` 两条告警之后（loglevel=4 过滤了后续），疑似 sunxi-uart
+  驱动 probe 阶段。
+
+已做：`loglevel=8 ignore_loglevel` 加入 kernelParams（提交 `11de0cfd`）待重建镜像
+确认卡点。**镜像重建被 aarch64 btrfs 打包阻塞**：`nix-btrfs-fs.img.zst` 的
+`system=aarch64-linux`，调度到 opi5p（唯一 aarch64 builder）时其 `nix-daemon`
+inactive（socket 拒绝连接，`nix-builder` 用户无权启动）；改用 ml-builder 本机
+binfmt（`--builders ''`）时打包脚本的 `unshare --user --map-root-user` 在 qemu
+仿真下 `Invalid argument`。两个方向都需要环境修复（启动 opi5p nix-daemon，或改
+打包逻辑），尚未完成。
 
 ## 验收：Stage 1 只有 GPU 门禁，Stage 2 才加 VPU
 
