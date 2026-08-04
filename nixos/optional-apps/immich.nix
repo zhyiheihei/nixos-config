@@ -56,8 +56,19 @@
       requires = [ "redis-immich.service" ];
     };
 
-    systemd.services.immich-machine-learning.serviceConfig = {
-      PrivateDevices = lib.mkForce false;
+    systemd.services.immich-machine-learning = {
+      # RKNN NPU backend (see overlays/56-immich-rknn.nix): opi5p runs the
+      # Armbian vendor kernel whose rk35xx_vendor_config sets
+      # CONFIG_ROCKCHIP_RKNPU=y; the machine-learning app carries
+      # rknn-toolkit-lite2 via python312. THREADS=3 matches the official
+      # RK3588 guidance (2-3).
+      environment = {
+        MACHINE_LEARNING_RKNN = "true";
+        MACHINE_LEARNING_RKNN_THREADS = "3";
+      };
+      serviceConfig = {
+        PrivateDevices = lib.mkForce false;
+      };
     };
 
     systemd.tmpfiles.settings = {
