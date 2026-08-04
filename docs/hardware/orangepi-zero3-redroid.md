@@ -580,6 +580,11 @@ sudo opi03-redroid-check redroid watch-vpu
   GC，再用 `hydrate-partial-clone.sh` 一次枚举和可恢复分批抓取，否则会不断 repack。
 - Stage 2：Android 12 不会扫描所有 `media_codecs*.xml`；专用 primary XML 的显式 Include
   是 Allwinner Codec2 被发现的必要条件。
+- H618 BSP 的 `libstagefright_foundation` 相对 AOSP ABI dump 扩展了 `ParsedMessage`
+  （`GetAttribute`/`GetInt32Attribute`），`header-abi-diff` 在 arm64 vendor 变体报
+  ABI EXTENDING。容器内全同源编译、运行时自洽，跳过编译期检查无影响；模块
+  Android.bp 已设 `header_abi_checker: { enabled: false }`
+  （见 `patches/stagefright-foundation-abi-check.patch`）。
 - H618 是 `ARCH_SUN50IW9`，deinterlacer 必须选择 `SUNXI_DI_V3X`（DI300）。只启用
   `SUNXI_DI` 而不选择 V1XX/V2X/V3X，会生成一个没有组成对象的
   `deinterlace.o`，Kbuild 最终报 `No rule to make target`；不能通过关闭 DI 来掩盖。
