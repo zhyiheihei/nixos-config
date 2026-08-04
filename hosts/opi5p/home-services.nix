@@ -46,7 +46,6 @@ in
     ../../nixos/optional-apps/linkwarden.nix
     ../../nixos/optional-apps/memos.nix
     ../../nixos/optional-apps/ncps.nix
-    ../../nixos/optional-apps/rss-link.nix
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/sun-panel.nix
