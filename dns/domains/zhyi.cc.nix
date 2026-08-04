@@ -163,6 +163,63 @@ in
         (config.common.hostRecs.LTNet "ltnet.${domain}.")
         (config.common.hostRecs.DN42 "dn42.${domain}.")
 
+        # AhaSend 邮件发送基础设施（此前在 gcore 面板手动添加，
+        # 纳入配置使 dnscontrol push 不再删除已验证记录）
+        {
+          recordType = "TXT";
+          name = "@";
+          contents = "v=spf1 include:spf.ahasend.com ~all";
+          ttl = "10m";
+        }
+        {
+          recordType = "TXT";
+          name = "_dmarc";
+          contents = "v=DMARC1; p=quarantine; sp=none; adkim=r; aspf=r;";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "ahasend._domainkey";
+          target = "2464d18284692720.setup.ahasend.com.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "ahasend2._domainkey";
+          target = "c5b1a18d408678b7.setup.ahasend.com.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "psrp";
+          target = "rp.ahasend.com.";
+          ttl = "10m";
+        }
+        {
+          recordType = "CNAME";
+          name = "t";
+          target = "track.ahasend.com.";
+          ttl = "10m";
+        }
+        # MXRoute 收件 MX（作者原配置，witcher.mxrouting.net）
+        {
+          recordType = "MX";
+          name = "@";
+          priority = 10;
+          target = "witcher.mxrouting.net.";
+        }
+        {
+          recordType = "MX";
+          name = "@";
+          priority = 20;
+          target = "witcher-relay.mxrouting.net.";
+        }
+        {
+          recordType = "TXT";
+          name = "_da-verify-a5191e89fc7b72b3b9e7fe33726b5eb1";
+          contents = "domain-verified";
+        }
+
         internalServices
       ];
     }
