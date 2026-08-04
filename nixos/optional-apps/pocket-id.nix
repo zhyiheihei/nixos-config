@@ -31,6 +31,9 @@
       UNIX_SOCKET_MODE = "0660";
       UI_CONFIG_DISABLED = true;
       ANALYTICS_DISABLED = true;
+      # cnvm 在国内无法访问 api.github.com：禁用版本检查，
+      # 否则登录后 /api/version/latest 500 且前端误报"发生未知错误"
+      VERSION_CHECK_DISABLED = true;
 
       # AppName 不能含 @：go-kit 生成 From 头时不引号包裹 display name，
       # 含 @ 会产出非法 From 头（AhaSend 报 421 technical difficulties）
