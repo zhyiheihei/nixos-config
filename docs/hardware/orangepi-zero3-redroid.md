@@ -169,8 +169,9 @@ userspace 选择：
   [`libcdclist.mk`](https://github.com/YAJATapps/android_frameworks_av/blob/4069a322b9154c02184fb7f6c4fed29309ddf257/media/libcedarc/libcdclist.mk)。
   `android.hardware.media.aw.c2@1.0-service` 虽然直接链接 `libvdecoder`、`libVE`，实际
   H.264/H.265 等引擎仍依赖该清单安装的 `libawh264`、`libawh265` 及 vendor 变体。
-  本项目现在继承同一运行库清单；打包脚本会检查服务、VINTF、Mali 32/64 位库、
-  gralloc、Cedar 配置和 H.264/H.265 插件，缺一项就拒绝生成容器归档。
+  本项目现在继承同一运行库清单。打包脚本默认（Stage 1）检查服务、VINTF、Mali
+  32/64 位库、gralloc 与 `redroid.opi03.rc`；Cedar 配置和 H.264/H.265 插件属于
+  Stage 2，须以 `--stage2-codec2` 才会强制检查（见"打包也是长任务"段）。
 
 reDroid 官方只为通用 `auto`、`host`、`guest` GPU 模式定义了 DRM render-node 或
 SwiftShader 路径；H618 的闭源 BSP 使用 `/dev/mali0`、Apollo gralloc 和 ION，而不是
@@ -266,7 +267,40 @@ nix build \
 镜像尚未导入，`podman-redroid.service` 也只是 `ConditionPathExists` 未满足，不会让
 Colmena 激活失败。保留 extlinux 中两个 generation；冷启动失败时从串口选择上一代。
 
+串口控制台是 `ttyAS0`（vendor 5.4 的 sunxi-uart 驱动把 UART0 注册为 ttyAS0，
+不是 ttyS0），`console=ttyAS0,115200n8` 已写入 kernelParams。早期挂起（uart0
+probe 附近）时可用 `loglevel=8 ignore_loglevel` 参数（见
+`nixos/hardware/orangepi-zero3/default.nix`，提交 `11de0cfd`）让内核打印全部
+消息；`ignore_loglevel` 保证消息不被 console_loglevel 过滤。注意 `uname -r`
+显示的 `-aarch64-unknown-linux-gnu` 是交叉编译工具链前缀，不是运行架构。
+
+烧录 SD 卡（mac 侧，先把卡插到 MacBook，盘符按 `diskutil list external physical`
+实际值改）：
+
+```bash
+diskutil list external physical     # 确认盘符，例如 /dev/disk4
+diskutil unmountDisk /dev/disk4
+
+set -o pipefail
+ssh -A -p 2222 root@192.168.0.50 \
+  'zstd -dc /nix/src/nixos-config/result-opi03/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst' |
+  sudo dd of=/dev/rdisk4 bs=8m conv=fsync
+
+diskutil eject /dev/disk4
+```
+
+注意：macOS 对 FAT32 boot 分区以只读方式挂载（fskit），**无法直接改卡上
+`/extlinux/extlinux.conf`**；临时改日志参数应走 NixOS kernelParams 重建镜像，
+而不是改卡。
+
+
 vendor kernel 启动后先验证主机 ABI：
+
+串口接入：Zero 3 的调试串口是 3.3V TTL UART0（板载 4-pin 排针，GND/TX/RX；
+RX 接板子 TX、TX 接板子 RX），波特率 **115200**。mac 用 `screen /dev/cu.usbserial-* 115200`
+或 `minicom -D /dev/cu.usbserial-* -b 115200`；Linux 用
+`minicom -D /dev/ttyUSB0 -b 115200`。看内核与 systemd 输出必须走串口（无 HDMI
+输出）。
 
 ```bash
 uname -r
@@ -283,12 +317,33 @@ dmesg | grep -iE 'mali|kbase|cedar|g2d|ion'
 
 ## 准备 Android 12 BSP 源码
 
+### 环境替换清单
+
+本文档大量使用本任务构建机的私有内网地址与路径。复现前先按你的环境替换：
+
+| 变量 | 本任务值 | 说明 |
+|---|---|---|
+| `ML_BUILDER` | `root@192.168.0.50`（ssh `-p 2222`） | NixOS 构建机，`/nix/src/nixos-config` 为 flake 工作树 |
+| `UBUNTU_BUILD` | `zhyi@192.168.0.60` | Android 12 编译机（Ubuntu 22.04） |
+| `PROXY_FAST` | `http://192.168.0.64:7892` | rock5c 代理：快、大文件可靠，但会间歇 SSL EOF |
+| `PROXY_ROUTER` | `http://192.168.0.1:1080` | 路由器 xray：慢、egress IP 不同（下载失败时切换用） |
+| `BUILD_DIR` | `/home/zhyi/build` | Ubuntu 上 Android 源码/产物根目录 |
+| `GDOWN_BIN` | `~/gdown-venv/bin/gdown` | 见下文 gdown 安装 |
+| `OPI03_ADDRESS` | （opi03 走 DHCP） | 板卡 IP，用 `hosts/opi03` 的 mDNS/串口获取 |
+
+Android 源码必须**固定**在官方 18 分卷（首选）或 BPI 官方仓库（回退），两者都
+不可用时不继续——不要换成来源不明的压缩包或"看起来像 H618"的其他源码树。
+
 首选源是 Orange Pi 官方 Zero 3 Android 12 分卷。Ubuntu 构建机正好是官方手册要求
 的 Ubuntu 22.04，并有 32 GiB RAM、48 GiB swap 和 500 GiB 以上可用空间。下载器
 固定 Google Drive 文件 ID、官方 checksum manifest 的 SHA256，并逐片校验 MD5：
 
 ```bash
-GDOWN_BIN=/home/zhyi/build/.venv-gdown/bin/gdown \
+# gdown 需要单独装（文档示例路径是构建机上已建好的 venv）：
+python3 -m venv ~/gdown-venv
+~/gdown-venv/bin/pip install 'gdown==6.1.*'
+
+GDOWN_BIN=~/gdown-venv/bin/gdown \
 GDOWN_PROXY=http://192.168.0.64:7892 \
 GDOWN_MAX_ATTEMPTS=48 \
 GDOWN_RETRY_SECONDS=1800 \
@@ -296,11 +351,33 @@ GDOWN_RETRY_SECONDS=1800 \
   /home/zhyi/build/OPI03-H618-Android12-official
 ```
 
+`GDOWN_BIN`/`GDOWN_PROXY`/`/home/zhyi/build/`/`192.168.0.64:7892` 都是本任务
+构建机的环境；换环境时按自己的代理与目录替换（见下文"环境替换清单"）。
+
 Google 公共文件配额拒绝下载时，不要换成来源不明的压缩包。官方中文页的百度网盘
 备用入口是 `https://pan.baidu.com/s/1BUsudU_XahzB_4eR3s83Ug?pwd=umdt`；把下载出的
 `H618-Android12-Src.tar.gzaa` 至 `...gzar` 和 checksum manifest 放进上述输出目录的
-`parts/` 后重跑同一脚本。无论取自哪个官方入口，脚本都只在 18 片全部通过 MD5 后
-流式解压，并在实际 Android source root 写入固定 manifest 标记。
+`parts/` 后重跑同一脚本。**百度下载的文件若命名不同（如带额外前后缀），必须改名
+为 `H618-Android12-Src.tar.gz` + 后缀（aa..ar）**——脚本按 manifest 里的精确
+文件名匹配 `parts/`，文件名不符会被当成"本地没有"而重新走 gdown。无论取自哪个
+官方入口，脚本都只在 18 片全部通过 MD5 后流式解压，并在实际 Android source root
+写入固定 manifest 标记。
+
+### 下载阶段踩过的坑
+
+- **gdown 6.1.0 下载后不做完整性校验**（上游 issue #477）：下载完成 ≠ 文件正确。
+  单靠 gdown 的进度条 100% 会放过损坏分片（本任务中 ae 分片曾下载成功但 MD5 不
+  符）。下载器必须对每个分片做 `md5sum -c`，不匹配就删除重下并自动重试。
+- **文件 ID 不能凭印象抄**：ae 分片曾误用 af 的 Google Drive ID，下载到的是 af
+  的内容（MD5 恰好等于 manifest 里 af 的期望值），两次不同代理下到相同"错误"
+  内容，靠逐片 MD5 对 manifest 才定位。脚本里 `ids[]` 与 `suffixes[]` 的下标
+  必须一一对应，改脚本时严禁错位。
+- **单个代理不可靠**：`192.168.0.64:7892`（rock5c）快但会间歇性 SSL EOF 中断
+  大文件；`192.168.0.1:1080`（路由器 xray）慢且 egress IP 不同。可靠做法是
+  下载循环里**双代理自动切换**：优先 7892，失败自动切 1080，配合
+  `resume=True` 断点续传 + MD5 校验 + 有限次重试（本任务 48 次/1800s）。
+- 18 片合计约 35 GiB，下载目录所在盘要有 100 GiB 以上余量（解压后源码约 78
+  GiB）。
 
 脚本最后会打印实际 source root。以该路径运行：
 
@@ -462,17 +539,76 @@ export https_proxy=$HTTPS_PROXY
 ## 长时间 Android 构建
 
 Android 编译固定在 Ubuntu `192.168.0.60`；当前容量基线是 32 GiB RAM、48 GiB
-swap、至少 400 GiB 可用磁盘。该主机是 Ubuntu 22.04，正好对齐 Orange Pi 官方手册，
+swap、至少 500 GiB 可用磁盘（下载 35 GiB + 源码解压 78 GiB + AOSP out 约 100+ GiB
+同一块盘）。该主机是 Ubuntu 22.04，正好对齐 Orange Pi 官方手册，
 Orange Pi 源码优先直接按官方依赖在宿主构建。只有选择 BPI 回退源码时才使用其官方
 Docker 镜像 `sinovoip/bpi-build-android-11:ubuntu20.04`；不要把这个 Android 11
 构建环境误当成 Orange Pi 的官方环境，也不要使用不存在的 `latest`。若进入容器，
 源码和输出目录必须 bind mount，避免把数百 GiB 输出写进 Docker overlay。
 
-进入官方构建容器后执行：
+编译环境依赖（Ubuntu 22.04 实测缺项，缺了会怎样写清）：
+
+- **JDK 11**：Android 12 必须 `openjdk-11`（soong/bootstrap 在 JDK 17 下报错）。
+  `sudo apt-get install -y openjdk-11-jdk`，`JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64`。
+- **libncurses5**：soong `m` 阶段大量脚本依赖 `libncurses.so.5`（22.04 默认只有
+  ncurses6），缺失时报 `error while loading shared libraries: libncurses.so.5`。
+  `sudo apt-get install -y libncurses5`（旧名 `libncurses5:i386` 不需要）。
+- **AOSP 12 基础依赖**：除上面两项，`m systemimage` 还需以下包，缺任一会在
+  envsetup/soong 早期失败：
+
+  ```bash
+  sudo apt-get install -y git-core gnupg flex bison build-essential zip curl \
+    zlib1g-dev libc6-dev-i386 libncurses5 lib32ncurses5-dev x11proto-core-dev \
+    libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig \
+    python3 python3-venv
+  ```
+
+  （其中 `lib32ncurses5-dev`/`lib32z1-dev`/`libc6-dev-i386` 在 22.04 已改名为
+  `libncurses5-dev`/`libz1g-dev`/`libc6-dev` 或移入多架构，缺报错时按提示装
+  对应包即可，不必逐一对齐旧名。）
+- **ccache（强烈建议）**：Android 12 的 soong 读 `CC_WRAPPER`（由 make 侧
+  `ccache.mk` 设置），开启后失败重编能跳过已编译目标，大幅缩短迭代。关键坑：
+  **`CCACHE_DIR` 不能放在 `/home` 下**——Android 的 sandbox（nsjail）对部分构建
+  目录只读，`/home` 命中后报 `ccache: error: Failed to create ...`。设到
+  `/tmp/ccache`（本任务实测可用，命中率约 30%）。启用方式：
+
+  ```bash
+  export USE_CCACHE=1 CCACHE_EXEC=/usr/bin/ccache \
+    CCACHE_DIR=/tmp/ccache \
+    CCACHE_COMPILERCHECK=content \
+    CCACHE_SLOPPINESS=time_macros,include_file_mtime,file_macro \
+    CCACHE_BASEDIR=/ CCACHE_CPP2=true
+  ```
+
+  改 ccache 相关 env 或换 `CCACHE_DIR` 后**必须清 soong 缓存**
+  （`rm -rf out/soong out/.module_paths out/build-redroid_opi03.ninja`），否则
+  ninja 不会带新的 CC_WRAPPER 重新生成。
+- 改动任何 `Android.bp`/`Android.mk`/Go 插件后，同样先清上述 soong 缓存再
+  `m`；soong 缓存会残留已删除目录（例如 openmax）的模块索引，不清会继续引用
+  已移走的模块。
+
+编译命令（注意：**主流程 Orange Pi 官方源在宿主 shell 直接跑，不需要容器**；
+只有 BPI 回退源才进它的容器）：
 
 ```bash
-cd /path/printed/by/download-orangepi-android12.sh
+# 主流程（Orange Pi 官方源，Ubuntu 宿主）：
+cd "$(download-orangepi-android12.sh 打印的 source root)"
+# 即 /home/zhyi/build/OPI03-H618-Android12-official/extracted/H618-Android12-Src
 source build/envsetup.sh
+lunch redroid_opi03-userdebug
+m -j8 systemimage vendorimage
+```
+
+```bash
+# BPI 回退源（用 sinovoip/bpi-build-android-11:ubuntu20.04 容器，源码须 bind
+# mount 进来；该镜像是 Android 11 环境，JDK 默认 8，而 Android 12 需要 JDK 11，
+# 进容器后必须补装并 export JAVA_HOME，否则 soong 会报 JDK 版本不匹配）：
+docker run --rm -it -v /home/zhyi/build/BPI-H618-Android12:/src \
+  sinovoip/bpi-build-android-11:ubuntu20.04 bash
+# 容器内：
+apt-get update && apt-get install -y openjdk-11-jdk
+export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 PATH=$JAVA_HOME/bin:$PATH
+cd /src && source build/envsetup.sh
 lunch redroid_opi03-userdebug
 m -j8 systemimage vendorimage
 ```
@@ -487,14 +623,20 @@ ls -lh \
   out/target/product/redroid_opi03/vendor.img
 ```
 
-打包也是长任务：
+打包也是长任务。**前提：`m -j8 systemimage vendorimage` 已成功**，`system.img`
+与 `vendor.img` 已存在于 `$ANDROID_ROOT/out/target/product/redroid_opi03/`。
+脚本内部用 `sudo mount -o loop,ro` 挂载两个镜像，因此**必须以 root 或可免密
+sudo 的用户运行**。参数是 Android 源码根（与编译用同一个）：
 
 ```bash
-/path/to/nixos-config/tools/redroid-opi03/pack-rootfs.sh \
-  /home/zhyi/build/BPI-H618-Android12
+sudo /path/to/nixos-config/tools/redroid-opi03/pack-rootfs.sh \
+  /home/zhyi/build/OPI03-H618-Android12-official/extracted/H618-Android12-Src
 ```
 
-输出为 `opi03-redroid-android12-h618-rootfs.tar.zst`。脚本遵循 reDroid 官方布局：
+输出为 `opi03-redroid-android12-h618-rootfs.tar.zst`，默认写到源码根的
+`$ANDROID_ROOT/opi03-redroid-android12-h618-rootfs.tar.zst`（脚本 25 行
+`output=${2:-"$android_root/..."}`，可用第二个参数改路径）。
+脚本遵循 reDroid 官方布局：
 system image 作为容器根，vendor image 放入 `/vendor`。压缩前会挂载两个镜像并验证
 Stage 1 必需的 Mali 32/64 位用户态与 Apollo gralloc，以及 `redroid.opi03.rc`；
 这项门禁通过才值得把大归档传到板卡。视频解码（Allwinner Codec2 服务、`cedarc.conf`、
@@ -510,6 +652,14 @@ sudo /path/to/import-on-opi03.sh \
   /path/to/opi03-redroid-android12-h618-rootfs.tar.zst
 ```
 
+**前置**：先确认 opi03 上 `/nix/persistent` 已挂载且可写（烧录后至少启动过一次
+NixOS，tmpfs `/` 下才挂上持久分区）。若在 `/nix/persistent` 不存在时导入，
+脚本的 `mkdir -p /nix/persistent/...` 会建到 tmpfs 根下、重启即丢。检查：
+
+```bash
+findmnt /nix/persistent   # 有输出=已挂载；无输出=先启动一次系统
+```
+
 导入脚本创建本地镜像 `localhost/opi03-redroid:android12-h618`，确认镜像存在后才写
 `/nix/persistent/var/lib/redroid-opi03/.image-ready`，随后启动容器。Podman image store
 位于已持久化的 `/var/lib`，Android `/data` 单独位于 `/nix/persistent`。
@@ -521,6 +671,34 @@ ssh -p 2222 -L 5555:127.0.0.1:5555 root@OPI03_ADDRESS
 adb connect 127.0.0.1:5555
 ```
 
+安全姿态（临时，验收后必须收紧）：当前容器是
+`privileged=true` + `androidboot.selinux=permissive` + `ro.adb.secure=0`
+（ADB 无认证）的组合，只适合在内网通过 SSH 隧道调试。**验收完成后的收尾步骤**：
+把 `ro.adb.secure` 恢复为 `1`（或删除 ADB 属性），SELinux 改回
+`enforcing`，并复核容器是否仍需 `privileged`（Mali/gralloc 需要哪些设备节点就
+只 bind 哪些，而不是整容器提权）。在没有完成这步前，不要把这个镜像/容器暴露到
+不受信任的网络。
+
+## 实机调试记录（2026-08-04）
+
+首次用 SD 镜像启动 Zero 3 的串口日志：
+
+- U-Boot 2026.07 → extlinux → NixOS kernel 5.4.125（opi03-h618-redroid）加载
+  initrd/DTB 正常，内核开始启动；
+- 早期 5 条告警均非致命：`axp2101-pek without irq`、`sunxi-rtc reset_control
+  failed`、`pinctrl_get for HDMI2.0 DDC fail`、`uart0 get regulator failed`、
+  `uart0 error to get fifo size property`；
+- 日志停在 `uart uart0` 两条告警之后（loglevel=4 过滤了后续），疑似 sunxi-uart
+  驱动 probe 阶段。
+
+已做：`loglevel=8 ignore_loglevel` 加入 kernelParams（提交 `11de0cfd`）待重建镜像
+确认卡点。**镜像重建被 aarch64 btrfs 打包阻塞**：`nix-btrfs-fs.img.zst` 的
+`system=aarch64-linux`，调度到 opi5p（唯一 aarch64 builder）时其 `nix-daemon`
+inactive（socket 拒绝连接，`nix-builder` 用户无权启动）；改用 ml-builder 本机
+binfmt（`--builders ''`）时打包脚本的 `unshare --user --map-root-user` 在 qemu
+仿真下 `Invalid argument`。两个方向都需要环境修复（启动 opi5p nix-daemon，或改
+打包逻辑），尚未完成。
+
 ## 验收：Stage 1 只有 GPU 门禁，Stage 2 才加 VPU
 
 Stage 1 静态检查（GPU-only）：
@@ -528,6 +706,11 @@ Stage 1 静态检查（GPU-only）：
 ```bash
 sudo opi03-redroid-check
 ```
+
+注意：脚本默认还会一并校验**主机四个设备节点**（`/dev/mali0`、`/dev/cedar_dev`、
+`/dev/ion`、`/dev/g2d`，见"vendor kernel 启动后先验证主机 ABI"）与
+`debug.stagefright.ccodec=4` 属性。这些属于"宿主前置条件"而不是 Stage 1 的 GPU
+门禁，但缺任一节点时 Mali 正常也会 FAIL——先保证内核侧节点齐全再跑验收。
 
 必须全部满足：
 
@@ -604,3 +787,21 @@ sudo opi03-redroid-check redroid watch-vpu
   microSD/eMMC 经 MMC 启动，不存在 raw NAND 设备，因此生成器禁用
   `SUNXI_NAND`（连带 `SUNXI_RAWNAND`）并在断言里要求两者都必须关闭。
   `modules/gpu` 是 Longan 外置 Mali，未被 kernel 构建引用，无需处理。
+- vendor 5.4 的 `mali_kbase.ko`（`pkgs/opi03-mali-kbase`）构建有两个独立坑：
+  1. **不能开 `CONFIG_MALI_DMA_FENCE`**：该选项引用 `linux/reservation.h`，5.4
+     已把该头改名 `dma-resv.h`（上游只保留别名到 4.x），编译直接
+     `No such file or directory`。官方默认就是 `n`，保持关闭即可。
+  2. **不能走 `modules_install` 装进 lib/modules 树**：会递归进
+     `modules/gpu/mali-bifrost` 再构建一份；installPhase 应直接把构建出的
+     `mali_kbase.ko` 放到 `$out/lib/modules/5.4.125/extra/`，由
+     `boot.extraModulePackages` 挂载。
+- **Google 会话 cookie 曾误提交进 git**（`bc9d625a` 引入 `.reasonix/` 附件，
+  `12e5876c` 移除并补 `.gitignore`）。下载脚本用 gdown 时把 cookie 放在
+  `$HOME/.cache/gdown/`，**绝不能把含 SID/HSID/SSID/APISID 的文件 `git add`
+  进仓库**；`.reasonix/`、`*.cookie*`、`.tmp-*` 都应忽略。cookie 一旦入库，
+  仅删当前树不够——历史 blob 仍在，需要 `git filter-repo`（或
+  `filter-branch`）清洗并 force-push，且用户必须去 Google 安全中心吊销该会话。
+- mac 上 `diskutil list external physical` 先确认盘符再烧录；`dd of=/dev/rdisk4`
+  （rdisk 裸设备，比 `/dev/disk4` 快）；写完 `sync`/`conv=fsync` 后 eject。
+  FAT32 boot 分区被 mac 以只读挂载（fskit），不要指望直接改卡上
+  `/extlinux/extlinux.conf` 调参数。
