@@ -42,9 +42,14 @@ let
   # left the PHY reset line unconfigured). The current rkbin package contains
   # the matching RK3528 DDR TPL and BL31 even though Nixpkgs does not yet
   # expose them as passthru attributes.
+  # U-Boot must probe ethernet (CONFIG_NET) during startup: probing the
+  # DWC GMAC driver asserts/releases the PHY reset-gpios, so the RTL8211F
+  # is out of reset when Linux starts. Without CONFIG_NET, U-Boot never
+  # touches the PHY and Linux hits the chicken-and-egg probe deadlock.
   ubootH28K = crossPkgs.buildUBoot {
     defconfig = "hinlink-h28k-rk3528_defconfig";
     extraPatches = [ ./0001-board-rockchip-add-hinlink-h28k.patch ];
+    extraConfig = "CONFIG_NET=y\nCONFIG_CMD_NET=y\nCONFIG_CMD_DHCP=y\nCONFIG_CMD_PING=y\nCONFIG_CMD_MII=y\n";
     extraMeta.platforms = [ "aarch64-linux" ];
     requiredSystemFeatures = [ "aarch64-cross" ];
     env = {
