@@ -53,6 +53,10 @@ let
               for row in csv.DictReader(handle):
                   if row.get("state") != "0" or int(row.get("expire", "0")) <= now:
                       continue
+                  if row["address"] in leases:
+                      # Kea can emit the same lease more than once; emitting
+                      # duplicate label sets breaks the textfile collector.
+                      continue
                   leases[row["address"]] = row
                   hostname = row.get("hostname") or ""
                   lines.append(
