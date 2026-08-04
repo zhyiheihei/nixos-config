@@ -1,14 +1,16 @@
 # Orange Pi Zero 3：H618 reDroid 12、Mali GPU 与 Cedar 视频硬解
 
 本文描述 `opi03` 的第二阶段目标：在 NixOS 主机内运行自制 reDroid 12 容器，
-Android 图形走 Mali-G31，视频编解码走 Allwinner Cedar/VE。它不是“容器能启动”
-文档；只有 GPU renderer 和一次真实视频解码都取得硬件证据，适配才算完成。
+Android 图形走 Mali-G31，视频编解码走 Allwinner Cedar/VE。它分两个 Stage：
+**Stage 1（当前）只要求 Mali GPU renderer 在容器内驱动**，即 SurfaceFlinger
+用 `ro.hardware.egl=mali` 经 `/dev/mali0` 渲染；**Stage 2（后续）再加视频硬解**
+（Codec2/Cedar，需先把 vendor libcedarc 64 位 blob 换成 Android bionic 版）。
+它不是“容器能启动”文档；Stage 1 的完成标准是 SurfaceFlinger 的 Mali renderer
+证据。
 
 当前状态：NixOS/vendor-kernel 包装、Android source overlay、打包、导入与验收工具
-已经落库；Orange Pi 官方 Android 源码清单已经固定，但 Google Drive 的大文件公共
-配额暂时拒绝第一个分片，BPI 同 SoC 仓库的可恢复 hydration 状态仍保留。尚未启动
-完整 Android 编译，也未在实机完成 GPU/VPU 动态验收。因此本文不能被解读为
-“硬件加速已经验证通过”。
+已经落库；GPU-only 产品配置已生效，Android 编译进行中，尚未在实机完成 GPU 动态
+验收。因此本文不能被解读为“硬件加速已经验证通过”。
 
 ## 为什么固定在 Android 12
 
@@ -494,8 +496,10 @@ ls -lh \
 
 输出为 `opi03-redroid-android12-h618-rootfs.tar.zst`。脚本遵循 reDroid 官方布局：
 system image 作为容器根，vendor image 放入 `/vendor`。压缩前会挂载两个镜像并验证
-Mali 32/64 位用户态、Apollo gralloc、Allwinner Codec2 服务/VINTF、`cedarc.conf`
-以及 H.264/H.265 动态插件；这项门禁通过才值得把大归档传到板卡。
+Stage 1 必需的 Mali 32/64 位用户态与 Apollo gralloc，以及 `redroid.opi03.rc`；
+这项门禁通过才值得把大归档传到板卡。视频解码（Allwinner Codec2 服务、`cedarc.conf`、
+codec XML、H.264/H.265 动态插件）属于 Stage 2，打包时用
+`--stage2-codec2` 才会强制检查：
 
 ## 导入并启动
 
@@ -517,9 +521,9 @@ ssh -p 2222 -L 5555:127.0.0.1:5555 root@OPI03_ADDRESS
 adb connect 127.0.0.1:5555
 ```
 
-## 验收：GPU 与 VPU 是两个独立门禁
+## 验收：Stage 1 只有 GPU 门禁，Stage 2 才加 VPU
 
-静态检查：
+Stage 1 静态检查（GPU-only）：
 
 ```bash
 sudo opi03-redroid-check
@@ -530,25 +534,21 @@ sudo opi03-redroid-check
 - `ro.hardware.egl=mali`；
 - `ro.hardware.gralloc=apollo`；
 - `ro.hardware.vulkan=apollo`；
-- SurfaceFlinger renderer 包含 Mali，且不含 SwiftShader、ANGLE、Pastel、llvmpipe；
-- `android.hardware.media.aw.c2` 进程和 HAL 已注册；
-- `stagefright -i` 实际枚举出 `c2.allwinner.avc.decoder` 和
-  `c2.allwinner.hevc.decoder`。
+- SurfaceFlinger renderer 包含 Mali，且不含 SwiftShader、ANGLE、Pastel、llvmpipe。
 
-这些仍只证明组件可见。先生成确定性的 H.264 High-profile 测试流：
+只有 SurfaceFlinger 的 Mali renderer 证据成立，Stage 1 才算完成——这是当前唯一
+验收目标。Codec2/视频硬解（`android.hardware.media.aw.c2` 进程与 HAL、
+`stagefright -i` 枚举 `c2.allwinner.*`、Cedar 中断增长）属于 Stage 2，用
+`sudo opi03-redroid-check --stage2-codec2` 才会执行；Stage 2 的完整门禁（生成
+H.264 测试流、`decode-test` 强制硬件解码、Cedar/VE 中断计数增长、logcat
+Allwinner/Cedar 证据）保持不变：
 
 ```bash
 tools/redroid-opi03/generate-test-video.sh /tmp/opi03-h264-test.mp4
+sudo opi03-redroid-check --stage2-codec2 redroid decode-test /tmp/opi03-h264-test.mp4
 ```
 
-然后在 opi03 主机执行硬件-only 解码门禁：
-
-```bash
-sudo opi03-redroid-check redroid decode-test /tmp/opi03-h264-test.mp4
-```
-
-该命令使用 `stagefright -r` 强制只选硬件 codec，要求产生解码帧、Cedar/VE 中断
-计数增长，并在 logcat 找到 Allwinner/Cedar 证据。交互排障时仍可运行：
+交互排障时仍可运行：
 
 ```bash
 sudo opi03-redroid-check redroid watch-vpu
@@ -559,8 +559,9 @@ sudo opi03-redroid-check redroid watch-vpu
 - Cedar/VE 对应中断计数持续增加；或
 - Android Codec2 进程持续打开 `/dev/cedar_dev`。
 
-只有 SurfaceFlinger 的 Mali renderer 与 Cedar 动态证据同时成立，才可以把本任务标为
-完成。仅有容器 `sys.boot_completed=1`、codec XML 或节点存在都不算硬件加速验收。
+只有 Stage 1 的 Mali renderer 与 Stage 2 的 Cedar 动态证据同时成立，才可以把本
+任务标为完成。仅有容器 `sys.boot_completed=1`、codec XML 或节点存在都不算硬件
+加速验收。
 
 ## 已封住的坑
 
@@ -577,7 +578,7 @@ sudo opi03-redroid-check redroid watch-vpu
   --directory` 映射到外层仓库，并先做 reverse-check 保证脚本可重复运行。
 - BPI 的 blobless partial clone 不能依赖逐文件 lazy checkout；先关闭仓库级自动
   GC，再用 `hydrate-partial-clone.sh` 一次枚举和可恢复分批抓取，否则会不断 repack。
-- Android 12 不会扫描所有 `media_codecs*.xml`；专用 primary XML 的显式 Include
+- Stage 2：Android 12 不会扫描所有 `media_codecs*.xml`；专用 primary XML 的显式 Include
   是 Allwinner Codec2 被发现的必要条件。
 - H618 是 `ARCH_SUN50IW9`，deinterlacer 必须选择 `SUNXI_DI_V3X`（DI300）。只启用
   `SUNXI_DI` 而不选择 V1XX/V2X/V3X，会生成一个没有组成对象的
