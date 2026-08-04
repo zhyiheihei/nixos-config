@@ -71,5 +71,7 @@ target/
 
 flamegraph.svg
 nix.profile
-.reasonix/desktop-topic-title-sources.json
+# reasonix runtime state (may contain secrets; never commit)
 .reasonix/
+# ad-hoc debugging scripts (may contain credentials; never commit)
+.tmp-*

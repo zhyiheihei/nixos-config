@@ -46,6 +46,10 @@ in
       "console=ttyAS0,115200n8"
       "console=tty0"
       "rootwait"
+      # Debug bring-up: full dmesg verbosity, keep every message regardless of
+      # level (we hit an early hang around the uart0 probe on first boot).
+      "loglevel=8"
+      "ignore_loglevel"
       # Reserve enough contiguous memory for Mali buffers and Cedar video
       # surfaces.  This matches CONFIG_CMA_SIZE_MBYTES in the vendor config.
       "cma=256M"
