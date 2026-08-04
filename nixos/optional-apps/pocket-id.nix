@@ -43,6 +43,9 @@
       SMTP_USER = config.programs.msmtp.accounts.default.user;
       SMTP_TLS = if config.programs.msmtp.accounts.default.tls_starttls then "starttls" else "tls";
       EMAIL_ONE_TIME_ACCESS_AS_ADMIN_ENABLED = true;
+      # Firefox 无法完成 passkey/WebAuthn 登录时的备用路径：
+      # 登录页 "Email login" 输入邮箱接收一次性登录码。
+      EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED_ENABLED = true;
 
       LDAP_ENABLED = true;
       LDAP_URL = "ldap://[fdd8:1938:4e88:3712::389]:${LT.portStr.LDAP}";
