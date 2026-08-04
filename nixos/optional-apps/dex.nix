@@ -58,7 +58,11 @@ let
         secret = {
           _secret = config.sops.secrets.dex-freshrss-secret.path;
         };
-        redirectURIs = [ "https://freshrss.opi5p.zhyi.cc/i/oidc/" ];
+        # FreshRSS 用 X-Forwarded-Port 构建回调，实际请求带 :443
+        redirectURIs = [
+          "https://freshrss.opi5p.zhyi.cc/i/oidc/"
+          "https://freshrss.opi5p.zhyi.cc:443/i/oidc/"
+        ];
       }
       {
         id = "gitea";
