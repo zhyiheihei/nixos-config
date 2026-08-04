@@ -11,7 +11,7 @@ parts_dir="$output_dir/parts"
 extract_dir="$output_dir/extracted"
 gdown_bin=${GDOWN_BIN:-gdown}
 gdown_proxy=${GDOWN_PROXY:-}
-gdown_max_attempts=${GDOWN_MAX_ATTEMPTS:-1}
+gdown_max_attempts=${GDOWN_MAX_ATTEMPTS:-48}
 gdown_retry_seconds=${GDOWN_RETRY_SECONDS:-1800}
 
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
@@ -78,6 +78,53 @@ EOF
   done
 }
 
+# Download one part and verify its MD5 against the official manifest.  gdown
+# 6.1.0 performs no integrity check (upstream issue #477): a "successful"
+# download can still be corrupt (we hit this with the ae part).  A corrupt file
+# is removed and re-downloaded, up to gdown_max_attempts.
+download_part() {
+  local id=$1
+  local part=$2
+  local expected=$3
+  local attempt
+
+  for ((attempt = 1; attempt <= gdown_max_attempts; attempt++)); do
+    if [[ -f "$parts_dir/$part" ]] \
+      && printf '%s  %s\n' "$expected" "$parts_dir/$part" \
+        | md5sum --check --strict --status
+    then
+      echo "verified existing $part"
+      return 0
+    fi
+
+    # stale or corrupt file (e.g. from an interrupted/`--continue` run) would
+    # otherwise be kept and fail md5sum forever
+    if [[ -f "$parts_dir/$part" ]]; then
+      echo "$part failed MD5 check; removing and re-downloading" >&2
+      rm -f "$parts_dir/$part"
+    fi
+
+    if download "$id" "$parts_dir/$part"; then
+      if printf '%s  %s\n' "$expected" "$parts_dir/$part" \
+        | md5sum --check --strict --status
+      then
+        echo "downloaded and verified $part ($((index + 1))/${#suffixes[@]})"
+        return 0
+      fi
+      echo "$part downloaded but MD5 mismatch; will retry" >&2
+      rm -f "$parts_dir/$part"
+    fi
+
+    if ((attempt == gdown_max_attempts)); then
+      echo "giving up on $part after $attempt attempt(s)" >&2
+      return 1
+    fi
+
+    echo "retrying $part in $gdown_retry_seconds seconds ($attempt/$gdown_max_attempts)" >&2
+    sleep "$gdown_retry_seconds"
+  done
+}
+
 if [[ -f "$parts_dir/$manifest" ]] \
   && printf '%s  %s\n' "$manifest_sha256" "$parts_dir/$manifest" \
     | sha256sum --check --strict --status
@@ -108,9 +155,10 @@ for index in "${!suffixes[@]}"; do
   fi
 
   echo "downloading $part ($((index + 1))/${#suffixes[@]})"
-  download "${ids[$index]}" "$parts_dir/$part"
-  printf '%s  %s\n' "$expected" "$parts_dir/$part" \
-    | md5sum --check --strict
+  if ! download_part "${ids[$index]}" "$part" "$expected"; then
+    echo "failed to obtain a verified $part; rerun after fixing the download source" >&2
+    exit 1
+  fi
 done
 
 echo "verifying all official source parts"

@@ -295,6 +295,12 @@ diskutil eject /dev/disk4
 
 vendor kernel 启动后先验证主机 ABI：
 
+串口接入：Zero 3 的调试串口是 3.3V TTL UART0（板载 4-pin 排针，GND/TX/RX；
+RX 接板子 TX、TX 接板子 RX），波特率 **115200**。mac 用 `screen /dev/cu.usbserial-* 115200`
+或 `minicom -D /dev/cu.usbserial-* -b 115200`；Linux 用
+`minicom -D /dev/ttyUSB0 -b 115200`。看内核与 systemd 输出必须走串口（无 HDMI
+输出）。
+
 ```bash
 uname -r
 test -c /dev/mali0
@@ -310,18 +316,42 @@ dmesg | grep -iE 'mali|kbase|cedar|g2d|ion'
 
 ## 准备 Android 12 BSP 源码
 
+### 环境替换清单
+
+本文档大量使用本任务构建机的私有内网地址与路径。复现前先按你的环境替换：
+
+| 变量 | 本任务值 | 说明 |
+|---|---|---|
+| `ML_BUILDER` | `root@192.168.0.50`（ssh `-p 2222`） | NixOS 构建机，`/nix/src/nixos-config` 为 flake 工作树 |
+| `UBUNTU_BUILD` | `zhyi@192.168.0.60` | Android 12 编译机（Ubuntu 22.04） |
+| `PROXY_FAST` | `http://192.168.0.64:7892` | rock5c 代理：快、大文件可靠，但会间歇 SSL EOF |
+| `PROXY_ROUTER` | `http://192.168.0.1:1080` | 路由器 xray：慢、egress IP 不同（下载失败时切换用） |
+| `BUILD_DIR` | `/home/zhyi/build` | Ubuntu 上 Android 源码/产物根目录 |
+| `GDOWN_BIN` | `~/gdown-venv/bin/gdown` | 见下文 gdown 安装 |
+| `OPI03_ADDRESS` | （opi03 走 DHCP） | 板卡 IP，用 `hosts/opi03` 的 mDNS/串口获取 |
+
+Android 源码必须**固定**在官方 18 分卷（首选）或 BPI 官方仓库（回退），两者都
+不可用时不继续——不要换成来源不明的压缩包或"看起来像 H618"的其他源码树。
+
 首选源是 Orange Pi 官方 Zero 3 Android 12 分卷。Ubuntu 构建机正好是官方手册要求
 的 Ubuntu 22.04，并有 32 GiB RAM、48 GiB swap 和 500 GiB 以上可用空间。下载器
 固定 Google Drive 文件 ID、官方 checksum manifest 的 SHA256，并逐片校验 MD5：
 
 ```bash
-GDOWN_BIN=/home/zhyi/build/.venv-gdown/bin/gdown \
+# gdown 需要单独装（文档示例路径是构建机上已建好的 venv）：
+python3 -m venv ~/gdown-venv
+~/gdown-venv/bin/pip install 'gdown==6.1.*'
+
+GDOWN_BIN=~/gdown-venv/bin/gdown \
 GDOWN_PROXY=http://192.168.0.64:7892 \
 GDOWN_MAX_ATTEMPTS=48 \
 GDOWN_RETRY_SECONDS=1800 \
   /path/to/nixos-config/tools/redroid-opi03/download-orangepi-android12.sh \
   /home/zhyi/build/OPI03-H618-Android12-official
 ```
+
+`GDOWN_BIN`/`GDOWN_PROXY`/`/home/zhyi/build/`/`192.168.0.64:7892` 都是本任务
+构建机的环境；换环境时按自己的代理与目录替换（见下文"环境替换清单"）。
 
 Google 公共文件配额拒绝下载时，不要换成来源不明的压缩包。官方中文页的百度网盘
 备用入口是 `https://pan.baidu.com/s/1BUsudU_XahzB_4eR3s83Ug?pwd=umdt`；把下载出的
@@ -505,7 +535,8 @@ export https_proxy=$HTTPS_PROXY
 ## 长时间 Android 构建
 
 Android 编译固定在 Ubuntu `192.168.0.60`；当前容量基线是 32 GiB RAM、48 GiB
-swap、至少 400 GiB 可用磁盘。该主机是 Ubuntu 22.04，正好对齐 Orange Pi 官方手册，
+swap、至少 500 GiB 可用磁盘（下载 35 GiB + 源码解压 78 GiB + AOSP out 约 100+ GiB
+同一块盘）。该主机是 Ubuntu 22.04，正好对齐 Orange Pi 官方手册，
 Orange Pi 源码优先直接按官方依赖在宿主构建。只有选择 BPI 回退源码时才使用其官方
 Docker 镜像 `sinovoip/bpi-build-android-11:ubuntu20.04`；不要把这个 Android 11
 构建环境误当成 Orange Pi 的官方环境，也不要使用不存在的 `latest`。若进入容器，
@@ -518,6 +549,19 @@ Docker 镜像 `sinovoip/bpi-build-android-11:ubuntu20.04`；不要把这个 Andr
 - **libncurses5**：soong `m` 阶段大量脚本依赖 `libncurses.so.5`（22.04 默认只有
   ncurses6），缺失时报 `error while loading shared libraries: libncurses.so.5`。
   `sudo apt-get install -y libncurses5`（旧名 `libncurses5:i386` 不需要）。
+- **AOSP 12 基础依赖**：除上面两项，`m systemimage` 还需以下包，缺任一会在
+  envsetup/soong 早期失败：
+
+  ```bash
+  sudo apt-get install -y git-core gnupg flex bison build-essential zip curl \
+    zlib1g-dev libc6-dev-i386 libncurses5 lib32ncurses5-dev x11proto-core-dev \
+    libx11-dev lib32z1-dev libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig \
+    python3 python3-venv
+  ```
+
+  （其中 `lib32ncurses5-dev`/`lib32z1-dev`/`libc6-dev-i386` 在 22.04 已改名为
+  `libncurses5-dev`/`libz1g-dev`/`libc6-dev` 或移入多架构，缺报错时按提示装
+  对应包即可，不必逐一对齐旧名。）
 - **ccache（强烈建议）**：Android 12 的 soong 读 `CC_WRAPPER`（由 make 侧
   `ccache.mk` 设置），开启后失败重编能跳过已编译目标，大幅缩短迭代。关键坑：
   **`CCACHE_DIR` 不能放在 `/home` 下**——Android 的 sandbox（nsjail）对部分构建
@@ -558,14 +602,18 @@ ls -lh \
   out/target/product/redroid_opi03/vendor.img
 ```
 
-打包也是长任务：
+打包也是长任务。**前提：`m -j8 systemimage vendorimage` 已成功**，`system.img`
+与 `vendor.img` 已存在于 `$ANDROID_ROOT/out/target/product/redroid_opi03/`。
+脚本内部用 `sudo mount -o loop,ro` 挂载两个镜像，因此**必须以 root 或可免密
+sudo 的用户运行**。参数是 Android 源码根（与编译用同一个）：
 
 ```bash
-/path/to/nixos-config/tools/redroid-opi03/pack-rootfs.sh \
-  /home/zhyi/build/BPI-H618-Android12
+sudo /path/to/nixos-config/tools/redroid-opi03/pack-rootfs.sh \
+  /home/zhyi/build/OPI03-H618-Android12-official/extracted/H618-Android12-Src
 ```
 
-输出为 `opi03-redroid-android12-h618-rootfs.tar.zst`。脚本遵循 reDroid 官方布局：
+输出为 `opi03-redroid-android12-h618-rootfs.tar.zst`（写到源码根的上一级）。
+脚本遵循 reDroid 官方布局：
 system image 作为容器根，vendor image 放入 `/vendor`。压缩前会挂载两个镜像并验证
 Stage 1 必需的 Mali 32/64 位用户态与 Apollo gralloc，以及 `redroid.opi03.rc`；
 这项门禁通过才值得把大归档传到板卡。视频解码（Allwinner Codec2 服务、`cedarc.conf`、
@@ -591,6 +639,14 @@ ADB 暂时只绑定主机 loopback。通过 SSH 转发：
 ssh -p 2222 -L 5555:127.0.0.1:5555 root@OPI03_ADDRESS
 adb connect 127.0.0.1:5555
 ```
+
+安全姿态（临时，验收后必须收紧）：当前容器是
+`privileged=true` + `androidboot.selinux=permissive` + `ro.adb.secure=0`
+（ADB 无认证）的组合，只适合在内网通过 SSH 隧道调试。**验收完成后的收尾步骤**：
+把 `ro.adb.secure` 恢复为 `1`（或删除 ADB 属性），SELinux 改回
+`enforcing`，并复核容器是否仍需 `privileged`（Mali/gralloc 需要哪些设备节点就
+只 bind 哪些，而不是整容器提权）。在没有完成这步前，不要把这个镜像/容器暴露到
+不受信任的网络。
 
 ## 实机调试记录（2026-08-04）
 
