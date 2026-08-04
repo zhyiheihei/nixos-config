@@ -75,3 +75,7 @@ nix.profile
 .reasonix/
 # ad-hoc debugging scripts (may contain credentials; never commit)
 .tmp-*
+# browser/session cookie exports (SID/HSID/SSID/APISID etc; never commit)
+*.cookie*
+.cookies
+cookies.txt
