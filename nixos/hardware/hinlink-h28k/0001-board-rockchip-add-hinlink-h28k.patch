@@ -1,22 +1,19 @@
-From a910b57b98b1dd733df3c6f402bd3eecf2e9f62f Mon Sep 17 00:00:00 2001
-From: Zhyi <zyheihei_123@163.com>
-Date: Tue, 4 Aug 2026 07:57:31 +0800
-Subject: [PATCH] board: rockchip: add HINLINK H28K support
+From df056584b1825957ad118b6c1084aae00b1fa0b7 Mon Sep 17 00:00:00 2001
+From: Chukun Pan <amadeus@jmu.edu.cn>
+Date: Wed, 3 Dec 2025 20:03:22 +0800
+Subject: [PATCH] board: rockchip: add HINLINK H28K
 
-Based on Chukun Pan's pending U-Boot patch carried in OpenWrt (384127320e0b); adds a MAINTAINERS entry.
+The HINLINK H28K is a single board computer based on the
+RK3528 SoC. Add support for the HINLINK H28K board.
+
+Features tested on HINLINK H28K:
+- SD-card boot
+- eMMC boot
+- Ethernet
+
+Signed-off-by: Chukun Pan <amadeus@jmu.edu.cn>
 ---
- arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi  |  11 +
- arch/arm/mach-rockchip/rk3528/MAINTAINERS     |   5 +
- configs/hinlink-h28k-rk3528_defconfig         |  64 ++++
- .../arm64/rockchip/rk3528-hinlink-h28k.dts    | 278 ++++++++++++++++++
- 4 files changed, 358 insertions(+)
- create mode 100644 arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi
- create mode 100644 configs/hinlink-h28k-rk3528_defconfig
- create mode 100644 dts/upstream/src/arm64/rockchip/rk3528-hinlink-h28k.dts
 
-diff --git a/arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi b/arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi
-new file mode 100644
-index 00000000..3e2fbd81
 --- /dev/null
 +++ b/arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi
 @@ -0,0 +1,11 @@
@@ -31,22 +28,6 @@ index 00000000..3e2fbd81
 +&vdd_logic {
 +	regulator-init-microvolt = <900000>;
 +};
-diff --git a/arch/arm/mach-rockchip/rk3528/MAINTAINERS b/arch/arm/mach-rockchip/rk3528/MAINTAINERS
-index 111fe027..29cd3c05 100644
---- a/arch/arm/mach-rockchip/rk3528/MAINTAINERS
-+++ b/arch/arm/mach-rockchip/rk3528/MAINTAINERS
-@@ -21,3 +21,8 @@ M:	Jonas Karlman <jonas@kwiboo.se>
- S:	Maintained
- F:	arch/arm/dts/rk3528-armsom-sige1*
- F:	configs/sige1-rk3528_defconfig
-+HINLINK-H28K-RK3528
-+M:	Zhyi <zyheihei_123@163.com>
-+S:	Maintained
-+F:	arch/arm/dts/rk3528-hinlink-h28k*
-+F:	configs/hinlink_h28k_rk3528_defconfig
-diff --git a/configs/hinlink-h28k-rk3528_defconfig b/configs/hinlink-h28k-rk3528_defconfig
-new file mode 100644
-index 00000000..de5be0c8
 --- /dev/null
 +++ b/configs/hinlink-h28k-rk3528_defconfig
 @@ -0,0 +1,64 @@
@@ -114,9 +95,6 @@ index 00000000..de5be0c8
 +CONFIG_USB_GADGET_DOWNLOAD=y
 +CONFIG_USB_FUNCTION_ROCKUSB=y
 +CONFIG_ERRNO_STR=y
-diff --git a/dts/upstream/src/arm64/rockchip/rk3528-hinlink-h28k.dts b/dts/upstream/src/arm64/rockchip/rk3528-hinlink-h28k.dts
-new file mode 100644
-index 00000000..e387da51
 --- /dev/null
 +++ b/dts/upstream/src/arm64/rockchip/rk3528-hinlink-h28k.dts
 @@ -0,0 +1,278 @@
@@ -398,6 +376,3 @@ index 00000000..e387da51
 +	pinctrl-0 = <&uart0m0_xfer>;
 +	status = "okay";
 +};
--- 
-2.55.0
-
