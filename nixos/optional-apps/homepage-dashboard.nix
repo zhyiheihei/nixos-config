@@ -112,8 +112,7 @@
       hideErrors = true;
     };
 
-    customCSS = ''
-      :root {
+    customCSS = ''      :root {
         --dashboard-ink: rgba(7, 10, 14, 0.96);
         --dashboard-panel: rgba(16, 20, 25, 0.97);
         --dashboard-line: rgba(255, 255, 255, 0.14);
@@ -183,21 +182,6 @@
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
       }
 
-      .widget-container:nth-child(1) {
-        border-left: 3px solid var(--dashboard-cyan);
-      }
-
-      .widget-container:nth-child(2) {
-        border-top: 2px solid var(--dashboard-coral);
-      }
-
-      .widget-container:nth-child(3) {
-        border-bottom: 2px solid var(--dashboard-yellow);
-      }
-
-      .widget-container:nth-child(4) {
-        border-right: 3px solid var(--dashboard-mint);
-      }
 
       #services {
         margin: 18px 28px 0 !important;
@@ -262,66 +246,6 @@
         right: 7px !important;
       }
 
-      .services-group:nth-child(1) .service-card {
-        border-top: 3px solid var(--dashboard-cyan) !important;
-        background-color: rgba(9, 21, 24, 0.16) !important;
-        background-image:
-          linear-gradient(90deg, rgba(88, 225, 210, 0.1) 1px, transparent 1px),
-          linear-gradient(rgba(88, 225, 210, 0.07) 1px, transparent 1px) !important;
-        background-size: 18px 18px !important;
-      }
-
-      .services-group:nth-child(1) .service-card::after {
-        content: "";
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        width: 20px;
-        height: 2px;
-        background: var(--dashboard-cyan);
-        opacity: 0.65;
-      }
-
-      .services-group:nth-child(2) .service-card {
-        min-height: 80px;
-        padding-left: 14px !important;
-        border-left: 4px solid var(--dashboard-coral) !important;
-        background-color: rgba(27, 16, 21, 0.16) !important;
-        background-image: linear-gradient(110deg, rgba(255, 111, 125, 0.1), transparent 42%) !important;
-        box-shadow:
-          inset 10px 0 24px rgba(255, 111, 125, 0.08),
-          0 10px 26px rgba(0, 0, 0, 0.24) !important;
-      }
-
-      .services-group:nth-child(3) .service-card {
-        min-height: 104px;
-        border-bottom: 3px solid var(--dashboard-yellow) !important;
-        background-color: rgba(26, 23, 15, 0.16) !important;
-        background-image:
-          linear-gradient(135deg, transparent 72%, rgba(247, 201, 92, 0.12) 72%),
-          linear-gradient(0deg, rgba(247, 201, 92, 0.05), transparent 60%) !important;
-      }
-
-      .services-group:nth-child(3) .service-card > div:last-child {
-        border-top: 1px solid rgba(247, 201, 92, 0.13);
-      }
-
-      .services-group:nth-child(4) .service-card {
-        min-height: 112px;
-        padding: 11px 12px !important;
-        border-right: 3px solid var(--dashboard-mint) !important;
-        background-color: rgba(13, 24, 19, 0.16) !important;
-        background-image:
-          linear-gradient(180deg, rgba(125, 226, 165, 0.08), transparent 44%),
-          repeating-linear-gradient(90deg, transparent 0 28px, rgba(125, 226, 165, 0.025) 28px 29px) !important;
-        box-shadow:
-          inset 0 0 0 1px rgba(125, 226, 165, 0.07),
-          0 10px 26px rgba(0, 0, 0, 0.24) !important;
-      }
-
-      .services-group:nth-child(4) .service-name {
-        font-size: 0.88rem !important;
-      }
 
       @media (max-width: 768px) {
         #information-widgets {
