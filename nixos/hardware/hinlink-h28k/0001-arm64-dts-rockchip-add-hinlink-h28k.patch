@@ -1,29 +1,16 @@
-From 145d4af4b204e1fb565a498c6c8f801525cc0a4e Mon Sep 17 00:00:00 2001
-From: Chukun Pan <amadeus@jmu.edu.cn>
-Date: Wed, 10 Jun 2026 18:00:06 +0800
-Subject: arm64: dts: rockchip: Add HINLINK H28K
+From e10a371e23f12c9db22569795eb179826b69f1b4 Mon Sep 17 00:00:00 2001
+From: Zhyi <zyheihei_123@163.com>
+Date: Tue, 4 Aug 2026 08:25:19 +0800
+Subject: [PATCH] arm64: dts: rockchip: Add HINLINK H28K
 
-The HINLINK H28K (LinkStar H28K) is a SBC with the
-Rockchip RK3528 SoC. It has the following features:
-
-- 1x USB 2.0
-- 8/32GB eMMC
-- 1/2/4GB LPDDR4
-- MicroSD card slot
-- 1x 1GbE RTL8111H Ethernet
-- 1x 1GbE RTL8211F Ethernet
-
-Signed-off-by: Chukun Pan <amadeus@jmu.edu.cn>
-Link: https://patch.msgid.link/20260610100006.366963-3-amadeus@jmu.edu.cn
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 ---
- arch/arm64/boot/dts/rockchip/Makefile              |   1 +
- .../boot/dts/rockchip/rk3528-hinlink-h28k.dts      | 318 +++++++++++++++++++++
- 2 files changed, 319 insertions(+)
+ arch/arm64/boot/dts/rockchip/Makefile         |   1 +
+ .../boot/dts/rockchip/rk3528-hinlink-h28k.dts | 301 ++++++++++++++++++
+ 2 files changed, 302 insertions(+)
  create mode 100644 arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts
 
 diff --git a/arch/arm64/boot/dts/rockchip/Makefile b/arch/arm64/boot/dts/rockchip/Makefile
-index 6cab03c9c4a44..7623c136ce21c 100644
+index cb55c6b..5c3fba5 100644
 --- a/arch/arm64/boot/dts/rockchip/Makefile
 +++ b/arch/arm64/boot/dts/rockchip/Makefile
 @@ -92,6 +92,7 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3399-sapphire.dtb
@@ -36,10 +23,10 @@ index 6cab03c9c4a44..7623c136ce21c 100644
  dtb-$(CONFIG_ARCH_ROCKCHIP) += rk3528-rock-2a.dtb
 diff --git a/arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts b/arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts
 new file mode 100644
-index 0000000000000..0ec50e9156eb1
+index 0000000..4685db2
 --- /dev/null
 +++ b/arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts
-@@ -0,0 +1,308 @@
+@@ -0,0 +1,301 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +
 +/dts-v1/;
@@ -242,20 +229,14 @@ index 0000000000000..0ec50e9156eb1
 +};
 +
 +&mdio1 {
-+	reset-gpios = <&gpio4 RK_PC2 GPIO_ACTIVE_LOW>;
-+	reset-delay-us = <20000>;
-+	reset-post-delay-us = <100000>;
 +	rgmii_phy: ethernet-phy@1 {
 +		compatible = "ethernet-phy-ieee802.3-c22";
 +		reg = <0x1>;
 +		pinctrl-names = "default";
 +		pinctrl-0 = <&gmac1_rstn_l>;
-+		/* reset-gpios is intentionally absent: the reset line is owned
-+		 * by the MDIO bus (reset-gpios on &mdio1), which asserts and
-+		 * releases it before scanning PHYs. A second consumer request
-+		 * for the same GPIO is rejected with -EBUSY and breaks PHY
-+		 * bring-up.
-+		 */
++		reset-assert-us = <20000>;
++		reset-deassert-us = <100000>;
++		reset-gpios = <&gpio4 RK_PC2 GPIO_ACTIVE_LOW>;
 +	};
 +};
 +
@@ -347,6 +328,6 @@ index 0000000000000..0ec50e9156eb1
 +	pinctrl-0 = <&uart0m0_xfer>;
 +	status = "okay";
 +};
-+
---
-cgit 1.3-korg
+-- 
+2.55.0
+
