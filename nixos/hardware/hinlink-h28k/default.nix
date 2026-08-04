@@ -49,7 +49,6 @@ let
   ubootH28K = crossPkgs.buildUBoot {
     defconfig = "hinlink-h28k-rk3528_defconfig";
     extraPatches = [ ./0001-board-rockchip-add-hinlink-h28k.patch ];
-    extraConfig = "CONFIG_NET=y\nCONFIG_CMD_NET=y\nCONFIG_CMD_DHCP=y\nCONFIG_CMD_PING=y\nCONFIG_CMD_MII=y\n";
     extraMeta.platforms = [ "aarch64-linux" ];
     requiredSystemFeatures = [ "aarch64-cross" ];
     env = {
