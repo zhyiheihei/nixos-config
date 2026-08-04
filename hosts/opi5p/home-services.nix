@@ -43,6 +43,7 @@ in
     ../../nixos/optional-apps/filecodebox.nix
     ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/immich.nix
+    ../../nixos/optional-apps/immich-rockchip.nix
     ../../nixos/optional-apps/linkwarden.nix
     ../../nixos/optional-apps/memos.nix
     ../../nixos/optional-apps/ncps.nix
