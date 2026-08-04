@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Stage 1 (default) verifies the Mali GPU path only.  Pass --stage2-codec2 to
+# also require the Allwinner Codec2 hardware decode stack (deferred until the
+# vendor libcedarc 64-bit blobs are Android bionic, see docs).
+stage2_codec2=false
+args=()
+for a in "$@"; do
+  case "$a" in
+    --stage2-codec2) stage2_codec2=true ;;
+    *) args+=("$a") ;;
+  esac
+done
+set -- "${args[@]}"
 container=${1:-redroid}
 mode=${2:-check}
 
@@ -34,6 +46,10 @@ if [[ "$mode" == "watch-vpu" ]]; then
 fi
 
 if [[ "$mode" == "decode-test" ]]; then
+  if [[ "$stage2_codec2" != true ]]; then
+    echo "decode-test is a Stage 2 (Codec2/Cedar) gate; pass --stage2-codec2" >&2
+    exit 2
+  fi
   sample=${3:-}
   if [[ -z "$sample" || ! -f "$sample" ]]; then
     echo "usage: $0 $container decode-test /path/to/h264-or-h265-sample.mp4" >&2
@@ -151,35 +167,37 @@ else
   pass "hardware renderer: $renderer"
 fi
 
-c2_processes=$(podman exec "$container" ps -A 2>&1 | grep -i 'media.aw.c2' || true)
-if [[ -n "$c2_processes" ]]; then
-  pass "Allwinner Codec2 service is running"
-else
-  fail "android.hardware.media.aw.c2 service is not running"
-fi
+if [[ "$stage2_codec2" == true ]]; then
+  c2_processes=$(podman exec "$container" ps -A 2>&1 | grep -i 'media.aw.c2' || true)
+  if [[ -n "$c2_processes" ]]; then
+    pass "Allwinner Codec2 service is running"
+  else
+    fail "android.hardware.media.aw.c2 service is not running"
+  fi
 
-c2_hal=$(podman exec "$container" lshal 2>&1 | grep -iE 'media\.c2|allwinner' || true)
-if [[ -n "$c2_hal" ]]; then
-  pass "Allwinner Codec2 HAL is registered"
-else
-  fail "Allwinner Codec2 HAL is not registered"
-fi
+  c2_hal=$(podman exec "$container" lshal 2>&1 | grep -iE 'media\.c2|allwinner' || true)
+  if [[ -n "$c2_hal" ]]; then
+    pass "Allwinner Codec2 HAL is registered"
+  else
+    fail "Allwinner Codec2 HAL is not registered"
+  fi
 
-codec_xml=$(podman exec "$container" sh -c \
-  "grep -R 'c2.allwinner.avc.decoder' /vendor/etc/media_codecs*.xml" 2>/dev/null || true)
-if [[ -n "$codec_xml" ]]; then
-  pass "c2.allwinner AVC decoder is advertised"
-else
-  fail "c2.allwinner codec XML is absent"
-fi
+  codec_xml=$(podman exec "$container" sh -c \
+    "grep -R 'c2.allwinner.avc.decoder' /vendor/etc/media_codecs*.xml" 2>/dev/null || true)
+  if [[ -n "$codec_xml" ]]; then
+    pass "c2.allwinner AVC decoder is advertised"
+  else
+    fail "c2.allwinner codec XML is absent"
+  fi
 
-codec_list=$(podman exec "$container" stagefright -i 2>&1 || true)
-if grep -q 'c2.allwinner.avc.decoder' <<< "$codec_list" \
-  && grep -q 'c2.allwinner.hevc.decoder' <<< "$codec_list"
-then
-  pass "Android runtime codec list contains Allwinner AVC and HEVC decoders"
-else
-  fail "Android runtime codec list does not expose both Allwinner AVC and HEVC decoders"
+  codec_list=$(podman exec "$container" stagefright -i 2>&1 || true)
+  if grep -q 'c2.allwinner.avc.decoder' <<< "$codec_list" \
+    && grep -q 'c2.allwinner.hevc.decoder' <<< "$codec_list"
+  then
+    pass "Android runtime codec list contains Allwinner AVC and HEVC decoders"
+  else
+    fail "Android runtime codec list does not expose both Allwinner AVC and HEVC decoders"
+  fi
 fi
 
 if (( failures > 0 )); then
