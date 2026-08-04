@@ -15,6 +15,7 @@
 
     ./hardware-configuration.nix
     ./home-edge.nix
+    ./media-apps.nix
   ];
 
   # Align with opi5p: the NAS exports the media library directly; mount the
