@@ -61,7 +61,7 @@ in
     # but an incoming build on ml-builder must never be sent back to PVE while
     # PVE is still holding the same output lock.  OPI5P remains available for
     # the small number of derivations that must execute natively on ARM.
-    excludeHosts = [ "pve-5700u" ];
+    excludeHosts = [ "pve-5700u" "opi5p" ];
   };
 
   # Only this machine advertises the native x86_64 toolchain used for
