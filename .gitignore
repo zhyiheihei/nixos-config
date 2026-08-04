@@ -71,3 +71,5 @@ target/
 
 flamegraph.svg
 nix.profile
+.reasonix/desktop-topic-title-sources.json
+.reasonix/
