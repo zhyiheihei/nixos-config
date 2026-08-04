@@ -329,6 +329,22 @@ Google 公共文件配额拒绝下载时，不要换成来源不明的压缩包�
 `parts/` 后重跑同一脚本。无论取自哪个官方入口，脚本都只在 18 片全部通过 MD5 后
 流式解压，并在实际 Android source root 写入固定 manifest 标记。
 
+### 下载阶段踩过的坑
+
+- **gdown 6.1.0 下载后不做完整性校验**（上游 issue #477）：下载完成 ≠ 文件正确。
+  单靠 gdown 的进度条 100% 会放过损坏分片（本任务中 ae 分片曾下载成功但 MD5 不
+  符）。下载器必须对每个分片做 `md5sum -c`，不匹配就删除重下并自动重试。
+- **文件 ID 不能凭印象抄**：ae 分片曾误用 af 的 Google Drive ID，下载到的是 af
+  的内容（MD5 恰好等于 manifest 里 af 的期望值），两次不同代理下到相同"错误"
+  内容，靠逐片 MD5 对 manifest 才定位。脚本里 `ids[]` 与 `suffixes[]` 的下标
+  必须一一对应，改脚本时严禁错位。
+- **单个代理不可靠**：`192.168.0.64:7892`（rock5c）快但会间歇性 SSL EOF 中断
+  大文件；`192.168.0.1:1080`（路由器 xray）慢且 egress IP 不同。可靠做法是
+  下载循环里**双代理自动切换**：优先 7892，失败自动切 1080，配合
+  `resume=True` 断点续传 + MD5 校验 + 有限次重试（本任务 48 次/1800s）。
+- 18 片合计约 35 GiB，下载目录所在盘要有 100 GiB 以上余量（解压后源码约 78
+  GiB）。
+
 脚本最后会打印实际 source root。以该路径运行：
 
 ```bash
@@ -495,6 +511,34 @@ Docker 镜像 `sinovoip/bpi-build-android-11:ubuntu20.04`；不要把这个 Andr
 构建环境误当成 Orange Pi 的官方环境，也不要使用不存在的 `latest`。若进入容器，
 源码和输出目录必须 bind mount，避免把数百 GiB 输出写进 Docker overlay。
 
+编译环境依赖（Ubuntu 22.04 实测缺项，缺了会怎样写清）：
+
+- **JDK 11**：Android 12 必须 `openjdk-11`（soong/bootstrap 在 JDK 17 下报错）。
+  `sudo apt-get install -y openjdk-11-jdk`，`JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64`。
+- **libncurses5**：soong `m` 阶段大量脚本依赖 `libncurses.so.5`（22.04 默认只有
+  ncurses6），缺失时报 `error while loading shared libraries: libncurses.so.5`。
+  `sudo apt-get install -y libncurses5`（旧名 `libncurses5:i386` 不需要）。
+- **ccache（强烈建议）**：Android 12 的 soong 读 `CC_WRAPPER`（由 make 侧
+  `ccache.mk` 设置），开启后失败重编能跳过已编译目标，大幅缩短迭代。关键坑：
+  **`CCACHE_DIR` 不能放在 `/home` 下**——Android 的 sandbox（nsjail）对部分构建
+  目录只读，`/home` 命中后报 `ccache: error: Failed to create ...`。设到
+  `/tmp/ccache`（本任务实测可用，命中率约 30%）。启用方式：
+
+  ```bash
+  export USE_CCACHE=1 CCACHE_EXEC=/usr/bin/ccache \
+    CCACHE_DIR=/tmp/ccache \
+    CCACHE_COMPILERCHECK=content \
+    CCACHE_SLOPPINESS=time_macros,include_file_mtime,file_macro \
+    CCACHE_BASEDIR=/ CCACHE_CPP2=true
+  ```
+
+  改 ccache 相关 env 或换 `CCACHE_DIR` 后**必须清 soong 缓存**
+  （`rm -rf out/soong out/.module_paths out/build-redroid_opi03.ninja`），否则
+  ninja 不会带新的 CC_WRAPPER 重新生成。
+- 改动任何 `Android.bp`/`Android.mk`/Go 插件后，同样先清上述 soong 缓存再
+  `m`；soong 缓存会残留已删除目录（例如 openmax）的模块索引，不清会继续引用
+  已移走的模块。
+
 进入官方构建容器后执行：
 
 ```bash
@@ -651,3 +695,21 @@ sudo opi03-redroid-check redroid watch-vpu
   microSD/eMMC 经 MMC 启动，不存在 raw NAND 设备，因此生成器禁用
   `SUNXI_NAND`（连带 `SUNXI_RAWNAND`）并在断言里要求两者都必须关闭。
   `modules/gpu` 是 Longan 外置 Mali，未被 kernel 构建引用，无需处理。
+- vendor 5.4 的 `mali_kbase.ko`（`pkgs/opi03-mali-kbase`）构建有两个独立坑：
+  1. **不能开 `CONFIG_MALI_DMA_FENCE`**：该选项引用 `linux/reservation.h`，5.4
+     已把该头改名 `dma-resv.h`（上游只保留别名到 4.x），编译直接
+     `No such file or directory`。官方默认就是 `n`，保持关闭即可。
+  2. **不能走 `modules_install` 装进 lib/modules 树**：会递归进
+     `modules/gpu/mali-bifrost` 再构建一份；installPhase 应直接把构建出的
+     `mali_kbase.ko` 放到 `$out/lib/modules/5.4.125/extra/`，由
+     `boot.extraModulePackages` 挂载。
+- **Google 会话 cookie 曾误提交进 git**（`bc9d625a` 引入 `.reasonix/` 附件，
+  `12e5876c` 移除并补 `.gitignore`）。下载脚本用 gdown 时把 cookie 放在
+  `$HOME/.cache/gdown/`，**绝不能把含 SID/HSID/SSID/APISID 的文件 `git add`
+  进仓库**；`.reasonix/`、`*.cookie*`、`.tmp-*` 都应忽略。cookie 一旦入库，
+  仅删当前树不够——历史 blob 仍在，需要 `git filter-repo`（或
+  `filter-branch`）清洗并 force-push，且用户必须去 Google 安全中心吊销该会话。
+- mac 上 `diskutil list external physical` 先确认盘符再烧录；`dd of=/dev/rdisk4`
+  （rdisk 裸设备，比 `/dev/disk4` 快）；写完 `sync`/`conv=fsync` 后 eject。
+  FAT32 boot 分区被 mac 以只读挂载（fskit），不要指望直接改卡上
+  `/extlinux/extlinux.conf` 调参数。
