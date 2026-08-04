@@ -18,7 +18,6 @@ let
     "podman-archivebox"
     "podman-asf"
     "podman-filecodebox"
-    "podman-freshrss"
     "podman-home-assistant"
     "podman-linkwarden"
     "podman-memos"
@@ -42,12 +41,12 @@ in
     ../../nixos/optional-apps/calibre-cops.nix
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/filecodebox.nix
-    ../../nixos/optional-apps/freshrss.nix
     ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/immich.nix
     ../../nixos/optional-apps/linkwarden.nix
     ../../nixos/optional-apps/memos.nix
     ../../nixos/optional-apps/ncps.nix
+    ../../nixos/optional-apps/rss-link.nix
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/sun-panel.nix
