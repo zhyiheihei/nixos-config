@@ -1,39 +1,125 @@
-From 351f6d764431e340715c15e12d5f9c4c8bba9831 Mon Sep 17 00:00:00 2001
+From a910b57b98b1dd733df3c6f402bd3eecf2e9f62f Mon Sep 17 00:00:00 2001
 From: Zhyi <zyheihei_123@163.com>
 Date: Tue, 4 Aug 2026 07:57:31 +0800
 Subject: [PATCH] board: rockchip: add HINLINK H28K support
 
+Based on Chukun Pan's pending U-Boot patch carried in OpenWrt (384127320e0b); adds a MAINTAINERS entry.
 ---
- arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi |   3 +
- arch/arm/dts/rk3528-hinlink-h28k.dts         | 308 +++++++++++++++++++
- arch/arm/mach-rockchip/rk3528/MAINTAINERS    |   5 +
- configs/hinlink_h28k_rk3528_defconfig        |  65 ++++
- 4 files changed, 381 insertions(+)
+ arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi  |  11 +
+ arch/arm/mach-rockchip/rk3528/MAINTAINERS     |   5 +
+ configs/hinlink-h28k-rk3528_defconfig         |  64 ++++
+ .../arm64/rockchip/rk3528-hinlink-h28k.dts    | 278 ++++++++++++++++++
+ 4 files changed, 358 insertions(+)
  create mode 100644 arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi
- create mode 100644 arch/arm/dts/rk3528-hinlink-h28k.dts
- create mode 100644 configs/hinlink_h28k_rk3528_defconfig
+ create mode 100644 configs/hinlink-h28k-rk3528_defconfig
+ create mode 100644 dts/upstream/src/arm64/rockchip/rk3528-hinlink-h28k.dts
 
 diff --git a/arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi b/arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi
 new file mode 100644
-index 00000000..9e1fb2a7
+index 00000000..3e2fbd81
 --- /dev/null
 +++ b/arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi
-@@ -0,0 +1,3 @@
+@@ -0,0 +1,11 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +
 +#include "rk3528-u-boot.dtsi"
-diff --git a/arch/arm/dts/rk3528-hinlink-h28k.dts b/arch/arm/dts/rk3528-hinlink-h28k.dts
++
++&vdd_arm {
++	regulator-init-microvolt = <953000>;
++};
++
++&vdd_logic {
++	regulator-init-microvolt = <900000>;
++};
+diff --git a/arch/arm/mach-rockchip/rk3528/MAINTAINERS b/arch/arm/mach-rockchip/rk3528/MAINTAINERS
+index 111fe027..29cd3c05 100644
+--- a/arch/arm/mach-rockchip/rk3528/MAINTAINERS
++++ b/arch/arm/mach-rockchip/rk3528/MAINTAINERS
+@@ -21,3 +21,8 @@ M:	Jonas Karlman <jonas@kwiboo.se>
+ S:	Maintained
+ F:	arch/arm/dts/rk3528-armsom-sige1*
+ F:	configs/sige1-rk3528_defconfig
++HINLINK-H28K-RK3528
++M:	Zhyi <zyheihei_123@163.com>
++S:	Maintained
++F:	arch/arm/dts/rk3528-hinlink-h28k*
++F:	configs/hinlink_h28k_rk3528_defconfig
+diff --git a/configs/hinlink-h28k-rk3528_defconfig b/configs/hinlink-h28k-rk3528_defconfig
 new file mode 100644
-index 00000000..9b074630
+index 00000000..de5be0c8
 --- /dev/null
-+++ b/arch/arm/dts/rk3528-hinlink-h28k.dts
-@@ -0,0 +1,308 @@
-+diff --git a/arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts b/arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts
-+new file mode 100644
-+index 0000000000000..0ec50e9156eb1
-+--- /dev/null
-+++ b/arch/arm64/boot/dts/rockchip/rk3528-hinlink-h28k.dts
-+@@ -0,0 +1,318 @@
++++ b/configs/hinlink-h28k-rk3528_defconfig
+@@ -0,0 +1,64 @@
++CONFIG_ARM=y
++CONFIG_SKIP_LOWLEVEL_INIT=y
++CONFIG_COUNTER_FREQUENCY=24000000
++CONFIG_ARCH_ROCKCHIP=y
++CONFIG_DEFAULT_DEVICE_TREE="rockchip/rk3528-hinlink-h28k"
++CONFIG_ROCKCHIP_RK3528=y
++CONFIG_SYS_LOAD_ADDR=0xc00800
++CONFIG_DEBUG_UART_BASE=0xFF9F0000
++CONFIG_DEBUG_UART_CLOCK=24000000
++CONFIG_DEBUG_UART=y
++CONFIG_DEFAULT_FDT_FILE="rockchip/rk3528-hinlink-h28k.dtb"
++# CONFIG_DISPLAY_CPUINFO is not set
++CONFIG_BOARD_RNG_SEED=y
++CONFIG_SPL_MAX_SIZE=0x40000
++# CONFIG_SPL_RAW_IMAGE_SUPPORT is not set
++CONFIG_CMD_MEMINFO=y
++CONFIG_CMD_MEMINFO_MAP=y
++CONFIG_CMD_ADC=y
++CONFIG_CMD_GPIO=y
++CONFIG_CMD_GPT=y
++CONFIG_CMD_MISC=y
++CONFIG_CMD_MMC=y
++CONFIG_CMD_USB=y
++CONFIG_CMD_ROCKUSB=y
++CONFIG_CMD_USB_MASS_STORAGE=y
++# CONFIG_CMD_SETEXPR is not set
++CONFIG_CMD_RNG=y
++CONFIG_CMD_REGULATOR=y
++# CONFIG_SPL_DOS_PARTITION is not set
++CONFIG_OF_SPL_REMOVE_PROPS="clock-names interrupt-parent assigned-clocks assigned-clock-rates assigned-clock-parents"
++CONFIG_BUTTON=y
++CONFIG_BUTTON_ADC=y
++# CONFIG_USB_FUNCTION_FASTBOOT is not set
++CONFIG_ROCKCHIP_GPIO=y
++CONFIG_LED=y
++CONFIG_LED_GPIO=y
++CONFIG_SUPPORT_EMMC_RPMB=y
++CONFIG_MMC_DW=y
++CONFIG_MMC_DW_ROCKCHIP=y
++CONFIG_MMC_SDHCI=y
++CONFIG_MMC_SDHCI_SDMA=y
++CONFIG_MMC_SDHCI_ROCKCHIP=y
++CONFIG_PHY_REALTEK=y
++CONFIG_DM_MDIO=y
++CONFIG_DWC_ETH_QOS=y
++CONFIG_DWC_ETH_QOS_ROCKCHIP=y
++CONFIG_PHY_ROCKCHIP_INNO_USB2=y
++CONFIG_PHY_ROCKCHIP_NANENG_COMBOPHY=y
++CONFIG_REGULATOR_PWM=y
++CONFIG_DM_REGULATOR_GPIO=y
++CONFIG_PWM_ROCKCHIP=y
++CONFIG_BAUDRATE=1500000
++CONFIG_DEBUG_UART_SHIFT=2
++CONFIG_SYS_NS16550_MEM32=y
++CONFIG_USB=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_EHCI_GENERIC=y
++CONFIG_USB_DWC3=y
++CONFIG_USB_DWC3_GENERIC=y
++CONFIG_USB_GADGET=y
++CONFIG_USB_GADGET_DOWNLOAD=y
++CONFIG_USB_FUNCTION_ROCKUSB=y
++CONFIG_ERRNO_STR=y
+diff --git a/dts/upstream/src/arm64/rockchip/rk3528-hinlink-h28k.dts b/dts/upstream/src/arm64/rockchip/rk3528-hinlink-h28k.dts
+new file mode 100644
+index 00000000..e387da51
+--- /dev/null
++++ b/dts/upstream/src/arm64/rockchip/rk3528-hinlink-h28k.dts
+@@ -0,0 +1,278 @@
 +// SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 +
 +/dts-v1/;
@@ -196,10 +282,6 @@ index 00000000..9b074630
 +	};
 +};
 +
-+&combphy {
-+	status = "okay";
-+};
-+
 +&cpu0 {
 +	cpu-supply = <&vdd_arm>;
 +};
@@ -230,11 +312,6 @@ index 00000000..9b074630
 +	status = "okay";
 +};
 +
-+&gpu {
-+	mali-supply = <&vdd_logic>;
-+	status = "okay";
-+};
-+
 +&mdio1 {
 +	rgmii_phy: ethernet-phy@1 {
 +		compatible = "ethernet-phy-ieee802.3-c22";
@@ -245,14 +322,6 @@ index 00000000..9b074630
 +		reset-deassert-us = <100000>;
 +		reset-gpios = <&gpio4 RK_PC2 GPIO_ACTIVE_LOW>;
 +	};
-+};
-+
-+&pcie {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&rtl8111hs_isolateb_l>;
-+	reset-gpios = <&gpio4 RK_PA3 GPIO_ACTIVE_HIGH>;
-+	vpcie3v3-supply = <&vcc_3v3>;
-+	status = "okay";
 +};
 +
 +&pinctrl {
@@ -273,12 +342,6 @@ index 00000000..9b074630
 +
 +		work_led: work-led {
 +			rockchip,pins = <4 RK_PB7 RK_FUNC_GPIO &pcfg_pull_none>;
-+		};
-+	};
-+
-+	pcie {
-+		rtl8111hs_isolateb_l: rtl8111hs-isolateb-l {
-+			rockchip,pins = <4 RK_PA6 RK_FUNC_GPIO &pcfg_pull_up>;
 +		};
 +	};
 +
@@ -335,91 +398,6 @@ index 00000000..9b074630
 +	pinctrl-0 = <&uart0m0_xfer>;
 +	status = "okay";
 +};
-+
-diff --git a/arch/arm/mach-rockchip/rk3528/MAINTAINERS b/arch/arm/mach-rockchip/rk3528/MAINTAINERS
-index 111fe027..29cd3c05 100644
---- a/arch/arm/mach-rockchip/rk3528/MAINTAINERS
-+++ b/arch/arm/mach-rockchip/rk3528/MAINTAINERS
-@@ -21,3 +21,8 @@ M:	Jonas Karlman <jonas@kwiboo.se>
- S:	Maintained
- F:	arch/arm/dts/rk3528-armsom-sige1*
- F:	configs/sige1-rk3528_defconfig
-+HINLINK-H28K-RK3528
-+M:	Zhyi <zyheihei_123@163.com>
-+S:	Maintained
-+F:	arch/arm/dts/rk3528-hinlink-h28k*
-+F:	configs/hinlink_h28k_rk3528_defconfig
-diff --git a/configs/hinlink_h28k_rk3528_defconfig b/configs/hinlink_h28k_rk3528_defconfig
-new file mode 100644
-index 00000000..d56683ea
---- /dev/null
-+++ b/configs/hinlink_h28k_rk3528_defconfig
-@@ -0,0 +1,65 @@
-+CONFIG_ARM=y
-+CONFIG_SKIP_LOWLEVEL_INIT=y
-+CONFIG_COUNTER_FREQUENCY=24000000
-+CONFIG_ARCH_ROCKCHIP=y
-+CONFIG_DEFAULT_DEVICE_TREE="rk3528-hinlink-h28k"
-+CONFIG_ROCKCHIP_RK3528=y
-+CONFIG_SYS_LOAD_ADDR=0xc00800
-+CONFIG_DEBUG_UART_BASE=0xFF9F0000
-+CONFIG_DEBUG_UART_CLOCK=24000000
-+CONFIG_DEBUG_UART=y
-+CONFIG_DEFAULT_FDT_FILE="rockchip/rk3528-hinlink-h28k.dtb"
-+# CONFIG_DISPLAY_CPUINFO is not set
-+CONFIG_BOARD_RNG_SEED=y
-+CONFIG_SPL_MAX_SIZE=0x40000
-+# CONFIG_SPL_RAW_IMAGE_SUPPORT is not set
-+CONFIG_CMD_MEMINFO=y
-+CONFIG_CMD_MEMINFO_MAP=y
-+CONFIG_CMD_ADC=y
-+CONFIG_CMD_GPIO=y
-+CONFIG_CMD_GPT=y
-+CONFIG_CMD_MISC=y
-+CONFIG_CMD_MMC=y
-+CONFIG_CMD_USB=y
-+CONFIG_CMD_ROCKUSB=y
-+CONFIG_CMD_USB_MASS_STORAGE=y
-+# CONFIG_CMD_SETEXPR is not set
-+CONFIG_CMD_RNG=y
-+CONFIG_CMD_REGULATOR=y
-+# CONFIG_SPL_DOS_PARTITION is not set
-+CONFIG_OF_SPL_REMOVE_PROPS="clock-names interrupt-parent assigned-clocks assigned-clock-rates assigned-clock-parents"
-+# CONFIG_OF_UPSTREAM is not set
-+CONFIG_BUTTON=y
-+CONFIG_BUTTON_ADC=y
-+# CONFIG_USB_FUNCTION_FASTBOOT is not set
-+CONFIG_ROCKCHIP_GPIO=y
-+CONFIG_LED=y
-+CONFIG_LED_GPIO=y
-+CONFIG_SUPPORT_EMMC_RPMB=y
-+CONFIG_MMC_DW=y
-+CONFIG_MMC_DW_ROCKCHIP=y
-+CONFIG_MMC_SDHCI=y
-+CONFIG_MMC_SDHCI_SDMA=y
-+CONFIG_MMC_SDHCI_ROCKCHIP=y
-+CONFIG_DM_MDIO=y
-+CONFIG_DWC_ETH_QOS=y
-+CONFIG_DWC_ETH_QOS_ROCKCHIP=y
-+CONFIG_PHY_REALTEK=y
-+CONFIG_PHY_ROCKCHIP_INNO_USB2=y
-+CONFIG_PHY_ROCKCHIP_NANENG_COMBOPHY=y
-+CONFIG_REGULATOR_PWM=y
-+CONFIG_DM_REGULATOR_GPIO=y
-+CONFIG_PWM_ROCKCHIP=y
-+CONFIG_BAUDRATE=1500000
-+CONFIG_DEBUG_UART_SHIFT=2
-+CONFIG_SYS_NS16550_MEM32=y
-+CONFIG_USB=y
-+CONFIG_USB_XHCI_HCD=y
-+CONFIG_USB_EHCI_HCD=y
-+CONFIG_USB_EHCI_GENERIC=y
-+CONFIG_USB_DWC3=y
-+CONFIG_USB_DWC3_GENERIC=y
-+CONFIG_USB_GADGET=y
-+CONFIG_USB_GADGET_DOWNLOAD=y
-+CONFIG_USB_FUNCTION_ROCKUSB=y
-+CONFIG_ERRNO_STR=y
 -- 
 2.55.0
 
