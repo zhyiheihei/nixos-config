@@ -1111,9 +1111,10 @@ let
         unit = "s";
         targets = [
           {
-            # proxy 插件指标已废弃不再更新；改用核心请求处理延迟直方图
+            # proxy 插件指标已废弃；核心请求延迟直方图（Prometheus 3 存为
+            # native histogram，标签为 server/zone）
             expr = ''coredns_dns_request_duration_seconds{instance="router"}'';
-            legendFormat = "{{to}} {{rcode}}";
+            legendFormat = "{{server}} {{zone}}";
           }
         ];
       })
