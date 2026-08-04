@@ -24,6 +24,7 @@ let
       port,
       attrPath,
       metricsPath ? "/metrics",
+      timeout ? null,
     }:
     {
       job_name = jobName;
@@ -31,6 +32,9 @@ let
       # Prometheus 3.x is strict about Content-Type; fall back to text format
       # for exporters that omit or mis-set the header.
       fallback_scrape_protocol = "PrometheusText1.0.0";
+    }
+    // lib.optionalAttrs (timeout != null) { scrape_timeout = timeout; }
+    // {
       static_configs = builtins.map (
         n:
         let
@@ -103,6 +107,9 @@ in
         "node"
         "enable"
       ];
+      # router (home) reaches colocrossing over a lossy international ZT
+      # path; give retransmits room to finish large responses.
+      timeout = "45s";
     })
     (scrapeByAttr {
       jobName = "postgres";
