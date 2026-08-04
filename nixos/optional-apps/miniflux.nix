@@ -38,6 +38,10 @@
         enableOAuth = true;
         proxyPass = "http://unix:/run/miniflux/miniflux.sock";
       };
+      # API 端点绕过 OAuth 前端；Miniflux 自身用 X-Auth-Token（API key）认证
+      "/v1" = {
+        proxyPass = "http://unix:/run/miniflux/miniflux.sock";
+      };
     };
 
     sslCertificate = "lets-encrypt-zhyi.xin";
