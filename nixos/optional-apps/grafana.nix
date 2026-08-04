@@ -10,7 +10,7 @@ let
   prometheusDatasourceUid = "PBFA97CFB590B2093";
 
   dashboardDir = import ./grafana/dashboards.nix {
-    inherit pkgs prometheusDatasourceUid;
+    inherit lib pkgs prometheusDatasourceUid;
   };
 
   mkPlugin =
@@ -76,7 +76,8 @@ in
       dashboards.default_home_dashboard_path = "${dashboardDir}/infrastructure-overview.json";
       log = {
         mode = "syslog";
-        level = "error";
+        # keep debug until user confirms all panels render data (d6af7598)
+        level = "debug";
       };
       server = {
         protocol = "socket";

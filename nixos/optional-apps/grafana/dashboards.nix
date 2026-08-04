@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   prometheusDatasourceUid,
 }:
@@ -7,6 +8,10 @@ let
     type = "prometheus";
     uid = prometheusDatasourceUid;
   };
+
+  # Grafana rejects multiple queries with the same refId inside one panel;
+  # assign each target a unique letter.
+  refIds = [ "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" ];
 
   query =
     {
@@ -200,7 +205,7 @@ let
           sort = "desc";
         };
       };
-      targets = map query targets;
+      targets = lib.imap1 (i: t: query (t // { refId = builtins.elemAt refIds (i - 1); })) targets;
     };
 
   table =
@@ -1111,8 +1116,10 @@ let
         unit = "s";
         targets = [
           {
-            expr = ''coredns_proxy_request_duration_seconds{instance="router"}'';
-            legendFormat = "{{to}} {{rcode}}";
+            # proxy 插件指标已废弃；核心请求延迟直方图（Prometheus 3 存为
+            # native histogram，标签为 server/zone）
+            expr = ''coredns_dns_request_duration_seconds{instance="router"}'';
+            legendFormat = "{{server}} {{zone}}";
           }
         ];
       })
@@ -1615,14 +1622,113 @@ let
       })
     ];
   };
+  devicePerformance = dashboard {
+    uid = "zhyi-devices";
+    title = "设备性能";
+    tags = [
+      "zhyi"
+      "devices"
+    ];
+    panels = [
+      (row {
+        id = 200;
+        title = "负载";
+        y = 0;
+      })
+      (timeseries {
+        id = 201;
+        title = "系统负载";
+        x = 0;
+        y = 1;
+        w = 24;
+        unit = "short";
+        targets = [
+          {
+            expr = ''node_load1{job="node"}'';
+            legendFormat = "{{instance}}";
+          }
+          {
+            expr = ''node_load5{job="node"}'';
+            legendFormat = "{{instance}} (5min)";
+          }
+        ];
+      })
+      (row {
+        id = 202;
+        title = "内存";
+        y = 9;
+      })
+      (timeseries {
+        id = 203;
+        title = "内存使用率";
+        x = 0;
+        y = 10;
+        w = 24;
+        unit = "percent";
+        targets = [
+          {
+            expr = ''(1 - node_memory_MemAvailable_bytes{job="node"} / node_memory_MemTotal_bytes{job="node"}) * 100'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
+      (row {
+        id = 204;
+        title = "温度";
+        y = 18;
+      })
+      (timeseries {
+        id = 205;
+        title = "设备温度 (最高传感器)";
+        x = 0;
+        y = 19;
+        w = 24;
+        unit = "celsius";
+        targets = [
+          {
+            expr = ''max by(instance) (node_hwmon_temp_celsius{job="node"})'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
+      (row {
+        id = 206;
+        title = "磁盘";
+        y = 27;
+      })
+      (table {
+        id = 207;
+        title = "磁盘空间使用率";
+        x = 0;
+        y = 28;
+        w = 24;
+        h = 10;
+        expr = ''100 * (1 - node_filesystem_avail_bytes{job="node",fstype!~"tmpfs|overlay|squashfs|devtmpfs|proc|sysfs"} / node_filesystem_size_bytes{job="node",fstype!~"tmpfs|overlay|squashfs|devtmpfs|proc|sysfs"})'';
+        exclude = {
+          Time = true;
+          "__name__" = true;
+          job = true;
+          fstype = true;
+          device = true;
+        };
+        rename = {
+          instance = "主机";
+          mountpoint = "挂载点";
+          Value = "使用率%";
+        };
+      })
+    ];
+  };
   infrastructureOverviewJson =
     pkgs.writeText "infrastructure-overview.json" (builtins.toJSON infrastructureOverview);
   routerOverviewJson = pkgs.writeText "router-overview.json" (builtins.toJSON routerOverview);
   serviceHealthJson = pkgs.writeText "service-health.json" (builtins.toJSON serviceHealth);
+  devicePerformanceJson = pkgs.writeText "device-performance.json" (builtins.toJSON devicePerformance);
 in
 pkgs.runCommand "grafana-dashboards" { } ''
   mkdir -p "$out"
   install -m 0444 ${infrastructureOverviewJson} "$out/infrastructure-overview.json"
   install -m 0444 ${routerOverviewJson} "$out/router-overview.json"
   install -m 0444 ${serviceHealthJson} "$out/service-health.json"
+  install -m 0444 ${devicePerformanceJson} "$out/device-performance.json"
 ''
