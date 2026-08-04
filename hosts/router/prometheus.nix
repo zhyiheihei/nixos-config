@@ -8,6 +8,17 @@ let
   metricsDir = "/var/lib/node-exporter-textfile";
   metricsFile = "${metricsDir}/router.prom";
 
+  # Map home-LAN IPs to hostnames for devices without a DHCP lease (static
+  # servers); DHCP leases remain the primary source for dynamic clients.
+  lanHostnames = lib.mapAttrs' (
+    n: v:
+    lib.nameValuePair v.interconnect.IPv4 (lib.removePrefix "_" n)
+  ) (
+    lib.filterAttrs (n: v: v.interconnect.IPv4 != null && v.interconnect.name == "home-lan") LT.hosts
+  ) // {
+    "192.168.0.40" = "qnap";
+  };
+
   routerMetrics = pkgs.writeTextFile {
     name = "router-prometheus-metrics";
     destination = "/bin/router-prometheus-metrics";
@@ -18,6 +29,8 @@ let
       import json
       import os
       import subprocess
+
+      hostname_map = json.loads('${builtins.toJSON lanHostnames}')
       import tempfile
       import time
       from pathlib import Path
@@ -53,6 +66,10 @@ let
               for row in csv.DictReader(handle):
                   if row.get("state") != "0" or int(row.get("expire", "0")) <= now:
                       continue
+                  if row["address"] in leases:
+                      # Kea can emit the same lease more than once; emitting
+                      # duplicate label sets breaks the textfile collector.
+                      continue
                   leases[row["address"]] = row
                   hostname = row.get("hostname") or ""
                   lines.append(
@@ -78,7 +95,7 @@ let
           state = (neighbor.get("state") or ["UNKNOWN"])[0]
           states[state] = states.get(state, 0) + 1
           address = neighbor.get("dst", "")
-          hostname = leases.get(address, {}).get("hostname", "")
+          hostname = leases.get(address, {}).get("hostname", "") or hostname_map.get(address, "")
           device = neighbor.get("dev") or "br-lan"
           family = "IPv6" if ":" in address else "IPv4"
           lines.append(
