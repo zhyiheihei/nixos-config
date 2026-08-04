@@ -39,8 +39,11 @@ in
     kernelParams = [
       # H616/H618 UART0. Keep baud out of earlycon so the real 8250 driver can
       # take over cleanly; the normal console carries the 115200 setting.
+      # The vendor 5.4 sunxi-uart driver registers the port as ttyAS0, not
+      # ttyS0; console=ttyS0 never matches, so the bootconsole is dropped and
+      # the serial goes silent after the UART probe.
       "earlycon=uart8250,mmio32,0x05000000"
-      "console=ttyS0,115200n8"
+      "console=ttyAS0,115200n8"
       "console=tty0"
       "rootwait"
       # Reserve enough contiguous memory for Mali buffers and Cedar video
