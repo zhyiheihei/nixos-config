@@ -25,6 +25,7 @@ let
       attrPath,
       metricsPath ? "/metrics",
       timeout ? null,
+      interval ? null,
     }:
     {
       job_name = jobName;
@@ -34,6 +35,7 @@ let
       fallback_scrape_protocol = "PrometheusText1.0.0";
     }
     // lib.optionalAttrs (timeout != null) { scrape_timeout = timeout; }
+    // lib.optionalAttrs (interval != null) { scrape_interval = interval; }
     // {
       static_configs = builtins.map (
         n:
@@ -108,8 +110,10 @@ in
         "enable"
       ];
       # router (home) reaches colocrossing over a lossy international ZT
-      # path; give retransmits room to finish large responses.
-      timeout = "45s";
+      # path; widen the interval/timeout so retransmits can finish the
+      # response (timeout must stay below interval).
+      timeout = "110s";
+      interval = "2m";
     })
     (scrapeByAttr {
       jobName = "postgres";
