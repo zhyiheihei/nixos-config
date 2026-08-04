@@ -73,3 +73,7 @@ flamegraph.svg
 nix.profile
 .reasonix/desktop-topic-title-sources.json
 .reasonix/
+# reasonix runtime attachments (may contain secrets; never commit)
+.reasonix/attachments/
+.tmp-*.sh
+.tmp-*
