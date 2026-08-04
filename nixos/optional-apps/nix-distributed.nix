@@ -8,16 +8,6 @@
 let
   cfg = config.lantian.nix-distributed;
 
-  armPlatforms = [
-    "aarch64-linux"
-    "armv5tel-linux"
-    "armv6l-linux"
-    "armv7a-linux"
-    "armv7l-linux"
-  ];
-
-  isArmPlatform = platform: builtins.elem platform armPlatforms;
-
   mkBuildMachine =
     n: v:
     let
@@ -28,13 +18,14 @@ let
       [ ]
     else
       # Hydra keys machines by store URI, so each host must have only one entry.
+      # ml-builder additionally advertises aarch64-linux: it runs the author's
+      # qemu-user-static-binfmt setup, so it can execute ARM derivations locally
+      # in addition to its native x86_64 builds.
       [
         {
-          # A builder advertises only its native platform. Cross derivations
-          # produced by pkgsCross have the build machine's native system and
-          # therefore go to ml-builder without pretending it can execute ARM
-          # binaries through QEMU.
-          systems = [ v.system ];
+          # A builder advertises its native platform plus, for ml-builder, the
+          # qemu-emulated aarch64 platform.
+          systems = [ v.system ] ++ lib.optionals (n == "ml-builder") [ "aarch64-linux" ];
           hostName = "${n}.zhyi.cc";
           maxJobs = v.nixBuilder.maxJobs;
           # Hydra's build-remote path currently only supports legacy SSH stores.
@@ -47,11 +38,12 @@ let
         }
       ];
 
+  # Follow the author: advertise the full extra-platforms list (which the
+  # qemu-user-static-binfmt module populates with ARM platforms) so this
+  # host can build ARM derivations locally through QEMU.
   localPlatforms = lib.uniqueStrings (
     [ pkgs.stdenv.hostPlatform.system ]
-    ++ builtins.filter
-      (platform: !isArmPlatform platform)
-      (config.nix.settings.extra-platforms or [ ])
+    ++ (config.nix.settings.extra-platforms or [ ])
   );
   localPlatformsString = builtins.concatStringsSep "," localPlatforms;
 in
@@ -94,11 +86,12 @@ in
     # localhost as an SSH builder makes the daemon recursively delegate a
     # derivation back to itself while holding its output lock. Hydra needs an
     # explicit local machine entry, so keep it only in Hydra's dedicated file,
-    # matching the author's layout.
+    # matching the author's layout. Advertise big-parallel only where the host
+    # opts in via nixBuilder.supportedFeatures (ml-builder yes, opi5p no).
     environment.etc."nix/machines-with-localhost".text =
       config.environment.etc."nix/machines".text
       + ''
-        localhost ${localPlatformsString} - ${toString LT.this.nixBuilder.maxJobs} ${toString LT.this.cpuThreads} kvm,nixos-test,benchmark - -
+        localhost ${localPlatformsString} - ${toString LT.this.nixBuilder.maxJobs} ${toString LT.this.cpuThreads} kvm,nixos-test,benchmark${lib.optionalString (builtins.elem "big-parallel" LT.this.nixBuilder.supportedFeatures) ",big-parallel"} - -
       '';
 
     environment.systemPackages = [
