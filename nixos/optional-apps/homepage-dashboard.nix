@@ -162,24 +162,25 @@
         padding: 8px !important;
         /* iOS 液态玻璃 */
         border: 1px solid rgba(255, 255, 255, 0.14) !important;
-        border-radius: 20px !important;
-        background: rgba(255, 255, 255, 0.06) !important;
-        backdrop-filter: blur(24px) saturate(160%) !important;
-        -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+        border-radius: 22px !important;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04)) !important;
+        backdrop-filter: blur(12px) saturate(150%) !important;
+        -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
         box-shadow:
-          inset 0 1px rgba(255, 255, 255, 0.10),
-          0 8px 32px rgba(0, 0, 0, 0.28);
+          inset 0 1px 0 rgba(255, 255, 255, 0.14),
+          0 8px 24px rgba(0, 0, 0, 0.22);
       }
 
       .widget-container {
         min-height: 58px;
         margin: 4px;
         padding: 8px 12px;
-        border: 1px solid rgba(255, 255, 255, 0.10);
-        border-radius: 14px;
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(16px) saturate(150%);
-        -webkit-backdrop-filter: blur(16px) saturate(150%);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 16px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04));
+        backdrop-filter: blur(10px) saturate(150%);
+        -webkit-backdrop-filter: blur(10px) saturate(150%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
       }
 
       .widget-container:nth-child(1) {
@@ -222,23 +223,25 @@
         margin-bottom: 10px !important;
         padding: 10px 12px !important;
         overflow: hidden;
-        /* iOS 液态玻璃卡片 */
-        border: 1px solid rgba(255, 255, 255, 0.14) !important;
-        border-radius: 20px !important;
-        background: rgba(255, 255, 255, 0.08) !important;
-        backdrop-filter: blur(24px) saturate(160%) !important;
-        -webkit-backdrop-filter: blur(24px) saturate(160%) !important;
+        /* iOS 液态玻璃卡片：顶部高光 + 低模糊 + 大圆角 */
+        border: 1px solid rgba(255, 255, 255, 0.16) !important;
+        border-radius: 22px !important;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05)) !important;
+        backdrop-filter: blur(12px) saturate(150%) !important;
+        -webkit-backdrop-filter: blur(12px) saturate(150%) !important;
         box-shadow:
-          inset 0 1px rgba(255, 255, 255, 0.12),
-          0 8px 32px rgba(0, 0, 0, 0.28) !important;
+          inset 0 1px 0 rgba(255, 255, 255, 0.18),
+          0 8px 24px rgba(0, 0, 0, 0.22) !important;
         transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease !important;
       }
 
       .service-card:hover {
         transform: translateY(-2px);
-        background: rgba(255, 255, 255, 0.14) !important;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08)) !important;
         border-color: rgba(255, 255, 255, 0.26) !important;
-        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.35) !important;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.22),
+          0 12px 32px rgba(0, 0, 0, 0.28) !important;
       }
 
       .service-name {
@@ -381,10 +384,10 @@
       }
       {
         resources = {
-          label = "ml-home-vm";
+          label = "rock5c";
           cpu = true;
           memory = true;
-          disk = "/mnt/storage";
+          disk = "/nix/persistent";
           uptime = true;
           refresh = 5000;
         };
