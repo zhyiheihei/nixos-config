@@ -43,7 +43,7 @@ let
   # the matching RK3528 DDR TPL and BL31 even though Nixpkgs does not yet
   # expose them as passthru attributes.
   ubootH28K = crossPkgs.buildUBoot {
-    defconfig = "hinlink_h28k_rk3528_defconfig";
+    defconfig = "hinlink-h28k-rk3528_defconfig";
     extraPatches = [ ./0001-board-rockchip-add-hinlink-h28k.patch ];
     extraMeta.platforms = [ "aarch64-linux" ];
     requiredSystemFeatures = [ "aarch64-cross" ];
