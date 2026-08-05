@@ -257,6 +257,11 @@ in
     KERNEL=="cma", MODE="0660", GROUP="video"
   '';
 
+  # OPI5P OOM-killed immich-server once while its 16 GiB was shared with the
+  # RKNN worker, PostgreSQL, qBittorrent and ClamAV. ROCK 5C now owns the
+  # distributed RKNN worker, so keep the NPU load off this node.
+  lantian.immichRknnWorker.enable = lib.mkForce false;
+
   systemd.services.redroid-landscape-navigation = {
     description = "Configure reDroid display, navigation, and application networking";
     wantedBy = [ "multi-user.target" ];
