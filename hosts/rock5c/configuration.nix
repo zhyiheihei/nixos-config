@@ -15,6 +15,7 @@
 
     ./hardware-configuration.nix
     ./home-edge.nix
+    ./immich-ml.nix
     ./media-apps.nix
   ];
 
