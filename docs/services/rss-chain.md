@@ -49,12 +49,13 @@ ArchiveBox 保留“实在不行”的源归档。退役服务的数据是否删
 
 - DNS：无 `freshrss.*` / `linkwarden.*` 残留记录。
 - Dex（cnvm）：`freshrss`、`linkwarden` 两个 OAuth client 已从配置移除，待部署生效。
-- `freshrss.nix`、`linkwarden.nix` 与对应端口常量是复刻新增，已删除。
+- `freshrss.nix`、`linkwarden.nix` 与对应端口常量保留为公共模块文件，只是不再
+  import；Dex 两个 client 已移除。
 
 ## 执行记录
 
 - [x] 退役配置：移除 `opi5p` 的 Linkwarden 导入与门禁服务；移除 Dex 两个 client；
-      删除复刻新增模块文件与端口常量。
+      公共模块文件与端口常量保留，不 import。
 - [x] Miniflux：修正 2 个 URL；不补旧订阅；删除 3 个不可订阅源与误补的 9 条旧订阅。
 - [x] ArchiveBox：保留并还原 7 个旧源快照（重新归档完成）。
 - [ ] 部署 `cnvm`、`opi5p` 并实机验证；清理容器残留。
