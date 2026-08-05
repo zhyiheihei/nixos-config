@@ -25,6 +25,96 @@
   boot.supportedFilesystems = [ "nfs" ];
   environment.systemPackages = [ pkgs.nfs-utils ];
 
+  # Homepage 同时作为个人导航页：Bing 搜索栏 + Quick Launch，外加常用站点书签。
+  # 服务卡片仍由 nixos-secrets 的 homepage-dashboard-config.nix 提供。
+  services.homepage-dashboard = {
+    settings = {
+      title = lib.mkForce "Zhyi 个人导航";
+      quicklaunch = {
+        provider = "bing";
+        showSearchSuggestions = true;
+        searchDescriptions = true;
+        mobileButtonPosition = "bottom-right";
+      };
+    };
+
+    widgets = [
+      {
+        search = {
+          provider = "bing";
+          target = "_blank";
+          showSearchSuggestions = true;
+        };
+      }
+    ];
+
+    bookmarks = [
+      {
+        "常用" = [
+          {
+            Bing = {
+              abbr = "BG";
+              href = "https://www.bing.com";
+              description = "搜索";
+            };
+          }
+          {
+            GitHub = {
+              abbr = "GH";
+              href = "https://github.com";
+            };
+          }
+          {
+            YouTube = {
+              abbr = "YT";
+              href = "https://www.youtube.com";
+            };
+          }
+          {
+            "哔哩哔哩" = {
+              abbr = "BL";
+              href = "https://www.bilibili.com";
+            };
+          }
+          {
+            "维基百科" = {
+              abbr = "WK";
+              href = "https://zh.wikipedia.org";
+            };
+          }
+          {
+            "知乎" = {
+              abbr = "ZH";
+              href = "https://www.zhihu.com";
+            };
+          }
+        ];
+      }
+      {
+        "开发与文档" = [
+          {
+            "NixOS 手册" = {
+              abbr = "NX";
+              href = "https://nixos.org/manual/nixos/stable";
+            };
+          }
+          {
+            "Nixpkgs 搜索" = {
+              abbr = "NP";
+              href = "https://search.nixos.org/packages";
+            };
+          }
+          {
+            "Homepage 文档" = {
+              abbr = "HP";
+              href = "https://gethomepage.dev";
+            };
+          }
+        ];
+      }
+    ];
+  };
+
   fileSystems."/mnt/storage" = {
     device = "192.168.0.40:/nixos";
     fsType = "nfs";

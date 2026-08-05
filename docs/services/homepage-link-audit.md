@@ -6,6 +6,12 @@ Homepage 运行在 `rock5c`，正式入口为
 内容、认证方式和健康检查 URL 的最终来源不是本文，而是已生成的
 `/etc/homepage-dashboard/services.yaml`。
 
+## 个人导航功能
+
+Homepage 同时作为个人导航页使用。Bing 搜索栏、Quick Launch 和常用站点书签在
+`hosts/rock5c/configuration.nix` 的 `services.homepage-dashboard` 中配置；
+服务卡片仍由 `nixos-secrets` 的 `homepage-dashboard-config.nix` 提供。
+
 ## 保持与作者一致的结构
 
 - 用户卡片链接使用服务的正式访问域名，不使用 `localhost`、内网 IP 或容器端口。
