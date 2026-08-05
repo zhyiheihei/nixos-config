@@ -1,4 +1,4 @@
-{
+_: {
   # Domains whose serving host differs from the host that declares the vhost.
   # `hosts.nix` uses this to route `/etc/hosts` entries to the real owner over
   # LTNET instead of self-mapping a shared/leftover vhost name.
