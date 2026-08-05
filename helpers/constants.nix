@@ -25,7 +25,6 @@ let
   interfacePrefixesAttrs = call ./constants/interface-prefixes.nix;
   zonesAttrs = call ./constants/zones.nix;
   publicSites = call ./constants/public-sites.nix;
-  domainOwners = call ./constants/domain-owners.nix;
 
   result = {
     inherit asteriskMusics;
@@ -47,7 +46,6 @@ let
     inherit (interfacePrefixesAttrs) interfacePrefixes;
     inherit (zonesAttrs) zones;
     inherit publicSites;
-    inherit domainOwners;
   };
 in
 result
