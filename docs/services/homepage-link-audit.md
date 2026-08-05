@@ -12,6 +12,19 @@ Homepage 同时作为个人导航页使用。Bing 搜索栏、Quick Launch、常
 服务卡片一起配置在 `nixos-secrets` 的 `homepage-dashboard-config.nix`；主仓库
 只负责导入模块、Nginx vhost 与服务本身。
 
+## 监控资源卡片
+
+`私有 · 监控 · 主机资源` 分组为每台非 `client` 主机生成一张卡片，通过
+Homepage 的 `prometheusmetric` widget 展示 node exporter 的 CPU、内存与磁盘
+占用。数据源是 colocrossing 上仅供私网访问的只读 Prometheus API
+`https://prometheus.colocrossing.zhyi.cc`，vhost 在
+`hosts/colocrossing/configuration.nix` 中声明为 `accessibleBy = "private"`，
+不叠加 OAuth，不暴露到公网。
+
+`私有 · 监控 · NAS 存储` 分组将 opi5p 挂载的 QNAP NFS
+（`192.168.0.40:/nixos`）作为 NAS 主机展示，指标来自 node exporter 的
+`node_filesystem_*` 系列。
+
 ## 保持与作者一致的结构
 
 - 用户卡片链接使用服务的正式访问域名，不使用 `localhost`、内网 IP 或容器端口。
