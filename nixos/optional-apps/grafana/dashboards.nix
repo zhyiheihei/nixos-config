@@ -1719,11 +1719,216 @@ let
       })
     ];
   };
+  acceleratorOverview = dashboard {
+    uid = "zhyi-accelerator";
+    title = "GPU / NPU 占用";
+    tags = [
+      "zhyi"
+      "accelerator"
+    ];
+    panels = [
+      (row {
+        id = 100;
+        title = "加速器总览";
+        y = 0;
+      })
+      (stat {
+        id = 101;
+        title = "GPU 当前最高占用";
+        x = 0;
+        y = 1;
+        w = 6;
+        h = 4;
+        expr = ''max(rockchip_gpu_load_percent{job="node"})'';
+        unit = "percent";
+        decimals = 1;
+        steps = [
+          {
+            color = "green";
+            value = null;
+          }
+          {
+            color = "orange";
+            value = 70;
+          }
+          {
+            color = "red";
+            value = 90;
+          }
+        ];
+      })
+      (stat {
+        id = 102;
+        title = "GPU 采集主机";
+        x = 6;
+        y = 1;
+        w = 6;
+        h = 4;
+        expr = ''count(rockchip_gpu_load_percent{job="node"})'';
+      })
+      (stat {
+        id = 103;
+        title = "NPU 当前最高占用";
+        x = 12;
+        y = 1;
+        w = 6;
+        h = 4;
+        expr = ''max(rockchip_npu_load_percent{job="node"})'';
+        unit = "percent";
+        decimals = 1;
+        steps = [
+          {
+            color = "green";
+            value = null;
+          }
+          {
+            color = "orange";
+            value = 70;
+          }
+          {
+            color = "red";
+            value = 90;
+          }
+        ];
+      })
+      (stat {
+        id = 104;
+        title = "NPU 采集主机";
+        x = 18;
+        y = 1;
+        w = 6;
+        h = 4;
+        expr = ''count(rockchip_npu_load_percent{job="node"})'';
+      })
+      (row {
+        id = 110;
+        title = "GPU";
+        y = 5;
+      })
+      (timeseries {
+        id = 111;
+        title = "GPU 占用";
+        x = 0;
+        y = 6;
+        w = 12;
+        h = 8;
+        unit = "percent";
+        min = 0;
+        max = 100;
+        targets = [
+          {
+            expr = ''rockchip_gpu_load_percent{job="node"}'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 112;
+        title = "GPU 频率";
+        x = 12;
+        y = 6;
+        w = 12;
+        h = 8;
+        unit = "MHz";
+        targets = [
+          {
+            expr = ''rockchip_gpu_freq_hz{job="node"} / 1000000'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
+      (row {
+        id = 120;
+        title = "NPU";
+        y = 14;
+      })
+      (timeseries {
+        id = 121;
+        title = "NPU 占用";
+        x = 0;
+        y = 15;
+        w = 12;
+        h = 8;
+        unit = "percent";
+        min = 0;
+        max = 100;
+        targets = [
+          {
+            expr = ''rockchip_npu_load_percent{job="node"}'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
+      (timeseries {
+        id = 122;
+        title = "NPU 频率";
+        x = 12;
+        y = 15;
+        w = 12;
+        h = 8;
+        unit = "MHz";
+        targets = [
+          {
+            expr = ''rockchip_npu_freq_hz{job="node"} / 1000000'';
+            legendFormat = "{{instance}}";
+          }
+        ];
+      })
+      (row {
+        id = 130;
+        title = "NPU 核心";
+        y = 23;
+      })
+      (timeseries {
+        id = 131;
+        title = "NPU 核心占用";
+        x = 0;
+        y = 24;
+        w = 24;
+        h = 8;
+        unit = "percent";
+        min = 0;
+        max = 100;
+        targets = [
+          {
+            expr = ''rockchip_npu_core_load_percent{job="node"}'';
+            legendFormat = "{{instance}} core {{core}}";
+          }
+        ];
+      })
+      (table {
+        id = 132;
+        title = "NPU 核心当前占用";
+        x = 0;
+        y = 32;
+        w = 24;
+        h = 9;
+        expr = ''rockchip_npu_core_load_percent{job="node"}'';
+        exclude = {
+          Time = true;
+          "__name__" = true;
+          job = true;
+        };
+        rename = {
+          instance = "主机";
+          core = "核心";
+          Value = "占用%";
+        };
+        sortBy = [
+          {
+            desc = true;
+            displayName = "占用%";
+          }
+        ];
+      })
+    ];
+  };
   infrastructureOverviewJson =
     pkgs.writeText "infrastructure-overview.json" (builtins.toJSON infrastructureOverview);
   routerOverviewJson = pkgs.writeText "router-overview.json" (builtins.toJSON routerOverview);
   serviceHealthJson = pkgs.writeText "service-health.json" (builtins.toJSON serviceHealth);
   devicePerformanceJson = pkgs.writeText "device-performance.json" (builtins.toJSON devicePerformance);
+  acceleratorOverviewJson = pkgs.writeText "accelerator-overview.json" (builtins.toJSON acceleratorOverview);
 in
 pkgs.runCommand "grafana-dashboards" { } ''
   mkdir -p "$out"
@@ -1731,4 +1936,5 @@ pkgs.runCommand "grafana-dashboards" { } ''
   install -m 0444 ${routerOverviewJson} "$out/router-overview.json"
   install -m 0444 ${serviceHealthJson} "$out/service-health.json"
   install -m 0444 ${devicePerformanceJson} "$out/device-performance.json"
+  install -m 0444 ${acceleratorOverviewJson} "$out/accelerator-overview.json"
 ''
