@@ -9,6 +9,7 @@ in
     "n8n-bridge.colocrossing.zhyi.cc"
     "n8n.zhyi.xin"
     "openai-edge-tts.colocrossing.zhyi.cc"
+    "prometheus.colocrossing.zhyi.cc"
     "rsshub.zhyi.xin"
   ];
 

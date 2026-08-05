@@ -66,7 +66,7 @@ curl -fsS http://127.0.0.1:9090/api/v1/alerts \
 
 - `https://dashboard.zhyi.cc`
 - `https://prometheus.zhyi.cc`
-- `https://prometheus.colocrossing.zhyi.cc`（仅私网可达，供 Homepage 资源卡片做只读查询，不叠加 OAuth）
+- `https://prometheus.colocrossing.zhyi.cc`（仅私网可达，供 Homepage 资源卡片做只读查询，不叠加 OAuth；rock5c 通过 `hosts/rock5c/home-lan-edge.nix` 固定解析到 colocrossing LTNET 地址）
 - `https://alert.zhyi.cc`
 
 三者均使用 Dex 身份认证。Homepage 只链接这些入口，不链接 exporter 或本地监听
