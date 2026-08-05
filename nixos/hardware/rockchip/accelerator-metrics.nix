@@ -24,7 +24,7 @@ let
           "# TYPE rockchip_gpu_load_percent gauge",
           "# HELP rockchip_gpu_freq_hz Rockchip GPU current frequency in Hz.",
           "# TYPE rockchip_gpu_freq_hz gauge",
-          "# HELP rockchip_npu_load_percent Rockchip NPU load percentage from devfreq.",
+          "# HELP rockchip_npu_load_percent Rockchip NPU load percentage (max of per-core debugfs loads).",
           "# TYPE rockchip_npu_load_percent gauge",
           "# HELP rockchip_npu_freq_hz Rockchip NPU current frequency in Hz.",
           "# TYPE rockchip_npu_freq_hz gauge",
@@ -32,7 +32,7 @@ let
           "# TYPE rockchip_npu_core_load_percent gauge",
       ]
 
-      def devfreq_metrics(device, kind):
+      def devfreq_metrics(device, kind, load=True):
           path = Path(f"/sys/class/devfreq/{device}/load")
           if not path.is_file():
               return
@@ -40,17 +40,22 @@ let
           percent, separator, freq = text.partition("@")
           if not separator:
               return
-          lines.append(f"rockchip_{kind}_load_percent {percent}")
+          if load:
+              lines.append(f"rockchip_{kind}_load_percent {percent}")
           lines.append(f"rockchip_{kind}_freq_hz {freq.removesuffix('Hz')}")
 
       devfreq_metrics("fb000000.gpu", "gpu")
-      devfreq_metrics("fdab0000.npu", "npu")
+      devfreq_metrics("fdab0000.npu", "npu", load=False)
 
       rknpu = Path("/sys/kernel/debug/rknpu/load")
+      npu_core_loads = []
       if rknpu.is_file():
           text = rknpu.read_text()
           for core, percent in re.findall(r"Core(\d+):\s+(\d+)%", text):
+              npu_core_loads.append(int(percent))
               lines.append(f'rockchip_npu_core_load_percent{{core="{core}"}} {percent}')
+      if npu_core_loads:
+          lines.append(f"rockchip_npu_load_percent {max(npu_core_loads)}")
 
       output.parent.mkdir(parents=True, exist_ok=True)
       fd, temporary = tempfile.mkstemp(prefix=".accelerator.", dir=output.parent)
