@@ -109,7 +109,9 @@ rec {
     AxonHub.Redis = 13816;
     WorkerVless2sub = 13817;
     Memos = 13819;
+    FreshRSS = 13820;
     Vertex = 13821;
+    Linkwarden = 13822;
     Halo = 13823;
     MetaCubeXD = {
       Mixed = 13824;
