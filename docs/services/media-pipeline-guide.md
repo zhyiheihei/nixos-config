@@ -1,12 +1,13 @@
 # 下载与媒体链路使用指南
 
-最后整理：2026-08-02
+最后整理：2026-08-05
 
-本文档描述以 `opi5p` 为应用后端的完整下载与媒体链路：从 PT 站找片、自动追番、
-漫画阅读，到最终在 Rockchip Jellyfin 观看。`ml-home-vm` 保留稳定的旧域名、TLS
-和认证边缘，不再运行这组下载与媒体写服务。
+本文档描述完整的下载与媒体链路：从 PT 站找片、自动追番、漫画阅读，到最终在
+Rockchip Jellyfin 观看。2026-08-05 起链路拆成两层：下载与数据库继续留在
+`opi5p`，Sonarr/Radarr/Bazarr/Prowlarr/Jellyfin/HandBrake 等媒体应用迁到
+`rock5c`；媒体文件两边都直接挂载同一份 NAS 路径，不复制。
 
-导航页入口：<https://homepage.ml-home-vm.zhyi.cc>（"下载与媒体链路"分组）
+导航页入口：<https://homepage.rock5c.zhyi.cc>（"下载与媒体链路"分组）
 
 ## 链路总览
 
@@ -43,9 +44,11 @@
   Tachidesk/Suwayomi → 漫画源与扩展 → 章节下载/书库/阅读进度
 
 运行位置：
-  opi5p       → 下载器、Arr、BitMagnet、IYUU、Tachidesk、Vertex、Jellyfin
-  ml-home-vm  → 公网 TLS/认证入口与旧私有域名代理
-  NAS         → 192.168.0.40:/nixos，由 opi5p 直接挂载
+  opi5p       → qBittorrent x3、FlexGet、BitMagnet、IYUU、JProxy、PeerBanHelper、
+                Tachidesk、Vertex、PostgreSQL/MariaDB（下载链路与数据库）
+  rock5c      → 家庭边缘 + Sonarr、Radarr、Bazarr、Prowlarr、Jellyfin、
+                HandBrake、Decluttarr（媒体应用）
+  NAS         → 192.168.0.40:/nixos，opi5p 与 rock5c 都直接挂载 /mnt/storage
 
 音乐（独立链路）：
   手机/电脑 网易云音乐下载 → Syncthing 同步
@@ -57,7 +60,7 @@
 
 ### 自动化方式（推荐）
 
-1. 打开 [Radarr](https://radarr.ml-home-vm.zhyi.cc)
+1. 打开 [Radarr](https://radarr.rock5c.zhyi.cc)
 2. 搜索电影名（英文/中文均可，依赖 Prowlarr 中配置的索引器）
 3. 点击"添加"，选择质量配置（Quality Profile）
 4. Radarr 自动：查询索引器 → 选最优种子 → 推送到 qBittorrent PT
@@ -68,7 +71,7 @@
 
 ### 手动方式
 
-1. 打开 [qBittorrent PT](https://pt.ml-home-vm.zhyi.cc)
+1. 打开 [qBittorrent PT](https://pt.opi5p.zhyi.cc)
 2. 粘贴磁力链接或上传 .torrent 文件
 3. 保存路径选 `/mnt/storage/downloads`（通用下载目录）
 4. 下载完成后文件在 `/mnt/storage/downloads/` 中，自行处理
@@ -82,7 +85,7 @@
 
 ### 自动化方式（推荐）
 
-1. 打开 [Sonarr](https://sonarr.ml-home-vm.zhyi.cc)
+1. 打开 [Sonarr](https://sonarr.rock5c.zhyi.cc)
 2. 搜索剧集名
 3. 添加并设置监控（Monitor）：
    - "All Episodes"：全季追更
@@ -120,7 +123,7 @@ ssh -p 2222 root@opi5p.zhyi.cc \
 音乐走独立链路，不经过 BT 下载：
 
 1. 在手机/电脑上用网易云音乐下载歌曲
-2. Syncthing 自动同步到 ml-home-vm 的 `/mnt/storage/media/CloudMusic`
+2. Syncthing 自动同步到 opi5p 的 `/mnt/storage/media/CloudMusic`
 3. rsgain 定时任务（每小时）自动标准化响度（-14 LUFS，跳过已处理的）
 4. 归档目录：`/mnt/storage/media/CloudMusicArchive`
 
@@ -130,41 +133,41 @@ ssh -p 2222 root@opi5p.zhyi.cc \
 
 独立的刷流链路，与 PT 追剧链路隔离：
 
-1. 打开 [Seedbox](https://seedbox.ml-home-vm.zhyi.cc)
+1. 打开 [Seedbox](https://seedbox.opi5p.zhyi.cc)
 2. 添加种子，固定下载到 `/mnt/storage/.downloads-qb-seedbox`
-3. 配合 [Vertex](https://vertex.ml-home-vm.zhyi.cc) 管理站点数据和刷流任务
-4. [IYUUPlus](https://iyuuplus.ml-home-vm.zhyi.cc) 自动辅种到其他站点，提升上传量
+3. 配合 [Vertex](https://vertex.opi5p.zhyi.cc) 管理站点数据和刷流任务
+4. [IYUUPlus](https://iyuu.opi5p.zhyi.cc) 自动辅种到其他站点，提升上传量
 
 ## 辅助服务说明
 
 | 服务 | 地址 | 作用 |
 | --- | --- | --- |
-| Prowlarr | <https://prowlarr.ml-home-vm.zhyi.cc> | 索引器管理：Sonarr/Radarr 通过它查询 PT 站 |
-| Bazarr | <https://bazarr.ml-home-vm.zhyi.cc> | 自动匹配/下载字幕 |
-| JProxy | <https://jproxy.ml-home-vm.zhyi.cc> | Sonarr/Radarr 与下载器之间的资源代理 |
-| PeerBanHelper | <https://peerbanhelper.ml-home-vm.zhyi.cc> | 反吸血：自动封禁不回报的 peer |
-| BitMagnet | <https://bitmagnet.ml-home-vm.zhyi.cc> | DHT 磁力搜索，不依赖 PT 站找资源 |
-| HandBrake | <https://handbrake.ml-home-vm.zhyi.cc> | OPI5P 上的 RKMPP/RGA 硬件转码（保留 ml-home-vm 边缘入口），存储路径 /mnt/storage/handbrake-server/ |
-| IYUUPlus | <https://iyuuplus.ml-home-vm.zhyi.cc> | 辅种工具：自动将已有文件匹配到其他站点种子 |
-| Vertex | <https://vertex.ml-home-vm.zhyi.cc> | PT 站点数据面板 + 刷流任务管理 |
+| Prowlarr | <https://prowlarr.rock5c.zhyi.cc> | 索引器管理：Sonarr/Radarr 通过它查询 PT 站 |
+| Bazarr | <https://bazarr.rock5c.zhyi.cc> | 自动匹配/下载字幕 |
+| JProxy | <https://jproxy.opi5p.zhyi.cc> | Sonarr/Radarr 与下载器之间的资源代理 |
+| PeerBanHelper | <https://peerbanhelper.opi5p.zhyi.cc> | 反吸血：自动封禁不回报的 peer |
+| BitMagnet | <https://bitmagnet.opi5p.zhyi.cc> | DHT 磁力搜索，不依赖 PT 站找资源 |
+| HandBrake | rock5c 本机 `http://127.0.0.1:13814` | RKMPP/RGA 硬件转码，存储路径 /mnt/storage/handbrake-server/ |
+| IYUUPlus | <https://iyuu.opi5p.zhyi.cc> | 辅种工具：自动将已有文件匹配到其他站点种子 |
+| Vertex | <https://vertex.opi5p.zhyi.cc> | PT 站点数据面板 + 刷流任务管理 |
 | Jellyfin | <https://jellyfin.zhyi.xin:8443> | 媒体服务器：链路终点，观看电影/剧集 |
 | Tachidesk | <https://tachidesk.zhyi.xin:8443> | 漫画源、书库、章节下载与阅读进度（Basic Auth） |
 
 ### HandBrake Rockchip 后端
 
-HandBrake 应用后端运行在 OPI5P，使用
-`emcd39/handbrake-rk3588` 的 RKMPP/RGA 实验分支。`ml-home-vm` 只保留
-原有 TLS 入口，通过私有 HTTP 后端转发到 OPI5P；原 NVIDIA NVENC
-容器已移除。输入、监视与输出目录仍位于 NAS 上的
+HandBrake 应用后端运行在 rock5c，使用
+`emcd39/handbrake-rk3588` 的 RKMPP/RGA 实验分支。目前只提供
+rock5c 本机 `http://127.0.0.1:13814` 入口，尚未恢复公网域名。
+输入、监视与输出目录位于 NAS 上的
 `/mnt/storage/handbrake-server/`。
 
 运行状态和硬件编码器可用以下命令验证：
 
 ```bash
-ssh -p 2222 root@opi5p.zhyi.cc \
+ssh -p 2222 root@rock5c.zhyi.cc \
   'systemctl status podman-handbrake --no-pager'
 
-ssh -p 2222 root@opi5p.zhyi.cc \
+ssh -p 2222 root@rock5c.zhyi.cc \
   'podman exec handbrake HandBrakeCLI --help | grep -i rkmpp'
 ```
 
@@ -184,22 +187,25 @@ ssh -p 2222 root@opi5p.zhyi.cc \
 
 ## 存储路径速查
 
-所有媒体与下载路径位于 OPI5P 的 NFS 挂载 `/mnt/storage`（直接来自
-`192.168.0.40:/nixos`）。Tachidesk 与 Vertex 的应用数据库位于 OPI5P 本机
-`/var/lib/tachidesk`、`/var/lib/vertex`，不放在 NFS 上：
+所有媒体与下载路径位于 NAS 的 NFS 挂载 `/mnt/storage`（直接来自
+`192.168.0.40:/nixos`），opi5p 与 rock5c 都直接挂载。Tachidesk 与 Vertex
+的应用数据库位于 OPI5P 本机 `/var/lib/tachidesk`、`/var/lib/vertex`；
+Sonarr/Radarr/Bazarr/Prowlarr/Jellyfin 的状态位于 rock5c 本机
+`/var/lib/{sonarr,radarr,bazarr,prowlarr,jellyfin}`，HandBrake 配置位于
+`/nix/persistent/var/lib/handbrake-rk3588/config`：
 
 | 路径 | 用途 | 可写服务 |
 | --- | --- | --- |
-| `downloads/` | 通用手动下载 | qbittorrent, qbittorrent-pt |
+| `downloads/` | 通用手动下载 | qbittorrent, qbittorrent-pt（opi5p） |
 | `.downloads-qb/` | qBittorrent 专属（Sonarr 可导入） | qbittorrent, sonarr, radarr |
 | `.downloads-qb-pt/` | qBittorrent PT 专属（Sonarr 可导入） | qbittorrent-pt, sonarr, radarr |
 | `.downloads-auto/` | FlexGet 自动下载（定时清理） | qbittorrent-pt |
 | `.downloads-qb-seedbox/` | 刷流专用 | qbittorrent-seedbox |
-| `media-radarr/` | 电影媒体库 | radarr, bazarr(读), jellyfin(读) |
-| `media-sonarr/` | 剧集媒体库 | sonarr, bazarr(读), jellyfin(读) |
+| `media-radarr/` | 电影媒体库 | radarr(rock5c), bazarr(读), jellyfin(读) |
+| `media-sonarr/` | 剧集媒体库 | sonarr(rock5c), bazarr(读), jellyfin(读) |
 | `media/CloudMusic/` | 音乐（Syncthing 同步） | syncthing |
 | `media/CloudMusicArchive/` | 音乐归档 | syncthing |
-| `handbrake-server/` | 转码工作区 | podman-handbrake |
+| `handbrake-server/` | 转码工作区 | podman-handbrake(rock5c) |
 
 隐藏目录（`.` 前缀）的设计意图：与用户主动使用的 `downloads/` 隔离，
 避免自动化链路的中间文件污染手动下载目录。
@@ -223,6 +229,16 @@ ssh -p 2222 root@opi5p.zhyi.cc \
 1. 控制台 → 媒体库 → 扫描所有媒体库
 2. 确认媒体库路径包含 media-radarr 和 media-sonarr
 
+### Jellyfin 搜刮不全或识别错标题？
+
+Sonarr/Radarr 已启用 Kodi/Emby `.nfo` 元数据写入，会往媒体目录写
+`tvshow.nfo`、`movie.nfo`、分集 `.nfo`，包含 TVDB/TMDB/IMDb ID；Jellyfin
+扫描时优先读取这些本地 ID，不再依赖目录名在线匹配。若新剧仍识别失败：
+
+1. 确认 Sonarr/Radarr 已完成 Refresh/Scan，媒体目录已生成 `.nfo`
+2. 在 Jellyfin 对该剧手动 Identify，把结果应用到 series
+3. 重新扫描 Jellyfin 媒体库
+
 ### 磁盘空间不足？
 
 ```bash
@@ -237,8 +253,8 @@ seedbox 中已完成的老种子。
 | 配置 | 位置 |
 | --- | --- |
 | 路径与 BindPaths 编排 | `nixos/optional-apps/media-automation.nix` |
-| OPI5P 门闩、代理和目标编排 | `hosts/opi5p/media-automation.nix` |
-| ml-home-vm 边缘兼容入口 | `hosts/ml-home-vm/media-center.nix` |
+| OPI5P 下载链路编排 | `hosts/opi5p/media-automation.nix`、`hosts/opi5p/media-download-chain.nix` |
+| rock5c 媒体应用编排 | `hosts/rock5c/media-apps.nix`、`hosts/rock5c/media-edge.nix` |
 | 下载器模块 | `nixos/optional-apps/qbittorrent*.nix` |
 | *arr 套件 | `nixos/optional-apps/sonarr/` |
 | FlexGet | `nixos/optional-cron-jobs/flexget/` |

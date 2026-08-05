@@ -73,8 +73,8 @@ flowchart LR
 | `cnvm` | 公网 server | Attic、Dex、Pocket ID、Vaultwarden、GLAuth、Halo、OAuth2 Proxy、MySQL、PostgreSQL、DNS/Nginx | 运行，0 failed units |
 | `colocrossing` | 公网、DN42、协作与监控中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Prometheus、Grafana、ClickHouse、ZeroTier Controller 等 | 运行；OpenVPN 失败，系统 degraded |
 | `usvm` | 公网、`cn-accel` | server 公共基线、V2Ray、Filebeat；声明中的日志汇聚后端当前不存在 | 运行；OpenVPN 失败，系统 degraded |
-| `opi5p` | server、原生 ARM 回退 builder | 数据库、家庭应用、媒体自动化、NCPS、文件服务、打印、ClamAV、reDroid | 运行，0 failed units |
-| `rock5c` | server、家庭边缘 | 家庭 Nginx 入口、MetaCubeXD、Homepage、主 UniAPI、FastAPI-DLS、GLAuth、vlmcsd、reDroid | 运行，0 failed units |
+| `opi5p` | server、原生 ARM 回退 builder | 数据库、家庭应用、下载自动化、NCPS、文件服务、打印、ClamAV、reDroid | 运行，0 failed units |
+| `rock5c` | server、家庭边缘 | 家庭 Nginx 入口、MetaCubeXD、Homepage、主 UniAPI、FastAPI-DLS、GLAuth、vlmcsd、媒体应用（Sonarr/Radarr/Bazarr/Prowlarr/Jellyfin/HandBrake）、reDroid | 运行，0 failed units |
 | `lubancat1` | `low-ram` server | BIRD、WG/WSS、Yggdrasil、ZeroTier、CoreDNS、Nginx、exporters、Bluetooth | 运行，0 failed units；尚未迁入用户应用 |
 | `h28k` | 预部署异地 Router | DHCP、CoreDNS、NAT/防火墙、zram | 不可达；SSH/SOPS/ZeroTier 身份未完成 |
 | `opi03` | 实验性 ARM 板卡 | H618 reDroid；以 `.image-ready` marker 阻止缺镜像时启动 | 无正式地址，未验证；相关配置仍在开发中 |
@@ -159,19 +159,21 @@ ml-builder 与 OPI5P。这违反有向无环约束，说明排除 PVE 的新代�
 
 ### 家庭应用、数据与媒体链
 
-`opi5p` 是唯一重状态家庭应用节点：
+`opi5p` 仍是重状态家庭应用节点，`rock5c` 承接媒体播放层：
 
-- 数据库与缓存：PostgreSQL、MySQL、Redis for Immich、Redis for SearXNG；
-- 家庭应用：Immich、Linkwarden、FreshRSS、Memos、Home Assistant、ArchiveBox、
-  FileCodeBox、SunPanel、SearXNG、Calibre COPS；
-- 媒体播放/处理：Jellyfin、HandBrake、Tachidesk、reDroid；
-- 下载与自动化：Sonarr、Radarr、Bazarr、Prowlarr、qBittorrent 三实例、Bitmagnet、
-  IYUUPlus、PeerBanHelper、jproxy、Decluttarr、FlexGet、Vertex、Byparr；
-- 文件与设备：NCPS、Syncthing、SFTP、WebDAV、Samba、NFS/QNAP mount、VaultS3
-  代理、CUPS、Avahi、ClamAV。
+- 数据库与缓存（opi5p）：PostgreSQL、MySQL、Redis for Immich、Redis for SearXNG；
+- 家庭应用（opi5p）：Immich、Linkwarden、FreshRSS、Memos、Home Assistant、
+  ArchiveBox、FileCodeBox、SunPanel、SearXNG、Calibre COPS；
+- 下载链路（opi5p）：qBittorrent 三实例、Bitmagnet、IYUUPlus、PeerBanHelper、
+  jproxy、FlexGet、Vertex、Byparr、Tachidesk；
+- 媒体应用（rock5c）：Sonarr、Radarr、Bazarr、Prowlarr、Jellyfin、HandBrake、
+  Decluttarr；
+- 文件与设备（opi5p）：NCPS、Syncthing、SFTP、WebDAV、Samba、NFS/QNAP mount、
+  VaultS3 代理、CUPS、Avahi、ClamAV。
 
-ROCK 5C 只承担低写入控制面和入口。媒体、NAR、S3 与 NAS 数据不能经 ROCK 5C 或
-LubanCat-1 中转。
+2026-08-05 起 ROCK 5C 承载媒体应用属于用户确认的偏离：媒体文件仍在 NAS 上由
+双机直接 NFS 挂载；Sonarr/Radarr 写 `.nfo` 元数据，Jellyfin 保持只读。NAR、S3
+与 NAS 大流量仍不经 ROCK 5C 中转。
 
 PVE 保留不提供 ARM64 镜像的 ArchiveTeam、ClawEmail 和 Epic Awesome Gamer。
 ml-home-vm 当前没有用户应用，不应再被旧域名误判为实际后端。
