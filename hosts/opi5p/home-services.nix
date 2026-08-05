@@ -19,7 +19,6 @@ let
     "podman-asf"
     "podman-filecodebox"
     "podman-home-assistant"
-    "podman-linkwarden"
     "podman-memos"
     "podman-sun-panel"
     "podman-sun-panel-helper"
@@ -44,7 +43,6 @@ in
     ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/immich.nix
     ../../nixos/optional-apps/immich-rockchip.nix
-    ../../nixos/optional-apps/linkwarden.nix
     ../../nixos/optional-apps/memos.nix
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/searxng.nix

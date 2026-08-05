@@ -1,7 +1,7 @@
 # RSS 链路（RSSHub / Miniflux / ArchiveBox）
 
-> 状态：2026-08-05 实机盘点完成；退役动作待用户确认后执行。本文同时承担
-> “迁移完整无遗留”的核对清单，动作完成后按结果回填并去掉待办标记。
+> 状态：2026-08-05 执行中。退役配置已改（待部署）；旧订阅一律不补，退役后
+> 数据直接删除。本文是“迁移完整无遗留”的核对清单。
 
 ## 服务分工
 
@@ -11,60 +11,53 @@
 | Miniflux | `colocrossing` | 原生 RSS 与 RSSHub 订阅的统一阅读入口 |
 | ArchiveBox | `opi5p` | 无法订阅的站点/页面归档 |
 
-退役对象：FreshRSS、Linkwarden。原则：**不迁移历史数据**，只补订阅 URL 或新建
-归档；旧数据目录与数据库保留，不删除。
+退役对象：FreshRSS、Linkwarden。用户 2026-08-05 指示：**旧订阅不要补**，退役后
+该删的删除。因此不把 FreshRSS 遗留订阅迁回 Miniflux，也不预置 ArchiveBox 旧源。
 
-## 实机盘点（2026-08-05）
+## 实机盘点与处置（2026-08-05）
 
 ### Miniflux（colocrossing，2.3.3）
 
-- 共 44 个订阅，全部唯一；用户 `zhyi` 一个。
-- 需要修正 URL：
-  - `linmohan.fun/atom.xml` 404 → 真实源为 `https://linmohan.fun/rss.xml`。
-  - `blog.ysicing.net/feed` 返回 HTML → 真实源为 `https://blog.ysicing.net/feed/rss`。
-- 不可订阅（计划禁用，不删除）：
-  - `haohanxinghe.com/atom.xml`：443 连接拒绝，站点不可达。
+- 处置后共 41 个订阅，全部启用；用户 `zhyi` 一个。
+- 已修正 URL：
+  - `linmohan.fun/atom.xml` 404 → `https://linmohan.fun/rss.xml`。
+  - `blog.ysicing.net/feed` 返回 HTML → `https://blog.ysicing.net/feed/rss`。
+- 已删除不可订阅源（站点死亡或超过 15 MB 上限）：
+  - `haohanxinghe.com/atom.xml`：443 连接拒绝。
   - `blog.crneko.top/rss.xml`：DNS 无记录。
-  - `blog.meimolihan.eu.org/index.xml`：唯一源 25 MB，超过 Miniflux 15 MB 上限。
-- `blog.lifebus.top` 曾 504，现 curl 返回 200，保留并复查。
+  - `blog.meimolihan.eu.org/index.xml`：唯一源 25 MB。
+- 曾补入的 9 条旧 RSSHub 订阅（FreshRSS 遗留）已按用户指示全部删除，不迁移。
 
 ### FreshRSS 遗留（opi5p，已停止）
 
-- 数据目录 `/var/lib/freshrss` 保留；`zhyi` 与 `Saffron` 两个用户各 44 个订阅。
-- 其中 17 条为旧 RSSHub 路由（`rsshub.app` / `rsshub.zhyi.cc:3000`），Miniflux
-  目前缺失。
-- 旧路由在当前 `rsshub.zhyi.xin` 实测：
-  - 可用（10 条）：四六级 CET、NCRE、CCF 大数据专家委、CCF 计算机视觉专委、
-    36kr 快讯、少数派、时刻新闻、澎湃热榜、知乎热榜。
-  - 暂不可用（7 条）：中国智库（上游 404）、阮一峰周刊（超时）、软考（超时）、
-    什么值得买榜×2（缺 `SMZDM_COOKIE`）、bilibili 热榜（缺 Playwright 浏览器）、
-    Odaily 快讯（上游 API 404）。
+- 数据目录 `/var/lib/freshrss` 在退役部署后删除；不保留旧订阅数据。
+- 旧路由曾实测：9 条在当前 `rsshub.zhyi.xin` 可用、7 条暂不可用；按新指示不再
+  回填 Miniflux，也不写入 ArchiveBox。
 
 ### Linkwarden（opi5p，仍运行）
 
-- 181 条书签、13 个收藏集、1 个 RSS 订阅（`blog.niany.cn`，已在 Miniflux 中）。
-- 数据保留：`/var/lib/linkwarden/pre-migration.dump` + PostgreSQL `linkwarden` 库。
+- 退役部署后停止服务，并删除 `/var/lib/linkwarden` 与 PostgreSQL `linkwarden`
+  数据库；181 条书签等旧数据不迁移。
 
 ### ArchiveBox（opi5p）
 
 - 服务 active，索引为空（0 快照）；UI 用户 `zhyi` 可登录。
-- 数据目录 `/mnt/storage/archivebox`，待写入“实在不行”的归档 URL。
+- 曾试归档的 7 个旧源快照已按用户指示删除，ArchiveBox 保持空库待用。
 
 ### 其他核对
 
 - DNS：无 `freshrss.*` / `linkwarden.*` 残留记录。
-- Dex（cnvm）：仍注册 `freshrss`、`linkwarden` 两个 OAuth client，待移除。
-- `freshrss.nix`、`linkwarden.nix` 与对应端口常量是复刻新增，作者原版没有。
+- Dex（cnvm）：`freshrss`、`linkwarden` 两个 OAuth client 已从配置移除，待部署生效。
+- `freshrss.nix`、`linkwarden.nix` 与对应端口常量是复刻新增，已删除。
 
-## 待执行清单
+## 执行记录
 
-- [ ] 退役配置：移除 `opi5p` 的 Linkwarden 导入与门禁服务；移除 Dex 两个 client；
-      删除复刻新增模块文件与端口常量（数据目录不动）。
-- [ ] Miniflux：修正 2 个 URL；补入 10 条可用旧 RSSHub 订阅；禁用 3 个不可订阅源。
-- [ ] ArchiveBox：把 7 条暂不可用 RSSHub 源主页 + `blog.meimolihan.eu.org`
-      加入归档（全新归档，不迁移 Linkwarden 数据）。
-- [ ] 部署 `cnvm`、`opi5p` 并实机验证；更新 `fleet-service-chain.md`。
-- [ ] 提交并对齐 mac / origin / ml-builder 三方仓库。
+- [x] 退役配置：移除 `opi5p` 的 Linkwarden 导入与门禁服务；移除 Dex 两个 client；
+      删除复刻新增模块文件与端口常量。
+- [x] Miniflux：修正 2 个 URL；不补旧订阅；删除 3 个不可订阅源与误补的 9 条旧订阅。
+- [x] ArchiveBox：删除试归档的 7 个旧源快照，恢复空库。
+- [ ] 部署 `cnvm`、`opi5p` 并实机验证；删除 FreshRSS/Linkwarden 数据与容器残留。
+- [ ] 更新 `fleet-service-chain.md`；提交并对齐 mac / origin / ml-builder。
 
 ## 浏览器订阅指南
 

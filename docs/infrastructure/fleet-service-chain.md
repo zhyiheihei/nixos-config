@@ -162,8 +162,9 @@ ml-builder 与 OPI5P。这违反有向无环约束，说明排除 PVE 的新代�
 `opi5p` 仍是重状态家庭应用节点，`rock5c` 承接媒体播放层：
 
 - 数据库与缓存（opi5p）：PostgreSQL、MySQL、Redis for Immich、Redis for SearXNG；
-- 家庭应用（opi5p）：Immich、Linkwarden、FreshRSS、Memos、Home Assistant、
-  ArchiveBox、FileCodeBox、SunPanel、SearXNG、Calibre COPS；
+- 家庭应用（opi5p）：Immich、Memos、Home Assistant、ArchiveBox、FileCodeBox、
+  SunPanel、SearXNG、Calibre COPS；RSS 阅读链为 colocrossing 的 Miniflux/RSSHub，
+  ArchiveBox 承担无法订阅站点的归档；
 - 下载链路（opi5p）：qBittorrent 三实例、Bitmagnet、IYUUPlus、PeerBanHelper、
   jproxy、FlexGet、Vertex、Byparr、Tachidesk；
 - 媒体应用（rock5c）：Sonarr、Radarr、Bazarr、Prowlarr、Jellyfin、HandBrake、
