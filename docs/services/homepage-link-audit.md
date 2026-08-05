@@ -8,9 +8,9 @@ Homepage 运行在 `rock5c`，正式入口为
 
 ## 个人导航功能
 
-Homepage 同时作为个人导航页使用。Bing 搜索栏、Quick Launch 和常用站点书签在
-`hosts/rock5c/configuration.nix` 的 `services.homepage-dashboard` 中配置；
-服务卡片仍由 `nixos-secrets` 的 `homepage-dashboard-config.nix` 提供。
+Homepage 同时作为个人导航页使用。Bing 搜索栏、Quick Launch、常用站点书签与
+服务卡片一起配置在 `nixos-secrets` 的 `homepage-dashboard-config.nix`；主仓库
+只负责导入模块、Nginx vhost 与服务本身。
 
 ## 保持与作者一致的结构
 
