@@ -1,7 +1,7 @@
 # RSS 链路（RSSHub / Miniflux / ArchiveBox）
 
-> 状态：2026-08-05 执行中。退役配置已改（待部署）；旧订阅一律不补，退役后
-> 数据直接删除。本文是“迁移完整无遗留”的核对清单。
+> 状态：2026-08-05 执行中。退役配置已改（待部署）；用户澄清：**Miniflux 旧订阅
+> 不补**，ArchiveBox 归档保留不删。本文是“迁移完整无遗留”的核对清单。
 
 ## 服务分工
 
@@ -11,8 +11,8 @@
 | Miniflux | `colocrossing` | 原生 RSS 与 RSSHub 订阅的统一阅读入口 |
 | ArchiveBox | `opi5p` | 无法订阅的站点/页面归档 |
 
-退役对象：FreshRSS、Linkwarden。用户 2026-08-05 指示：**旧订阅不要补**，退役后
-该删的删除。因此不把 FreshRSS 遗留订阅迁回 Miniflux，也不预置 ArchiveBox 旧源。
+退役对象：FreshRSS、Linkwarden。用户 2026-08-05 指示：**Miniflux 旧订阅不要补**；
+ArchiveBox 保留“实在不行”的源归档。退役服务的数据是否删除待用户确认，默认保留。
 
 ## 实机盘点与处置（2026-08-05）
 
@@ -27,22 +27,23 @@
   - `blog.crneko.top/rss.xml`：DNS 无记录。
   - `blog.meimolihan.eu.org/index.xml`：唯一源 25 MB。
 - 曾补入的 9 条旧 RSSHub 订阅（FreshRSS 遗留）已按用户指示全部删除，不迁移。
+- 3 个不可订阅源也已删除（站点死亡或超限），保留的是修正 URL 后的现有有效订阅。
 
 ### FreshRSS 遗留（opi5p，已停止）
 
-- 数据目录 `/var/lib/freshrss` 在退役部署后删除；不保留旧订阅数据。
 - 旧路由曾实测：9 条在当前 `rsshub.zhyi.xin` 可用、7 条暂不可用；按新指示不再
   回填 Miniflux，也不写入 ArchiveBox。
+- 数据目录 `/var/lib/freshrss` 默认保留，退役后是否删除待用户确认。
 
 ### Linkwarden（opi5p，仍运行）
 
-- 退役部署后停止服务，并删除 `/var/lib/linkwarden` 与 PostgreSQL `linkwarden`
-  数据库；181 条书签等旧数据不迁移。
+- 退役部署后停止服务；`/var/lib/linkwarden` 与 PostgreSQL `linkwarden` 数据库
+  默认保留，是否删除待用户确认；181 条书签等旧数据不迁移。
 
 ### ArchiveBox（opi5p）
 
-- 服务 active，索引为空（0 快照）；UI 用户 `zhyi` 可登录。
-- 曾试归档的 7 个旧源快照已按用户指示删除，ArchiveBox 保持空库待用。
+- 服务 active；已归档 7 个“实在不行”的旧源主页快照（用户确认 ArchiveBox 保留）。
+- UI 用户 `zhyi` 可登录；后续新页面继续用同一流程归档。
 
 ### 其他核对
 
@@ -55,8 +56,9 @@
 - [x] 退役配置：移除 `opi5p` 的 Linkwarden 导入与门禁服务；移除 Dex 两个 client；
       删除复刻新增模块文件与端口常量。
 - [x] Miniflux：修正 2 个 URL；不补旧订阅；删除 3 个不可订阅源与误补的 9 条旧订阅。
-- [x] ArchiveBox：删除试归档的 7 个旧源快照，恢复空库。
-- [ ] 部署 `cnvm`、`opi5p` 并实机验证；删除 FreshRSS/Linkwarden 数据与容器残留。
+- [x] ArchiveBox：保留并还原 7 个旧源快照（重新归档完成）。
+- [ ] 部署 `cnvm`、`opi5p` 并实机验证；清理容器残留。
+- [ ] 确认是否删除 FreshRSS/Linkwarden 数据目录与数据库（默认保留）。
 - [ ] 更新 `fleet-service-chain.md`；提交并对齐 mac / origin / ml-builder。
 
 ## 浏览器订阅指南
