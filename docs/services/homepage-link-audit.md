@@ -14,7 +14,7 @@ Homepage 同时作为个人导航页使用。Bing 搜索栏、Quick Launch、常
 
 ## 监控资源卡片
 
-`私有 · 监控 · 主机资源` 分组为每台非 `client` 主机生成一张卡片，通过
+`17 · 私有 · 监控 · 主机资源` 分组为每台非 `client` 主机生成一张卡片，通过
 Homepage 的 `prometheusmetric` widget 展示 node exporter 的 CPU、内存与磁盘
 占用。数据源是 colocrossing 上仅供私网访问的只读 Prometheus API
 `https://prometheus.colocrossing.zhyi.cc`，vhost 在
@@ -23,7 +23,7 @@ Homepage 的 `prometheusmetric` widget 展示 node exporter 的 CPU、内存与�
 `hosts/rock5c/home-lan-edge.nix` 中把该域名固定解析到 colocrossing 的 LTNET
 地址，避免 Homepage 走公网入口被私网 ACL 拒绝。
 
-`私有 · 监控 · NAS 存储` 分组将 opi5p 挂载的 QNAP NFS
+`18 · 私有 · 监控 · NAS 存储` 分组将 opi5p 挂载的 QNAP NFS
 （`192.168.0.40:/nixos`）作为 NAS 主机展示，指标来自 node exporter 的
 `node_filesystem_*` 系列。
 
