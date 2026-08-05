@@ -240,6 +240,22 @@ in
   # time out on the direct path.
   systemd.services.podman-immich-machine-learning-rknn.environment = proxyEnvironment;
 
+  # Immich transcodes and extracts video thumbnails through ffmpeg. Use the
+  # repo's Rockchip build (rkmpp/RGA) and let the service reach the VPU and
+  # Mali render nodes; the default immich unit hides /dev and pins a plain
+  # jellyfin-ffmpeg without rkmpp.
+  systemd.services.immich-server = {
+    path = [ pkgs.jellyfin-ffmpeg-rockchip ];
+    serviceConfig = {
+      PrivateDevices = lib.mkForce false;
+      DevicePolicy = lib.mkForce "auto";
+    };
+  };
+  users.users.immich.extraGroups = [ "video" "render" ];
+  services.udev.extraRules = ''
+    KERNEL=="cma", MODE="0660", GROUP="video"
+  '';
+
   systemd.services.redroid-landscape-navigation = {
     description = "Configure reDroid display, navigation, and application networking";
     wantedBy = [ "multi-user.target" ];
