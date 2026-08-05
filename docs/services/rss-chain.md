@@ -58,7 +58,8 @@ ArchiveBox 保留“实在不行”的源归档。退役服务的数据是否删
       公共模块文件与端口常量保留，不 import。
 - [x] Miniflux：修正 2 个 URL；不补旧订阅；删除 3 个不可订阅源与误补的 9 条旧订阅。
 - [x] ArchiveBox：保留并还原 7 个旧源快照（重新归档完成）。
-- [ ] 部署 `cnvm`、`opi5p` 并实机验证；清理容器残留。
+- [x] 部署 `cnvm`、`opi5p`、`rock5c` 并实机验证；Linkwarden/FreshRSS 单元与容器
+      已无残留，ArchiveBox 保留 7 个快照，homepage 已更新。
 - [ ] 确认是否删除 FreshRSS/Linkwarden 数据目录与数据库（默认保留）。
 - [ ] 更新 `fleet-service-chain.md`；提交并对齐 mac / origin / ml-builder。
 
