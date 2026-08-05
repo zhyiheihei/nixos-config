@@ -116,6 +116,13 @@
     environment.HOST = lib.mkForce LT.this.ltnet.IPv4;
   };
 
+  # Match the user's local Firefox identity so anti-bot sites do not reject the
+  # Miniflux fetcher as a non-browser client. Keep RSSHub on the same UA.
+  services.miniflux.config.HTTP_CLIENT_USER_AGENT =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
+  services.rsshub.settings.UA =
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
+
   # Keep the author's account automation units available, but leave them
   # dormant until this deployment has its own account-specific configuration.
   systemd.services.email-oauth2-proxy.unitConfig.ConditionPathExists =
