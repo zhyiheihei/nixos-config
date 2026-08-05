@@ -109,6 +109,17 @@
 
   lantian.nginxVhosts."colocrossing.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
+  # Read-only Prometheus API for Homepage's prometheusmetric widgets. Kept off
+  # the OAuth-protected public vhost and restricted to private networks only.
+  lantian.nginxVhosts."prometheus.colocrossing.zhyi.cc" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.Prometheus.Daemon}";
+    };
+    sslCertificate = "lets-encrypt-colocrossing.zhyi.cc";
+    noIndex.enable = true;
+    accessibleBy = "private";
+  };
+
   virtualisation.oci-containers.containers.byparr.ports = [
     "${LT.this.ltnet.IPv4}:${LT.portStr.FlareSolverr}:8191"
   ];
