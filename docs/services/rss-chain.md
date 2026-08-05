@@ -83,6 +83,15 @@ Firefox 已装 RSSHub Radar。在目标站点打开扩展，选中可用路由�
 `https://rsshub.zhyi.xin/...` 的 feed URL；复制后使用上面的 bookmarklet 或
 Miniflux 的添加订阅页即可。
 
+### 站点反爬 / “禁止访问该网站”
+
+Miniflux 与 RSSHub 已统一使用本机 Firefox 153.0.1 的真实 UA，减少被反爬拦截。
+若个别站点仍返回 403：
+
+1. 先用 RSSHub Radar 看是否有该站点路由，有则订阅 `rsshub.zhyi.xin/...` 源；
+2. 添加订阅页里可为该 feed 单独填浏览器 UA 或 cookie；
+3. 仍不行就归档到 ArchiveBox，用其浏览器内核保存页面。
+
 ### ArchiveBox 手动归档
 
 无法订阅的页面可归档：
