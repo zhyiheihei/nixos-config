@@ -22,6 +22,7 @@ in
   imports = [
     ../../nixos/server.nix
     ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/hardware/rockchip/accelerator-metrics.nix
 
     ./hardware-configuration.nix
     ./home-services.nix
