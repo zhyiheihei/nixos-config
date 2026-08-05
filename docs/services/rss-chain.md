@@ -48,8 +48,8 @@ ArchiveBox 保留“实在不行”的源归档。退役服务的数据是否删
 ### 其他核对
 
 - DNS：无 `freshrss.*` / `linkwarden.*` 残留记录。
-- `zhyi.xin` 由 cnvm 的 Halo 提供；colocrossing 的 hosts 自映射已排除该 apex，
-  否则 Miniflux 会抓到 colocrossing 上的空静态目录（403/404）。
+- `zhyi.xin` 由 cnvm 的 Halo 提供；LTNET hosts 映射按 `domainOwners` 归属表
+  解析到 cnvm，避免 Miniflux 抓到 colocrossing 上的空静态目录（403/404）。
 - Dex（cnvm）：`freshrss`、`linkwarden` 两个 OAuth client 已移除并部署生效。
 - `freshrss.nix`、`linkwarden.nix` 与对应端口常量保留为公共模块文件，只是不再
   import；Dex 两个 client 已移除。

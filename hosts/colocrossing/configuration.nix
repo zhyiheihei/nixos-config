@@ -123,22 +123,6 @@
   services.rsshub.settings.UA =
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
 
-  # zhyi.xin is served by Halo on cnvm; keep the apex out of this host's
-  # self-mapping so Miniflux/RSSHub resolve it to cnvm instead of the empty
-  # static site directory on colocrossing.
-  networking.hosts."${LT.this.ltnet.IPv4}" = lib.mkForce (
-    builtins.filter (v: v != "zhyi.xin") (
-      builtins.filter (v: lib.hasInfix "." v && !lib.hasPrefix "gopher." v && !lib.hasPrefix "whois." v)
-        (
-          (builtins.attrNames config.lantian.nginxVhosts)
-          ++ (builtins.concatLists (
-            lib.mapAttrsToList (k: v: v.serverAliases or [ ]) config.lantian.nginxVhosts
-          ))
-        )
-    )
-  );
-  networking.hosts."${LT.hosts.cnvm.ltnet.IPv4}" = [ "zhyi.xin" ];
-
   # Keep the author's account automation units available, but leave them
   # dormant until this deployment has its own account-specific configuration.
   systemd.services.email-oauth2-proxy.unitConfig.ConditionPathExists =
