@@ -45,11 +45,13 @@ curl -sS "http://127.0.0.1:9090/api/v1/query" --data-urlencode 'query=<指标>' 
   - 关键 exporter：blackbox、wireguard、coredns（knot）、bird、mysql、exportarr（radarr/sonarr/bazarr/prowlarr）
 - **面板**：Grafana 各面板非空（「设备性能」「链路速率」「各接口实时吞吐」等），注意 panel 的 refId 不能重复（Grafana 13+）
 
-### 2. 下载与媒体链路（opi5p media-automation）
-- **入口**：qbittorrent{,-pt,-seedbox} / radarr / sonarr / prowlarr / bazarr / jellyfin / bitmagnet / decluttarr / iyuuplus / jproxy / peerbanhelper / byparr 均 running（仅入口）
+### 2. 下载链路（opi5p）与媒体应用（rock5c）
+- **入口**：opi5p 上 qbittorrent{,-pt,-seedbox} / bitmagnet / iyuuplus / jproxy /
+  peerbanhelper / byparr / tachidesk / vertex，以及 rock5c 上 sonarr / radarr /
+  prowlarr / bazarr / jellyfin / decluttarr / handbrake 均 running（仅入口）
 - **日志（重点）**：
   - **sonarr/radarr/prowlarr**：`grep -iE "429|TooManyRequests|Indexer is disabled|Download failed|SSL"` → PT 索引器限流（MTeamTp 等），反复 429 会禁用索引器影响下载成功率；对策：prowlarr 调低该索引器抓取频率
-  - **radarr**：`Connection refused (127.0.0.1:13809)` → qbittorrent-pt WebUI 瞬时不可达，注意频率
+  - **radarr**：`Connection refused (pt.opi5p.zhyi.cc:443)` → qbittorrent-pt WebUI 瞬时不可达，注意频率
   - **bazarr**：`Run time of job "Sync with Sonarr/Radarr" exceeded` → 媒体库大导致同步超时（🟡）
   - **decluttarr pre-start**：curl 7878 失败 = 启动顺序（radarr 未就绪，🟢）；`Removing failed downloads` 是正常清理
   - **jellyfin**：WS 断开/请求取消 = 客户端行为（🟢）

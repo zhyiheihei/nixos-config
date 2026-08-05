@@ -4,6 +4,25 @@
 `ml-home-vm` 迁到 `opi5p`。Jellyfin 继续使用 `jellyfin-rockchip.nix`；
 `ml-home-vm` 只保留家庭公网 TLS/认证入口和旧私有域名的反向代理。
 
+## 2026-08-05 后续拆分：媒体应用迁到 rock5c
+
+用户确认将媒体播放层从 `opi5p` 拆到 `rock5c`：Sonarr、Radarr、Bazarr、
+Prowlarr、Jellyfin、HandBrake、Decluttarr 及对应 exportarr exporter 现在运行在
+`rock5c`（`hosts/rock5c/media-apps.nix`）。下载链路与数据库不动：
+
+- `opi5p` 继续运行：qBittorrent x3、FlexGet、BitMagnet、IYUU、JProxy、
+  PeerBanHelper、Tachidesk、Vertex、PostgreSQL、MariaDB。
+- `opi5p` 不再运行：Sonarr、Radarr、Bazarr、Prowlarr、Jellyfin、
+  HandBrake、Decluttarr 及其 exporter（unit 已移除）。
+- `rock5c` 通过 `pt.opi5p.zhyi.cc:443` 连接 qBittorrent PT；JProxy/FlexGet
+  通过 `sonarr/radarr/prowlarr.rock5c.zhyi.cc` 访问新后端。
+- Sonarr/Radarr 启用 Kodi/Emby `.nfo` 元数据写入，Jellyfin 扫描时读取
+  `.nfo` 里的 TVDB/TMDB/IMDb ID；Jellyfin 的 `MetadataSavers=[]`，媒体目录
+  仍保持只读，不写回 `.nfo`。
+
+`rock5c` 新服务用 `/nix/persistent/var/lib/media-apps/ready` 门闩控制，
+避免部署时用空数据抢跑。
+
 ## 不变量
 
 - NAS 始终由两台机器直接挂载为 `/mnt/storage`，源为

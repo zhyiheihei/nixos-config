@@ -11,6 +11,10 @@ independent: the x86 `ml-home-vm` keeps `192.168.0.51`, while ROCK 5C keeps
 the `rock5c` identity at `192.168.0.64`.  OPI5P owns the application/data
 chain and NCPS, while PVE runs the remaining amd64-only containers.
 
+> 2026-08-05 后续拆分：媒体应用层（Sonarr、Radarr、Bazarr、Prowlarr、Jellyfin、
+> HandBrake、Decluttarr）已按用户确认迁到 ROCK 5C；下载器、数据库、Tachidesk
+> 与 Vertex 仍留在 OPI5P。见 `docs/migrations/opi5p-media-pipeline.md`。
+
 ## Target topology
 
 ```text
@@ -42,6 +46,10 @@ there.
 ROCK 5C must not host PostgreSQL, MySQL, Immich, NCPS, ArchiveBox, Linkwarden,
 ClamAV scans, media downloaders or NAS re-export services.  Their write and
 bulk-I/O patterns do not fit its eMMC and 1 GbE link.
+
+> 例外（2026-08-05，用户确认）：ROCK 5C 现在承载媒体应用
+> Sonarr/Radarr/Bazarr/Prowlarr/Jellyfin/HandBrake/Decluttarr。媒体文件仍在
+> QNAP 上，由 OPI5P 与 ROCK 5C 直接 NFS 挂载；数据库与下载写服务不迁到 ROCK 5C。
 
 ### OPI5P: application and data chain
 
@@ -90,8 +98,8 @@ Acceptance checks:
 systemctl --failed
 birdc show protocols
 curl -x http://192.168.0.64:7892 -fsSI https://github.com/
-curl --resolve homepage.ml-home-vm.zhyi.cc:443:192.168.0.64 \
-  -kI https://homepage.ml-home-vm.zhyi.cc/
+curl --resolve homepage.rock5c.zhyi.cc:443:192.168.0.64 \
+  -kI https://homepage.rock5c.zhyi.cc/
 ```
 
 ### Phase 2: stateless and light application moves
