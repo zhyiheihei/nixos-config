@@ -77,10 +77,20 @@ in
 
   # Deploy packages, users, secrets and unit definitions first, but never let
   # a target writer create empty state before the final source freeze/copy.
-  systemd.services = lib.genAttrs gatedServices (_: {
-    partOf = [ "ml-home-apps.target" ];
-    unitConfig.ConditionPathExists = activationMarker;
-  });
+  systemd.services = lib.mkMerge [
+    (lib.genAttrs gatedServices (_: {
+      partOf = [ "ml-home-apps.target" ];
+      unitConfig.ConditionPathExists = activationMarker;
+    }))
+    # The hourly timer can fire before sops-install-secrets writes the calendar
+    # sync script on a fresh boot; make the run wait for the secret explicitly.
+    {
+      radicale-calendar-sync = {
+        after = [ "sops-install-secrets.service" ];
+        requires = [ "sops-install-secrets.service" ];
+      };
+    }
+  ];
   systemd.sockets.cups.unitConfig.ConditionPathExists = activationMarker;
   systemd.targets.ml-home-apps = {
     description = "Migrated ml-home-vm application and storage services";
