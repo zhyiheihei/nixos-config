@@ -144,7 +144,10 @@
         "192.168.0.1/24"
         "fc00:192:168::1/64"
       ];
-      linkConfig.MTUBytes = "9000";
+      linkConfig = {
+        MTUBytes = "9000";
+        RequiredForOnline = "routable";
+      };
       networkConfig = {
         DHCPPrefixDelegation = true;
         IPv6AcceptRA = false;
