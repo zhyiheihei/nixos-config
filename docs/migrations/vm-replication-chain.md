@@ -72,7 +72,7 @@ systemctl is-active hydra-evaluator hydra-queue-runner hydra-server
 cat /etc/nix/machines-with-localhost
 ```
 
-预期远程构建机表包含高并发 `ml-builder` 和单并发 `opi5p`；Hydra 专用文件另有
+预期远程构建机表包含受限并发 `ml-builder`（maxJobs=4）和单并发 `opi5p`；Hydra 专用文件另有
 单并发 localhost。`ml-builder` 只声明原生 x86 平台，并通过 `aarch64-cross`
 feature 承接可交叉构建的 ARM 任务；必须执行目标程序的原生 ARM derivation 才交给
 `opi5p`。`ml-home-vm` 不参与构建。

@@ -20,11 +20,13 @@ hostnamectl
 systemctl is-system-running
 systemctl --failed
 nproc
+nix show-config | grep -E '^(max-jobs|cores) ='
 df -h /nix
 ```
 
 期望系统为 `running`、没有 failed unit，且 CPU 线程数与 `host.nix` 的
-`cpuThreads` 相符。重装或 SSH host key 变化后，先更新本机 known_hosts 与
+`cpuThreads` 相符；`nix show-config` 的 `max-jobs`/`cores` 应为 4 / 8。
+重装或 SSH host key 变化后，先更新本机 known_hosts 与
 `hosts/ml-builder/host.nix` 的 `ssh.ed25519`，再运行 Colmena。
 
 ## 缓存与 Git
