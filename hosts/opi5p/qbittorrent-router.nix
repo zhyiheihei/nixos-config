@@ -61,6 +61,21 @@ in
     qbittorrent-seedbox.enable = lib.mkForce false;
     qbittorrent-pt-cleanup.enable = lib.mkForce false;
 
+    # IYUU's bundled qBittorrent client only recognizes the legacy "SID="
+    # cookie, while qBittorrent 5.x sends "QBT_SID_<port>=". Reapply this
+    # compatibility patch after iyuuplus's git reset in preStart.
+    iyuuplus.preStart = lib.mkAfter ''
+      ${lib.getExe pkgs.python3} - <<'PY'
+      path = "/var/lib/iyuu/composer/bittorrent-client/src/Driver/qBittorrent/Client.php"
+      s = open(path).read()
+      bs = chr(92)
+      old = "preg_match('/SID=(" + bs + "S[^;]+)/', $header, $matches)"
+      new = "preg_match('/(?:QBT_SID_" + bs + "d+|SID)=(" + bs + "S[^;]+)/', $header, $matches)"
+      if old in s:
+          open(path, "w").write(s.replace(old, new, 1))
+      PY
+    '';
+
     flexget-runner.script = lib.mkForce ''
       if test -z "''${HDHOME_AUTO_RSS_URL:-}"; then
         echo "HDHOME_AUTO_RSS_URL is not configured; skipping FlexGet run"
