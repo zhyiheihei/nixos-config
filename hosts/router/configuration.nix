@@ -23,10 +23,15 @@
     ../../nixos/optional-apps/ncps-client.nix
   ];
 
-  # The R5C hardware module force-replaces boot.supportedFilesystems, so add
-  # NFS back at host level; the kernel config already has CONFIG_NFS_FS=y and
-  # nfs-utils supplies mount.nfs.
-  boot.supportedFilesystems.nfs = lib.mkForce true;
+  # The R5C hardware module force-replaces boot.supportedFilesystems; mirror
+  # its list and add NFS at host level. The kernel config already has
+  # CONFIG_NFS_FS=y and nfs-utils supplies mount.nfs.
+  boot.supportedFilesystems = lib.mkForce [
+    "btrfs"
+    "ext4"
+    "vfat"
+    "nfs"
+  ];
   environment.systemPackages = [ pkgs.nfs-utils ];
 
   # Same QNAP export the other media hosts mount.  Router must stay up as the
