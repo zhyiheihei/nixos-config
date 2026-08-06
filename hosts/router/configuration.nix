@@ -13,6 +13,7 @@
     ./hardware-configuration.nix
     ./networking.nix
     ./prometheus.nix
+    ./qbittorrent.nix
     ./wifi.nix
 
     ../../nixos/common-apps/coredns.nix
