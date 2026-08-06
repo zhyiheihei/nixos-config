@@ -40,6 +40,12 @@ in
     "net.ipv4.tcp_mtu_probing" = 1;
     "net.ipv4.tcp_syncookies" = 1;
 
+    # Throttle port unreachable ICMP messages
+    "net.ipv4.icmp_msgs_per_sec" = 10;
+
+    # Increase nftables max connections
+    "net.nf_conntrack_max" = 131072;
+
     "net.ipv4.conf.all.forwarding" = lib.mkForce 1;
     "net.ipv4.conf.default.forwarding" = lib.mkForce 1;
     "net.ipv4.conf.*.forwarding" = lib.mkForce 1;
