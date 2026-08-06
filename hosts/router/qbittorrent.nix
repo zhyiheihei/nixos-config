@@ -32,15 +32,7 @@ in
     ../../nixos/common-apps/nginx/vhost-options/default.nix
   ];
 
-  services.qbittorrent = {
-    enable = true;
-    package = pkgs.qbittorrent-enhanced-nox;
-    inherit user group;
-    profileDir = "/var/lib/qbittorrent";
-    webuiPort = LT.port.qBitTorrent.WebUI;
-    torrentingPort = lib.mkForce 31220;
-    extraArgs = [ "--confirm-legal-notice" ];
-  };
+  services.qbittorrent.torrentingPort = lib.mkForce 31220;
 
   systemd.tmpfiles.settings.qbittorrent-router = {
     "/mnt/storage".d = {
