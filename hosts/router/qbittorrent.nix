@@ -47,6 +47,24 @@ in
     ../../nixos/common-apps/nginx/vhost-options/default.nix
   ];
 
+  # This router's qBittorrent build does not treat IPv4 127.0.0.1 as loopback
+  # for the WebUI auth bypass, while [::1] works. Keep the author-style vhost
+  # structure and only change the host-level backend address.
+  lantian.nginxVhosts = {
+    "bt.${config.networking.hostName}.zhyi.cc".locations."/".proxyPass =
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
+    "bt.localhost".locations."/".proxyPass =
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
+    "pt.${config.networking.hostName}.zhyi.cc".locations."/".proxyPass =
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentPT.WebUI}";
+    "pt.localhost".locations."/".proxyPass =
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentPT.WebUI}";
+    "seedbox.${config.networking.hostName}.zhyi.cc".locations."/".proxyPass =
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentSeedbox.WebUI}";
+    "seedbox.localhost".locations."/".proxyPass =
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentSeedbox.WebUI}";
+  };
+
   services.qbittorrent.torrentingPort = lib.mkForce 31220;
 
   systemd.tmpfiles.settings.qbittorrent-router = {
