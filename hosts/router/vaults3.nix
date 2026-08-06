@@ -47,8 +47,10 @@ in
       "sops-install-secrets.service"
     ];
     requires = [ "mnt-storage.mount" ];
-    requiresMountsFor = [ "/mnt/storage/vaults3-data" ];
-    unitConfig.ConditionPathExists = "/nix/persistent/var/lib/vaults3/ready";
+    unitConfig = {
+      RequiresMountsFor = [ "/mnt/storage/vaults3-data" ];
+      ConditionPathExists = "/nix/persistent/var/lib/vaults3/ready";
+    };
     environment = {
       VAULTS3_DATA_DIR = "/mnt/storage/vaults3-data";
       VAULTS3_METADATA_DIR = "/nix/persistent/var/lib/vaults3";
