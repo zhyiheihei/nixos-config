@@ -125,7 +125,7 @@ in
           BindPaths = [ qBitTorrentSeedboxDownloadPath ];
         };
       };
-      qbittorrent-pt-cleanup.environment.QBITTORRENT_URL = lib.mkForce "http://localhost:${LT.portStr.qBitTorrentPT.WebUI}";
+      qbittorrent-pt-cleanup.environment.QBITTORRENT_URL = lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentPT.WebUI}";
     }
   ];
 
