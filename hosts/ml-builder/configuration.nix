@@ -117,7 +117,19 @@ in
     # Five seconds is too short for GitHub archive redirects from this network,
     # even when the proxy is healthy.
     connect-timeout = lib.mkForce 15;
+    # 28 concurrent full-core builds exhausted RAM on 2026-08-06 (cc1plus OOM,
+    # swap near full). Cap the local daemon exactly like the advertised
+    # nixBuilder.maxJobs; cores limits memory use per derivation.
+    max-jobs = lib.mkForce 4;
+    cores = lib.mkForce 8;
   };
+
+  assertions = [
+    {
+      assertion = LT.this.nixBuilder.maxJobs == config.nix.settings.max-jobs;
+      message = "ml-builder declared builder concurrency must match local nix.settings.max-jobs";
+    }
+  ];
 
   # Flake lock updates fetch some inputs in the invoking client, while
   # fixed-output derivations fetch through the multi-user Nix daemon. Give

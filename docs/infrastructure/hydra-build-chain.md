@@ -6,7 +6,8 @@
 
 ## 不变量
 
-- `ml-builder` 是唯一高并发构建机，也是唯一声明 `big-parallel` 的主机。
+- `ml-builder` 是唯一并行构建机（28 vCPU / 58 GiB），也是唯一声明 `big-parallel`
+  的主机；并发上限 4、单任务 8 核，防止 2026-08-06 出现过的 OOM。
 - `pve-5700u` 负责运行 Hydra 和虚拟机，只作为单任务 x86 回退节点。
 - `opi5p` 首先是数据库、媒体和 reDroid 生产节点，只作为单任务原生 ARM 回退节点。
 - `rock5c`、Router 和其他业务主机不加入 `nix-builder`；`ml-home-vm` 已退役。
@@ -24,7 +25,7 @@
 
 | 节点 | 地址 | 架构 | 同时任务 | 单任务核心 | speed factor | 声明 feature | 角色 |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- |
-| `ml-builder` | `192.168.0.50` | `x86_64-linux` | 28 | 默认 | 28 | `aarch64-cross`, `big-parallel` | 唯一主构建机，大包和交叉构建 |
+| `ml-builder` | `192.168.0.50` | `x86_64-linux` | 4 | 8 | 28 | `aarch64-cross`, `big-parallel` | 唯一主构建机，大包和交叉构建 |
 | `pve-5700u` | `192.168.0.2` | `x86_64-linux` | 1 | 4 | 16 | 远程项无；Hydra localhost 有 `kvm,nixos-test,benchmark` | Hydra 调度、虚拟机宿主、x86 回退 |
 | `opi5p` | `192.168.0.62` | `aarch64-linux` | 1 | 4 | 8 | 无 | 必须执行 ARM 目标程序时的原生回退 |
 
@@ -67,6 +68,12 @@ Hydra 从 PVE 把 derivation 交给 ml-builder 后，ml-builder 又把同一任�
 
 问题不是 ARM 架构本身，也不是网线，而是同时 derivation 数与单 derivation 编译线程
 叠乘。OPI5P 和 PVE 都承载常驻业务，因此宁可排队，也不能靠交换空间掩盖错误并发。
+
+2026-08-06，ml-builder（28 vCPU / 58 GiB RAM）在 `maxJobs = 28`、`cores = 0` 下运行
+Hydra 与本地构建，`nix-daemon` cgroup 内的多个 `cc1plus`/`cp` 触发全局 OOM，29 GiB
+swap 一度用掉 16 GiB。ml-builder 专用于构建，但仍需要限制同时 derivation 数与单
+derivation 线程数；当前声明与本地并发统一为 4，单任务最多 8 核。将来上调并发前，
+先观察 `free -h`、swap 用量与 `journalctl -k | grep -i oom`。
 
 ## 变更与验收流程
 
