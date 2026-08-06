@@ -173,6 +173,10 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
     };
+    zhyi-packages = {
+      url = "github:zhyiheihei/zhyi-packages";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     zsh-patina = {
       url = "github:michel-kraemer/zsh-patina";
       inputs.nixpkgs.follows = "nixpkgs";
