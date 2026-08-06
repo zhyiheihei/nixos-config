@@ -26,9 +26,10 @@ let
     conf=/var/lib/${instance}/qBittorrent/config/qBittorrent.conf
     mkdir -p "$(dirname "$conf")"
     touch "$conf"
+    sed -i '/^WebUI\\LocalHostAuth=/d' "$conf"
     sed -i '/^WebUI\\AuthSubnetWhitelistEnabled=/d' "$conf"
     sed -i '/^WebUI\\AuthSubnetWhitelist=/d' "$conf"
-    printf 'WebUI\\AuthSubnetWhitelistEnabled=true\nWebUI\\AuthSubnetWhitelist=${authSubnetWhitelist}\n' >> "$conf"
+    printf 'WebUI\\LocalHostAuth=true\nWebUI\\AuthSubnetWhitelistEnabled=true\nWebUI\\AuthSubnetWhitelist=${authSubnetWhitelist}\n' >> "$conf"
   '';
 in
 {
