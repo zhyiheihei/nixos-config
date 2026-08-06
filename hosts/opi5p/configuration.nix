@@ -27,6 +27,7 @@ in
     ./hardware-configuration.nix
     ./home-services.nix
     ./media-automation.nix
+    ./qbittorrent-router.nix
   ];
 
   # This host is a native aarch64 builder. Registering qemu-arm through
