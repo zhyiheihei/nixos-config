@@ -44,11 +44,12 @@ Rockchip Jellyfin 观看。2026-08-05 起链路拆成两层：下载与数据库
   Tachidesk/Suwayomi → 漫画源与扩展 → 章节下载/书库/阅读进度
 
 运行位置：
-  opi5p       → qBittorrent x3、FlexGet、BitMagnet、IYUU、JProxy、PeerBanHelper、
-                Tachidesk、Vertex、PostgreSQL/MariaDB（下载链路与数据库）
+  router      → qBittorrent x3、qbittorrent-pt-cleanup（下载器）
+  opi5p       → FlexGet、BitMagnet、IYUU、JProxy、PeerBanHelper、Tachidesk、
+                Vertex、PostgreSQL/MariaDB
   rock5c      → 家庭边缘 + Sonarr、Radarr、Bazarr、Prowlarr、Jellyfin、
                 HandBrake、Decluttarr（媒体应用）
-  NAS         → 192.168.0.40:/nixos，opi5p 与 rock5c 都直接挂载 /mnt/storage
+  NAS         → 192.168.0.40:/nixos，router、opi5p 与 rock5c 都直接挂载 /mnt/storage
 
 音乐（独立链路）：
   手机/电脑 网易云音乐下载 → Syncthing 同步
@@ -71,7 +72,7 @@ Rockchip Jellyfin 观看。2026-08-05 起链路拆成两层：下载与数据库
 
 ### 手动方式
 
-1. 打开 [qBittorrent PT](https://pt.opi5p.zhyi.cc)
+1. 打开 [qBittorrent PT](https://pt.router.zhyi.cc)
 2. 粘贴磁力链接或上传 .torrent 文件
 3. 保存路径选 `/mnt/storage/downloads`（通用下载目录）
 4. 下载完成后文件在 `/mnt/storage/downloads/` 中，自行处理
@@ -133,7 +134,7 @@ ssh -p 2222 root@opi5p.zhyi.cc \
 
 独立的刷流链路，与 PT 追剧链路隔离：
 
-1. 打开 [Seedbox](https://seedbox.opi5p.zhyi.cc)
+1. 打开 [Seedbox](https://seedbox.router.zhyi.cc)
 2. 添加种子，固定下载到 `/mnt/storage/.downloads-qb-seedbox`
 3. 配合 [Vertex](https://vertex.opi5p.zhyi.cc) 管理站点数据和刷流任务
 4. [IYUUPlus](https://iyuu.opi5p.zhyi.cc) 自动辅种到其他站点，提升上传量
@@ -180,7 +181,7 @@ ssh -p 2222 root@rock5c.zhyi.cc \
 | 组件 | 触发方式 | 作用 |
 | --- | --- | --- |
 | FlexGet | 每 10 分钟 | HDHome RSS 自动下载 |
-| qbittorrent-pt-cleanup | 每小时 | 清理 .downloads-auto 中的过期种子 |
+| qbittorrent-pt-cleanup | 每小时 | 清理 .downloads-auto 中的过期种子（router） |
 | Decluttarr | 常驻 | 清理 Sonarr/Radarr 中卡住/停滞的下载任务 |
 | rsgain-cloudmusic | 每小时 | CloudMusic 响度标准化 |
 | exportarr (×4) | 常驻 | Sonarr/Radarr/Prowlarr/Bazarr 指标导出到 Prometheus |
@@ -188,7 +189,7 @@ ssh -p 2222 root@rock5c.zhyi.cc \
 ## 存储路径速查
 
 所有媒体与下载路径位于 NAS 的 NFS 挂载 `/mnt/storage`（直接来自
-`192.168.0.40:/nixos`），opi5p 与 rock5c 都直接挂载。Tachidesk 与 Vertex
+`192.168.0.40:/nixos`），router、opi5p 与 rock5c 都直接挂载。Tachidesk 与 Vertex
 的应用数据库位于 OPI5P 本机 `/var/lib/tachidesk`、`/var/lib/vertex`；
 Sonarr/Radarr/Bazarr/Prowlarr/Jellyfin 的状态位于 rock5c 本机
 `/var/lib/{sonarr,radarr,bazarr,prowlarr,jellyfin}`，HandBrake 配置位于
@@ -196,7 +197,7 @@ Sonarr/Radarr/Bazarr/Prowlarr/Jellyfin 的状态位于 rock5c 本机
 
 | 路径 | 用途 | 可写服务 |
 | --- | --- | --- |
-| `downloads/` | 通用手动下载 | qbittorrent, qbittorrent-pt（opi5p） |
+| `downloads/` | 通用手动下载 | qbittorrent, qbittorrent-pt（router） |
 | `.downloads-qb/` | qBittorrent 专属（Sonarr 可导入） | qbittorrent, sonarr, radarr |
 | `.downloads-qb-pt/` | qBittorrent PT 专属（Sonarr 可导入） | qbittorrent-pt, sonarr, radarr |
 | `.downloads-auto/` | FlexGet 自动下载（定时清理） | qbittorrent-pt |
@@ -253,7 +254,8 @@ seedbox 中已完成的老种子。
 | 配置 | 位置 |
 | --- | --- |
 | 路径与 BindPaths 编排 | `nixos/optional-apps/media-automation.nix` |
-| OPI5P 下载链路编排 | `hosts/opi5p/media-automation.nix`、`hosts/opi5p/media-download-chain.nix` |
+| Router 下载链路编排 | `hosts/router/qbittorrent.nix` |
+| OPI5P 消费方编排 | `hosts/opi5p/media-automation.nix`、`hosts/opi5p/media-download-chain.nix`、`hosts/opi5p/qbittorrent-router.nix` |
 | rock5c 媒体应用编排 | `hosts/rock5c/media-apps.nix`、`hosts/rock5c/media-edge.nix` |
 | 下载器模块 | `nixos/optional-apps/qbittorrent*.nix` |
 | *arr 套件 | `nixos/optional-apps/sonarr/` |
