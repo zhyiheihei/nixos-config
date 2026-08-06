@@ -14,6 +14,7 @@
     ./networking.nix
     ./prometheus.nix
     ./qbittorrent.nix
+    ./vaults3.nix
     ./wifi.nix
 
     ../../nixos/common-apps/coredns.nix
