@@ -126,8 +126,8 @@ ai-api.zhyi.cc -> 独立 UniAPI（jpvm，当前未验证） -> 外部 Provider
 
 - `LibreChat`、`n8n`、`n8n-openai-bridge` 和 `Metapi` 已确认在 `colocrossing` 运行；
 - 主 `uni-api.service` 已确认在 `rock5c` 运行；`ml-home-vm` 没有该 unit；
-- LibreChat 仍配置为旧服务别名 `uni-api.ml-home-vm.zhyi.cc`，该名字必须明确指向
-  ROCK 5C 才能保持调用链；审计时从三台主机查询均未得到解析结果；
+- LibreChat 与 Metapi 已改为直接使用 `uni-api.rock5c.zhyi.cc`，由 colocrossing
+  通过 LTNET 访问 ROCK 5C 上的主 UniAPI；
 - `AxonHub` 模块存在，但没有被任何 host 导入，实机也没有 `axonhub.service`；它是
   未部署候选，不是当前链路的一部分；
 - `jpvm` 声明独立公开 UniAPI，但主机不可达，不能标记为已运行。
@@ -150,7 +150,7 @@ Nix clients -> Attic（cnvm） -> VaultS3（OPI5P -> QNAP）
 实机 substituter：
 
 - `ml-builder`、`router`、`opi5p`、`pve-5700u`：先 Attic，再 OPI5P NCPS；
-- `rock5c`、`lubancat1`、`ml-home-vm`：先 Attic，再直接使用公共镜像与 cache.nixos.org；
+- `rock5c`、`lubancat1`：先 Attic，再直接使用公共镜像与 cache.nixos.org；`ml-home-vm` 已退役，不再参与；
 - ml-builder 的 `builders-use-substitutes = false`，由主构建机集中下载后传给远端。
 
 审计发现当前 ml-builder 的 `/etc/nix/machines` 仍同时列出 OPI5P 和 PVE；PVE 又列出
@@ -177,7 +177,7 @@ ml-builder 与 OPI5P。这违反有向无环约束，说明排除 PVE 的新代�
 与 NAS 大流量仍不经 ROCK 5C 中转。
 
 PVE 保留不提供 ARM64 镜像的 ArchiveTeam、ClawEmail 和 Epic Awesome Gamer。
-ml-home-vm 当前没有用户应用，不应再被旧域名误判为实际后端。
+ml-home-vm 已退役，旧 `*.ml-home-vm.zhyi.cc` 名称不应再被当作实际后端。
 
 ### 协作、监控与日志链
 
@@ -204,11 +204,11 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | --- | --- | --- | --- |
 | P0 | ml-builder 运行态仍把 PVE 列为下游 builder | PVE 与 ml-builder 可再次互相等待同一 store lock | 部署 ml-builder 后复核 `/etc/nix/machines` |
 | P0 | Filebeat 指向不存在的 usvm Elasticsearch | 舰队日志持续无法落库 | 对照作者决定恢复 Elasticsearch 或关闭/改写日志链 |
-| P1 | 主 UniAPI 已在 ROCK 5C，LibreChat 和旧文档仍使用 ml-home-vm 语义 | AI 调用依赖未确认的旧 DNS alias | 明确 alias 指向 ROCK 5C，并做不输出 key 的模型检查 |
+| P1 | LibreChat/Metapi 曾使用未解析的 `uni-api.ml-home-vm.zhyi.cc` | AI 调用依赖旧别名 | 已统一改为 `uni-api.rock5c.zhyi.cc` 并完成模型检查 |
 | P1 | AxonHub 只在文档出现，未部署 | 运维人员会误判已有网关和数据库 | 保持“未部署候选”，除非明确重新导入模块 |
 | P1 | colocrossing、usvm 的 OpenVPN gameaccel 同时失败 | 两台系统 degraded，CN 加速链不完整 | 检查证书、密钥和服务日志后修复或明确禁用 |
 | P2 | hosts 概览仍把 LubanCat-1 写成 DHCP/minimal，遗漏 OPI03 | 接入与容量判断错误 | 已随本次文档更新 |
-| P2 | ROCK 5C/OPI5P 部分迁移注释仍称入口在 ml-home-vm | 后续维护可能把代理改回旧 VM | 配置变更时同步修正注释，不影响当前运行闭包 |
+| P2 | ROCK 5C/OPI5P 部分迁移注释仍称入口在 ml-home-vm | 后续维护可能把代理改回旧 VM | 当前链路文档已改为 ROCK 5C；历史迁移注释保留为记录 |
 
 在 P0 链路修复前，不继续扩大 LubanCat-1 的服务迁移范围。LubanCat-1 的候选服务和
 资源预算见[服务链路与 LubanCat-1 迁移审计](service-chain-lubancat-audit.md)。

@@ -16,7 +16,7 @@
 
 `zhyi.xin` 是本部署的主公开域。大多数应用记录 CNAME 到
 `colocrossing.zhyi.cc`。服务在 colocrossing 本机运行时由本机 Nginx 直接提供；
-服务在 `ml-home-vm` 运行时，由 colocrossing 保留原始 Host 和 SNI 反向代理：
+服务在 `rock5c`/`opi5p` 等家庭主机运行时，由 colocrossing 保留原始 Host 和 SNI 反向代理：
 
 ```text
 客户端 -> colocrossing:443 -> 本机服务
@@ -44,8 +44,8 @@ OPI5P 的标准 443。客户端统一使用
 `zhyi.cc` 承载主机和基础设施名称。主机记录由 `host-recs.nix` 根据每台主机的
 公网、LTNET、DN42 与互联地址生成；`*.主机.zhyi.cc` 跟随对应主机记录。作者采用
 主机子域名的私有服务继续使用 `服务.主机.zhyi.cc`，例如
-`homepage.ml-home-vm.zhyi.cc`、`metapi.colocrossing.zhyi.cc` 和
-`uni-api.jpvm.zhyi.cc`。这些名字不应为了公网可达而另建同名的
+`homepage.rock5c.zhyi.cc`、`metapi.colocrossing.zhyi.cc` 和
+`uni-api.rock5c.zhyi.cc`。这些名字不应为了公网可达而另建同名的
 `服务.zhyi.xin` 入口。
 
 基础设施的独立正式域名保持作者原有形态，例如 `dashboard.zhyi.cc`、

@@ -80,7 +80,7 @@ in
           {
             name = "UniAPI";
             apiKey = "\${UNI_API_KEY}";
-            baseURL = "https://uni-api.ml-home-vm.zhyi.cc/v1";
+            baseURL = "https://uni-api.rock5c.zhyi.cc/v1";
             models = {
               default = models;
               fetch = false;

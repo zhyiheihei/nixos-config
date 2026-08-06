@@ -10,7 +10,7 @@
 
 ```bash
 cd /nix/src/nixos-config
-HOST=ml-home-vm
+HOST=rock5c
 nix build ".#nixosConfigurations.$HOST.config.system.build.toplevel" \
   --out-link "/root/cache-roots/$HOST"
 ```
@@ -23,7 +23,7 @@ nix build ".#nixosConfigurations.$HOST.config.system.build.toplevel" \
 `attic-upload-key`，使用：
 
 ```bash
-ROOT=/root/cache-roots/ml-home-vm
+ROOT=/root/cache-roots/rock5c
 TOKEN=$(cat /run/secrets/attic-upload-key)
 
 nix shell nixpkgs#attic-client -c attic login --set-default lantian \
@@ -37,8 +37,7 @@ nix shell nixpkgs#attic-client -c attic push lantian "$ROOT"
 make push-cache
 ```
 
-不要启用 `attic-watch-store` 来替代这一步；当前 `ml-builder` 和 `ml-home-vm` 都明确
-没有启用该服务。
+不要启用 `attic-watch-store` 来替代这一步；当前 `ml-builder` 明确没有启用该服务。
 
 ## 3. 验收与重试
 

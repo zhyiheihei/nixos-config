@@ -74,7 +74,7 @@ in
       proxyNoTimeout = true;
     };
 
-    # Private vhost for UniAPI on ml-home-vm to call back via LTNET
+    # Private vhost for UniAPI on rock5c to call back via LTNET
     "n8n-bridge.${config.networking.hostName}.zhyi.cc" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.N8N-OpenAI-Bridge}";
