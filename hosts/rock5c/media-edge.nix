@@ -14,17 +14,23 @@ let
     "bitmagnet"
     "iyuu"
   ];
-  mkProxyLocation = service: {
-    proxyPass = "https://${service}.opi5p.zhyi.cc";
-    proxyOverrideHost = "${service}.opi5p.zhyi.cc";
-    proxyWebsockets = true;
-    proxyNoTimeout = true;
-  }
-  // lib.optionalAttrs (builtins.elem service [
-    "bt"
-    "pt"
-    "seedbox"
-  ]) { allowCORS = true; };
+  qbitPorts = {
+    bt = LT.port.qBitTorrent.WebUI;
+    pt = LT.port.qBitTorrentPT.WebUI;
+    seedbox = LT.port.qBitTorrentSeedbox.WebUI;
+  };
+  mkProxyLocation = service:
+    if builtins.hasAttr service qbitPorts then {
+      proxyPass = "http://${LT.hosts.router.interconnect.IPv4}:${builtins.toString qbitPorts.${service}}";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      allowCORS = true;
+    } else {
+      proxyPass = "https://${service}.opi5p.zhyi.cc";
+      proxyOverrideHost = "${service}.opi5p.zhyi.cc";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
   mkEdgeVhosts = service: [
     {
       name = "${service}.localhost";

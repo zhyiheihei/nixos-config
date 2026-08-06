@@ -33,6 +33,9 @@ let
     LT.port.Rsync
     LT.port.NMEA
     LT.port.mDNS
+    LT.port.qBitTorrent.WebUI
+    LT.port.qBitTorrentPT.WebUI
+    LT.port.qBitTorrentSeedbox.WebUI
   ];
 in
 {
