@@ -38,7 +38,7 @@ in
     inherit user group;
     profileDir = "/var/lib/qbittorrent";
     webuiPort = LT.port.qBitTorrent.WebUI;
-    torrentingPort = 31220;
+    torrentingPort = lib.mkForce 31220;
     extraArgs = [ "--confirm-legal-notice" ];
   };
 
@@ -89,13 +89,13 @@ in
       ];
       qbittorrent-pt = {
         serviceConfig = {
-          ExecStart = utils.escapeSystemdExecArgs [
+          ExecStart = lib.mkForce (utils.escapeSystemdExecArgs [
             (lib.getExe pkgs.qbittorrent-nox)
             "--profile=/var/lib/qbittorrent-pt"
             "--webui-port=${LT.portStr.qBitTorrentPT.WebUI}"
             "--torrenting-port=31221"
             "--confirm-legal-notice"
-          ];
+          ]);
           BindPaths = [
             defaultDownloadPath
             flexgetAutoDownloadPath
@@ -105,13 +105,13 @@ in
       };
       qbittorrent-seedbox = {
         serviceConfig = {
-          ExecStart = utils.escapeSystemdExecArgs [
+          ExecStart = lib.mkForce (utils.escapeSystemdExecArgs [
             (lib.getExe pkgs.qbittorrent-nox)
             "--profile=/var/lib/qbittorrent-seedbox"
             "--webui-port=${LT.portStr.qBitTorrentSeedbox.WebUI}"
             "--torrenting-port=31222"
             "--confirm-legal-notice"
-          ];
+          ]);
           BindPaths = [ qBitTorrentSeedboxDownloadPath ];
         };
       };
