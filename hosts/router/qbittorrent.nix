@@ -29,10 +29,8 @@ let
     if ! grep -q '^\[Preferences\]$' "$conf"; then
       printf '[Preferences]\n' >> "$conf"
     fi
-    sed -i '/^WebUI\\LocalHostAuth=/d' "$conf"
     sed -i '/^WebUI\\AuthSubnetWhitelistEnabled=/d' "$conf"
     sed -i '/^WebUI\\AuthSubnetWhitelist=/d' "$conf"
-    sed -i '/^\[Preferences\]$/a WebUI\\LocalHostAuth=false' "$conf"
     sed -i '/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelistEnabled=true' "$conf"
     sed -i '/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelist=${authSubnetWhitelist}' "$conf"
   '';
@@ -127,6 +125,7 @@ in
           BindPaths = [ qBitTorrentSeedboxDownloadPath ];
         };
       };
+      qbittorrent-pt-cleanup.environment.QBITTORRENT_URL = lib.mkForce "http://localhost:${LT.portStr.qBitTorrentPT.WebUI}";
     }
   ];
 
