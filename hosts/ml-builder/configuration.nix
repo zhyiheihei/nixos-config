@@ -59,10 +59,16 @@ in
 
     # Keep the builder graph directed: Hydra/PVE may dispatch to ml-builder,
     # but an incoming build on ml-builder must never be sent back to PVE while
-    # PVE is still holding the same output lock.  OPI5P remains available for
-    # the small number of derivations that must execute natively on ARM.
+    # PVE is still holding the same output lock.  OPI5P is excluded too: it is
+    # RAM-sensitive (c6ff24e3) and QEMU already covers ARM builds locally.
     excludeHosts = [ "pve-5700u" "opi5p" ];
   };
+
+  # Excluding every remote builder leaves nix.buildMachines empty, so NixOS
+  # does not create /etc/nix/machines while nix-distributed.nix references it
+  # unconditionally. Provide an explicit empty file so evaluation and the
+  # nix-remote-build helpers stay valid.
+  environment.etc."nix/machines".text = "";
 
   # Only this machine advertises the native x86_64 toolchain used for
   # AArch64 cross builds. Ordinary x86_64 derivations remain distributable to

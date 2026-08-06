@@ -12,7 +12,7 @@
 - `opi5p` 首先是数据库、媒体和 reDroid 生产节点，只作为单任务原生 ARM 回退节点。
 - `rock5c`、Router 和其他业务主机不加入 `nix-builder`；`ml-home-vm` 已退役。
 - 构建派发图必须是有向无环图：PVE 可以派发到 ml-builder，ml-builder 不得反向派发
-  到 PVE；ml-builder 只保留 OPI5P 作为原生 ARM 下游。
+  到 PVE；ml-builder 自己的派发表同时排除 PVE 与 OPI5P，ARM 由本机 QEMU 承接。
 - `maxJobs` 限制同时运行的 derivation 数；`cores` 限制单个 derivation 获得的并行度。
   两者不能互相替代。
 
@@ -38,7 +38,7 @@
 | --- | --- | --- | --- | --- |
 | 求值与排队 | Hydra（`pve-5700u`） | `/etc/nix/machines-with-localhost` | system、mandatory feature、可用槽位、speed factor | 选择实际 builder |
 | 普通 x86 构建 | Hydra（PVE） | 优先 `ml-builder`，PVE localhost 单任务回退 | `x86_64-linux`，主机速度与槽位 | 构建输出进入 Nix store |
-| ml-builder 本地发起 | ml-builder | x86 留在本机；原生 ARM 可到 `opi5p` | ml-builder 的机器表明确排除 PVE | 不产生 PVE↔ml-builder 回路 |
+| ml-builder 本地发起 | ml-builder | x86 留在本机；ARM 由本机 QEMU 承接 | ml-builder 的机器表排除 PVE 与 OPI5P | 不产生 PVE↔ml-builder 回路 |
 | 大型并行构建 | Hydra | 仅 `ml-builder` | derivation 要求 `big-parallel` | 不占用 PVE/OPI 业务资源 |
 | ARM 交叉构建 | Hydra 或 ml-builder | `ml-builder` | build platform 仍是 x86，并要求 `aarch64-cross` | 生成 ARM 产物但不执行 ARM 二进制 |
 | ARM 原生构建 | Hydra 或 ml-builder | `opi5p` | derivation 的 system 为 `aarch64-linux` | 单任务执行目标架构构建脚本 |
