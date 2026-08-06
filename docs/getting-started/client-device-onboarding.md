@@ -33,7 +33,7 @@
 6. 授权后网络状态显示 `OK`
 
 > iOS 的 ZeroTier 以 VPN 形式运行。如果默认路由被推送，所有流量会经过 LTNET。
-> 目前控制器推送了 `0.0.0.0/0 via 198.18.0.115`（ml-home-vm），iPhone 上建议
+> 目前控制器按 LTNET 推送默认路由（家庭入口已由 rock5c 承载；ml-home-vm 已退役），iPhone 上建议
 > 在 ZeroTier 设置中关闭 **Allow Default Route**，仅保留托管路由。
 
 ### Windows
@@ -77,7 +77,7 @@
    ```bash
    zerotier-cli listnetworks
    ip addr show zt*
-   ping 198.18.0.115  # ml-home-vm
+   ping 198.18.0.123  # rock5c
    ```
 
 ### Linux（NixOS，纳入仓库管理）
@@ -161,24 +161,23 @@ sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK NIX_SSHOPTS='-F /dev/null -o StrictHostKeyChec
 在设备上：
 ```bash
 zerotier-cli listnetworks   # 状态 OK
-ping 198.18.0.115           # ml-home-vm 可达
+ping 198.18.0.123           # rock5c 可达
 ```
 
 在浏览器中访问任意 private 服务：
 ```
-https://bt.ml-home-vm.zhyi.cc      # qBittorrent
+https://bt.opi5p.zhyi.cc      # qBittorrent
 https://jellyfin.zhyi.xin:8443 # Jellyfin
-https://sonarr.ml-home-vm.zhyi.cc   # Sonarr
+https://sonarr.rock5c.zhyi.cc   # Sonarr
 ```
 
 ## 访问路径
 
 ```text
 设备 (ZeroTier 198.18.0.x)
-  → DNS: *.ml-home-vm.zhyi.cc → jpvm.zhyi.cc (36.50.85.113)
-  → jpvm nginx (TLS 终止，源 IP 198.18.0.x 命中 private 白名单)
-    → colocrossing (LTNET 198.18.0.120)
-      → ml-home-vm (LTNET 198.18.0.115，实际服务)
+  → DNS: *.rock5c.zhyi.cc → 家庭入口
+  → rock5c (LTNET 198.18.0.123，实际家庭边缘)
+    → 各应用主机（opi5p / pve 等）
 ```
 
 ## 常见问题
@@ -186,7 +185,7 @@ https://sonarr.ml-home-vm.zhyi.cc   # Sonarr
 | 问题 | 原因与解决 |
 |------|-----------|
 | 状态一直是 `REQUESTING_CONFIGURATION` | 控制器未授权；检查 additional-hosts 是否已部署 |
-| 状态 `OK` 但无法 ping 198.18.0.115 | 检查设备是否拿到了 198.18.0.x 地址；路由是否生效 |
+| 状态 `OK` 但无法 ping 198.18.0.123 | 检查设备是否拿到了 198.18.0.x 地址；路由是否生效 |
 | 能 ping 但浏览器打不开 | DNS 解析问题；确认设备能解析 `*.zhyi.cc`（走公网 DNS 即可） |
 | 入网后所有流量变慢 | 默认路由被推送；关闭设备的 Allow Default Route |
 | 手机锁屏后断连 | ZeroTier 后台被系统杀死；Android 需关闭电池优化，iOS 需保持 VPN 开启 |

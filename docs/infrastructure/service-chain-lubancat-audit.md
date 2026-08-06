@@ -45,7 +45,7 @@ flowchart LR
     Rock["ROCK 5C\n边缘与控制面"]
     OPI["OPI5P\n应用、数据库、媒体、NCPS"]
     PVE["pve-5700u\nHydra、x86-only 容器"]
-    OldVM["ml-home-vm\n当前仅 server 公共基线"]
+    OldVM["ml-home-vm\n已退役（2026-08-03）"]
     Luban["LubanCat-1\n当前仅 server 公共基线"]
   end
 
@@ -72,7 +72,7 @@ flowchart LR
 | ROCK 5C | 家庭入口、MetaCubeXD、UniAPI、Homepage、FastAPI-DLS、reDroid | 数据库、NAR、媒体数据 |
 | OPI5P | 数据库、Immich、Linkwarden、媒体链、NCPS、文件服务、reDroid | 高并发分布式构建 |
 | pve-5700u | Hydra、x86_64-only 容器和虚拟机 | ARM 交叉内核大包 |
-| ml-home-vm | 当前只有 `server` 公共基线，无用户应用 | 不应继续被文档当作 Homepage/UniAPI 运行点 |
+| ml-home-vm | 已退役（2026-08-03），不再承载用户应用 | 不应再被文档当作在线主机 |
 | LubanCat-1 | 当前只有 `server` 公共基线 | 数据库、缓存、浏览器任务、构建任务 |
 
 ### 关键业务链
@@ -96,7 +96,7 @@ flowchart LR
 | LubanCat-1 | 1.9 GiB | 478 MiB / 1.5 GiB | 约 30 GiB SD 卡 | 可接收低写入轻服务 |
 | ROCK 5C | 7.7 GiB | 2.2 GiB / 5.6 GiB | 256 GB eMMC | 有余量，但可下放部分控制面 |
 | OPI5P | 15 GiB | 9.6 GiB / 6.0 GiB | 2 TB NVMe + QNAP | 压力来自重型应用，不适合向 Luban 平移 |
-| ml-home-vm | 19 GiB | 2.7 GiB / 16 GiB | 虚拟磁盘 + QNAP | 更适合接收重型或高写入服务 |
+| ml-home-vm | 19 GiB（历史快照） | 2.7 GiB / 16 GiB | 虚拟磁盘 + QNAP | 已退役（2026-08-03）；仅作迁移前容量记录 |
 | pve-5700u | 46 GiB | 16 GiB / 30 GiB | `/nix` 使用率约 76% | 保留 Hydra、VM 和 x86-only 服务 |
 | cnvm | 1.9 GiB | 1.5 GiB / 435 MiB | 云盘 | 内存紧张，但状态服务不宜迁到家庭 SD 板 |
 | colocrossing | 7.7 GiB | 4.3 GiB / 3.4 GiB | 云盘 | swap 已接近满，适合移出少量非关键服务 |
@@ -172,8 +172,8 @@ Jellyfin 与媒体自动化。建议另行审计：
 1. 如果两个 RK3588 上只需要一个 Android 实例，停用一套重复 reDroid，可直接
    节省约 850 MiB；
 2. 调整 ClamAV 扫描时段或常驻策略，而不是迁到 LubanCat-1；
-3. colocrossing 的监控数据库若需整体减压，应优先迁到仍有约 16 GiB 可用内存的
-   ml-home-vm，而不是迁到 2 GiB 板卡；
+3. colocrossing 的监控数据库若需整体减压，应优先迁到当前在线的可靠 NVMe/VM
+   主机，不要迁到 2 GiB 板卡；`ml-home-vm` 已退役，不能再作为候选；
 4. cnvm 的压力应通过实例扩容，或把 Halo 这类完整状态链迁到可靠 NVMe 主机；不要
    为释放几十 MiB 把公网状态服务放到家庭 SD 卡。
 
@@ -223,8 +223,7 @@ Yggdrasil ALFIS 放在 colocrossing，把 FastAPI-DLS、UniAPI、vlmcsd 放在�
   已改为 ROCK 5C 实际运行、旧域名仅作兼容服务名；
 - `docs/infrastructure/ai-api-gateway-chain.md` 曾把主 UniAPI 写在 ml-home-vm；当前
   已改为 ROCK 5C 实际运行，并把未部署的 AxonHub 从活动链路中移出；
-- `hosts/ml-home-vm/configuration.nix` 当前只导入 server 基线和硬件配置，不再承载
-  上述用户应用。
+- `ml-home-vm` 已于 2026-08-03 退役，主机定义从 flake 移除，不再承载用户应用。
 
 后续迁移必须以当前 Nix 配置和实机状态为准，并同步修正文档；不能因为旧域名中仍含
 `ml-home-vm` 就推断服务仍运行在该 VM。

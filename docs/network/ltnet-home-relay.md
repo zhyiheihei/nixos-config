@@ -6,10 +6,10 @@ the peer layout to the links that are actually reachable.
 ## Active topology
 
 ```text
-ml-home-vm -- LTNET -- colocrossing -- public IPv4 -- jpvm -- public IPv4 -- cnvm
+rock5c -- LTNET -- colocrossing -- public IPv4 -- jpvm -- public IPv4 -- cnvm
 ```
 
-- `colocrossing` is the SG public node and reflects routes to `ml-home-vm`.
+- `colocrossing` is the SG public node and reflects routes to `rock5c`.
 - `jpvm` reflects routes between `colocrossing` and `cnvm`.
 - `jpvm` is the active external DN42 ingress and public LTNET relay.
 - ZeroTier remains the management and discovery network. It is not the normal
@@ -47,7 +47,7 @@ Attic -> NCPS -> public upstream caches
 ```
 
 Attic is `https://attic.zhyi.xin/lantian` (served by cnvm). NCPS runs on
-`ml-home-vm:13851`. The TUNA binary cache was removed because it returned a
+`opi5p:13851`. The TUNA binary cache was removed because it returned a
 valid narinfo followed by HTTP 403 for the referenced NAR, which made NCPS
 return HTTP 500 instead of falling back. The same failed store path was
 retested through NCPS and returned HTTP 200 after removal.
@@ -89,7 +89,7 @@ curl -fsS https://attic.zhyi.xin/lantian/nix-cache-info
 Expected BGP sessions are:
 
 ```text
-ml-home-vm <-> colocrossing
+rock5c <-> colocrossing
 colocrossing <-> jpvm
 jpvm <-> cnvm
 ```
@@ -102,6 +102,6 @@ re-enabled.
 
 `ml-builder` is currently reachable at `192.168.2.50`. It is the only machine
 that advertises ARM platforms and the `big-parallel` feature. `ml-home-vm` is
-not a remote builder. Hydra localhost handles native x86_64 jobs with `kvm`,
+retired and not a remote builder. Hydra localhost handles native x86_64 jobs with `kvm`,
 `nixos-test`, and `benchmark`, but does not advertise ARM platforms. If the
 strong builder is powered off, ARM and `big-parallel` jobs wait.

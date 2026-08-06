@@ -38,13 +38,13 @@ make build-x86
 
 ```bash
 # 只构建，不部署。
-nix run .#colmena -- build --on ml-home-vm
+nix run .#colmena -- build --on rock5c
 
 # 构建并切换指定主机。
-nix run .#colmena -- apply --on ml-home-vm
+nix run .#colmena -- apply --on rock5c
 
 # 以逗号分隔多个主机。
-nix run .#colmena -- apply --on ml-home-vm,colocrossing
+nix run .#colmena -- apply --on rock5c,colocrossing
 ```
 
 先确认 SSH、DNS 和目标机当前地址可用。网络、入口或 SSH host key 变更后，不要把

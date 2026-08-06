@@ -37,9 +37,8 @@ ai-api.zhyi.cc ───────────────────> jpvm U
 注册表导入配置，但不依赖 colocrossing 的 AxonHub 或 Metapi。
 
 LibreChat、Metapi、n8n 和 n8n OpenAI Bridge 运行在 `colocrossing`。主 UniAPI
-实际运行在 `rock5c`；客户端目前仍使用迁移前的兼容服务名
-`https://uni-api.ml-home-vm.zhyi.cc/v1`，因此该 alias 必须在私有 DNS 中明确指向
-ROCK 5C。UniAPI 通过 LTNET 回调 colocrossing 上的 n8n Bridge
+实际运行在 `rock5c`；LibreChat 与 Metapi 直接使用
+`https://uni-api.rock5c.zhyi.cc/v1`。UniAPI 通过 LTNET 回调 colocrossing 上的 n8n Bridge
 （`https://n8n-bridge.colocrossing.zhyi.cc/v1`）。
 
 `AxonHub` 模块仍保留在仓库，但当前没有被任何 host 导入，实机也没有
@@ -50,7 +49,7 @@ ROCK 5C。UniAPI 通过 LTNET 回调 colocrossing 上的 n8n Bridge
 | 服务 | 主机 | 作用 | 上游或依赖 |
 | --- | --- | --- | --- |
 | UniAPI | `rock5c`、`jpvm` | Provider 注册表、模型别名与 OpenAI 兼容 API；jpvm 当前不可达、运行态未验证 | 私有 `uni-api/` secrets |
-| LibreChat | `colocrossing` | 交互式 AI 前端，使用 Dex OIDC 登录 | LTNET `uni-api.ml-home-vm.zhyi.cc` |
+| LibreChat | `colocrossing` | 交互式 AI 前端，使用 Dex OIDC 登录 | `uni-api.rock5c.zhyi.cc` |
 | n8n | `colocrossing` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
 | n8n OpenAI Bridge | `colocrossing` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
 | Metapi | `colocrossing` | 可选元聚合网关、站点/账户/模型路由管理 | LTNET UniAPI；SQLite 状态目录 |
@@ -76,7 +75,7 @@ ROCK 5C。UniAPI 通过 LTNET 回调 colocrossing 上的 n8n Bridge
 当前已经完成以下初始化，记录日期为 2026-07-21：
 
 - Metapi：有一个名为 `UniAPI` 的 `openai` 站点，指向
-  `https://uni-api.ml-home-vm.zhyi.cc`；有一个对应的 API-key 账户；已执行官方的模型刷新与路由
+  `https://uni-api.rock5c.zhyi.cc`；有一个对应的 API-key 账户；已执行官方的模型刷新与路由
   重建。
 - 2026-07-21 的历史记录显示，当时 Metapi 与曾部署的 AxonHub 均识别到 `162` 个
   模型。该数字随 Provider 注册表改变，不是配置常量；AxonHub 当前已经不在运行链路。
@@ -110,8 +109,8 @@ colocrossing），除非明确要废弃相应网关；否则会丢失运行态�
 
 ## 维护规则
 
-- **不要改主调用路径。** LibreChat 的自定义 UniAPI endpoint 使用兼容服务名
-  `https://uni-api.ml-home-vm.zhyi.cc/v1`，其实际后端必须是 ROCK 5C；n8n Bridge 作为 `lantian.llm-providers`
+- **不要改主调用路径。** LibreChat 的自定义 UniAPI endpoint 使用
+  `https://uni-api.rock5c.zhyi.cc/v1`，后端即 ROCK 5C；n8n Bridge 作为 `lantian.llm-providers`
   的 `n8n` Provider 被 UniAPI 通过 `https://n8n-bridge.colocrossing.zhyi.cc/v1` 调用。两者都
   不能改为 AxonHub 或 Metapi，除非明确迁移整个调用契约并单独验证。
 - **不要制造回环。** 禁止将 `axonhub.*`、`metapi.*` 或 `ai-api.zhyi.cc` 配成 UniAPI
@@ -134,7 +133,7 @@ systemctl is-active librechat metapi n8n n8n-openai-bridge
 
 curl -fsS \
   -H "Authorization: Bearer $(cat /run/secrets/uni-api-admin-api-key)" \
-  https://uni-api.ml-home-vm.zhyi.cc/v1/models | jq '(.data // []) | length'
+  https://uni-api.rock5c.zhyi.cc/v1/models | jq '(.data // []) | length'
 
 curl -fsS \
   -H "Authorization: Bearer $(cat /run/secrets/uni-api-admin-api-key)" \
@@ -161,9 +160,9 @@ test -s /run/secrets/default-pw
 
 只有在应用数据库被明确新建或清空后，才需要再次初始化：
 
-1. 先部署并确认 UniAPI（rock5c）有模型，同时验证兼容服务名确实解析到 ROCK 5C。
+1. 先部署并确认 UniAPI（rock5c）有模型，同时验证 `https://uni-api.rock5c.zhyi.cc` 可达 ROCK 5C。
 2. 在 Metapi 创建唯一 `UniAPI`、`openai` 站点，地址为
-   `https://uni-api.ml-home-vm.zhyi.cc`；添加 API-key 账户并执行“刷新模型并重建路由”。
+   `https://uni-api.rock5c.zhyi.cc`；添加 API-key 账户并执行“刷新模型并重建路由”。
 3. 用“健康检查”验证模型数一致，再恢复应用自身的备份数据。
 4. 只有明确重新启用 AxonHub 时，才在其首次向导创建管理员和唯一的 `UniAPI`
    channel；不要把历史初始化记录当成当前服务已经部署。

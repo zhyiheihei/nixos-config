@@ -9,7 +9,7 @@
 - `ml-builder` 是唯一高并发构建机，也是唯一声明 `big-parallel` 的主机。
 - `pve-5700u` 负责运行 Hydra 和虚拟机，只作为单任务 x86 回退节点。
 - `opi5p` 首先是数据库、媒体和 reDroid 生产节点，只作为单任务原生 ARM 回退节点。
-- `rock5c`、`ml-home-vm`、Router 和其他业务主机不加入 `nix-builder`。
+- `rock5c`、Router 和其他业务主机不加入 `nix-builder`；`ml-home-vm` 已退役。
 - 构建派发图必须是有向无环图：PVE 可以派发到 ml-builder，ml-builder 不得反向派发
   到 PVE；ml-builder 只保留 OPI5P 作为原生 ARM 下游。
 - `maxJobs` 限制同时运行的 derivation 数；`cores` 限制单个 derivation 获得的并行度。

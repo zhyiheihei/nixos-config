@@ -20,7 +20,7 @@
 | 主机 | index | 家庭局域网 IPv4 | ZeroTier 节点 ID | LTNET IPv4 | WireGuard/LTNET 声明 |
 | --- | ---: | --- | --- | --- | --- |
 | `ml-builder` | 114 | `192.168.0.50` | `2c86750714` | `198.18.0.114` | 仅最小系统；不声明 server mesh 对等 |
-| `ml-home-vm` | 115 | `192.168.0.51` | `c340ae9a91` | `198.18.0.115` | server mesh 全互联；到 `jpvm` 经 WSS/TCP |
+| `ml-home-vm` | 115 | `192.168.0.51`（保留地址） | `c340ae9a91` | `198.18.0.115` | 已退役（2026-08-03）；不再参与 server mesh |
 | `colocrossing` | 120 | 无 | `76d1b20a73` | `198.18.0.120` | SG 公网节点；server mesh、DN42 与 ZeroTier controller |
 | `ml-2700` | 113 | `192.168.0.53` | `214f8619a9` | `198.18.0.113` | 当前没有 server mesh 声明 |
 | `pve-5700u` | 116 | `192.168.0.2` | `706ba6d04d` | `198.18.0.116` | 当前没有 server mesh 声明 |
@@ -41,9 +41,9 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 | --- | --- |
 | 私钥 | 每台启用 mesh 的主机从 `per-host/wg-priv/<hostname>.yaml` 由 SOPS 解密 |
 | 公钥 | 由 secrets 的 `wg-pubkey.nix` 提供；不在仓库文档中复制 |
-| 对等选择 | 当前五台 `server` 主机全互联：`ml-home-vm`、`colocrossing`、`jpvm`、`cnvm`、`usvm` |
+| 对等选择 | 当前 server mesh 由在线节点组成（`colocrossing`、`jpvm`、`cnvm`、`usvm` 等）；`ml-home-vm` 已退役，不再参与 |
 | 端点选择 | 同一 `interconnect.name` 时走局域网；跨网段优先使用各 host 声明的 WSS/TCP transport |
-| TCP transport | `ml-home-vm` 到四台公网 server，以及 `cnvm` 到 `jpvm` 的 WireGuard UDP，经本地 WSS/TCP `443` 封装；WireGuard 本体只在本机回环与 `wstunnel` 间通信 |
+| TCP transport | 在线家庭节点与公网 server 之间的 WireGuard 经本地 WSS/TCP `443` 封装；WireGuard 本体只在本机回环与 `wstunnel` 间通信 |
 | 路由 | BIRD 通过每条 `wgmesh<peer-index>` 链路上的 IPv6 link-local iBGP 交换 LTNET、DN42 与附加路由 |
 | 可观察性 | WireGuard exporter 监听本机 LTNET IPv4；BIRD 配置见 `nixos/server-apps/bird/config/ltnet.nix` |
 
@@ -53,8 +53,8 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 
 | 服务 | LTNET 地址 | 用途 | 访问范围 |
 | --- | --- | --- | --- |
-| PostgreSQL 18 | `198.18.0.115:5432` | `ml-home-vm` 的应用数据库 | 仅本机与 LTNET；不发布公网 DNS 或反向代理 |
-| `edp-panel` | `postgresql://edp-panel@198.18.0.115:5432/edp-panel` | 临时测试数据库 | 角色仅允许连接自己的数据库；密码不记录在文档 |
+| PostgreSQL 18 | 已随迁移调整 | 原 `ml-home-vm` 数据库入口已退役；当前入口以主机配置为准 | 仅本机与 LTNET；不发布公网 DNS 或反向代理 |
+| `edp-panel` | 已随迁移调整 | 临时测试数据库入口随 PostgreSQL 迁移 | 角色仅允许连接自己的数据库；密码不记录在文档 |
 
 ## 域名与入口
 
@@ -63,7 +63,7 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 | 域名/模式 | DNS 声明 | 服务入口/后端 |
 | --- | --- | --- |
 | `主机.zhyi.cc`、`*.主机.zhyi.cc` | `host-recs.nix` 按主机公网或 LTNET 地址生成 | 作者式主机与私有服务命名；不经过统一公网入口 |
-| `*.ml-home-vm.zhyi.cc` | CNAME 到 `ml-home-vm.zhyi.cc` | 家庭服务的私有 LTNET 入口 |
+| `*.ml-home-vm.zhyi.cc` | 历史 CNAME | `ml-home-vm` 已退役；服务由 `rock5c`/`opi5p` 承载，入口以 vhost/DNS 为准 |
 | `ha.zhyi.cc`、`sub.zhyi.cc`、`vaults3.zhyi.cc` | CNAME 到 `home-ddns.zhyi.cc` | 家庭动态公网入口 |
 | `hydra.zhyi.cc` | CNAME 到 `jpvm.zhyi.cc` | 对应作者 `bwg-lax -> pve-epyc.ltnet`，由 JPVM 反代到 `pve-5700u` 的 Hydra 端口 |
 | `attic.zhyi.xin` | CNAME 到 `cnvm.zhyi.cc` | CNVM 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
@@ -90,7 +90,7 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 
 | 生效主机 | 覆盖关系 | 用途 |
 | --- | --- | --- |
-| `pve-5700u` | `ml-builder.zhyi.cc -> 192.168.0.50`；`ml-home-vm.zhyi.cc -> 192.168.0.51` | LAN 内主机互访 |
+| `pve-5700u` | `ml-builder.zhyi.cc -> 192.168.0.50` | LAN 内主机互访 |
 | `opi5p` | `vaults3.zhyi.cc ->` 本机 interconnect 地址 | VaultS3 本机访问不绕公网 |
 
 MetaCubeXD 运行于 `rock5c`（`192.168.0.64:7892`）；控制界面和 Clash API 仅绑定回环地址，并经 `metacubexd.rock5c.zhyi.cc` 的私有 Nginx vhost 访问。Halo 与根域 `zhyi.xin` 由 CNVM 承载。
@@ -116,8 +116,6 @@ birdc show protocols
 
 # 缓存和内部服务
 curl -fsS https://attic.zhyi.xin:8443/lantian/nix-cache-info
-curl --resolve halo.ml-home-vm.zhyi.cc:8443:198.18.0.115 -kI \
-  https://halo.ml-home-vm.zhyi.cc:8443/
 
 # 配置来源
 rg -n 'interconnect|zerotier|ltnet|endpointOverrides' hosts/*/host.nix
