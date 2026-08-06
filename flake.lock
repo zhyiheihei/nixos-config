@@ -1262,6 +1262,7 @@
         "srvos": "srvos",
         "stylix": "stylix",
         "systems": "systems_2",
+        "zhyi-packages": "zhyi-packages",
         "zsh-patina": "zsh-patina"
       }
     },
@@ -1320,11 +1321,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786021998,
-        "narHash": "sha256-7U7Wz0QYrZczWkIlX2bLVF+/JEACOuN9GfBNqfXvES0=",
+        "lastModified": 1786026174,
+        "narHash": "sha256-UDrlvFFxv+b1EGKUeXAbgLPy8yZx+vEg7XLXwJg3lGA=",
         "owner": "zhyiheihei",
         "repo": "nixos-secrets",
-        "rev": "da9191408ad67a3fe3fa23b2aa4b99d7dda6ad5b",
+        "rev": "18e32780a52d95033a9279169b1410e2576e27dc",
         "type": "github"
       },
       "original": {
@@ -1544,6 +1545,26 @@
       "original": {
         "owner": "numtide",
         "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
+    "zhyi-packages": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786024094,
+        "narHash": "sha256-K+HRoM8ThlqPj+VckE5rEmeCQ3CZcFyCAj0XbWKMzu0=",
+        "owner": "zhyiheihei",
+        "repo": "zhyi-packages",
+        "rev": "c48e0a9b4b4040cb9212ccf4ad59897006dd2537",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zhyiheihei",
+        "repo": "zhyi-packages",
         "type": "github"
       }
     },
