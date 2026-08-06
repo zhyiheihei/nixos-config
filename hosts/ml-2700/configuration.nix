@@ -8,6 +8,7 @@
     ../../nixos/client.nix
 
     ./hardware-configuration.nix
+    ../../nixos/optional-apps/sunshine.nix
   ];
 
   boot.loader.grub = {

@@ -1,6 +1,6 @@
 # Router qBittorrent 三实例迁移方案
 
-状态：执行中（下载器已迁到 router，IYUU 待 WebUI 更新）  
+状态：已完成（2026-08-06）  
 日期：2026-08-06  
 目标：把 opi5p 上的 `qbittorrent`、`qbittorrent-pt`、`qbittorrent-seedbox` 三个下载器迁移到 `router`，下载路径继续使用 QNAP NFS `/mnt/storage`。
 
@@ -11,7 +11,8 @@
 - router 当前资源：4 核、3.1 GiB 可用内存、`/nix` 约 27 GiB 可用。
 - opi5p 当前状态目录约 `21M / 37M / 31M`，下载任务和 torrent 数据都在 NAS，不需要复制媒体文件。
 - 现有公开 WebUI 由 router 自身 nginx 服务 `bt.router.zhyi.cc`、`pt.router.zhyi.cc`、`seedbox.router.zhyi.cc`；rock5c 边缘 localhost 入口直连 router WebUI 端口。
-- 消费方包括：rock5c 边缘代理、opi5p FlexGet（localhost:13809）、`qbittorrent-pt-cleanup`、PeerBanHelper、IYUU、Sonarr/Radarr/Prowlarr/JProxy。
+- 消费方包括：opi5p FlexGet/PeerBanHelper/IYUU/JProxy/BitMagnet、router
+  `qbittorrent-pt-cleanup`、rock5c Sonarr/Radarr 与 localhost 边缘入口。
 
 ## 2. 不变量
 
@@ -30,20 +31,19 @@ opi5p 当前入站端口为 `31220 / 31221 / 31222`。router 按 `wg-zhyi.forwar
 
 ### 3.2 WebUI 入口
 
-router 是 minimal 角色，没有完整 nginx 反代链。推荐：
+实际采用 router 自身 nginx + 证书：
 
-- qBittorrent WebUI 只监听 LAN，防火墙在 WAN 侧拒绝 `13808 / 13809 / 13830`。
-- 公开入口继续走 rock5c 边缘，把 `bt`、`pt`、`seedbox` 后端从 opi5p 切到 `192.168.0.1` 对应端口，域名可暂时保留，避免 DNS 和证书迁移。
-
-备选方案是在 router 上启用 nginx 与证书，工作量和暴露面更大，默认不选。
+- router 服务 `bt.router.zhyi.cc`、`pt.router.zhyi.cc`、`seedbox.router.zhyi.cc`。
+- 防火墙在 WAN 侧拒绝直连 WebUI 端口 `13808 / 13809 / 13830`。
+- rock5c 边缘 `bt/pt/seedbox.localhost` 直连 router WebUI 端口，供 homepage 组件使用。
 
 ### 3.3 消费方范围
 
-- rock5c `media-edge.nix`：`bt / pt / seedbox` 的 `proxyPass` 改为 router LAN 地址。
-- opi5p FlexGet：`qbittorrent.host` 从 `localhost` 改为 `192.168.0.1`。
-- opi5p `qbittorrent-pt-cleanup`：`QBITTORRENT_URL` 改为 `http://192.168.0.1:13809`。
-- PeerBanHelper：当前在 opi5p 上 `after/requires qbittorrent.service`，qBittorrent 移除后必须同步改主机级配置（改连 router）或随下载器一起迁移，否则 unit 会因依赖缺失失败。
-- IYUU、JProxy、Sonarr/Radarr/Prowlarr：如果公开域名入口不变，主要是下载客户端地址或反向代理后端更新。
+- rock5c `media-edge.nix`：`bt / pt / seedbox` 的 localhost `proxyPass` 改为 router LAN 端口。
+- opi5p FlexGet：`qbittorrent.host` 改为 `192.168.0.1`，PT cleanup 已随下载器迁到 router。
+- PeerBanHelper：`config.yml` 三个 endpoint 改为 router，回调 prefix 改为 `192.168.0.62:9898`。
+- IYUU：通过官方管理端 API 初始化三个下载器，PT 为默认。
+- Sonarr/Radarr：下载客户端 host 改为 `pt.router.zhyi.cc:443`。
 
 ## 4. 实施步骤
 
@@ -54,8 +54,9 @@ router 是 minimal 角色，没有完整 nginx 反代链。推荐：
 - 三个服务的 `ExecStart` 使用显式入站端口 `31220 / 31221 / 31222`。
 - 三个服务 `after = [ "mnt-storage.mount" ]`、`requires = [ "mnt-storage.mount" ]`。
 - 保持 `StateDirectory` 与下载目录 BindPaths 和 opi5p 一致。
-- 用激活 marker（例如 `/nix/persistent/var/lib/qbittorrent-migrated`）防止部署后在状态复制前启动空实例。
+- 用激活 marker `/nix/persistent/var/lib/qbittorrent-router/ready` 防止部署后在状态复制前启动空实例。
 - 防火墙 `publicFirewalledPorts` 增加三个 WebUI 端口。
+- `qbittorrent-pt-cleanup` 一并迁到 router。
 
 先部署 router 配置，不创建 marker，因此服务不会启动。
 
@@ -94,7 +95,7 @@ ssh -p 2222 root@192.168.0.1 '
   chown -R zhyi:users /nix/persistent/var/lib/qbittorrent \
     /nix/persistent/var/lib/qbittorrent-pt \
     /nix/persistent/var/lib/qbittorrent-seedbox
-  install -Dm600 /dev/null /nix/persistent/var/lib/qbittorrent-migrated
+  install -Dm600 /dev/null /nix/persistent/var/lib/qbittorrent-router/ready
 '
 ```
 
@@ -102,7 +103,7 @@ ssh -p 2222 root@192.168.0.1 '
 
 ```bash
 ssh -p 2222 root@192.168.0.1 '
-  systemctl start qbittorrent.target
+  systemctl start qbittorrent-router.target
   systemctl is-active qbittorrent qbittorrent-pt qbittorrent-seedbox
   for port in 13808 13809 13830; do
     curl -fsS -u "$QB_USER:$QB_PASS" \
@@ -123,16 +124,26 @@ ssh -p 2222 root@192.168.0.1 '
 ### 4.5 切换消费方
 
 - 修改 rock5c `media-edge.nix` 后端地址并部署。
-- 修改 opi5p FlexGet 与 cleanup 的指向并部署。
-- PeerBanHelper 按确认方案处理。
-- 确认消费方全部连通后，再移除 opi5p 上的 qBittorrent 模块，防止双写。
+- 修改 opi5p FlexGet 指向并部署，禁用本机 qBittorrent 与 PT cleanup。
+- PeerBanHelper 配置文件改为 router 地址并重启。
+- IYUU 通过官方 API 初始化三个下载器。
+- Sonarr/Radarr 通过官方 API 改为 `pt.router.zhyi.cc` 并测试连通。
+
+## 6. 执行结果
+
+- router：三个 qBittorrent 与 PT cleanup 均 active，任务数 `0 / 60 / 24`。
+- router：`bt/pt/seedbox.router.zhyi.cc` 已由 router nginx 服务。
+- opi5p：本机 qBittorrent 已停用，FlexGet/PeerBanHelper/IYUU 已改连 router。
+- rock5c：Sonarr/Radarr 下载客户端测试通过，localhost 边缘入口全部 200。
+- homepage：链接已更新为 `*.router.zhyi.cc`。
+- 唯一保留空转的是 FlexGet 的 RSS 订阅，等待后续配置 RSS 源。
 
 ## 5. 回滚
 
 ```bash
 ssh -p 2222 root@192.168.0.1 '
-  systemctl stop qbittorrent.target
-  rm -f /nix/persistent/var/lib/qbittorrent-migrated
+  systemctl stop qbittorrent-router.target
+  rm -f /nix/persistent/var/lib/qbittorrent-router/ready
 '
 
 ssh -p 2222 root@192.168.0.62 '

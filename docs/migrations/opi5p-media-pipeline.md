@@ -4,6 +4,10 @@
 `ml-home-vm` 迁到 `opi5p`。Jellyfin 继续使用 `jellyfin-rockchip.nix`；
 `ml-home-vm` 只保留家庭公网 TLS/认证入口和旧私有域名的反向代理。
 
+> 2026-08-06 后续：qBittorrent 三实例与 qbittorrent-pt-cleanup 已从 opi5p
+> 迁到 router，本文档保留为历史迁移记录。当前下载器位置与调用方见
+> `docs/migrations/router-qbittorrent-migration.md`。
+
 ## 2026-08-05 后续拆分：媒体应用迁到 rock5c
 
 用户确认将媒体播放层从 `opi5p` 拆到 `rock5c`：Sonarr、Radarr、Bazarr、
