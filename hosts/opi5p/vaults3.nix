@@ -9,7 +9,7 @@ in
     locations."/" = {
       # VaultS3 moved to the router (192.168.0.1:9000); opi5p keeps the public
       # TLS front for the 8443 compatibility endpoint.
-      proxyPass = "http://192.168.0.1:9000";
+      proxyPass = "http://${LT.hosts.router.interconnect.IPv4}:9000";
       proxyOverrideHost = "$http_host";
       proxyNoTimeout = true;
     };
