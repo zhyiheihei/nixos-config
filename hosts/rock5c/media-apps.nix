@@ -46,6 +46,8 @@ in
     ../../nixos/optional-apps/sonarr/decluttarr.nix
     ../../nixos/optional-apps/jellyfin-rockchip.nix
     ../../nixos/optional-apps/handbrake-rockchip.nix
+
+    ./sonarr-scene-mappings.nix
   ];
 
   systemd.tmpfiles.settings.media-apps."/nix/persistent/var/lib/media-apps"."d" = {
