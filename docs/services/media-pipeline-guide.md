@@ -219,6 +219,16 @@ Sonarr/Radarr/Bazarr/Prowlarr/Jellyfin 的状态位于 rock5c 本机
 2. 部分站点需要 FlareSolverr 绕过 Cloudflare（已自动配置）
 3. 确认搜索语言设置（Settings → Indexers → 搜索语言）
 
+### 英文标题在 M-Team/PTTime 搜不到，但站内中文标题有？
+
+这两个 PT 站对老剧/中剧常以中文标题为主，Sonarr 只按英文标题和 IMDb ID
+搜索会漏掉。rock5c 已启用中文 Scene Mapping：
+
+1. 打开 `hosts/rock5c/sonarr-scene-mappings.nix`，在 `mappings` 中按现有格式
+   添加对应剧集的 `tvdbId` 与中文标题
+2. 部署后 Sonarr 会同时搜索英文标题和该中文别名
+3. 在 Sonarr 中对目标剧集执行 `Search Monitored` 验证
+
 ### 下载完成但没有自动导入？
 
 1. 检查 Sonarr/Radarr 的 Activity 页面错误信息
