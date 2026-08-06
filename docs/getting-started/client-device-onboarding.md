@@ -166,7 +166,7 @@ ping 198.18.0.123           # rock5c 可达
 
 在浏览器中访问任意 private 服务：
 ```
-https://bt.opi5p.zhyi.cc      # qBittorrent
+https://bt.router.zhyi.cc      # qBittorrent
 https://jellyfin.zhyi.xin:8443 # Jellyfin
 https://sonarr.rock5c.zhyi.cc   # Sonarr
 ```

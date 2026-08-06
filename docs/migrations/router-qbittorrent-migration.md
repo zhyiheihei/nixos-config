@@ -1,6 +1,6 @@
 # Router qBittorrent 三实例迁移方案
 
-状态：待确认  
+状态：执行中（下载器已迁到 router，IYUU 待 WebUI 更新）  
 日期：2026-08-06  
 目标：把 opi5p 上的 `qbittorrent`、`qbittorrent-pt`、`qbittorrent-seedbox` 三个下载器迁移到 `router`，下载路径继续使用 QNAP NFS `/mnt/storage`。
 
@@ -10,7 +10,7 @@
 - router `/var/lib` 是 `/nix/persistent/var/lib` 的 btrfs 子卷绑定挂载，三个 qBittorrent 的 `StateDirectory` 会持久化，重启不丢状态。
 - router 当前资源：4 核、3.1 GiB 可用内存、`/nix` 约 27 GiB 可用。
 - opi5p 当前状态目录约 `21M / 37M / 31M`，下载任务和 torrent 数据都在 NAS，不需要复制媒体文件。
-- 现有公开 WebUI 由 rock5c 边缘代理 `bt.opi5p.zhyi.cc`、`pt.opi5p.zhyi.cc`、`seedbox.opi5p.zhyi.cc` 到 opi5p。
+- 现有公开 WebUI 由 router 自身 nginx 服务 `bt.router.zhyi.cc`、`pt.router.zhyi.cc`、`seedbox.router.zhyi.cc`；rock5c 边缘 localhost 入口直连 router WebUI 端口。
 - 消费方包括：rock5c 边缘代理、opi5p FlexGet（localhost:13809）、`qbittorrent-pt-cleanup`、PeerBanHelper、IYUU、Sonarr/Radarr/Prowlarr/JProxy。
 
 ## 2. 不变量
