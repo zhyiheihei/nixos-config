@@ -36,9 +36,9 @@ H28K 管理独立的 `192.168.30.0/24`，它不是家庭 `home-lan` 的扩展。
 
 ## 备注
 
-- `opi5p`、`rock5c` 的 NFS 挂载源为 `192.168.0.40:/nixos`。
+- `router`、`opi5p`、`rock5c` 的 NFS 挂载源为 `192.168.0.40:/nixos`。
 - ARM 板卡统一从 `192.168.0.60` 起分配静态地址，不占用原 VM 地址。
-- 部署 `opi5p`/`rock5c` 前需在 QNAP NFS export 中放行对应客户端地址。
+- 部署 `router`/`opi5p`/`rock5c` 前需在 QNAP NFS export 中放行对应客户端地址。
 - Router VM 提供 IPv6 RA 广播，VM 通过 SLAAC 获取 IPv6 地址。
 - `colocrossing` 已迁移到 SG 公网节点，不占用家庭 LAN 地址。
 - `h28k` 的 `192.168.30.0/24` 是独立站点网段，不计入上表家庭静态地址池。

@@ -15,6 +15,10 @@ chain and NCPS, while PVE runs the remaining amd64-only containers.
 > HandBrake、Decluttarr）已按用户确认迁到 ROCK 5C；下载器、数据库、Tachidesk
 > 与 Vertex 仍留在 OPI5P。见 `docs/migrations/opi5p-media-pipeline.md`。
 
+> 2026-08-06 后续：qBittorrent 三实例与 PT cleanup 已迁到 router，WebUI 域名
+> 为 `bt/pt/seedbox.router.zhyi.cc`；IYUU、PeerBanHelper、FlexGet 等消费方已
+> 改连 router。见 `docs/migrations/router-qbittorrent-migration.md`。
+
 ## Target topology
 
 ```text
