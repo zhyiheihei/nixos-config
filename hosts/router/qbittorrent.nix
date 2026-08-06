@@ -19,6 +19,7 @@ let
     "qbittorrent"
     "qbittorrent-pt"
     "qbittorrent-seedbox"
+    "qbittorrent-pt-cleanup"
   ];
 in
 {
@@ -26,6 +27,7 @@ in
     ../../nixos/optional-apps/qbittorrent.nix
     ../../nixos/optional-apps/qbittorrent-pt.nix
     ../../nixos/optional-apps/qbittorrent-seedbox.nix
+    ../../nixos/optional-cron-jobs/qbittorrent-pt-cleanup
     # Author-style layout: qBittorrent and its WebUI vhosts live on the same
     # host, so router serves bt/pt/seedbox.router.zhyi.cc directly.
     ../../nixos/common-apps/nginx/nginx.nix
@@ -117,6 +119,8 @@ in
     wants = map (name: "${name}.service") qbitServices;
     after = [ "mnt-storage.mount" ];
   };
+
+  systemd.timers.qbittorrent-pt-cleanup.unitConfig.ConditionPathExists = activationMarker;
 
   lantian.qbittorrent-seedbox.downloadPath = qBitTorrentSeedboxDownloadPath;
 }
