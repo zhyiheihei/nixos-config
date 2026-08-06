@@ -10,6 +10,7 @@ let
   activationMarker = "/nix/persistent/var/lib/qbittorrent-router/ready";
   user = "zhyi";
   group = "users";
+  authSubnetWhitelist = "192.168.0.62,192.168.0.64";
   defaultDownloadPath = "/mnt/storage/downloads";
   flexgetAutoDownloadPath = "/mnt/storage/.downloads-auto";
   qBitTorrentSonarrDownloadPath = "/mnt/storage/.downloads-qb";
@@ -21,6 +22,14 @@ let
     "qbittorrent-seedbox"
     "qbittorrent-pt-cleanup"
   ];
+  qbitPreStart = instance: ''
+    conf=/var/lib/${instance}/qBittorrent/config/qBittorrent.conf
+    mkdir -p "$(dirname "$conf")"
+    touch "$conf"
+    sed -i '/^WebUI\\AuthSubnetWhitelistEnabled=/d' "$conf"
+    sed -i '/^WebUI\\AuthSubnetWhitelist=/d' "$conf"
+    printf 'WebUI\\AuthSubnetWhitelistEnabled=true\nWebUI\\AuthSubnetWhitelist=${authSubnetWhitelist}\n' >> "$conf"
+  '';
 in
 {
   imports = [
@@ -77,11 +86,13 @@ in
       requires = [ "mnt-storage.mount" ];
     }))
     {
+      qbittorrent.preStart = lib.mkAfter (qbitPreStart "qbittorrent");
       qbittorrent.serviceConfig.BindPaths = [
         defaultDownloadPath
         qBitTorrentSonarrDownloadPath
       ];
       qbittorrent-pt = {
+        preStart = lib.mkAfter (qbitPreStart "qbittorrent-pt");
         serviceConfig = {
           ExecStart = lib.mkForce (utils.escapeSystemdExecArgs [
             (lib.getExe pkgs.qbittorrent-nox)
@@ -98,6 +109,7 @@ in
         };
       };
       qbittorrent-seedbox = {
+        preStart = lib.mkAfter (qbitPreStart "qbittorrent-seedbox");
         serviceConfig = {
           ExecStart = lib.mkForce (utils.escapeSystemdExecArgs [
             (lib.getExe pkgs.qbittorrent-nox)

@@ -18,8 +18,6 @@ let
             path = "/mnt/storage/downloads";
             host = qbitAddress;
             port = LT.port.qBitTorrentPT.WebUI;
-            username = "$QBITTORRENT_USERNAME";
-            password = "$QBITTORRENT_PASSWORD";
             label = "flexget";
           };
           free_space = {
@@ -32,8 +30,6 @@ let
             path = "/mnt/storage/.downloads-auto";
             host = qbitAddress;
             port = LT.port.qBitTorrentPT.WebUI;
-            username = "$QBITTORRENT_USERNAME";
-            password = "$QBITTORRENT_PASSWORD";
             label = "flexget-auto";
           };
           free_space = {
