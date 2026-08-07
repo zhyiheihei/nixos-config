@@ -12,7 +12,7 @@ let
     key: lib.hasSuffix "2386656187@qq.com" key
   ) (throw "mac-book SSH public key is missing from secrets") sshKeys;
   macBookIdentity = pkgs.writeText "mac-book-ssh-identity.pub" macBookPublicKey;
-  outboundProxy = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
+  outboundProxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
   proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
   proxyEnvironment = {
     GOPROXY = "https://goproxy.cn,direct";
@@ -67,16 +67,11 @@ in
 
     # Keep the builder graph directed: Hydra/PVE may dispatch to ml-builder,
     # but an incoming build on ml-builder must never be sent back to PVE while
-    # PVE is still holding the same output lock.  OPI5P is excluded too: it is
-    # RAM-sensitive (c6ff24e3) and QEMU already covers ARM builds locally.
-    excludeHosts = [ "pve-5700u" "opi5p" ];
+    # PVE is still holding the same output lock.  OPI5P stays available as the
+    # native ARM downstream; QEMU is only the fallback when remote builds are
+    # disabled.
+    excludeHosts = [ "pve-5700u" ];
   };
-
-  # Excluding every remote builder leaves nix.buildMachines empty, so NixOS
-  # does not create /etc/nix/machines while nix-distributed.nix references it
-  # unconditionally. Provide an explicit empty file so evaluation and the
-  # nix-remote-build helpers stay valid.
-  environment.etc."nix/machines".text = "";
 
   # Only this machine advertises the native x86_64 toolchain used for
   # AArch64 cross builds. Ordinary x86_64 derivations remain distributable to

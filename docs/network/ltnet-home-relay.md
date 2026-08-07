@@ -54,10 +54,10 @@ retested through NCPS and returned HTTP 200 after removal.
 
 ### NCPS upstream proxy exception
 
-NCPS on opi5p normally fetches public upstreams through the rock5c proxy
-(`http://192.168.0.64:7892`). `mirror.sjtu.edu.cn` is the exception: the
-proxy line intermittently times out with `http2: timeout awaiting response
-headers`, which makes NCPS purge the entry and return HTTP 500 with
+NCPS on opi5p normally fetches public upstreams through the router SOCKS5
+proxy (`socks5://192.168.0.1:1080`). `mirror.sjtu.edu.cn` is the exception:
+the proxy line intermittently times out with `http2: timeout awaiting
+response headers`, which makes NCPS purge the entry and return HTTP 500 with
 `the narinfo was purged`. The host config therefore adds
 `mirror.sjtu.edu.cn` to NCPS's `NO_PROXY`/`no_proxy` so those requests stay
 on the LAN.

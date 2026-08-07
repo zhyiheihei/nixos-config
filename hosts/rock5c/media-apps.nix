@@ -6,7 +6,7 @@
 }:
 let
   activationMarker = "/nix/persistent/var/lib/media-apps/ready";
-  proxy = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
+  proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
   proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   proxyEnvironment = {
     HTTP_PROXY = proxy;

@@ -25,7 +25,7 @@ df -h /nix
 ```
 
 期望系统为 `running`、没有 failed unit，且 CPU 线程数与 `host.nix` 的
-`cpuThreads` 相符；`nix show-config` 的 `max-jobs`/`cores` 应为 4 / 8。
+`cpuThreads` 相符；`nix show-config` 的 `max-jobs`/`cores` 应为 1 / 0。
 重装或 SSH host key 变化后，先更新本机 known_hosts 与
 `hosts/ml-builder/host.nix` 的 `ssh.ed25519`，再运行 Colmena。
 
@@ -62,7 +62,7 @@ make build
 ## 内存与 OOM 排障
 
 `ml-builder` 的物理内存约 58 GiB，zram 已配置为 100%（约 58 GiB swap），
-`max-jobs = 4`、`cores = 8`。并发上限防止多个大包同时编译，但管不住单个进程
+`max-jobs = 1`、`cores = 0`。并发上限防止多个大包同时编译，但管不住单个进程
 的内存峰值：例如 Firefox 的 `ld.lld` 链接阶段 RSS 可达 25-30 GiB，
 2026-08-07 曾因此被内核 OOM killer 杀掉。
 

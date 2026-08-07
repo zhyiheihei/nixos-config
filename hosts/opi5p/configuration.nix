@@ -6,7 +6,7 @@
   ...
 }:
 let
-  outboundProxy = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
+  outboundProxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
   proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   proxyEnvironment = {
     GOPROXY = "https://goproxy.cn,direct";
@@ -17,8 +17,8 @@ let
     https_proxy = outboundProxy;
     no_proxy = proxyBypass;
   };
-  # NCPS reaches mirror.sjtu.edu.cn through the rock5c proxy, and that line
-  # intermittently times out. Keep other upstreams proxied, but let SJTU
+  # NCPS reaches mirror.sjtu.edu.cn through the router SOCKS5 proxy, and that
+  # line intermittently times out. Keep other upstreams proxied, but let SJTU
   # requests go direct from the LAN.
   ncpsProxyBypass = "${proxyBypass},mirror.sjtu.edu.cn";
 in
@@ -216,8 +216,8 @@ in
     wants = [ "network-online.target" ];
     after = [ "network-online.target" ];
     environment = {
-      HTTP_PROXY = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
-      HTTPS_PROXY = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
+      HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+      HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
     };
     preStart = lib.mkBefore ''
