@@ -25,6 +25,13 @@ let
         };
         tag = "inbound";
       }
+      {
+        listen = LT.this.interconnect.IPv4;
+        port = LT.port.V2Ray.HttpClient;
+        protocol = "http";
+        settings = { };
+        tag = "http-inbound";
+      }
     ];
     log = {
       access = "none";

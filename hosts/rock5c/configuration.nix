@@ -45,6 +45,12 @@
   systemd.services.jellyfin = {
     after = [ "mnt-storage.mount" ];
     requires = [ "mnt-storage.mount" ];
+    environment = {
+      HTTP_PROXY = lib.mkForce "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
+      HTTPS_PROXY = lib.mkForce "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
+      http_proxy = lib.mkForce "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
+      https_proxy = lib.mkForce "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
+    };
   };
 
   # Match the onboard GMAC by its permanent address so future driver or probe

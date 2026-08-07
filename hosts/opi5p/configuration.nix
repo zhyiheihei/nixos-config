@@ -6,7 +6,7 @@
   ...
 }:
 let
-  outboundProxy = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
+  outboundProxy = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
   proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   proxyEnvironment = {
     GOPROXY = "https://goproxy.cn,direct";
@@ -217,8 +217,8 @@ in
     wants = [ "network-online.target" ];
     after = [ "network-online.target" ];
     environment = {
-      HTTP_PROXY = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
-      HTTPS_PROXY = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
+      HTTP_PROXY = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
+      HTTPS_PROXY = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
       NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
     };
     preStart = lib.mkBefore ''
