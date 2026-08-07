@@ -28,13 +28,10 @@
   # swap usable so Hydra evaluation cannot force the kernel to kill a VM.
   boot.kernel.sysctl."vm.swappiness" = lib.mkForce 10;
 
-  # Hydra and two resident VMs share this host. Limit each fallback build so
-  # an undeclared large derivation cannot multiply into 16 full-core compiler
-  # jobs and exhaust RAM together with the guests.
-  nix.settings = {
-    max-jobs = lib.mkForce 1;
-    cores = lib.mkForce 4;
-  };
+  # Hydra and two resident VMs share this host. Keep fallback builds at one
+  # derivation at a time; unlimited cores avoid wasting the local CPU while
+  # the single job stays inside its memory budget.
+  nix.settings.max-jobs = lib.mkForce 1;
 
   # Do not let an upstream merge silently turn the VM host back into a
   # high-concurrency builder. ml-builder is the only node allowed to do that.
