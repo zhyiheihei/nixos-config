@@ -117,10 +117,9 @@ in
   zramSwap.memoryPercent = lib.mkForce 100;
 
   # This is a production media/database/reDroid node first and an ARM builder
-  # only as a compatibility fallback. One derivation may use four cores, but
-  # multiple memory-heavy derivations must never run concurrently here.
+  # only as a compatibility fallback. One derivation at a time; let it use all
+  # cores, but never run multiple memory-heavy derivations concurrently.
   nix.settings.max-jobs = lib.mkForce 1;
-  nix.settings.cores = lib.mkForce 4;
   assertions = [
     {
       assertion = LT.this.nixBuilder.maxJobs == 1 && config.nix.settings.max-jobs == 1;

@@ -132,10 +132,9 @@ in
     # even when the proxy is healthy.
     connect-timeout = lib.mkForce 15;
     # 28 concurrent full-core builds exhausted RAM on 2026-08-06 (cc1plus OOM,
-    # swap near full). Cap the local daemon exactly like the advertised
-    # nixBuilder.maxJobs; cores limits memory use per derivation.
-    max-jobs = lib.mkForce 2;
-    cores = lib.mkForce 20;
+    # swap near full). Build one derivation at a time and let it use all
+    # cores; keep the local daemon in lockstep with nixBuilder.maxJobs.
+    max-jobs = lib.mkForce 1;
   };
 
   assertions = [
@@ -156,8 +155,9 @@ in
   # allocations are already failing.
   boot.kernel.sysctl."vm.swappiness" = lib.mkForce 100;
   # Firefox's single ld.lld link needs 25-30 GiB RSS. With the default 50%
-  # zram (about 29 GiB) it was OOM-killed twice on 2026-08-07 even with
-  # max-jobs=4. Use the full-RAM zram swap so a single linker can survive.
+  # zram (about 29 GiB) it was OOM-killed twice on 2026-08-07 even when
+  # concurrency was capped. Use the full-RAM zram swap so a single linker can
+  # survive.
   zramSwap.memoryPercent = lib.mkForce 100;
 
   services.openssh.settings.MaxStartups = "64:30:128";
