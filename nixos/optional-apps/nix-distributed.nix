@@ -28,8 +28,7 @@ let
           systems = [ v.system ] ++ lib.optionals (n == "ml-builder") [ "aarch64-linux" ];
           hostName = "${n}.zhyi.cc";
           maxJobs = v.nixBuilder.maxJobs;
-          # Hydra's build-remote path currently only supports legacy SSH stores.
-          protocol = "ssh";
+          protocol = "ssh-ng";
           speedFactor = v.cpuThreads;
           sshKey = cfg.sshKeyPath;
           sshUser = "nix-builder";

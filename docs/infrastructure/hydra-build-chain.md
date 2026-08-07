@@ -6,13 +6,15 @@
 
 ## 不变量
 
-- `ml-builder` 是唯一并行构建机（28 vCPU / 58 GiB），也是唯一声明 `big-parallel`
-  的主机；并发上限 4、单任务 8 核，防止 2026-08-06 出现过的 OOM。
+- `ml-builder` 是唯一主构建机（28 vCPU / 58 GiB），也是唯一声明 `big-parallel`
+  的主机；同时只跑 1 个 derivation，单任务不限核数（`cores = 0`），防止
+  2026-08-06 出现过的多任务 OOM。
 - `pve-5700u` 负责运行 Hydra 和虚拟机，只作为单任务 x86 回退节点。
 - `opi5p` 首先是数据库、媒体和 reDroid 生产节点，只作为单任务原生 ARM 回退节点。
 - `rock5c`、Router 和其他业务主机不加入 `nix-builder`；`ml-home-vm` 已退役。
 - 构建派发图必须是有向无环图：PVE 可以派发到 ml-builder，ml-builder 不得反向派发
-  到 PVE；ml-builder 自己的派发表同时排除 PVE 与 OPI5P，ARM 由本机 QEMU 承接。
+  到 PVE；ml-builder 自己的派发表排除 PVE，保留 OPI5P 作为原生 ARM 下游，QEMU
+  只作远程构建关闭时的回退。
 - `maxJobs` 限制同时运行的 derivation 数；`cores` 限制单个 derivation 获得的并行度。
   两者不能互相替代。
 
@@ -25,9 +27,9 @@
 
 | 节点 | 地址 | 架构 | 同时任务 | 单任务核心 | speed factor | 声明 feature | 角色 |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- |
-| `ml-builder` | `192.168.0.50` | `x86_64-linux` | 4 | 8 | 28 | `aarch64-cross`, `big-parallel` | 唯一主构建机，大包和交叉构建 |
-| `pve-5700u` | `192.168.0.2` | `x86_64-linux` | 1 | 4 | 16 | 远程项无；Hydra localhost 有 `kvm,nixos-test,benchmark` | Hydra 调度、虚拟机宿主、x86 回退 |
-| `opi5p` | `192.168.0.62` | `aarch64-linux` | 1 | 4 | 8 | 无 | 必须执行 ARM 目标程序时的原生回退 |
+| `ml-builder` | `192.168.0.50` | `x86_64-linux` | 1 | 0（默认全核） | 28 | `aarch64-cross`, `big-parallel` | 唯一主构建机，大包和交叉构建 |
+| `pve-5700u` | `192.168.0.2` | `x86_64-linux` | 1 | 0（默认全核） | 16 | 远程项无；Hydra localhost 有 `kvm,nixos-test,benchmark` | Hydra 调度、虚拟机宿主、x86 回退 |
+| `opi5p` | `192.168.0.62` | `aarch64-linux` | 1 | 0（默认全核） | 8 | 无 | 必须执行 ARM 目标程序时的原生回退 |
 
 `speed factor` 只帮助 Nix 在同架构候选机之间排序，不是资源限制。真正的保护来自
 `nixBuilder.maxJobs`、目标机 `nix.settings.max-jobs` 和 `nix.settings.cores`。
@@ -38,7 +40,7 @@
 | --- | --- | --- | --- | --- |
 | 求值与排队 | Hydra（`pve-5700u`） | `/etc/nix/machines-with-localhost` | system、mandatory feature、可用槽位、speed factor | 选择实际 builder |
 | 普通 x86 构建 | Hydra（PVE） | 优先 `ml-builder`，PVE localhost 单任务回退 | `x86_64-linux`，主机速度与槽位 | 构建输出进入 Nix store |
-| ml-builder 本地发起 | ml-builder | x86 留在本机；ARM 由本机 QEMU 承接 | ml-builder 的机器表排除 PVE 与 OPI5P | 不产生 PVE↔ml-builder 回路 |
+| ml-builder 本地发起 | ml-builder | x86 留在本机；原生 ARM 到 opi5p，QEMU 回退 | ml-builder 的机器表排除 PVE，保留 OPI5P | 不产生 PVE↔ml-builder 回路 |
 | 大型并行构建 | Hydra | 仅 `ml-builder` | derivation 要求 `big-parallel` | 不占用 PVE/OPI 业务资源 |
 | ARM 交叉构建 | Hydra 或 ml-builder | `ml-builder` | build platform 仍是 x86，并要求 `aarch64-cross` | 生成 ARM 产物但不执行 ARM 二进制 |
 | ARM 原生构建 | Hydra 或 ml-builder | `opi5p` | derivation 的 system 为 `aarch64-linux` | 单任务执行目标架构构建脚本 |
@@ -71,8 +73,8 @@ Hydra 从 PVE 把 derivation 交给 ml-builder 后，ml-builder 又把同一任�
 
 2026-08-06，ml-builder（28 vCPU / 58 GiB RAM）在 `maxJobs = 28`、`cores = 0` 下运行
 Hydra 与本地构建，`nix-daemon` cgroup 内的多个 `cc1plus`/`cp` 触发全局 OOM，29 GiB
-swap 一度用掉 16 GiB。ml-builder 专用于构建，但仍需要限制同时 derivation 数与单
-derivation 线程数；当前声明与本地并发统一为 4，单任务最多 8 核。将来上调并发前，
+swap 一度用掉 16 GiB。ml-builder 专用于构建，但仍需要限制同时 derivation 数；
+当前声明与本地并发统一为 1，单任务不限核数（`cores = 0`）。将来上调并发前，
 先观察 `free -h`、swap 用量与 `journalctl -k | grep -i oom`。
 
 ## 变更与验收流程

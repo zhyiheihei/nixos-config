@@ -326,7 +326,7 @@ dmesg | grep -iE 'mali|kbase|cedar|g2d|ion'
 | `ML_BUILDER` | `root@192.168.0.50`（ssh `-p 2222`） | NixOS 构建机，`/nix/src/nixos-config` 为 flake 工作树 |
 | `UBUNTU_BUILD` | `zhyi@192.168.0.60` | Android 12 编译机（Ubuntu 22.04） |
 | `PROXY_FAST` | `http://192.168.0.64:7892` | rock5c 代理：快、大文件可靠，但会间歇 SSL EOF |
-| `PROXY_ROUTER` | `http://192.168.0.1:1080` | 路由器 xray：慢、egress IP 不同（下载失败时切换用） |
+| `PROXY_ROUTER` | `socks5://192.168.0.1:1080` | 路由器 xray：慢、egress IP 不同（下载失败时切换用） |
 | `BUILD_DIR` | `/home/zhyi/build` | Ubuntu 上 Android 源码/产物根目录 |
 | `GDOWN_BIN` | `~/gdown-venv/bin/gdown` | 见下文 gdown 安装 |
 | `OPI03_ADDRESS` | （opi03 走 DHCP） | 板卡 IP，用 `hosts/opi03` 的 mDNS/串口获取 |
