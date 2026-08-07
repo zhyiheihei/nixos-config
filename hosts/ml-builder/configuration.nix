@@ -54,11 +54,12 @@ in
     sopsFile = inputs.secrets + "/common/attic.yaml";
     mode = "0400";
   };
-  # nvchecker reads GitHub tokens through the netrc lookup; point NETRC at
-  # this SOPS-deployed file so nvfetcher can use the authenticated API quota.
+  # nvchecker's netrc lookup reads ~/.netrc, so deploy the GitHub token
+  # there for nvfetcher's authenticated API quota.
   sops.secrets.nvfetcher-github-netrc = {
     sopsFile = inputs.secrets + "/common/github.yaml";
     key = "github-netrc";
+    path = "/root/.netrc";
     mode = "0600";
   };
   lantian.nix-distributed = {
@@ -147,9 +148,7 @@ in
   # Flake lock updates fetch some inputs in the invoking client, while
   # fixed-output derivations fetch through the multi-user Nix daemon. Give
   # both paths the same MetaCubeXD route and keep LAN services direct.
-  environment.variables = proxyEnvironment // {
-    NETRC = config.sops.secrets.nvfetcher-github-netrc.path;
-  };
+  environment.variables = proxyEnvironment;
   systemd.services.nix-daemon.environment = proxyEnvironment;
 
   # Let the existing zstd zram swap absorb compiler memory spikes.  The
