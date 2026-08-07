@@ -858,11 +858,11 @@
         "treefmt-nix": "treefmt-nix"
       },
       "locked": {
-        "lastModified": 1786089413,
-        "narHash": "sha256-b+UY0OtUPwr026b3wI/3WbCkG4NJTwUoDZIbzmlXNnc=",
+        "lastModified": 1786090628,
+        "narHash": "sha256-kGtaHxXzKJQ2U9L0Ve9vvy21QsPhdyFxrivnjhQfi7Y=",
         "owner": "kaylorben",
         "repo": "nixcord",
-        "rev": "65d8cb9b186460458e4b8fff477b2fa233f51460",
+        "rev": "d36517d116ae80fcfdaffaf5ada937f506e300e0",
         "type": "github"
       },
       "original": {
@@ -1088,11 +1088,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786088433,
-        "narHash": "sha256-pz5EfQ61m8XanZA2OAmpv6j4OZVSS/LoCM3Mwm3m594=",
+        "lastModified": 1786092813,
+        "narHash": "sha256-UvByrAOIaFnMpT7O49snAk/UIHrj7mHf5HvOY7b2/Xw=",
         "owner": "nix-community",
         "repo": "NUR",
-        "rev": "431924846df60e5d064e9538d67e0c39771018d3",
+        "rev": "e973341eed47080492e162e61b5f6637ae59cd34",
         "type": "github"
       },
       "original": {
