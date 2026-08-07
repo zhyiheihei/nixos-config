@@ -52,6 +52,32 @@ valid narinfo followed by HTTP 403 for the referenced NAR, which made NCPS
 return HTTP 500 instead of falling back. The same failed store path was
 retested through NCPS and returned HTTP 200 after removal.
 
+### NCPS upstream proxy exception
+
+NCPS on opi5p normally fetches public upstreams through the rock5c proxy
+(`http://192.168.0.64:7892`). `mirror.sjtu.edu.cn` is the exception: the
+proxy line intermittently times out with `http2: timeout awaiting response
+headers`, which makes NCPS purge the entry and return HTTP 500 with
+`the narinfo was purged`. The host config therefore adds
+`mirror.sjtu.edu.cn` to NCPS's `NO_PROXY`/`no_proxy` so those requests stay
+on the LAN.
+
+The override lives next to `proxyBypass` in
+[hosts/opi5p/configuration.nix](../../hosts/opi5p/configuration.nix); always extend the shared bypass list there
+instead of copying a new `NO_PROXY` value into another host file.
+
+Verify after deploying:
+
+```bash
+systemctl show ncps -p Environment
+journalctl -u ncps -f
+curl -sS --noproxy '*' -m 10 -o /dev/null -w '%{http_code}\n' \
+  https://mirror.sjtu.edu.cn/nix-channels/store/nix-cache-info
+```
+
+`Environment` must contain `mirror.sjtu.edu.cn` in both `NO_PROXY` values,
+and the curl from opi5p must return `200`.
+
 ## China DNS
 
 CoreDNS keeps the author's Google DNS-over-TLS upstream outside China. Hosts

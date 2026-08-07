@@ -59,6 +59,24 @@ make build
 `make all` 和 `make servers` 会部署对应 Colmena 标签，不能作为单机测试命令。完整说明见
 [构建与部署](./deployment.md)。
 
+## 内存与 OOM 排障
+
+`ml-builder` 的物理内存约 58 GiB，zram 已配置为 100%（约 58 GiB swap），
+`max-jobs = 4`、`cores = 8`。并发上限防止多个大包同时编译，但管不住单个进程
+的内存峰值：例如 Firefox 的 `ld.lld` 链接阶段 RSS 可达 25-30 GiB，
+2026-08-07 曾因此被内核 OOM killer 杀掉。
+
+验证当前内存配置：
+
+```bash
+swapon --show
+zramctl
+journalctl -k --since "24 hours ago" | rg -i 'oom|ld.lld|killed process'
+```
+
+若再次 OOM，先看内核日志中被杀的是不是单个 `ld.lld`/`cc1plus`，再决定是否
+降低并发或检查 zram；不要为了提速直接调大 `max-jobs`。
+
 ## 作为远程 builder
 
 Hydra/PVE 通过 `nix-builder@ml-builder.zhyi.cc` 使用该机。连接失败时，在调度机

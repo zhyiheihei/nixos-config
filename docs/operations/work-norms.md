@@ -43,8 +43,19 @@
 - 构建只发生在 **ml-builder**（colocrossing 会 OOM，opi5p 内存压力大）
 - opi5p 负载敏感：不连续重试部署、不并发压它
 - 远程构建缺输入（no substituter）时：`nix copy --derivation` 到 builder，或 qemu 本机构建，或调整 buildMachines（excludeHosts）
+- ml-builder 的 OOM 可能来自单个链接器（如 Firefox 的 `ld.lld` 峰值 25-30G），
+  `max-jobs` 管不住单进程内存；不要为提速调大并发，先看 kernel OOM 日志
 
 ## 8. 大任务先出方案，确认后实施
 
 - 涉及取舍（如留哪个服务）、停用服务、数据迁移：先给方案+影响面，用户确认后动手
 - 数据迁移是长任务时：分批、持久化中间结果、可恢复、不中断用户在用服务
+
+## 9. 主机级代理环境统一维护
+
+- 主机级代理统一在 `hosts/<host>/configuration.nix` 的 `proxyBypass` /
+  `proxyEnvironment` 中维护
+- 服务需要额外直连某个域名时，复用已有 bypass 字符串并追加域名，不要在其他文件
+  复制一份 `NO_PROXY` 列表
+- 涉及公共模块（如 `ncps.nix`）的代理默认值有差异时，用主机级覆盖，并在提交信息
+  或注释里说明原因
