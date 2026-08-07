@@ -68,7 +68,7 @@ in
   lantian.ncps = {
     dataPath = "/nix/persistent/var/cache/ncps";
     tempPath = "/nix/persistent/var/cache/ncps-tmp";
-    proxy = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
+    proxy = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
     proxyUnit = null;
     storageUnit = "nix.mount";
   };
