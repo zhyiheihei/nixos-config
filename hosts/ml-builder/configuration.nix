@@ -147,6 +147,10 @@ in
   # generic nix-builder policy sets this to 0, which leaves swap idle until
   # allocations are already failing.
   boot.kernel.sysctl."vm.swappiness" = lib.mkForce 100;
+  # Firefox's single ld.lld link needs 25-30 GiB RSS. With the default 50%
+  # zram (about 29 GiB) it was OOM-killed twice on 2026-08-07 even with
+  # max-jobs=4. Use the full-RAM zram swap so a single linker can survive.
+  zramSwap.memoryPercent = lib.mkForce 100;
 
   services.openssh.settings.MaxStartups = "64:30:128";
 

@@ -17,6 +17,10 @@ let
     https_proxy = outboundProxy;
     no_proxy = proxyBypass;
   };
+  # NCPS reaches mirror.sjtu.edu.cn through the rock5c proxy, and that line
+  # intermittently times out. Keep other upstreams proxied, but let SJTU
+  # requests go direct from the LAN.
+  ncpsProxyBypass = "${proxyBypass},mirror.sjtu.edu.cn";
 in
 {
   imports = [
@@ -40,6 +44,8 @@ in
   # relying on intermittent direct GitHub connectivity.
   environment.variables = proxyEnvironment;
   systemd.services.nix-daemon.environment = proxyEnvironment;
+  systemd.services.ncps.environment.NO_PROXY = lib.mkForce ncpsProxyBypass;
+  systemd.services.ncps.environment.no_proxy = lib.mkForce ncpsProxyBypass;
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.
   # Match ml-builder so a healthy private cache is not disabled prematurely.
@@ -119,6 +125,10 @@ in
     {
       assertion = LT.this.nixBuilder.maxJobs == 1 && config.nix.settings.max-jobs == 1;
       message = "opi5p must remain a single-job native ARM fallback builder; use ml-builder cross builds when possible";
+    }
+    {
+      assertion = lib.hasInfix "mirror.sjtu.edu.cn" config.systemd.services.ncps.environment.NO_PROXY;
+      message = "opi5p NCPS must bypass the proxy for mirror.sjtu.edu.cn; update ncpsProxyBypass and docs/network/ltnet-home-relay.md together";
     }
   ];
 
