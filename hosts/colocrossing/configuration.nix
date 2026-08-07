@@ -127,6 +127,9 @@
     environment.HOST = lib.mkForce LT.this.ltnet.IPv4;
   };
 
+  # n8n ships zh-CN translations; make the editor default to Simplified Chinese.
+  services.n8n.environment.N8N_DEFAULT_LOCALE = "zh-CN";
+
   # Match the user's local Firefox identity so anti-bot sites do not reject the
   # Miniflux fetcher as a non-browser client. Keep RSSHub on the same UA.
   services.miniflux.config.HTTP_CLIENT_USER_AGENT =
