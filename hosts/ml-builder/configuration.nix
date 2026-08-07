@@ -134,8 +134,8 @@ in
     # 28 concurrent full-core builds exhausted RAM on 2026-08-06 (cc1plus OOM,
     # swap near full). Cap the local daemon exactly like the advertised
     # nixBuilder.maxJobs; cores limits memory use per derivation.
-    max-jobs = lib.mkForce 4;
-    cores = lib.mkForce 8;
+    max-jobs = lib.mkForce 2;
+    cores = lib.mkForce 20;
   };
 
   assertions = [
