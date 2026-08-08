@@ -15,7 +15,6 @@ let
   # hidden PT path is renamed to this and the seedbox data is moved into it,
   # so MoviePilot can match a single save path and transfer into the libraries.
   unifiedDownloadPath = "/mnt/storage/.downloads";
-  flexgetAutoDownloadPath = "/mnt/storage/.downloads-auto";
   # Single qBittorrent instance after the downloader merge.  PT and seedbox
   # units are kept defined by their modules but disabled below; torrent data
   # is already on the shared NFS paths, so one client can own all of them.
@@ -77,10 +76,6 @@ in
       mode = "755";
       inherit user group;
     };
-    "${flexgetAutoDownloadPath}".d = {
-      mode = "755";
-      inherit user group;
-    };
     "/nix/persistent/var/lib/qbittorrent-router".d = {
       mode = "0700";
       user = "root";
@@ -99,7 +94,6 @@ in
       qbittorrent.preStart = lib.mkAfter (qbitPreStart "qbittorrent");
       qbittorrent.serviceConfig.BindPaths = [
         unifiedDownloadPath
-        flexgetAutoDownloadPath
       ];
       # Old multi-instance units stay defined in their modules for rollback,
       # but are no longer part of the active single-client stack.

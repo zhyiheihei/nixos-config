@@ -35,6 +35,14 @@ let
     "podman-tachidesk"
     "podman-vertex"
   ];
+  # These services are replaced by MoviePilot and must not run alongside it.
+  # Units stay defined in their modules for rollback.
+  migratedServices = [
+    "flexget-runner"
+    "iyuuplus"
+    "jproxy"
+    "podman-byparr"
+  ];
   proxyEnvironment = lib.getAttrs [
     "HTTP_PROXY"
     "HTTPS_PROXY"
@@ -55,6 +63,9 @@ in
       partOf = [ "media-automation.target" ];
       unitConfig.ConditionPathExists = activationMarker;
     }))
+    (lib.genAttrs migratedServices (_: {
+      enable = lib.mkForce false;
+    }))
     # OPI5P's direct route to GitHub, TMDB and scene-mapping APIs is
     # intermittent or geo-blocked. Reuse the host's declared outbound proxy
     # for metadata/indexer traffic while LAN and project domains stay direct
@@ -74,13 +85,6 @@ in
         partOf = [ "media-automation.target" ];
         unitConfig.ConditionPathExists = vertexActivationMarker;
       };
-      # Sonarr/Radarr/Prowlarr now run on rock5c; keep jproxy alive here but
-      # stop requiring the moved units. FlexGet follows the same Prowlarr hop.
-      jproxy = {
-        after = lib.mkForce [ "network.target" ];
-        requires = lib.mkForce [ "network.target" ];
-      };
-      flexget-runner.environment.PROWLARR_URL = lib.mkForce "https://prowlarr.rock5c.zhyi.cc";
     }
   ];
   systemd.timers = lib.genAttrs [
@@ -90,6 +94,7 @@ in
     partOf = [ "media-automation.target" ];
     unitConfig.ConditionPathExists = activationMarker;
   });
+  systemd.timers.flexget-runner.enable = lib.mkForce false;
 
   systemd.targets.media-automation = {
     description = "OPI5P media download and automation stack";
