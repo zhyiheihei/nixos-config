@@ -134,6 +134,7 @@
 - [luarocks-nix rockspec 转 Nix（fork）](./luarocks-nix.md)
 - [docnix Nix 参考文档站（已归档）](./docnix.md)
 - [darwin-build-box 社区 Darwin 构建机（已归档）](./darwin-build-box.md)
+- [nixops-gce NixOps GCE 后端](./nixops-gce.md)
 
 ## 模块化 flake 框架
 
