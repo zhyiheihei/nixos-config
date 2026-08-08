@@ -24,6 +24,7 @@
 
 ## 模块化 flake 框架
 
+- [flake-parts 模块机制](./flake-parts.md)
 - [flakelight](./flakelight.md)
 
 ## 包补充仓库
