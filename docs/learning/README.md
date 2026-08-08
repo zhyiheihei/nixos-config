@@ -43,6 +43,7 @@
 - [nixos-images](./nixos-images.md)
 - [nixos-cli](./nixos-cli.md)
 - [nix-vscode-extensions](./nix-vscode-extensions.md)
+- [nix-melt flake.lock 查看器](./nix-melt.md)
 
 ## 模块化 flake 框架
 

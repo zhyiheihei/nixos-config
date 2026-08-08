@@ -71,6 +71,31 @@
 | 59 | `nixbox` | 342 | 待学 | NixOS Vagrant boxes |
 | 60 | `preservation` | 338 | 待学 | 非易失系统状态管理 |
 
+## 第 61-80 名
+
+| # | 仓库 | Star | 状态 | 一句话 |
+| ---: | --- | ---: | --- | --- |
+| 61 | `raspberry-pi-nix` | 311 | 部分 | 树莓派 NixOS 模块（已归档） |
+| 62 | `nix-melt` | 309 | 已学 | ranger 风格 flake.lock 查看器 |
+| 63 | `gomod2nix` | 308 | 待学 | Go modules 转 Nix |
+| 64 | `nix-environments` | 302 | 待学 | Nix 开发环境集合 |
+| 65 | `dconf2nix` | 301 | 待学 | dconf 配置转 Nix |
+| 66 | `buildbot-nix` | 281 | 待学 | buildbot 版 Nix CI |
+| 67 | `nix-zsh-completions` | 281 | 待学 | Nix zsh 补全 |
+| 68 | `docker-nixpkgs` | 249 | 待学 | Docker 版 nixpkgs |
+| 69 | `nix-emacs` | 249 | 待学 | Emacs 的 Nix 集成 |
+| 70 | `nix-doom-emacs` | 243 | 待学 | doom-emacs 的 Nix 打包 |
+| 71 | `pip2nix` | 242 | 待学 | Python pip 转 Nix |
+| 72 | `nix-on-droid-app` | 241 | 待学 | nix-on-droid 配套 App |
+| 73 | `tree-sitter-nix` | 239 | 待学 | Nix 的 tree-sitter 语法 |
+| 74 | `nur-combined` | 194 | 待学 | NUR 合并包集合 |
+| 75 | `dns.nix` | 192 | 待学 | 用 Nix 管理 DNS |
+| 76 | `pypi2nix` | 192 | 部分 | Python 包转 Nix（已归档） |
+| 77 | `bundix` | 183 | 待学 | Bundler 转 Nix |
+| 78 | `todomvc-nix` | 181 | 待学 | Nix 版 TodoMVC 示例 |
+| 79 | `nixos-facter-modules` | 179 | 部分 | facter 配套 NixOS 模块（已归档） |
+| 80 | `authentik-nix` | 178 | 待学 | authentik 的 Nix flake |
+
 ## 下一批待学顺序
 
 按 star 从高到低，当前待学：
