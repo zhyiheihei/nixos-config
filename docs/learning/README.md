@@ -62,6 +62,7 @@
 - [todomvc-nix 全栈教学示例](./todomvc-nix.md)
 - [nixos-facter-modules 硬件检测模块](./nixos-facter-modules.md)
 - [authentik-nix IdP 部署 flake](./authentik-nix.md)
+- [nixpkgs-lint 语义 linter](./nixpkgs-lint.md)
 
 ## 模块化 flake 框架
 
