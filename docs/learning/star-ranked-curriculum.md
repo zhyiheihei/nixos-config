@@ -91,7 +91,7 @@
 | 74 | `nur-combined` | 194 | 已学 | NUR 合并包集合 |
 | 75 | `dns.nix` | 192 | 已学 | 用 Nix 管理 DNS |
 | 76 | `pypi2nix` | 192 | 已学 | Python 包转 Nix（已归档） |
-| 77 | `bundix` | 183 | 待学 | Bundler 转 Nix |
+| 77 | `bundix` | 183 | 已学 | Bundler 转 Nix |
 | 78 | `todomvc-nix` | 181 | 待学 | Nix 版 TodoMVC 示例 |
 | 79 | `nixos-facter-modules` | 179 | 部分 | facter 配套 NixOS 模块（已归档） |
 | 80 | `authentik-nix` | 178 | 待学 | authentik 的 Nix flake |
