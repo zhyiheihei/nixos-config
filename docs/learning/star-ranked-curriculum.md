@@ -62,7 +62,7 @@
 | 50 | `haumea` | 416 | 已学 | 文件系统模块系统 |
 | 51 | `neovim-nightly-overlay` | 414 | 已学 | Neovim nightly overlay |
 | 52 | `flakelight` | 408 | 已学 | 模块化 flake 框架 |
-| 53 | `kickstart-nix.nvim` | 405 | 待学 | Neovim flake 模板 |
+| 53 | `kickstart-nix.nvim` | 405 | 已学 | Neovim flake 模板 |
 | 54 | `nixos-images` | 404 | 待学 | NixOS netboot 镜像 |
 | 55 | `nixos-cli` | 393 | 待学 | 统一 NixOS CLI |
 | 56 | `nix-vscode-extensions` | 390 | 待学 | VS Code 扩展 Nix 化 |
@@ -75,10 +75,9 @@
 
 按 star 从高到低，当前待学：
 
-1. `kickstart-nix.nvim`
-2. `nixos-images`
-3. `nixos-cli`
-4. `nix-vscode-extensions`
-5. `terraform-nixos`（README 待网络恢复后补全）
+1. `nixos-images`
+2. `nixos-cli`
+3. `nix-vscode-extensions`
+4. `terraform-nixos`（README 待网络恢复后补全）
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
