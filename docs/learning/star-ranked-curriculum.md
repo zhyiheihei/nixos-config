@@ -171,8 +171,84 @@
 | 139 | `nixpkgs-swh` | 39 | 已学 | Software Heritage 集成 |
 | 140 | `talon-nix` | 38 | 已学 | Talon Voice 自动打包 |
 
+## 第 141-160 名
+
+| # | 仓库 | Star | 状态 | 一句话 |
+| ---: | --- | ---: | --- | --- |
+| 141 | `flake-nimble` | 38 | 待学 | Nimble 包的 Nix flake |
+| 142 | `nixops-libvirtd` | 38 | 待学 | NixOps libvirtd 后端 |
+| 143 | `docker-nix` | 37 | 待学 | Nix 的 Docker 镜像（已归档） |
+| 144 | `sigtool` | 35 | 待学 | Nix 签名工具 |
+| 145 | `rustowl-flake` | 33 | 待学 | RustOwl 相关 flake |
+| 146 | `nixos-landscape` | 33 | 待学 | NixOS 生态全景图 |
+| 147 | `dreampkgs` | 30 | 待学 | dream2nix 管理的软件集 |
+| 148 | `queued-build-hook` | 30 | 待学 | Nix post-build-hook 排队重试 |
+| 149 | `emacs2nix` | 29 | 待学 | Emacs 包自动生成 Nix 表达式 |
+| 150 | `luarocks-nix` | 26 | 待学 | rockspec 转 Nix（fork） |
+| 151 | `docnix` | 25 | 待学 | Nix 参考文档站（已归档） |
+| 152 | `darwin-build-box` | 25 | 待学 | 社区 Darwin 构建机 |
+| 153 | `nixops-gce` | 25 | 待学 | NixOps GCE 后端 |
+| 154 | `hardware-mnt-reform` | 24 | 待学 | MNT Reform 笔记本适配 |
+| 155 | `hpe-ltfs` | 24 | 待学 | HPE LTFS 源码镜像 |
+| 156 | `nixops-vbox` | 24 | 待学 | NixOps VirtualBox 后端 |
+| 157 | `nixos-cli-archive` | 22 | 待学 | 实验性 nixos-rebuild 替代品 |
+| 158 | `nix-straight.el` | 20 | 待学 | straight.el 的低层 Nix 集成 |
+| 159 | `crystal2nix` | 19 | 待学 | Crystal 项目构建 |
+| 160 | `flake-compat` | 18 | 待学 | flake-compat 社区 fork（已归档） |
+
+## 第 161-180 名
+
+| # | 仓库 | Star | 状态 | 一句话 |
+| ---: | --- | ---: | --- | --- |
+| 161 | `nixops-digitalocean` | 18 | 待学 | NixOps DigitalOcean 后端 |
+| 162 | `nixago-extensions` | 17 | 待学 | Nixago 配置生成扩展 |
+| 163 | `fetchTree-spec` | 16 | 待学 | fetchTree 规范与测试套件 |
+| 164 | `nix-snippets` | 16 | 待学 | Nix 表达式片段集（已归档） |
+| 165 | `nixos-modules-contrib` | 16 | 待学 | 不适合进 NixOS 的模块集 |
+| 166 | `label-approved` | 15 | 待学 | nixpkgs 已批准 PR 打标签工具 |
+| 167 | `vs-overlay` | 15 | 待学 | VapourSynth 插件 overlay |
+| 168 | `projects` | 14 | 待学 | 筹款与资助项目提案 |
+| 169 | `pynixutil` | 14 | 待学 | Python 读 Nix 数据工具 |
+| 170 | `lib-aggregate` | 13 | 待学 | 纯 Nix lib 聚合 flake |
+| 171 | `flake.nix` | 13 | 待学 | flake 早期讨论仓库（已归档） |
+| 172 | `eask2nix` | 11 | 待学 | Eask 转 Nix 表达式 |
+| 173 | `meetup-london` | 11 | 待学 | 伦敦 meetup 组织 |
+| 174 | `cross-toolchains.nix` | 10 | 待学 | 交叉工具链预构建（已归档） |
+| 175 | `rnix-hashes` | 10 | 待学 | Nix hash 转换器（已归档） |
+| 176 | `carnix` | 10 | 待学 | Carnix 镜像（已归档） |
+| 177 | `google-summer-of-code` | 10 | 待学 | GSoC 提案（已归档） |
+| 178 | `ZurichZHF` | 9 | 待学 | 苏黎世 Nix 社区 |
+| 179 | `nixos-gen-config` | 9 | 待学 | nixos-generate-config 的 Python 重写 |
+| 180 | `nur-update` | 9 | 待学 | NUR 更新服务 |
+
+## 第 181-200 名
+
+| # | 仓库 | Star | 状态 | 一句话 |
+| ---: | --- | ---: | --- | --- |
+| 181 | `linyaps-flake` | 8 | 待学 | linyaps 的 NixOS flake（fork，已归档） |
+| 182 | `nixops_hcloud` | 6 | 待学 | NixOps Hetzner Cloud 后端（已归档） |
+| 183 | `nix` | 6 | 待学 | Nix 社区实验 fork |
+| 184 | `rfc55` | 5 | 待学 | RFC 55 实现（已归档） |
+| 185 | `nixpkgs-update-github-releases` | 5 | 待学 | nixpkgs-update 的 releases 数据源 |
+| 186 | `nsncd` | 4 | 待学 | nscd 协议的 Rust 实现（fork，已归档） |
+| 187 | `mediawiki-matrix-bot` | 4 | 待学 | MediaWiki 变更转 Matrix bot |
+| 188 | `nix-travis-ci` | 4 | 待学 | Travis 上的 Nix 支持 |
+| 189 | `nixops-encrypted-links` | 4 | 待学 | NixOps 1 的 encryptedLinksTo 移植 |
+| 190 | `nixops-datadog` | 4 | 待学 | NixOps Datadog 后端 |
+| 191 | `nix-cygwin` | 3 | 待学 | Cygwin 上的 Nix 试验 |
+| 192 | `composer-local-repo-plugin` | 3 | 待学 | Composer 本地仓库插件 |
+| 193 | `dream2nix-auto-test` | 3 | 待学 | dream2nix 自动生成包测试（fork） |
+| 194 | `all-cabal-json` | 3 | 待学 | 全部 Hackage cabal 文件 JSON |
+| 195 | `buildcatrust` | 3 | 待学 | 证书库格式转换 |
+| 196 | `flake-gemini` | 3 | 待学 | Gemini 协议软件调研（已归档） |
+| 197 | `gnome-session-ctl` | 3 | 待学 | 从 gnome-session 拆出的工具 |
+| 198 | `goblin-signing` | 2 | 待学 | 用 Goblin 签 PE |
+| 199 | `rkwifibt` | 2 | 待学 | Rockchip WiFi/BT 固件包（fork） |
+| 200 | `pipewire-to-json` | 2 | 待学 | pipewire 配置转 JSON（已归档） |
+
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：
+按 star 从高到低，当前待学：`flake-nimble`（#141，38 star）。
+清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
