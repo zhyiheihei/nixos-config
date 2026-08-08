@@ -40,6 +40,7 @@
 - [haumea 文件系统模块系统](./haumea.md)
 - [neovim-nightly-overlay](./neovim-nightly-overlay.md)
 - [kickstart-nix.nvim](./kickstart-nix.nvim.md)
+- [nixos-images](./nixos-images.md)
 
 ## 模块化 flake 框架
 
