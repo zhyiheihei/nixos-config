@@ -28,6 +28,7 @@
 - [dream2nix 与 drv-parts](./dream2nix.md)
 - [fenix Rust 工具链](./fenix.md)
 - [lorri 项目环境守护](./lorri.md)
+- [nix-bundle 单文件打包](./nix-bundle.md)
 
 ## 模块化 flake 框架
 
