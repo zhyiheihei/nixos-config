@@ -44,8 +44,14 @@ in
   # relying on intermittent direct GitHub connectivity.
   environment.variables = proxyEnvironment;
   systemd.services.nix-daemon.environment = proxyEnvironment;
-  systemd.services.ncps.environment.NO_PROXY = lib.mkForce ncpsProxyBypass;
-  systemd.services.ncps.environment.no_proxy = lib.mkForce ncpsProxyBypass;
+  systemd.services.ncps.environment = {
+    HTTP_PROXY = config.lantian.ncps.proxy;
+    HTTPS_PROXY = config.lantian.ncps.proxy;
+    NO_PROXY = ncpsProxyBypass;
+    http_proxy = config.lantian.ncps.proxy;
+    https_proxy = config.lantian.ncps.proxy;
+    no_proxy = ncpsProxyBypass;
+  };
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.
   # Match ml-builder so a healthy private cache is not disabled prematurely.

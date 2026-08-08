@@ -6,17 +6,6 @@
 }:
 let
   cfg = config.lantian.immichRknnWorker;
-  # Both home RKNN nodes route model/image downloads through ROCK 5C's proxy.
-  proxy = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
-  proxyEnvironment = {
-    HTTP_PROXY = proxy;
-    HTTPS_PROXY = proxy;
-    NO_PROXY = proxyBypass;
-    http_proxy = proxy;
-    https_proxy = proxy;
-    no_proxy = proxyBypass;
-  };
 in
 {
   options.lantian.immichRknnWorker = {
@@ -77,7 +66,5 @@ in
       user = "root";
       group = "root";
     };
-
-    systemd.services.podman-immich-machine-learning-rknn.environment = proxyEnvironment;
   };
 }

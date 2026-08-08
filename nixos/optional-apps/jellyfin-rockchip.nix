@@ -9,7 +9,6 @@
 let
   cfg = config.lantian.jellyfinRockchip;
   netns = config.lantian.netns.rk-jellyfin;
-  proxy = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
   hasAv1Decoder = builtins.elem cfg.soc [
     "rk3528"
     "rk3588"
@@ -144,12 +143,6 @@ in
     systemd.services.jellyfin = netns.bind {
       environment =
         {
-          HTTP_PROXY = proxy;
-          HTTPS_PROXY = proxy;
-          NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
-          http_proxy = proxy;
-          https_proxy = proxy;
-          no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
           JELLYFIN_kestrel__socket = "true";
           JELLYFIN_kestrel__socketPath = "/run/jellyfin/socket";
           JELLYFIN_kestrel__socketPermissions = "0777";
