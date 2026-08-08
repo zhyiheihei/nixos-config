@@ -118,6 +118,10 @@
       networkConfig = {
         DHCP = "ipv6";
         IPv6AcceptRA = "yes";
+        # pppd owns the PPPoE IPv4 address and default route; without this,
+        # systemd-networkd can drop them when it applies ppp0.network after
+        # IPCP completes, leaving the WAN with IPv6 only.
+        KeepConfiguration = "static";
       };
       ipv6AcceptRAConfig = {
         DHCPv6Client = "always";
