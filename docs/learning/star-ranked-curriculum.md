@@ -89,7 +89,7 @@
 | 72 | `nix-on-droid-app` | 241 | 已学 | nix-on-droid 配套 App |
 | 73 | `tree-sitter-nix` | 239 | 已学 | Nix 的 tree-sitter 语法 |
 | 74 | `nur-combined` | 194 | 已学 | NUR 合并包集合 |
-| 75 | `dns.nix` | 192 | 待学 | 用 Nix 管理 DNS |
+| 75 | `dns.nix` | 192 | 已学 | 用 Nix 管理 DNS |
 | 76 | `pypi2nix` | 192 | 部分 | Python 包转 Nix（已归档） |
 | 77 | `bundix` | 183 | 待学 | Bundler 转 Nix |
 | 78 | `todomvc-nix` | 181 | 待学 | Nix 版 TodoMVC 示例 |
