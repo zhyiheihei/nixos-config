@@ -125,6 +125,7 @@
 - [flake-nimble Nimble 包的 Nix flake](./flake-nimble.md)
 - [nixops-libvirtd NixOps libvirtd 后端](./nixops-libvirtd.md)
 - [docker-nix Nix 的 Docker 镜像（已归档）](./docker-nix.md)
+- [sigtool Mach-O 签名工具](./sigtool.md)
 
 ## 模块化 flake 框架
 
