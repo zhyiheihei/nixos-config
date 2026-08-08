@@ -95,6 +95,7 @@
 - [wiki 旧 NixOS wiki（已归档）](./wiki.md)
 - [acpi_call ACPI 内核模块](./acpi_call.md)
 - [nixos-anywhere-examples 云主机示例](./nixos-anywhere-examples.md)
+- [pnpm2nix pnpm lockfile 转 Nix](./pnpm2nix.md)
 
 ## 模块化 flake 框架
 

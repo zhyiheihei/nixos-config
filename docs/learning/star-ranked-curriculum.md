@@ -138,7 +138,7 @@
 | 111 | `wiki` | 102 | 已学 | 社区 wiki（已归档） |
 | 112 | `acpi_call` | 102 | 已学 | acpi_call 内核模块 |
 | 113 | `nixos-anywhere-examples` | 98 | 已学 | nixos-anywhere 示例 |
-| 114 | `pnpm2nix` | 97 | 待学 | pnpm lock 转 Nix |
+| 114 | `pnpm2nix` | 97 | 已学 | pnpm lock 转 Nix |
 | 115 | `vgo2nix` | 89 | 部分 | Go modules 转 Nix（已归档） |
 | 116 | `zephyr-nix` | 86 | 待学 | Zephyr 开发环境 |
 | 117 | `nix-data-science` | 84 | 待学 | Nix 数据科学环境 |
