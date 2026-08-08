@@ -41,6 +41,7 @@ in
       };
       volumes = [
         "${cfg.dataDir}:/config"
+        "${cfg.dataDir}/.cloakbrowser:/moviepilot/.cloakbrowser"
         "/mnt/storage/downloads:/mnt/storage/downloads"
         "/mnt/storage/.downloads-auto:/mnt/storage/.downloads-auto"
         "/mnt/storage/.downloads-qb:/mnt/storage/.downloads-qb"
