@@ -42,6 +42,7 @@
 - [kickstart-nix.nvim](./kickstart-nix.nvim.md)
 - [nixos-images](./nixos-images.md)
 - [nixos-cli](./nixos-cli.md)
+- [nix-vscode-extensions](./nix-vscode-extensions.md)
 
 ## 模块化 flake 框架
 
