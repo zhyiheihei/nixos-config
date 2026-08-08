@@ -117,6 +117,7 @@
 - [lila Nix 构建 hash 收集](./lila.md)
 - [builtwithnix.org 宣传站点与 badge](./builtwithnix.org.md)
 - [mavenix Maven 依赖转 Nix](./mavenix.md)
+- [nixpkgs-pytools Python 包生成工具](./nixpkgs-pytools.md)
 
 ## 模块化 flake 框架
 
