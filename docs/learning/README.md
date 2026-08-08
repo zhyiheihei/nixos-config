@@ -129,6 +129,7 @@
 - [rustowl-flake RustOwl 的 Nix flake](./rustowl-flake.md)
 - [nixos-landscape NixOS 生态全景图](./nixos-landscape.md)
 - [dreampkgs dream2nix 管理的软件集](./dreampkgs.md)
+- [queued-build-hook Nix post-build-hook 排队重试](./queued-build-hook.md)
 
 ## 模块化 flake 框架
 
