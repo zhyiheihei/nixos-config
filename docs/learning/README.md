@@ -33,6 +33,7 @@
 - [robotnix AOSP 构建](./robotnix.md)
 - [nixpkgs-wayland 预构建](./nixpkgs-wayland.md)
 - [harmonia 二进制缓存](./harmonia.md)
+- [nixos-vscode-server](./nixos-vscode-server.md)
 
 ## 模块化 flake 框架
 

@@ -52,7 +52,7 @@
 | ---: | --- | ---: | --- | --- |
 | 41 | `harmonia` | 574 | 已学 | Rust 二进制缓存服务器 |
 | 42 | `nixpkgs-fmt` | 556 | 部分 | 旧 Nix 格式化器（已归档） |
-| 43 | `nixos-vscode-server` | 555 | 待学 | NixOS 上的 VSCode Server |
+| 43 | `nixos-vscode-server` | 555 | 已学 | NixOS 上的 VSCode Server |
 | 44 | `crate2nix` | 514 | 已学 | Rust crate 级构建 |
 | 45 | `vscode-nix-ide` | 508 | 已学 | VSCode Nix 插件 |
 | 46 | `NixNG` | 483 | 待学 | 基于 Nix 的 Linux 发行版 |
@@ -75,15 +75,14 @@
 
 按 star 从高到低，当前待学：
 
-1. `nixos-vscode-server`
-2. `NixNG`
-3. `nix-user-chroot`
-4. `terraform-nixos`
-5. `haumea`
-6. `neovim-nightly-overlay`
-7. `kickstart-nix.nvim`
-8. `nixos-images`
-9. `nixos-cli`
-10. `nix-vscode-extensions`
+1. `NixNG`
+2. `nix-user-chroot`
+3. `terraform-nixos`
+4. `haumea`
+5. `neovim-nightly-overlay`
+6. `kickstart-nix.nvim`
+7. `nixos-images`
+8. `nixos-cli`
+9. `nix-vscode-extensions`
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
