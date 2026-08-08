@@ -4,6 +4,10 @@
 本文档只记录当前操作约束、架构解释和经验证的迁移记录；历史救援过程统一放在
 [`old/`](./old/README.md)，不能直接当作当前操作步骤执行。
 
+## 复刻与学习
+
+- [Nix 复刻学习总纲](./nix-replication-guide.md)
+
 ## 入门与主机接入
 
 - [适配自己的 NixOS 设备](./getting-started/adapt-own-device.md)
