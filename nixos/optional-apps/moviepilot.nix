@@ -48,10 +48,7 @@ in
         "${cfg.dataDir}:/config"
         "${cfg.dataDir}/.cloakbrowser:/moviepilot/.cloakbrowser"
         "/mnt/storage/downloads:/mnt/storage/downloads"
-        "/mnt/storage/.downloads-auto:/mnt/storage/.downloads-auto"
-        "/mnt/storage/.downloads-qb:/mnt/storage/.downloads-qb"
-        "/mnt/storage/.downloads-qb-pt:/mnt/storage/.downloads-qb-pt"
-        "/mnt/storage/.downloads-qb-seedbox:/mnt/storage/.downloads-qb-seedbox"
+        "/mnt/storage/.downloads:/mnt/storage/.downloads"
         "/mnt/storage/media-radarr:/mnt/storage/media-radarr"
         "/mnt/storage/media-sonarr:/mnt/storage/media-sonarr"
       ];

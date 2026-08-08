@@ -36,6 +36,19 @@ let
     "prowlarr"
     "podman-handbrake"
   ];
+  # These services are fully replaced by MoviePilot.  The units remain defined
+  # in their modules for rollback, but must not run alongside the new chain.
+  migratedServices = [
+    "sonarr"
+    "radarr"
+    "bazarr"
+    "prowlarr"
+    "decluttarr"
+    "prometheus-exportarr-sonarr-exporter"
+    "prometheus-exportarr-radarr-exporter"
+    "prometheus-exportarr-prowlarr-exporter"
+    "prometheus-exportarr-bazarr-exporter"
+  ];
 in
 {
   imports = [
@@ -60,6 +73,9 @@ in
   systemd.services = lib.mkMerge [
     (lib.genAttrs gatedServices (_: {
       unitConfig.ConditionPathExists = activationMarker;
+    }))
+    (lib.genAttrs migratedServices (_: {
+      enable = lib.mkForce false;
     }))
     (lib.genAttrs proxiedServices (_: {
       environment = proxyEnvironment;
