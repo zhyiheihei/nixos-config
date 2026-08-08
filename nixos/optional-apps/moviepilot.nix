@@ -23,6 +23,11 @@ in
       user = "zhyi";
       group = "users";
     };
+    systemd.tmpfiles.settings.moviepilot."${cfg.dataDir}/.cloakbrowser"."d" = {
+      mode = "0755";
+      user = "root";
+      group = "root";
+    };
 
     virtualisation.oci-containers.containers.moviepilot = {
       image = "docker.io/jxxghp/moviepilot-v2:latest";
