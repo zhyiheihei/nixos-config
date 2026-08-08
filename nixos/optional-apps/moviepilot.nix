@@ -9,16 +9,6 @@
 let
   cfg = config.lantian.moviepilot;
   moviepilotPkg = inputs.zhyi-packages.packages.${pkgs.system}.moviepilot;
-  proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
-  proxyEnvironment = {
-    HTTP_PROXY = proxy;
-    HTTPS_PROXY = proxy;
-    NO_PROXY = proxyBypass;
-    http_proxy = proxy;
-    https_proxy = proxy;
-    no_proxy = proxyBypass;
-  };
   moviepilotRunner = pkgs.writeShellScript "moviepilot-runner" ''
     set -u
     ${moviepilotPkg}/bin/moviepilot start --timeout 120 || exit 1
@@ -66,18 +56,16 @@ in
           cfg.dataDir
         ];
       };
-      environment =
-        proxyEnvironment
-        // {
-          HOME = cfg.dataDir;
-          CONFIG_DIR = cfg.dataDir;
-          TZ = config.time.timeZone;
-          PORT = LT.portStr.MoviePilot.Backend;
-          NGINX_PORT = LT.portStr.MoviePilot.Frontend;
-          MOVIEPILOT_AUTO_UPDATE = "false";
-          DB_TYPE = "sqlite";
-          CACHE_BACKEND_TYPE = "cachetools";
-        };
+      environment = {
+        HOME = cfg.dataDir;
+        CONFIG_DIR = cfg.dataDir;
+        TZ = config.time.timeZone;
+        PORT = LT.portStr.MoviePilot.Backend;
+        NGINX_PORT = LT.portStr.MoviePilot.Frontend;
+        MOVIEPILOT_AUTO_UPDATE = "false";
+        DB_TYPE = "sqlite";
+        CACHE_BACKEND_TYPE = "cachetools";
+      };
       path = [
         pkgs.curl
         pkgs.ffmpeg
