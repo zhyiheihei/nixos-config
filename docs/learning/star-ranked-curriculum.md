@@ -155,7 +155,7 @@
 | 123 | `vagrant-nixos-plugin` | 74 | 已学 | Vagrant 的 NixOS 插件 |
 | 124 | `setup.nix` | 64 | 已学 | Python 开发工具集（已归档） |
 | 125 | `kde2nix` | 63 | 已学 | KDE Plasma 预发布打包（已归档） |
-| 126 | `redoxpkgs` | 63 | 待学 | Redox OS 的 Nix 包 |
+| 126 | `redoxpkgs` | 63 | 已学 | Redox OS 的 Nix 包 |
 | 127 | `nixpkgs-terraform-providers-bin` | 60 | 待学 | Terraform providers 二进制包 |
 | 128 | `nix-jetbrains-plugins` | 56 | 待学 | JetBrains 插件下载 |
 | 129 | `patsh` | 56 | 待学 | shell 脚本 patch 工具 |
