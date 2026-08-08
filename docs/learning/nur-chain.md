@@ -6,7 +6,7 @@
   `repos.json.lock` 锁定 commit 与 sha256，`bin/nur` 负责 update/eval/index。
 - `nix-community/nur-packages-template`：个人 NUR 仓库模板，包含 CI。
 - `nix-community/nur-combined`：把所有 NUR 仓库表达式合并为
-  `repos/<用户名>`。
+  `repos/<用户名>`（详见 [`nur-combined 笔记`](./nur-combined.md)）。
 - `nix-community/nur-update`：`POST /update?repo=<name>` 通知 NUR 有新版本。
 - `nix-community/nur-search`：基于 nur-combined 生成
   `nur.nix-community.org` 搜索。
