@@ -89,6 +89,7 @@
 - [zon2nix Zig zon 依赖转 Nix](./zon2nix.md)
 - [nixt Nix 测试框架](./nixt.md)
 - [napalm npm 包构建](./napalm.md)
+- [nixpkgs.lib 轻量 nixpkgs lib](./nixpkgs.lib.md)
 
 ## 模块化 flake 框架
 
