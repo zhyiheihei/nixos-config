@@ -41,15 +41,14 @@
 | 34 | `rnix-lsp` | 710 | 部分 | 旧 Nix LSP（已归档） |
 | 35 | `nixos-facter` | 687 | 已学 | 硬件报告 |
 | 36 | `emacs-overlay` | 629 | 部分 | Emacs 每日 overlay |
-| 37 | `nixpkgs-wayland` | 619 | 待学 | Wayland 软件预构建 |
+| 37 | `nixpkgs-wayland` | 619 | 已学 | Wayland 软件预构建 |
 | 38 | `nix-index-database` | 606 | 待学 | nix-index 预生成数据库 |
 | 39 | `nixpkgs-update` | 606 | 已学 | nixpkgs 自动更新 |
 | 40 | `noogle` | 587 | 待学 | Nix 函数搜索引擎 |
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：
-
-1. `nixpkgs-wayland`
+按 star 从高到低，当前 star 前 40 的待学项已清零。继续学习时从第 41 名之后
+的仓库开始，或重新拉取组织仓库列表更新本表。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。

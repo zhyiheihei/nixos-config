@@ -31,6 +31,7 @@
 - [nix-bundle 单文件打包](./nix-bundle.md)
 - [vulnix CVE 扫描](./vulnix.md)
 - [robotnix AOSP 构建](./robotnix.md)
+- [nixpkgs-wayland 预构建](./nixpkgs-wayland.md)
 
 ## 模块化 flake 框架
 
