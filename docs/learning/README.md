@@ -100,6 +100,7 @@
 - [zephyr-nix Zephyr 开发环境](./zephyr-nix.md)
 - [nix-data-science 数据科学包集合](./nix-data-science.md)
 - [mineflake 声明式 Minecraft 服务器](./mineflake.md)
+- [nix-ts-mode Emacs 的 Nix 模式](./nix-ts-mode.md)
 
 ## 模块化 flake 框架
 

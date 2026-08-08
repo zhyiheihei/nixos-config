@@ -143,7 +143,7 @@
 | 116 | `zephyr-nix` | 86 | 已学 | Zephyr 开发环境 |
 | 117 | `nix-data-science` | 84 | 已学 | Nix 数据科学环境 |
 | 118 | `mineflake` | 80 | 已学 | 声明式 Minecraft 服务器 |
-| 119 | `nix-ts-mode` | 76 | 待学 | Nix 的 Emacs tree-sitter 模式 |
+| 119 | `nix-ts-mode` | 76 | 已学 | Nix 的 Emacs tree-sitter 模式 |
 | 120 | `flake-firefox-nightly` | 75 | 待学 | Firefox nightly flake |
 
 ## 下一批待学顺序
