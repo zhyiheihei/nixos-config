@@ -53,9 +53,6 @@ in
       HTTP_PROXY = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       HTTPS_PROXY = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       NO_PROXY = lib.mkForce proxyBypass;
-      # MoviePilot container talks to Jellyfin over HTTP; the Rockchip
-      # deployment normally exposes only the unix socket through Nginx.
-      JELLYFIN_kestrel__httpPort = lib.mkForce "8096";
       http_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       https_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       no_proxy = lib.mkForce proxyBypass;
@@ -72,6 +69,23 @@ in
     https_proxy = moviepilotProxy;
     no_proxy = proxyBypass;
   };
+
+  # MoviePilot container needs an HTTP-only Jellyfin API entry; the normal
+  # Jellyfin vhost only listens through the Rockchip unix socket.
+  lantian.nginxVhosts."jellyfin-api.rock5c.zhyi.cc" = {
+    listenHTTP.enable = true;
+    listenHTTPS.enable = false;
+    locations."/" = {
+      proxyPass = "http://unix:/run/jellyfin/socket";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
+    accessibleBy = "private";
+    noIndex.enable = true;
+  };
+  virtualisation.oci-containers.containers.moviepilot.extraOptions = [
+    "--add-host=jellyfin-api.rock5c.zhyi.cc:${LT.this.interconnect.IPv4}"
+  ];
 
   # Match the onboard GMAC by its permanent address so future driver or probe
   # ordering changes cannot silently move the static LAN configuration.
