@@ -109,7 +109,7 @@
 | 87 | `nixos-install-scripts` | 159 | 已学 | NixOS 安装脚本 |
 | 88 | `nur-packages-template` | 159 | 已学 | NUR 仓库模板 |
 | 89 | `bun2nix` | 157 | 已学 | Bun 依赖转 Nix |
-| 90 | `nix-github-actions` | 155 | 待学 | Nix 生成 GHA 矩阵 |
+| 90 | `nix-github-actions` | 155 | 已学 | Nix 生成 GHA 矩阵 |
 | 91 | `ethereum.nix` | 154 | 待学 | Ethereum 生态 Nix 包 |
 | 92 | `nixago` | 153 | 待学 | 配置生成工具 |
 | 93 | `nixhelm` | 152 | 待学 | Helm charts 的 Nix 集合 |
