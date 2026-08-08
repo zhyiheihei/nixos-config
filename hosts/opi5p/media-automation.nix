@@ -42,6 +42,7 @@ let
     "iyuuplus"
     "jproxy"
     "podman-byparr"
+    "podman-vertex"
   ];
   proxyEnvironment = lib.getAttrs [
     "HTTP_PROXY"
