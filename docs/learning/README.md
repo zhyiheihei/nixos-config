@@ -77,6 +77,7 @@
 - [nixhelm Helm charts 的 Nix 集合](./nixhelm.md)
 - [templates flake 模板集合](./templates.md)
 - [npmlock2nix npm lockfile 转 Nix](./npmlock2nix.md)
+- [nix4nvchad NvChad 的 Nix 安装](./nix4nvchad.md)
 
 ## 模块化 flake 框架
 
