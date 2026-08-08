@@ -113,7 +113,7 @@
 | 91 | `ethereum.nix` | 154 | 已学 | Ethereum 生态 Nix 包 |
 | 92 | `nixago` | 153 | 已学 | 配置生成工具 |
 | 93 | `nixhelm` | 152 | 已学 | Helm charts 的 Nix 集合 |
-| 94 | `templates` | 149 | 待学 | Nix flake 模板 |
+| 94 | `templates` | 149 | 已学 | Nix flake 模板 |
 | 95 | `npmlock2nix` | 148 | 待学 | npm lock 转 Nix |
 | 96 | `nix4nvchad` | 146 | 待学 | NvChad 的 Nix 安装 |
 | 97 | `namaka` | 145 | 待学 | Nix 快照测试 |

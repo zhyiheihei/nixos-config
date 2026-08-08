@@ -75,6 +75,7 @@
 - [ethereum.nix Ethereum 生态 Nix 包](./ethereum.nix.md)
 - [nixago Nix 生成配置文件](./nixago.md)
 - [nixhelm Helm charts 的 Nix 集合](./nixhelm.md)
+- [templates flake 模板集合](./templates.md)
 
 ## 模块化 flake 框架
 
