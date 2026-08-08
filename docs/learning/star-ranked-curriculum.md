@@ -106,7 +106,7 @@
 | 84 | `nixdoc` | 172 | 已学 | Nix 文档生成 |
 | 85 | `cache-nix-action` | 167 | 已学 | GitHub Actions 的 Nix store 缓存 |
 | 86 | `go-nix` | 161 | 已学 | Nix 的 Go 库 |
-| 87 | `nixos-install-scripts` | 159 | 待学 | NixOS 安装脚本 |
+| 87 | `nixos-install-scripts` | 159 | 已学 | NixOS 安装脚本 |
 | 88 | `nur-packages-template` | 159 | 待学 | NUR 仓库模板 |
 | 89 | `bun2nix` | 157 | 待学 | Bun 依赖转 Nix |
 | 90 | `nix-github-actions` | 155 | 待学 | Nix 生成 GHA 矩阵 |
