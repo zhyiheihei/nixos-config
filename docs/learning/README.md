@@ -45,6 +45,7 @@
 - [nix-vscode-extensions](./nix-vscode-extensions.md)
 - [nix-melt flake.lock 查看器](./nix-melt.md)
 - [gomod2nix Go 打包](./gomod2nix.md)
+- [nix-environments 共享开发环境](./nix-environments.md)
 
 ## 模块化 flake 框架
 
