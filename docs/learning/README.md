@@ -109,6 +109,7 @@
 - [kde2nix KDE 6 预发布打包（已归档）](./kde2nix.md)
 - [redoxpkgs Redox OS 交叉编译 overlay](./redoxpkgs.md)
 - [nixpkgs-terraform-providers-bin Terraform providers 二进制包](./nixpkgs-terraform-providers-bin.md)
+- [nix-jetbrains-plugins JetBrains 插件下载](./nix-jetbrains-plugins.md)
 
 ## 模块化 flake 框架
 
