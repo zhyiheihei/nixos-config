@@ -41,6 +41,7 @@
 - [neovim-nightly-overlay](./neovim-nightly-overlay.md)
 - [kickstart-nix.nvim](./kickstart-nix.nvim.md)
 - [nixos-images](./nixos-images.md)
+- [nixos-cli](./nixos-cli.md)
 
 ## 模块化 flake 框架
 
