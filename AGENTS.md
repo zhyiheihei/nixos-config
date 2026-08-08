@@ -189,10 +189,16 @@ Flake 入口文件，定义了：
 
 ## 补丁说明
 
-`patches/` 目录包含各种软件补丁：
+`patches/` 目录存放补丁，按引用方式分三类：
 
-- 根目录：通用软件补丁
-- `patches/nixpkgs/`：针对 Nixpkgs 的补丁
+| 补丁类型 | 位置 | 接入方式 |
+| --- | --- | --- |
+| 通用包/服务补丁 | `patches/<pkg>-<desc>.patch` | 由 `overlays/*.nix` 或 `nixos/*` 模块显式 `patches = (old.patches or [ ]) ++ [ ../../patches/<file>.patch ]` |
+| Nixpkgs 补丁 | `patches/nixpkgs/<PR 或描述>.patch` | `flake-modules/nixpkgs-options.nix` 对 `pkgs`/`pkgsWithCuda` 自动应用，不单独引用；Nixpkgs PR 用 `nix run .#add-pr <PR>` 拉取 |
+| 板级/内核补丁 | `nixos/hardware/<board>/` 或 `pkgs/<kernel>/` | 由对应硬件模块/内核包局部引用，不放进 `patches/` 根目录 |
+
+补丁必须保留引用链：`patches/` 根目录不留未被引用的 `.patch`，服务/包删除时
+同步删除对应补丁。新增后运行 `rg '<文件名>' . --glob '*.nix'` 确认已被引用。
 
 ## Flake 模块说明
 
@@ -248,6 +254,21 @@ Home Manager 配置：
 | `non-client-apps/` | 非客户端应用配置         |
 
 ## 操作指南
+
+### 快速放置决策
+
+| 要加的东西 | 放哪里 | 备注 |
+| --- | --- | --- |
+| 通用/角色 NixOS 模块 | `nixos/<role>-apps/`、`nixos/<role>-components/`、`nixos/minimal-modules/` | 自动导入；新模块默认禁用，提供 `options.lantian.<name>` |
+| 可选应用/硬件片段/定时任务 | `nixos/optional-apps/`、`nixos/hardware/`、`nixos/optional-cron-jobs/` | 主机配置手动 `imports` |
+| 主机专属覆盖/代理/vhost | `hosts/<host>/` | 不写进公共模块 |
+| 通用包/服务补丁 | `patches/<pkg>-<desc>.patch` | overlay 或 `nixos/` 模块显式引用 |
+| Nixpkgs 补丁 | `patches/nixpkgs/<PR>.patch` | `nixpkgs-options.nix` 自动应用 |
+| 板级内核补丁 | `nixos/hardware/<board>/` 或 `pkgs/<kernel>/` | 跟随使用方局部引用 |
+| 自定义 Nix 包 | `pkgs/<name>/` | 由 overlay 或 flake outputs 用 `callPackage` 引用 |
+| 包覆盖/换实现 | `overlays/<NN>-<desc>.nix` | 数字前缀决定执行顺序 |
+| 端口常量 | `helpers/constants/ports.nix` | 用 `LT.port.<Name>` 引用 |
+| DNS 记录 | `dns/domains/` | 通过 DNSControl 发布 |
 
 ### 新增 Flake 输入
 
@@ -322,10 +343,18 @@ nix flake lock --update-input input-name
 | 可上游化模块 | `nixos/minimal-modules/`  | minimal, server, client |
 | 服务器组件 | `nixos/server-components/`  | server                  |
 | 客户端组件 | `nixos/client-components/`  | client                  |
+| Proxmox VE 组件 | `nixos/pve-components/` | pve |
+| 可选应用 | `nixos/optional-apps/` | 需主机手动导入 |
+| 硬件配置片段 | `nixos/hardware/` | 需主机手动导入 |
+| 可选定时任务 | `nixos/optional-cron-jobs/` | 需主机手动导入 |
 
 #### 步骤 2：创建模块文件
 
-在对应目录下创建 `.nix` 文件。模块会自动被配置类型导入，无需手动注册。
+在对应目录下创建 `.nix` 文件。`minimal-apps/`、`common-apps/`、`server-apps/`、
+`client-apps/`、`minimal-components/`、`minimal-modules/`、`server-components/`、
+`client-components/`、`pve-components/` 会被对应配置类型自动导入；
+`optional-apps/`、`hardware/`、`optional-cron-jobs/` 不会被自动导入，需在主机
+`configuration.nix` 的 `imports` 中手动引入。
 
 自动导入机制：各配置文件（[`minimal.nix`](nixos/minimal.nix)、[`server.nix`](nixos/server.nix)、
 [`client.nix`](nixos/client.nix)、[`pve.nix`](nixos/pve.nix)）使用 `builtins.readDir` 自动加载

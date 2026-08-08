@@ -76,7 +76,33 @@ rg -n 'io.containers.autoupdate' nixos/optional-apps/ --glob '*.nix'
 
 审计结果出现违规时，先修位置和归属，再提交。
 
-## 8. 每次修改前
+## 8. 补丁放哪里
+
+- 通用包/服务补丁放 `patches/<包名>-<改动简述>.patch`，由 `overlays/*.nix`
+  或对应 `nixos/` 模块显式引用：
+  `patches = (old.patches or [ ]) ++ [ ../../patches/<文件名>.patch ]`。
+- Nixpkgs 补丁放 `patches/nixpkgs/<PR 号或改动简述>.patch`。
+  `flake-modules/nixpkgs-options.nix` 对 `pkgs` 与 `pkgsWithCuda` 自动应用
+  `patches/nixpkgs/` 全部补丁，不要再用 overlay 重复引用；新增 Nixpkgs PR 用
+  `nix run .#add-pr <PR号>`。
+- 板级/内核专属补丁跟随使用方：`nixos/hardware/<board>/` 或
+  `pkgs/<kernel-package>/`，由对应模块/包局部引用，不放进 `patches/` 根目录。
+- 禁止无引用补丁：删除服务/包时同步删除对应补丁。`patches/` 根目录出现未被
+  `.nix` 文件引用的 `.patch` 即视为放置错误。
+- 公共 `nixos/` 模块不得引用 `hosts/` 路径。
+
+审计命令：
+
+```bash
+# patches/ 根目录补丁必须被 nix 文件引用
+for f in patches/*.patch; do
+  rg -q "$(basename "$f")" --glob '*.nix' . || echo "未引用: $f"
+done
+# 公共模块不得引用 host 路径
+rg -n '\.\./\.\./hosts/' nixos/ --glob '*.nix'
+```
+
+## 9. 每次修改前
 
 1. 先读 [`module-placement-norms.md`](./module-placement-norms.md) 和
    [`work-norms.md`](./work-norms.md) 的对应章节。
@@ -84,4 +110,4 @@ rg -n 'io.containers.autoupdate' nixos/optional-apps/ --glob '*.nix'
 3. 新增 vhost 按角色放到 `hosts/<host>/<role>-edge.nix`，不在
    `configuration.nix` 堆补丁。
 4. 不把主机专属补丁写进公共 `nixos/` 模块。
-5. 提交前复跑第 7 节审计命令，并在提交信息里说明改动位置和原因。
+5. 提交前复跑第 7 节和第 8 节审计命令，并在提交信息里说明改动位置和原因。
