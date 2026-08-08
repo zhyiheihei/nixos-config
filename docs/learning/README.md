@@ -35,6 +35,7 @@
 - [harmonia 二进制缓存](./harmonia.md)
 - [nixos-vscode-server](./nixos-vscode-server.md)
 - [NixNG 轻量发行版](./NixNG.md)
+- [nix-user-chroot 无 root 运行](./nix-user-chroot.md)
 
 ## 模块化 flake 框架
 
