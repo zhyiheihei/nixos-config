@@ -177,7 +177,7 @@
 | ---: | --- | ---: | --- | --- |
 | 141 | `flake-nimble` | 38 | 已学 | Nimble 包的 Nix flake |
 | 142 | `nixops-libvirtd` | 38 | 已学 | NixOps libvirtd 后端 |
-| 143 | `docker-nix` | 37 | 待学 | Nix 的 Docker 镜像（已归档） |
+| 143 | `docker-nix` | 37 | 已学 | Nix 的 Docker 镜像（已归档） |
 | 144 | `sigtool` | 35 | 待学 | Nix 签名工具 |
 | 145 | `rustowl-flake` | 33 | 待学 | RustOwl 相关 flake |
 | 146 | `nixos-landscape` | 33 | 待学 | NixOS 生态全景图 |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`docker-nix`（#143，37 star）。
+按 star 从高到低，当前待学：`sigtool`（#144，35 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
