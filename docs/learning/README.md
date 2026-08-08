@@ -110,6 +110,7 @@
 - [redoxpkgs Redox OS 交叉编译 overlay](./redoxpkgs.md)
 - [nixpkgs-terraform-providers-bin Terraform providers 二进制包](./nixpkgs-terraform-providers-bin.md)
 - [nix-jetbrains-plugins JetBrains 插件下载](./nix-jetbrains-plugins.md)
+- [patsh shell 脚本 patch 工具](./patsh.md)
 
 ## 模块化 flake 框架
 

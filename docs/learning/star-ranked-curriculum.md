@@ -158,7 +158,7 @@
 | 126 | `redoxpkgs` | 63 | 已学 | Redox OS 的 Nix 包 |
 | 127 | `nixpkgs-terraform-providers-bin` | 60 | 已学 | Terraform providers 二进制包 |
 | 128 | `nix-jetbrains-plugins` | 56 | 已学 | JetBrains 插件下载 |
-| 129 | `patsh` | 56 | 待学 | shell 脚本 patch 工具 |
+| 129 | `patsh` | 56 | 已学 | shell 脚本 patch 工具 |
 | 130 | `browser-previews` | 55 | 待学 | Chrome Beta/Dev 包 |
 | 131 | `disko-templates` | 54 | 待学 | disko 最佳实践模板 |
 | 132 | `autofirma-nix` | 54 | 待学 | autofirma 的 Nix 模块 |
