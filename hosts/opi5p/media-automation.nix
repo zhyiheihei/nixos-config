@@ -87,14 +87,18 @@ in
       };
     }
   ];
-  systemd.timers = lib.genAttrs [
-    "flexget-runner"
-    "qbittorrent-pt-cleanup"
-  ] (_: {
-    partOf = [ "media-automation.target" ];
-    unitConfig.ConditionPathExists = activationMarker;
-  });
-  systemd.timers.flexget-runner.enable = lib.mkForce false;
+  systemd.timers = lib.mkMerge [
+    (lib.genAttrs [
+      "flexget-runner"
+      "qbittorrent-pt-cleanup"
+    ] (_: {
+      partOf = [ "media-automation.target" ];
+      unitConfig.ConditionPathExists = activationMarker;
+    }))
+    {
+      flexget-runner.enable = lib.mkForce false;
+    }
+  ];
 
   systemd.targets.media-automation = {
     description = "OPI5P media download and automation stack";
