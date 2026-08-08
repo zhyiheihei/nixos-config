@@ -123,6 +123,7 @@
 - [nixpkgs-swh Software Heritage 归档](./nixpkgs-swh.md)
 - [talon-nix Talon Voice 自动打包](./talon-nix.md)
 - [flake-nimble Nimble 包的 Nix flake](./flake-nimble.md)
+- [nixops-libvirtd NixOps libvirtd 后端](./nixops-libvirtd.md)
 
 ## 模块化 flake 框架
 
