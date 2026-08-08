@@ -124,6 +124,7 @@
 - [talon-nix Talon Voice 自动打包](./talon-nix.md)
 - [flake-nimble Nimble 包的 Nix flake](./flake-nimble.md)
 - [nixops-libvirtd NixOps libvirtd 后端](./nixops-libvirtd.md)
+- [docker-nix Nix 的 Docker 镜像（已归档）](./docker-nix.md)
 
 ## 模块化 flake 框架
 
