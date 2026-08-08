@@ -153,7 +153,7 @@
 | 121 | `nix-snapd` | 74 | 已学 | Snap 包的 NixOS 适配 |
 | 122 | `steam-fetcher` | 74 | 已学 | Steam 应用的 Nix fetcher |
 | 123 | `vagrant-nixos-plugin` | 74 | 已学 | Vagrant 的 NixOS 插件 |
-| 124 | `setup.nix` | 64 | 部分 | 旧式 Nix 配置工具（已归档） |
+| 124 | `setup.nix` | 64 | 已学 | Python 开发工具集（已归档） |
 | 125 | `kde2nix` | 63 | 部分 | KDE Plasma 预发布打包（已归档） |
 | 126 | `redoxpkgs` | 63 | 待学 | Redox OS 的 Nix 包 |
 | 127 | `nixpkgs-terraform-providers-bin` | 60 | 待学 | Terraform providers 二进制包 |
