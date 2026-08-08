@@ -21,7 +21,9 @@
 - 存储路径：模块 `options` 提供默认值，主机按需覆盖。
 - 端口：统一登记在 `helpers/constants/ports.nix`。
 - Nginx vhost：通用模块内可用 `config.networking.hostName` 派生；主机专属
-  入口放主机配置。
+  入口放 `hosts/<host>/<role>-edge.nix`（例如 rock5c 的 `media-edge.nix`），
+  不要塞进 `configuration.nix`。
+- 容器专属参数（如 `extraOptions`、`add-host`）放主机配置，不写进公共容器模块。
 - 参数位置按职责归属，不按“能跑就行”摆放。
 
 ## 3. 代理规则
@@ -73,3 +75,13 @@ rg -n 'io.containers.autoupdate' nixos/optional-apps/ --glob '*.nix'
 ```
 
 审计结果出现违规时，先修位置和归属，再提交。
+
+## 8. 每次修改前
+
+1. 先读 [`module-placement-norms.md`](./module-placement-norms.md) 和
+   [`work-norms.md`](./work-norms.md) 的对应章节。
+2. 判断改动属于公共模块、主机配置还是主机边缘 vhost，再决定文件位置。
+3. 新增 vhost 按角色放到 `hosts/<host>/<role>-edge.nix`，不在
+   `configuration.nix` 堆补丁。
+4. 不把主机专属补丁写进公共 `nixos/` 模块。
+5. 提交前复跑第 7 节审计命令，并在提交信息里说明改动位置和原因。
