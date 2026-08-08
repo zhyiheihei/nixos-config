@@ -111,7 +111,7 @@
 | 89 | `bun2nix` | 157 | 已学 | Bun 依赖转 Nix |
 | 90 | `nix-github-actions` | 155 | 已学 | Nix 生成 GHA 矩阵 |
 | 91 | `ethereum.nix` | 154 | 已学 | Ethereum 生态 Nix 包 |
-| 92 | `nixago` | 153 | 待学 | 配置生成工具 |
+| 92 | `nixago` | 153 | 已学 | 配置生成工具 |
 | 93 | `nixhelm` | 152 | 待学 | Helm charts 的 Nix 集合 |
 | 94 | `templates` | 149 | 待学 | Nix flake 模板 |
 | 95 | `npmlock2nix` | 148 | 待学 | npm lock 转 Nix |
