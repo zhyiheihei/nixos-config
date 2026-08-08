@@ -146,6 +146,31 @@
 | 119 | `nix-ts-mode` | 76 | 已学 | Nix 的 Emacs tree-sitter 模式 |
 | 120 | `flake-firefox-nightly` | 75 | 已学 | Firefox nightly flake |
 
+## 第 121-140 名
+
+| # | 仓库 | Star | 状态 | 一句话 |
+| ---: | --- | ---: | --- | --- |
+| 121 | `nix-snapd` | 74 | 已学 | Snap 包的 NixOS 适配 |
+| 122 | `steam-fetcher` | 74 | 待学 | Steam 应用的 Nix fetcher |
+| 123 | `vagrant-nixos-plugin` | 74 | 待学 | Vagrant 的 NixOS 插件 |
+| 124 | `setup.nix` | 64 | 部分 | 旧式 Nix 配置工具（已归档） |
+| 125 | `kde2nix` | 63 | 部分 | KDE Plasma 预发布打包（已归档） |
+| 126 | `redoxpkgs` | 63 | 待学 | Redox OS 的 Nix 包 |
+| 127 | `nixpkgs-terraform-providers-bin` | 60 | 待学 | Terraform providers 二进制包 |
+| 128 | `nix-jetbrains-plugins` | 56 | 待学 | JetBrains 插件下载 |
+| 129 | `patsh` | 56 | 待学 | shell 脚本 patch 工具 |
+| 130 | `browser-previews` | 55 | 待学 | Chrome Beta/Dev 包 |
+| 131 | `disko-templates` | 54 | 待学 | disko 最佳实践模板 |
+| 132 | `autofirma-nix` | 54 | 待学 | autofirma 的 Nix 模块 |
+| 133 | `lila` | 52 | 待学 | Nix hash 收集工具 |
+| 134 | `builtwithnix.org` | 51 | 待学 | builtwithnix 网站 |
+| 135 | `mavenix` | 50 | 待学 | Maven 依赖转 Nix |
+| 136 | `nixpkgs-pytools` | 49 | 待学 | Python 工具集合 |
+| 137 | `nixos-avf-image-app` | 45 | 待学 | AVF 安装配套 App |
+| 138 | `nur-search` | 44 | 待学 | NUR 搜索站点 |
+| 139 | `nixpkgs-swh` | 39 | 待学 | Software Heritage 集成 |
+| 140 | `talon-nix` | 38 | 待学 | Talon Voice 自动打包 |
+
 ## 下一批待学顺序
 
 按 star 从高到低，当前待学：
