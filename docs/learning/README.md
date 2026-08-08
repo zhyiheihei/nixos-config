@@ -60,6 +60,7 @@
 - [pypi2nix Python 包生成（已归档）](./pypi2nix.md)
 - [bundix Ruby Gemfile 转 Nix](./bundix.md)
 - [todomvc-nix 全栈教学示例](./todomvc-nix.md)
+- [nixos-facter-modules 硬件检测模块](./nixos-facter-modules.md)
 
 ## 模块化 flake 框架
 
