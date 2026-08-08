@@ -30,6 +30,7 @@
 - [lorri 项目环境守护](./lorri.md)
 - [nix-bundle 单文件打包](./nix-bundle.md)
 - [vulnix CVE 扫描](./vulnix.md)
+- [robotnix AOSP 构建](./robotnix.md)
 
 ## 模块化 flake 框架
 
