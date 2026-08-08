@@ -188,7 +188,7 @@
 | 151 | `docnix` | 25 | 已学 | Nix 参考文档站（已归档） |
 | 152 | `darwin-build-box` | 25 | 已学 | 社区 Darwin 构建机 |
 | 153 | `nixops-gce` | 25 | 已学 | NixOps GCE 后端 |
-| 154 | `hardware-mnt-reform` | 24 | 待学 | MNT Reform 笔记本适配 |
+| 154 | `hardware-mnt-reform` | 24 | 已学 | MNT Reform 笔记本适配 |
 | 155 | `hpe-ltfs` | 24 | 待学 | HPE LTFS 源码镜像 |
 | 156 | `nixops-vbox` | 24 | 待学 | NixOps VirtualBox 后端 |
 | 157 | `nixos-cli-archive` | 22 | 待学 | 实验性 nixos-rebuild 替代品 |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`hardware-mnt-reform`（#154，24 star）。
+按 star 从高到低，当前待学：`hpe-ltfs`（#155，24 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。

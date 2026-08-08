@@ -135,6 +135,7 @@
 - [docnix Nix 参考文档站（已归档）](./docnix.md)
 - [darwin-build-box 社区 Darwin 构建机（已归档）](./darwin-build-box.md)
 - [nixops-gce NixOps GCE 后端](./nixops-gce.md)
+- [hardware-mnt-reform MNT Reform 笔记本适配](./hardware-mnt-reform.md)
 
 ## 模块化 flake 框架
 
