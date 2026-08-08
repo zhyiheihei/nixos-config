@@ -46,18 +46,13 @@ curl -sS "http://127.0.0.1:9090/api/v1/query" --data-urlencode 'query=<指标>' 
 - **面板**：Grafana 各面板非空（「设备性能」「链路速率」「各接口实时吞吐」等），注意 panel 的 refId 不能重复（Grafana 13+）
 
 ### 2. 下载链路（router）与媒体应用（rock5c）
-- **入口**：router 上 qbittorrent{,-pt,-seedbox} 与 qbittorrent-pt-cleanup；
-  opi5p 上 bitmagnet / iyuuplus / jproxy / peerbanhelper / byparr / tachidesk /
-  vertex，以及 rock5c 上 sonarr / radarr /
-  prowlarr / bazarr / jellyfin / decluttarr / handbrake 均 running（仅入口）
+- **入口**：router 上 qbittorrent 单实例；opi5p 上 bitmagnet /
+  peerbanhelper / tachidesk，以及 rock5c 上 moviepilot / jellyfin / handbrake
+  均 running（仅入口）
 - **日志（重点）**：
-  - **sonarr/radarr/prowlarr**：`grep -iE "429|TooManyRequests|Indexer is disabled|Download failed|SSL"` → PT 索引器限流（MTeamTp 等），反复 429 会禁用索引器影响下载成功率；对策：prowlarr 调低该索引器抓取频率
-  - **radarr**：`Connection refused (pt.router.zhyi.cc:443)` → qbittorrent-pt WebUI 瞬时不可达，注意频率
-  - **bazarr**：`Run time of job "Sync with Sonarr/Radarr" exceeded` → 媒体库大导致同步超时（🟡）
-  - **decluttarr pre-start**：curl 7878 失败 = 启动顺序（radarr 未就绪，🟢）；`Removing failed downloads` 是正常清理
+  - **moviepilot**：`无法获取下载地址` / `触发站点流控` → 站点限流或索引异常；`没有找到可整理的媒体文件` → 确认下载路径为 `/mnt/storage/downloads` 且非隐藏目录
   - **jellyfin**：WS 断开/请求取消 = 客户端行为（🟢）
-  - **prowlarr**：`Missing translation resource` = Nix 打包缺本地化文件（🟢 噪音）
-- **监控指标**：`radarr_movie_downloaded_total`、`prowlarr_indexer_failed_grabs_total`（失败是否增长）、`prowlarr_indexer_unavailable`、`bazarr_subtitles_downloaded_total`、`sonarr_*`
+- **监控指标**：MoviePilot 日志中的订阅搜索/下载/整理成功率；qBittorrent 任务数、上传/下载速度；SubtitleAssistant 源状态
 - **数据流转**：`ls /mnt/storage/downloads`（有新下载）、`df -h /mnt/storage`（NAS 挂载健康，<90%）、Jellyfin 媒体库可播放
 
 ### 3. 家庭网络 / 边缘链路（rock5c）

@@ -74,7 +74,7 @@ flowchart LR
 | `colocrossing` | 公网、DN42、协作与监控中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Prometheus、Grafana、ClickHouse、ZeroTier Controller 等 | 运行；OpenVPN 失败，系统 degraded |
 | `usvm` | 公网、`cn-accel` | server 公共基线、V2Ray、Filebeat；声明中的日志汇聚后端当前不存在 | 运行；OpenVPN 失败，系统 degraded |
 | `opi5p` | server、原生 ARM 回退 builder | 数据库、家庭应用、下载自动化、NCPS、文件服务、打印、ClamAV、reDroid | 运行，0 failed units |
-| `rock5c` | server、家庭边缘 | 家庭 Nginx 入口、MetaCubeXD、Homepage、主 UniAPI、FastAPI-DLS、GLAuth、vlmcsd、媒体应用（Sonarr/Radarr/Bazarr/Prowlarr/Jellyfin/HandBrake）、reDroid | 运行，0 failed units |
+| `rock5c` | server、家庭边缘 | 家庭 Nginx 入口、MetaCubeXD、Homepage、主 UniAPI、FastAPI-DLS、GLAuth、vlmcsd、媒体应用（MoviePilot/Jellyfin/HandBrake）、reDroid | 运行，0 failed units |
 | `lubancat1` | `low-ram` server | BIRD、WG/WSS、Yggdrasil、ZeroTier、CoreDNS、Nginx、exporters、Bluetooth | 运行，0 failed units；尚未迁入用户应用 |
 | `h28k` | 预部署异地 Router | DHCP、CoreDNS、NAT/防火墙、zram | 不可达；SSH/SOPS/ZeroTier 身份未完成 |
 | `opi03` | 实验性 ARM 板卡 | H618 reDroid；以 `.image-ready` marker 阻止缺镜像时启动 | 无正式地址，未验证；相关配置仍在开发中 |
@@ -165,16 +165,14 @@ ml-builder 与 OPI5P。这违反有向无环约束，说明排除 PVE 的新代�
 - 家庭应用（opi5p）：Immich、Memos、Home Assistant、ArchiveBox、FileCodeBox、
   SunPanel、SearXNG、Calibre COPS；RSS 阅读链为 colocrossing 的 Miniflux/RSSHub，
   ArchiveBox 承担无法订阅站点的归档；
-- 下载链路（router）：qBittorrent 三实例与 qbittorrent-pt-cleanup；
-- 下载消费方（opi5p）：Bitmagnet、IYUUPlus、PeerBanHelper、jproxy、FlexGet、
-  Vertex、Byparr、Tachidesk；
-- 媒体应用（rock5c）：Sonarr、Radarr、Bazarr、Prowlarr、Jellyfin、HandBrake、
-  Decluttarr；
+- 下载链路（router）：qBittorrent 单实例；
+- 下载消费方（opi5p）：Bitmagnet、PeerBanHelper、Tachidesk；
+- 媒体应用（rock5c）：MoviePilot、Jellyfin、HandBrake；
 - 文件与设备（opi5p）：NCPS、Syncthing、SFTP、WebDAV、Samba、NFS/QNAP mount、
   VaultS3 代理、CUPS、Avahi、ClamAV。
 
-2026-08-05 起 ROCK 5C 承载媒体应用属于用户确认的偏离：媒体文件仍在 NAS 上由
-router、opi5p、rock5c 三机直接 NFS 挂载；Sonarr/Radarr 写 `.nfo` 元数据，Jellyfin 保持只读。NAR、S3
+媒体文件仍在 NAS 上由 router、opi5p、rock5c 三机直接 NFS 挂载；MoviePilot
+写 `.nfo` 元数据，Jellyfin 保持只读。NAR、S3
 与 NAS 大流量仍不经 ROCK 5C 中转。
 
 PVE 保留不提供 ARM64 镜像的 ArchiveTeam、ClawEmail 和 Epic Awesome Gamer。
