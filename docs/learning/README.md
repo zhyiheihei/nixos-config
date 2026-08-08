@@ -66,6 +66,7 @@
 - [hydra-check Hydra 构建状态](./hydra-check.md)
 - [infra 组织自运维仓库](./infra.md)
 - [nixdoc Nix 文档生成](./nixdoc.md)
+- [cache-nix-action CI 缓存](./cache-nix-action.md)
 
 ## 模块化 flake 框架
 
