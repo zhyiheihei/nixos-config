@@ -36,7 +36,7 @@
 | 29 | `lorri` | 868 | 已学 | 项目 nix-env 守护 |
 | 30 | `nix-bundle` | 852 | 已学 | 把 derivation 打包运行 |
 | 31 | `vulnix` | 817 | 已学 | Nix 包 CVE 扫描 |
-| 32 | `robotnix` | 797 | 待学 | 用 Nix 构建 AOSP |
+| 32 | `robotnix` | 797 | 已学 | 用 Nix 构建 AOSP |
 | 33 | `nurl` | 768 | 已学 | URL 生成 fetcher |
 | 34 | `rnix-lsp` | 710 | 部分 | 旧 Nix LSP（已归档） |
 | 35 | `nixos-facter` | 687 | 已学 | 硬件报告 |
@@ -50,7 +50,6 @@
 
 按 star 从高到低，当前待学：
 
-1. `robotnix`
-2. `nixpkgs-wayland`
+1. `nixpkgs-wayland`
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
