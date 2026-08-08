@@ -55,6 +55,7 @@
 - [pip2nix Python pip 转 Nix](./pip2nix.md)
 - [nix-on-droid-app Android 终端 App](./nix-on-droid-app.md)
 - [tree-sitter-nix Nix 语法](./tree-sitter-nix.md)
+- [nur-combined NUR 合并仓库](./nur-combined.md)
 
 ## 模块化 flake 框架
 
