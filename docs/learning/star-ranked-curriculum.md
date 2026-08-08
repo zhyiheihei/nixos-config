@@ -175,7 +175,7 @@
 
 | # | 仓库 | Star | 状态 | 一句话 |
 | ---: | --- | ---: | --- | --- |
-| 141 | `flake-nimble` | 38 | 待学 | Nimble 包的 Nix flake |
+| 141 | `flake-nimble` | 38 | 已学 | Nimble 包的 Nix flake |
 | 142 | `nixops-libvirtd` | 38 | 待学 | NixOps libvirtd 后端 |
 | 143 | `docker-nix` | 37 | 待学 | Nix 的 Docker 镜像（已归档） |
 | 144 | `sigtool` | 35 | 待学 | Nix 签名工具 |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`flake-nimble`（#141，38 star）。
+按 star 从高到低，当前待学：`nixops-libvirtd`（#142，38 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
