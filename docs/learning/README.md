@@ -88,6 +88,7 @@
 - [yarn2nix yarn lockfile 转 Nix（已归档）](./yarn2nix.md)
 - [zon2nix Zig zon 依赖转 Nix](./zon2nix.md)
 - [nixt Nix 测试框架](./nixt.md)
+- [napalm npm 包构建](./napalm.md)
 
 ## 模块化 flake 框架
 
