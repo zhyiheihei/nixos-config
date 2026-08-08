@@ -98,6 +98,7 @@
 - [pnpm2nix pnpm lockfile 转 Nix](./pnpm2nix.md)
 - [vgo2nix Go modules 转 Nix（已归档）](./vgo2nix.md)
 - [zephyr-nix Zephyr 开发环境](./zephyr-nix.md)
+- [nix-data-science 数据科学包集合](./nix-data-science.md)
 
 ## 模块化 flake 框架
 
