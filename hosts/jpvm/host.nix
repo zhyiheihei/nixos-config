@@ -12,6 +12,8 @@
     server
     cn-accel
   ];
+  # Traffic quota exhausted; keep out of @default deployments until restored.
+  manualDeploy = true;
   cpuThreads = 1;
   hostname = "36.50.85.113";
   city = geo.cities."JP Tokyo";
