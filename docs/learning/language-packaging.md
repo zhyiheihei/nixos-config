@@ -111,7 +111,9 @@
 ### Go
 
 `sun-panel`、`docker-proxy` 使用 nixpkgs 的 `buildGoModule` + `vendorHash`，
-这是 nixpkgs 标准路线，nix-community 没有对应的必要替代品。
+nix-community 侧的对应方案是 `gomod2nix`（生成 `gomod2nix.toml`，每个
+依赖单独 NAR hash 并可共享），详见 [`gomod2nix 笔记`](./gomod2nix.md)。
+当前包少，`buildGoModule` 仍然是最省事的路线。
 
 ## 4. 结论
 

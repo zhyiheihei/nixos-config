@@ -44,6 +44,7 @@
 - [nixos-cli](./nixos-cli.md)
 - [nix-vscode-extensions](./nix-vscode-extensions.md)
 - [nix-melt flake.lock 查看器](./nix-melt.md)
+- [gomod2nix Go 打包](./gomod2nix.md)
 
 ## 模块化 flake 框架
 
