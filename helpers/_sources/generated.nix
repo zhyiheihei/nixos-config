@@ -72,11 +72,11 @@
   };
   dn42-peerfinder-client = {
     pname = "dn42-peerfinder-client";
-    version = "1.0.6";
+    version = "1.2.0";
     src = fetchurl {
-      url = "https://peerfinder.dn42.dev/agent/peerfinder-agent.py?ver=1.0.6";
+      url = "https://peerfinder.dn42.dev/agent/peerfinder-agent.py?ver=1.2.0";
       name = "peerfinder-agent.py";
-      sha256 = "sha256-BQqbTJGkYMFZYV9G/VnvP2Ma8QVbo5CGJqs2WhYUJjo=";
+      sha256 = "sha256-nL4sIU3EQmKiTyGV+ljk4erz7ihYTsWkO0WlCzeKVV4=";
     };
   };
   dnscontrol-xddxdd = {
@@ -101,10 +101,10 @@
   };
   grafana-yesoreyeram-infinity-datasource = {
     pname = "grafana-yesoreyeram-infinity-datasource";
-    version = "3.11.1";
+    version = "3.11.2";
     src = fetchurl {
-      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v3.11.1/yesoreyeram-infinity-datasource-3.11.1.zip";
-      sha256 = "sha256-r8JdbT3NqogPkw/6Qsut5aSjk3809n/qbj8bLVEdKW0=";
+      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v3.11.2/yesoreyeram-infinity-datasource-3.11.2.zip";
+      sha256 = "sha256-tjx2E0pKbF2I0UPBIWZ0H5ejKHsuYbuW8tDB1hy3vpo=";
     };
   };
   lobe-icons = {
@@ -185,15 +185,15 @@
   };
   nvidia-patch = {
     pname = "nvidia-patch";
-    version = "5e81f93e79cabd3921ddf451f57026a97fabe2cc";
+    version = "2c3adf1ed8c89e40748ecc2681d2a1c1ae90494f";
     src = fetchFromGitHub {
       owner = "keylase";
       repo = "nvidia-patch";
-      rev = "5e81f93e79cabd3921ddf451f57026a97fabe2cc";
+      rev = "2c3adf1ed8c89e40748ecc2681d2a1c1ae90494f";
       fetchSubmodules = false;
-      sha256 = "sha256-TO3bv9Em/KB2sVpEgk6b2xyLlv8BJ36FQ8DVW4UhxT8=";
+      sha256 = "sha256-doHm+3nttIY3H7S6K0Ucl0W9zzgdOT41CpmKgwy6FQQ=";
     };
-    date = "2026-07-29";
+    date = "2026-08-06";
   };
   open5gs = {
     pname = "open5gs";
@@ -256,15 +256,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "8661aac00ad9caf09aac9f8ebe614ad1c35632bc";
+    version = "39e51141e669cf7d4db8c927c3f44ff9f487eb58";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "8661aac00ad9caf09aac9f8ebe614ad1c35632bc";
+      rev = "39e51141e669cf7d4db8c927c3f44ff9f487eb58";
       fetchSubmodules = false;
-      sha256 = "sha256-dFqcTVAT7sBlbUtCqUtj1uLbBLLOhk0Gt0bPTJVjEyc=";
+      sha256 = "sha256-BMlVQC889inBymyXjeBzVBfwmybSMwQqQkxKIDqz6Go=";
     };
-    date = "2026-06-22";
+    date = "2026-08-03";
   };
   ulauncher-albert-calculate-anything = {
     pname = "ulauncher-albert-calculate-anything";
