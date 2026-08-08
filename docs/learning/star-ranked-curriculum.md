@@ -101,7 +101,7 @@
 | # | 仓库 | Star | 状态 | 一句话 |
 | ---: | --- | ---: | --- | --- |
 | 81 | `nixpkgs-lint` | 175 | 已学 | Nix 语义 linter |
-| 82 | `hydra-check` | 175 | 待学 | 检查 Hydra 构建状态 |
+| 82 | `hydra-check` | 175 | 已学 | 检查 Hydra 构建状态 |
 | 83 | `infra` | 175 | 待学 | nix-community 自运维基础设施 |
 | 84 | `nixdoc` | 172 | 待学 | Nix 文档生成 |
 | 85 | `cache-nix-action` | 167 | 待学 | GitHub Actions 的 Nix store 缓存 |

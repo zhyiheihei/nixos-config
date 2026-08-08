@@ -63,6 +63,7 @@
 - [nixos-facter-modules 硬件检测模块](./nixos-facter-modules.md)
 - [authentik-nix IdP 部署 flake](./authentik-nix.md)
 - [nixpkgs-lint 语义 linter](./nixpkgs-lint.md)
+- [hydra-check Hydra 构建状态](./hydra-check.md)
 
 ## 模块化 flake 框架
 
