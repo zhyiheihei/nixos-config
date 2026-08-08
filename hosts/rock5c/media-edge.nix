@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   LT,
   ...
@@ -77,6 +78,19 @@ in
           proxyNoTimeout = true;
         };
         accessibleBy = "localhost";
+        noIndex.enable = true;
+      };
+      # MoviePilot container needs an HTTP-only Jellyfin API entry; the normal
+      # Jellyfin vhost only listens through the Rockchip unix socket.
+      "jellyfin-api.${config.networking.hostName}.zhyi.cc" = {
+        listenHTTP.enable = true;
+        listenHTTPS.enable = false;
+        locations."/" = {
+          proxyPass = "http://unix:/run/jellyfin/socket";
+          proxyWebsockets = true;
+          proxyNoTimeout = true;
+        };
+        accessibleBy = "private";
         noIndex.enable = true;
       };
     };

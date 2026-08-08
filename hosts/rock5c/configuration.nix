@@ -70,19 +70,6 @@ in
     no_proxy = proxyBypass;
   };
 
-  # MoviePilot container needs an HTTP-only Jellyfin API entry; the normal
-  # Jellyfin vhost only listens through the Rockchip unix socket.
-  lantian.nginxVhosts."jellyfin-api.rock5c.zhyi.cc" = {
-    listenHTTP.enable = true;
-    listenHTTPS.enable = false;
-    locations."/" = {
-      proxyPass = "http://unix:/run/jellyfin/socket";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-    };
-    accessibleBy = "private";
-    noIndex.enable = true;
-  };
   virtualisation.oci-containers.containers.moviepilot.extraOptions = [
     "--add-host=jellyfin-api.rock5c.zhyi.cc:${LT.this.interconnect.IPv4}"
   ];
