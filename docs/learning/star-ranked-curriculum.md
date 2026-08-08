@@ -96,6 +96,31 @@
 | 79 | `nixos-facter-modules` | 179 | 已学 | facter 配套 NixOS 模块（已归档） |
 | 80 | `authentik-nix` | 178 | 已学 | authentik 的 Nix flake |
 
+## 第 81-100 名
+
+| # | 仓库 | Star | 状态 | 一句话 |
+| ---: | --- | ---: | --- | --- |
+| 81 | `nixpkgs-lint` | 175 | 已学 | Nix 语义 linter |
+| 82 | `hydra-check` | 175 | 待学 | 检查 Hydra 构建状态 |
+| 83 | `infra` | 175 | 待学 | nix-community 自运维基础设施 |
+| 84 | `nixdoc` | 172 | 待学 | Nix 文档生成 |
+| 85 | `cache-nix-action` | 167 | 待学 | GitHub Actions 的 Nix store 缓存 |
+| 86 | `go-nix` | 161 | 待学 | Nix 的 Go 库 |
+| 87 | `nixos-install-scripts` | 159 | 待学 | NixOS 安装脚本 |
+| 88 | `nur-packages-template` | 159 | 待学 | NUR 仓库模板 |
+| 89 | `bun2nix` | 157 | 待学 | Bun 依赖转 Nix |
+| 90 | `nix-github-actions` | 155 | 待学 | Nix 生成 GHA 矩阵 |
+| 91 | `ethereum.nix` | 154 | 待学 | Ethereum 生态 Nix 包 |
+| 92 | `nixago` | 153 | 待学 | 配置生成工具 |
+| 93 | `nixhelm` | 152 | 待学 | Helm charts 的 Nix 集合 |
+| 94 | `templates` | 149 | 待学 | Nix flake 模板 |
+| 95 | `npmlock2nix` | 148 | 待学 | npm lock 转 Nix |
+| 96 | `nix4nvchad` | 146 | 待学 | NvChad 的 Nix 安装 |
+| 97 | `namaka` | 145 | 待学 | Nix 快照测试 |
+| 98 | `nix-installers` | 138 | 待学 | 旧发行版 Nix 安装包 |
+| 99 | `nix-ld-rs` | 137 | 部分 | nix-ld 的 Rust 实现（已归档） |
+| 100 | `manix` | 135 | 待学 | Nix 文档搜索 CLI |
+
 ## 下一批待学顺序
 
 按 star 从高到低，当前待学：
