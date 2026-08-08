@@ -1,28 +1,11 @@
 {
   config,
-  inputs,
   LT,
   lib,
-  pkgs,
   ...
 }:
 let
   cfg = config.lantian.moviepilot;
-  moviepilotPkg = inputs.zhyi-packages.packages.${pkgs.system}.moviepilot;
-  moviepilotRunner = pkgs.writeShellScript "moviepilot-runner" ''
-    set -u
-    ${moviepilotPkg}/bin/moviepilot start --timeout 120 || exit 1
-    while :; do
-      sleep 30
-      if ! ${pkgs.curl}/bin/curl -fsS \
-        "http://127.0.0.1:${LT.portStr.MoviePilot.Backend}/api/v1/system/global?token=moviepilot" \
-        >/dev/null 2>&1; then
-        ${moviepilotPkg}/bin/moviepilot restart --start-timeout 120 --stop-timeout 30 \
-          >/dev/null 2>&1 || ${moviepilotPkg}/bin/moviepilot start --timeout 120 \
-          >/dev/null 2>&1 || true
-      fi
-    done
-  '';
 in
 {
   options.lantian.moviepilot = {
@@ -41,12 +24,37 @@ in
       group = "users";
     };
 
-    systemd.services.moviepilot = {
-      description = "MoviePilot media automation";
-      wantedBy = [ "multi-user.target" ];
+    virtualisation.oci-containers.containers.moviepilot = {
+      image = "docker.io/jxxghp/moviepilot-v2:latest";
+      autoStart = true;
+      labels."io.containers.autoupdate" = "registry";
+      ports = [
+        "127.0.0.1:${LT.portStr.MoviePilot.Frontend}:3000"
+      ];
+      environment = {
+        TZ = config.time.timeZone;
+        PORT = "3001";
+        NGINX_PORT = "3000";
+        MOVIEPILOT_AUTO_UPDATE = "false";
+        DB_TYPE = "sqlite";
+        CACHE_BACKEND_TYPE = "cachetools";
+      };
+      volumes = [
+        "${cfg.dataDir}:/config"
+        "/mnt/storage/downloads:/mnt/storage/downloads"
+        "/mnt/storage/.downloads-auto:/mnt/storage/.downloads-auto"
+        "/mnt/storage/.downloads-qb:/mnt/storage/.downloads-qb"
+        "/mnt/storage/.downloads-qb-pt:/mnt/storage/.downloads-qb-pt"
+        "/mnt/storage/.downloads-qb-seedbox:/mnt/storage/.downloads-qb-seedbox"
+        "/mnt/storage/media-radarr:/mnt/storage/media-radarr"
+        "/mnt/storage/media-sonarr:/mnt/storage/media-sonarr"
+      ];
+    };
+
+    systemd.services.podman-moviepilot = {
       after = [
         "mnt-storage.mount"
-        "network.target"
+        "network-online.target"
       ];
       requires = [ "mnt-storage.mount" ];
       unitConfig = {
@@ -56,57 +64,6 @@ in
           cfg.dataDir
         ];
       };
-      environment = {
-        HOME = cfg.dataDir;
-        CONFIG_DIR = cfg.dataDir;
-        TZ = config.time.timeZone;
-        PORT = LT.portStr.MoviePilot.Backend;
-        NGINX_PORT = LT.portStr.MoviePilot.Frontend;
-        MOVIEPILOT_AUTO_UPDATE = "false";
-        DB_TYPE = "sqlite";
-        CACHE_BACKEND_TYPE = "cachetools";
-      };
-      path = [
-        pkgs.curl
-        pkgs.ffmpeg
-        pkgs.git
-        pkgs.jq
-        pkgs.nodejs
-        pkgs.openssh
-        pkgs.rclone
-        pkgs.rsync
-        pkgs.unzip
-      ];
-      serviceConfig =
-        LT.serviceHarden
-        // {
-          Type = "simple";
-          User = "zhyi";
-          Group = "users";
-          ExecStart = moviepilotRunner;
-          Restart = "on-failure";
-          RestartSec = "10";
-          PrivateDevices = false;
-          PrivateTmp = false;
-          ProtectHome = false;
-          ProtectProc = "default";
-          ProtectSystem = false;
-          ProcSubset = "all";
-          RestrictNamespaces = false;
-          SystemCallFilter = [ ];
-          MemoryDenyWriteExecute = false;
-          NoNewPrivileges = false;
-          ReadWritePaths = [
-            cfg.dataDir
-            "/mnt/storage/downloads"
-            "/mnt/storage/.downloads-auto"
-            "/mnt/storage/.downloads-qb"
-            "/mnt/storage/.downloads-qb-pt"
-            "/mnt/storage/.downloads-qb-seedbox"
-            "/mnt/storage/media-radarr"
-            "/mnt/storage/media-sonarr"
-          ];
-        };
     };
 
     lantian.nginxVhosts = {
