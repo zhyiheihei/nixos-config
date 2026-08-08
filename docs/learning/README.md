@@ -6,10 +6,13 @@
 ## 总纲
 
 - [Nix 复刻学习总纲](./nix-replication-guide.md)
+- [Star 排序学习清单](./star-ranked-curriculum.md)
 
 ## nix-community 组织
 
 - [组织仓库全景](./org-overview.md)
+- [awesome-nix 资源清单](./awesome-nix.md)
+- [nh CLI 辅助工具](./nh.md)
 - [NUR 生态链](./nur-chain.md)
 - [NixOS 系统层](./system-layer.md)
 - [组织自运维与基础设施](./infrastructure.md)
