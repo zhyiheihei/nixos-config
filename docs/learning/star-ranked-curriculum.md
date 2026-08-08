@@ -184,7 +184,7 @@
 | 147 | `dreampkgs` | 30 | 已学 | dream2nix 管理的软件集 |
 | 148 | `queued-build-hook` | 30 | 已学 | Nix post-build-hook 排队重试 |
 | 149 | `emacs2nix` | 29 | 已学 | Emacs 包自动生成 Nix 表达式 |
-| 150 | `luarocks-nix` | 26 | 待学 | rockspec 转 Nix（fork） |
+| 150 | `luarocks-nix` | 26 | 已学 | rockspec 转 Nix（fork） |
 | 151 | `docnix` | 25 | 待学 | Nix 参考文档站（已归档） |
 | 152 | `darwin-build-box` | 25 | 待学 | 社区 Darwin 构建机 |
 | 153 | `nixops-gce` | 25 | 待学 | NixOps GCE 后端 |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`luarocks-nix`（#150，26 star）。
+按 star 从高到低，当前待学：`docnix`（#151，25 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。

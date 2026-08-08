@@ -131,6 +131,7 @@
 - [dreampkgs dream2nix 管理的软件集](./dreampkgs.md)
 - [queued-build-hook Nix post-build-hook 排队重试](./queued-build-hook.md)
 - [emacs2nix Emacs 包自动生成 Nix 表达式](./emacs2nix.md)
+- [luarocks-nix rockspec 转 Nix（fork）](./luarocks-nix.md)
 
 ## 模块化 flake 框架
 
