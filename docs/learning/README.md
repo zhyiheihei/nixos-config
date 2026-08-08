@@ -94,6 +94,7 @@
 - [nixpkgs-xr XR/AR/VR 包 overlay](./nixpkgs-xr.md)
 - [wiki 旧 NixOS wiki（已归档）](./wiki.md)
 - [acpi_call ACPI 内核模块](./acpi_call.md)
+- [nixos-anywhere-examples 云主机示例](./nixos-anywhere-examples.md)
 
 ## 模块化 flake 框架
 
