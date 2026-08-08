@@ -121,6 +121,7 @@
 - [nixos-avf-image-app AVF 安装配套 App](./nixos-avf-image-app.md)
 - [nur-search NUR 搜索站点](./nur-search.md)
 - [nixpkgs-swh Software Heritage 归档](./nixpkgs-swh.md)
+- [talon-nix Talon Voice 自动打包](./talon-nix.md)
 
 ## 模块化 flake 框架
 

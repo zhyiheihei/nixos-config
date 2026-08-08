@@ -169,7 +169,7 @@
 | 137 | `nixos-avf-image-app` | 45 | 已学 | AVF 安装配套 App |
 | 138 | `nur-search` | 44 | 已学 | NUR 搜索站点 |
 | 139 | `nixpkgs-swh` | 39 | 已学 | Software Heritage 集成 |
-| 140 | `talon-nix` | 38 | 待学 | Talon Voice 自动打包 |
+| 140 | `talon-nix` | 38 | 已学 | Talon Voice 自动打包 |
 
 ## 下一批待学顺序
 
