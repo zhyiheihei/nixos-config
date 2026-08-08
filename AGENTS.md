@@ -3,17 +3,22 @@
 ## AI 代理使用说明
 
 - 这是一个个人 NixOS 配置仓库，主入口是 `flake.nix`，主机定义位于 `hosts/`，公共系统模块位于 `nixos/`。
+- 本仓库是 [xddxdd/nixos-config](https://github.com/xddxdd/nixos-config)（Lan Tian）的复刻；作者原版
+  独立 checkout 位于 `../nixos-config-exam/`，仅用于 diff 对照，不参与本仓库的求值、构建或部署。
 - 主要构建和部署命令见 `Makefile`；首选命令包括 `make build`、`make all`、`make update`、`nix flake check`、`nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel`。
 - `hosts/` 子目录包含每个主机的 `host.nix`、`configuration.nix` 和 `hardware-configuration.nix`。修改主机配置前，请确认是否为目标主机改动。
 - `helpers/default.nix` 导出 `LT` 工具集，仓库中的许多模块和 host 配置都依赖它。
-- 不要直接改动 secrets 相关输入或硬件配置，除非用户明确要求。优先链接现有文档：`README.md`、`docs/getting-started/adapt-own-device.md`。
+- 不要直接改动 secrets 相关输入或硬件配置，除非用户明确要求。优先链接现有文档：`README.md`、
+  `docs/README.md`（文档索引）、`docs/getting-started/adapt-own-device.md`、
+  `docs/reference/hosts-overview.md`（当前主机清单）。
 - 修改后请优先验证：`nix flake check` 或 `make build`，并保留 Nix 文件中的原有结构和命名习惯。
 - **工作规范（必读）**：[`docs/operations/work-norms.md`](docs/operations/work-norms.md)——改动必提交+对齐三方仓库、对照作者原版（`../nixos-config-exam/`）不偏离、不动公共模块（`flake-modules/` 与公共 `nixos/` 模块）、查官方/实际不猜、巡检看报错/指标、聚焦当前任务、构建只用 ml-builder、大任务先出方案。
 - AI 网关链路以 [`docs/infrastructure/ai-api-gateway-chain.md`](docs/infrastructure/ai-api-gateway-chain.md) 为准：UniAPI 是唯一 Provider 汇聚点；LibreChat 直连 `rock5c` 上的 UniAPI，n8n Bridge 是 UniAPI 的 Provider，AxonHub 与 Metapi 是并列管理网关。禁止把任一网关反向配置为 UniAPI Provider 或擅自重置其运行态数据库。
 
 ## 项目概述
 
-这是一个基于 Nix Flakes 的 NixOS 配置项目，用于管理多台主机的系统配置。项目采用模块化设计，支持服务器、客户端和最小化三种配置类型，集成了大量自定义包、覆盖层和补丁。
+这是一个基于 Nix Flakes 的 NixOS 配置项目，用于管理多台主机的系统配置。项目采用模块化设计，支持
+minimal、server、client、pve 四种配置类型，集成了大量自定义包、覆盖层和补丁。
 
 ### 核心特性
 
@@ -27,11 +32,13 @@
 
 ```
 .
+├── .github/               # GitHub Actions 工作流
 ├── flake.nix              # Flake 入口文件
 ├── flake.lock             # Flake 锁文件
 ├── Makefile               # 构建命令
 ├── nvfetcher.toml         # 包版本管理配置
 ├── dns/                   # DNS 配置
+├── docs/                  # 文档索引与操作规范
 ├── flake-modules/         # Flake 模块
 ├── helpers/               # 辅助函数和常量
 ├── home/                  # Home Manager 配置
@@ -39,7 +46,8 @@
 ├── nixos/                 # NixOS 模块
 ├── overlays/              # Nixpkgs 覆盖层
 ├── patches/               # 软件补丁
-└── pkgs/                  # 自定义包
+├── pkgs/                  # 自定义包
+└── tools/                 # 辅助工具脚本
 ```
 
 ## 关键文件说明
@@ -74,6 +82,9 @@ Flake 入口文件，定义了：
 | `configuration.nix`          | 主配置文件                                |
 | `hardware-configuration.nix` | 硬件配置（由 nixos-generate-config 生成） |
 
+当前主机清单与拓扑见 [`docs/reference/hosts-overview.md`](docs/reference/hosts-overview.md)；
+新增主机前先阅读 [`docs/getting-started/new-host-standard.md`](docs/getting-started/new-host-standard.md)。
+
 ### 磁盘与持久化约束
 
 - 作者体系中的物理 `client` 默认使用 tmpfs 作为 `/`，该行为由
@@ -92,7 +103,7 @@ Flake 入口文件，定义了：
   SOPS 默认读取 `/nix/persistent/etc/ssh/ssh_host_ed25519_key`，OpenSSH 也从
   `/nix/persistent/etc/ssh/` 读取 host keys。缺少这些文件会导致解密或 sshd
   启动失败。
-- `hosts/ml-2700u` 中曾使用的 ext4 `/` 和 `/etc/ssh` SOPS key 路径只属于
+- `hosts/ml-2700` 中曾使用的 ext4 `/` 和 `/etc/ssh` SOPS key 路径只属于
   普通安装阶段的临时兼容方案；重装复刻作者布局时应移除，而不是继续叠加覆盖。
 - 判断磁盘结构时优先参考作者的物理 client，例如
   `nixos-config-exam/hosts/lt-dell-wyse/hardware-configuration.nix`；复杂的加密和
@@ -100,17 +111,23 @@ Flake 入口文件，定义了：
 
 ### 可用标签
 
-| 标签          | 说明                 |
-| ------------- | -------------------- |
-| `server`      | 服务器配置           |
-| `client`      | 客户端配置（带 GUI） |
-| `dn42`        | DN42 节点            |
-| `nix-builder` | Nix 远程构建节点     |
-| `low-disk`    | 低磁盘空间优化       |
-| `low-ram`     | 低内存优化           |
-| `ipv4-only`   | 仅 IPv4              |
-| `lan-access`  | 局域网访问           |
-| `cuda`        | NVIDIA CUDA 支持     |
+标签定义在 `helpers/constants/misc.nix` 的 `tags` 常量中。当前 `hosts/*/host.nix`
+实际使用：`client`、`server`、`dn42`、`nix-builder`、`public-facing`、`cn-accel`、
+`lan-access`、`low-ram`；`ipv4-only`、`ipv6-only`、`cuda` 保留定义供模块引用。
+
+| 标签             | 说明                                                       |
+| ---------------- | ---------------------------------------------------------- |
+| `client`         | 客户端配置（带 GUI）                                       |
+| `cn-accel`       | 中国网络加速节点（启用 v2ray、mihomo、openvpn-gameaccel）  |
+| `dn42`           | DN42 节点                                                  |
+| `nix-builder`    | Nix 远程构建节点                                           |
+| `public-facing`  | 公网可访问节点（用于 Prometheus blackbox 监控等）          |
+| `server`         | 服务器配置                                                 |
+| `ipv4-only`      | 仅 IPv4                                                    |
+| `ipv6-only`      | 仅 IPv6                                                    |
+| `lan-access`     | 局域网访问                                                 |
+| `cuda`           | NVIDIA CUDA 支持                                           |
+| `low-ram`        | 低内存优化                                                 |
 
 ## 模块系统说明
 
@@ -118,12 +135,12 @@ Flake 入口文件，定义了：
 
 ### 配置类型
 
-| 文件          | 说明            | 包含的模块                                                                        |
-| ------------- | --------------- | --------------------------------------------------------------------------------- |
-| `minimal.nix` | 最小化配置      | minimal-apps + minimal-components + minimal-modules                                                 |
-| `server.nix`  | 服务器配置      | minimal-apps + common-apps + server-apps + minimal-components + server-components + minimal-modules |
-| `client.nix`  | 客户端配置      | minimal-apps + common-apps + client-apps + minimal-components + client-components + minimal-modules |
-| `pve.nix`     | Proxmox VE 配置 | -                                                                                 |
+| 文件          | 说明            | 包含的模块                                                                                 |
+| ------------- | --------------- | ------------------------------------------------------------------------------------------ |
+| `minimal.nix` | 最小化配置      | minimal-apps + minimal-components + minimal-modules + minimal-policies                     |
+| `server.nix`  | 服务器配置      | minimal-apps + common-apps + server-apps + minimal-components + server-components + minimal-modules + minimal-policies |
+| `client.nix`  | 客户端配置      | minimal-apps + common-apps + client-apps + minimal-components + client-components + minimal-modules + minimal-policies |
+| `pve.nix`     | Proxmox VE 配置 | minimal-components + pve-components + minimal-modules + minimal-policies                   |
 
 ### 模块目录
 
@@ -138,6 +155,10 @@ Flake 入口文件，定义了：
 | `minimal-policies/`   | 配置策略断言（assertions，检查配置正确性，自动导入到所有角色配置） |
 | `server-components/`  | 服务器组件（backup、dn42、logging 等）                 |
 | `client-components/`  | 客户端组件                                             |
+| `pve-components/`     | Proxmox VE 组件（自动导入到 pve.nix）                  |
+| `hardware/`           | 通用硬件配置片段（LVM、QEMU、NVIDIA 等，需在主机配置中手动导入） |
+| `optional-apps/`      | 可选应用（部分主机使用，需在主机配置中手动导入）        |
+| `optional-cron-jobs/` | 可选定时任务（部分主机使用，需在主机配置中手动导入）    |
 
 ### 策略断言说明
 
@@ -151,10 +172,6 @@ Flake 入口文件，定义了：
 | `ensure-service-restart.nix`          | 确保所有 systemd 服务设置了 Restart 属性                      |
 | `nginx-security.nix`                  | 确保 Nginx 虚拟主机的安全配置正确（localhost/public 访问控制） |
 | `podman-ensure-autoupdate.nix`        | 确保所有 Podman 容器启用了自动更新                            |
-| `hardware/`           | 硬件相关配置                                           |
-| `optional-apps/`      | 可选应用                                               |
-| `optional-cron-jobs/` | 可选定时任务                                           |
-| `pve-components/`     | Proxmox VE 组件                                        |
 
 ## 自定义包说明
 
@@ -310,7 +327,9 @@ nix flake lock --update-input input-name
 
 在对应目录下创建 `.nix` 文件。模块会自动被配置类型导入，无需手动注册。
 
-自动导入机制：各配置文件（[`minimal.nix`](nixos/minimal.nix)、[`server.nix`](nixos/server.nix)、[`client.nix`](nixos/client.nix)）使用 `builtins.readDir` 自动加载对应目录下的所有 `.nix` 文件。
+自动导入机制：各配置文件（[`minimal.nix`](nixos/minimal.nix)、[`server.nix`](nixos/server.nix)、
+[`client.nix`](nixos/client.nix)、[`pve.nix`](nixos/pve.nix)）使用 `builtins.readDir` 自动加载
+对应目录下的所有 `.nix` 文件。
 
 ### 添加 Overlay
 
@@ -424,6 +443,9 @@ nix run .#update-flake
 ```
 
 ### 添加新主机
+
+完整流程以 [`docs/getting-started/new-host-standard.md`](docs/getting-started/new-host-standard.md)
+为准，简版步骤如下：
 
 1. 在 `hosts/` 目录下创建新目录
 2. 创建 `host.nix` 定义主机元数据
