@@ -59,3 +59,9 @@
   复制一份 `NO_PROXY` 列表
 - 涉及公共模块（如 `ncps.nix`）的代理默认值有差异时，用主机级覆盖，并在提交信息
   或注释里说明原因
+
+## 10. 模块分层与参数归属
+
+- 新模块放在 `nixos/optional-apps/`，不在 `hosts/` 层写通用服务模块。
+- 代理等主机专属参数放 `hosts/<host>/configuration.nix`，公共模块不写代理。
+- 细则与审计命令见 [`module-placement-norms.md`](./module-placement-norms.md)。

@@ -15,6 +15,7 @@
 - [构建与部署当前主机](./operations/deployment.md)
 - [NixOS 完整重装指南](./operations/nixos-reinstallation-guide.md)
 - [ml-builder 验收与排障](./operations/test-ml-builder.md)
+- [模块分层与参数归属规范](./operations/module-placement-norms.md)
 
 ## 硬件适配
 
