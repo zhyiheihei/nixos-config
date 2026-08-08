@@ -127,7 +127,7 @@
 | ---: | --- | ---: | --- | --- |
 | 101 | `nix-unit` | 135 | 已学 | Nix 单元测试 |
 | 102 | `nix4vscode` | 134 | 已学 | VSCode 的 Nix overlay |
-| 103 | `linuxkit-nix` | 134 | 部分 | LinuxKit 的 Nix 构建（已归档） |
+| 103 | `linuxkit-nix` | 134 | 已学 | LinuxKit 的 Nix 构建（已归档） |
 | 104 | `yarn2nix` | 127 | 部分 | yarn lock 转 Nix（已归档） |
 | 105 | `zon2nix` | 123 | 待学 | Zig zon 依赖转 Nix |
 | 106 | `nixt` | 123 | 待学 | Nix 测试框架 |
