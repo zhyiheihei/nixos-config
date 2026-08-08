@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Interactive serial login: send root, wait for password prompt, send password."""
-import os, time, sys
+import getpass
+import os
+import time
 
 dev = "/dev/cu.usbmodem57920206431"
 log = "/tmp/taishanpi-boot.log"
@@ -27,6 +29,10 @@ send("\x03")
 time.sleep(0.5)
 send("\r")
 time.sleep(1.5)
+password = os.environ.get("TAISHANPI_ROOT_PASSWORD")
+if password is None:
+    password = getpass.getpass("Taishan Pi root password: ")
+
 # Login
 send("root")
 time.sleep(0.5)
@@ -35,7 +41,7 @@ send("\r")
 if wait_for("密码") or wait_for("assword"):
     print("password prompt seen, sending password")
     time.sleep(0.5)
-    send("ue&&^axPUfiJAj0rk4!0")
+    send(password)
     time.sleep(0.3)
     send("\r")
     print("password sent")
