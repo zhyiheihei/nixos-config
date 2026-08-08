@@ -87,7 +87,7 @@
 | 70 | `nix-doom-emacs` | 243 | 已学 | doom-emacs 的 Nix 打包 |
 | 71 | `pip2nix` | 242 | 已学 | Python pip 转 Nix |
 | 72 | `nix-on-droid-app` | 241 | 已学 | nix-on-droid 配套 App |
-| 73 | `tree-sitter-nix` | 239 | 待学 | Nix 的 tree-sitter 语法 |
+| 73 | `tree-sitter-nix` | 239 | 已学 | Nix 的 tree-sitter 语法 |
 | 74 | `nur-combined` | 194 | 待学 | NUR 合并包集合 |
 | 75 | `dns.nix` | 192 | 待学 | 用 Nix 管理 DNS |
 | 76 | `pypi2nix` | 192 | 部分 | Python 包转 Nix（已归档） |
