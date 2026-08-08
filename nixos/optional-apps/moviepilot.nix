@@ -89,7 +89,9 @@ in
           PrivateDevices = false;
           PrivateTmp = false;
           ProtectHome = false;
+          ProtectProc = "default";
           ProtectSystem = false;
+          ProcSubset = "all";
           RestrictNamespaces = false;
           SystemCallFilter = [ ];
           MemoryDenyWriteExecute = false;
