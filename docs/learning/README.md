@@ -112,6 +112,7 @@
 - [nix-jetbrains-plugins JetBrains 插件下载](./nix-jetbrains-plugins.md)
 - [patsh shell 脚本 patch 工具](./patsh.md)
 - [browser-previews Chrome Beta/Dev 包](./browser-previews.md)
+- [disko-templates disko 最佳实践模板](./disko-templates.md)
 
 ## 模块化 flake 框架
 
