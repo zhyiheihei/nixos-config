@@ -126,6 +126,7 @@
 - [nixops-libvirtd NixOps libvirtd 后端](./nixops-libvirtd.md)
 - [docker-nix Nix 的 Docker 镜像（已归档）](./docker-nix.md)
 - [sigtool Mach-O 签名工具](./sigtool.md)
+- [rustowl-flake RustOwl 的 Nix flake](./rustowl-flake.md)
 
 ## 模块化 flake 框架
 
