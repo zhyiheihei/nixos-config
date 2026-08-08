@@ -46,7 +46,10 @@ in
     ../../nixos/optional-apps/sonarr/decluttarr.nix
     ../../nixos/optional-apps/jellyfin-rockchip.nix
     ../../nixos/optional-apps/handbrake-rockchip.nix
+    ../../nixos/optional-apps/moviepilot.nix
   ];
+
+  lantian.moviepilot.enable = true;
 
   systemd.tmpfiles.settings.media-apps."/nix/persistent/var/lib/media-apps"."d" = {
     mode = "0700";
