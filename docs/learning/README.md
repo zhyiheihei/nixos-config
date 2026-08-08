@@ -113,6 +113,7 @@
 - [patsh shell 脚本 patch 工具](./patsh.md)
 - [browser-previews Chrome Beta/Dev 包](./browser-previews.md)
 - [disko-templates disko 最佳实践模板](./disko-templates.md)
+- [autofirma-nix 西班牙政务签名工具集](./autofirma-nix.md)
 
 ## 模块化 flake 框架
 

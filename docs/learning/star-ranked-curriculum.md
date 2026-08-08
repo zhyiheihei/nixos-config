@@ -161,7 +161,7 @@
 | 129 | `patsh` | 56 | 已学 | shell 脚本 patch 工具 |
 | 130 | `browser-previews` | 55 | 已学 | Chrome Beta/Dev 包 |
 | 131 | `disko-templates` | 54 | 已学 | disko 最佳实践模板 |
-| 132 | `autofirma-nix` | 54 | 待学 | autofirma 的 Nix 模块 |
+| 132 | `autofirma-nix` | 54 | 已学 | autofirma 的 Nix 模块 |
 | 133 | `lila` | 52 | 待学 | Nix hash 收集工具 |
 | 134 | `builtwithnix.org` | 51 | 待学 | builtwithnix 网站 |
 | 135 | `mavenix` | 50 | 待学 | Maven 依赖转 Nix |
