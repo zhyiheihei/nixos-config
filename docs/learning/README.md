@@ -64,6 +64,7 @@
 - [authentik-nix IdP 部署 flake](./authentik-nix.md)
 - [nixpkgs-lint 语义 linter](./nixpkgs-lint.md)
 - [hydra-check Hydra 构建状态](./hydra-check.md)
+- [infra 组织自运维仓库](./infra.md)
 
 ## 模块化 flake 框架
 
