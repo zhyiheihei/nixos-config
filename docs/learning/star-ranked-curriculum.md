@@ -22,7 +22,7 @@
 | 15 | `lanzaboote` | 1787 | 部分 | NixOS Secure Boot |
 | 16 | `comma` | 1737 | 已学 | 不安装直接运行软件 |
 | 17 | `nix-ld` | 1687 | 已学 | 运行未 patch 的动态二进制 |
-| 18 | `nixos-apple-silicon` | 1599 | 待学 | Apple Silicon 上的 NixOS |
+| 18 | `nixos-apple-silicon` | 1599 | 已学 | Apple Silicon 上的 NixOS |
 | 19 | `nixd` | 1454 | 已学 | Nix language server |
 | 20 | `nix-init` | 1446 | 已学 | 从 URL 生成包 |
 | 21 | `nix-index` | 1339 | 已学 | 按文件查包 |
@@ -50,12 +50,11 @@
 
 按 star 从高到低，当前待学：
 
-1. `nixos-apple-silicon`
-2. `fenix`
-3. `lorri`
-4. `nix-bundle`
-5. `vulnix`
-6. `robotnix`
-7. `nixpkgs-wayland`
+1. `fenix`
+2. `lorri`
+3. `nix-bundle`
+4. `vulnix`
+5. `robotnix`
+6. `nixpkgs-wayland`
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
