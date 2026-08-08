@@ -45,3 +45,19 @@ router 原生 VaultS3 4.4.49（来自 `zhyi-packages` 的 arm64 官方发布二�
 - 升级/重启 VaultS3 时若 atticd 正在上传，旧 multipart 会话会失效并持续返回
   `NoSuchUpload` 404；升级后应重启 `atticd` 丢弃失效会话，并清理空
   `.multipart` 目录（2026-08-08 已按此处理）。
+
+## 统一账户密码（2026-08-08）
+
+- VaultS3 管理凭据改为统一约定：账号 `zhyi`，密码来自
+  `common/default-pw.yaml`。`hosts/router/vaults3.nix` 通过
+  `sops.templates.vaults3-credentials` 生成 `VAULTS3_ACCESS_KEY=zhyi` 与
+  `VAULTS3_SECRET_KEY=<default-pw>`。
+- 修改 `common/default-pw.yaml` 并切换 router 即可自动轮换，不再维护独立的
+  `common/vaults3.yaml`（该文件已删除）。
+- 验证命令（不会输出密码值）：
+
+  ```bash
+  VAULTS3_ACCESS_KEY=zhyi \
+  VAULTS3_SECRET_KEY="$(cat /run/secrets/default-pw)" \
+    /nix/store/*vaults3*/bin/vaults3-cli info
+  ```
