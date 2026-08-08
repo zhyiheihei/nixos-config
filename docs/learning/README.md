@@ -86,6 +86,7 @@
 - [nix4vscode VSCode 的 Nix overlay](./nix4vscode.md)
 - [linuxkit-nix Mac 上 Linux 构建（已归档）](./linuxkit-nix.md)
 - [yarn2nix yarn lockfile 转 Nix（已归档）](./yarn2nix.md)
+- [zon2nix Zig zon 依赖转 Nix](./zon2nix.md)
 
 ## 模块化 flake 框架
 
