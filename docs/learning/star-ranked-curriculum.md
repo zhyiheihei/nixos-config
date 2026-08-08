@@ -58,7 +58,7 @@
 | 46 | `NixNG` | 483 | 已学 | 基于 Nix 的 Linux 发行版 |
 | 47 | `rnix-parser` | 477 | 已学 | Rust Nix parser |
 | 48 | `nix-user-chroot` | 428 | 已学 | 无 root 运行 Nix |
-| 49 | `terraform-nixos` | 417 | 部分 | Terraform 部署 NixOS |
+| 49 | `terraform-nixos` | 417 | 已学 | Terraform 部署 NixOS |
 | 50 | `haumea` | 416 | 已学 | 文件系统模块系统 |
 | 51 | `neovim-nightly-overlay` | 414 | 已学 | Neovim nightly overlay |
 | 52 | `flakelight` | 408 | 已学 | 模块化 flake 框架 |
@@ -74,7 +74,5 @@
 ## 下一批待学顺序
 
 按 star 从高到低，当前待学：
-
-1. `terraform-nixos`（README 待网络恢复后补全）
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
