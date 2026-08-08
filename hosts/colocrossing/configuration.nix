@@ -11,6 +11,7 @@
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
+    ./docker-proxy.nix
 
     ../../nixos/optional-apps/acme
     ../../nixos/optional-apps/bepasty.nix
