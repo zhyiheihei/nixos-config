@@ -26,6 +26,7 @@
 - [语言生态打包概览](./language-packaging.md)
 - [crate2nix 增量构建模型](./crate2nix.md)
 - [dream2nix 与 drv-parts](./dream2nix.md)
+- [fenix Rust 工具链](./fenix.md)
 
 ## 模块化 flake 框架
 

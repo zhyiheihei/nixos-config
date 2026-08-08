@@ -28,7 +28,7 @@
 | 21 | `nix-index` | 1339 | 已学 | 按文件查包 |
 | 22 | `dream2nix` | 1264 | 已学 | 多语言自动打包框架 |
 | 23 | `plasma-manager` | 1210 | 部分 | KDE Plasma 配置 |
-| 24 | `fenix` | 1097 | 待学 | Rust 工具链集合 |
+| 24 | `fenix` | 1097 | 已学 | Rust 工具链集合 |
 | 25 | `nixGL` | 1013 | 已学 | OpenGL/Vulkan wrapper |
 | 26 | `naersk` | 1003 | 已学 | 简单 Rust builder |
 | 27 | `srvos` | 994 | 已学 | 服务器 profile |
@@ -50,11 +50,10 @@
 
 按 star 从高到低，当前待学：
 
-1. `fenix`
-2. `lorri`
-3. `nix-bundle`
-4. `vulnix`
-5. `robotnix`
-6. `nixpkgs-wayland`
+1. `lorri`
+2. `nix-bundle`
+3. `vulnix`
+4. `robotnix`
+5. `nixpkgs-wayland`
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
