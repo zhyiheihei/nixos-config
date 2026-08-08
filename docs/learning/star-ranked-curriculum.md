@@ -140,7 +140,7 @@
 | 113 | `nixos-anywhere-examples` | 98 | 已学 | nixos-anywhere 示例 |
 | 114 | `pnpm2nix` | 97 | 已学 | pnpm lock 转 Nix |
 | 115 | `vgo2nix` | 89 | 已学 | Go modules 转 Nix（已归档） |
-| 116 | `zephyr-nix` | 86 | 待学 | Zephyr 开发环境 |
+| 116 | `zephyr-nix` | 86 | 已学 | Zephyr 开发环境 |
 | 117 | `nix-data-science` | 84 | 待学 | Nix 数据科学环境 |
 | 118 | `mineflake` | 80 | 待学 | 声明式 Minecraft 服务器 |
 | 119 | `nix-ts-mode` | 76 | 待学 | Nix 的 Emacs tree-sitter 模式 |
