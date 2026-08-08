@@ -167,7 +167,7 @@
 | 135 | `mavenix` | 50 | 已学 | Maven 依赖转 Nix |
 | 136 | `nixpkgs-pytools` | 49 | 已学 | Python 工具集合 |
 | 137 | `nixos-avf-image-app` | 45 | 已学 | AVF 安装配套 App |
-| 138 | `nur-search` | 44 | 待学 | NUR 搜索站点 |
+| 138 | `nur-search` | 44 | 已学 | NUR 搜索站点 |
 | 139 | `nixpkgs-swh` | 39 | 待学 | Software Heritage 集成 |
 | 140 | `talon-nix` | 38 | 待学 | Talon Voice 自动打包 |
 

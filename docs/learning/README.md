@@ -119,6 +119,7 @@
 - [mavenix Maven 依赖转 Nix](./mavenix.md)
 - [nixpkgs-pytools Python 包生成工具](./nixpkgs-pytools.md)
 - [nixos-avf-image-app AVF 安装配套 App](./nixos-avf-image-app.md)
+- [nur-search NUR 搜索站点](./nur-search.md)
 
 ## 模块化 flake 框架
 
