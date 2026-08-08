@@ -50,6 +50,66 @@ let
     }
     {
       recordType = "CNAME";
+      name = "docker-proxy";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "elastic";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "gcr";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "ghcr";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "hub";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "k8s";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "k8s-gcr";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "mcr";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "nvcr";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "quay";
+      target = "colocrossing";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "flapalerted";
       target = "colocrossing";
       ttl = "1h";
