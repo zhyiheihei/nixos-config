@@ -98,6 +98,16 @@ in
         after = [ "mnt-storage.mount" ];
         requires = [ "mnt-storage.mount" ];
       };
+      # MoviePilot plugin hub uses raw.githubusercontent.com; direct egress is
+      # reliable from this host, while the SOCKS proxy can fail DNS resolution.
+      podman-moviepilot.environment = lib.mkForce {
+        HTTP_PROXY = proxy;
+        HTTPS_PROXY = proxy;
+        NO_PROXY = proxyBypass + ",.github.com,.githubusercontent.com,raw.githubusercontent.com";
+        http_proxy = proxy;
+        https_proxy = proxy;
+        no_proxy = proxyBypass + ",.github.com,.githubusercontent.com,raw.githubusercontent.com";
+      };
     }
   ];
 }
