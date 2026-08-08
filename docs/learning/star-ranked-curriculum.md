@@ -79,7 +79,7 @@
 | 62 | `nix-melt` | 309 | 已学 | ranger 风格 flake.lock 查看器 |
 | 63 | `gomod2nix` | 308 | 已学 | Go modules 转 Nix |
 | 64 | `nix-environments` | 302 | 已学 | Nix 开发环境集合 |
-| 65 | `dconf2nix` | 301 | 待学 | dconf 配置转 Nix |
+| 65 | `dconf2nix` | 301 | 已学 | dconf 配置转 Nix |
 | 66 | `buildbot-nix` | 281 | 待学 | buildbot 版 Nix CI |
 | 67 | `nix-zsh-completions` | 281 | 待学 | Nix zsh 补全 |
 | 68 | `docker-nixpkgs` | 249 | 待学 | Docker 版 nixpkgs |
