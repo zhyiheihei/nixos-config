@@ -7,6 +7,7 @@
 let
   activationMarker = "/nix/persistent/var/lib/media-apps/ready";
   proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+  moviepilotProxy = "socks5h://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
   proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   proxyEnvironment = {
     HTTP_PROXY = proxy;
@@ -98,15 +99,16 @@ in
         after = [ "mnt-storage.mount" ];
         requires = [ "mnt-storage.mount" ];
       };
-      # MoviePilot plugin hub uses raw.githubusercontent.com; direct egress is
-      # reliable from this host, while the SOCKS proxy can fail DNS resolution.
+      # requests/PySocks with socks5 resolves hostnames locally; use socks5h
+      # inside the MoviePilot container so GitHub and plugin traffic resolves
+      # on the proxy side while still going through the router's proxy.
       podman-moviepilot.environment = lib.mkForce {
-        HTTP_PROXY = proxy;
-        HTTPS_PROXY = proxy;
-        NO_PROXY = proxyBypass + ",.github.com,.githubusercontent.com,raw.githubusercontent.com";
-        http_proxy = proxy;
-        https_proxy = proxy;
-        no_proxy = proxyBypass + ",.github.com,.githubusercontent.com,raw.githubusercontent.com";
+        HTTP_PROXY = moviepilotProxy;
+        HTTPS_PROXY = moviepilotProxy;
+        NO_PROXY = proxyBypass;
+        http_proxy = moviepilotProxy;
+        https_proxy = moviepilotProxy;
+        no_proxy = proxyBypass;
       };
     }
   ];
