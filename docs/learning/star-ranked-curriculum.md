@@ -33,7 +33,7 @@
 | 26 | `naersk` | 1003 | 已学 | 简单 Rust builder |
 | 27 | `srvos` | 994 | 已学 | 服务器 profile |
 | 28 | `poetry2nix` | 927 | 已学 | Poetry 转 Nix（停维护） |
-| 29 | `lorri` | 868 | 待学 | 项目 nix-env 守护 |
+| 29 | `lorri` | 868 | 已学 | 项目 nix-env 守护 |
 | 30 | `nix-bundle` | 852 | 待学 | 把 derivation 打包运行 |
 | 31 | `vulnix` | 817 | 待学 | Nix 包 CVE 扫描 |
 | 32 | `robotnix` | 797 | 待学 | 用 Nix 构建 AOSP |
@@ -50,10 +50,9 @@
 
 按 star 从高到低，当前待学：
 
-1. `lorri`
-2. `nix-bundle`
-3. `vulnix`
-4. `robotnix`
-5. `nixpkgs-wayland`
+1. `nix-bundle`
+2. `vulnix`
+3. `robotnix`
+4. `nixpkgs-wayland`
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
