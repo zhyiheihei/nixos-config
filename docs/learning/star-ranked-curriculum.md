@@ -135,7 +135,7 @@
 | 108 | `nixpkgs.lib` | 108 | 已学 | 轻量 nixpkgs lib |
 | 109 | `nix-unstable-installer` | 103 | 已学 | Nix unstable 安装器 |
 | 110 | `nixpkgs-xr` | 102 | 已学 | XR/AR/VR 工具包 |
-| 111 | `wiki` | 102 | 部分 | 社区 wiki（已归档） |
+| 111 | `wiki` | 102 | 已学 | 社区 wiki（已归档） |
 | 112 | `acpi_call` | 102 | 待学 | acpi_call 内核模块 |
 | 113 | `nixos-anywhere-examples` | 98 | 待学 | nixos-anywhere 示例 |
 | 114 | `pnpm2nix` | 97 | 待学 | pnpm lock 转 Nix |

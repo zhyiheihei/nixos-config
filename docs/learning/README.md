@@ -92,6 +92,7 @@
 - [nixpkgs.lib 轻量 nixpkgs lib](./nixpkgs.lib.md)
 - [nix-unstable-installer Nix master 预发布](./nix-unstable-installer.md)
 - [nixpkgs-xr XR/AR/VR 包 overlay](./nixpkgs-xr.md)
+- [wiki 旧 NixOS wiki（已归档）](./wiki.md)
 
 ## 模块化 flake 框架
 
