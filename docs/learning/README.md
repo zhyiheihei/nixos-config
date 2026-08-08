@@ -91,6 +91,7 @@
 - [napalm npm 包构建](./napalm.md)
 - [nixpkgs.lib 轻量 nixpkgs lib](./nixpkgs.lib.md)
 - [nix-unstable-installer Nix master 预发布](./nix-unstable-installer.md)
+- [nixpkgs-xr XR/AR/VR 包 overlay](./nixpkgs-xr.md)
 
 ## 模块化 flake 框架
 
