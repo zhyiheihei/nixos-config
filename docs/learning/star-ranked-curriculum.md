@@ -136,7 +136,7 @@
 | 109 | `nix-unstable-installer` | 103 | 已学 | Nix unstable 安装器 |
 | 110 | `nixpkgs-xr` | 102 | 已学 | XR/AR/VR 工具包 |
 | 111 | `wiki` | 102 | 已学 | 社区 wiki（已归档） |
-| 112 | `acpi_call` | 102 | 待学 | acpi_call 内核模块 |
+| 112 | `acpi_call` | 102 | 已学 | acpi_call 内核模块 |
 | 113 | `nixos-anywhere-examples` | 98 | 待学 | nixos-anywhere 示例 |
 | 114 | `pnpm2nix` | 97 | 待学 | pnpm lock 转 Nix |
 | 115 | `vgo2nix` | 89 | 部分 | Go modules 转 Nix（已归档） |
