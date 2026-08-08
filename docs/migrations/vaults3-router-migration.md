@@ -34,3 +34,11 @@ router 原生 VaultS3 4.4.49（来自 `zhyi-packages` 的 arm64 官方发布二�
 
 - `hydra-attic-repush` 在迁移窗口前已停止，需要时再恢复
 - 旧 MinIO 数据（`Container/minio`）与本次迁移无关，未改动
+
+## 升级到 4.4.50（2026-08-08）
+
+- `zhyi-packages` 更新到 `3d6dd08`，VaultS3 由 4.4.49 升到官方 4.4.50。
+- 官方 4.4.50 修复了高并发 multipart 上传问题（Issue 48，
+  `internal/s3/multipart.go`），对应 Attic 大闭包并发 part 上传时的 403/404 风暴。
+- GitHub 地址不需要更换：`zhyi-packages` 的 nvfetcher 已指向
+  `Kodiqa-Solutions/VaultS3`。
