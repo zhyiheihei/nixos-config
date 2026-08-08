@@ -38,3 +38,15 @@ rg -n 'io.containers.autoupdate' nixos/optional-apps/ --glob '*.nix'
    `systemd.services.podman-immich-machine-learning-rknn` 注入代理。
 
 整改前先由用户确认，确认后在 ml-builder 构建，再分别 apply 受影响主机。
+
+## 整改结果（2026-08-08）
+
+- `ncps.nix`、`jellyfin-rockchip.nix`、`immich-rknn-worker.nix` 已移除代理变量。
+- `hosts/opi5p/configuration.nix` 已为 `ncps` 注入代理，保留
+  `mirror.sjtu.edu.cn` 直连 bypass。
+- `hosts/rock5c/configuration.nix` 已为 `jellyfin` 和
+  `podman-moviepilot` 注入代理。
+- `hosts/rock5c/immich-ml.nix` 已为
+  `podman-immich-machine-learning-rknn` 注入代理。
+- ml-builder 构建 `opi5p,rock5c` 通过并 apply 成功；两主机服务均 active。
+- 复跑审计命令：`nixos/` 公共模块中已无代理环境变量。
