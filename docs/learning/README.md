@@ -58,6 +58,7 @@
 - [nur-combined NUR 合并仓库](./nur-combined.md)
 - [dns.nix DNS zone DSL](./dns.nix.md)
 - [pypi2nix Python 包生成（已归档）](./pypi2nix.md)
+- [bundix Ruby Gemfile 转 Nix](./bundix.md)
 
 ## 模块化 flake 框架
 
