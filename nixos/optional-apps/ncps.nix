@@ -75,14 +75,6 @@ in
         ++ lib.optionals (cfg.storageUnit != null) [ cfg.storageUnit ];
       wants = lib.optionals (cfg.proxyUnit != null) [ cfg.proxyUnit ];
       requires = lib.optionals (cfg.storageUnit != null) [ cfg.storageUnit ];
-      environment = {
-        HTTP_PROXY = cfg.proxy;
-        HTTPS_PROXY = cfg.proxy;
-        NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
-        http_proxy = cfg.proxy;
-        https_proxy = cfg.proxy;
-        no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
-      };
     };
   };
 }

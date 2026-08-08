@@ -6,7 +6,7 @@
 }:
 let
   moviepilotProxy = "socks5h://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  moviepilotProxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
 in
 {
   imports = [
@@ -52,8 +52,10 @@ in
     environment = {
       HTTP_PROXY = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       HTTPS_PROXY = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+      NO_PROXY = lib.mkForce proxyBypass;
       http_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       https_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+      no_proxy = lib.mkForce proxyBypass;
     };
   };
 
@@ -62,10 +64,10 @@ in
   systemd.services.podman-moviepilot.environment = {
     HTTP_PROXY = moviepilotProxy;
     HTTPS_PROXY = moviepilotProxy;
-    NO_PROXY = moviepilotProxyBypass;
+    NO_PROXY = proxyBypass;
     http_proxy = moviepilotProxy;
     https_proxy = moviepilotProxy;
-    no_proxy = moviepilotProxyBypass;
+    no_proxy = proxyBypass;
   };
 
   # Match the onboard GMAC by its permanent address so future driver or probe
