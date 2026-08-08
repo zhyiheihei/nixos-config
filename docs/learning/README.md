@@ -50,6 +50,7 @@
 - [buildbot-nix Nix CI](./buildbot-nix.md)
 - [nix-zsh-completions](./nix-zsh-completions.md)
 - [docker-nixpkgs Nix 构建 OCI 镜像](./docker-nixpkgs.md)
+- [nix-emacs Emacs 的 Nix 集成](./nix-emacs.md)
 
 ## 模块化 flake 框架
 
