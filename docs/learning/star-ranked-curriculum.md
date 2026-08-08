@@ -64,7 +64,7 @@
 | 52 | `flakelight` | 408 | 已学 | 模块化 flake 框架 |
 | 53 | `kickstart-nix.nvim` | 405 | 已学 | Neovim flake 模板 |
 | 54 | `nixos-images` | 404 | 已学 | NixOS netboot 镜像 |
-| 55 | `nixos-cli` | 393 | 待学 | 统一 NixOS CLI |
+| 55 | `nixos-cli` | 393 | 已学 | 统一 NixOS CLI |
 | 56 | `nix-vscode-extensions` | 390 | 待学 | VS Code 扩展 Nix 化 |
 | 57 | `nixos-avf` | 366 | 待学 | Android AVF 上的 NixOS |
 | 58 | `trustix` | 364 | 待学 | 二进制缓存可复现性追踪 |
@@ -75,8 +75,7 @@
 
 按 star 从高到低，当前待学：
 
-1. `nixos-cli`
-2. `nix-vscode-extensions`
-3. `terraform-nixos`（README 待网络恢复后补全）
+1. `nix-vscode-extensions`
+2. `terraform-nixos`（README 待网络恢复后补全）
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
