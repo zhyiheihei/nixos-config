@@ -61,9 +61,7 @@ microSD
 - macOS 读取：`tio /dev/cu.usbmodem* -b 1500000`。
 - **macOS 限制**：系统 termios 最高只支持 230400，`stty`/Python `termios` 无法
   设置 1500000；`tio` 内部用自定义波特率所以可用。后台保持监听需给 tio 伪终端
-  （`pty.fork()`），否则 tio 检测到 stdin 非 tty 立即退出。脚本：
-  `tools/taishanpi/tio-pty.py`（输出落 `/tmp/taishanpi-boot.log`）。
-- 串口读写辅助：`tools/taishanpi/send-serial.py`（向 `tty` 设备写命令）。
+  （`pty.fork()`），否则 tio 检测到 stdin 非 tty 立即退出。
 
 ## root 登录（重要：仓库统一密钥，勿用 initialPassword）
 
@@ -77,9 +75,6 @@ microSD
 `mutableUsers=false` 时 activation 会用统一 `hashedPassword` 覆盖，且
 `initialPassword` 与 `hashedPassword` 同设会触发求值冲突。root 密码就是统一
 bcrypt 的明文，不要重复设置。
-
-串口登录脚本 `tools/taishanpi/login-serial.py` 不硬编码密码：优先读取
-`TAISHANPI_ROOT_PASSWORD` 环境变量，未设置时在终端交互输入。
 
 ## 首启登录：预置 WiFi + SSH（不走串口密码）
 
