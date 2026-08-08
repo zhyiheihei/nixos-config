@@ -106,6 +106,7 @@
 - [nix-snapd Snap 包的 NixOS 适配](./nix-snapd.md)
 - [steam-fetcher Steam 应用的 Nix fetcher](./steam-fetcher.md)
 - [vagrant-nixos-plugin Vagrant 的 NixOS 插件](./vagrant-nixos-plugin.md)
+- [kde2nix KDE 6 预发布打包（已归档）](./kde2nix.md)
 
 ## 模块化 flake 框架
 
