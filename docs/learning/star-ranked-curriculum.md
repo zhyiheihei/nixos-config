@@ -117,7 +117,7 @@
 | 95 | `npmlock2nix` | 148 | 已学 | npm lock 转 Nix |
 | 96 | `nix4nvchad` | 146 | 已学 | NvChad 的 Nix 安装 |
 | 97 | `namaka` | 145 | 已学 | Nix 快照测试 |
-| 98 | `nix-installers` | 138 | 待学 | 旧发行版 Nix 安装包 |
+| 98 | `nix-installers` | 138 | 已学 | 旧发行版 Nix 安装包 |
 | 99 | `nix-ld-rs` | 137 | 部分 | nix-ld 的 Rust 实现（已归档） |
 | 100 | `manix` | 135 | 待学 | Nix 文档搜索 CLI |
 
