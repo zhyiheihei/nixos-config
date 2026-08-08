@@ -35,7 +35,7 @@ let
     "bazarr"
     "prowlarr"
     "podman-handbrake"
-    "moviepilot"
+    "podman-moviepilot"
   ];
 in
 {
