@@ -1,0 +1,26 @@
+# 学习索引
+
+本目录集中存放 nix-community 生态与复刻学习笔记。主仓库是 `nixos-config`，
+`zhyi-packages` 只作为包补充仓库存在，学习文档统一放在这里。
+
+## 总纲
+
+- [Nix 复刻学习总纲](./nix-replication-guide.md)
+
+## nix-community 组织
+
+- [组织仓库全景](./org-overview.md)
+- [NUR 生态链](./nur-chain.md)
+- [NixOS 系统层](./system-layer.md)
+- [组织自运维与基础设施](./infrastructure.md)
+- [写 Nix 的开发工具链](./dev-tooling.md)
+- [桌面与日常使用层](./desktop.md)
+
+## 语言生态打包
+
+- [语言生态打包概览](./language-packaging.md)
+- [crate2nix 增量构建模型](./crate2nix.md)
+
+## 包补充仓库
+
+- [zhyi-packages 复刻指南](./zhyi-packages-guide.md)

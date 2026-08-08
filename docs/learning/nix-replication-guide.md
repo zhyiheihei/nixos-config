@@ -61,10 +61,10 @@ repos.json                   # nur-check 使用的自注册表
 本仓库已经做过多次审计，结论是“公共模块默认行为跟作者，本地拓扑通过参数和
 主机配置表达”。关键审计：
 
-- [2026-08-03 作者配置复刻偏移审计](./migrations/upstream-replica-audit-2026-08-03.md)
-- [2026-07-28 上游对齐偏差审计](./migrations/upstream-alignment-audit-2026-07-28.md)
-- [2026-08-06 上游公开模块对齐](./migrations/upstream-public-module-alignment-2026-08-06.md)
-- [2026-08-06 上游服务链对齐](./migrations/upstream-server-chain-alignment-2026-08-06.md)
+- [2026-08-03 作者配置复刻偏移审计](../migrations/upstream-replica-audit-2026-08-03.md)
+- [2026-07-28 上游对齐偏差审计](../migrations/upstream-alignment-audit-2026-07-28.md)
+- [2026-08-06 上游公开模块对齐](../migrations/upstream-public-module-alignment-2026-08-06.md)
+- [2026-08-06 上游服务链对齐](../migrations/upstream-server-chain-alignment-2026-08-06.md)
 
 必须跟随作者的部分：
 
@@ -192,9 +192,9 @@ repos.json                   # nur-check 使用的自注册表
 
 ## 相关文档
 
-- [当前 hosts 概览](./reference/hosts-overview.md)
-- [构建与部署](./operations/deployment.md)
-- [新主机接入规范](./getting-started/new-host-standard.md)
-- [模块分层与参数归属规范](./operations/module-placement-norms.md)
-- [2026-08-03 作者配置复刻偏移审计](./migrations/upstream-replica-audit-2026-08-03.md)
-- [zhyi-packages 复刻指南](../../zhyi-packages/docs/nix-replication-guide.md)
+- [当前 hosts 概览](../reference/hosts-overview.md)
+- [构建与部署](../operations/deployment.md)
+- [新主机接入规范](../getting-started/new-host-standard.md)
+- [模块分层与参数归属规范](../operations/module-placement-norms.md)
+- [2026-08-03 作者配置复刻偏移审计](../migrations/upstream-replica-audit-2026-08-03.md)
+- [zhyi-packages 复刻指南](./zhyi-packages-guide.md)
