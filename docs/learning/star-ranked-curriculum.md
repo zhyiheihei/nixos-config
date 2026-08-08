@@ -55,7 +55,7 @@
 | 43 | `nixos-vscode-server` | 555 | 已学 | NixOS 上的 VSCode Server |
 | 44 | `crate2nix` | 514 | 已学 | Rust crate 级构建 |
 | 45 | `vscode-nix-ide` | 508 | 已学 | VSCode Nix 插件 |
-| 46 | `NixNG` | 483 | 待学 | 基于 Nix 的 Linux 发行版 |
+| 46 | `NixNG` | 483 | 已学 | 基于 Nix 的 Linux 发行版 |
 | 47 | `rnix-parser` | 477 | 已学 | Rust Nix parser |
 | 48 | `nix-user-chroot` | 428 | 待学 | 无 root 运行 Nix |
 | 49 | `terraform-nixos` | 417 | 待学 | Terraform 部署 NixOS |
@@ -75,14 +75,13 @@
 
 按 star 从高到低，当前待学：
 
-1. `NixNG`
-2. `nix-user-chroot`
-3. `terraform-nixos`
-4. `haumea`
-5. `neovim-nightly-overlay`
-6. `kickstart-nix.nvim`
-7. `nixos-images`
-8. `nixos-cli`
-9. `nix-vscode-extensions`
+1. `nix-user-chroot`
+2. `terraform-nixos`
+3. `haumea`
+4. `neovim-nightly-overlay`
+5. `kickstart-nix.nvim`
+6. `nixos-images`
+7. `nixos-cli`
+8. `nix-vscode-extensions`
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
