@@ -69,6 +69,7 @@
 - [cache-nix-action CI 缓存](./cache-nix-action.md)
 - [go-nix Nix 的 Go 库](./go-nix.md)
 - [nixos-install-scripts 厂商安装脚本](./nixos-install-scripts.md)
+- [nur-packages-template NUR 仓库模板](./nur-packages-template.md)
 
 ## 模块化 flake 框架
 
