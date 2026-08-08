@@ -36,6 +36,7 @@
 - [nixos-vscode-server](./nixos-vscode-server.md)
 - [NixNG 轻量发行版](./NixNG.md)
 - [nix-user-chroot 无 root 运行](./nix-user-chroot.md)
+- [terraform-nixos](./terraform-nixos.md)
 
 ## 模块化 flake 框架
 
