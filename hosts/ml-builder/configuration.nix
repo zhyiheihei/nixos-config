@@ -13,7 +13,7 @@ let
   ) (throw "mac-book SSH public key is missing from secrets") sshKeys;
   macBookIdentity = pkgs.writeText "mac-book-ssh-identity.pub" macBookPublicKey;
   outboundProxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin";
+  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin,.xuyh0120.win";
   proxyEnvironment = {
     GOPROXY = "https://goproxy.cn,direct";
     HTTP_PROXY = outboundProxy;
