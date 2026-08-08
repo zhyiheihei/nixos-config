@@ -99,6 +99,7 @@
 - [vgo2nix Go modules 转 Nix（已归档）](./vgo2nix.md)
 - [zephyr-nix Zephyr 开发环境](./zephyr-nix.md)
 - [nix-data-science 数据科学包集合](./nix-data-science.md)
+- [mineflake 声明式 Minecraft 服务器](./mineflake.md)
 
 ## 模块化 flake 框架
 
