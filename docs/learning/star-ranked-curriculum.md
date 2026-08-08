@@ -132,7 +132,7 @@
 | 105 | `zon2nix` | 123 | 已学 | Zig zon 依赖转 Nix |
 | 106 | `nixt` | 123 | 已学 | Nix 测试框架 |
 | 107 | `napalm` | 117 | 已学 | npm 锁文件转 Nix |
-| 108 | `nixpkgs.lib` | 108 | 待学 | 轻量 nixpkgs lib |
+| 108 | `nixpkgs.lib` | 108 | 已学 | 轻量 nixpkgs lib |
 | 109 | `nix-unstable-installer` | 103 | 待学 | Nix unstable 安装器 |
 | 110 | `nixpkgs-xr` | 102 | 待学 | XR/AR/VR 工具包 |
 | 111 | `wiki` | 102 | 部分 | 社区 wiki（已归档） |
