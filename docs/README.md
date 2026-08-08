@@ -6,7 +6,7 @@
 
 ## 复刻与学习
 
-- [Nix 复刻学习总纲](./nix-replication-guide.md)
+- [学习索引](./learning/README.md)
 
 ## 入门与主机接入
 
