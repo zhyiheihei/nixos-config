@@ -51,7 +51,6 @@
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
     ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
 
-    "${inputs.secrets}/nixos-hidden-module/851e5310ebca4e5c"
   ];
 
   systemd.network.networks.eth0 = {
