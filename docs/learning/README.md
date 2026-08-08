@@ -82,6 +82,7 @@
 - [nix-installers 旧发行版 Nix 安装包](./nix-installers.md)
 - [nix-ld-rs 动态二进制加载器（已归档）](./nix-ld-rs.md)
 - [manix Nix 文档搜索](./manix.md)
+- [nix-unit Nix 单元测试](./nix-unit.md)
 
 ## 模块化 flake 框架
 
