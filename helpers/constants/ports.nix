@@ -122,6 +122,8 @@ rec {
     SunPanel = 13828;
     SunPanelHelper = 13829;
     Syncthing = 13834;
+    MoviePilot.Frontend = 13890;
+    MoviePilot.Backend = 13891;
     Usque = 13840;
     WGMesh.WebSocket = 13841;
     Ncps = 13851;
