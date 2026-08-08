@@ -16,6 +16,7 @@
 - [NixOS 完整重装指南](./operations/nixos-reinstallation-guide.md)
 - [ml-builder 验收与排障](./operations/test-ml-builder.md)
 - [模块分层与参数归属规范](./operations/module-placement-norms.md)
+- [模块分层与参数归属审计](./operations/module-placement-audit-2026-08-08.md)
 
 ## 硬件适配
 
