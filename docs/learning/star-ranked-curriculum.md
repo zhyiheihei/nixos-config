@@ -83,7 +83,7 @@
 | 66 | `buildbot-nix` | 281 | 已学 | buildbot 版 Nix CI |
 | 67 | `nix-zsh-completions` | 281 | 已学 | Nix zsh 补全 |
 | 68 | `docker-nixpkgs` | 249 | 已学 | Docker 版 nixpkgs |
-| 69 | `nix-emacs` | 249 | 待学 | Emacs 的 Nix 集成 |
+| 69 | `nix-emacs` | 249 | 已学 | Emacs 的 Nix 集成 |
 | 70 | `nix-doom-emacs` | 243 | 待学 | doom-emacs 的 Nix 打包 |
 | 71 | `pip2nix` | 242 | 待学 | Python pip 转 Nix |
 | 72 | `nix-on-droid-app` | 241 | 待学 | nix-on-droid 配套 App |
