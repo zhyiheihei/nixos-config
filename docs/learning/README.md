@@ -132,6 +132,7 @@
 - [queued-build-hook Nix post-build-hook 排队重试](./queued-build-hook.md)
 - [emacs2nix Emacs 包自动生成 Nix 表达式](./emacs2nix.md)
 - [luarocks-nix rockspec 转 Nix（fork）](./luarocks-nix.md)
+- [docnix Nix 参考文档站（已归档）](./docnix.md)
 
 ## 模块化 flake 框架
 
