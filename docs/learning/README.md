@@ -52,6 +52,7 @@
 - [docker-nixpkgs Nix 构建 OCI 镜像](./docker-nixpkgs.md)
 - [nix-emacs Emacs 的 Nix 集成](./nix-emacs.md)
 - [nix-doom-emacs Doom Emacs 打包](./nix-doom-emacs.md)
+- [pip2nix Python pip 转 Nix](./pip2nix.md)
 
 ## 模块化 flake 框架
 
