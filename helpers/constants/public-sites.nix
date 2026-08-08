@@ -38,7 +38,6 @@ _: [
   "cal.zhyi.xin"
   "couchdb.zhyi.cc"
   "dashboard.zhyi.cc"
-  "docker-proxy.zhyi.cc"
   "filebox.zhyi.xin"
   "git.zhyi.xin"
   "hydra.zhyi.cc"
@@ -61,21 +60,12 @@ _: [
   # Intentionally public without authentication
   # keep-sorted start
   "cnvm.zhyi.cc"
-  "colocrossing.zhyi.cc"
-  "elastic.zhyi.cc"
   "flapalerted.zhyi.cc"
-  "gcr.zhyi.cc"
-  "ghcr.zhyi.cc"
-  "hub.zhyi.cc"
   "jpvm.zhyi.cc"
-  "k8s-gcr.zhyi.cc"
-  "k8s.zhyi.cc"
+  "colocrossing.zhyi.cc"
+  "usvm.zhyi.cc"
   "lg.zhyi.cc"
   "lg.zhyi.dn42"
-  "mcr.zhyi.cc"
-  "nvcr.zhyi.cc"
-  "quay.zhyi.cc"
   "sub.zhyi.cc"
-  "usvm.zhyi.cc"
   # keep-sorted end
 ]
