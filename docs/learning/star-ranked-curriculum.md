@@ -119,7 +119,7 @@
 | 97 | `namaka` | 145 | 已学 | Nix 快照测试 |
 | 98 | `nix-installers` | 138 | 已学 | 旧发行版 Nix 安装包 |
 | 99 | `nix-ld-rs` | 137 | 已学 | nix-ld 的 Rust 实现（已归档） |
-| 100 | `manix` | 135 | 待学 | Nix 文档搜索 CLI |
+| 100 | `manix` | 135 | 已学 | Nix 文档搜索 CLI |
 
 ## 下一批待学顺序
 
