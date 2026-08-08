@@ -79,6 +79,7 @@
 - [npmlock2nix npm lockfile 转 Nix](./npmlock2nix.md)
 - [nix4nvchad NvChad 的 Nix 安装](./nix4nvchad.md)
 - [namaka Nix 快照测试](./namaka.md)
+- [nix-installers 旧发行版 Nix 安装包](./nix-installers.md)
 
 ## 模块化 flake 框架
 
