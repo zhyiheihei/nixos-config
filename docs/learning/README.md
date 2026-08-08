@@ -71,6 +71,7 @@
 - [nixos-install-scripts 厂商安装脚本](./nixos-install-scripts.md)
 - [nur-packages-template NUR 仓库模板](./nur-packages-template.md)
 - [bun2nix Bun lockfile 转 Nix](./bun2nix.md)
+- [nix-github-actions flake 生成 CI 矩阵](./nix-github-actions.md)
 
 ## 模块化 flake 框架
 
