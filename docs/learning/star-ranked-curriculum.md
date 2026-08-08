@@ -164,7 +164,7 @@
 | 132 | `autofirma-nix` | 54 | 已学 | autofirma 的 Nix 模块 |
 | 133 | `lila` | 52 | 已学 | Nix hash 收集工具 |
 | 134 | `builtwithnix.org` | 51 | 已学 | builtwithnix 网站 |
-| 135 | `mavenix` | 50 | 待学 | Maven 依赖转 Nix |
+| 135 | `mavenix` | 50 | 已学 | Maven 依赖转 Nix |
 | 136 | `nixpkgs-pytools` | 49 | 待学 | Python 工具集合 |
 | 137 | `nixos-avf-image-app` | 45 | 待学 | AVF 安装配套 App |
 | 138 | `nur-search` | 44 | 待学 | NUR 搜索站点 |

@@ -116,6 +116,7 @@
 - [autofirma-nix 西班牙政务签名工具集](./autofirma-nix.md)
 - [lila Nix 构建 hash 收集](./lila.md)
 - [builtwithnix.org 宣传站点与 badge](./builtwithnix.org.md)
+- [mavenix Maven 依赖转 Nix](./mavenix.md)
 
 ## 模块化 flake 框架
 
