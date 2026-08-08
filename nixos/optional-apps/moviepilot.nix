@@ -48,7 +48,6 @@ in
         "${cfg.dataDir}:/config"
         "${cfg.dataDir}/.cloakbrowser:/moviepilot/.cloakbrowser"
         "/mnt/storage/downloads:/mnt/storage/downloads"
-        "/mnt/storage/.downloads:/mnt/storage/.downloads"
         "/mnt/storage/media-radarr:/mnt/storage/media-radarr"
         "/mnt/storage/media-sonarr:/mnt/storage/media-sonarr"
       ];

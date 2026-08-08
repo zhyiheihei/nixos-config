@@ -11,10 +11,10 @@ let
   user = "zhyi";
   group = "users";
   authSubnetWhitelist = "192.168.0.62,192.168.0.64";
-  # One download root for every qBittorrent client after the merge.  The old
-  # hidden PT path is renamed to this and the seedbox data is moved into it,
-  # so MoviePilot can match a single save path and transfer into the libraries.
-  unifiedDownloadPath = "/mnt/storage/.downloads";
+  # One non-hidden download root for every qBittorrent client after the merge.
+  # MoviePilot skips hidden paths during transfer, so the unified path must be
+  # a plain directory instead of the old ".downloads-*" names.
+  unifiedDownloadPath = "/mnt/storage/downloads";
   # Single qBittorrent instance after the downloader merge.  PT and seedbox
   # units are kept defined by their modules but disabled below; torrent data
   # is already on the shared NFS paths, so one client can own all of them.
