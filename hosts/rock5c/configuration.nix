@@ -65,8 +65,6 @@ in
     HTTP_PROXY = moviepilotProxy;
     HTTPS_PROXY = moviepilotProxy;
     NO_PROXY = proxyBypass;
-    PROXY_HOST = moviepilotProxy;
-    GITHUB_PROXY = moviepilotProxy;
     http_proxy = moviepilotProxy;
     https_proxy = moviepilotProxy;
     no_proxy = proxyBypass;
