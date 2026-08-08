@@ -11,17 +11,15 @@ let
   user = "zhyi";
   group = "users";
   authSubnetWhitelist = "192.168.0.62,192.168.0.64";
-  defaultDownloadPath = "/mnt/storage/downloads";
+  # One download root for every qBittorrent client after the merge.  The old
+  # hidden PT path is renamed to this and the seedbox data is moved into it,
+  # so MoviePilot can match a single save path and transfer into the libraries.
+  unifiedDownloadPath = "/mnt/storage/.downloads";
   flexgetAutoDownloadPath = "/mnt/storage/.downloads-auto";
-  qBitTorrentSonarrDownloadPath = "/mnt/storage/.downloads-qb";
-  qBitTorrentPTSonarrDownloadPath = "/mnt/storage/.downloads-qb-pt";
-  qBitTorrentSeedboxDownloadPath = "/mnt/storage/.downloads-qb-seedbox";
-  qbitServices = [
-    "qbittorrent"
-    "qbittorrent-pt"
-    "qbittorrent-seedbox"
-    "qbittorrent-pt-cleanup"
-  ];
+  # Single qBittorrent instance after the downloader merge.  PT and seedbox
+  # units are kept defined by their modules but disabled below; torrent data
+  # is already on the shared NFS paths, so one client can own all of them.
+  qbitServices = [ "qbittorrent" ];
   qbitPreStart = instance: ''
     conf=/var/lib/${instance}/qBittorrent/config/qBittorrent.conf
     mkdir -p "$(dirname "$conf")"
@@ -55,14 +53,16 @@ in
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
     "bt.localhost".locations."/".proxyPass =
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
+    # After the merge these names alias the same single client so existing
+    # bookmarks and automation entries keep working.
     "pt.${config.networking.hostName}.zhyi.cc".locations."/".proxyPass =
-      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentPT.WebUI}";
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
     "pt.localhost".locations."/".proxyPass =
-      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentPT.WebUI}";
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
     "seedbox.${config.networking.hostName}.zhyi.cc".locations."/".proxyPass =
-      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentSeedbox.WebUI}";
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
     "seedbox.localhost".locations."/".proxyPass =
-      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentSeedbox.WebUI}";
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
   };
 
   services.qbittorrent.torrentingPort = lib.mkForce 31220;
@@ -73,23 +73,11 @@ in
       user = "root";
       group = "root";
     };
-    "${defaultDownloadPath}".d = {
+    "${unifiedDownloadPath}".d = {
       mode = "755";
       inherit user group;
     };
     "${flexgetAutoDownloadPath}".d = {
-      mode = "755";
-      inherit user group;
-    };
-    "${qBitTorrentSonarrDownloadPath}".d = {
-      mode = "755";
-      inherit user group;
-    };
-    "${qBitTorrentPTSonarrDownloadPath}".d = {
-      mode = "755";
-      inherit user group;
-    };
-    "${qBitTorrentSeedboxDownloadPath}".d = {
       mode = "755";
       inherit user group;
     };
@@ -110,40 +98,14 @@ in
     {
       qbittorrent.preStart = lib.mkAfter (qbitPreStart "qbittorrent");
       qbittorrent.serviceConfig.BindPaths = [
-        defaultDownloadPath
-        qBitTorrentSonarrDownloadPath
+        unifiedDownloadPath
+        flexgetAutoDownloadPath
       ];
-      qbittorrent-pt = {
-        preStart = lib.mkAfter (qbitPreStart "qbittorrent-pt");
-        serviceConfig = {
-          ExecStart = lib.mkForce (utils.escapeSystemdExecArgs [
-            (lib.getExe pkgs.qbittorrent-nox)
-            "--profile=/var/lib/qbittorrent-pt"
-            "--webui-port=${LT.portStr.qBitTorrentPT.WebUI}"
-            "--torrenting-port=31221"
-            "--confirm-legal-notice"
-          ]);
-          BindPaths = [
-            defaultDownloadPath
-            flexgetAutoDownloadPath
-            qBitTorrentPTSonarrDownloadPath
-          ];
-        };
-      };
-      qbittorrent-seedbox = {
-        preStart = lib.mkAfter (qbitPreStart "qbittorrent-seedbox");
-        serviceConfig = {
-          ExecStart = lib.mkForce (utils.escapeSystemdExecArgs [
-            (lib.getExe pkgs.qbittorrent-nox)
-            "--profile=/var/lib/qbittorrent-seedbox"
-            "--webui-port=${LT.portStr.qBitTorrentSeedbox.WebUI}"
-            "--torrenting-port=31222"
-            "--confirm-legal-notice"
-          ]);
-          BindPaths = [ qBitTorrentSeedboxDownloadPath ];
-        };
-      };
-      qbittorrent-pt-cleanup.environment.QBITTORRENT_URL = lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentPT.WebUI}";
+      # Old multi-instance units stay defined in their modules for rollback,
+      # but are no longer part of the active single-client stack.
+      qbittorrent-pt.enable = lib.mkForce false;
+      qbittorrent-seedbox.enable = lib.mkForce false;
+      qbittorrent-pt-cleanup.enable = lib.mkForce false;
     }
   ];
 
@@ -155,7 +117,7 @@ in
     after = [ "mnt-storage.mount" ];
   };
 
-  systemd.timers.qbittorrent-pt-cleanup.unitConfig.ConditionPathExists = activationMarker;
+  systemd.timers.qbittorrent-pt-cleanup.enable = lib.mkForce false;
 
-  lantian.qbittorrent-seedbox.downloadPath = qBitTorrentSeedboxDownloadPath;
+  lantian.qbittorrent-seedbox.downloadPath = unifiedDownloadPath;
 }
