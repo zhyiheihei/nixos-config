@@ -53,6 +53,9 @@ in
       HTTP_PROXY = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       HTTPS_PROXY = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       NO_PROXY = lib.mkForce proxyBypass;
+      # MoviePilot container talks to Jellyfin over HTTP; the Rockchip
+      # deployment normally exposes only the unix socket through Nginx.
+      JELLYFIN_kestrel__httpPort = lib.mkForce "8096";
       http_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       https_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       no_proxy = lib.mkForce proxyBypass;
