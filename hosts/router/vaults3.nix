@@ -23,8 +23,13 @@ in
   };
   users.groups.vaults3 = { };
 
-  sops.secrets.vaults3-credentials = {
-    sopsFile = inputs.secrets + "/common/vaults3.yaml";
+  # VaultS3 uses the fleet-wide account/password convention: access key is the
+  # unified account and the secret key comes from the shared default-pw secret.
+  sops.templates.vaults3-credentials = {
+    content = ''
+      VAULTS3_ACCESS_KEY=zhyi
+      VAULTS3_SECRET_KEY=${config.sops.placeholder.default-pw}
+    '';
     mode = "0400";
     owner = "vaults3";
     group = "vaults3";
@@ -59,7 +64,7 @@ in
       Type = "simple";
       User = "vaults3";
       Group = "vaults3";
-      EnvironmentFile = config.sops.secrets.vaults3-credentials.path;
+      EnvironmentFile = config.sops.templates.vaults3-credentials.path;
       ExecStart = "${vaults3Pkg}/bin/vaults3 -config ${vaults3Config}";
       Restart = "on-failure";
       RestartSec = "5";
