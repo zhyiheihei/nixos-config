@@ -129,7 +129,7 @@
 | 102 | `nix4vscode` | 134 | 已学 | VSCode 的 Nix overlay |
 | 103 | `linuxkit-nix` | 134 | 已学 | LinuxKit 的 Nix 构建（已归档） |
 | 104 | `yarn2nix` | 127 | 已学 | yarn lock 转 Nix（已归档） |
-| 105 | `zon2nix` | 123 | 待学 | Zig zon 依赖转 Nix |
+| 105 | `zon2nix` | 123 | 已学 | Zig zon 依赖转 Nix |
 | 106 | `nixt` | 123 | 待学 | Nix 测试框架 |
 | 107 | `napalm` | 117 | 待学 | npm 锁文件转 Nix |
 | 108 | `nixpkgs.lib` | 108 | 待学 | 轻量 nixpkgs lib |
