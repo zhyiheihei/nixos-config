@@ -122,6 +122,7 @@
 - [nur-search NUR 搜索站点](./nur-search.md)
 - [nixpkgs-swh Software Heritage 归档](./nixpkgs-swh.md)
 - [talon-nix Talon Voice 自动打包](./talon-nix.md)
+- [flake-nimble Nimble 包的 Nix flake](./flake-nimble.md)
 
 ## 模块化 flake 框架
 
