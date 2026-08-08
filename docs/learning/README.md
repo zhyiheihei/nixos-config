@@ -103,6 +103,7 @@
 - [nix-ts-mode Emacs 的 Nix 模式](./nix-ts-mode.md)
 - [flake-firefox-nightly Firefox Nightly flake](./flake-firefox-nightly.md)
 - [nix-snapd Snap 包的 NixOS 适配](./nix-snapd.md)
+- [steam-fetcher Steam 应用的 Nix fetcher](./steam-fetcher.md)
 
 ## 模块化 flake 框架
 
