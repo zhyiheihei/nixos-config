@@ -4,6 +4,10 @@
   pkgs,
   ...
 }:
+let
+  moviepilotProxy = "socks5h://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+  moviepilotProxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+in
 {
   imports = [
     ../../nixos/server.nix
@@ -51,6 +55,17 @@
       http_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       https_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
     };
+  };
+
+  # MoviePilot container: PySocks resolves hostnames locally with socks5;
+  # socks5h keeps GitHub/plugin traffic on the router proxy with remote DNS.
+  systemd.services.podman-moviepilot.environment = {
+    HTTP_PROXY = moviepilotProxy;
+    HTTPS_PROXY = moviepilotProxy;
+    NO_PROXY = moviepilotProxyBypass;
+    http_proxy = moviepilotProxy;
+    https_proxy = moviepilotProxy;
+    no_proxy = moviepilotProxyBypass;
   };
 
   # Match the onboard GMAC by its permanent address so future driver or probe
