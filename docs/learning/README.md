@@ -83,6 +83,7 @@
 - [nix-ld-rs 动态二进制加载器（已归档）](./nix-ld-rs.md)
 - [manix Nix 文档搜索](./manix.md)
 - [nix-unit Nix 单元测试](./nix-unit.md)
+- [nix4vscode VSCode 的 Nix overlay](./nix4vscode.md)
 
 ## 模块化 flake 框架
 
