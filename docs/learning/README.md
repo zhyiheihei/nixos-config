@@ -96,6 +96,7 @@
 - [acpi_call ACPI 内核模块](./acpi_call.md)
 - [nixos-anywhere-examples 云主机示例](./nixos-anywhere-examples.md)
 - [pnpm2nix pnpm lockfile 转 Nix](./pnpm2nix.md)
+- [vgo2nix Go modules 转 Nix（已归档）](./vgo2nix.md)
 
 ## 模块化 flake 框架
 
