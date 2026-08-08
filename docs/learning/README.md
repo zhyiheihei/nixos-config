@@ -61,6 +61,7 @@
 - [bundix Ruby Gemfile 转 Nix](./bundix.md)
 - [todomvc-nix 全栈教学示例](./todomvc-nix.md)
 - [nixos-facter-modules 硬件检测模块](./nixos-facter-modules.md)
+- [authentik-nix IdP 部署 flake](./authentik-nix.md)
 
 ## 模块化 flake 框架
 
