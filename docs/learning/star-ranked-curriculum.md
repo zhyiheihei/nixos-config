@@ -114,7 +114,7 @@
 | 92 | `nixago` | 153 | 已学 | 配置生成工具 |
 | 93 | `nixhelm` | 152 | 已学 | Helm charts 的 Nix 集合 |
 | 94 | `templates` | 149 | 已学 | Nix flake 模板 |
-| 95 | `npmlock2nix` | 148 | 待学 | npm lock 转 Nix |
+| 95 | `npmlock2nix` | 148 | 已学 | npm lock 转 Nix |
 | 96 | `nix4nvchad` | 146 | 待学 | NvChad 的 Nix 安装 |
 | 97 | `namaka` | 145 | 待学 | Nix 快照测试 |
 | 98 | `nix-installers` | 138 | 待学 | 旧发行版 Nix 安装包 |
