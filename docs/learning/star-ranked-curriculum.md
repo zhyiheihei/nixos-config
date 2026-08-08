@@ -181,7 +181,7 @@
 | 144 | `sigtool` | 35 | 已学 | Nix 签名工具 |
 | 145 | `rustowl-flake` | 33 | 已学 | RustOwl 相关 flake |
 | 146 | `nixos-landscape` | 33 | 已学 | NixOS 生态全景图 |
-| 147 | `dreampkgs` | 30 | 待学 | dream2nix 管理的软件集 |
+| 147 | `dreampkgs` | 30 | 已学 | dream2nix 管理的软件集 |
 | 148 | `queued-build-hook` | 30 | 待学 | Nix post-build-hook 排队重试 |
 | 149 | `emacs2nix` | 29 | 待学 | Emacs 包自动生成 Nix 表达式 |
 | 150 | `luarocks-nix` | 26 | 待学 | rockspec 转 Nix（fork） |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`dreampkgs`（#147，30 star）。
+按 star 从高到低，当前待学：`queued-build-hook`（#148，30 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
