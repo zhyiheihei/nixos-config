@@ -73,6 +73,7 @@
 - [bun2nix Bun lockfile 转 Nix](./bun2nix.md)
 - [nix-github-actions flake 生成 CI 矩阵](./nix-github-actions.md)
 - [ethereum.nix Ethereum 生态 Nix 包](./ethereum.nix.md)
+- [nixago Nix 生成配置文件](./nixago.md)
 
 ## 模块化 flake 框架
 
