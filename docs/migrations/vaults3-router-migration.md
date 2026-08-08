@@ -42,3 +42,6 @@ router 原生 VaultS3 4.4.49（来自 `zhyi-packages` 的 arm64 官方发布二�
   `internal/s3/multipart.go`），对应 Attic 大闭包并发 part 上传时的 403/404 风暴。
 - GitHub 地址不需要更换：`zhyi-packages` 的 nvfetcher 已指向
   `Kodiqa-Solutions/VaultS3`。
+- 升级/重启 VaultS3 时若 atticd 正在上传，旧 multipart 会话会失效并持续返回
+  `NoSuchUpload` 404；升级后应重启 `atticd` 丢弃失效会话，并清理空
+  `.multipart` 目录（2026-08-08 已按此处理）。
