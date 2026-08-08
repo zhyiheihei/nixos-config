@@ -81,7 +81,7 @@
 | 64 | `nix-environments` | 302 | 已学 | Nix 开发环境集合 |
 | 65 | `dconf2nix` | 301 | 已学 | dconf 配置转 Nix |
 | 66 | `buildbot-nix` | 281 | 已学 | buildbot 版 Nix CI |
-| 67 | `nix-zsh-completions` | 281 | 待学 | Nix zsh 补全 |
+| 67 | `nix-zsh-completions` | 281 | 已学 | Nix zsh 补全 |
 | 68 | `docker-nixpkgs` | 249 | 待学 | Docker 版 nixpkgs |
 | 69 | `nix-emacs` | 249 | 待学 | Emacs 的 Nix 集成 |
 | 70 | `nix-doom-emacs` | 243 | 待学 | doom-emacs 的 Nix 打包 |

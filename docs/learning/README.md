@@ -48,6 +48,7 @@
 - [nix-environments 共享开发环境](./nix-environments.md)
 - [dconf2nix GUI 设置转 Nix](./dconf2nix.md)
 - [buildbot-nix Nix CI](./buildbot-nix.md)
+- [nix-zsh-completions](./nix-zsh-completions.md)
 
 ## 模块化 flake 框架
 
