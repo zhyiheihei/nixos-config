@@ -37,6 +37,7 @@
 - [NixNG 轻量发行版](./NixNG.md)
 - [nix-user-chroot 无 root 运行](./nix-user-chroot.md)
 - [terraform-nixos](./terraform-nixos.md)
+- [haumea 文件系统模块系统](./haumea.md)
 
 ## 模块化 flake 框架
 
