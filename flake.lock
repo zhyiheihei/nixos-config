@@ -1596,11 +1596,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786024094,
-        "narHash": "sha256-K+HRoM8ThlqPj+VckE5rEmeCQ3CZcFyCAj0XbWKMzu0=",
+        "lastModified": 1786154604,
+        "narHash": "sha256-c0l8I0+vfdbi54gug8IgVX4WrCLVGFJzJnmPVNNELSc=",
         "owner": "zhyiheihei",
         "repo": "zhyi-packages",
-        "rev": "c48e0a9b4b4040cb9212ccf4ad59897006dd2537",
+        "rev": "3d6dd08e64b30dc042f432a37a49c2745d59ed7b",
         "type": "github"
       },
       "original": {
