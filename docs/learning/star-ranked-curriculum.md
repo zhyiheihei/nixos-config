@@ -85,7 +85,7 @@
 | 68 | `docker-nixpkgs` | 249 | 已学 | Docker 版 nixpkgs |
 | 69 | `nix-emacs` | 249 | 已学 | Emacs 的 Nix 集成 |
 | 70 | `nix-doom-emacs` | 243 | 已学 | doom-emacs 的 Nix 打包 |
-| 71 | `pip2nix` | 242 | 待学 | Python pip 转 Nix |
+| 71 | `pip2nix` | 242 | 已学 | Python pip 转 Nix |
 | 72 | `nix-on-droid-app` | 241 | 待学 | nix-on-droid 配套 App |
 | 73 | `tree-sitter-nix` | 239 | 待学 | Nix 的 tree-sitter 语法 |
 | 74 | `nur-combined` | 194 | 待学 | NUR 合并包集合 |

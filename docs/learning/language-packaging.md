@@ -85,6 +85,9 @@
   Python 包集合统一处理；
 - poetry2nix 已停维护，不值得引入。
 
+nix-community 侧更早的 `pip2nix` / `pypi2nix` 也已基本停滞，只作历史参考，
+详见 [`pip2nix 笔记`](./pip2nix.md)。
+
 ### Rust
 
 `zhconv-rs` 是一个 Python 绑定包，用的是
