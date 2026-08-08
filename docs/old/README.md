@@ -8,3 +8,4 @@
 - `ml-2700u/`：已替换主机的安装、桌面和重装记录。
 - `onepanel-to-ml-home-vm-migration.md`：已完成的 1Panel 服务迁移记录。
 - `opentwrt-two-router-interlan.md`：曾用双路由网段互访配置。
+- `orangepi-zero3-redroid.md`：H618 reDroid 工具与构建记录；`tools/redroid-opi03/` 已删除，命令不可复现。

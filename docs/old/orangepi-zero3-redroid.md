@@ -1,5 +1,7 @@
 # Orange Pi Zero 3：H618 reDroid 12、Mali GPU 与 Cedar 视频硬解
 
+> **历史归档（2026-08-08）**：`tools/redroid-opi03/` 已整体移除，本文不再作为可执行手册；其中引用的构建、打包和验证脚本已删除，命令不可复现。
+
 本文描述 `opi03` 的第二阶段目标：在 NixOS 主机内运行自制 reDroid 12 容器，
 Android 图形走 Mali-G31，视频编解码走 Allwinner Cedar/VE。它分两个 Stage：
 **Stage 1（当前）只要求 Mali GPU renderer 在容器内驱动**，即 SurfaceFlinger

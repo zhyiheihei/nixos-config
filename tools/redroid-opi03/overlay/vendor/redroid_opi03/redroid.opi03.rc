@@ -1,9 +1,0 @@
-# The common reDroid rc disables Codec2 because the generic image assumes a
-# software/GBM path.  H618 has an ION-backed vendor Codec2 service, so restore
-# CCodec before the normal boot trigger starts media services.
-on early-boot && property:ro.boot.redroid_gpu_mode=opi03
-    chmod 0666 /dev/mali0
-    chmod 0666 /dev/cedar_dev
-    chmod 0666 /dev/ion
-    chmod 0666 /dev/g2d
-    setprop debug.stagefright.ccodec 4

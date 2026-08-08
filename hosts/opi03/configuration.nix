@@ -7,19 +7,6 @@ let
   image = "localhost/opi03-redroid:android12-h618";
   stateDirectory = "/nix/persistent/var/lib/redroid-opi03";
   imageReady = "${stateDirectory}/.image-ready";
-  redroidCheck = pkgs.writeShellApplication {
-    name = "opi03-redroid-check";
-    runtimeInputs = [
-      pkgs.coreutils
-      pkgs.gawk
-      pkgs.gnugrep
-      pkgs.kmod
-      pkgs.podman
-      pkgs.systemd
-      pkgs.util-linux
-    ];
-    text = builtins.readFile ../../tools/redroid-opi03/verify.sh;
-  };
 in
 {
   imports = [
@@ -53,7 +40,6 @@ in
   boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
 
   environment.systemPackages = [
-    redroidCheck
     # The locally built Android rootfs is transferred as a .tar.zst archive;
     # keep decompression on opi03 while all compilation stays on ml-builder.
     pkgs.zstd

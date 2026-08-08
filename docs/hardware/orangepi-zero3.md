@@ -2,7 +2,7 @@
 
 本文记录 4 GiB Orange Pi Zero 3 的 SD 启动与 NixOS 基础配置。主机名为 `opi03`。
 板卡的第二阶段目标是自制 reDroid 12、Mali GPU 与 Cedar 视频硬解，单独见
-[`orangepi-zero3-redroid.md`](./orangepi-zero3-redroid.md)。Orange Pi Zero 2、Zero
+[历史归档的 reDroid 记录](../old/orangepi-zero3-redroid.md)。Orange Pi Zero 2、Zero
 2W 和其他内存版本不属于本次实机范围。
 
 ## 当前启动契约
@@ -30,7 +30,7 @@ input、不修改 `flake.lock`，也不从 Armbian 输出目录复制随机 kern
 用一个小型局部补丁采用 p3 的旧 binding 值 `rx-delay = <6>`，并补齐 YT8531
 Motorcomm PHY、GPIO LED、红灯到绿灯的启动阶段切换、绿色 heartbeat 和调试日志
 环。证据链和保留/舍弃项见
-[`orangepi-zero3-redroid.md` 的板级差异审计](./orangepi-zero3-redroid.md#zero-3-板级差异审计)。
+[历史归档的板级差异审计](../old/orangepi-zero3-redroid.md#zero-3-板级差异审计)。
 
 ## 镜像布局
 
