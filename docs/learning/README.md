@@ -176,6 +176,7 @@
 - [composer-local-repo-plugin Composer 本地仓库插件](./composer-local-repo-plugin.md)
 - [dream2nix-auto-test dream2nix 自动生成包测试（fork）](./dream2nix-auto-test.md)
 - [all-cabal-json 全部 Hackage cabal 文件 JSON](./all-cabal-json.md)
+- [buildcatrust 证书库格式转换](./buildcatrust.md)
 
 ## 模块化 flake 框架
 
