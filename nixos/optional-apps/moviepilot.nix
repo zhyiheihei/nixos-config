@@ -47,9 +47,10 @@ in
       volumes = [
         "${cfg.dataDir}:/config"
         "${cfg.dataDir}/.cloakbrowser:/moviepilot/.cloakbrowser"
-        "/mnt/storage/downloads:/mnt/storage/downloads"
-        "/mnt/storage/media-radarr:/mnt/storage/media-radarr"
-        "/mnt/storage/media-sonarr:/mnt/storage/media-sonarr"
+        # Mount the whole NFS root as one bind.  Separate subdirectory binds
+        # make the same NFS filesystem look like different devices inside the
+        # container, which breaks hardlink-based library imports.
+        "/mnt/storage:/mnt/storage"
       ];
     };
 
