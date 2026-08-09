@@ -85,6 +85,10 @@ in
       "jellyfin-api.${config.networking.hostName}.zhyi.cc" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
+        locations."= /Library/SelectableMediaFolders" = {
+          proxyPass = "http://unix:/run/jellyfin/socket";
+          extraConfig = "rewrite ^ /Library/MediaFolders break;";
+        };
         locations."/" = {
           proxyPass = "http://unix:/run/jellyfin/socket";
           proxyWebsockets = true;
