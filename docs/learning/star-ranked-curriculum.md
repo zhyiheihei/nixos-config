@@ -211,7 +211,7 @@
 | 169 | `pynixutil` | 14 | 已学 | Python 读 Nix 数据工具 |
 | 170 | `lib-aggregate` | 13 | 已学 | 纯 Nix lib 聚合 flake |
 | 171 | `flake.nix` | 13 | 已学 | flake 早期讨论仓库（已归档） |
-| 172 | `eask2nix` | 11 | 待学 | Eask 转 Nix 表达式 |
+| 172 | `eask2nix` | 11 | 已学 | Eask 转 Nix 表达式 |
 | 173 | `meetup-london` | 11 | 待学 | 伦敦 meetup 组织 |
 | 174 | `cross-toolchains.nix` | 10 | 待学 | 交叉工具链预构建（已归档） |
 | 175 | `rnix-hashes` | 10 | 待学 | Nix hash 转换器（已归档） |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`eask2nix`（#172，11 star）。
+按 star 从高到低，当前待学：`meetup-london`（#173，11 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
