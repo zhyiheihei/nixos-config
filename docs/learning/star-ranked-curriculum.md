@@ -10,7 +10,7 @@
 | 3 | `nixos-anywhere` | 3350 | 已学 | SSH 远程装 NixOS |
 | 4 | `disko` | 3241 | 已学 | 声明式磁盘分区 |
 | 5 | `nh` | 3076 | 已学 | Nix CLI 辅助工具 |
-| 6 | `NixOS-WSL` | 3039 | 部分 | NixOS on WSL |
+| 6 | `NixOS-WSL` | 3039 | 已学 | NixOS on WSL |
 | 7 | `nixvim` | 2903 | 已学 | Neovim 配置框架 |
 | 8 | `nix-direnv` | 2752 | 已学 | direnv 的 use_flake |
 | 9 | `nixos-generators` | 2401 | 部分 | 镜像生成器（已归档） |
@@ -267,7 +267,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，组织仓库共 214 个，**第 1-214 名已全部学完**。
-每个仓库都有独立笔记，并已同步更新本清单与 `docs/learning/README.md`。
+按 star 从高到低，组织仓库共 214 个。当前待学：`nixos-generators`
+（#9，2401 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
