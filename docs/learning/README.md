@@ -144,6 +144,7 @@
 - [flake-compat 旧 Nix 兼容层（已归档）](./flake-compat.md)
 - [nixops-digitalocean NixOps DigitalOcean 后端](./nixops-digitalocean.md)
 - [nixago-extensions Nixago 配置生成扩展](./nixago-extensions.md)
+- [fetchTree-spec fetchTree 规范与测试套件](./fetchTree-spec.md)
 
 ## 模块化 flake 框架
 
