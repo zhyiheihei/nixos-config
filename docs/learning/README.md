@@ -18,6 +18,7 @@
 - [NixOS 系统层](./system-layer.md)
 - [nixos-apple-silicon](./nixos-apple-silicon.md)
 - [NixOS-WSL WSL 上的 NixOS](./NixOS-WSL.md)
+- [nixos-generators 镜像生成器（已归档）](./nixos-generators.md)
 - [组织自运维与基础设施](./infrastructure.md)
 - [写 Nix 的开发工具链](./dev-tooling.md)
 - [桌面与日常使用层](./desktop.md)
