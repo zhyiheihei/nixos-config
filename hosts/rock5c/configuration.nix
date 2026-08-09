@@ -144,8 +144,8 @@ in
       for spec in \
         "BrushFlow|https://github.com/jxxghp/MoviePilot-Plugins" \
         "SubtitleAssistant|https://github.com/yubanmeiqin9048/MoviePilot-Plugins"; do
-        plugin=${spec%%|*}
-        repo=${spec#*|}
+        plugin=''${spec%%|*}
+        repo=''${spec#*|}
         for attempt in $(${pkgs.coreutils}/bin/seq 1 10); do
           ${pkgs.curl}/bin/curl -sS \
             -G "http://127.0.0.1:13890/api/v1/plugin/install/$plugin" \
