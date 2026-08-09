@@ -169,6 +169,7 @@
 - [nixpkgs-update-github-releases nixpkgs-update 的 releases 数据源](./nixpkgs-update-github-releases.md)
 - [nsncd nscd 协议的 Rust 实现（fork，已归档）](./nsncd.md)
 - [mediawiki-matrix-bot MediaWiki 变更转 Matrix bot](./mediawiki-matrix-bot.md)
+- [nix-travis-ci Travis 上的 Nix 支持](./nix-travis-ci.md)
 
 ## 模块化 flake 框架
 
