@@ -154,6 +154,7 @@
 - [lib-aggregate 纯 Nix lib 聚合 flake](./lib-aggregate.md)
 - [flake.nix flakes 讨论起点（已归档）](./flake.nix.md)
 - [eask2nix Eask 转 Nix 表达式](./eask2nix.md)
+- [meetup-london 伦敦 Nix meetup 协调](./meetup-london.md)
 
 ## 模块化 flake 框架
 
