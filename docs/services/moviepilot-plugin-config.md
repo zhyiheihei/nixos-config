@@ -47,7 +47,7 @@
 | AutoSignIn | 启用 | 每日 11:55 / 23:55 签到站点 [1,2] |
 | SiteStatistic | 启用 | 站点数据统计 |
 | MediaServerRefresh | 启用 | Jellyfin 入库刷新 |
-| IYUUAutoSeed | 启用 | 单下载器 qBittorrent；token 需用户更新绑定 |
+| IYUUAutoSeed | 停用 | 单下载器 qBittorrent；辅种按用户要求暂停，后续需要时再启用 |
 | CleanInvalidSeed | 启用 | 仅标记，不删除 |
 | SubtitleAssistant | 启用 | ASSRT + MoviePilot 站点字幕源，中文简繁字幕 |
 | TorrentRemover | 停用 | 仅保留 BrushFlow 标签配置，防误删 |
