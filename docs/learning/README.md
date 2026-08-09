@@ -23,6 +23,7 @@
 - [lanzaboote NixOS Secure Boot](./lanzaboote.md)
 - [plasma-manager KDE Plasma 的 Home Manager 模块](./plasma-manager.md)
 - [rnix-lsp 旧 Nix LSP（已归档）](./rnix-lsp.md)
+- [emacs-overlay Emacs 每日 overlay](./emacs-overlay.md)
 - [组织自运维与基础设施](./infrastructure.md)
 - [写 Nix 的开发工具链](./dev-tooling.md)
 - [桌面与日常使用层](./desktop.md)
