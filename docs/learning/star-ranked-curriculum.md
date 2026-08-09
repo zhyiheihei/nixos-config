@@ -192,7 +192,7 @@
 | 155 | `hpe-ltfs` | 24 | 已学 | HPE LTFS 源码镜像 |
 | 156 | `nixops-vbox` | 24 | 已学 | NixOps VirtualBox 后端 |
 | 157 | `nixos-cli-archive` | 22 | 已学 | 实验性 nixos-rebuild 替代品 |
-| 158 | `nix-straight.el` | 20 | 待学 | straight.el 的低层 Nix 集成 |
+| 158 | `nix-straight.el` | 20 | 已学 | straight.el 的低层 Nix 集成 |
 | 159 | `crystal2nix` | 19 | 待学 | Crystal 项目构建 |
 | 160 | `flake-compat` | 18 | 待学 | flake-compat 社区 fork（已归档） |
 
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`nix-straight.el`（#158，20 star）。
+按 star 从高到低，当前待学：`crystal2nix`（#159，19 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
