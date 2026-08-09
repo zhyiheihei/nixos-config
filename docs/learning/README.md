@@ -186,6 +186,7 @@
 - [nixpkgs 社区 fork（快照，无独立改动）](./nixpkgs.md)
 - [rfc39-record 项目团队邀请记录](./rfc39-record.md)
 - [dream2nix-pypi-most-popular dream2nix PyPI 热门包集（已归档）](./dream2nix-pypi-most-popular.md)
+- [pruned-racket-catalog Racket catalog 精简](./pruned-racket-catalog.md)
 
 ## 模块化 flake 框架
 
