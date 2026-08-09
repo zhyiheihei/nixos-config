@@ -246,10 +246,28 @@
 | 199 | `rkwifibt` | 2 | 已学 | Rockchip WiFi/BT 固件包（fork） |
 | 200 | `pipewire-to-json` | 2 | 已学 | pipewire 配置转 JSON（已归档） |
 
+## 第 201-214 名
+
+| # | 仓库 | Star | 状态 | 一句话 |
+| ---: | --- | ---: | --- | --- |
+| 201 | `govendor` | 2 | 待学 | Go vendoring 工具（已归档） |
+| 202 | `nixpkgs` | 2 | 待学 | nixpkgs fork |
+| 203 | `rfc39-record` | 1 | 待学 | RFC 39 记录 |
+| 204 | `dream2nix-pypi-most-popular` | 1 | 待学 | dream2nix PyPI 热门包集（已归档） |
+| 205 | `pruned-racket-catalog` | 1 | 待学 | Racket catalog 精简 |
+| 206 | `dream2nix-nodejs-auto` | 1 | 待学 | dream2nix Node 自动包集（已归档） |
+| 207 | `review-bot` | 1 | 待学 | Matrix 触发 nixpkgs-review |
+| 208 | `travis-build` | 1 | 待学 | Travis nix builder fork |
+| 209 | `pypi2nix-overrides` | 1 | 待学 | pypi2nix 默认 overrides |
+| 210 | `.github` | 1 | 待学 | 组织 GitHub 设置 |
+| 211 | `ld-getby` | 1 | 待学 | nix sandbox 的 /etc/protocols（已归档） |
+| 212 | `nix-community.github.io` | 0 | 待学 | 组织 GitHub Pages |
+| 213 | `flakelight-darwin` | 0 | 待学 | flakelight 的 Darwin 模块（fork） |
+| 214 | `image-spec` | 0 | 待学 | OCI Image Format（fork） |
+
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：第 201 名及以后（需重新抓取组织
-仓库列表，继续扩展清单）。
-清单已覆盖到第 200 名并全部学完。
+按 star 从高到低，当前待学：`govendor`（#201，2 star）。
+组织仓库共 214 个，清单已全部列出（第 1-200 名已学完）。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
