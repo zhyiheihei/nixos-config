@@ -55,6 +55,29 @@ curl -sS "http://127.0.0.1:9090/api/v1/query" --data-urlencode 'query=<指标>' 
 - **监控指标**：MoviePilot 日志中的订阅搜索/下载/整理成功率；qBittorrent 任务数、上传/下载速度；SubtitleAssistant 源状态
 - **数据流转**：`ls /mnt/storage/downloads`（有新下载）、`df -h /mnt/storage`（NAS 挂载健康，<90%）、Jellyfin 媒体库可播放
 
+#### 订阅与媒体库一致性（rock5c）
+
+MoviePilot 按 TMDB 季集口径统计，媒体库结构也必须按 TMDB 组织；旧链路的
+TVDB 编号、旧 Sonarr `.nfo` 都会让订阅显示缺集或让 Jellyfin 出现「未知季」。
+巡检命令：
+
+```bash
+# 1) Jellyfin 每部剧的季/集号，出现 unknown/None 即视为不合格
+curl -sS "http://jellyfin-api.rock5c.zhyi.cc/Shows/<seriesId>/Episodes?api_key=<key>&isMissing=false&Fields=Path" \
+  | python3 -c "import json,sys; d=json.load(sys.stdin); print(len([i for i in d['Items'] if i.get('IndexNumber') is None]), 'items without episode number')"
+
+# 2) 每个订阅都必须带默认站点/下载器/保存路径/IMDb 搜索，null 即不合格
+curl -sS http://127.0.0.1:13890/api/v1/subscribe/ -H "Authorization: Bearer $TOKEN" \
+  | python3 -c "import json,sys; bad=[s['id'] for s in json.load(sys.stdin) if s.get('sites') is None or s.get('downloader') is None or s.get('save_path') is None]; print('bad:', bad)"
+
+# 3) 剧集订阅缺失集数应等于 TMDB 总集数减 Jellyfin 已有集数；完成态进入订阅历史
+curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authorization: Bearer $TOKEN"
+```
+
+结论口径：`unknown` 季 / 无集号条目数 > 0、订阅默认项存在 null、
+或历史记录与实际媒体库对不上时，按媒体库对齐流程处理（重命名集号、
+清理旧 nfo、Jellyfin FullRefresh、官方 API 修正集号）。
+
 ### 3. 家庭网络 / 边缘链路（rock5c）
 - **入口**：nginx、homepage-dashboard、rsshub（若启用）、zerotier、wgmesh
 - **日志**：nginx error.log 的 5xx 比例；homepage-dashboard 的 `Error calling`（siteMonitor 失败）；zerotier 的 peer 丢包
