@@ -230,7 +230,7 @@
 | 183 | `nix` | 6 | 已学 | Nix 社区实验 fork |
 | 184 | `rfc55` | 5 | 已学 | RFC 55 实现（已归档） |
 | 185 | `nixpkgs-update-github-releases` | 5 | 已学 | nixpkgs-update 的 releases 数据源 |
-| 186 | `nsncd` | 4 | 待学 | nscd 协议的 Rust 实现（fork，已归档） |
+| 186 | `nsncd` | 4 | 已学 | nscd 协议的 Rust 实现（fork，已归档） |
 | 187 | `mediawiki-matrix-bot` | 4 | 待学 | MediaWiki 变更转 Matrix bot |
 | 188 | `nix-travis-ci` | 4 | 待学 | Travis 上的 Nix 支持 |
 | 189 | `nixops-encrypted-links` | 4 | 待学 | NixOps 1 的 encryptedLinksTo 移植 |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`nsncd`（#186，4 star）。
+按 star 从高到低，当前待学：`mediawiki-matrix-bot`（#187，4 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
