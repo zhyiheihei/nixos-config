@@ -43,6 +43,15 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
   `https://moviepilot.rock5c.zhyi.cc/api/v1/plugin/OidcAuth/callback`
 - `allow_auto_bind_by_username=true`，现有 `zhyi` 账号自动绑定。
 
+## 运行状态（2026-08-09）
+
+- Dex 静态客户端与 secrets 已部署，插件配置与绑定状态页面正常。
+- 插件后端当前无法在 MoviePilot v2.15.5 加载：`OidcAuth` 0.3.x 引用了
+  `app.core.auth_bridge`，该模块在 v2.15.5 与上游 master 均不存在，
+  导致 `/api/v1/plugin/OidcAuth/authorize`、`callback` 返回 404。
+- 结论：Pocket ID 登录按钮可显示，但实际登录/回调未生效；需等上游
+  MoviePilot 提供 `auth_bridge` 核心模块，或换用不依赖该模块的登录方案。
+
 ## 注意事项
 
 - Dex 静态客户端的 `redirectURIs` 必须与应用的 OIDC 回调完全一致。
