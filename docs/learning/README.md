@@ -178,6 +178,7 @@
 - [all-cabal-json 全部 Hackage cabal 文件 JSON](./all-cabal-json.md)
 - [buildcatrust 证书库格式转换](./buildcatrust.md)
 - [flake-gemini Gemini 协议软件调查（已归档）](./flake-gemini.md)
+- [gnome-session-ctl 从 gnome-session 拆出的工具](./gnome-session-ctl.md)
 
 ## 模块化 flake 框架
 
