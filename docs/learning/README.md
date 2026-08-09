@@ -172,6 +172,7 @@
 - [nix-travis-ci Travis 上的 Nix 支持](./nix-travis-ci.md)
 - [nixops-encrypted-links NixOps 1 的加密链路移植](./nixops-encrypted-links.md)
 - [nixops-datadog NixOps Datadog 后端](./nixops-datadog.md)
+- [nix-cygwin Cygwin 上的 nixpkgs 实验（fork）](./nix-cygwin.md)
 
 ## 模块化 flake 框架
 
