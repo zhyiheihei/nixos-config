@@ -20,7 +20,7 @@
 | Prowlarr | MoviePilot 站点索引 | 已停止 |
 | Bazarr | SubtitleAssistant | 已停止 |
 | FlexGet | MoviePilot 订阅 | 已停止 |
-| IYUUPlus | IYUUAutoSeed | 已停止 |
+| IYUUPlus | IYUUAutoSeed | 已停止；辅种按用户要求暂停 |
 | JProxy / Byparr | MoviePilot 整理命名 | 已停止 |
 | Vertex | BrushFlow + AutoSignIn | 已停止 |
 | Decluttarr / qbittorrent-pt-cleanup | BrushFlow / CleanInvalidSeed | 已停止 |
@@ -59,7 +59,7 @@
 
 | 风险 | 状态 | 处置 |
 | --- | --- | --- |
-| IYUU token 401 | 待用户 | 已改用 secrets 中的官方 token，仍需到 IYUU 后台绑定推荐站点后才能辅种 |
+| IYUU 辅种 | 暂停 | 用户暂不启用辅种；IYUUPlus 保持停止，后续需要时再绑定推荐站点并启用 |
 | M-Team 站点字幕搜索 0 结果 | 待观察 | 使用 ASSRT 主源，继续跟进索引字幕配置 |
 | 大体积种子 qB 首次检查耗时 | 进行中 | 122 个种子在 `checkingDL`，完成后自动做种 |
 
