@@ -133,7 +133,7 @@ in
       RemainAfterExit = true;
     };
     script = ''
-      ${pkgs.coreutils}/bin/sleep 15
+      ${pkgs.coreutils}/bin/sleep 30
       PW=$(${pkgs.coreutils}/bin/cat /run/secrets/default-pw)
       TOKEN=$(${pkgs.curl}/bin/curl -sS -X POST \
         http://127.0.0.1:13890/api/v1/login/access-token \
@@ -142,7 +142,7 @@ in
         --data-urlencode "password=$PW" \
         | ${pkgs.python3}/bin/python3 -c "import json,sys;print(json.load(sys.stdin)['access_token'])")
       for plugin in SubtitleAssistant BrushFlow; do
-        for attempt in $(${pkgs.coreutils}/bin/seq 1 5); do
+        for attempt in $(${pkgs.coreutils}/bin/seq 1 10); do
           ${pkgs.curl}/bin/curl -sS \
             "http://127.0.0.1:13890/api/v1/plugin/reload/$plugin" \
             -H "Authorization: Bearer $TOKEN" >/dev/null 2>&1 || true
@@ -152,7 +152,7 @@ in
           if [ "$code" = "200" ]; then
             break
           fi
-          ${pkgs.coreutils}/bin/sleep 3
+          ${pkgs.coreutils}/bin/sleep 5
         done
       done
     '';

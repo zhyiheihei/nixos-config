@@ -8,7 +8,7 @@
 - 站点：馒头（API Key）、PT时间（Cookie），均使用单一 qBittorrent。
 - 下载器：router 单一 qBittorrent，`/mnt/storage/downloads` 统一保存路径。
 - 媒体库：`/mnt/storage/media-radarr`、`/mnt/storage/media-sonarr`，
-  MoviePilot 使用 hardlink 入库并中文刮削。
+  MoviePilot 整块挂载 `/mnt/storage` 后使用 hardlink 入库并中文刮削，不复制占空间。
 - 字幕：SubtitleAssistant（ASSRT + MoviePilot 站点字幕源），不依赖新服务。
 - Jellyfin 已接入 MoviePilot，订阅完成自动刷新媒体库。
 
@@ -33,6 +33,8 @@
 - Radarr 全部 10 部电影已导入 MoviePilot 订阅；已有文件的自动识别为完成，
   无资源的保持订阅等待发布。
 - Sonarr 全部 6 部剧集已导入 MoviePilot 订阅；缺失集继续搜索，未发布季保持订阅。
+- 已配置电影/剧集订阅默认项：站点 [1,2]、下载器 qBittorrent、
+  保存路径 `/mnt/storage/downloads`、IMDb ID 搜索。
 
 ## 下载器合并
 
@@ -69,3 +71,5 @@
    （`星际穿越` 完成入库并生成中文 nfo/海报）。
 2. SubtitleAssistant 人工搜索与下载实测成功。
 3. 旧服务均已停止且 NixOS 配置禁用，重启不会自动拉起。
+4. 修复容器 bind 挂载后，`料理仙姬` 10 集与 `奥德赛` 蓝光原盘 hardlink
+   入库成功，qB 做种保留；订阅剧集不再显示“有资源但集数不全”。

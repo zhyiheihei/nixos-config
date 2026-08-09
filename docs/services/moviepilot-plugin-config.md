@@ -33,7 +33,14 @@
 
 - 电影：下载 `/mnt/storage/downloads` → 媒体库 `/mnt/storage/media-radarr`
 - 剧集：下载 `/mnt/storage/downloads` → 媒体库 `/mnt/storage/media-sonarr`
-- 整理方式：hardlink（`link`），刮削与中文重命名开启。
+- 整理方式：hardlink（`link`），容器整块挂载 `/mnt/storage`，同设备硬链接不复制；
+  刮削与中文重命名开启。
+
+## 订阅默认配置
+
+- 电影 / 剧集均使用站点 [1,2]（馒头、PT时间），下载器 `qBittorrent`，
+  保存路径 `/mnt/storage/downloads`。
+- 使用 IMDb ID 搜索，未开启洗版，未配置额外过滤词。
 
 ## 媒体服务器
 
@@ -50,7 +57,7 @@
 | IYUUAutoSeed | 停用 | 单下载器 qBittorrent；辅种按用户要求暂停，后续需要时再启用 |
 | CleanInvalidSeed | 启用 | 仅标记，不删除 |
 | SubtitleAssistant | 启用 | ASSRT + MoviePilot 站点字幕源，中文简繁字幕 |
-| TorrentRemover | 启用 | 每 6 小时；仅 `brush` 分类 + `刷流` 标签，ratio>3、做种>2h、低速且停滞/错误才删除种子及文件 |
+| TorrentRemover | 启用 | 每 6 小时；仅 `刷流` 标签，ratio>3、做种>2h、低速且停滞/错误才删除种子及文件；`brush` 仅作 qB 分类归组 |
 | RssSubscribe | 停用 | 旧 FlexGet 替代，暂无 RSS 源 |
 | AutoClean | 停用 | 未使用 |
 
