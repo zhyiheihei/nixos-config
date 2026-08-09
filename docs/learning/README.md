@@ -190,6 +190,7 @@
 - [dream2nix-nodejs-auto dream2nix Node 自动包集（已归档）](./dream2nix-nodejs-auto.md)
 - [review-bot Matrix 触发 nixpkgs-review](./review-bot.md)
 - [travis-build 社区 fork（快照，无独立改动）](./travis-build.md)
+- [pypi2nix-overrides pypi2nix 默认 overrides](./pypi2nix-overrides.md)
 
 ## 模块化 flake 框架
 
