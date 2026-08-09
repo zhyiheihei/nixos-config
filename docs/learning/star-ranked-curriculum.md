@@ -38,7 +38,7 @@
 | 31 | `vulnix` | 817 | 已学 | Nix 包 CVE 扫描 |
 | 32 | `robotnix` | 797 | 已学 | 用 Nix 构建 AOSP |
 | 33 | `nurl` | 768 | 已学 | URL 生成 fetcher |
-| 34 | `rnix-lsp` | 710 | 部分 | 旧 Nix LSP（已归档） |
+| 34 | `rnix-lsp` | 710 | 已学 | 旧 Nix LSP（已归档） |
 | 35 | `nixos-facter` | 687 | 已学 | 硬件报告 |
 | 36 | `emacs-overlay` | 629 | 部分 | Emacs 每日 overlay |
 | 37 | `nixpkgs-wayland` | 619 | 已学 | Wayland 软件预构建 |
@@ -267,7 +267,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，组织仓库共 214 个。当前待学：`rnix-lsp`
-（#34，710 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
+按 star 从高到低，组织仓库共 214 个。当前待学：`emacs-overlay`
+（#36，629 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
