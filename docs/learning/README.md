@@ -189,6 +189,7 @@
 - [pruned-racket-catalog Racket catalog 精简](./pruned-racket-catalog.md)
 - [dream2nix-nodejs-auto dream2nix Node 自动包集（已归档）](./dream2nix-nodejs-auto.md)
 - [review-bot Matrix 触发 nixpkgs-review](./review-bot.md)
+- [travis-build 社区 fork（快照，无独立改动）](./travis-build.md)
 
 ## 模块化 flake 框架
 
