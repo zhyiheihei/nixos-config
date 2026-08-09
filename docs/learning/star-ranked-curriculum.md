@@ -261,13 +261,13 @@
 | 209 | `pypi2nix-overrides` | 1 | 已学 | pypi2nix 默认 overrides |
 | 210 | `.github` | 1 | 已学 | 组织 GitHub 设置 |
 | 211 | `ld-getby` | 1 | 已学 | nix sandbox 的 /etc/protocols（已归档） |
-| 212 | `nix-community.github.io` | 0 | 待学 | 组织 GitHub Pages |
+| 212 | `nix-community.github.io` | 0 | 已学 | 组织 GitHub Pages |
 | 213 | `flakelight-darwin` | 0 | 待学 | flakelight 的 Darwin 模块（fork） |
 | 214 | `image-spec` | 0 | 待学 | OCI Image Format（fork） |
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`nix-community.github.io`（#212，0 star）。
+按 star 从高到低，当前待学：`flakelight-darwin`（#213，0 star）。
 组织仓库共 214 个，清单已全部列出（第 1-200 名已学完）。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。

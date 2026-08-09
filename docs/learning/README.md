@@ -193,6 +193,7 @@
 - [pypi2nix-overrides pypi2nix 默认 overrides](./pypi2nix-overrides.md)
 - [.github 组织 GitHub 设置](./github.md)
 - [ld-getby nix sandbox 的 /etc/protocols（已归档）](./ld-getby.md)
+- [nix-community.github.io 组织 GitHub Pages](./nix-community.github.io.md)
 
 ## 模块化 flake 框架
 
