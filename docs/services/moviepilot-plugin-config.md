@@ -50,7 +50,7 @@
 | IYUUAutoSeed | 停用 | 单下载器 qBittorrent；辅种按用户要求暂停，后续需要时再启用 |
 | CleanInvalidSeed | 启用 | 仅标记，不删除 |
 | SubtitleAssistant | 启用 | ASSRT + MoviePilot 站点字幕源，中文简繁字幕 |
-| TorrentRemover | 停用 | 仅保留 BrushFlow 标签配置，防误删 |
+| TorrentRemover | 启用 | 每 6 小时；仅 `brush` 分类 + `刷流` 标签，ratio>3、做种>2h、低速且停滞/错误才删除种子及文件 |
 | RssSubscribe | 停用 | 旧 FlexGet 替代，暂无 RSS 源 |
 | AutoClean | 停用 | 未使用 |
 
