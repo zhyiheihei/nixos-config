@@ -165,6 +165,7 @@
 - [linyaps-flake linyaps 的 NixOS flake（fork，已归档）](./linyaps-flake.md)
 - [nixops_hcloud NixOps Hetzner Cloud 后端（已归档）](./nixops_hcloud.md)
 - [nix 社区实验 fork（非官方）](./nix.md)
+- [rfc55 RFC 55 实现（已归档）](./rfc55.md)
 
 ## 模块化 flake 框架
 
