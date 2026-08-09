@@ -42,7 +42,7 @@
 | 35 | `nixos-facter` | 687 | 已学 | 硬件报告 |
 | 36 | `emacs-overlay` | 629 | 已学 | Emacs 每日 overlay |
 | 37 | `nixpkgs-wayland` | 619 | 已学 | Wayland 软件预构建 |
-| 38 | `nix-index-database` | 606 | 待学 | nix-index 预生成数据库 |
+| 38 | `nix-index-database` | 606 | 已学 | nix-index 预生成数据库 |
 | 39 | `nixpkgs-update` | 606 | 已学 | nixpkgs 自动更新 |
 | 40 | `noogle` | 587 | 待学 | Nix 函数搜索引擎 |
 
@@ -267,7 +267,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，组织仓库共 214 个。当前待学：`nix-index-database`
-（#38，606 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
+按 star 从高到低，组织仓库共 214 个。当前待学：`noogle`
+（#40，587 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
