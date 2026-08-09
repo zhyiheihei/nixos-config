@@ -182,6 +182,7 @@
 - [goblin-signing 用 Goblin 签 PE](./goblin-signing.md)
 - [rkwifibt Rockchip WiFi/BT 固件包（fork）](./rkwifibt.md)
 - [pipewire-to-json pipewire 配置转 JSON（已归档）](./pipewire-to-json.md)
+- [govendor Go vendoring 工具（已归档）](./govendor.md)
 
 ## 模块化 flake 框架
 

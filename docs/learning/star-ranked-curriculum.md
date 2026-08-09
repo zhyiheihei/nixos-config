@@ -250,7 +250,7 @@
 
 | # | 仓库 | Star | 状态 | 一句话 |
 | ---: | --- | ---: | --- | --- |
-| 201 | `govendor` | 2 | 待学 | Go vendoring 工具（已归档） |
+| 201 | `govendor` | 2 | 已学 | Go vendoring 工具（已归档） |
 | 202 | `nixpkgs` | 2 | 待学 | nixpkgs fork |
 | 203 | `rfc39-record` | 1 | 待学 | RFC 39 记录 |
 | 204 | `dream2nix-pypi-most-popular` | 1 | 待学 | dream2nix PyPI 热门包集（已归档） |
@@ -267,7 +267,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`govendor`（#201，2 star）。
+按 star 从高到低，当前待学：`nixpkgs`（#202，2 star）。
 组织仓库共 214 个，清单已全部列出（第 1-200 名已学完）。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
