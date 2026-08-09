@@ -215,7 +215,7 @@
 | 173 | `meetup-london` | 11 | 已学 | 伦敦 meetup 组织 |
 | 174 | `cross-toolchains.nix` | 10 | 已学 | 交叉工具链预构建（已归档） |
 | 175 | `rnix-hashes` | 10 | 已学 | Nix hash 转换器（已归档） |
-| 176 | `carnix` | 10 | 待学 | Carnix 镜像（已归档） |
+| 176 | `carnix` | 10 | 已学 | Carnix 镜像（已归档） |
 | 177 | `google-summer-of-code` | 10 | 待学 | GSoC 提案（已归档） |
 | 178 | `ZurichZHF` | 9 | 待学 | 苏黎世 Nix 社区 |
 | 179 | `nixos-gen-config` | 9 | 待学 | nixos-generate-config 的 Python 重写 |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`carnix`（#176，10 star）。
+按 star 从高到低，当前待学：`google-summer-of-code`（#177，10 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
