@@ -243,12 +243,12 @@
 | 196 | `flake-gemini` | 3 | 已学 | Gemini 协议软件调研（已归档） |
 | 197 | `gnome-session-ctl` | 3 | 已学 | 从 gnome-session 拆出的工具 |
 | 198 | `goblin-signing` | 2 | 已学 | 用 Goblin 签 PE |
-| 199 | `rkwifibt` | 2 | 待学 | Rockchip WiFi/BT 固件包（fork） |
+| 199 | `rkwifibt` | 2 | 已学 | Rockchip WiFi/BT 固件包（fork） |
 | 200 | `pipewire-to-json` | 2 | 待学 | pipewire 配置转 JSON（已归档） |
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`rkwifibt`（#199，2 star）。
+按 star 从高到低，当前待学：`pipewire-to-json`（#200，2 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
