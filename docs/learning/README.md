@@ -184,6 +184,7 @@
 - [pipewire-to-json pipewire 配置转 JSON（已归档）](./pipewire-to-json.md)
 - [govendor Go vendoring 工具（已归档）](./govendor.md)
 - [nixpkgs 社区 fork（快照，无独立改动）](./nixpkgs.md)
+- [rfc39-record 项目团队邀请记录](./rfc39-record.md)
 
 ## 模块化 flake 框架
 
