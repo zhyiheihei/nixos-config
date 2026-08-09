@@ -183,6 +183,7 @@
 - [rkwifibt Rockchip WiFi/BT 固件包（fork）](./rkwifibt.md)
 - [pipewire-to-json pipewire 配置转 JSON（已归档）](./pipewire-to-json.md)
 - [govendor Go vendoring 工具（已归档）](./govendor.md)
+- [nixpkgs 社区 fork（快照，无独立改动）](./nixpkgs.md)
 
 ## 模块化 flake 框架
 
