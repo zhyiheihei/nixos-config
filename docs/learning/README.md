@@ -187,6 +187,7 @@
 - [rfc39-record 项目团队邀请记录](./rfc39-record.md)
 - [dream2nix-pypi-most-popular dream2nix PyPI 热门包集（已归档）](./dream2nix-pypi-most-popular.md)
 - [pruned-racket-catalog Racket catalog 精简](./pruned-racket-catalog.md)
+- [dream2nix-nodejs-auto dream2nix Node 自动包集（已归档）](./dream2nix-nodejs-auto.md)
 
 ## 模块化 flake 框架
 
