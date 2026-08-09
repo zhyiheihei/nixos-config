@@ -200,7 +200,7 @@
 
 | # | 仓库 | Star | 状态 | 一句话 |
 | ---: | --- | ---: | --- | --- |
-| 161 | `nixops-digitalocean` | 18 | 待学 | NixOps DigitalOcean 后端 |
+| 161 | `nixops-digitalocean` | 18 | 已学 | NixOps DigitalOcean 后端 |
 | 162 | `nixago-extensions` | 17 | 待学 | Nixago 配置生成扩展 |
 | 163 | `fetchTree-spec` | 16 | 待学 | fetchTree 规范与测试套件 |
 | 164 | `nix-snippets` | 16 | 待学 | Nix 表达式片段集（已归档） |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`nixops-digitalocean`（#161，18 star）。
+按 star 从高到低，当前待学：`nixago-extensions`（#162，17 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
