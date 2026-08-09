@@ -159,6 +159,7 @@
 - [rnix-hashes Nix hash 转换器（已归档）](./rnix-hashes.md)
 - [carnix 早期 Rust 打包生成器镜像（已归档）](./carnix.md)
 - [google-summer-of-code GSoC 协调（已归档）](./google-summer-of-code.md)
+- [ZurichZHF 苏黎世 Nix 社区活动](./ZurichZHF.md)
 
 ## 模块化 flake 框架
 
