@@ -13,7 +13,7 @@
 | 6 | `NixOS-WSL` | 3039 | 已学 | NixOS on WSL |
 | 7 | `nixvim` | 2903 | 已学 | Neovim 配置框架 |
 | 8 | `nix-direnv` | 2752 | 已学 | direnv 的 use_flake |
-| 9 | `nixos-generators` | 2401 | 部分 | 镜像生成器（已归档） |
+| 9 | `nixos-generators` | 2401 | 已学 | 镜像生成器（已归档） |
 | 10 | `stylix` | 2360 | 已学 | 统一主题框架 |
 | 11 | `colmena` | 2299 | 已学 | 多主机部署 |
 | 12 | `nix-on-droid` | 2111 | 部分 | Android 上的 Nix 环境 |
@@ -267,7 +267,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，组织仓库共 214 个。当前待学：`nixos-generators`
-（#9，2401 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
+按 star 从高到低，组织仓库共 214 个。当前待学：`nix-on-droid`
+（#12，2111 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
