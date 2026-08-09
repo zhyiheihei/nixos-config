@@ -93,6 +93,11 @@ in
   };
   networking.networkmanager.enable = lib.mkForce false;
 
+  # The common network policy intentionally masks the global wait-online
+  # service. This host's NFS media mount must still wait for its physical LAN
+  # carrier, so enable systemd's scoped per-interface instance only.
+  systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@lan0.service" ];
+
   # The SFTP/data chain moved to OPI5P.  Override only this migrated host;
   # other machines retain the author's established backup endpoint.
   lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
