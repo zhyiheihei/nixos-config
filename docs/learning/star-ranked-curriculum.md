@@ -219,7 +219,7 @@
 | 177 | `google-summer-of-code` | 10 | 已学 | GSoC 提案（已归档） |
 | 178 | `ZurichZHF` | 9 | 已学 | 苏黎世 Nix 社区 |
 | 179 | `nixos-gen-config` | 9 | 已学 | nixos-generate-config 的 Python 重写 |
-| 180 | `nur-update` | 9 | 待学 | NUR 更新服务 |
+| 180 | `nur-update` | 9 | 已学 | NUR 更新服务 |
 
 ## 第 181-200 名
 
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`nur-update`（#180，9 star）。
+按 star 从高到低，当前待学：`linyaps-flake`（#181，8 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。

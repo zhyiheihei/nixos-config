@@ -161,6 +161,7 @@
 - [google-summer-of-code GSoC 协调（已归档）](./google-summer-of-code.md)
 - [ZurichZHF 苏黎世 Nix 社区活动](./ZurichZHF.md)
 - [nixos-gen-config nixos-generate-config 的 Python 重写](./nixos-gen-config.md)
+- [nur-update NUR 更新触发服务](./nur-update.md)
 
 ## 模块化 flake 框架
 
