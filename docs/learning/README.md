@@ -156,6 +156,7 @@
 - [eask2nix Eask 转 Nix 表达式](./eask2nix.md)
 - [meetup-london 伦敦 Nix meetup 协调](./meetup-london.md)
 - [cross-toolchains.nix 交叉工具链预构建（已归档）](./cross-toolchains.nix.md)
+- [rnix-hashes Nix hash 转换器（已归档）](./rnix-hashes.md)
 
 ## 模块化 flake 框架
 
