@@ -167,6 +167,7 @@
 - [nix 社区实验 fork（非官方）](./nix.md)
 - [rfc55 RFC 55 实现（已归档）](./rfc55.md)
 - [nixpkgs-update-github-releases nixpkgs-update 的 releases 数据源](./nixpkgs-update-github-releases.md)
+- [nsncd nscd 协议的 Rust 实现（fork，已归档）](./nsncd.md)
 
 ## 模块化 flake 框架
 
