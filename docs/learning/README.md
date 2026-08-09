@@ -174,6 +174,7 @@
 - [nixops-datadog NixOps Datadog 后端](./nixops-datadog.md)
 - [nix-cygwin Cygwin 上的 nixpkgs 实验（fork）](./nix-cygwin.md)
 - [composer-local-repo-plugin Composer 本地仓库插件](./composer-local-repo-plugin.md)
+- [dream2nix-auto-test dream2nix 自动生成包测试（fork）](./dream2nix-auto-test.md)
 
 ## 模块化 flake 框架
 
