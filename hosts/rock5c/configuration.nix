@@ -141,18 +141,30 @@ in
         --data-urlencode "username=zhyi" \
         --data-urlencode "password=$PW" \
         | ${pkgs.python3}/bin/python3 -c "import json,sys;print(json.load(sys.stdin)['access_token'])")
-      for plugin in SubtitleAssistant BrushFlow; do
+      for spec in \
+        "BrushFlow|https://github.com/jxxghp/MoviePilot-Plugins" \
+        "SubtitleAssistant|https://github.com/yubanmeiqin9048/MoviePilot-Plugins"; do
+        plugin=${spec%%|*}
+        repo=${spec#*|}
         for attempt in $(${pkgs.coreutils}/bin/seq 1 10); do
           ${pkgs.curl}/bin/curl -sS \
-            "http://127.0.0.1:13890/api/v1/plugin/reload/$plugin" \
+            -G "http://127.0.0.1:13890/api/v1/plugin/install/$plugin" \
+            --data-urlencode "repo_url=$repo" \
+            --data-urlencode "force=true" \
             -H "Authorization: Bearer $TOKEN" >/dev/null 2>&1 || true
+          ${pkgs.coreutils}/bin/sleep 5
+          if [ "$plugin" = "BrushFlow" ]; then
           code=$(${pkgs.curl}/bin/curl -sS -o /dev/null -w "%{http_code}" \
             "http://127.0.0.1:13890/api/v1/plugin/page/$plugin" \
             -H "Authorization: Bearer $TOKEN" 2>/dev/null || true)
+          else
+          code=$(${pkgs.curl}/bin/curl -sS -o /dev/null -w "%{http_code}" \
+            "http://127.0.0.1:13890/api/v1/plugin/$plugin/tasks" \
+            -H "Authorization: Bearer $TOKEN" 2>/dev/null || true)
+          fi
           if [ "$code" = "200" ]; then
             break
           fi
-          ${pkgs.coreutils}/bin/sleep 5
         done
       done
     '';
