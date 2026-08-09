@@ -232,7 +232,7 @@
 | 185 | `nixpkgs-update-github-releases` | 5 | 已学 | nixpkgs-update 的 releases 数据源 |
 | 186 | `nsncd` | 4 | 已学 | nscd 协议的 Rust 实现（fork，已归档） |
 | 187 | `mediawiki-matrix-bot` | 4 | 已学 | MediaWiki 变更转 Matrix bot |
-| 188 | `nix-travis-ci` | 4 | 待学 | Travis 上的 Nix 支持 |
+| 188 | `nix-travis-ci` | 4 | 已学 | Travis 上的 Nix 支持 |
 | 189 | `nixops-encrypted-links` | 4 | 待学 | NixOps 1 的 encryptedLinksTo 移植 |
 | 190 | `nixops-datadog` | 4 | 待学 | NixOps Datadog 后端 |
 | 191 | `nix-cygwin` | 3 | 待学 | Cygwin 上的 Nix 试验 |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`nix-travis-ci`（#188，4 star）。
+按 star 从高到低，当前待学：`nixops-encrypted-links`（#189，4 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
