@@ -226,7 +226,7 @@
 | # | 仓库 | Star | 状态 | 一句话 |
 | ---: | --- | ---: | --- | --- |
 | 181 | `linyaps-flake` | 8 | 已学 | linyaps 的 NixOS flake（fork，已归档） |
-| 182 | `nixops_hcloud` | 6 | 待学 | NixOps Hetzner Cloud 后端（已归档） |
+| 182 | `nixops_hcloud` | 6 | 已学 | NixOps Hetzner Cloud 后端（已归档） |
 | 183 | `nix` | 6 | 待学 | Nix 社区实验 fork |
 | 184 | `rfc55` | 5 | 待学 | RFC 55 实现（已归档） |
 | 185 | `nixpkgs-update-github-releases` | 5 | 待学 | nixpkgs-update 的 releases 数据源 |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`nixops_hcloud`（#182，6 star）。
+按 star 从高到低，当前待学：`nix`（#183，6 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
