@@ -120,4 +120,33 @@ in
     location = "docker.m.daocloud.io"
   '';
 
+  # Third-party MoviePilot plugins (BrushFlow, SubtitleAssistant) occasionally
+  # miss their dynamic API route registration after a container restart.
+  # Re-register them once MoviePilot is up so plugin pages and APIs stay usable.
+  systemd.services.moviepilot-plugin-api-register = {
+    description = "Register MoviePilot third-party plugin APIs";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "podman-moviepilot.service" ];
+    requires = [ "podman-moviepilot.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      ${pkgs.coreutils}/bin/sleep 15
+      PW=$(${pkgs.coreutils}/bin/cat /run/secrets/default-pw)
+      TOKEN=$(${pkgs.curl}/bin/curl -sS -X POST \
+        http://127.0.0.1:13890/api/v1/login/access-token \
+        -H "Content-Type: application/x-www-form-urlencoded" \
+        --data-urlencode "username=zhyi" \
+        --data-urlencode "password=$PW" \
+        | ${pkgs.python3}/bin/python3 -c "import json,sys;print(json.load(sys.stdin)['access_token'])")
+      for plugin in SubtitleAssistant BrushFlow; do
+        ${pkgs.curl}/bin/curl -sS \
+          "http://127.0.0.1:13890/api/v1/plugin/reload/$plugin" \
+          -H "Authorization: Bearer $TOKEN" >/dev/null || true
+      done
+    '';
+  };
+
 }
