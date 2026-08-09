@@ -28,6 +28,7 @@
 - [noogle Nix 函数搜索引擎](./noogle.md)
 - [nixpkgs-fmt 旧 Nix 格式化器（已归档）](./nixpkgs-fmt.md)
 - [nixos-avf Android AVF 上的 NixOS](./nixos-avf.md)
+- [trustix 去中心化构建信任](./trustix.md)
 - [组织自运维与基础设施](./infrastructure.md)
 - [写 Nix 的开发工具链](./dev-tooling.md)
 - [桌面与日常使用层](./desktop.md)
