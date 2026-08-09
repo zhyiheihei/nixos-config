@@ -179,6 +179,7 @@
 - [buildcatrust 证书库格式转换](./buildcatrust.md)
 - [flake-gemini Gemini 协议软件调查（已归档）](./flake-gemini.md)
 - [gnome-session-ctl 从 gnome-session 拆出的工具](./gnome-session-ctl.md)
+- [goblin-signing 用 Goblin 签 PE](./goblin-signing.md)
 
 ## 模块化 flake 框架
 
