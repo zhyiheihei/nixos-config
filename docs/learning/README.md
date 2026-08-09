@@ -145,6 +145,7 @@
 - [nixops-digitalocean NixOps DigitalOcean 后端](./nixops-digitalocean.md)
 - [nixago-extensions Nixago 配置生成扩展](./nixago-extensions.md)
 - [fetchTree-spec fetchTree 规范与测试套件](./fetchTree-spec.md)
+- [nix-snippets Nix 表达式片段集（已归档）](./nix-snippets.md)
 
 ## 模块化 flake 框架
 
