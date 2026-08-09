@@ -205,7 +205,7 @@
 | 163 | `fetchTree-spec` | 16 | 已学 | fetchTree 规范与测试套件 |
 | 164 | `nix-snippets` | 16 | 已学 | Nix 表达式片段集（已归档） |
 | 165 | `nixos-modules-contrib` | 16 | 已学 | 不适合进 NixOS 的模块集 |
-| 166 | `label-approved` | 15 | 待学 | nixpkgs 已批准 PR 打标签工具 |
+| 166 | `label-approved` | 15 | 已学 | nixpkgs 已批准 PR 打标签工具 |
 | 167 | `vs-overlay` | 15 | 待学 | VapourSynth 插件 overlay |
 | 168 | `projects` | 14 | 待学 | 筹款与资助项目提案 |
 | 169 | `pynixutil` | 14 | 待学 | Python 读 Nix 数据工具 |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`label-approved`（#166，15 star）。
+按 star 从高到低，当前待学：`vs-overlay`（#167，15 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
