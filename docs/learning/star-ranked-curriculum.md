@@ -27,7 +27,7 @@
 | 20 | `nix-init` | 1446 | 已学 | 从 URL 生成包 |
 | 21 | `nix-index` | 1339 | 已学 | 按文件查包 |
 | 22 | `dream2nix` | 1264 | 已学 | 多语言自动打包框架 |
-| 23 | `plasma-manager` | 1210 | 部分 | KDE Plasma 配置 |
+| 23 | `plasma-manager` | 1210 | 已学 | KDE Plasma 配置 |
 | 24 | `fenix` | 1097 | 已学 | Rust 工具链集合 |
 | 25 | `nixGL` | 1013 | 已学 | OpenGL/Vulkan wrapper |
 | 26 | `naersk` | 1003 | 已学 | 简单 Rust builder |
@@ -267,7 +267,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，组织仓库共 214 个。当前待学：`plasma-manager`
-（#23，1210 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
+按 star 从高到低，组织仓库共 214 个。当前待学：`rnix-lsp`
+（#34，710 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
