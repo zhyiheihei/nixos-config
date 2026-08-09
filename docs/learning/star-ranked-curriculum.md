@@ -263,11 +263,11 @@
 | 211 | `ld-getby` | 1 | 已学 | nix sandbox 的 /etc/protocols（已归档） |
 | 212 | `nix-community.github.io` | 0 | 已学 | 组织 GitHub Pages |
 | 213 | `flakelight-darwin` | 0 | 已学 | flakelight 的 Darwin 模块（fork） |
-| 214 | `image-spec` | 0 | 待学 | OCI Image Format（fork） |
+| 214 | `image-spec` | 0 | 已学 | OCI Image Format（fork） |
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`image-spec`（#214，0 star）。
-组织仓库共 214 个，清单已全部列出（第 1-200 名已学完）。
+按 star 从高到低，组织仓库共 214 个，**第 1-214 名已全部学完**。
+每个仓库都有独立笔记，并已同步更新本清单与 `docs/learning/README.md`。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
