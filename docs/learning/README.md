@@ -148,6 +148,7 @@
 - [nix-snippets Nix 表达式片段集（已归档）](./nix-snippets.md)
 - [nixos-modules-contrib NixOps 贡献模块集](./nixos-modules-contrib.md)
 - [label-approved nixpkgs 已批准 PR 打标签](./label-approved.md)
+- [vs-overlay VapourSynth 插件 overlay](./vs-overlay.md)
 
 ## 模块化 flake 框架
 
