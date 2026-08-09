@@ -152,7 +152,6 @@ in
         "immich"
         "librechat"
         "moviepilot"
-        "netbox"
         "oauth2-proxy"
         # keep-sorted end
       ]
