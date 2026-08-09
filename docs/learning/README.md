@@ -30,6 +30,7 @@
 - [nixos-avf Android AVF 上的 NixOS](./nixos-avf.md)
 - [trustix 去中心化构建信任](./trustix.md)
 - [nixbox NixOS Vagrant boxes](./nixbox.md)
+- [preservation 非易失状态管理](./preservation.md)
 - [组织自运维与基础设施](./infrastructure.md)
 - [写 Nix 的开发工具链](./dev-tooling.md)
 - [桌面与日常使用层](./desktop.md)
