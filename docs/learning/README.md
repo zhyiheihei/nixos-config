@@ -158,6 +158,7 @@
 - [cross-toolchains.nix 交叉工具链预构建（已归档）](./cross-toolchains.nix.md)
 - [rnix-hashes Nix hash 转换器（已归档）](./rnix-hashes.md)
 - [carnix 早期 Rust 打包生成器镜像（已归档）](./carnix.md)
+- [google-summer-of-code GSoC 协调（已归档）](./google-summer-of-code.md)
 
 ## 模块化 flake 框架
 
