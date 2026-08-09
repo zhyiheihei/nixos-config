@@ -51,7 +51,7 @@
 | # | 仓库 | Star | 状态 | 一句话 |
 | ---: | --- | ---: | --- | --- |
 | 41 | `harmonia` | 574 | 已学 | Rust 二进制缓存服务器 |
-| 42 | `nixpkgs-fmt` | 556 | 部分 | 旧 Nix 格式化器（已归档） |
+| 42 | `nixpkgs-fmt` | 556 | 已学 | 旧 Nix 格式化器（已归档） |
 | 43 | `nixos-vscode-server` | 555 | 已学 | NixOS 上的 VSCode Server |
 | 44 | `crate2nix` | 514 | 已学 | Rust crate 级构建 |
 | 45 | `vscode-nix-ide` | 508 | 已学 | VSCode Nix 插件 |
@@ -267,7 +267,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，组织仓库共 214 个。当前待学：`nixpkgs-fmt`
-（#42，556 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
+按 star 从高到低，组织仓库共 214 个。当前待学：`nixos-avf`
+（#57，398 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
