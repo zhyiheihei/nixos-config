@@ -150,6 +150,7 @@
 - [label-approved nixpkgs 已批准 PR 打标签](./label-approved.md)
 - [vs-overlay VapourSynth 插件 overlay](./vs-overlay.md)
 - [projects 资助项目提案库](./projects.md)
+- [pynixutil Python 读 Nix 数据工具](./pynixutil.md)
 
 ## 模块化 flake 框架
 
