@@ -137,6 +137,7 @@
 - [nixops-gce NixOps GCE 后端](./nixops-gce.md)
 - [hardware-mnt-reform MNT Reform 笔记本适配](./hardware-mnt-reform.md)
 - [hpe-ltfs HPE LTFS 源码镜像](./hpe-ltfs.md)
+- [nixops-vbox NixOps VirtualBox 后端](./nixops-vbox.md)
 
 ## 模块化 flake 框架
 
