@@ -90,6 +90,18 @@ BrushFlow 的 M-Team 与 PTTime 任务都只下载免费种子，使用独立标
 2. 确认 qBittorrent 任务标签包含 `MOVIEPILOT`，且没有被标记 `已整理`。
 3. 在 MoviePilot 手动执行一次「立即整理」。
 
+### 订阅剧集显示不全？
+
+MoviePilot 按 TMDB 季集口径统计，媒体库旧目录若按 TVDB 的 S1/S2 组织，
+MP 会把另一半集数判为缺失。2026-08-09 已对齐：
+
+- 胆大党：S1 合并为 24 集（TMDB 口径），Jellyfin 索引 24/24，订阅完成。
+- 吊带袜天使 / 新吊带袜天使：实际媒体库各 13 集，订阅总集数手动锁定为 13
+  （`manual_total_episode`），避免被 TMDB 的 28/30 错误计数覆盖，订阅完成。
+- 移动或改名剧集文件后必须同步生成/更新对应 `.nfo`（`season`/`episode`），
+  否则 Jellyfin 不给集号，MP 也统计不到；改完对剧集执行 Jellyfin FullRefresh，
+  再对订阅执行一次「搜索」即可收尾。
+
 ### 字幕没有下载？
 
 1. 检查 SubtitleAssistant 的 ASSRT 凭据和源状态。
