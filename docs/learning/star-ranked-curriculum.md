@@ -253,7 +253,7 @@
 | 201 | `govendor` | 2 | 已学 | Go vendoring 工具（已归档） |
 | 202 | `nixpkgs` | 2 | 已学 | nixpkgs fork |
 | 203 | `rfc39-record` | 1 | 已学 | RFC 39 记录 |
-| 204 | `dream2nix-pypi-most-popular` | 1 | 待学 | dream2nix PyPI 热门包集（已归档） |
+| 204 | `dream2nix-pypi-most-popular` | 1 | 已学 | dream2nix PyPI 热门包集（已归档） |
 | 205 | `pruned-racket-catalog` | 1 | 待学 | Racket catalog 精简 |
 | 206 | `dream2nix-nodejs-auto` | 1 | 待学 | dream2nix Node 自动包集（已归档） |
 | 207 | `review-bot` | 1 | 待学 | Matrix 触发 nixpkgs-review |
@@ -267,7 +267,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`dream2nix-pypi-most-popular`（#204，1 star）。
+按 star 从高到低，当前待学：`pruned-racket-catalog`（#205，1 star）。
 组织仓库共 214 个，清单已全部列出（第 1-200 名已学完）。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
