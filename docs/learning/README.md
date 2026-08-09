@@ -164,6 +164,7 @@
 - [nur-update NUR 更新触发服务](./nur-update.md)
 - [linyaps-flake linyaps 的 NixOS flake（fork，已归档）](./linyaps-flake.md)
 - [nixops_hcloud NixOps Hetzner Cloud 后端（已归档）](./nixops_hcloud.md)
+- [nix 社区实验 fork（非官方）](./nix.md)
 
 ## 模块化 flake 框架
 
