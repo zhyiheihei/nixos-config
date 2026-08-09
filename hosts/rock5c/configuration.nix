@@ -142,9 +142,18 @@ in
         --data-urlencode "password=$PW" \
         | ${pkgs.python3}/bin/python3 -c "import json,sys;print(json.load(sys.stdin)['access_token'])")
       for plugin in SubtitleAssistant BrushFlow; do
-        ${pkgs.curl}/bin/curl -sS \
-          "http://127.0.0.1:13890/api/v1/plugin/reload/$plugin" \
-          -H "Authorization: Bearer $TOKEN" >/dev/null || true
+        for attempt in $(${pkgs.coreutils}/bin/seq 1 5); do
+          ${pkgs.curl}/bin/curl -sS \
+            "http://127.0.0.1:13890/api/v1/plugin/reload/$plugin" \
+            -H "Authorization: Bearer $TOKEN" >/dev/null 2>&1 || true
+          code=$(${pkgs.curl}/bin/curl -sS -o /dev/null -w "%{http_code}" \
+            "http://127.0.0.1:13890/api/v1/plugin/page/$plugin" \
+            -H "Authorization: Bearer $TOKEN" 2>/dev/null || true)
+          if [ "$code" = "200" ]; then
+            break
+          fi
+          ${pkgs.coreutils}/bin/sleep 3
+        done
       done
     '';
   };
