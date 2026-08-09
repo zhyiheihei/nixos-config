@@ -166,6 +166,7 @@
 - [nixops_hcloud NixOps Hetzner Cloud 后端（已归档）](./nixops_hcloud.md)
 - [nix 社区实验 fork（非官方）](./nix.md)
 - [rfc55 RFC 55 实现（已归档）](./rfc55.md)
+- [nixpkgs-update-github-releases nixpkgs-update 的 releases 数据源](./nixpkgs-update-github-releases.md)
 
 ## 模块化 flake 框架
 
