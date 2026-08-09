@@ -235,7 +235,7 @@
 | 188 | `nix-travis-ci` | 4 | 已学 | Travis 上的 Nix 支持 |
 | 189 | `nixops-encrypted-links` | 4 | 已学 | NixOps 1 的 encryptedLinksTo 移植 |
 | 190 | `nixops-datadog` | 4 | 已学 | NixOps Datadog 后端 |
-| 191 | `nix-cygwin` | 3 | 待学 | Cygwin 上的 Nix 试验 |
+| 191 | `nix-cygwin` | 3 | 已学 | Cygwin 上的 Nix 试验 |
 | 192 | `composer-local-repo-plugin` | 3 | 待学 | Composer 本地仓库插件 |
 | 193 | `dream2nix-auto-test` | 3 | 待学 | dream2nix 自动生成包测试（fork） |
 | 194 | `all-cabal-json` | 3 | 待学 | 全部 Hackage cabal 文件 JSON |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`nix-cygwin`（#191，3 star）。
+按 star 从高到低，当前待学：`composer-local-repo-plugin`（#192，3 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
