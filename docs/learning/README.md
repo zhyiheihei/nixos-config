@@ -173,6 +173,7 @@
 - [nixops-encrypted-links NixOps 1 的加密链路移植](./nixops-encrypted-links.md)
 - [nixops-datadog NixOps Datadog 后端](./nixops-datadog.md)
 - [nix-cygwin Cygwin 上的 nixpkgs 实验（fork）](./nix-cygwin.md)
+- [composer-local-repo-plugin Composer 本地仓库插件](./composer-local-repo-plugin.md)
 
 ## 模块化 flake 框架
 
