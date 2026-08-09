@@ -146,6 +146,7 @@
 - [nixago-extensions Nixago 配置生成扩展](./nixago-extensions.md)
 - [fetchTree-spec fetchTree 规范与测试套件](./fetchTree-spec.md)
 - [nix-snippets Nix 表达式片段集（已归档）](./nix-snippets.md)
+- [nixos-modules-contrib NixOps 贡献模块集](./nixos-modules-contrib.md)
 
 ## 模块化 flake 框架
 
