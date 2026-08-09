@@ -237,7 +237,7 @@
 | 190 | `nixops-datadog` | 4 | 已学 | NixOps Datadog 后端 |
 | 191 | `nix-cygwin` | 3 | 已学 | Cygwin 上的 Nix 试验 |
 | 192 | `composer-local-repo-plugin` | 3 | 已学 | Composer 本地仓库插件 |
-| 193 | `dream2nix-auto-test` | 3 | 待学 | dream2nix 自动生成包测试（fork） |
+| 193 | `dream2nix-auto-test` | 3 | 已学 | dream2nix 自动生成包测试（fork） |
 | 194 | `all-cabal-json` | 3 | 待学 | 全部 Hackage cabal 文件 JSON |
 | 195 | `buildcatrust` | 3 | 待学 | 证书库格式转换 |
 | 196 | `flake-gemini` | 3 | 待学 | Gemini 协议软件调研（已归档） |
@@ -248,7 +248,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，当前待学：`dream2nix-auto-test`（#193，3 star）。
+按 star 从高到低，当前待学：`all-cabal-json`（#194，3 star）。
 清单已扩展到第 200 名。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
