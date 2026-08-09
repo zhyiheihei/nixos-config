@@ -19,7 +19,7 @@
 | 12 | `nix-on-droid` | 2111 | 已学 | Android 上的 Nix 环境 |
 | 13 | `NUR` | 1917 | 已学 | 用户包注册表 |
 | 14 | `impermanence` | 1859 | 已学 | 易失根存储持久化 |
-| 15 | `lanzaboote` | 1787 | 部分 | NixOS Secure Boot |
+| 15 | `lanzaboote` | 1787 | 已学 | NixOS Secure Boot |
 | 16 | `comma` | 1737 | 已学 | 不安装直接运行软件 |
 | 17 | `nix-ld` | 1687 | 已学 | 运行未 patch 的动态二进制 |
 | 18 | `nixos-apple-silicon` | 1599 | 已学 | Apple Silicon 上的 NixOS |
@@ -267,7 +267,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，组织仓库共 214 个。当前待学：`lanzaboote`
-（#15，1787 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
+按 star 从高到低，组织仓库共 214 个。当前待学：`plasma-manager`
+（#23，1210 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
