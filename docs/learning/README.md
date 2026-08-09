@@ -151,6 +151,7 @@
 - [vs-overlay VapourSynth 插件 overlay](./vs-overlay.md)
 - [projects 资助项目提案库](./projects.md)
 - [pynixutil Python 读 Nix 数据工具](./pynixutil.md)
+- [lib-aggregate 纯 Nix lib 聚合 flake](./lib-aggregate.md)
 
 ## 模块化 flake 框架
 
