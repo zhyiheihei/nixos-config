@@ -168,6 +168,7 @@
 - [rfc55 RFC 55 实现（已归档）](./rfc55.md)
 - [nixpkgs-update-github-releases nixpkgs-update 的 releases 数据源](./nixpkgs-update-github-releases.md)
 - [nsncd nscd 协议的 Rust 实现（fork，已归档）](./nsncd.md)
+- [mediawiki-matrix-bot MediaWiki 变更转 Matrix bot](./mediawiki-matrix-bot.md)
 
 ## 模块化 flake 框架
 
