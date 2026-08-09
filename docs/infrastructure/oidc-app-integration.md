@@ -53,8 +53,10 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
   `https://github.com/jxxghp/MoviePilot-Plugins/`，防止启动时市场把插件自动
   升级成 `ui-beam-9` 的 0.3.5（该版本引用 MP 不存在的
   `app.core.auth_bridge`，后端会 404）。
-- 实测链路：`/authorize` 307 → `login.zhyi.xin/auth` → 302 →
-  `id.zhyi.xin/interaction`（Pocket ID 登录页）；`/callback` 200；
+- 实测链路：`/authorize` 307 → `login.zhyi.xin/auth` →
+  `/auth/ldap`（Dex 单 connector 的标准中间跳转，connector id 因历史兼容保留
+  为 `ldap`）→ `id.zhyi.xin/authorize` → `id.zhyi.xin/interaction`
+  （Pocket ID 登录页）；`/callback` 200；
   `/api/v1/auth/providers` 正常暴露 Pocket ID；`/auth/exchange` 票据兑换端点存在。
 - 绑定状态：`zhyi` 已绑定，sub/email 与 Pocket ID 一致；
   Dex 日志确认 `preferred_username=zhyi`、`email=molishanguang@outlook.com`。
