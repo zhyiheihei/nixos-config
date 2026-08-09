@@ -66,7 +66,7 @@
 | 54 | `nixos-images` | 404 | 已学 | NixOS netboot 镜像 |
 | 55 | `nixos-cli` | 393 | 已学 | 统一 NixOS CLI |
 | 56 | `nix-vscode-extensions` | 390 | 已学 | VS Code 扩展 Nix 化 |
-| 57 | `nixos-avf` | 366 | 待学 | Android AVF 上的 NixOS |
+| 57 | `nixos-avf` | 366 | 已学 | Android AVF 上的 NixOS |
 | 58 | `trustix` | 364 | 待学 | 二进制缓存可复现性追踪 |
 | 59 | `nixbox` | 342 | 待学 | NixOS Vagrant boxes |
 | 60 | `preservation` | 338 | 待学 | 非易失系统状态管理 |
@@ -267,7 +267,7 @@
 
 ## 下一批待学顺序
 
-按 star 从高到低，组织仓库共 214 个。当前待学：`nixos-avf`
-（#57，398 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
+按 star 从高到低，组织仓库共 214 个。当前待学：`trustix`
+（#58，364 star）；正在把早期标记为“待学/部分”的仓库补齐为已学。
 
 每学一个仓库，就在本表把状态改成“已学”，并在 `docs/learning/` 下补一篇笔记。
