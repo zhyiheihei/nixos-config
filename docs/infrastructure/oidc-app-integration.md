@@ -46,11 +46,16 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
 ## 运行状态（2026-08-09）
 
 - Dex 静态客户端与 secrets 已部署，插件配置与绑定状态页面正常。
-- 插件后端当前无法在 MoviePilot v2.15.5 加载：`OidcAuth` 0.3.x 引用了
-  `app.core.auth_bridge`，该模块在 v2.15.5 与上游 master 均不存在，
-  导致 `/api/v1/plugin/OidcAuth/authorize`、`callback` 返回 404。
-- 结论：Pocket ID 登录按钮可显示，但实际登录/回调未生效；需等上游
-  MoviePilot 提供 `auth_bridge` 核心模块，或换用不依赖该模块的登录方案。
+- 已恢复：使用镜像内置 `OidcAuth 0.3.2`（`jxxghp/MoviePilot-Plugins` 版本，
+  兼容 MP 2.15.5，通过 `app.core.auth.create_plugin_auth_ticket` 桥接）。
+  已验证 `/authorize` 307 跳转 `login.zhyi.xin`、`/callback` 200、`status` 200。
+- 易踩坑：插件市场 `ui-beam-9/MoviePilot-Plugins` 的 `OidcAuth 0.3.5` 会覆盖
+  内置版本，且引用 MP 中不存在的 `app.core.auth_bridge`，导致后端 404。
+  已把 `OidcAuth` 从 `UserInstalledPlugins` 移除，防止容器重启后市场自动
+  安装/升级到坏版本。
+- 若再次失效：用官方接口从 jxxghp 仓库强制重装并确认
+  `UserInstalledPlugins` 不含 `OidcAuth`：
+  `GET /api/v1/plugin/install/OidcAuth?repo_url=https%3A%2F%2Fgithub.com%2Fjxxghp%2FMoviePilot-Plugins&force=true`
 
 ## 注意事项
 
