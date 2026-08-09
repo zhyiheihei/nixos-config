@@ -170,6 +170,7 @@
 - [nsncd nscd 协议的 Rust 实现（fork，已归档）](./nsncd.md)
 - [mediawiki-matrix-bot MediaWiki 变更转 Matrix bot](./mediawiki-matrix-bot.md)
 - [nix-travis-ci Travis 上的 Nix 支持](./nix-travis-ci.md)
+- [nixops-encrypted-links NixOps 1 的加密链路移植](./nixops-encrypted-links.md)
 
 ## 模块化 flake 框架
 
