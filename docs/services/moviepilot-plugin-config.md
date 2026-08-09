@@ -50,7 +50,7 @@
 
 | 插件 | 状态 | 说明 |
 | --- | --- | --- |
-| BrushFlow | 启用 | M-Team / PTTime 刷流，仅免费种子，下载器 qBittorrent，分类 `brush` |
+| BrushFlow | 启用 | M-Team / PTTime 刷流，仅免费种子，下载器 qBittorrent，分类 `brush`；每 30 分钟刷新、每 10 分钟检查（2026-08-09 由 6/10 分钟调低，避免站点限流与空转） |
 | AutoSignIn | 启用 | 每日 11:55 / 23:55 签到站点 [1,2] |
 | SiteStatistic | 启用 | 站点数据统计 |
 | MediaServerRefresh | 启用 | Jellyfin 入库刷新 |
