@@ -90,6 +90,16 @@ let
         redirectURIs = [ "https://ai.zhyi.xin/oauth/openid/callback" ];
       }
       {
+        id = "moviepilot";
+        name = "MoviePilot";
+        secret = {
+          _secret = config.sops.secrets.dex-moviepilot-secret.path;
+        };
+        redirectURIs = [
+          "https://moviepilot.rock5c.zhyi.cc/api/v1/plugin/OidcAuth/callback"
+        ];
+      }
+      {
         id = "oauth-proxy";
         name = "OAuth2 Proxy";
         secret = {
@@ -141,6 +151,7 @@ in
         "grafana"
         "immich"
         "librechat"
+        "moviepilot"
         "netbox"
         "oauth2-proxy"
         # keep-sorted end
