@@ -141,6 +141,7 @@
 - [nixos-cli-archive 实验性 nixos-rebuild 替代品](./nixos-cli-archive.md)
 - [nix-straight.el straight.el 的低层 Nix 集成](./nix-straight.el.md)
 - [crystal2nix Crystal 项目构建](./crystal2nix.md)
+- [flake-compat 旧 Nix 兼容层（已归档）](./flake-compat.md)
 
 ## 模块化 flake 框架
 
