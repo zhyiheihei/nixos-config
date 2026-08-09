@@ -195,6 +195,7 @@
 - [ld-getby nix sandbox 的 /etc/protocols（已归档）](./ld-getby.md)
 - [nix-community.github.io 组织 GitHub Pages](./nix-community.github.io.md)
 - [flakelight-darwin flakelight 的 Darwin 模块（fork）](./flakelight-darwin.md)
+- [image-spec OCI Image Format（fork，快照）](./image-spec.md)
 
 ## 模块化 flake 框架
 
