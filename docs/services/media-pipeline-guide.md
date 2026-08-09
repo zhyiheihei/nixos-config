@@ -98,9 +98,14 @@ MP 会把另一半集数判为缺失。2026-08-09 已对齐：
 - 胆大党：S1 合并为 24 集（TMDB 口径），Jellyfin 索引 24/24，订阅完成。
 - 吊带袜天使 / 新吊带袜天使：实际媒体库各 13 集，订阅总集数手动锁定为 13
   （`manual_total_episode`），避免被 TMDB 的 28/30 错误计数覆盖，订阅完成。
-- 移动或改名剧集文件后必须同步生成/更新对应 `.nfo`（`season`/`episode`），
-  否则 Jellyfin 不给集号，MP 也统计不到；改完对剧集执行 Jellyfin FullRefresh，
-  再对订阅执行一次「搜索」即可收尾。
+- 旧 Sonarr 生成的剧集 `.nfo` 带 TVDB 集 ID，移动/改名后会让 Jellyfin 拒绝
+  写入新集号；本次已把这类 nfo 移出媒体库（备份在
+  `/mnt/storage/.jf-meta-backup-20260809/ddd`），Jellyfin 按文件名 + TMDB
+  重新索引。以后移动或改名剧集文件时，同步删除或重写对应 `.nfo`，再对剧集
+  执行 Jellyfin FullRefresh；若仍出现「未知季/无集号」，用 Jellyfin 官方接口
+  `POST /Items/{id}` 修正 `IndexNumber` / `ParentIndexNumber`，最后全库扫描验证。
+- 本次整改后已做全库扫描复验：胆大党 S1 24 集、吊带袜天使 S1 13 集、
+  新吊带袜天使 S1 13 集，全部带集号，无「未知季」残留。
 
 ### 字幕没有下载？
 

@@ -35,6 +35,8 @@
 - Sonarr 全部 6 部剧集已导入 MoviePilot 订阅；缺失集继续搜索，未发布季保持订阅。
 - 已配置电影/剧集订阅默认项：站点 [1,2]、下载器 qBittorrent、
   保存路径 `/mnt/storage/downloads`、IMDb ID 搜索。
+- 存量订阅也已通过官方 `PUT /api/v1/subscribe/` 补齐同样的默认项，新建订阅
+  直接继承默认项；巡检时不允许订阅出现 `sites/downloader/save_path` 为空。
 
 ## 下载器合并
 
@@ -76,3 +78,10 @@
 5. 2026-08-09 按 TMDB 季集口径对齐剧集订阅：胆大党 S1 合并为 24 集，
    吊带袜天使 / 新吊带袜天使各 13 集（订阅总集数手动锁定），三条订阅均已标记完成；
    Jellyfin 对应剧集全部带集号，无未匹配项。
+   - 胆大党 S2 的 12 集已并入 S1 并按 `S01E13-S01E24` 重命名，qB 种子仍指向
+     `/mnt/storage/downloads`，做种不受影响（已复查 `stalledUP/progress=1`）。
+   - 2025 新吊带袜 13 集已从旧剧集 `Season 2` 拆到独立剧集目录，TMDB 的
+     30 条为片段计数，AniList 口径全季 13 集，故按 13 集完成。
+   - 旧 Sonarr nfo（含 TVDB 集 ID）会阻止 Jellyfin 写入新集号，已移出媒体库
+     备份到 `/mnt/storage/.jf-meta-backup-20260809/ddd`；整改后全库扫描复验
+     集数稳定。
