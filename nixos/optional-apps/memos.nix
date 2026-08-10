@@ -24,6 +24,16 @@
         key = "uni-api-admin-api-key";
         mode = "0444";
       };
+      memos-s3-access-key = {
+        sopsFile = inputs.secrets + "/common/memos.yaml";
+        key = "memos-s3-access-key";
+        mode = "0444";
+      };
+      memos-s3-secret-key = {
+        sopsFile = inputs.secrets + "/common/memos.yaml";
+        key = "memos-s3-secret-key";
+        mode = "0444";
+      };
     };
 
     networking.hosts."${LT.hosts.colocrossing.ltnet.IPv4}" = [
