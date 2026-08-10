@@ -63,6 +63,7 @@ _: [
   "flapalerted.zhyi.cc"
   "jpvm.zhyi.cc"
   "colocrossing.zhyi.cc"
+  "comments.zhyi.xin"
   "usvm.zhyi.cc"
   "lg.zhyi.cc"
   "lg.zhyi.dn42"
