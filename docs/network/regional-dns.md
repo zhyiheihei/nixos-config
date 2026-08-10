@@ -61,5 +61,8 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
 - 2026-08-10（NTA 验证）：`031fb238` 在 ml-builder 上求值与 cnvm toplevel
   构建通过；ml-builder 侧 `dig @198.19.0.253 vaults3.zhyi.cc` 与 `zhyi.cc`
   均已恢复 NOERROR，无 EDE 6。
-- 待办：`cnvm`、`jpvm` SSH 仍不可达，配置尚未切换；可达后执行
-  `colmena apply --on cnvm` 与 `--on jpvm` 并复核。
+- 2026-08-10（cnvm 部署）：统一 SSH 端口为 `2222` 后，cnvm 已通过
+  `colmena apply --on cnvm` 部署成功；cnvm 与 ml-builder 两侧
+  `dig @198.19.0.253 vaults3.zhyi.cc` / `zhyi.cc` 均为 NOERROR，无 EDE 6。
+- 待办：`jpvm` 流量耗尽不可达，配置未切换；配额恢复后执行
+  `colmena apply --on jpvm` 并复核。
