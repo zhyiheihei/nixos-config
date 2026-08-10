@@ -14,7 +14,7 @@ let
 
   mkSubscriptionLocation = template: {
     extraConfig = ''
-      include ${config.sops.templates.${template}.path};
+      include ${config.sops.templates."sublinkpro-token.nginx".path};
       default_type text/yaml;
       add_header Content-Disposition 'attachment; filename=mihomo.yaml';
       alias ${config.sops.templates.${template}.path};
@@ -205,7 +205,9 @@ in
   };
 
   virtualisation.oci-containers.containers.sublinkpro = {
-    image = "docker.io/zerodeng/sublink-pro:latest";
+    # docker.io is unreachable from this home host and the daocloud mirror
+    # denies this image; docker.1panel.live is verified reachable on rock5c.
+    image = "docker.1panel.live/zerodeng/sublink-pro:latest";
     labels."io.containers.autoupdate" = "registry";
     ports = [ "127.0.0.1:${LT.portStr.SublinkPro}:8000" ];
     volumes = [
