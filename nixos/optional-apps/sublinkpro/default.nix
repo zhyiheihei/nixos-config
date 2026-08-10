@@ -247,7 +247,7 @@ in
     script = ''
       set -eu
       api=http://127.0.0.1:${LT.portStr.SublinkPro}
-      sub_config='{"clash":"clash.yaml","surge":"surge.conf"}'
+      sub_config='{"clash":"./template/clash.yaml","surge":"./template/surge.conf"}'
 
       ready=false
       for _ in $(seq 1 90); do
@@ -305,6 +305,14 @@ in
           --data-urlencode "UpdateInterval=24" || true
         sub_id=$(curl_auth "$api/api/v1/subcription/get" \
           | ${pkgs.jq}/bin/jq -r '.data[] | select(.Name=="统一订阅") | .ID' | head -1)
+      fi
+      if [ -n "$sub_id" ]; then
+        curl_auth -X POST "$api/api/v1/subcription/update" \
+          --data-urlencode "oldname=统一订阅" \
+          --data-urlencode "name=统一订阅" \
+          --data-urlencode "nodeIds=$ids" \
+          --data-urlencode "config=$sub_config" \
+          --data-urlencode "UpdateInterval=24" || true
       fi
       if [ -z "$sub_id" ]; then
         echo "Failed to create unified subscription" >&2
