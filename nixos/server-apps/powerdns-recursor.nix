@@ -117,9 +117,9 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
         ntaRecords = lib.concatMapStringsSep "\n" (n: "addNTA(\"${n}\")") (
           with LT.constants.zones;
           (DN42 ++ Emercoin ++ CRXN ++ Meshname ++ YggdrasilAlfis ++ Ltnet ++ Others)
-          # Recursive forwarders can omit RRSIGs from this Cloudflare-backed
-          # response, so validating it again would return SERVFAIL.
-          ++ [ "m-team.cc" ]
+          # Recursive forwarders can omit RRSIGs from these Cloudflare/Gcore-backed
+          # responses, so validating them again would return SERVFAIL.
+          ++ [ "m-team.cc" "zhyi.cc" "zhyi.xin" ]
         );
       in
       ''
