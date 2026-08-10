@@ -8,6 +8,13 @@
 
 - [学习索引](./learning/README.md)
 
+## 调研记录
+
+- [三次调研索引](./research/README.md)
+- [OpenWrt NanoPi R5C 适配](./research/01-openwrt-nanopi-r5c.md)
+- [r5s.cooluc.com（Cooluc）方案](./research/02-r5s-cooluc.md)
+- [iStoreOS R5C 适配](./research/03-istoreos-r5c.md)
+
 ## 入门与主机接入
 
 - [适配自己的 NixOS 设备](./getting-started/adapt-own-device.md)
