@@ -110,7 +110,8 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
         ++ (builtins.map forwardToLtnet (
           with LT.constants.zones;
           (DN42 ++ Emercoin ++ CRXN ++ Meshname ++ YggdrasilAlfis ++ Ltnet ++ Others)
-        ));
+        ))
+        ++ (builtins.map forwardToLtnet [ "attic.zhyi.xin" ]);
       in
       lib.concatStrings cfgEntries;
   };

@@ -81,6 +81,16 @@ let
       ${forwardZone "mnc010.mcc315.3gppnetwork.org" null}
       ${forwardZone "mnc999.mcc999.3gppnetwork.org" null}
 
+      # Split-horizon: internal clients reach attic over LTNET instead of the
+      # lossy public NAT path to cnvm.
+      attic.zhyi.xin {
+        prometheus ${config.lantian.netns.coredns-authoritative.ipv4}:${LT.portStr.Prometheus.CoreDNS}
+        hosts {
+          ${LT.hosts.cnvm.ltnet.IPv4} attic.zhyi.xin
+          no_reverse
+        }
+      }
+
       # Meshname
       meshname {
         prometheus ${config.lantian.netns.coredns-authoritative.ipv4}:${LT.portStr.Prometheus.CoreDNS}

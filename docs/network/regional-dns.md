@@ -71,5 +71,10 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
   `attic.zhyi.xin`、`vaults3.zhyi.cc` 等解析均为 NOERROR，热缓存 0-1 ms；
   据此撤销 `attic-s3-connect-timeout.patch`，无补丁部署后 atticd active、
   Attic 443 与 VaultS3 8443 探测均 200。
+- 2026-08-10（公网路径定位）：cnvm 公网 IP 实际是提供商 NAT 映射（eth0 为
+  `172.31.0.2`），公网 ICMP 丢包约 55%，TLS 建连从国内/海外均数百 ms 到 2 s；
+  作者上游把 Attic 放在公网 VPS + Telnyx S3，本仓库放在国内 NAT VM + 家庭
+  VaultS3。全局修复：`attic.zhyi.xin` 增加 LTNET split-horizon，内部主机经
+  `198.18.0.119` 访问，避开公网 NAT 链路。
 - 待办：`jpvm` 流量耗尽不可达，配置未切换；配额恢复后执行
   `colmena apply --on jpvm` 并复核。
