@@ -7,10 +7,10 @@
 
 | 环节 | 作者原版 | 当前复刻 |
 | --- | --- | --- |
-| 私有笔记载体 | 本地 Markdown/Documents，客户端 `Documents` bind 到 Syncthing 持久目录 | `~/Documents/Notes`，子目录 `inbox/private/archive/shared` |
+| 私有笔记载体 | 本地 Markdown/Documents，客户端 `Documents` bind 到 Syncthing 持久目录 | `~/Documents/Notes` bindfs 到 `/nix/persistent/media/Notes` |
 | 私有 Git | Gitea `git.lantian.pub`，`DEFAULT_PRIVATE = "private"`，push-create | Gitea `git.zhyi.xin`，已推送 `zhyi/notes` |
 | 去中心化 Git | Radicle `radicle.lantian.pub` + 客户端 radicle-node | 未启用（候选） |
-| 私有同步 | Syncthing 客户端 + 服务器 | 已回滚；等待按官方文档重新规划后再配置 |
+| 私有同步 | Syncthing 客户端 + 服务器 | 已生效：ml-2700 / opi5p / colocrossing 三节点同步 |
 | 公开写作环境 | editorconfig（md/mdx/astro 2 空格）、markdown-apa7th-docx | 已随 home 模块生效 |
 | 公开博客源码 | `xddxdd/blog`，Astro + Markdown/MDX | `~/Documents/Blog` Astro 骨架，GitHub Pages workflow 已准备 |
 | 公开发布 | GitHub Actions 构建并推送 `lantian1998.github.io` + rsync 服务器 | `zhyiheihei/blog` 仓库待创建后推送 |
@@ -23,8 +23,9 @@
 
 - `~/Documents/Notes` 初始化 Git 并推送到 `ssh://git@git.zhyi.xin:2222/zhyi/notes.git`，
   Gitea 侧经 `git ls-remote` 确认存在。
-- Notes 已恢复为普通目录，bindfs 与 `.git` 符号链接已移除。
-- ml-2700 / opi5p 的 Syncthing 配对与 notes 文件夹已回滚到改动前状态。
+- Notes 已恢复为 bindfs 持久目录，`~/Documents/Notes` 映射到
+  `/nix/persistent/media/Notes`。
+- ml-2700 / opi5p / colocrossing 三节点的 Syncthing `notes` 文件夹已正常运行。
 - colocrossing 的 Waline 与 `comments.zhyi.xin` 相关改动已回滚。
 - `~/Documents/Blog` 已初始化 Git，加入 Astro 骨架（文章集合、MDX、sitemap、
   Waline 客户端、GitHub Pages workflow），本地提交完成。
