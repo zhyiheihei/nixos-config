@@ -3,7 +3,6 @@
   pkgs,
   lib,
   config,
-  LT,
   ...
 }:
 let
@@ -75,7 +74,7 @@ in
         PROTOCOL = "http+unix";
         ROOT_URL = "https://git.zhyi.xin/";
         SSH_DOMAIN = "git.zhyi.xin";
-        SSH_PORT = LT.port.Gitea.SSH;
+        SSH_PORT = 2222;
       };
       repository = {
         DEFAULT_PRIVATE = "private";

@@ -30,14 +30,13 @@ Git/Markdown 天线：
 
 ## ml-2700 复刻
 
-本仓库在 `hosts/ml-2700/knowledge-chain.nix` 中为 `zhyi` 配置：
+本仓库在 `hosts/ml-2700/configuration.nix` 中为 `zhyi` 配置：
 
 - `~/Documents/Notes`：私有天线，含 `inbox/`、`private/`、`archive/`、
   `shared/` 子目录。
 - `~/Documents/Blog`：公开天线，含 `content/` 目录。
-- 种子 README 与 `.gitignore` 只在缺失时写入，不覆盖用户内容。
-- 按作者客户端同款启用 Syncthing；后续与 `opi5p` / `colocrossing` 配对并添加
-  Notes 文件夹后即可跨设备同步私有天线。
+- Notes 与 Blog 均为普通目录，不做 bindfs；Syncthing 直接同步
+  `~/Documents/Notes` 到 `opi5p` / `colocrossing`，避免 `.git` 被绑定层干扰。
 - Git 远端在运行时配置，不额外提供脚本：
   - 私有：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`
   - 公开：`git@github.com:zhyiheihei/blog.git`
@@ -45,5 +44,5 @@ Git/Markdown 天线：
 Gitea 已开启 push-create，私有仓库可以在首次 `push` 时自动创建；GitHub 公开
 博客仓库需要先在 `zhyiheihei/blog` 创建后再 push。
 
-实机验证：`git.zhyi.xin` 的 OpenSSH 监听在 2222，Gitea 的 `SSH_PORT` 配置值
-2223 只影响 Web 显示的克隆地址，不用于实际连接。
+实机验证：`git.zhyi.xin` 的 OpenSSH 监听在 2222，Gitea 的 `SSH_PORT` 与上游
+一致为 2222，网页克隆地址与实际连接端口相同。
