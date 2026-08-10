@@ -40,6 +40,9 @@ in
       "pppd-wan.service"
     ];
     wants = [ "nftables.service" ];
+    # nftables.service reloads flush the table; restart the flowtable service
+    # together with it so the fast path is restored automatically.
+    partOf = [ "nftables.service" ];
     path = [ pkgs.gnugrep ];
     serviceConfig = {
       Type = "oneshot";
