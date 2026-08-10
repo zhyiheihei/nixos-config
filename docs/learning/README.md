@@ -7,6 +7,7 @@
 
 - [Nix 复刻学习总纲](./nix-replication-guide.md)
 - [Star 排序学习清单](./star-ranked-curriculum.md)
+- [作者知识链：私有 + 公开两天线](./author-knowledge-chain.md)
 
 ## nix-community 组织
 

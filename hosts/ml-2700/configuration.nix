@@ -9,6 +9,7 @@
 
     ./hardware-configuration.nix
     ../../nixos/optional-apps/sunshine.nix
+    ./knowledge-chain.nix
   ];
 
   boot.loader.grub = {
