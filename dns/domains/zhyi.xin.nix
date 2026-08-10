@@ -63,12 +63,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "comments";
-      target = "colocrossing.zhyi.cc.";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "element";
       target = "colocrossing.zhyi.cc.";
       ttl = "1h";
