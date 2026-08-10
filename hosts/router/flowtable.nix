@@ -16,11 +16,36 @@ let
         exit 1
       fi
     done
+
+    rebuild=0
     if ! ${nft} list flowtable inet lantian f >/dev/null 2>&1; then
-      ${nft} -f /etc/nftables/flowtable.nft
+      rebuild=1
+    elif ! ${nft} list flowtable inet lantian f | grep -q ppp0; then
+      # PPPoE redial recreates ppp0; a stale flowtable binding must be rebuilt.
+      rebuild=1
     fi
-    if ! ${nft} list chain inet lantian FILTER_FORWARD | grep -q 'flow add @f'; then
+
+    if [ "$rebuild" -eq 1 ]; then
+      if ${nft} list chain inet lantian FILTER_FORWARD | grep -q 'flow add @f'; then
+        handle=$(
+          ${nft} -a list chain inet lantian FILTER_FORWARD |
+            grep 'flow add @f' |
+            tail -1 |
+            sed -n 's/.*# handle \([0-9][0-9]*\).*/\1/p'
+        )
+        if [ -n "$handle" ]; then
+          ${nft} delete rule inet lantian FILTER_FORWARD handle "$handle"
+        fi
+      fi
+      if ${nft} list flowtable inet lantian f >/dev/null 2>&1; then
+        ${nft} delete flowtable inet lantian f
+      fi
+      ${nft} -f /etc/nftables/flowtable.nft
       ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } flow add @f
+    else
+      if ! ${nft} list chain inet lantian FILTER_FORWARD | grep -q 'flow add @f'; then
+        ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } flow add @f
+      fi
     fi
   '';
 in
@@ -46,10 +71,17 @@ in
       "pppd-wan.service"
     ];
     wants = [ "nftables.service" ];
-    # nftables.service reloads flush the table; restart the flowtable service
-    # together with it so the fast path is restored automatically.
-    partOf = [ "nftables.service" ];
-    path = [ pkgs.gnugrep ];
+    # nftables restarts flush the table; the periodic check service restores
+    # the fast path within a minute, and restarting with pppd-wan covers
+    # PPPoE redial.
+    partOf = [
+      "nftables.service"
+      "pppd-wan.service"
+    ];
+    path = [
+      pkgs.gnugrep
+      pkgs.gnused
+    ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -73,7 +105,10 @@ in
   systemd.services.router-flowtable-check = {
     description = "Reassert nftables flowtable after reloads or PPPoE redial";
     after = [ "nftables.service" ];
-    path = [ pkgs.gnugrep ];
+    path = [
+      pkgs.gnugrep
+      pkgs.gnused
+    ];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = flowtableScript;
