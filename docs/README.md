@@ -13,6 +13,7 @@
 - [适配自己的 NixOS 设备](./getting-started/adapt-own-device.md)
 - [新主机接入规范](./getting-started/new-host-standard.md)
 - [客户端设备入网指南](./getting-started/client-device-onboarding.md)
+- [非 NixOS 设备加入知识链](./getting-started/non-nixos-knowledge-chain.md)
 
 ## 构建与运维
 
