@@ -73,5 +73,8 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
   Attic 443 与 VaultS3 8443 探测均 200。
 - 2026-08-10（Attic 迁移）：按作者布局把 Attic 迁回 `colocrossing` 公网 VPS，
   S3 后端保持现有 VaultS3；`attic.zhyi.xin` 公网 DNS 指向 colocrossing。
+- 2026-08-10（Attic 迁移执行）：colocrossing 已部署 atticd 并恢复元数据，
+  DNS 已切换，cnvm 的 atticd 已移除；待 colocrossing 链路稳定后重推
+  moviepilot 并清理临时 dump/key。
 - 待办：`jpvm` 流量耗尽不可达，配置未切换；配额恢复后执行
   `colmena apply --on jpvm` 并复核。
