@@ -130,6 +130,15 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
       '';
     serveRFC1918 = false;
     settings = {
+      dnssec = {
+        # AliDNS/DNSPod omit root-zone RRSIGs, so domestic recursors must
+        # trust their recursive results instead of validating again.
+        validation =
+          if LT.this.city.country == "CN" then
+            "process-no-validate"
+          else
+            "validate";
+      };
       incoming = {
         reuseport = true;
         tcp_fast_open = 128;
