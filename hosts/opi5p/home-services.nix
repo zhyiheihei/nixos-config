@@ -116,4 +116,12 @@ in
     user = "immich";
     group = "users";
   };
+
+  # FlClash MKCOLs /FlClash/ before every WebDAV backup and webdav_client
+  # treats MKCOL 405 as success, so pre-provision the writable target dir.
+  systemd.tmpfiles.settings.flclash."/mnt/storage/FlClash"."d" = {
+    mode = "0775";
+    user = "zhyi";
+    group = "users";
+  };
 }
