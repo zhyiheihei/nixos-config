@@ -4,7 +4,7 @@
 set -euo pipefail
 
 BASE="${MEMOS_BASE_URL:-http://127.0.0.1:13819}"
-CONNECT="${BASE}/memos.api.v1"
+CONNECT="${BASE}"
 TOKEN="${MEMOS_ADMIN_TOKEN:-}"
 
 if [[ -z "${TOKEN}" && -n "${MEMOS_ADMIN_TOKEN_FILE:-}" && -r "${MEMOS_ADMIN_TOKEN_FILE}" ]]; then
@@ -43,7 +43,13 @@ rest_get() {
 }
 
 connect_call() {
-  curl -fsS --retry 3 "${AUTH[@]}" "${JSON[@]}" -X POST --data "${2}" "${CONNECT}/${1}"
+  local body
+  body="$(curl -fsS --retry 3 "${AUTH[@]}" "${JSON[@]}" -X POST --data "${2}" "${CONNECT}/memos.api.v1.${1}")"
+  if [[ -n "$(jq -r '.code // empty' <<<"${body}" 2>/dev/null || true)" ]]; then
+    echo "API error for ${1}: $(jq -c '{code,message}' <<<"${body}")" >&2
+    return 1
+  fi
+  printf '%s' "${body}"
 }
 
 echo "Configuring Dex OIDC identity provider through the official API"
@@ -52,19 +58,19 @@ IDP_JSON="$(
     --arg clientSecret "${DEX_MEMOS_SECRET}" \
     '{
       title: "Dex",
-      identifier_filter: "^zhyi$",
+      identifierFilter: "^zhyi$",
       type: "OAUTH2",
       config: {
-        oauth2_config: {
-          client_id: "memos",
-          client_secret: $clientSecret,
-          auth_url: "https://login.zhyi.xin/auth",
-          token_url: "https://login.zhyi.xin/token",
-          user_info_url: "https://login.zhyi.xin/userinfo",
+        oauth2Config: {
+          clientId: "memos",
+          clientSecret: $clientSecret,
+          authUrl: "https://login.zhyi.xin/auth",
+          tokenUrl: "https://login.zhyi.xin/token",
+          userInfoUrl: "https://login.zhyi.xin/userinfo",
           scopes: ["openid", "profile", "email", "groups"],
-          field_mapping: {
+          fieldMapping: {
             identifier: "preferred_username",
-            display_name: "name",
+            displayName: "name",
             email: "email"
           }
         }
@@ -73,10 +79,10 @@ IDP_JSON="$(
 )"
 if rest_get "/api/v1/identity-providers" | jq -e '.identityProviders[] | select(.name == "identity-providers/dex-memos")' >/dev/null; then
   connect_call IdentityProviderService/UpdateIdentityProvider \
-    "$(jq -nc --argjson idp "${IDP_JSON}" '{identity_provider:$idp, update_mask:{paths:["title","identifier_filter","config"]}}')" >/dev/null
+    "$(jq -nc --argjson idp "${IDP_JSON}" '{identityProvider: ($idp + {name:"identity-providers/dex-memos"}), updateMask:"title,identifierFilter,config"}')" >/dev/null
 else
   connect_call IdentityProviderService/CreateIdentityProvider \
-    "$(jq -nc --arg id "dex-memos" --argjson idp "${IDP_JSON}" '{identity_provider_id:$id, identity_provider:$idp}')" >/dev/null
+    "$(jq -nc --arg id "dex-memos" --argjson idp "${IDP_JSON}" '{identityProviderId:$id, identityProvider:$idp}')" >/dev/null
 fi
 
 echo "Configuring AI provider through Metapi through the official API"
@@ -85,14 +91,14 @@ AI_JSON="$(
     --arg apiKey "${METAPI_API_KEY}" \
     '{
       name: "instance/settings/AI",
-      ai_setting: {
+      aiSetting: {
         providers: [
           {
             id: "metapi",
             title: "Metapi",
             type: "OPENAI",
             endpoint: "https://metapi.colocrossing.zhyi.cc/v1",
-            api_key: $apiKey
+            apiKey: $apiKey
           }
         ]
       }
@@ -107,18 +113,18 @@ NOTIFICATION_JSON="$(
     --arg smtpPassword "${SMTP_PASSWORD}" \
     '{
       name: "instance/settings/NOTIFICATION",
-      notification_setting: {
+      notificationSetting: {
         email: {
           enabled: true,
-          smtp_host: "send.ahasend.com",
-          smtp_port: 587,
-          smtp_username: "EjG9ROGAei",
-          smtp_password: $smtpPassword,
-          from_email: "postmaster@zhyi.cc",
-          from_name: "Memos",
-          reply_to: "",
-          use_tls: true,
-          use_ssl: false
+          smtpHost: "send.ahasend.com",
+          smtpPort: 587,
+          smtpUsername: "EjG9ROGAei",
+          smtpPassword: $smtpPassword,
+          fromEmail: "postmaster@zhyi.cc",
+          fromName: "Memos",
+          replyTo: "",
+          useTls: true,
+          useSsl: false
         }
       }
     }'
@@ -131,10 +137,10 @@ STORAGE_JSON="$(
   jq -nc \
     '{
       name: "instance/settings/STORAGE",
-      storage_setting: {
-        storage_type: "LOCAL",
-        filepath_template: "assets/{timestamp}_{filename}",
-        upload_size_limit_mb: 64
+      storageSetting: {
+        storageType: "LOCAL",
+        filepathTemplate: "assets/{timestamp}_{filename}",
+        uploadSizeLimitMb: 64
       }
     }'
 )"
@@ -143,10 +149,10 @@ connect_call InstanceService/UpdateInstanceSetting \
 
 echo "Verifying applied settings"
 rest_get "/api/v1/identity-providers/dex-memos" |
-  jq '{name, title, identifier_filter, client_id: .config.oauth2_config.client_id, endpoints: [.config.oauth2_config.auth_url, .config.oauth2_config.token_url, .config.oauth2_config.user_info_url]}'
+  jq '{name, title, identifierFilter, clientId: .config.oauth2Config.clientId, endpoints: [.config.oauth2Config.authUrl, .config.oauth2Config.tokenUrl, .config.oauth2Config.userInfoUrl]}'
 rest_get "/api/v1/instance/settings/AI" |
-  jq '{name, providers: [.ai_setting.providers[] | {id, title, type, endpoint, api_key_set}]}'
+  jq '{name, providers: [.aiSetting.providers[] | {id, title, type, endpoint, apiKeySet}]}'
 rest_get "/api/v1/instance/settings/NOTIFICATION" |
-  jq '{name, email_enabled: .notification_setting.email.enabled, smtp_host: .notification_setting.email.smtp_host, from_email: .notification_setting.email.from_email}'
+  jq '{name, emailEnabled: .notificationSetting.email.enabled, smtpHost: .notificationSetting.email.smtpHost, fromEmail: .notificationSetting.email.fromEmail}'
 rest_get "/api/v1/instance/settings/STORAGE" |
-  jq '{name, storage_type: .storage_setting.storage_type, filepath_template: .storage_setting.filepath_template, upload_size_limit_mb: .storage_setting.upload_size_limit_mb}'
+  jq '{name, storageType: .storageSetting.storageType, filepathTemplate: .storageSetting.filepathTemplate, uploadSizeLimitMb: .storageSetting.uploadSizeLimitMb}'
