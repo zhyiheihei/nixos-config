@@ -34,6 +34,11 @@ read_secret() {
 DEX_MEMOS_SECRET="$(read_secret DEX_MEMOS_SECRET "${DEX_MEMOS_SECRET_FILE:-/run/secrets/dex-memos-secret}")"
 METAPI_API_KEY="$(read_secret METAPI_API_KEY "${METAPI_API_KEY_FILE:-/run/secrets/memos-metapi-key}")"
 SMTP_PASSWORD="$(read_secret SMTP_PASSWORD "${SMTP_PASSWORD_FILE:-/run/secrets/smtp-pass}")"
+VAULTS3_SECRET_KEY="$(read_secret VAULTS3_SECRET_KEY "${VAULTS3_SECRET_KEY_FILE:-/run/secrets/default-pw}")"
+VAULTS3_ACCESS_KEY="${VAULTS3_ACCESS_KEY:-zhyi}"
+VAULTS3_ENDPOINT="${VAULTS3_ENDPOINT:-https://vaults3.zhyi.cc}"
+VAULTS3_REGION="${VAULTS3_REGION:-us-east-1}"
+VAULTS3_BUCKET="${VAULTS3_BUCKET:-memos}"
 
 AUTH=(-H "Authorization: Bearer ${TOKEN}")
 JSON=(-H "Content-Type: application/json")
@@ -135,12 +140,25 @@ connect_call InstanceService/UpdateInstanceSetting \
 echo "Configuring local attachment storage through the official API"
 STORAGE_JSON="$(
   jq -nc \
+    --arg accessKeyId "${VAULTS3_ACCESS_KEY}" \
+    --arg accessKeySecret "${VAULTS3_SECRET_KEY}" \
+    --arg endpoint "${VAULTS3_ENDPOINT}" \
+    --arg region "${VAULTS3_REGION}" \
+    --arg bucket "${VAULTS3_BUCKET}" \
     '{
       name: "instance/settings/STORAGE",
       storageSetting: {
-        storageType: "LOCAL",
+        storageType: "S3",
         filepathTemplate: "assets/{timestamp}_{filename}",
-        uploadSizeLimitMb: 64
+        uploadSizeLimitMb: 64,
+        s3Config: {
+          accessKeyId: $accessKeyId,
+          accessKeySecret: $accessKeySecret,
+          endpoint: $endpoint,
+          region: $region,
+          bucket: $bucket,
+          usePathStyle: true
+        }
       }
     }'
 )"
@@ -155,4 +173,4 @@ rest_get "/api/v1/instance/settings/AI" |
 rest_get "/api/v1/instance/settings/NOTIFICATION" |
   jq '{name, emailEnabled: .notificationSetting.email.enabled, smtpHost: .notificationSetting.email.smtpHost, fromEmail: .notificationSetting.email.fromEmail}'
 rest_get "/api/v1/instance/settings/STORAGE" |
-  jq '{name, storageType: .storageSetting.storageType, filepathTemplate: .storageSetting.filepathTemplate, uploadSizeLimitMb: .storageSetting.uploadSizeLimitMb}'
+  jq '{name, storageType: .storageSetting.storageType, filepathTemplate: .storageSetting.filepathTemplate, uploadSizeLimitMb: .storageSetting.uploadSizeLimitMb, s3Bucket: .storageSetting.s3Config.bucket, s3Endpoint: .storageSetting.s3Config.endpoint, s3UsePathStyle: .storageSetting.s3Config.usePathStyle}'
