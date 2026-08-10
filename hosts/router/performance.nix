@@ -2,6 +2,20 @@
   pkgs,
   ...
 }:
+let
+  rpsScript = pkgs.writeShellScript "router-rps" ''
+    set -eu
+    for dev in eth0 eth1; do
+      q=/sys/class/net/$dev/queues/rx-0
+      if [ ! -e "$q/rps_cpus" ]; then
+        echo "router-rps: $q/rps_cpus missing" >&2
+        exit 1
+      fi
+      echo f > "$q/rps_cpus"
+      echo 4096 > "$q/rps_flow_cnt"
+    done
+  '';
+in
 {
   # Follow the OpenWrt NanoPi R5C high-throughput recipe that is backed by
   # community measurements: raise device/socket buffers and spread RX load
@@ -11,6 +25,7 @@
     "net.core.netdev_max_backlog" = 5000;
     "net.core.rmem_max" = 16777216;
     "net.core.wmem_max" = 16777216;
+    "net.core.rps_sock_flow_entries" = 4096;
   };
 
   systemd.services.router-rps = {
@@ -28,12 +43,7 @@
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      ExecStart = [
-        "${pkgs.runtimeShell} -c 'echo f > /sys/class/net/eth0/queues/rx-0/rps_cpus || true'"
-        "${pkgs.runtimeShell} -c 'echo 4096 > /sys/class/net/eth0/queues/rx-0/rps_flow_cnt || true'"
-        "${pkgs.runtimeShell} -c 'echo f > /sys/class/net/eth1/queues/rx-0/rps_cpus || true'"
-        "${pkgs.runtimeShell} -c 'echo 4096 > /sys/class/net/eth1/queues/rx-0/rps_flow_cnt || true'"
-      ];
+      ExecStart = rpsScript;
     };
   };
 }
