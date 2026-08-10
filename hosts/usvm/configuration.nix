@@ -11,12 +11,6 @@
     networkConfig.DHCP = "ipv4";
   };
 
-  networking.nameservers = [
-    "8.8.8.8"
-    "8.8.4.4"
-    "1.1.1.1"
-  ];
-
   lantian.nginxVhosts."usvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
   # Keep enough compressed swap headroom for builds and make the
