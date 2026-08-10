@@ -11,6 +11,10 @@
   # within this 8 GiB board while OPI5P keeps its 3-thread primary worker.
   lantian.immichRknnWorker.enable = true;
 
+  # librknnrt logs a harmless "static shape type" warning on every RKNN model
+  # load. Level 0 keeps real E RKNN errors while silencing that W RKNN noise.
+  virtualisation.oci-containers.containers.immich-machine-learning-rknn.environment.RKNN_LOG_LEVEL = "0";
+
   # Route the RKNN worker's model/image downloads through the router SOCKS5
   # proxy instead of ROCK 5C's own MetaCubeXD mixed port.
   systemd.services.podman-immich-machine-learning-rknn.environment = {
