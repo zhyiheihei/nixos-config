@@ -225,12 +225,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "sub";
-      target = "colocrossing.zhyi.cc.";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "tachidesk";
       target = homeDdnsTarget;
       ttl = "1h";
