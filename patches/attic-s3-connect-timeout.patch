@@ -1,0 +1,31 @@
+diff --git a/server/src/storage/s3.rs b/server/src/storage/s3.rs
+--- a/server/src/storage/s3.rs
++++ b/server/src/storage/s3.rs
+@@ -1,10 +1,13 @@
+ //! S3 remote files.
+ 
++use std::time::Duration;
++
+ use aws_config::{BehaviorVersion, retry::RetryConfig};
+ use aws_sdk_s3::{
+     Client,
+     config::Builder as S3ConfigBuilder,
+     config::{Credentials, Region},
++    config::timeout::TimeoutConfig,
+     operation::get_object::builders::GetObjectFluentBuilder,
+     types::{CompletedMultipartUpload, CompletedPart},
+ };
+@@ -78,8 +79,13 @@
+     pub async fn new(config: S3StorageConfig) -> ServerResult<Self> {
+         let s3_config = Self::config_builder(&config)
+             .await?
+             .region(Region::new(config.region.to_owned()))
+             .retry_config(RetryConfig::adaptive())
++            .timeout_config(
++                TimeoutConfig::builder()
++                    .connect_timeout(Duration::from_secs(10))
++                    .build(),
++            )
+             .build();
+ 
+         Ok(Self {
