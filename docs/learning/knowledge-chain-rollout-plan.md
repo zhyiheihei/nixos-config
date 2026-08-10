@@ -1,6 +1,6 @@
 # 知识链简化测试规划
 
-状态：按用户确认执行简化路径；不引入自定义 bindfs 挂载。
+状态：私有路线已完成；公开路线按用户要求不实施。
 
 用户确认：开工；先把项目 `docs/` 下的现有文件复制进 `Notes` 作为测试笔记，
 走 git -> Gitea 私有仓库链路。
@@ -51,6 +51,16 @@ colocrossing
 - ml-2700 / opi5p / colocrossing 的 `notes` 文件夹状态为 `idle`、`needBytes=0`、
   `errors=0`。
 - 文档与本文件同步更新。
+
+## 完成记录
+
+- Notes 测试笔记已推送：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`，远端
+  `git ls-remote` 可见。
+- Syncthing 三机同步已启用并通过官方 REST 脚本
+  `tools/knowledge-chain/syncthing-setup.py` 配置，三机均为
+  `state=idle`、`needBytes=0`、`errors=0`。
+- 未引入自定义 bindfs 挂载；Notes 与 nixos-config 是两个独立 git 仓库。
+- 公开路线（GitHub Pages / Waline / DNS）未实施。
 
 ## 回滚
 
