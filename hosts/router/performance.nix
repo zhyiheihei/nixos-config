@@ -5,13 +5,12 @@
 {
   # Follow the OpenWrt NanoPi R5C high-throughput recipe that is backed by
   # community measurements: raise device/socket buffers and spread RX load
-  # across all four RK3568 cores.  BBR only helps local sockets, so keep the
-  # kernel default congestion control as cubic and set BBR here explicitly.
+  # across all four RK3568 cores.  BBR is already enabled globally by
+  # nixos/minimal-components/networking.nix.
   boot.kernel.sysctl = {
     "net.core.netdev_max_backlog" = 5000;
     "net.core.rmem_max" = 16777216;
     "net.core.wmem_max" = 16777216;
-    "net.ipv4.tcp_congestion_control" = "bbr";
   };
 
   systemd.services.router-rps = {
