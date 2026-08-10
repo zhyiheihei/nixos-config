@@ -39,8 +39,11 @@ Git/Markdown 天线：
 - 按作者客户端同款启用 Syncthing；后续与 `opi5p` / `colocrossing` 配对并添加
   Notes 文件夹后即可跨设备同步私有天线。
 - `knowledge-chain-init` 命令：为两个目录初始化 Git，并预置远端：
-  - 私有：`ssh://git@git.zhyi.xin:2223/zhyi/notes.git`
+  - 私有：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`
   - 公开：`git@github.com:zhyiheihei/blog.git`
 
 Gitea 已开启 push-create，私有仓库可以在首次 `push` 时自动创建；GitHub 公开
 博客仓库需要先在 `zhyiheihei/blog` 创建后再 push。
+
+实机验证：`git.zhyi.xin` 的 OpenSSH 监听在 2222，Gitea 的 `SSH_PORT` 配置值
+2223 只影响 Web 显示的克隆地址，不用于实际连接。
