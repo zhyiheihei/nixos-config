@@ -98,12 +98,6 @@ in
 
   networking.networkmanager.enable = lib.mkForce false;
 
-  # Attic pushes from this builder should use LTNET to cnvm instead of the
-  # slow public path, which drops long cache uploads.
-  networking.hosts = {
-    "198.18.0.119" = [ "attic.zhyi.xin" ];
-  };
-
   # Nix places sandbox build trees under /var/cache/nix.  Keep those
   # short-lived, write-heavy files in memory instead of the persistent Btrfs
   # filesystem.  The size is an upper limit; tmpfs does not reserve 64 GiB at
