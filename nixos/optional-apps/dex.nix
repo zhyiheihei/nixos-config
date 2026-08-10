@@ -90,6 +90,14 @@ let
         redirectURIs = [ "https://ai.zhyi.xin/oauth/openid/callback" ];
       }
       {
+        id = "memos";
+        name = "Memos";
+        secret = {
+          _secret = config.sops.secrets.dex-memos-secret.path;
+        };
+        redirectURIs = [ "https://memos.opi5p.zhyi.cc/auth/callback" ];
+      }
+      {
         id = "moviepilot";
         name = "MoviePilot";
         secret = {
@@ -151,6 +159,7 @@ in
         "grafana"
         "immich"
         "librechat"
+        "memos"
         "moviepilot"
         "oauth2-proxy"
         # keep-sorted end

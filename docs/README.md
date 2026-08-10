@@ -54,6 +54,7 @@
 
 - [Homepage 卡片与健康检查](./services/homepage-link-audit.md)
 - [下载与媒体链路使用指南](./services/media-pipeline-guide.md)
+- [Memos 服务接入（SSO / 存储 / 通知 / AI）](./services/memos.md)
 
 ## 状态参考
 

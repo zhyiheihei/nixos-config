@@ -43,6 +43,20 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
   `https://moviepilot.rock5c.zhyi.cc/api/v1/plugin/OidcAuth/callback`
 - `allow_auto_bind_by_username=true`，现有 `zhyi` 账号自动绑定。
 
+## Memos 当前配置
+
+- 接入方式：Memos 原生 OAuth2（OIDC Discovery 由 Dex 提供）。
+- Dex client：`id=memos`，回调
+  `https://memos.opi5p.zhyi.cc/auth/callback`，与 Memos 登录页的
+  `/auth/callback` 完全一致。
+- OAuth2 端点：`https://login.zhyi.xin/auth`、
+  `https://login.zhyi.xin/token`、`https://login.zhyi.xin/userinfo`。
+- field mapping：`identifier=preferred_username`、`email=email`，
+  identifier filter 为 `^zhyi$`。
+- Memos 首次 SSO 登录会创建新用户；既有 `zhyi` 需在
+  Settings → Linked Identities 绑定一次，之后才能直接免密登录。
+- 完整存储/通知/AI 配置见 [`docs/services/memos.md`](../services/memos.md)。
+
 ## 运行状态（2026-08-09）
 
 - Dex 静态客户端与 secrets 已部署，插件配置与绑定状态页面正常。
