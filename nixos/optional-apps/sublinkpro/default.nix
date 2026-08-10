@@ -225,6 +225,12 @@ in
       TZ = config.time.timeZone;
     };
     environmentFiles = [ config.sops.templates.sublinkpro-env.path ];
+    # Keep the panel bounded on the shared public host: the web UI, SQLite and
+    # GeoIP are modest, but an unconstrained container adds avoidable risk.
+    extraOptions = [
+      "--memory=1g"
+      "--pids-limit=512"
+    ];
   };
 
   systemd.services.podman-sublinkpro.preStart = lib.mkBefore ''
