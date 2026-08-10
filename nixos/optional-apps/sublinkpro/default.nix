@@ -265,7 +265,7 @@ in
       login=$(${pkgs.curl}/bin/curl -fsS -X POST "$api/api/v1/auth/login" \
         -d "username=admin" \
         --data-urlencode "password=$SUBLINK_ADMIN_PASSWORD")
-      token=$(printf '%s' "$login" | ${pkgs.jq}/bin/jq -r '.data.token // empty')
+      token=$(printf '%s' "$login" | ${pkgs.jq}/bin/jq -r '.data.accessToken // empty')
       if [ -z "$token" ]; then
         echo "SublinkPro login failed" >&2
         exit 1
@@ -312,7 +312,7 @@ in
       fi
 
       share_id=$(curl_auth "$api/api/v1/shares/get?subId=$sub_id" \
-        | ${pkgs.jq}/bin/jq -r --arg t "$SUBLINK_SHARE_TOKEN" '.data[] | select(.Token==$t) | .ID' | head -1)
+        | ${pkgs.jq}/bin/jq -r --arg t "$SUBLINK_SHARE_TOKEN" '.data[] | select(.token==$t) | .id' | head -1)
       if [ -z "$share_id" ]; then
         curl_auth -X POST "$api/api/v1/shares/add" \
           -H "Content-Type: application/json" \
