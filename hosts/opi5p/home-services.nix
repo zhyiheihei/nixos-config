@@ -65,6 +65,10 @@ in
   lantian.immich.storage = "/mnt/storage/immich";
   lantian.syncthing.storage = "/mnt/storage/media";
   services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
+  # FlClash writes /FlClash/backup.zip at the WebDAV root.  Give WebDAV its
+  # own writable root instead of exposing the whole NFS share and failing to
+  # create directories under the root-owned /mnt/storage.
+  services.webdav.settings.directory = "/mnt/storage/webdav";
   lantian.ncps = {
     dataPath = "/nix/persistent/var/cache/ncps";
     tempPath = "/nix/persistent/var/cache/ncps-tmp";
@@ -114,6 +118,12 @@ in
   systemd.tmpfiles.settings.immich-import."/mnt/storage/immich-import"."d" = {
     mode = "0775";
     user = "immich";
+    group = "users";
+  };
+
+  systemd.tmpfiles.settings.webdav."/mnt/storage/webdav"."d" = {
+    mode = "0775";
+    user = "zhyi";
     group = "users";
   };
 }
