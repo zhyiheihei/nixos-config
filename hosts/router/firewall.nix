@@ -40,11 +40,6 @@ let
 in
 {
   networking.nftables.tables.lantian.content = lib.mkForce ''
-    flowtable f {
-      hook ingress priority filter
-      devices = { ppp0, br-lan }
-    }
-
     chain FILTER_INPUT {
       type filter hook input priority 5; policy accept;
 
@@ -67,10 +62,6 @@ in
 
       # Allow existing connections
       ct state { established, related } accept
-
-      # Software fast path for established/related flows after the accept
-      # decision; new/untracked packets still traverse the full rule chain.
-      flow add @f
 
       # Allow DNATed connections
       ct status dnat accept

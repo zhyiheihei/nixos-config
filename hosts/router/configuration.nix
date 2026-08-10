@@ -10,6 +10,7 @@
     ./ddns-gcore.nix
     ./dhcp.nix
     ./firewall.nix
+    ./flowtable.nix
     ./hardware-configuration.nix
     ./networking.nix
     ./performance.nix
