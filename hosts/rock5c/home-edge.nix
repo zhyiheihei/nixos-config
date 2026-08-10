@@ -15,7 +15,7 @@ in
     ../../nixos/optional-apps/nginx-openspeedtest.nix
     ../../nixos/optional-apps/uni-api.nix
     ../../nixos/optional-apps/vlmcsd.nix
-    ../../nixos/optional-apps/sublinkpro
+    ../../nixos/optional-apps/worker-vless2sub.nix
 
     ./app-edge.nix
     ./home-lan-edge.nix
