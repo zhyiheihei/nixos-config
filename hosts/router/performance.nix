@@ -44,6 +44,8 @@ in
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = rpsScript;
+      Restart = "on-failure";
+      RestartSec = "5";
     };
   };
 }
