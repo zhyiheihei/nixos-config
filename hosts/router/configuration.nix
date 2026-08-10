@@ -12,6 +12,7 @@
     ./firewall.nix
     ./hardware-configuration.nix
     ./networking.nix
+    ./performance.nix
     ./prometheus.nix
     ./qbittorrent.nix
     ./vaults3.nix
