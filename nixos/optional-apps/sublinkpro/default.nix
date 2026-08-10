@@ -7,7 +7,7 @@
   ...
 }:
 let
-  dataDir = "/nix/persistent/var/lib/sublinkpro";
+  dataDir = "/var/lib/sublinkpro";
   dbDir = "${dataDir}/db";
   templateDir = "${dataDir}/template";
   logDir = "${dataDir}/logs";
@@ -205,9 +205,7 @@ in
   };
 
   virtualisation.oci-containers.containers.sublinkpro = {
-    # docker.io is unreachable from this home host and the daocloud mirror
-    # denies this image; docker.1panel.live is verified reachable on rock5c.
-    image = "docker.1panel.live/zerodeng/sublink-pro:latest";
+    image = "docker.io/zerodeng/sublink-pro:latest";
     labels."io.containers.autoupdate" = "registry";
     ports = [ "127.0.0.1:${LT.portStr.SublinkPro}:8000" ];
     volumes = [
@@ -323,14 +321,14 @@ in
 
       ${pkgs.coreutils}/bin/install -d -m 0755 ${dataDir}
       {
-        echo "统一订阅 (Clash/Mihomo): https://sub.zhyi.cc/c/?token=$SUBLINK_SHARE_TOKEN&client=clash"
-        echo "统一订阅 (V2Ray): https://sub.zhyi.cc/c/?token=$SUBLINK_SHARE_TOKEN&client=v2ray"
-        echo "管理页面: https://sub.zhyi.cc/"
+        echo "统一订阅 (Clash/Mihomo): https://sub.zhyi.xin/c/?token=$SUBLINK_SHARE_TOKEN&client=clash"
+        echo "统一订阅 (V2Ray): https://sub.zhyi.xin/c/?token=$SUBLINK_SHARE_TOKEN&client=v2ray"
+        echo "管理页面: https://sub.zhyi.xin/"
       } > ${dataDir}/unified-subscription.txt
     '';
   };
 
-  lantian.nginxVhosts."sub.zhyi.cc" = {
+  lantian.nginxVhosts."sub.zhyi.xin" = {
     locations = {
       "/" = {
         enableOAuth = true;
@@ -344,7 +342,7 @@ in
       "= /mihomo.yaml" = mkSubscriptionLocation "sublinkpro-mihomo.yaml";
       "= /jpvm.yaml" = mkSubscriptionLocation "sublinkpro-jpvm.yaml";
     };
-    sslCertificate = "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }
