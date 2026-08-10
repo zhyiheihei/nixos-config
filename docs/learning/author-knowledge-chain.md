@@ -35,8 +35,10 @@ Git/Markdown 天线：
 - `~/Documents/Notes`：私有天线，含 `inbox/`、`private/`、`archive/`、
   `shared/` 子目录。
 - `~/Documents/Blog`：公开天线，含 `content/` 目录。
-- Notes 与 Blog 均为普通目录，不做 bindfs；Syncthing 直接同步
-  `~/Documents/Notes` 到 `opi5p` / `colocrossing`，避免 `.git` 被绑定层干扰。
+- `~/Documents/Notes` 是 `/nix/persistent/media/Notes` 的 bindfs 视图，
+  与作者客户端 Documents 同款；Syncthing 同步该持久目录到 `opi5p` /
+  `colocrossing`。
+- Notes 仓库与本仓库相互独立，不共享 `.git` 或绑定目录。
 - Git 远端在运行时配置，不额外提供脚本：
   - 私有：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`
   - 公开：`git@github.com:zhyiheihei/blog.git`

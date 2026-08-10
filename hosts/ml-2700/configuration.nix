@@ -15,17 +15,13 @@
 
   lantian.syncthing.storage = "/nix/persistent/media";
 
-  # Notes stays a plain directory; give the syncthing service write access
-  # through the zhyi group instead of adding custom bind mounts.
-  users.groups.zhyi.members = [ "syncthing" ];
-
-  systemd.services.syncthing.serviceConfig = {
-    ReadWritePaths = lib.mkForce [
-      "/run/syncthing-files"
-      "/home/zhyi/Documents/Notes"
-    ];
-    # PrivateUsers remaps uid/gid and breaks file/ACL access to /home.
-    PrivateUsers = lib.mkForce false;
+  # Notes is a bindfs view of the Syncthing-managed storage, matching the
+  # author's client Documents layout. The Notes repo stays independent from
+  # this repository.
+  fileSystems."/home/zhyi/Documents/Notes" = lib.mkForce {
+    device = "/nix/persistent/media/Notes";
+    fsType = "fuse.bindfs";
+    options = LT.constants.bindfsMountOptions;
   };
 
   boot.loader.grub = {
