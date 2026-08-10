@@ -45,8 +45,15 @@ let
           forwarders = [ "172.31.0.5" ];
         }
       ];
+      splitHorizon = builtins.map (k: {
+        zone = k;
+        forwarders = [
+          "198.19.0.254"
+          "fdd8:1938:4e88:3712::54"
+        ];
+      }) [ "attic.zhyi.xin" ];
     in
-    authoritative ++ emercoin ++ yggdrasilAlfis ++ hack;
+    authoritative ++ emercoin ++ yggdrasilAlfis ++ hack ++ splitHorizon;
 
   forwardZonesRecurse =
     let
