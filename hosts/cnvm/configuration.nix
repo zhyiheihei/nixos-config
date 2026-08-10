@@ -29,12 +29,6 @@
     networkConfig.DHCP = "ipv4";
   };
 
-  networking.nameservers = [
-    "223.5.5.5"
-    "223.6.6.6"
-    "119.29.29.29"
-  ];
-
   # cnvm serves the *.zhyi.xin entry domain; the cnvm.zhyi.cc vhost was a
   # leftover shell with no service and no matching certificate, so it is
   # removed (blackbox probes cnvm via its explicit zhyi.xin endpoints).

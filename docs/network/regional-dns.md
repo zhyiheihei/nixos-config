@@ -49,7 +49,9 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
 ## 实施状态
 
 - 2026-08-10：新增本文档；recursor 公共上游按地区扩容；国内 CoreDNS 增加
-  DNSPod 兜底；minimal 默认 fallback 按 `LT.this.city.country` 分流。
+  DNSPod 兜底；minimal 默认 fallback 按 `LT.this.city.country` 分流；移除
+  cnvm/jpvm/usvm/colocrossing 与默认重复的显式 nameserver（colocrossing 仅保留
+  Google IPv6）。
 - 待办：cnvm SSH banner 当前超时，无法读取 `journalctl -u pdns-recursor`；
   `vaults3.zhyi.cc` 的 SERVFAIL 需在可达后确认是否按 `m-team.cc` 模式加 NTA，
   再执行 `dig @198.19.0.253 vaults3.zhyi.cc` 验证。
