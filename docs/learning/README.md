@@ -9,6 +9,7 @@
 - [Star 排序学习清单](./star-ranked-curriculum.md)
 - [作者知识链：私有 + 公开两天线](./author-knowledge-chain.md)
 - [知识链完整链路与上游对齐审计](./knowledge-chain-upstream-alignment.md)
+- [知识链 Syncthing 三节点实施规划](./knowledge-chain-rollout-plan.md)
 
 ## nix-community 组织
 
