@@ -67,5 +67,9 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
 - 2026-08-10（根域 Bogus 修复）：AliDNS/DNSPod 对根域 `.` 的 NS 不返回 RRSIG，
   导致 CN recursor 校验根域时报 `Got Bogus validation result for .|NS` 并整体
   SERVFAIL；CN recursor 改为 `process-no-validate`，国外保持 `validate`。
+- 2026-08-10（Attic 验证）：CN recursor 修复部署到 cnvm 与 ml-builder 后，
+  `attic.zhyi.xin`、`vaults3.zhyi.cc` 等解析均为 NOERROR，热缓存 0-1 ms；
+  据此撤销 `attic-s3-connect-timeout.patch`，无补丁部署后 atticd active、
+  Attic 443 与 VaultS3 8443 探测均 200。
 - 待办：`jpvm` 流量耗尽不可达，配置未切换；配额恢复后执行
   `colmena apply --on jpvm` 并复核。
