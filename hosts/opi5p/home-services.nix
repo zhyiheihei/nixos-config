@@ -68,7 +68,7 @@ in
   # FlClash writes /FlClash/backup.zip at the WebDAV root.  Give WebDAV its
   # own writable root instead of exposing the whole NFS share and failing to
   # create directories under the root-owned /mnt/storage.
-  services.webdav.settings.directory = lib.mkForce "/mnt/storage/webdav";
+  services.webdav.settings.directory = "/mnt/storage/webdav";
   lantian.ncps = {
     dataPath = "/nix/persistent/var/cache/ncps";
     tempPath = "/nix/persistent/var/cache/ncps-tmp";
