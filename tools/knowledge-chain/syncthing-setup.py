@@ -41,12 +41,11 @@ def api_key():
     return match.group(1)
 
 
-def self_id():
-    text = open(CONFIG_PATH, encoding="utf-8").read()
-    match = re.search(r'<device id="([^"]+)"', text)
-    if not match:
-        sys.exit("cannot find self device id in " + CONFIG_PATH)
-    return match.group(1)
+def my_id():
+    status = request("GET", "/rest/system/status")
+    if not status or not status.get("myID"):
+        sys.exit("cannot determine self device id from /rest/system/status")
+    return status["myID"]
 
 
 def request(method, path, data=None):
@@ -77,7 +76,7 @@ def folder_ids():
 
 
 def setup():
-    self = self_id()
+    self = my_id()
     if self not in DEVICES.values():
         sys.exit("unknown Syncthing device id: " + self)
     host = next(name for name, ident in DEVICES.items() if ident == self)
@@ -92,6 +91,12 @@ def setup():
                 "/rest/config/devices",
                 {"deviceID": ident, "name": peer_name, "addresses": ["dynamic"]},
             )
+
+    if "notes" in folder_ids():
+        folders = request("GET", "/rest/config/folders") or []
+        current = next((f for f in folders if f.get("id") == "notes"), None)
+        if current and current.get("path") != PATHS[host]:
+            request("DELETE", "/rest/config/folders/notes")
 
     if "notes" not in folder_ids():
         request(
@@ -113,7 +118,7 @@ def setup():
 
 
 def remove():
-    self = self_id()
+    self = my_id()
     peers = [ident for ident in DEVICES.values() if ident != self]
     for ident in peers:
         request("DELETE", "/rest/config/devices/" + ident)
@@ -122,7 +127,7 @@ def remove():
 
 
 def status():
-    self = self_id()
+    self = my_id()
     host = next((name for name, ident in DEVICES.items() if ident == self), "unknown")
     state = request("GET", "/rest/db/status?folder=notes")
     if state:
