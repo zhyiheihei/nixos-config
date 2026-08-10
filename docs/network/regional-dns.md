@@ -64,5 +64,8 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
 - 2026-08-10（cnvm 部署）：统一 SSH 端口为 `2222` 后，cnvm 已通过
   `colmena apply --on cnvm` 部署成功；cnvm 与 ml-builder 两侧
   `dig @198.19.0.253 vaults3.zhyi.cc` / `zhyi.cc` 均为 NOERROR，无 EDE 6。
+- 2026-08-10（根域 Bogus 修复）：AliDNS/DNSPod 对根域 `.` 的 NS 不返回 RRSIG，
+  导致 CN recursor 校验根域时报 `Got Bogus validation result for .|NS` 并整体
+  SERVFAIL；CN recursor 改为 `process-no-validate`，国外保持 `validate`。
 - 待办：`jpvm` 流量耗尽不可达，配置未切换；配额恢复后执行
   `colmena apply --on jpvm` 并复核。
