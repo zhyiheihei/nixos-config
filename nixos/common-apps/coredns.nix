@@ -41,7 +41,7 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
             loadbalance round_robin
             prometheus ${config.lantian.netns.coredns-client.ipv4}:${LT.portStr.Prometheus.CoreDNS}
 
-            forward . tls://223.5.5.5 tls://223.6.6.6 {
+            forward . tls://223.5.5.5 tls://223.6.6.6 119.29.29.29 119.28.28.28 {
               tls_servername dns.alidns.com
             }
             cache

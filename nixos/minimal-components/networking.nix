@@ -1,13 +1,23 @@
 {
   lib,
   config,
+  LT,
   ...
 }:
 let
-  backupDNSServers = [
-    "8.8.8.8"
-    "2001:4860:4860::8888"
-  ];
+  backupDNSServers =
+    if LT.this.city.country == "CN" then
+      [
+        "223.5.5.5"
+        "223.6.6.6"
+        "119.29.29.29"
+      ]
+    else
+      [
+        "8.8.8.8"
+        "8.8.4.4"
+        "1.1.1.1"
+      ];
 
   cfg = config.networking;
 
