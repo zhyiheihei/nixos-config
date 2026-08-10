@@ -7,8 +7,14 @@ let
   nft = "${lib.getExe' pkgs.nftables "nft"}";
   flowtableScript = pkgs.writeShellScript "router-flowtable" ''
     set -eu
+    i=0
     while [ ! -e /sys/class/net/br-lan ] || [ ! -e /sys/class/net/ppp0 ]; do
       sleep 1
+      i=$((i + 1))
+      if [ "$i" -ge 120 ]; then
+        echo "router-flowtable: br-lan/ppp0 not up after 120s" >&2
+        exit 1
+      fi
     done
     if ! ${nft} list flowtable inet lantian f >/dev/null 2>&1; then
       ${nft} -f /etc/nftables/flowtable.nft
@@ -48,8 +54,29 @@ in
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = flowtableScript;
+      TimeoutStartSec = "150";
       Restart = "on-failure";
       RestartSec = "5";
+    };
+  };
+
+  # nftables reloads flush the table and PPPoE redials recreate ppp0; the
+  # idempotent script re-adds the flowtable and forward rule on a short timer.
+  systemd.timers.router-flowtable-check = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "*:0/1";
+      Persistent = false;
+    };
+  };
+
+  systemd.services.router-flowtable-check = {
+    description = "Reassert nftables flowtable after reloads or PPPoE redial";
+    after = [ "nftables.service" ];
+    path = [ pkgs.gnugrep ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = flowtableScript;
     };
   };
 }
