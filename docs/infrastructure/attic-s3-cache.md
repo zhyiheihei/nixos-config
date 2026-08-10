@@ -9,14 +9,14 @@
 ```text
 Hydra (pve-5700u) / 手动构建 (ml-builder)
   -> attic push lantian
-  -> Attic (cnvm)
+  -> Attic (colocrossing)
   -> PostgreSQL + VaultS3 (home-ddns) bucket nix-cache
   -> 持有只读 token 的受管 Nix 主机
 ```
 
 - Attic 服务、Nginx vhost 与 S3 参数定义在
   [`nixos/optional-apps/attic.nix`](../../nixos/optional-apps/attic.nix)，由
-  `hosts/cnvm/configuration.nix` 导入。
+  `hosts/colocrossing/configuration.nix` 导入。
 - Attic 只监听回环地址，由同机 Nginx 发布；外部数据面使用
   `https://attic.zhyi.xin/lantian`（标准 443 端口）。
 - `lantian` 已于 2026-07-30 切换为 private；匿名请求返回 `401`，不再提供公开
@@ -37,7 +37,7 @@ Hydra (pve-5700u) / 手动构建 (ml-builder)
 | --- | --- | --- | --- |
 | Attic fleet read token | `common/nix.yaml` 的 `nix-netrc` | 所有受管主机 | 仅 `pull lantian` |
 | Attic upload token | `common/attic.yaml` 的 `attic-upload-key` | `ml-builder`、`pve-5700u` | `pull/push lantian` |
-| Attic JWT/S3 凭据 | `common/attic.yaml` 的 `attic-credentials` | 仅 `cnvm` 的 `atticd` | 服务端管理与存储 |
+| Attic JWT/S3 凭据 | `common/attic.yaml` 的 `attic-credentials` | 仅 `colocrossing` 的 `atticd` | 服务端管理与存储 |
 | Cache public key | `helpers/constants/nix.nix` | 公开配置 | 只用于验证 NAR 签名 |
 
 Bearer token 识别的是“持有凭据者”，不是机器硬件本身。这里的“只有我的主机”是通过
@@ -81,7 +81,7 @@ curl --fail --netrc-file /run/secrets/nix-netrc \
 `200`；同一 URL 的匿名请求返回 `401`。其中只有前两台存在
 `/run/secrets/attic-upload-key`。
 
-在 cnvm 上：
+在 colocrossing 上：
 
 ```bash
 systemctl is-active atticd nginx postgresql
