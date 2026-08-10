@@ -38,9 +38,9 @@ colocrossing
 - 在 `Notes` 仓库提交并 push 到 `ssh://git@git.zhyi.xin:2222/zhyi/notes.git`。
 - 启用 `nixos/optional-apps/syncthing`，`syncthing` 用户加入 `zhyi` 组并开放
   Notes 写权限；Syncthing 文件夹直接指向 `~/Documents/Notes`，不使用 bindfs。
-- 用 `tools/knowledge-chain/syncthing-setup.py` 在 ml-2700 / opi5p / colocrossing
-  三台机器上完成官方 REST 配对。
-- 保留 GPG、SSH 权限与 `knowledge-chain-init`。
+- 用 Syncthing 官方 GUI/REST 在 ml-2700 / opi5p / colocrossing 三台机器上完成
+  配对，不引入仓库内脚本（作者原版没有该脚本）。
+- 保留 GPG、SSH 权限。
 
 不新增自定义 bindfs 挂载、不做 `.git` 符号链接。
 
@@ -56,8 +56,7 @@ colocrossing
 
 - Notes 测试笔记已推送：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`，远端
   `git ls-remote` 可见。
-- Syncthing 三机同步已启用并通过官方 REST 脚本
-  `tools/knowledge-chain/syncthing-setup.py` 配置，三机均为
+- Syncthing 三机同步已启用并通过官方 REST 配置，三机均为
   `state=idle`、`needBytes=0`、`errors=0`。
 - 未引入自定义 bindfs 挂载；Notes 与 nixos-config 是两个独立 git 仓库。
 - 公开路线（GitHub Pages / Waline / DNS）未实施。
@@ -66,5 +65,5 @@ colocrossing
 
 1. 删除 `Notes` 中测试期间复制的 docs 文件，恢复原状。
 2. 提交并 push Gitea 回滚提交。
-3. 使用 `syncthing-setup.py --action remove` 撤销三台机器的配对与文件夹。
+3. 通过 Syncthing GUI/REST 撤销三台机器的配对与文件夹。
 4. 从 ml-2700 配置中移除 syncthing 模块并重新 apply。

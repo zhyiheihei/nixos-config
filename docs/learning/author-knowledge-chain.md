@@ -38,7 +38,7 @@ Git/Markdown 天线：
 - 种子 README 与 `.gitignore` 只在缺失时写入，不覆盖用户内容。
 - 按作者客户端同款启用 Syncthing；后续与 `opi5p` / `colocrossing` 配对并添加
   Notes 文件夹后即可跨设备同步私有天线。
-- `knowledge-chain-init` 命令：为两个目录初始化 Git，并预置远端：
+- Git 远端在运行时配置，不额外提供脚本：
   - 私有：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`
   - 公开：`git@github.com:zhyiheihei/blog.git`
 
