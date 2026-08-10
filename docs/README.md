@@ -14,6 +14,7 @@
 - [OpenWrt NanoPi R5C 适配](./research/01-openwrt-nanopi-r5c.md)
 - [r5s.cooluc.com（Cooluc）方案](./research/02-r5s-cooluc.md)
 - [iStoreOS R5C 适配](./research/03-istoreos-r5c.md)
+- [R5C flowtable 成功案例与对照](./research/04-router-flowtable-success-case.md)
 
 ## 入门与主机接入
 

@@ -7,4 +7,4 @@
 | [01-openwrt-nanopi-r5c.md](./01-openwrt-nanopi-r5c.md) | OpenWrt NanoPi R5C |
 | [02-r5s-cooluc.md](./02-r5s-cooluc.md) | r5s.cooluc.com（Cooluc / sbwml/builder） |
 | [03-istoreos-r5c.md](./03-istoreos-r5c.md) | iStoreOS（istoreos-24.10）R5C |
-
+| [04-router-flowtable-success-case.md](./04-router-flowtable-success-case.md) | R5C flowtable 部署成功案例与前后对照 |
