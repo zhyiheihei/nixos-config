@@ -41,11 +41,11 @@
         opacity = 100;
       };
       layout = {
-        "公开 · 身份链路" = {
+        "公开 · AI 链路" = {
           style = "row";
           columns = 4;
         };
-        "公开 · AI 链路" = {
+        "公开 · 身份链路" = {
           style = "row";
           columns = 4;
         };
@@ -53,7 +53,7 @@
           style = "row";
           columns = 4;
         };
-        "公开 · 效率工具" = {
+        "公开 · 基础设施与运维" = {
           style = "row";
           columns = 4;
         };
@@ -61,15 +61,7 @@
           style = "row";
           columns = 4;
         };
-        "公开 · 基础设施" = {
-          style = "row";
-          columns = 4;
-        };
-        "公开 · 监控链路" = {
-          style = "row";
-          columns = 4;
-        };
-        "公开 · 网络链路" = {
+        "公开 · 效率工具" = {
           style = "row";
           columns = 4;
         };
@@ -77,33 +69,25 @@
           style = "row";
           columns = 4;
         };
-        "私有 · 内容与通讯" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · 效率工具" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · 媒体链路" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · 基础设施" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · 网络链路" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · 下载链路" = {
-          style = "row";
-          columns = 4;
-        };
         "私有 · 家庭服务" = {
           style = "row";
           columns = 4;
+        };
+        "私有 · 媒体与下载" = {
+          style = "row";
+          columns = 4;
+        };
+        "私有 · 效率工具与内容" = {
+          style = "row";
+          columns = 4;
+        };
+        "私有 · 基础设施与网络" = {
+          style = "row";
+          columns = 4;
+        };
+        "私有 · 监控" = {
+          style = "row";
+          columns = 3;
         };
       };
       # Ignore errors for network instability
