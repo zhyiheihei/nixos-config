@@ -248,6 +248,10 @@ in
       set -eu
       api=http://127.0.0.1:${LT.portStr.SublinkPro}
       sub_config='{"clash":"./template/clash.yaml","surge":"./template/surge.conf"}'
+      # The official /c/ endpoint lowercases the token before lookup, so the
+      # share token derived from default-pw must be stored in lowercase.
+      share_token=$(printf '%s' "$SUBLINK_SHARE_TOKEN" | tr 'A-Z' 'a-z')
+      share_token_enc=$(printf '%s' "$share_token" | ${pkgs.jq}/bin/jq -sRr @uri)
 
       ready=false
       for _ in $(seq 1 90); do
@@ -306,31 +310,23 @@ in
         sub_id=$(curl_auth "$api/api/v1/subcription/get" \
           | ${pkgs.jq}/bin/jq -r '.data[] | select(.Name=="统一订阅") | .ID' | head -1)
       fi
-      if [ -n "$sub_id" ]; then
-        curl_auth -X POST "$api/api/v1/subcription/update" \
-          --data-urlencode "oldname=统一订阅" \
-          --data-urlencode "name=统一订阅" \
-          --data-urlencode "nodeIds=$ids" \
-          --data-urlencode "config=$sub_config" \
-          --data-urlencode "UpdateInterval=24" || true
-      fi
       if [ -z "$sub_id" ]; then
         echo "Failed to create unified subscription" >&2
         exit 1
       fi
 
       share_id=$(curl_auth "$api/api/v1/shares/get?subId=$sub_id" \
-        | ${pkgs.jq}/bin/jq -r --arg t "$SUBLINK_SHARE_TOKEN" '.data[] | select(.token==$t) | .id' | head -1)
+        | ${pkgs.jq}/bin/jq -r --arg t "$share_token" '.data[] | select(.token==$t) | .id' | head -1)
       if [ -z "$share_id" ]; then
         curl_auth -X POST "$api/api/v1/shares/add" \
           -H "Content-Type: application/json" \
-          -d "{\"subscription_id\":$sub_id,\"name\":\"统一订阅\",\"token\":\"$SUBLINK_SHARE_TOKEN\",\"expire_type\":0}" || true
+          -d "{\"subscription_id\":$sub_id,\"name\":\"统一订阅\",\"token\":\"$share_token\",\"expire_type\":0}" || true
       fi
 
       ${pkgs.coreutils}/bin/install -d -m 0755 ${dataDir}
       {
-        echo "统一订阅 (Clash/Mihomo): https://sub.zhyi.xin/c/?token=$SUBLINK_SHARE_TOKEN&client=clash"
-        echo "统一订阅 (V2Ray): https://sub.zhyi.xin/c/?token=$SUBLINK_SHARE_TOKEN&client=v2ray"
+        echo "统一订阅 (Clash/Mihomo): https://sub.zhyi.xin/c/?token=$share_token_enc&client=clash"
+        echo "统一订阅 (V2Ray): https://sub.zhyi.xin/c/?token=$share_token_enc&client=v2ray"
         echo "管理页面: https://sub.zhyi.xin/"
       } > ${dataDir}/unified-subscription.txt
     '';
