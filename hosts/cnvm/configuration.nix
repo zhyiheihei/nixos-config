@@ -1,4 +1,4 @@
-{ ... }:
+{ pkgs, lib, ... }:
 {
   imports = [
     ../../nixos/server.nix
@@ -11,6 +11,16 @@
     ../../nixos/optional-apps/pocket-id.nix
     ../../nixos/optional-apps/vaultwarden.nix
   ];
+
+  # Attic talks to the home VaultS3 through the public 8443 entry, whose
+  # connect latency is above the AWS SDK's 3.1s default. Keep the public
+  # endpoint (download URLs must stay on 8443) and only widen the client
+  # connect timeout on cnvm.
+  services.atticd.package = lib.mkForce (
+    (pkgs.nur-xddxdd.lantianCustomized."attic-telnyx-compatible").overrideAttrs (old: {
+      patches = (old.patches or [ ]) ++ [ ../../patches/attic-s3-connect-timeout.patch ];
+    })
+  );
 
   boot.kernelParams = [ "console=ttyS0,115200" ];
 
