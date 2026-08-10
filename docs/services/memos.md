@@ -72,7 +72,9 @@ hosts 映射 `198.18.0.120`，容器同时使用 `--add-host` 指向同一地址
 （Settings → Access Tokens），然后运行：
 
 ```bash
-export MEMOS_ADMIN_TOKEN='<你的 PAT>'
+printf '%s' '<你的 PAT>' > /tmp/memos-admin-token
+chmod 600 /tmp/memos-admin-token
+export MEMOS_ADMIN_TOKEN_FILE=/tmp/memos-admin-token
 bash tools/memos/configure-memos.sh
 ```
 
