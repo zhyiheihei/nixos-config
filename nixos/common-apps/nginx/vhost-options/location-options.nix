@@ -16,7 +16,7 @@ let
       glauthUsers = import (inputs.secrets + "/glauth-users.nix");
     in
     pkgs.writeText "htpasswd" ''
-      lantian:${glauthUsers.zhyi.passBcrypt}
+      zhyi:${glauthUsers.zhyi.passBcrypt}
     '';
 in
 { config, ... }:
