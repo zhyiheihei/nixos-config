@@ -7,8 +7,12 @@ BASE="${MEMOS_BASE_URL:-http://127.0.0.1:13819}"
 CONNECT="${BASE}/memos.api.v1"
 TOKEN="${MEMOS_ADMIN_TOKEN:-}"
 
+if [[ -z "${TOKEN}" && -n "${MEMOS_ADMIN_TOKEN_FILE:-}" && -r "${MEMOS_ADMIN_TOKEN_FILE}" ]]; then
+  TOKEN="$(cat "${MEMOS_ADMIN_TOKEN_FILE}")"
+fi
+
 if [[ -z "${TOKEN}" ]]; then
-  echo "MEMOS_ADMIN_TOKEN is required: create a Personal Access Token in Memos Settings > Access Tokens" >&2
+  echo "MEMOS_ADMIN_TOKEN or MEMOS_ADMIN_TOKEN_FILE is required: create a Personal Access Token in Memos Settings > Access Tokens" >&2
   exit 1
 fi
 
