@@ -78,7 +78,7 @@ in
       fi
 
       git -C "$notes_dir" remote remove origin 2>/dev/null || true
-      git -C "$notes_dir" remote add origin "ssh://git@git.zhyi.xin:2223/zhyi/notes.git"
+      git -C "$notes_dir" remote add origin "ssh://git@git.zhyi.xin:2222/zhyi/notes.git"
 
       git -C "$blog_dir" remote remove origin 2>/dev/null || true
       git -C "$blog_dir" remote add origin "git@github.com:zhyiheihei/blog.git"
@@ -92,4 +92,12 @@ in
       echo "Push public blog after creating github.com/zhyiheihei/blog: git -C \"$blog_dir\" push -u origin master"
     '')
   ];
+
+  # SSH keys are placed outside the Nix store; keep their access bits sane on
+  # every home activation so git/ssh do not refuse them.
+  home.activation.ssh-key-permissions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    chmod 700 "$HOME/.ssh" 2>/dev/null || true
+    chmod 600 "$HOME/.ssh/id_ed25519" 2>/dev/null || true
+    chmod 644 "$HOME/.ssh/id_ed25519.pub" 2>/dev/null || true
+  '';
 }
