@@ -200,9 +200,9 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 
 ## 服务清单与 Homepage 核对（2026-08-11 复核）
 
-账号与口令线索不写入本仓库，完整本地速查在
-`/Users/molishanguang/my-project/nixos/服务登录速查.md`。Homepage 卡片已在
-私有 `homepage-dashboard-config.nix` 中核对，见
+账号与口令线索不写入本仓库，完整速查在私有 `nixos-secrets` 仓库的
+`docs/service-login-audit.md`。Homepage 卡片已在
+`homepage-dashboard-config.nix` 中核对，见
 [`homepage-link-audit.md`](../services/homepage-link-audit.md)。
 
 ### Homepage 卡片
