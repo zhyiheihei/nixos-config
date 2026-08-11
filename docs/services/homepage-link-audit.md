@@ -44,6 +44,9 @@ Homepage 的 `prometheusmetric` widget 展示 node exporter 的 CPU、内存与�
 SMTP、SFTP、Samba、NFS 等协议服务按“没有 Web UI 的协议、后端和自动化服务
 不添加虚假卡片”的规则不生成卡片；WebDAV 卡片保持可访问。
 
+实机复核（2026-08-11）：`https://homepage.rock5c.zhyi.cc/` 返回 HTTP 200；
+`https://dav.opi5p.zhyi.cc/` 未带凭据返回 401，符合卡片描述的 Basic Auth。
+
 ## 保持与作者一致的结构
 
 - 用户卡片链接使用服务的正式访问域名，不使用 `localhost`、内网 IP 或容器端口。
