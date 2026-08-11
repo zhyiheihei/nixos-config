@@ -12,11 +12,9 @@ let
     key: lib.hasSuffix "2386656187@qq.com" key
   ) (throw "mac-book SSH public key is missing from secrets") sshKeys;
   # OpenSSH rejects IdentityFile candidates whose mode is world-readable.
-  # The store path is 0444, so materialize a 0600 copy for agent-backed
-  # second-hop deployments from this builder.
-  macBookIdentity = pkgs.runCommand "mac-book-ssh-identity.pub" { } ''
-    install -m 0600 ${pkgs.writeText "mac-book-ssh-identity.pub" macBookPublicKey} $out
-  '';
+  # Store paths are 0444, so keep the matching public identity under /root/.ssh
+  # with 0600 permissions for agent-backed second-hop deployments.
+  macBookIdentity = "/root/.ssh/mac-book-ssh-identity.pub";
   outboundProxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
   proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin,.xuyh0120.win";
   proxyEnvironment = {
@@ -161,6 +159,13 @@ in
   zramSwap.memoryPercent = lib.mkForce 100;
 
   services.openssh.settings.MaxStartups = "64:30:128";
+
+  systemd.tmpfiles.settings.ml-builder-mac-key."${macBookIdentity}"."f+" = {
+    mode = "0600";
+    user = "root";
+    group = "root";
+    argument = macBookPublicKey;
+  };
 
   # The forwarded desktop agent contains keys for many machines.  OpenSSH can
   # hit MaxAuthTries before reaching the interactive Mac key, especially on a
