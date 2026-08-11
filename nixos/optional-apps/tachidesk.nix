@@ -2,32 +2,17 @@
   LT,
   config,
   lib,
-  inputs,
-  pkgs,
   ...
 }:
-let
-  cfg = config.lantian.tachidesk;
-in
 {
   imports = [ ./byparr.nix ];
 
-  options.lantian.tachidesk = {
-    publicFrontend = lib.mkEnableOption "the public Tachidesk frontend" // {
-      default = true;
-    };
-    backend = lib.mkOption {
-      type = lib.types.enum [
-        "podman"
-        "nix"
-      ];
-      default = "podman";
-      description = "Backend used to run Tachidesk";
-    };
+  options.lantian.tachidesk.publicFrontend = lib.mkEnableOption "the public Tachidesk frontend" // {
+    default = true;
   };
 
   config = {
-    virtualisation.oci-containers.containers.tachidesk = lib.mkIf (cfg.backend == "podman") {
+    virtualisation.oci-containers.containers.tachidesk = {
       extraOptions = [ "--net=host" ];
       image = "ghcr.io/suwayomi/tachidesk:preview";
       labels."io.containers.autoupdate" = "registry";
@@ -55,50 +40,6 @@ in
         SOCKS_PROXY_ENABLED = "false";
       };
       volumes = [ "/var/lib/tachidesk:/home/suwayomi/.local/share/Tachidesk" ];
-    };
-
-    systemd.services.tachidesk = lib.mkIf (cfg.backend == "nix") {
-      description = "Tachidesk manga server";
-      after = [ "network-online.target" ];
-      wants = [ "network-online.target" ];
-      wantedBy = [ "multi-user.target" ];
-
-      serviceConfig = {
-        Type = "simple";
-        User = "zhyi";
-        Group = "zhyi";
-        WorkingDirectory = "/var/lib/tachidesk";
-        Environment = [
-          "HOME=/var/lib/tachidesk"
-          "TZ=${config.time.timeZone}"
-          "BIND_IP=127.0.0.1"
-          "BIND_PORT=${LT.portStr.Tachidesk}"
-          "DEBUG=false"
-          "WEB_UI_CHANNEL=bundled"
-          "AUTO_DOWNLOAD_CHAPTERS=true"
-          "AUTO_DOWNLOAD_EXCLUDE_UNREAD=false"
-          "AUTO_DOWNLOAD_NEW_CHAPTERS_LIMIT=0"
-          "AUTO_DOWNLOAD_IGNORE_REUPLOADS=false"
-          "MAX_SOURCES_IN_PARALLEL=20"
-          "UPDATE_EXCLUDE_UNREAD=false"
-          "UPDATE_EXCLUDE_STARTED=false"
-          "UPDATE_EXCLUDE_COMPLETED=false"
-          "UPDATE_INTERVAL=6"
-          "UPDATE_MANGA_INFO=true"
-          "EXTENSION_REPOS=${builtins.toJSON [ "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json" ]}"
-          "FLARESOLVERR_ENABLED=true"
-          "FLARESOLVERR_URL=http://127.0.0.1:${LT.portStr.FlareSolverr}"
-          "SOCKS_PROXY_ENABLED=false"
-        ];
-        ExecStart = "${inputs.zhyi-packages.packages.${pkgs.system}.tachidesk-server}/bin/tachidesk-server";
-        Restart = "on-failure";
-        RestartSec = "5s";
-      };
-
-      preStart = ''
-        ${pkgs.coreutils}/bin/mkdir -p /var/lib/tachidesk/.local/share
-        ${pkgs.coreutils}/bin/ln -sfn /var/lib/tachidesk /var/lib/tachidesk/.local/share/Tachidesk
-      '';
     };
 
     systemd.tmpfiles.settings = {
