@@ -1,15 +1,13 @@
 {
   config,
+  inputs,
   lib,
   LT,
+  pkgs,
   ...
 }:
 let
   activationMarker = "/nix/persistent/var/lib/ml-home-migration/opi5p-ready";
-  filecodeboxService =
-    if config.lantian.filecodebox.backend == "nix"
-    then "filecodebox"
-    else "podman-filecodebox";
   gatedServices = [
     "clamav-daemon"
     "clamav-fangfrisch"
@@ -21,7 +19,7 @@ let
     "phpfpm-calibre-cops"
     "podman-archivebox"
     "podman-asf"
-    filecodeboxService
+    "filecodebox"
     "podman-home-assistant"
     "podman-memos"
     "podman-sun-panel"
@@ -38,9 +36,29 @@ let
   targetServices = builtins.filter (name: name != "clamav-fangfrisch") gatedServices;
 in
 {
-  # Third native replacement: run FileCodeBox from the zhyi-packages binary.
-  # Existing /var/lib/filecodebox data is reused via FILECODEBOX_DATA_DIR.
-  lantian.filecodebox.backend = "nix";
+  # Host-level native replacement: keep the podman unit for rollback but run
+  # FileCodeBox from the zhyi-packages binary with the same data directory.
+  virtualisation.oci-containers.containers.filecodebox.autoStart = lib.mkForce false;
+  systemd.services.filecodebox = {
+    description = "FileCodeBox anonymous file sharing server";
+    after = [ "network-online.target" ];
+    wants = [ "network-online.target" ];
+    wantedBy = [ "multi-user.target" ];
+
+    serviceConfig = {
+      Type = "simple";
+      User = "root";
+      Group = "root";
+      Environment = [
+        "FILECODEBOX_DATA_DIR=${config.lantian.filecodebox.storage}"
+      ];
+      ExecStart = "${inputs.zhyi-packages.packages.${pkgs.system}.filecodebox}/bin/filecodebox";
+      Restart = "on-failure";
+      RestartSec = "5s";
+    };
+  };
+  lantian.nginxVhosts."filebox.zhyi.xin".locations."/".proxyPass = lib.mkForce "http://127.0.0.1:12345";
+  lantian.nginxVhosts."filebox.localhost".locations."/".proxyPass = lib.mkForce "http://127.0.0.1:12345";
 
   imports = [
     ../../nixos/optional-apps/archivebox.nix

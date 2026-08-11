@@ -11,7 +11,6 @@ let
   dbDir = "${dataDir}/db";
   templateDir = "${dataDir}/template";
   logDir = "${dataDir}/logs";
-  cfg = config.lantian.sublinkpro;
 
   mkSubscriptionLocation = template: {
     extraConfig = ''
@@ -25,16 +24,6 @@ let
   sublinkClashTemplate = pkgs.writeText "sublinkpro-clash.yaml" (builtins.readFile ./clash.yaml);
 in
 {
-  options.lantian.sublinkpro.backend = lib.mkOption {
-    type = lib.types.enum [
-      "podman"
-      "nix"
-    ];
-    default = "podman";
-    description = "Backend used to run SublinkPro";
-  };
-
-  config = {
   sops.secrets = {
     v2ray-key = {
       sopsFile = inputs.secrets + "/common/v2ray.yaml";
@@ -215,7 +204,7 @@ in
     };
   };
 
-  virtualisation.oci-containers.containers.sublinkpro = lib.mkIf (cfg.backend == "podman") {
+  virtualisation.oci-containers.containers.sublinkpro = {
     image = "docker.io/zerodeng/sublink-pro:latest";
     labels."io.containers.autoupdate" = "registry";
     ports = [ "127.0.0.1:${LT.portStr.SublinkPro}:8000" ];
@@ -244,59 +233,16 @@ in
     ];
   };
 
-  systemd.services.sublinkpro = lib.mkIf (cfg.backend == "nix") {
-    description = "SublinkPro subscription management panel";
-    after = [
-      "network-online.target"
-      "sops-install-secrets.service"
-    ];
-    wants = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-
-    serviceConfig = {
-      Type = "simple";
-      User = "root";
-      Group = "root";
-      WorkingDirectory = dataDir;
-      EnvironmentFile = [ config.sops.templates."sublinkpro-env".path ];
-      Environment = [
-        "SUBLINK_PORT=${LT.portStr.SublinkPro}"
-        "SUBLINK_DB_PATH=${dbDir}"
-        "SUBLINK_LOG_PATH=${logDir}"
-        "SUBLINK_LOG_LEVEL=info"
-        "SUBLINK_CAPTCHA_MODE=1"
-        "SUBLINK_EXPIRE_DAYS=3650"
-        "TZ=${config.time.timeZone}"
-      ];
-      ExecStart = "${inputs.zhyi-packages.packages.${pkgs.system}.sublinkpro}/bin/sublinkpro";
-      Restart = "on-failure";
-      RestartSec = "5s";
-      MemoryMax = "1G";
-      TasksMax = 512;
-    };
-
-    preStart = ''
-      ${pkgs.coreutils}/bin/install -D -m 0644 ${sublinkClashTemplate} ${templateDir}/clash.yaml
-    '';
-  };
-
-  systemd.services.podman-sublinkpro = lib.mkIf (cfg.backend == "podman") {
-    preStart = lib.mkBefore ''
-      if [ ! -e ${templateDir}/clash.yaml ]; then
-        ${pkgs.coreutils}/bin/install -Dm0644 ${sublinkClashTemplate} ${templateDir}/clash.yaml
-      fi
-    '';
-  };
+  systemd.services.podman-sublinkpro.preStart = lib.mkBefore ''
+    if [ ! -e ${templateDir}/clash.yaml ]; then
+      ${pkgs.coreutils}/bin/install -Dm0644 ${sublinkClashTemplate} ${templateDir}/clash.yaml
+    fi
+  '';
 
   systemd.services.sublinkpro-seed = {
     description = "Seed SublinkPro overseas Xray nodes and unified subscription";
-    after = [
-      (if cfg.backend == "podman" then "podman-sublinkpro.service" else "sublinkpro.service")
-      "sops-install-secrets.service"
-    ];
-    requires = [
-      (if cfg.backend == "podman" then "podman-sublinkpro.service" else "sublinkpro.service")
-    ];
+    after = [ "podman-sublinkpro.service" "sops-install-secrets.service" ];
+    requires = [ "podman-sublinkpro.service" ];
     wantedBy = [ "multi-user.target" ];
     path = with pkgs; [ curl jq coreutils ];
     serviceConfig = {
@@ -408,6 +354,5 @@ in
     };
     sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
-  };
   };
 }
