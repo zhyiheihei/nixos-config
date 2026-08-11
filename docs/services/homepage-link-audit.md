@@ -31,18 +31,21 @@ Homepage 的 `prometheusmetric` widget 展示 node exporter 的 CPU、内存与�
 
 对照 `nixos-secrets` 的 `homepage-dashboard-config.nix` 与
 [`fleet-service-chain.md`](../infrastructure/fleet-service-chain.md)
-复核了全部 12 个服务分组。完整服务清单、入口和账号/口令线索统一记录在
+复核了全部 12 个服务分组。完整服务清单和入口见
 [`fleet-service-chain.md`](../infrastructure/fleet-service-chain.md)
-的“服务登录速查”，本页只保留协议型服务的核对结论：
+的“服务清单与 Homepage 核对”，本页只保留协议型服务的核对结论：
 
-| 服务 | Homepage 卡片 | 账号与口令线索 |
+| 服务 | Homepage 卡片 | 认证方式 |
 | --- | --- | --- |
-| WebDAV（webdev） | `08 · 私有 · 家庭服务` 分组有 `WebDAV` 卡片，链接 `https://dav.opi5p.zhyi.cc`，描述为 Basic Auth；协议端点无 `siteMonitor` | Basic Auth 账号 `zhyi`，口令 `default-pw` |
-| SMTP | 无卡片（出站邮件服务，无 Web UI） | 用户名 `EjG9ROGAei`，口令 `common/smtp.yaml` 的 `smtp-pass` |
-| SFTP | 无卡片（无 Web UI，只允许公钥登录） | 用户 `sftp`，无密码，私钥 `common/sftp.yaml` 的 `sftp-privkey` |
+| WebDAV（webdev） | `08 · 私有 · 家庭服务` 分组有 `WebDAV` 卡片，链接 `https://dav.opi5p.zhyi.cc`，描述为 Basic Auth；协议端点无 `siteMonitor` | Basic Auth |
+| SMTP | 无卡片（出站邮件服务，无 Web UI） | SMTP AUTH |
+| SFTP | 无卡片（无 Web UI，只允许公钥登录） | SSH 公钥 |
 
 SMTP、SFTP、Samba、NFS 等协议服务按“没有 Web UI 的协议、后端和自动化服务
 不添加虚假卡片”的规则不生成卡片；WebDAV 卡片保持可访问。
+
+账号与口令线索不写入本仓库，完整本地速查在
+`/Users/molishanguang/my-project/nixos/服务登录速查.md`。
 
 实机复核（2026-08-11）：`https://homepage.rock5c.zhyi.cc/` 返回 HTTP 200；
 `https://dav.opi5p.zhyi.cc/` 未带凭据返回 401，符合卡片描述的 Basic Auth。

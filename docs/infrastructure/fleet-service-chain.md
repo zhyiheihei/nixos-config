@@ -198,99 +198,95 @@ ml-home-vm 已退役，旧 `*.ml-home-vm.zhyi.cc` 名称不应再被当作实际
 `es-ingest.usvm.zhyi.cc`，但 `usvm` 没有导入 Elasticsearch 模块，实机也没有
 Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行”。
 
-## 服务登录速查（2026-08-11 复核）
+## 服务清单与 Homepage 核对（2026-08-11 复核）
 
-以下只记录账号与 SOPS secret 键名，不保存明文口令；口令值以部署机
-`/run/secrets/` 中解密后的文件为准。Homepage 卡片已在私有
-`homepage-dashboard-config.nix` 中核对，见
+账号与口令线索不写入本仓库，完整本地速查在
+`/Users/molishanguang/my-project/nixos/服务登录速查.md`。Homepage 卡片已在
+私有 `homepage-dashboard-config.nix` 中核对，见
 [`homepage-link-audit.md`](../services/homepage-link-audit.md)。
-
-统一约定：Web/面板类账号为 `zhyi`，口令使用 `default-pw`
-（`common/default-pw.yaml`）；经 Dex/Pocket ID 的 OAuth 入口同样落到
-`zhyi`。例外在表中单独标注。
 
 ### Homepage 卡片
 
-| 服务 | 入口 | 账号与口令线索 |
+| 服务 | 入口 | 认证方式 |
 | --- | --- | --- |
-| Dex | `https://login.zhyi.xin` | LDAP/OIDC 用户 `zhyi`，口令 `default-pw` |
-| Pocket ID | `https://id.zhyi.xin` | Passkey；LDAP 用户 `zhyi`，口令 `default-pw`；邮箱 OTP 备用 |
-| Vaultwarden | `https://bitwarden.zhyi.xin` | 应用账号 `zhyi`，口令 `default-pw` |
-| LibreChat | `https://ai.zhyi.xin` | Dex OIDC：`zhyi` / `default-pw` |
-| n8n | `https://n8n.zhyi.xin` | Dex OAuth：`zhyi` / `default-pw` |
-| Halo | `https://zhyi.xin` | Dex OAuth；管理员 `zhyi` / `default-pw` |
-| Posts | `https://posts.zhyi.xin` | Pyison 公开只读，无登录 |
-| Lemmy API | `https://lemmy.zhyi.xin` | 公开 API，无登录 |
-| Miniflux | `https://rss.zhyi.xin` | Dex OAuth，`zhyi` 自动创建 |
-| Radicale | `https://cal.zhyi.xin` | LDAP/GLAuth：`zhyi` / `default-pw` |
-| Element | `https://element.zhyi.xin` | Matrix 用户 `zhyi`，口令 `default-pw`（LDAP） |
-| Element Matrix API | `https://matrix-client.zhyi.xin` | 同 Matrix 用户/API token |
-| Plausible | `https://stats.zhyi.xin` | 应用内管理员，未在主仓库声明；按统一约定 `zhyi` / `default-pw` |
-| Bepasty | `https://pb.zhyi.xin` | 分享链接/无账号；secret 在 `bepasty.yaml` |
-| IT Tools | `https://tools.zhyi.xin` | 公开无登录 |
+| Dex | `https://login.zhyi.xin` | OIDC/LDAP |
+| Pocket ID | `https://id.zhyi.xin` | Passkey / LDAP / 邮箱 OTP |
+| Vaultwarden | `https://bitwarden.zhyi.xin` | 应用登录 |
+| LibreChat | `https://ai.zhyi.xin` | Dex OIDC |
+| n8n | `https://n8n.zhyi.xin` | Dex OAuth |
+| Halo | `https://zhyi.xin` | Dex OAuth / 应用管理员 |
+| Posts | `https://posts.zhyi.xin` | 公开只读 |
+| Lemmy API | `https://lemmy.zhyi.xin` | 公开 API |
+| Miniflux | `https://rss.zhyi.xin` | Dex OAuth |
+| Radicale | `https://cal.zhyi.xin` | LDAP |
+| Element | `https://element.zhyi.xin` | Matrix / LDAP |
+| Element Matrix API | `https://matrix-client.zhyi.xin` | Matrix API |
+| Plausible | `https://stats.zhyi.xin` | 应用管理员 |
+| Bepasty | `https://pb.zhyi.xin` | 分享链接 / 无账号 |
+| IT Tools | `https://tools.zhyi.xin` | 公开 |
 | Sun Panel | `https://index.zhyi.xin` | Dex OAuth |
 | Sun Panel Helper | `https://index-helper.zhyi.xin` | Dex OAuth |
-| FileCodeBox | `https://filebox.zhyi.xin` | 应用内管理口令，未在主仓库声明；按统一约定 `zhyi` / `default-pw` |
-| 网络信息 API | `https://api.zhyi.xin/geoip` | 公开无登录 |
-| Avatar API | `https://avatar.zhyi.xin` | 公开无登录 |
-| ArchiSteamFarm | `https://asf.zhyi.xin` | Dex OAuth；ASF IPC 口令在 `/var/lib/asf/config` |
-| Calibre COPS | `https://books.zhyi.xin` | Basic Auth：`zhyi` / `default-pw` |
-| Immich | `https://immich.zhyi.xin` | 应用账号 `zhyi`，口令 `default-pw` |
-| Tachidesk | `https://tachidesk.zhyi.xin` | Basic Auth：`zhyi` / `default-pw` |
-| Jellyfin | `https://jellyfin.zhyi.xin` | 应用账号 `zhyi`，口令 `default-pw` |
-| Hydra | `https://hydra.zhyi.cc` | 管理账号 `zhyi`，口令 `default-pw`（`cancel-old-builds` 使用） |
-| Attic | `https://attic.zhyi.xin` | 上传 token `common/attic.yaml`；无登录 |
-| Gitea | `https://git.zhyi.xin` | `zhyi` / `default-pw`；SSH 用户 `git` + 公钥 |
+| FileCodeBox | `https://filebox.zhyi.xin` | 应用管理 |
+| 网络信息 API | `https://api.zhyi.xin/geoip` | 公开 |
+| Avatar API | `https://avatar.zhyi.xin` | 公开 |
+| ArchiSteamFarm | `https://asf.zhyi.xin` | Dex OAuth / IPC |
+| Calibre COPS | `https://books.zhyi.xin` | Basic Auth |
+| Immich | `https://immich.zhyi.xin` | 应用登录 |
+| Tachidesk | `https://tachidesk.zhyi.xin` | Basic Auth |
+| Jellyfin | `https://jellyfin.zhyi.xin` | 应用登录 |
+| Hydra | `https://hydra.zhyi.cc` | 应用登录 |
+| Attic | `https://attic.zhyi.xin` | 上传 token |
+| Gitea | `https://git.zhyi.xin` | 应用登录 / SSH |
 | NetBox | `https://netbox.zhyi.cc` | Dex OAuth |
 | Grafana | `https://dashboard.zhyi.cc` | Dex OAuth |
 | Prometheus | `https://prometheus.zhyi.cc` | Dex OAuth |
 | Alertmanager | `https://alert.zhyi.cc` | Dex OAuth |
 | Bird Looking Glass | `https://lg.zhyi.cc` | 公开只读 |
 | FlapAlerted | `https://flapalerted.zhyi.cc` | 公开只读 |
-| Uni API | `https://uni-api.rock5c.zhyi.cc` | API key `uni-api-admin-api-key` |
-| MetaAPI | `https://metapi.colocrossing.zhyi.cc` | 管理口令 `default-pw`；proxy token `uni-api-admin-api-key` |
-| n8n OpenAI Bridge | `https://n8n-bridge.colocrossing.zhyi.cc/health` | bearer token（n8n-openai-bridge secrets） |
-| SearxNG | `https://searx.opi5p.zhyi.cc` | 私有无登录；secret key `searxng.yaml` |
-| FastAPI DLS | `https://fastapi-dls.rock5c.zhyi.cc` | 租约 token，无登录 |
-| RSSHub | `https://rsshub.zhyi.xin` | 私有无登录 |
-| PVE | `https://pve-5700u.zhyi.cc:8006` | `root` / `default-pw`（统一 bcrypt） |
-| CouchDB | `https://couchdb.zhyi.cc/_utils/` | QNAP 自带管理账号，不在主仓库 |
+| Uni API | `https://uni-api.rock5c.zhyi.cc` | API key |
+| MetaAPI | `https://metapi.colocrossing.zhyi.cc` | 应用口令 / token |
+| n8n OpenAI Bridge | `https://n8n-bridge.colocrossing.zhyi.cc/health` | bearer token |
+| SearxNG | `https://searx.opi5p.zhyi.cc` | 私有 |
+| FastAPI DLS | `https://fastapi-dls.rock5c.zhyi.cc` | 租约 token |
+| RSSHub | `https://rsshub.zhyi.xin` | 私有 |
+| PVE | `https://pve-5700u.zhyi.cc:8006` | 应用登录 |
+| CouchDB | `https://couchdb.zhyi.cc/_utils/` | 应用管理 |
 | Attic NCPS fallback | `https://attic.zhyi.xin` | 无登录 |
-| VaultS3 | `https://vaults3.zhyi.cc:8443/dashboard/` | access key `zhyi`，secret `default-pw` |
-| MetaCubeXD | `https://metacubexd.rock5c.zhyi.cc` | 控制 token `metacubexd-control-token` |
-| 代理订阅 | `https://sub.zhyi.cc` | SublinkPro 内部 `admin` / `default-pw`；订阅 token 为 `default-pw` 小写 |
-| OpenSpeedTest | `https://openspeedtest.rock5c.zhyi.cc` | 私有无登录 |
-| qBittorrent | `https://bt.router.zhyi.cc` | WebUI `zhyi` / `default-pw`；局域网白名单可免登录 |
-| PeerBanHelper | `https://peerbanhelper.opi5p.zhyi.cc` | 私有 API token（应用内配置） |
-| BitMagnet | `https://bitmagnet.opi5p.zhyi.cc/webui/` | 私有无登录（应用内 API token 可选） |
-| MoviePilot | `https://moviepilot.rock5c.zhyi.cc` | `zhyi` / `default-pw`（初始化脚本实际使用） |
+| VaultS3 | `https://vaults3.zhyi.cc:8443/dashboard/` | S3 凭据 |
+| MetaCubeXD | `https://metacubexd.rock5c.zhyi.cc` | 控制 token |
+| 代理订阅 | `https://sub.zhyi.cc` | 应用登录 / 订阅 token |
+| OpenSpeedTest | `https://openspeedtest.rock5c.zhyi.cc` | 私有 |
+| qBittorrent | `https://bt.router.zhyi.cc` | WebUI 登录 |
+| PeerBanHelper | `https://peerbanhelper.opi5p.zhyi.cc` | API token |
+| BitMagnet | `https://bitmagnet.opi5p.zhyi.cc/webui/` | 私有 |
+| MoviePilot | `https://moviepilot.rock5c.zhyi.cc` | 应用登录 |
 | Home Assistant | `https://ha.zhyi.cc` | Dex OAuth |
 | Syncthing | `https://syncthing.opi5p.zhyi.cc` | Dex OAuth |
 | Syncthing (Colocrossing) | `https://syncthing.colocrossing.zhyi.cc` | Dex OAuth |
 | ArchiveBox | `https://archivebox.opi5p.zhyi.cc` | Dex OAuth |
-| WebDAV（webdev） | `https://dav.opi5p.zhyi.cc` | Basic Auth：`zhyi` / `default-pw` |
-| QNAP NAS | `https://qnap.zhyi.cc` | QNAP 自带账号，不在主仓库 |
-| Memos | `https://memos.opi5p.zhyi.cc` | Dex OIDC；应用内 `zhyi` / `default-pw` |
-| 主机资源 / NAS 存储 | 见 Homepage `12 · 私有 · 监控` | Prometheus 只读查询，无登录 |
+| WebDAV（webdev） | `https://dav.opi5p.zhyi.cc` | Basic Auth |
+| QNAP NAS | `https://qnap.zhyi.cc` | 应用管理 |
+| Memos | `https://memos.opi5p.zhyi.cc` | Dex OIDC / 应用登录 |
+| 主机资源 / NAS 存储 | 见 Homepage `12 · 私有 · 监控` | Prometheus 只读 |
 
 ### 协议与无 Web UI 服务
 
-| 服务 | 入口 | 账号与口令线索 |
+| 服务 | 入口 | 认证方式 |
 | --- | --- | --- |
-| SMTP（出站） | `send.ahasend.com`（美加墨为 `send-us.ahasend.com`），587 STARTTLS | 用户名 `EjG9ROGAei`，口令 `common/smtp.yaml` 的 `smtp-pass`，发件人 `postmaster@zhyi.cc` |
-| Maddy（邮件收发） | `mail.zhyi.xin`，25/465/587 | 本地邮箱账号由 Maddy Postgres `passwords` 表管理，不在主仓库 |
-| IMAP | `imapfilter` 定时任务（Outlook/Gmail/Lantian） | 凭据在 `imapfilter/keys.yaml`，账号以 secrets 内配置为准 |
-| SFTP | `sftp.opi5p.ltnet.zhyi.cc`（等价 `opi5p.zhyi.cc`），端口 2222 | 用户 `sftp`，无密码，只允许 `ssh/sftp.nix` 公钥；私钥为 `common/sftp.yaml` 的 `sftp-privkey` |
-| Samba | `//opi5p/storage` | 有效用户 `zhyi`，口令 `default-pw` |
-| NFS | `192.168.0.40:/nixos` | IP 白名单直挂，无账号密码 |
-| CalDAV/CardDAV | `https://cal.zhyi.xin` | LDAP/GLAuth：`zhyi` / `default-pw` |
-| Matrix 联邦 | `https://matrix.zhyi.xin` | LDAP/GLAuth：`zhyi` / `default-pw` |
-| Git SSH | `git.zhyi.xin:2222` | 用户 `git`，仅公钥 |
-| rsync CI | 由 `ssh/rsync-ci.nix` 公钥限制 | 用户 `ci`，仅公钥 |
-| VaultS3 S3 API | `vaults3.zhyi.cc:8443` | access key `zhyi`，secret `default-pw` |
-| Attic 上传 API | `https://attic.zhyi.xin` | token `common/attic.yaml` 的 `attic-upload-key` |
-| NCPS | `opi5p:13851` | 无登录，仅受信任 public key |
-| restic/rustic 备份 | `ssh://opi5p.zhyi.cc:2222` | 用户 `sftp` + `common/sftp.yaml` 私钥；仓库口令 `common/restic.yaml` 的 `restic-pw` |
+| SMTP（出站） | `send.ahasend.com`（美加墨为 `send-us.ahasend.com`），587 STARTTLS | SMTP AUTH |
+| Maddy（邮件收发） | `mail.zhyi.xin`，25/465/587 | 本地邮箱 |
+| IMAP | `imapfilter` 定时任务（Outlook/Gmail/Lantian） | secrets 内配置 |
+| SFTP | `sftp.opi5p.ltnet.zhyi.cc`（等价 `opi5p.zhyi.cc`），端口 2222 | SSH 公钥 |
+| Samba | `//opi5p/storage` | 账号登录 |
+| NFS | `192.168.0.40:/nixos` | IP 白名单 |
+| CalDAV/CardDAV | `https://cal.zhyi.xin` | LDAP |
+| Matrix 联邦 | `https://matrix.zhyi.xin` | LDAP |
+| Git SSH | `git.zhyi.xin:2222` | SSH 公钥 |
+| rsync CI | 由 `ssh/rsync-ci.nix` 公钥限制 | SSH 公钥 |
+| VaultS3 S3 API | `vaults3.zhyi.cc:8443` | S3 凭据 |
+| Attic 上传 API | `https://attic.zhyi.xin` | token |
+| NCPS | `opi5p:13851` | 无登录 |
+| restic/rustic 备份 | `ssh://opi5p.zhyi.cc:2222` | SSH 公钥 + 仓库口令 |
 
 Homepage 按“没有 Web UI 的协议不添加虚假卡片”规则不为 SMTP、SFTP、Samba、
 NFS 等生成卡片；WebDAV 卡片保留在 `08 · 私有 · 家庭服务` 分组。
@@ -319,5 +315,4 @@ NFS 等生成卡片；WebDAV 卡片保留在 `08 · 私有 · 家庭服务` 分�
 4. 不可达主机不得标为运行，容器镜像存在也不等于容器已启动；
 5. 实机审计至少检查 `systemctl --failed`、running services、Podman containers、
    timers、`/etc/nix/machines` 和 `nix config show substituters`；
-6. 文档不保存 API key、口令明文、private key、会话 token 或 Provider 凭据；
-   服务速查只允许写账号与 SOPS secret 键名。
+6. 文档不保存 API key、口令、private key、会话 token 或 Provider 凭据。
