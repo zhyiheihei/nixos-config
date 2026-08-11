@@ -101,19 +101,21 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 
   boot = {
-    # Match Armbian's NanoPi R5C support and use the in-tree r8169 driver for
-    # both RTL8125 NICs.  The vendor r8125 module has repeatedly stalled its TX
-    # queue under router traffic (NETDEV WATCHDOG), taking PPPoE down with it.
+    # A/B: use the vendor r8125 driver to chase the OpenWrt R5C high-throughput
+    # results.  The in-tree r8169 remains available (blacklisted) so rolling
+    # back is a one-line config change.  The earlier vendor-driver
+    # NETDEV WATCHDOG reports are being retested under the current setup.
     initrd.availableKernelModules = lib.mkForce [ ];
     initrd.kernelModules = lib.mkForce [ ];
     kernelModules = lib.mkForce [
       "ledtrig_netdev"
-      "r8169"
+      "r8125"
       "rtc_rk808"
     ];
-    # The generic out-of-tree modules use native ARM build tools and cannot
-    # build against this x86_64 cross-built kernel. Use in-tree drivers here.
-    extraModulePackages = lib.mkForce [ ];
+    blacklistedKernelModules = lib.mkForce [ "r8169" ];
+    # The NUR package builds against the cross-compiled R5C kernel through
+    # kernel.moduleBuildDependencies; the old blanket mkForce [] prevented it.
+    extraModulePackages = lib.mkForce [ config.boot.kernelPackages.r8125 ];
     kernelParams = [
       # The uart8250 earlycon parser must not be given the baud rate here; doing
       # so hides all output after U-Boot's "Starting kernel ..." line.
