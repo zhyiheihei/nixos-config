@@ -1,9 +1,7 @@
 {
   config,
-  inputs,
   lib,
   LT,
-  pkgs,
   ...
 }:
 let
@@ -36,36 +34,12 @@ let
   targetServices = builtins.filter (name: name != "clamav-fangfrisch") gatedServices;
 in
 {
-  # Host-level native replacement: keep the podman unit for rollback but run
-  # FileCodeBox from the zhyi-packages binary with the same data directory.
-  virtualisation.oci-containers.containers.filecodebox.autoStart = lib.mkForce false;
-  systemd.services.filecodebox = {
-    description = "FileCodeBox anonymous file sharing server";
-    after = [ "network-online.target" ];
-    wants = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-
-    serviceConfig = {
-      Type = "simple";
-      User = "root";
-      Group = "root";
-      Environment = [
-        "FILECODEBOX_DATA_DIR=${config.lantian.filecodebox.storage}"
-      ];
-      ExecStart = "${inputs.zhyi-packages.packages.${pkgs.system}.filecodebox}/bin/filecodebox";
-      Restart = "on-failure";
-      RestartSec = "5s";
-    };
-  };
-  lantian.nginxVhosts."filebox.zhyi.xin".locations."/".proxyPass = lib.mkForce "http://127.0.0.1:12345";
-  lantian.nginxVhosts."filebox.localhost".locations."/".proxyPass = lib.mkForce "http://127.0.0.1:12345";
-
   imports = [
     ../../nixos/optional-apps/archivebox.nix
     ../../nixos/optional-apps/asf.nix
     ../../nixos/optional-apps/calibre-cops.nix
     ../../nixos/optional-apps/clamav.nix
-    ../../nixos/optional-apps/filecodebox.nix
+    ../../nixos/optional-apps/filecodebox-nix.nix
     ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/immich.nix
     ../../nixos/optional-apps/immich-rockchip.nix
