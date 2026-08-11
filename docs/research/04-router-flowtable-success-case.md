@@ -48,7 +48,7 @@
 - flowtable/RPS 生效：`nftables`、`router-flowtable`、`router-flowtable-check.timer`、`router-rps`、`pppd-wan` active；flowtable 为 `br-lan`+`ppp0`，forward 有 `flow add @f`；RPS `f/4096`、backlog 5000、缓冲 16M、BBR。
 - 网络可达：PPPoE 在线，`223.5.5.5` 0% 丢包，`baidu.com` 200；从 rock5c 实测 LAN hairpin：`dav.opi5p.zhyi.cc` 401、`bt.router.zhyi.cc` 200、`vaults3.zhyi.cc:8443/health` 200。
 - 回滚路径：extlinux 保留 generation 50（`nixos-50-default`），`r8169.ko` 仍在 closure；切回 r8169 是一行配置改动，但需要维护窗口重启。
-- MAC 核实与处理：两个口的 EEPROM 永久地址分别为 eth0 `36:57:34:66:a7:af`、eth1 `72:e9:d6:2c:3a:38`；r8125 探测时读不到 EEPROM 并生成临时地址，eth1 靠 `10-router-wan.link` 固定为 `02:c8:90:df:19:eb`，eth0 当前为 udev persistent 策略生成的 `aa:88:6c:c7:9b:47`。旧 r8169 启动日志同样存在“can't read MAC address, setting random one”，说明这是 R5C 这块板卡/驱动共有的读取限制，不是 r8125 独有回归。已新增 `10-router-lan.link` 把 eth0 固定到 EEPROM 永久地址，待下次维护窗口重启验证。
+- MAC 核实与处理：两个口的 EEPROM 永久地址分别为 eth0 `36:57:34:66:a7:af`、eth1 `72:e9:d6:2c:3a:38`；r8125 探测时读不到 EEPROM 并生成临时地址，eth1 靠 `10-router-wan.link` 固定为 `02:c8:90:df:19:eb`，eth0 当前为 udev persistent 策略生成的 `aa:88:6c:c7:9b:47`。旧 r8169 启动日志同样存在“can't read MAC address, setting random one”，说明这是 R5C 这块板卡/驱动共有的读取限制，不是 r8125 独有回归。按 systemd.link 文档，persistent 策略对同一 machine-id/同一设备跨重启稳定，因此不是每次随机；已新增 `10-router-lan.link` 改为显式固定到 EEPROM 永久地址，待下次维护窗口重启验证。
 - 未查明：用户反映“重启变成关机”。`journalctl -b -1` 显示 r8125 加载后进入正常启动，无 panic/WATCHDOG/poweroff 记录，当前无法从日志定位；需要继续观察 24-72h，暂不重启。
 
 ## 未完成 / 待办
