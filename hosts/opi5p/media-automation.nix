@@ -8,10 +8,6 @@ let
   activationMarker = "/nix/persistent/var/lib/media-automation/ready";
   tachideskActivationMarker = "/nix/persistent/var/lib/media-automation/tachidesk-ready";
   vertexActivationMarker = "/nix/persistent/var/lib/media-automation/vertex-ready";
-  tachideskService =
-    if config.lantian.tachidesk.backend == "nix"
-    then "tachidesk"
-    else "podman-tachidesk";
   mediaGatedServices = [
     "bitmagnet-dht"
     "bitmagnet-http"
@@ -27,7 +23,7 @@ let
     "qbittorrent-seedbox"
   ];
   gatedServices = mediaGatedServices ++ [
-    tachideskService
+    "podman-tachidesk"
     "podman-vertex"
   ];
   proxiedServices = [
@@ -36,7 +32,7 @@ let
     "bitmagnet-queue"
     "flexget-runner"
     "iyuuplus"
-    tachideskService
+    "podman-tachidesk"
     "podman-vertex"
   ];
   # These services are replaced by MoviePilot and must not run alongside it.
@@ -60,10 +56,6 @@ in
 {
   imports = [ ./media-download-chain.nix ];
 
-  # Second native replacement: run Tachidesk from the zhyi-packages binary.
-  # The existing /var/lib/tachidesk library is reused as HOME data.
-  lantian.tachidesk.backend = "nix";
-
   # The old and new download stacks must never write the same NFS paths at
   # once.  Deploy all packages, units, users, secrets and databases first, but
   # keep every writer stopped until the state transfer has completed.
@@ -85,11 +77,11 @@ in
     # Tachidesk has its own cutover marker. The rest of the media stack is
     # already live, so a configuration deployment must not start a fresh
     # empty instance before its SQLite database and library are copied.
-    (lib.genAttrs [ tachideskService ] (_: {
-      partOf = [ "media-automation.target" ];
-      unitConfig.ConditionPathExists = tachideskActivationMarker;
-    }))
     {
+      podman-tachidesk = {
+        partOf = [ "media-automation.target" ];
+        unitConfig.ConditionPathExists = tachideskActivationMarker;
+      };
       podman-vertex = {
         partOf = [ "media-automation.target" ];
         unitConfig.ConditionPathExists = vertexActivationMarker;
