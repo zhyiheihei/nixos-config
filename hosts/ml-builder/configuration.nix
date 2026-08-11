@@ -11,7 +11,12 @@ let
   macBookPublicKey = lib.findFirst (
     key: lib.hasSuffix "2386656187@qq.com" key
   ) (throw "mac-book SSH public key is missing from secrets") sshKeys;
-  macBookIdentity = pkgs.writeText "mac-book-ssh-identity.pub" macBookPublicKey;
+  # OpenSSH rejects IdentityFile candidates whose mode is world-readable.
+  # The store path is 0444, so materialize a 0600 copy for agent-backed
+  # second-hop deployments from this builder.
+  macBookIdentity = pkgs.runCommand "mac-book-ssh-identity.pub" { } ''
+    install -m 0600 ${pkgs.writeText "mac-book-ssh-identity.pub" macBookPublicKey} $out
+  '';
   outboundProxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
   proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin,.xuyh0120.win";
   proxyEnvironment = {
