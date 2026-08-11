@@ -57,15 +57,6 @@ in
       volumes = [ "/var/lib/tachidesk:/home/suwayomi/.local/share/Tachidesk" ];
     };
 
-    users.users.suwayomi = lib.mkIf (cfg.backend == "nix") {
-      isSystemUser = true;
-      uid = 1000;
-      group = "suwayomi";
-    };
-    users.groups.suwayomi = lib.mkIf (cfg.backend == "nix") {
-      gid = 1000;
-    };
-
     systemd.services.tachidesk = lib.mkIf (cfg.backend == "nix") {
       description = "Tachidesk manga server";
       after = [ "network-online.target" ];
@@ -74,10 +65,11 @@ in
 
       serviceConfig = {
         Type = "simple";
-        User = "suwayomi";
-        Group = "suwayomi";
+        User = "zhyi";
+        Group = "zhyi";
         WorkingDirectory = "/var/lib/tachidesk";
         Environment = [
+          "HOME=/var/lib/tachidesk"
           "TZ=${config.time.timeZone}"
           "BIND_IP=127.0.0.1"
           "BIND_PORT=${LT.portStr.Tachidesk}"
@@ -102,6 +94,11 @@ in
         Restart = "on-failure";
         RestartSec = "5s";
       };
+
+      preStart = ''
+        ${pkgs.coreutils}/bin/mkdir -p /var/lib/tachidesk/.local/share
+        ${pkgs.coreutils}/bin/ln -sfn /var/lib/tachidesk /var/lib/tachidesk/.local/share/Tachidesk
+      '';
     };
 
     systemd.tmpfiles.settings = {
