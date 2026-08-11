@@ -15,6 +15,8 @@
 - [r5s.cooluc.com（Cooluc）方案](./research/02-r5s-cooluc.md)
 - [iStoreOS R5C 适配](./research/03-istoreos-r5c.md)
 - [R5C flowtable 成功案例与对照](./research/04-router-flowtable-success-case.md)
+- [Podman 容器转 Nix 包替代评估](./research/05-podman-to-nix-evaluation.md)
+- [Router LAN 口掉链事故](./research/06-router-lan-drop-netdev-watchdog.md)
 
 ## 入门与主机接入
 
