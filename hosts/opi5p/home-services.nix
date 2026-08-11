@@ -19,7 +19,7 @@ let
     "podman-asf"
     "filecodebox"
     "podman-home-assistant"
-    "podman-memos"
+    "memos"
     "podman-sun-panel"
     "podman-sun-panel-helper"
     "redis-immich"
@@ -43,7 +43,7 @@ in
     ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/immich.nix
     ../../nixos/optional-apps/immich-rockchip.nix
-    ../../nixos/optional-apps/memos.nix
+    ../../nixos/optional-apps/memos-nix.nix
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/sftp-server.nix
