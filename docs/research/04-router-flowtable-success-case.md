@@ -57,7 +57,7 @@
 - 真实 WAN NAT 场景对照（LAN 多设备 + WAN 下载/上传）。
 - CPU per-core、单队列 vs RPS、以及 flowtable 命中前后 `/proc/net/softnet_stat` 的严格采样。
 - 48 小时稳定性观察（服务、flowtable 条目、PPPoE 重拨次数、内存）。
-- vendor r8125 驱动 A/B 未闭环：eth0 已加 `10-router-lan.link` 固定 EEPROM MAC，待重启验证；2.5G hairpin 吞吐复测未做；“重启变关机”事故未定位。
+- vendor r8125 驱动 A/B 未闭环：eth0 已加 `10-router-lan.link` 固定 EEPROM MAC，待重启验证；2.5G hairpin 吞吐复测未做；2026-08-11 17:40 出现 eth0 NETDEV WATCHDOG 掉链（见 [06](./06-router-lan-drop-netdev-watchdog.md)），“重启变关机”事故未定位。
 - BBRv3、TCP Brutal、Clang/ThinLTO、nft-fullcone 未实施（记录见调研文档 02）。
 - `nanopi-r5c/kernel-config` 同时被 taishanpi/lubancat/h28k 复用，改动会影响这些板卡（当前无行为风险，需留意发布范围）。
 
