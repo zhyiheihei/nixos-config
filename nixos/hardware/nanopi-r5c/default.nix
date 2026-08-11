@@ -29,16 +29,6 @@ let
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = ./kernel-config;
   };
-  # NUR's r8125 defaults to the native (aarch64) stdenv and would be scheduled
-  # to an ARM builder that cannot execute the x86_64 cross compiler.  Switch
-  # stdenv through the package override (overrideAttrs cannot change stdenv),
-  # and pin it to builders advertising the aarch64-cross feature.
-  r8125Module = (pkgs.nur-xddxdd.r8125.override {
-    kernel = r5cKernel;
-    stdenv = crossPkgs.stdenv;
-  }).overrideAttrs {
-    requiredSystemFeatures = [ "aarch64-cross" ];
-  };
   # Keep only the firmware requested by the installed MT7921/BT adapter and
   # RTL8125 NICs instead of retaining the complete linux-firmware package
   # (roughly 800 MiB) in every R5C system closure.
@@ -111,21 +101,20 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 
   boot = {
-    # A/B: use the vendor r8125 driver to chase the OpenWrt R5C high-throughput
-    # results.  The in-tree r8169 remains available (blacklisted) so rolling
-    # back is a one-line config change.  The earlier vendor-driver
-    # NETDEV WATCHDOG reports are being retested under the current setup.
+    # Match Armbian's NanoPi R5C support and use the in-tree r8169 driver for
+    # both RTL8125 NICs.  The 2026-08-11 LAN drop reproduced the vendor r8125
+    # TX queue stall (NETDEV WATCHDOG) already documented in
+    # docs/hardware/nanopi-r5c.md, so the r8125 A/B is closed.
     initrd.availableKernelModules = lib.mkForce [ ];
     initrd.kernelModules = lib.mkForce [ ];
     kernelModules = lib.mkForce [
       "ledtrig_netdev"
-      "r8125"
+      "r8169"
       "rtc_rk808"
     ];
-    blacklistedKernelModules = lib.mkForce [ "r8169" ];
-    # The NUR package builds against the cross-compiled R5C kernel through
-    # kernel.moduleBuildDependencies; the old blanket mkForce [] prevented it.
-    extraModulePackages = lib.mkForce [ r8125Module ];
+    # In-tree drivers only; keep the initrd and closure free of out-of-tree
+    # vendor modules.
+    extraModulePackages = lib.mkForce [ ];
     kernelParams = [
       # The uart8250 earlycon parser must not be given the baud rate here; doing
       # so hides all output after U-Boot's "Starting kernel ..." line.

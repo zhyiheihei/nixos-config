@@ -263,6 +263,8 @@ Tegra/QEMU 的 `ttyS0`、`ttyAMA0`；与 R5C 的 `ttyS2` 并存后，只能依�
 R5C 的两个 RTL8125 网口使用主线 `r8169` 驱动，与当前 Armbian R5C 配置保持一致。
 真机压力测试中，Realtek 官方 `r8125` out-of-tree 驱动曾出现 TX queue
 `NETDEV WATCHDOG`，连带造成 PPPoE WAN 掉线，因此本板不再加载它。
+2026-08-11 临时 A/B 复现同一事故（eth0 TX queue 0 timeout 6004 ms，LAN 掉链），
+已回滚 r8169，不再重新启用 vendor r8125。
 
 ```nix
 boot.kernelModules = [ "r8169" ];
