@@ -23,6 +23,25 @@
    不能消费另一个 NUR 仓库作为 flake 输入，直接移除会让
    `test-nur-eval` 失败。
 
+## 2026-08-11 实机运行审计
+
+审计方式：子代理 SSH 到各主机执行 `systemctl`、`podman ps` 与
+`systemctl --failed`，只记录原始输出。
+
+| 主机 | 运行中的 podman 容器 | 失败 unit | 未运行但已定义的服务 |
+| --- | --- | --- | --- |
+| `rock5c` | `moviepilot`、`handbrake`、`metacubexd`、`immich-machine-learning-rknn`、`chinesesubfinder` | 0 | `sonarr`、`radarr`、`bazarr`、`prowlarr`（已迁移/停用） |
+| `opi5p` | `archivebox`、`asf`、`filecodebox`、`home-assistant`、`memos`、`sun-panel`、`sun-panel-helper`、`tachidesk` | 0 | `vertex`、`byparr`、`redroid`、`immich-machine-learning`（迁移中或已停用） |
+| `colocrossing` | `byparr`、`pyison`、`sublinkpro` | 0 | 无 |
+| `pve-5700u` | `archiveteam`、`clawemail`、`epic-awesome-gamer` | 0 | `halo`、`waline` |
+
+结论：当前生产主机上的 podman 服务运行正常、无失败 unit；但这不等于
+“完美取代 podman”。可替代服务（如 `sublinkpro`、`tachidesk`、
+`moviepilot`、`filecodebox`、`sun-panel` 等）仍以容器方式运行，Nix 包只
+通过了构建与单机冒烟测试，尚未接入 `hosts/*` 配置并完成数据迁移；
+`redroid`、`immich-rknn`、`sglang`、`archivebox` 等依赖硬件/重量级运行链，
+明确保留容器。
+
 ## 明细
 
 | 容器 / 服务 | 上游镜像 | 现位置 | 来源检查 | 结论 |
