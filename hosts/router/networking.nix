@@ -18,6 +18,15 @@
     linkConfig.MACAddress = "02:c8:90:df:19:eb";
   };
 
+  # r8125 cannot read the on-board EEPROM MAC at probe time, so both ports
+  # start with a temporary address.  eth1 is pinned above for PPPoE; pin eth0
+  # to its factory permanent address as well so the LAN bridge identity does
+  # not depend on udev's machine-id derived persistent policy.
+  systemd.network.links."10-router-lan" = {
+    matchConfig.OriginalName = "eth0";
+    linkConfig.MACAddress = "36:57:34:66:a7:af";
+  };
+
   # Disable EEE on both RTL8125B ports: the PHY firmware (rtl8125b-2_0.0.2)
   # fails to wake from EEE low-power idle, causing intermittent carrier loss.
   # The NixOS linkConfig type does not expose EEE, so use ethtool directly.
