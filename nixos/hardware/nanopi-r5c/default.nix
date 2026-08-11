@@ -29,6 +29,14 @@ let
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = ./kernel-config;
   };
+  # NUR's r8125 defaults to the native (aarch64) stdenv and would be scheduled
+  # to an ARM builder that cannot execute the x86_64 cross compiler.  Force the
+  # x86_64 cross stdenv like the other cross-built out-of-tree modules in this
+  # repo, and pin it to builders advertising the aarch64-cross feature.
+  r8125Module = (pkgs.nur-xddxdd.r8125.override { kernel = r5cKernel; }).overrideAttrs (old: {
+    stdenv = crossPkgs.stdenv;
+    requiredSystemFeatures = [ "aarch64-cross" ];
+  });
   # Keep only the firmware requested by the installed MT7921/BT adapter and
   # RTL8125 NICs instead of retaining the complete linux-firmware package
   # (roughly 800 MiB) in every R5C system closure.
@@ -115,7 +123,7 @@ in
     blacklistedKernelModules = lib.mkForce [ "r8169" ];
     # The NUR package builds against the cross-compiled R5C kernel through
     # kernel.moduleBuildDependencies; the old blanket mkForce [] prevented it.
-    extraModulePackages = lib.mkForce [ config.boot.kernelPackages.r8125 ];
+    extraModulePackages = lib.mkForce [ r8125Module ];
     kernelParams = [
       # The uart8250 earlycon parser must not be given the baud rate here; doing
       # so hides all output after U-Boot's "Starting kernel ..." line.
