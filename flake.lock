@@ -1458,7 +1458,7 @@
         ]
       },
       "locked": {
-        "lastModified": 1786487580,
+        "lastModified": 1786458780,
         "narHash": "sha256-c98s6oGl+yjNqYCfDHtWknEV3oqG6Z6W48CgRy2WmMc=",
         "owner": "zhyiheihei",
         "repo": "nixos-secrets",
