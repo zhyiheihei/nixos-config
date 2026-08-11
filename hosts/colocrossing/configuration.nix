@@ -38,7 +38,7 @@
     ../../nixos/optional-apps/radicale.nix
     ../../nixos/optional-apps/rsshub.nix
     ../../nixos/optional-apps/rsync-server-ci.nix
-    ../../nixos/optional-apps/sublinkpro
+    ../../nixos/optional-apps/sublinkpro-nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/tg-bot-cleaner-bot
     ../../nixos/optional-apps/yggdrasil-alfis.nix
@@ -116,52 +116,6 @@
   };
 
   lantian.nginxVhosts."colocrossing.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
-
-  # Host-level native replacement: keep the podman unit for rollback but run
-  # SublinkPro from the zhyi-packages binary with the same data paths.
-  virtualisation.oci-containers.containers.sublinkpro.autoStart = lib.mkForce false;
-  systemd.services.sublinkpro = {
-    description = "SublinkPro subscription management panel";
-    after = [
-      "network-online.target"
-      "sops-install-secrets.service"
-    ];
-    wants = [ "network-online.target" ];
-    wantedBy = [ "multi-user.target" ];
-
-    serviceConfig = {
-      Type = "simple";
-      User = "root";
-      Group = "root";
-      WorkingDirectory = "/var/lib/sublinkpro";
-      EnvironmentFile = [ config.sops.templates."sublinkpro-env".path ];
-      Environment = [
-        "SUBLINK_PORT=${LT.portStr.SublinkPro}"
-        "SUBLINK_DB_PATH=/var/lib/sublinkpro/db"
-        "SUBLINK_LOG_PATH=/var/lib/sublinkpro/logs"
-        "SUBLINK_LOG_LEVEL=info"
-        "SUBLINK_CAPTCHA_MODE=1"
-        "SUBLINK_EXPIRE_DAYS=3650"
-        "TZ=${config.time.timeZone}"
-      ];
-      ExecStart = "${inputs.zhyi-packages.packages.${pkgs.system}.sublinkpro}/bin/sublinkpro";
-      Restart = "on-failure";
-      RestartSec = "5s";
-      MemoryMax = "1G";
-      TasksMax = 512;
-    };
-
-    preStart = ''
-      ${pkgs.coreutils}/bin/install -D -m 0644 ${../../nixos/optional-apps/sublinkpro/clash.yaml} /var/lib/sublinkpro/template/clash.yaml
-    '';
-  };
-  systemd.services.sublinkpro-seed = {
-    after = lib.mkForce [
-      "sublinkpro.service"
-      "sops-install-secrets.service"
-    ];
-    requires = lib.mkForce [ "sublinkpro.service" ];
-  };
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets. Kept off
   # the OAuth-protected public vhost and restricted to private networks only.
