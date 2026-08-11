@@ -61,6 +61,7 @@
 - [AI API 网关链路与初始化规范](./infrastructure/ai-api-gateway-chain.md)
 - [OIDC 应用接入规范（Pocket ID / Dex）](./infrastructure/oidc-app-integration.md)
 - [Prometheus / Grafana 监控链路](./infrastructure/monitoring.md)
+- [全主机服务归属与链路（服务审计）](./infrastructure/fleet-service-chain.md)
 
 ## 服务指南
 
