@@ -6,6 +6,10 @@
 }:
 let
   activationMarker = "/nix/persistent/var/lib/ml-home-migration/opi5p-ready";
+  filecodeboxService =
+    if config.lantian.filecodebox.backend == "nix"
+    then "filecodebox"
+    else "podman-filecodebox";
   gatedServices = [
     "clamav-daemon"
     "clamav-fangfrisch"
@@ -17,7 +21,7 @@ let
     "phpfpm-calibre-cops"
     "podman-archivebox"
     "podman-asf"
-    "podman-filecodebox"
+    filecodeboxService
     "podman-home-assistant"
     "podman-memos"
     "podman-sun-panel"
@@ -34,6 +38,10 @@ let
   targetServices = builtins.filter (name: name != "clamav-fangfrisch") gatedServices;
 in
 {
+  # Third native replacement: run FileCodeBox from the zhyi-packages binary.
+  # Existing /var/lib/filecodebox data is reused via FILECODEBOX_DATA_DIR.
+  lantian.filecodebox.backend = "nix";
+
   imports = [
     ../../nixos/optional-apps/archivebox.nix
     ../../nixos/optional-apps/asf.nix
