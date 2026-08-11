@@ -117,6 +117,11 @@
 
   lantian.nginxVhosts."colocrossing.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
+  # First native replacement: run SublinkPro from the zhyi-packages binary
+  # instead of the podman container. Data paths stay unchanged so the existing
+  # SQLite database and templates are reused.
+  lantian.sublinkpro.backend = "nix";
+
   # Read-only Prometheus API for Homepage's prometheusmetric widgets. Kept off
   # the OAuth-protected public vhost and restricted to private networks only.
   lantian.nginxVhosts."prometheus.colocrossing.zhyi.cc" = {
