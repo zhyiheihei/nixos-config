@@ -13,6 +13,7 @@
     # Keep the podman unit defined for rollback, but never start it when the
     # native package backend is active.
     virtualisation.oci-containers.containers.sublinkpro.autoStart = lib.mkForce false;
+    systemd.services.podman-sublinkpro.enable = lib.mkForce false;
 
     systemd.services.sublinkpro = {
       description = "SublinkPro subscription management panel";
