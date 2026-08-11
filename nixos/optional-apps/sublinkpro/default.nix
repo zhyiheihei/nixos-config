@@ -280,11 +280,13 @@ in
     '';
   };
 
-  systemd.services.podman-sublinkpro.preStart = lib.mkIf (cfg.backend == "podman") (lib.mkBefore ''
-    if [ ! -e ${templateDir}/clash.yaml ]; then
-      ${pkgs.coreutils}/bin/install -Dm0644 ${sublinkClashTemplate} ${templateDir}/clash.yaml
-    fi
-  '');
+  systemd.services.podman-sublinkpro = lib.mkIf (cfg.backend == "podman") {
+    preStart = lib.mkBefore ''
+      if [ ! -e ${templateDir}/clash.yaml ]; then
+        ${pkgs.coreutils}/bin/install -Dm0644 ${sublinkClashTemplate} ${templateDir}/clash.yaml
+      fi
+    '';
+  };
 
   systemd.services.sublinkpro-seed = {
     description = "Seed SublinkPro overseas Xray nodes and unified subscription";
