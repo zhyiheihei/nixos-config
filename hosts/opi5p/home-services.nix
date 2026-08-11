@@ -20,7 +20,7 @@ let
     "filecodebox"
     "podman-home-assistant"
     "memos"
-    "podman-sun-panel"
+    "sun-panel"
     "podman-sun-panel-helper"
     "redis-immich"
     "redis-searx"
@@ -47,7 +47,7 @@ in
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/sftp-server.nix
-    ../../nixos/optional-apps/sun-panel.nix
+    ../../nixos/optional-apps/sun-panel-nix.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/webdav.nix
     ../../nixos/client-components/cups.nix
