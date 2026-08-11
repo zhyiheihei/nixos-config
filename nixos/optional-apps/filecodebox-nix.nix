@@ -12,6 +12,7 @@
     # Keep the podman unit defined for rollback, but never start it when the
     # native package backend is active.
     virtualisation.oci-containers.containers.filecodebox.autoStart = lib.mkForce false;
+    systemd.services.podman-filecodebox.enable = lib.mkForce false;
 
     systemd.services.filecodebox = {
       description = "FileCodeBox anonymous file sharing server";
