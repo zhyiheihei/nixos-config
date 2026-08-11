@@ -39,8 +39,17 @@
 - RPS `f/4096`、backlog 5000、缓冲 16M、`rps_sock_flow_entries=4096`、BBR 生效。
 - WAN：pppd active、网关 ping 0% 丢包、`baidu.com` 200。
 - PPPoE 重拨自愈：`systemctl restart pppd-wan` 后 flowtable 与规则仍正确。
-- 内网服务：`dav.opi5p.zhyi.cc` 401、`bt.router.zhyi.cc` 200、`vaults3.zhyi.cc:8443` hairpin 403（可达）。
-- 回滚：extlinux 保留旧 generation 49；`nixos-rebuild --rollback boot` 后可回旧内核/配置。
+- 内网服务：`dav.opi5p.zhyi.cc` 401、`bt.router.zhyi.cc` 200、`vaults3.zhyi.cc:8443/health` hairpin 200。
+- 回滚：extlinux 保留旧 generation；`nixos-rebuild --rollback boot` 后可回旧内核/配置。
+
+## 验收（2026-08-11，只读，未重启）
+
+- 当前运行：`system-51-link` / kernel `6.18.42`；eth0/eth1 均绑定 r8125；`dmesg` 的 NETDEV WATCHDOG 计数为 0；无 failed units。
+- flowtable/RPS 生效：`nftables`、`router-flowtable`、`router-flowtable-check.timer`、`router-rps`、`pppd-wan` active；flowtable 为 `br-lan`+`ppp0`，forward 有 `flow add @f`；RPS `f/4096`、backlog 5000、缓冲 16M、BBR。
+- 网络可达：PPPoE 在线，`223.5.5.5` 0% 丢包，`baidu.com` 200；从 rock5c 实测 LAN hairpin：`dav.opi5p.zhyi.cc` 401、`bt.router.zhyi.cc` 200、`vaults3.zhyi.cc:8443/health` 200。
+- 回滚路径：extlinux 保留 generation 50（`nixos-50-default`），`r8169.ko` 仍在 closure；切回 r8169 是一行配置改动，但需要维护窗口重启。
+- 阻断项：r8125 读不到板载 EEPROM MAC。当前 eth0 为随机 MAC `aa:88:6c:c7:9b:47`（`addr_assign_type=3`，永久地址 `36:57:34:66:a7:af`）；eth1 靠 `10-router-wan.link` 固定为 `02:c8:90:df:19:eb`。eth0（LAN 口）没有等价固定规则，每次启动 MAC 会变化，相对 r8169 是回归，因此整体为条件通过。
+- 未查明：用户反映“重启变成关机”。`journalctl -b -1` 显示 r8125 加载后进入正常启动，无 panic/WATCHDOG/poweroff 记录，当前无法从日志定位；需要继续观察 24-72h，暂不重启。
 
 ## 未完成 / 待办
 
@@ -48,7 +57,7 @@
 - 真实 WAN NAT 场景对照（LAN 多设备 + WAN 下载/上传）。
 - CPU per-core、单队列 vs RPS、以及 flowtable 命中前后 `/proc/net/softnet_stat` 的严格采样。
 - 48 小时稳定性观察（服务、flowtable 条目、PPPoE 重拨次数、内存）。
-- vendor r8125 驱动 A/B（主线 r8169 保持，历史 `NETDEV WATCHDOG` 需单独复测）。
+- vendor r8125 驱动 A/B 未闭环：eth0 随机 MAC 需先修（固定 LAN MAC 或回滚 r8169）；2.5G hairpin 吞吐复测未做；“重启变关机”事故未定位。
 - BBRv3、TCP Brutal、Clang/ThinLTO、nft-fullcone 未实施（记录见调研文档 02）。
 - `nanopi-r5c/kernel-config` 同时被 taishanpi/lubancat/h28k 复用，改动会影响这些板卡（当前无行为风险，需留意发布范围）。
 
@@ -57,4 +66,3 @@
 - `hosts/router/flowtable.nix`、`hosts/router/performance.nix`、`hosts/router/configuration.nix`
 - `nixos/hardware/nanopi-r5c/kernel-config`
 - 调研：`docs/research/01-openwrt-nanopi-r5c.md`、`02-r5s-cooluc.md`、`03-istoreos-r5c.md`
-
