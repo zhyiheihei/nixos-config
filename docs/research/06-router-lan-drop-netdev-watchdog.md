@@ -42,6 +42,12 @@ r8125 触发 NETDEV WATCHDOG；此前的 link down 主要来自重启、PPPoE �
 - 即时缓解：`ethtool --set-eee eth0 eee off; ethtool --set-eee eth1 eee off`
   可临时关 EEE，但驱动 reset 后可能恢复，仍需修服务顺序。
 
+## 处理状态
+
+- 已按方案 B 准备回滚：`nixos/hardware/nanopi-r5c/default.nix` 移除 r8125、
+  恢复主线 r8169；尚未部署/重启。
+- 板卡文档 `docs/hardware/nanopi-r5c.md` 已同步记录本次复现，r8125 A/B 关闭。
+
 ## 未完成
 
 - 未确认超时前是否有瞬时流量/中断触发；Prometheus 未取到该窗口的数据。
