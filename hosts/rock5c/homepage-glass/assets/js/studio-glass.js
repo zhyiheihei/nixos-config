@@ -1,6 +1,31 @@
 // WebGL renderer adapted from iyinchao/liquid-glass-studio.
+// Reference: https://github.com/iyinchao/liquid-glass-studio
+// Shader math mirrors src/shaders/fragment-main.glsl STEP 9 (transparent
+// liquid glass, near-zero blur) and src/shaders/fragment-bg.glsl shadow.
 (() => {
-  const MAX_SHAPES = 64;
+  "use strict";
+
+  const MAX_SHAPES = 128;
+  const BALL_RADIUS_CSS = 100;
+  const BLUR_RADIUS = 1;
+  const SHAPE_ROUNDNESS = 5;
+  const MERGE_RATE = 0.05;
+  const REF_THICKNESS = 20;
+  const REF_FACTOR = 1.4;
+  const REF_DISPERSION = 7;
+  const REF_FRESNEL_RANGE = 30;
+  const REF_FRESNEL_HARDNESS = 0.2;
+  const REF_FRESNEL_FACTOR = 0.2;
+  const GLARE_RANGE = 30;
+  const GLARE_HARDNESS = 0.2;
+  const GLARE_FACTOR = 0.9;
+  const GLARE_CONVERGENCE = 0.5;
+  const GLARE_OPPOSITE_FACTOR = 0.8;
+  const GLARE_ANGLE = -Math.PI / 4;
+  const SHADOW_EXPAND = 25;
+  const SHADOW_FACTOR = 0.15;
+  const SPRING_SIZE_FACTOR = 10;
+  const MAX_TEXTURE_EDGE = 4096;
 
   const VERTEX = `#version 300 es
 in vec2 a_position;
@@ -10,6 +35,8 @@ void main() {
   gl_Position = vec4(a_position, 0.0, 1.0);
 }`;
 
+  // Faithful port of the reference STEP 9 fragment shader, generalized to
+  // MAX_SHAPES rounded rectangles plus the liquid mouse ball.
   const FRAGMENT = `#version 300 es
 precision highp float;
 
@@ -23,14 +50,19 @@ uniform sampler2D u_bg;
 uniform sampler2D u_blurredBg;
 uniform vec2 u_resolution;
 uniform vec2 u_textureSize;
-uniform float u_scrollY;
+uniform vec2 u_scroll;
+uniform vec2 u_origin;
 uniform float u_dpr;
 uniform float u_captureScale;
 uniform int u_shapeCount;
 uniform vec4 u_shapes[MAX_SHAPES];
 uniform float u_radii[MAX_SHAPES];
 uniform vec2 u_mouseSpring;
+uniform vec2 u_mouseVelocity;
 uniform float u_mergeRate;
+uniform float u_springSizeFactor;
+uniform float u_ballRadius;
+uniform vec4 u_tint;
 uniform float u_refThickness;
 uniform float u_refFactor;
 uniform float u_refDispersion;
@@ -43,10 +75,12 @@ uniform float u_glareFactor;
 uniform float u_glareConvergence;
 uniform float u_glareOppositeFactor;
 uniform float u_glareAngle;
-uniform float u_ballRadius;
-uniform float u_tint;
-uniform float u_blurRadius;
 uniform int u_blurEdge;
+uniform float u_roundness;
+uniform float u_time;
+uniform float u_shadowExpand;
+uniform float u_shadowFactor;
+uniform vec2 u_shadowOffset;
 
 const vec3 D65_WHITE = vec3(0.95045592705, 1.0, 1.08905775076);
 const mat3 RGB_TO_XYZ_M = mat3(
@@ -101,19 +135,33 @@ vec3 LCH_TO_SRGB(vec3 lch) {
   return XYZ_TO_SRGB(LAB_TO_XYZ(LCH_TO_LAB(lch)));
 }
 
+float safeAsin(float x) {
+  return asin(clamp(x, -1.0, 1.0));
+}
+
 float sdCircle(vec2 p, float r) {
   return length(p) - r;
 }
 
-float sdRoundRect(vec2 p, vec2 halfSize, float r) {
-  vec2 d = abs(p) - halfSize;
-  if (d.x > -r && d.y > -r) {
-    vec2 c = abs(p) - (halfSize - vec2(r));
-    float n = 4.0;
-    float v = pow(pow(max(c.x, 0.0), n) + pow(max(c.y, 0.0), n), 1.0 / n);
-    return v - r;
+float superellipseCornerSDF(vec2 p, float r, float n) {
+  p = abs(p);
+  float v = pow(pow(p.x, n) + pow(p.y, n), 1.0 / n);
+  return v - r;
+}
+
+float roundedRectSDF(vec2 p, vec2 center, float width, float height, float cornerRadius, float n) {
+  p -= center;
+  float cr = cornerRadius * u_dpr;
+  vec2 d = abs(p) - vec2(width * u_dpr, height * u_dpr) * 0.5;
+  float dist;
+  if (d.x > -cr && d.y > -cr) {
+    vec2 cornerCenter = sign(p) * (vec2(width * u_dpr, height * u_dpr) * 0.5 - vec2(cr));
+    vec2 cornerP = p - cornerCenter;
+    dist = superellipseCornerSDF(cornerP, cr, n);
+  } else {
+    dist = min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
   }
-  return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+  return dist;
 }
 
 float smin(float a, float b, float k) {
@@ -121,45 +169,69 @@ float smin(float a, float b, float k) {
   return mix(b, a, h) - k * h * (1.0 - h);
 }
 
-vec2 pageCoord() {
-  vec2 p = vec2(gl_FragCoord.x, u_resolution.y - gl_FragCoord.y);
-  return p + vec2(0.0, u_scrollY);
-}
-
-float mergedSDF(vec2 p) {
+// pageCss is in CSS pixels, top-down, relative to the document origin.
+// The returned distance is normalized by the CSS viewport height exactly
+// like the reference mainSDF.
+float mergedAt(vec2 pageCss) {
+  vec2 p = pageCss / u_resolution.y * u_dpr;
   float d = 1e20;
+  float margin = (u_ballRadius + 80.0) * u_dpr;
   for (int i = 0; i < MAX_SHAPES; i++) {
     if (i >= u_shapeCount) break;
-    vec2 center = u_shapes[i].xy + u_shapes[i].zw * 0.5;
-    vec2 halfSize = u_shapes[i].zw * 0.5;
-    d = min(d, sdRoundRect(p - center, halfSize, u_radii[i]));
+    vec4 s = u_shapes[i];
+    if (pageCss.x < s.x - margin || pageCss.x > s.x + s.z + margin ||
+        pageCss.y < s.y - margin || pageCss.y > s.y + s.w + margin) {
+      continue;
+    }
+    vec2 center = (s.xy + s.zw * 0.5) / u_resolution.y * u_dpr;
+    float w = s.z / u_resolution.y;
+    float h = s.w / u_resolution.y;
+    float r = u_radii[i] / u_resolution.y;
+    float sd = roundedRectSDF(p, center, w, h, r, u_roundness);
+    d = smin(d, sd, u_mergeRate);
   }
-  float ball = sdCircle(p - u_mouseSpring, u_ballRadius * u_dpr);
-  d = smin(d, ball, u_mergeRate * u_resolution.y);
-  return d;
+  vec2 ballCenter = u_mouseSpring / u_resolution.y * u_dpr;
+  float ballRadius = u_ballRadius * u_dpr / u_resolution.y;
+  float pulse = 1.0 + 0.02 * sin(u_time * 1.4);
+  float stretch = clamp(length(u_mouseVelocity) * u_springSizeFactor * 0.0000012, 0.0, 0.35);
+  ballRadius *= pulse * (1.0 + stretch);
+  float ball = sdCircle(p - ballCenter, ballRadius);
+  return smin(d, ball, u_mergeRate);
 }
 
-vec2 mergedNormal(vec2 p) {
-  vec2 h = vec2(1.0, 1.0);
-  float dx =
-    mergedSDF(p + vec2(h.x, 0.0)) -
-    mergedSDF(p - vec2(h.x, 0.0));
-  float dy =
-    mergedSDF(p + vec2(0.0, h.y)) -
-    mergedSDF(p - vec2(0.0, h.y));
-  return vec2(dx, dy);
+vec2 getNormal(vec2 pageCss) {
+  vec2 h = max(vec2(abs(dFdx(gl_FragCoord.x)), abs(dFdy(gl_FragCoord.y))), vec2(0.0001));
+  vec2 step = h / u_dpr;
+  vec2 grad = vec2(
+    mergedAt(pageCss + vec2(step.x, 0.0)) - mergedAt(pageCss - vec2(step.x, 0.0)),
+    mergedAt(pageCss + vec2(0.0, step.y)) - mergedAt(pageCss - vec2(0.0, step.y))
+  ) / (2.0 * h);
+  return grad * 1414.213562;
 }
 
-vec4 getTextureDispersion(vec2 uv, vec2 offset, float mixRate, float factor) {
+float vec2ToAngle(vec2 v) {
+  float angle = atan(v.y, v.x);
+  if (angle < 0.0) angle += 2.0 * PI;
+  return angle;
+}
+
+vec4 getTextureDispersion(
+  sampler2D tex1,
+  sampler2D tex2,
+  float mixRate,
+  vec2 uv,
+  vec2 offset,
+  float factor
+) {
   const float N_R = 1.0 - 0.02;
   const float N_G = 1.0;
   const float N_B = 1.0 + 0.02;
-  float bgR = texture(u_bg, uv + offset * (1.0 - (N_R - 1.0) * factor)).r;
-  float bgG = texture(u_bg, uv + offset * (1.0 - (N_G - 1.0) * factor)).g;
-  float bgB = texture(u_bg, uv + offset * (1.0 - (N_B - 1.0) * factor)).b;
-  float blurR = texture(u_blurredBg, uv + offset * (1.0 - (N_R - 1.0) * factor)).r;
-  float blurG = texture(u_blurredBg, uv + offset * (1.0 - (N_G - 1.0) * factor)).g;
-  float blurB = texture(u_blurredBg, uv + offset * (1.0 - (N_B - 1.0) * factor)).b;
+  float bgR = texture(tex1, uv + offset * (1.0 - (N_R - 1.0) * factor)).r;
+  float bgG = texture(tex1, uv + offset * (1.0 - (N_G - 1.0) * factor)).g;
+  float bgB = texture(tex1, uv + offset * (1.0 - (N_B - 1.0) * factor)).b;
+  float blurR = texture(tex2, uv + offset * (1.0 - (N_R - 1.0) * factor)).r;
+  float blurG = texture(tex2, uv + offset * (1.0 - (N_G - 1.0) * factor)).g;
+  float blurB = texture(tex2, uv + offset * (1.0 - (N_B - 1.0) * factor)).b;
   return vec4(
     mix(bgR, blurR, mixRate),
     mix(bgG, blurG, mixRate),
@@ -169,112 +241,123 @@ vec4 getTextureDispersion(vec2 uv, vec2 offset, float mixRate, float factor) {
 }
 
 void main() {
-  vec2 p = pageCoord();
-  float merged = mergedSDF(p);
+  vec2 viewportCss = (vec2(gl_FragCoord.x, u_resolution.y - gl_FragCoord.y)) / u_dpr;
+  vec2 pageCss = viewportCss + u_scroll;
+  vec2 uv = (pageCss - u_origin) * u_captureScale / u_textureSize;
+
+  float merged = mergedAt(pageCss);
+  float shadow = exp(
+    -1.0 / u_shadowExpand *
+      abs(mergedAt(pageCss + u_shadowOffset)) *
+      (u_resolution.y / u_dpr)
+  ) * 0.6 * u_shadowFactor;
+
   if (merged > 0.0) {
-    fragColor = vec4(0.0, 0.0, 0.0, 0.0);
+    fragColor = vec4(0.0, 0.0, 0.0, clamp(shadow, 0.0, 1.0));
     return;
   }
 
-  vec2 uv = p * (u_captureScale / u_dpr) / u_textureSize;
-  float dist = -merged;
-  vec2 normal = mergedNormal(p);
-  float distCss = dist / u_dpr;
-
-  float xRatio = 1.0 - dist / u_refThickness;
-  float thetaI = asin(clamp(pow(max(xRatio, 0.0), 2.0), 0.0, 1.0));
-  float thetaT = asin(clamp(1.0 / u_refFactor * sin(thetaI), -1.0, 1.0));
-  float edgeFactor = -tan(thetaT - thetaI);
-  if (dist >= u_refThickness) edgeFactor = 0.0;
-  float edgeH = clamp(dist / u_refThickness, 0.0, 1.0);
-
-  vec4 color;
+  vec4 outColor;
   if (merged < 0.005) {
+    float nmerged = -1.0 * merged * (u_resolution.y / u_dpr);
+    float xRatio = 1.0 - nmerged / u_refThickness;
+    float thetaI = safeAsin(pow(xRatio, 2.0));
+    float thetaT = safeAsin(1.0 / u_refFactor * sin(thetaI));
+    float edgeFactor = -1.0 * tan(thetaT - thetaI);
+    if (nmerged >= u_refThickness) edgeFactor = 0.0;
+
     if (edgeFactor <= 0.0) {
-      color = texture(u_blurredBg, uv);
-      color = mix(color, vec4(1.0), u_tint * 0.8);
+      outColor = texture(u_blurredBg, uv);
+      outColor = mix(outColor, vec4(u_tint.rgb, 1.0), u_tint.a * 0.8);
     } else {
+      float edgeH = nmerged / u_refThickness;
+      vec2 normal = getNormal(pageCss);
       vec2 offset =
         -normal *
         edgeFactor *
         0.05 *
         u_dpr *
         vec2(u_resolution.y / u_resolution.x, 1.0);
-      color = getTextureDispersion(
+      vec4 blurredPixel = getTextureDispersion(
+        u_bg,
+        u_blurredBg,
+        u_blurEdge > 0 ? 1.0 : edgeH,
         uv,
         offset,
-        u_blurEdge > 0 ? 1.0 : edgeH,
         u_refDispersion
       );
-      color = mix(color, vec4(1.0), u_tint * 0.8);
+      outColor = mix(blurredPixel, vec4(u_tint.rgb, 1.0), u_tint.a * 0.8);
 
-      float fresnel = clamp(
+      float fresnelFactor = clamp(
         pow(
-          1.0 -
-            distCss / 1500.0 * pow(500.0 / u_refFresnelRange, 2.0) +
+          1.0 +
+            merged * (u_resolution.y / u_dpr) / 1500.0 *
+              pow(500.0 / u_refFresnelRange, 2.0) +
             u_refFresnelHardness,
           5.0
         ),
         0.0,
         1.0
       );
-      vec3 fresnelLch = SRGB_TO_LCH(
-        mix(vec3(1.0), vec3(1.0), u_tint * 0.5)
+      vec3 fresnelTintLCH = SRGB_TO_LCH(
+        mix(vec3(1.0), u_tint.rgb, u_tint.a * 0.5)
       );
-      fresnelLch.x += 20.0 * fresnel * u_refFresnelFactor;
-      fresnelLch.x = clamp(fresnelLch.x, 0.0, 100.0);
-      color = mix(
-        color,
-        vec4(LCH_TO_SRGB(fresnelLch), 1.0),
-        fresnel * u_refFresnelFactor * 0.7 * length(normal)
+      fresnelTintLCH.x += 20.0 * fresnelFactor * u_refFresnelFactor;
+      fresnelTintLCH.x = clamp(fresnelTintLCH.x, 0.0, 100.0);
+      outColor = mix(
+        outColor,
+        vec4(LCH_TO_SRGB(fresnelTintLCH), 1.0),
+        fresnelFactor * u_refFresnelFactor * 0.7 * length(normal)
       );
 
-      float glareGeo = clamp(
+      float glareGeoFactor = clamp(
         pow(
-          1.0 -
-            distCss / 1500.0 * pow(500.0 / u_glareRange, 2.0) +
+          1.0 +
+            merged * (u_resolution.y / u_dpr) / 1500.0 *
+              pow(500.0 / u_glareRange, 2.0) +
             u_glareHardness,
           5.0
         ),
         0.0,
         1.0
       );
-      float angle = (atan(normal.y, normal.x) - PI / 4.0 + u_glareAngle) * 2.0;
-      int farside = 0;
+      float glareAngle =
+        (vec2ToAngle(normalize(normal)) - PI / 4.0 + u_glareAngle) * 2.0;
+      int glareFarside = 0;
       if (
-        (angle > PI * (2.0 - 0.5) && angle < PI * (4.0 - 0.5)) ||
-        angle < PI * (0.0 - 0.5)
+        (glareAngle > PI * (2.0 - 0.5) && glareAngle < PI * (4.0 - 0.5)) ||
+        glareAngle < PI * (0.0 - 0.5)
       ) {
-        farside = 1;
+        glareFarside = 1;
       }
-      float angleFactor =
-        (0.5 + sin(angle) * 0.5) *
-        (farside == 1 ? 1.2 * u_glareOppositeFactor : 1.2) *
+      float glareAngleFactor =
+        (0.5 + sin(glareAngle) * 0.5) *
+        (glareFarside == 1 ? 1.2 * u_glareOppositeFactor : 1.2) *
         u_glareFactor;
-      angleFactor = clamp(
-        pow(angleFactor, 0.1 + u_glareConvergence * 2.0),
+      glareAngleFactor = clamp(
+        pow(glareAngleFactor, 0.1 + u_glareConvergence * 2.0),
         0.0,
         1.0
       );
-      vec3 glareLch = SRGB_TO_LCH(
-        mix(color.rgb, vec3(1.0), u_tint * 0.5)
+
+      vec3 glareTintLCH = SRGB_TO_LCH(
+        mix(blurredPixel.rgb, u_tint.rgb, u_tint.a * 0.5)
       );
-      glareLch.x += 150.0 * angleFactor * glareGeo;
-      glareLch.y += 30.0 * angleFactor * glareGeo;
-      glareLch.x = clamp(glareLch.x, 0.0, 120.0);
-      color = mix(
-        color,
-        vec4(LCH_TO_SRGB(glareLch), 1.0),
-        angleFactor * glareGeo * length(normal)
+      glareTintLCH.x += 150.0 * glareAngleFactor * glareGeoFactor;
+      glareTintLCH.y += 30.0 * glareAngleFactor * glareGeoFactor;
+      glareTintLCH.x = clamp(glareTintLCH.x, 0.0, 120.0);
+      outColor = mix(
+        outColor,
+        vec4(LCH_TO_SRGB(glareTintLCH), 1.0),
+        glareAngleFactor * glareGeoFactor * length(normal)
       );
     }
   } else {
-    color = texture(u_bg, uv);
+    outColor = texture(u_bg, uv);
   }
 
-  color = mix(color, texture(u_bg, uv), smoothstep(-0.001, 0.001, merged));
-  float alpha = 1.0 - smoothstep(-1.0, 1.0, merged);
-  fragColor = vec4(color.rgb, alpha);
+  outColor = mix(outColor, texture(u_bg, uv), smoothstep(-0.001, 0.001, merged));
+  fragColor = outColor;
 }`;
 
   let canvas = null;
@@ -287,18 +370,25 @@ void main() {
   let shapeArray = null;
   let radiusArray = null;
   let shapeCount = 0;
-  let mouse = { x: -2000, y: -2000 };
-  let mouseSpring = { x: -2000, y: -2000 };
+  let mouse = { x: -4000, y: -4000 };
+  let mouseSpring = { x: -4000, y: -4000 };
+  let mouseVelocity = { x: 0, y: 0 };
+  let lastTick = performance.now();
   let dpr = 1;
   let rafId = 0;
   let getTargets = null;
   let uniformLocations = null;
   let renderRunning = false;
-  let lastInteraction = Date.now();
   let scrollRaf = 0;
   let captureRetries = 0;
-  let canvasAttached = false;
   let captureStart = 0;
+  let startTime = performance.now();
+  let canvasAttached = false;
+  let origin = { x: 0, y: 0 };
+  let started = false;
+  let status = "idle";
+  let resizeTimer = 0;
+  let refreshTimer = 0;
 
   const compileShader = (type, source) => {
     const shader = gl.createShader(type);
@@ -337,14 +427,19 @@ void main() {
       blurredBg: gl.getUniformLocation(program, "u_blurredBg"),
       resolution: gl.getUniformLocation(program, "u_resolution"),
       textureSize: gl.getUniformLocation(program, "u_textureSize"),
-      scrollY: gl.getUniformLocation(program, "u_scrollY"),
+      scroll: gl.getUniformLocation(program, "u_scroll"),
+      origin: gl.getUniformLocation(program, "u_origin"),
       dpr: gl.getUniformLocation(program, "u_dpr"),
       captureScale: gl.getUniformLocation(program, "u_captureScale"),
       shapeCount: gl.getUniformLocation(program, "u_shapeCount"),
       shapes: gl.getUniformLocation(program, "u_shapes"),
       radii: gl.getUniformLocation(program, "u_radii"),
       mouseSpring: gl.getUniformLocation(program, "u_mouseSpring"),
+      mouseVelocity: gl.getUniformLocation(program, "u_mouseVelocity"),
       mergeRate: gl.getUniformLocation(program, "u_mergeRate"),
+      springSizeFactor: gl.getUniformLocation(program, "u_springSizeFactor"),
+      ballRadius: gl.getUniformLocation(program, "u_ballRadius"),
+      tint: gl.getUniformLocation(program, "u_tint"),
       refThickness: gl.getUniformLocation(program, "u_refThickness"),
       refFactor: gl.getUniformLocation(program, "u_refFactor"),
       refDispersion: gl.getUniformLocation(program, "u_refDispersion"),
@@ -357,23 +452,44 @@ void main() {
       glareConvergence: gl.getUniformLocation(program, "u_glareConvergence"),
       glareOppositeFactor: gl.getUniformLocation(program, "u_glareOppositeFactor"),
       glareAngle: gl.getUniformLocation(program, "u_glareAngle"),
-      ballRadius: gl.getUniformLocation(program, "u_ballRadius"),
-      tint: gl.getUniformLocation(program, "u_tint"),
-      blurRadius: gl.getUniformLocation(program, "u_blurRadius"),
       blurEdge: gl.getUniformLocation(program, "u_blurEdge"),
+      roundness: gl.getUniformLocation(program, "u_roundness"),
+      time: gl.getUniformLocation(program, "u_time"),
+      shadowExpand: gl.getUniformLocation(program, "u_shadowExpand"),
+      shadowFactor: gl.getUniformLocation(program, "u_shadowFactor"),
+      shadowOffset: gl.getUniformLocation(program, "u_shadowOffset"),
     };
   };
 
-  const getScrollTop = () => {
+  const getScroll = () => {
     const container = document.getElementById("inner_wrapper");
-    if (container) return container.scrollTop;
-    return window.pageYOffset || document.documentElement.scrollTop || 0;
+    if (container) {
+      return { x: container.scrollLeft, y: container.scrollTop };
+    }
+    return {
+      x: window.pageXOffset || document.documentElement.scrollLeft || 0,
+      y: window.pageYOffset || document.documentElement.scrollTop || 0,
+    };
   };
 
-  const getScrollLeft = () => {
+  const updateOrigin = () => {
     const container = document.getElementById("inner_wrapper");
-    if (container) return container.scrollLeft;
-    return window.pageXOffset || document.documentElement.scrollLeft || 0;
+    if (!container) {
+      origin = { x: 0, y: 0 };
+      return;
+    }
+    const rect = container.getBoundingClientRect();
+    origin = { x: rect.left, y: rect.top };
+  };
+
+  const parseRadius = (element, width, height) => {
+    const value = getComputedStyle(element).borderRadius;
+    const first = parseFloat(value) || 0;
+    let radius = first;
+    if (value.indexOf("%") !== -1) {
+      radius = (Math.min(width, height) * first) / 100;
+    }
+    return Math.min(radius, Math.min(width, height) / 2);
   };
 
   const refreshShapes = () => {
@@ -382,29 +498,30 @@ void main() {
       const rect = element.getBoundingClientRect();
       return rect.width > 0 && rect.height > 0;
     });
+    const scroll = getScroll();
     shapeCount = Math.min(visible.length, MAX_SHAPES);
     shapeArray = new Float32Array(shapeCount * 4);
     radiusArray = new Float32Array(shapeCount);
-    const scrollX = getScrollLeft();
-    const scrollY = getScrollTop();
     visible.slice(0, shapeCount).forEach((element, i) => {
       const rect = element.getBoundingClientRect();
-      const radius =
-        parseFloat(getComputedStyle(element).borderRadius) || 20;
-      shapeArray[i * 4] = (rect.left + scrollX) * dpr;
-      shapeArray[i * 4 + 1] = (rect.top + scrollY) * dpr;
-      shapeArray[i * 4 + 2] = rect.width * dpr;
-      shapeArray[i * 4 + 3] = rect.height * dpr;
-      radiusArray[i] = radius * dpr;
+      const radius = parseRadius(element, rect.width, rect.height);
+      shapeArray[i * 4] = rect.left + scroll.x;
+      shapeArray[i * 4 + 1] = rect.top + scroll.y;
+      shapeArray[i * 4 + 2] = rect.width;
+      shapeArray[i * 4 + 3] = rect.height;
+      radiusArray[i] = radius;
     });
+    if (window.HomepageStudioGlass) {
+      window.HomepageStudioGlass.shapeCount = shapeCount;
+    }
   };
 
-  const render = () => {
+  const render = (now) => {
     if (!gl || !program || !bgTexture) {
       renderRunning = false;
       return;
     }
-    tickMouse();
+    tickMouse(now);
     const width = Math.round(window.innerWidth * dpr);
     const height = Math.round(window.innerHeight * dpr);
     if (canvas.width !== width || canvas.height !== height) {
@@ -424,13 +541,13 @@ void main() {
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, blurredTexture);
     gl.uniform1i(uniformLocations.blurredBg, 1);
+
+    const scroll = getScroll();
+    updateOrigin();
     gl.uniform2f(uniformLocations.resolution, width, height);
-    gl.uniform2f(
-      uniformLocations.textureSize,
-      bgTexture.width,
-      bgTexture.height
-    );
-    gl.uniform1f(uniformLocations.scrollY, getScrollTop() * dpr);
+    gl.uniform2f(uniformLocations.textureSize, bgTexture.width, bgTexture.height);
+    gl.uniform2f(uniformLocations.scroll, scroll.x, scroll.y);
+    gl.uniform2f(uniformLocations.origin, origin.x, origin.y);
     gl.uniform1f(uniformLocations.dpr, dpr);
     gl.uniform1f(uniformLocations.captureScale, captureScale);
     gl.uniform1i(uniformLocations.shapeCount, shapeCount);
@@ -438,30 +555,33 @@ void main() {
       gl.uniform4fv(uniformLocations.shapes, shapeArray);
       gl.uniform1fv(uniformLocations.radii, radiusArray);
     }
-    gl.uniform2f(
-      uniformLocations.mouseSpring,
-      mouseSpring.x,
-      mouseSpring.y + getScrollTop() * dpr
-    );
-    gl.uniform1f(uniformLocations.mergeRate, 0.05);
-    gl.uniform1f(uniformLocations.refThickness, 20.0);
-    gl.uniform1f(uniformLocations.refFactor, 1.4);
-    gl.uniform1f(uniformLocations.refDispersion, 7.0);
-    gl.uniform1f(uniformLocations.refFresnelRange, 30.0);
-    gl.uniform1f(uniformLocations.refFresnelHardness, 0.2);
-    gl.uniform1f(uniformLocations.refFresnelFactor, 0.2);
-    gl.uniform1f(uniformLocations.glareRange, 30.0);
-    gl.uniform1f(uniformLocations.glareHardness, 0.2);
-    gl.uniform1f(uniformLocations.glareFactor, 0.9);
-    gl.uniform1f(uniformLocations.glareConvergence, 0.5);
-    gl.uniform1f(uniformLocations.glareOppositeFactor, 0.8);
-    gl.uniform1f(uniformLocations.glareAngle, -0.785398);
-    gl.uniform1f(uniformLocations.ballRadius, 100.0);
-    gl.uniform1f(uniformLocations.tint, 0.0);
-    gl.uniform1f(uniformLocations.blurRadius, 1.0);
+    gl.uniform2f(uniformLocations.mouseSpring, mouseSpring.x, mouseSpring.y);
+    gl.uniform2f(uniformLocations.mouseVelocity, mouseVelocity.x, mouseVelocity.y);
+    gl.uniform1f(uniformLocations.mergeRate, MERGE_RATE);
+    gl.uniform1f(uniformLocations.springSizeFactor, SPRING_SIZE_FACTOR);
+    gl.uniform1f(uniformLocations.ballRadius, BALL_RADIUS_CSS);
+    gl.uniform4f(uniformLocations.tint, 1, 1, 1, 0);
+    gl.uniform1f(uniformLocations.refThickness, REF_THICKNESS);
+    gl.uniform1f(uniformLocations.refFactor, REF_FACTOR);
+    gl.uniform1f(uniformLocations.refDispersion, REF_DISPERSION);
+    gl.uniform1f(uniformLocations.refFresnelRange, REF_FRESNEL_RANGE);
+    gl.uniform1f(uniformLocations.refFresnelHardness, REF_FRESNEL_HARDNESS);
+    gl.uniform1f(uniformLocations.refFresnelFactor, REF_FRESNEL_FACTOR);
+    gl.uniform1f(uniformLocations.glareRange, GLARE_RANGE);
+    gl.uniform1f(uniformLocations.glareHardness, GLARE_HARDNESS);
+    gl.uniform1f(uniformLocations.glareFactor, GLARE_FACTOR);
+    gl.uniform1f(uniformLocations.glareConvergence, GLARE_CONVERGENCE);
+    gl.uniform1f(uniformLocations.glareOppositeFactor, GLARE_OPPOSITE_FACTOR);
+    gl.uniform1f(uniformLocations.glareAngle, GLARE_ANGLE);
     gl.uniform1i(uniformLocations.blurEdge, 1);
+    gl.uniform1f(uniformLocations.roundness, SHAPE_ROUNDNESS);
+    gl.uniform1f(uniformLocations.time, (performance.now() - startTime) / 1000);
+    gl.uniform1f(uniformLocations.shadowExpand, SHADOW_EXPAND);
+    gl.uniform1f(uniformLocations.shadowFactor, SHADOW_FACTOR);
+    gl.uniform2f(uniformLocations.shadowOffset, 0, 10);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    if (Date.now() - lastInteraction < 1500) {
+
+    if (!document.hidden) {
       rafId = window.requestAnimationFrame(render);
     } else {
       renderRunning = false;
@@ -471,93 +591,147 @@ void main() {
   const startRender = () => {
     if (!renderRunning) {
       renderRunning = true;
-      render();
+      rafId = window.requestAnimationFrame(render);
     }
   };
 
-  const tickMouse = () => {
-    mouseSpring.x += (mouse.x - mouseSpring.x) * 0.08;
-    mouseSpring.y += (mouse.y - mouseSpring.y) * 0.08;
+  const tickMouse = (now) => {
+    if (!now) now = performance.now();
+    const dt = Math.min(0.05, Math.max(0.001, (now - lastTick) / 1000));
+    lastTick = now;
+    const stiffness = 150;
+    const damping = 0.8;
+    const ax = (mouse.x - mouseSpring.x) * stiffness;
+    const ay = (mouse.y - mouseSpring.y) * stiffness;
+    mouseVelocity.x = (mouseVelocity.x + ax * dt) * Math.pow(damping, dt * 60);
+    mouseVelocity.y = (mouseVelocity.y + ay * dt) * Math.pow(damping, dt * 60);
+    const speed = Math.hypot(mouseVelocity.x, mouseVelocity.y);
+    const maxSpeed = 12000;
+    if (speed > maxSpeed) {
+      mouseVelocity.x = (mouseVelocity.x / speed) * maxSpeed;
+      mouseVelocity.y = (mouseVelocity.y / speed) * maxSpeed;
+    }
+    mouseSpring.x += mouseVelocity.x * dt;
+    mouseSpring.y += mouseVelocity.y * dt;
   };
 
-  const captureBackground = () => {
-    const container = document.getElementById("inner_wrapper");
-    const root = container || document.body;
-    const token = ++captureToken;
-    return window.html2canvas(root, {
-      scale: Math.min(dpr, 2),
-      width: container ? container.scrollWidth : window.innerWidth,
-      height: container ? container.scrollHeight : window.innerHeight,
-      scrollX: 0,
-      scrollY: 0,
-      onclone: (doc) => {
-        const inner = doc.getElementById("inner_wrapper");
-        if (inner) {
-          inner.style.height = "auto";
-          inner.style.maxHeight = "none";
-          inner.style.overflow = "visible";
+  const gaussianKernel = (radius) => {
+    const sigma = radius / 3.0;
+    const kernel = [];
+    let sum = 0;
+    for (let i = 0; i <= radius; i++) {
+      const weight = Math.exp((-0.5 * i * i) / (sigma * sigma));
+      kernel.push(weight);
+      sum += i === 0 ? weight : weight * 2;
+    }
+    return kernel.map((w) => w / sum);
+  };
+
+  const twoPassBlur = (source, radius) => {
+    const weights = gaussianKernel(radius);
+    const width = source.width;
+    const height = source.height;
+    const src = source.getContext("2d", { willReadFrequently: true });
+    const image = src.getImageData(0, 0, width, height);
+    const data = image.data;
+    const horizontal = new Uint8ClampedArray(data);
+    const vertical = new Uint8ClampedArray(data);
+
+    for (let y = 0; y < height; y++) {
+      const row = y * width * 4;
+      for (let x = 0; x < width; x++) {
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let a = 0;
+        for (let i = -radius; i <= radius; i++) {
+          const xi = Math.min(width - 1, Math.max(0, x + i));
+          const o = row + xi * 4;
+          const w = weights[Math.abs(i)];
+          r += data[o] * w;
+          g += data[o + 1] * w;
+          b += data[o + 2] * w;
+          a += data[o + 3] * w;
         }
-      },
-      useCORS: true,
-      allowTaint: true,
-      backgroundColor: null,
-      logging: false,
-    }).then((snapshot) => {
-      if (token !== captureToken) return;
-      const rootWidth = container ? container.scrollWidth : window.innerWidth;
-      captureScale = snapshot.width / rootWidth;
-
-      const blurCanvas = document.createElement("canvas");
-      blurCanvas.width = snapshot.width;
-      blurCanvas.height = snapshot.height;
-      const blurCtx = blurCanvas.getContext("2d");
-      blurCtx.filter = "blur(2px)";
-      blurCtx.drawImage(snapshot, 0, 0);
-
-      const newBg = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, newBg);
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        snapshot
-      );
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      newBg.width = snapshot.width;
-      newBg.height = snapshot.height;
-
-      const newBlur = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, newBlur);
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        blurCanvas
-      );
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      newBlur.width = blurCanvas.width;
-      newBlur.height = blurCanvas.height;
-
-      if (bgTexture) gl.deleteTexture(bgTexture);
-      if (blurredTexture) gl.deleteTexture(blurredTexture);
-      bgTexture = newBg;
-      blurredTexture = newBlur;
-      if (window.HomepageStudioGlass) {
-        window.HomepageStudioGlass.bgTextureHeight = snapshot.height;
-        window.HomepageStudioGlass.captureMs = performance.now() - captureStart;
+        const o = row + x * 4;
+        horizontal[o] = r;
+        horizontal[o + 1] = g;
+        horizontal[o + 2] = b;
+        horizontal[o + 3] = a;
       }
-    });
+    }
+
+    for (let y = 0; y < height; y++) {
+      const row = y * width * 4;
+      for (let x = 0; x < width; x++) {
+        let r = 0;
+        let g = 0;
+        let b = 0;
+        let a = 0;
+        for (let i = -radius; i <= radius; i++) {
+          const yi = Math.min(height - 1, Math.max(0, y + i));
+          const o = yi * width * 4 + x * 4;
+          const w = weights[Math.abs(i)];
+          r += horizontal[o] * w;
+          g += horizontal[o + 1] * w;
+          b += horizontal[o + 2] * w;
+          a += horizontal[o + 3] * w;
+        }
+        const o = row + x * 4;
+        vertical[o] = r;
+        vertical[o + 1] = g;
+        vertical[o + 2] = b;
+        vertical[o + 3] = a;
+      }
+    }
+
+    const output = document.createElement("canvas");
+    output.width = width;
+    output.height = height;
+    output
+      .getContext("2d")
+      .putImageData(new ImageData(vertical, width, height), 0, 0);
+    return output;
+  };
+
+  const paintPageBackground = (ctx, width, height) => {
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#0b1020");
+    gradient.addColorStop(0.52, "#101a2e");
+    gradient.addColorStop(1, "#0a0e18");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    const glow = (x, y, r, color) => {
+      const radial = ctx.createRadialGradient(x, y, 0, x, y, r);
+      radial.addColorStop(0, color);
+      radial.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = radial;
+      ctx.fillRect(0, 0, width, height);
+    };
+    glow(width * 0.12, height * 0.18, Math.max(width, height) * 0.55, "rgba(120,150,255,0.16)");
+    glow(width * 0.88, height * 0.12, Math.max(width, height) * 0.5, "rgba(90,220,220,0.12)");
+    glow(width * 0.7, height * 0.85, Math.max(width, height) * 0.55, "rgba(200,120,255,0.10)");
+  };
+
+  const makeTexture = (source) => {
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(
+      gl.TEXTURE_2D,
+      0,
+      gl.RGBA,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      source
+    );
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    texture.width = source.width;
+    texture.height = source.height;
+    return texture;
   };
 
   const createPlaceholderTextures = () => {
@@ -569,35 +743,8 @@ void main() {
     const placeholder = document.createElement("canvas");
     placeholder.width = width;
     placeholder.height = height;
-    const ctx = placeholder.getContext("2d");
-    const gradient = ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, "#0b1020");
-    gradient.addColorStop(0.52, "#101a2e");
-    gradient.addColorStop(1, "#0a0e18");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+    paintPageBackground(placeholder.getContext("2d"), width, height);
     captureScale = 1;
-
-    const makeTexture = (source) => {
-      const texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        source
-      );
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      texture.width = source.width;
-      texture.height = source.height;
-      return texture;
-    };
 
     const newBg = makeTexture(placeholder);
     const newBlur = makeTexture(placeholder);
@@ -611,78 +758,195 @@ void main() {
     }
   };
 
+  const captureBackground = () => {
+    const container = document.getElementById("inner_wrapper");
+    const root = container || document.body;
+    const token = ++captureToken;
+    const rootWidth = container ? container.scrollWidth : window.innerWidth;
+    const rootHeight = container ? container.scrollHeight : window.innerHeight;
+    const maxEdge = Math.min(gl.getParameter(gl.MAX_TEXTURE_SIZE), MAX_TEXTURE_EDGE);
+    const scale = Math.min(dpr, 2, maxEdge / rootWidth, maxEdge / rootHeight);
+    captureStart = performance.now();
+    if (window.HomepageStudioGlass) {
+      window.HomepageStudioGlass.captureStage = "html2canvas";
+      window.HomepageStudioGlass.captureStart = captureStart;
+    }
+    return window.html2canvas(root, {
+      scale,
+      width: rootWidth,
+      height: rootHeight,
+      scrollX: 0,
+      scrollY: 0,
+      onclone: (doc) => {
+        const inner = doc.getElementById("inner_wrapper");
+        if (inner) {
+          inner.style.height = "auto";
+          inner.style.maxHeight = "none";
+          inner.style.overflow = "visible";
+        }
+      },
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: null,
+      logging: false,
+    }).then((snapshot) => {
+      if (token !== captureToken) return;
+      if (window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.captureStage = "composite";
+      }
+      const out = document.createElement("canvas");
+      out.width = snapshot.width;
+      out.height = snapshot.height;
+      const ctx = out.getContext("2d");
+      paintPageBackground(ctx, out.width, out.height);
+      ctx.drawImage(snapshot, 0, 0);
+
+      if (window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.captureStage = "blur";
+      }
+      const blurOut = twoPassBlur(out, BLUR_RADIUS);
+      if (window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.captureStage = "upload";
+      }
+      const newBg = makeTexture(out);
+      const newBlur = makeTexture(blurOut);
+      if (bgTexture) gl.deleteTexture(bgTexture);
+      if (blurredTexture) gl.deleteTexture(blurredTexture);
+      bgTexture = newBg;
+      blurredTexture = newBlur;
+      captureScale = out.width / rootWidth;
+      if (window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.captureStage = "done";
+      }
+      if (window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.bgTextureHeight = out.height;
+        window.HomepageStudioGlass.captureMs = performance.now() - captureStart;
+        window.HomepageStudioGlass.captureScale = captureScale;
+      }
+    });
+  };
+
+  const scheduleRefresh = (recapture) => {
+    if (refreshTimer) window.clearTimeout(refreshTimer);
+    refreshTimer = window.setTimeout(() => {
+      refreshTimer = 0;
+      if (getTargets) refreshShapes();
+      if (recapture && gl) {
+        captureBackground()
+          .then(() => startRender())
+          .catch(() => {});
+      } else {
+        startRender();
+      }
+    }, recapture ? 180 : 0);
+  };
+
   const start = (targetFn) => {
     getTargets = targetFn;
+    if (started) return true;
     if (!window.WebGL2RenderingContext || typeof window.html2canvas !== "function") {
+      status = "unavailable";
       return false;
     }
     try {
       canvas = document.createElement("canvas");
-      gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true });
-      if (!gl) return false;
+      gl = canvas.getContext("webgl2", {
+        alpha: true,
+        premultipliedAlpha: false,
+        antialias: false,
+      });
+      if (!gl) {
+        status = "webgl2-unavailable";
+        return false;
+      }
       createProgram();
       dpr = window.devicePixelRatio || 1;
       refreshShapes();
       createPlaceholderTextures();
-      const attachCanvas = () => {
-        if (!canvasAttached) {
-          canvasAttached = true;
-          canvas.style.cssText =
-            "position:fixed;inset:0;z-index:var(--homepage-glass-z);pointer-events:none;";
-          document.body.appendChild(canvas);
-          const onPointer = (event) => {
-            mouse.x = event.clientX * dpr;
-            mouse.y = event.clientY * dpr;
-            lastInteraction = Date.now();
+      if (!canvasAttached) {
+        canvasAttached = true;
+        canvas.style.cssText =
+          "position:fixed;inset:0;z-index:var(--homepage-glass-z);pointer-events:none;";
+        document.body.appendChild(canvas);
+
+        const onPointer = (event) => {
+          mouse.x = event.clientX;
+          mouse.y = event.clientY;
+          lastTick = performance.now();
+          startRender();
+        };
+        window.addEventListener("pointermove", onPointer, { passive: true });
+        window.addEventListener("touchmove", onPointer, { passive: true });
+        document.addEventListener(
+          "scroll",
+          () => {
+            if (scrollRaf) return;
+            scrollRaf = window.requestAnimationFrame(() => {
+              scrollRaf = 0;
+              startRender();
+            });
+          },
+          { capture: true, passive: true }
+        );
+        window.addEventListener(
+          "resize",
+          () => {
+            if (resizeTimer) window.clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(() => {
+              resizeTimer = 0;
+              dpr = window.devicePixelRatio || 1;
+              refreshShapes();
+              scheduleRefresh(true);
+            }, 220);
+          },
+          { passive: true }
+        );
+        canvas.addEventListener("webglcontextlost", (event) => {
+          event.preventDefault();
+          renderRunning = false;
+          status = "context-lost";
+        });
+        canvas.addEventListener("webglcontextrestored", () => {
+          try {
+            createProgram();
+            createPlaceholderTextures();
+            captureBackground()
+              .then(() => startRender())
+              .catch(() => {});
+            status = "running";
+          } catch (error) {
+            status = "restore-failed";
+          }
+        });
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            renderRunning = false;
+          } else {
             startRender();
-          };
-          window.addEventListener("pointermove", onPointer, { passive: true });
-          window.addEventListener("touchmove", onPointer, { passive: true });
-          document.addEventListener(
-            "scroll",
-            () => {
-              if (scrollRaf) return;
-              scrollRaf = window.requestAnimationFrame(() => {
-                scrollRaf = 0;
-                lastInteraction = Date.now();
-                startRender();
-              });
-            },
-            { capture: true, passive: true }
-          );
-          window.addEventListener("resize", () => {
-            dpr = window.devicePixelRatio || 1;
-            refreshShapes();
-            lastInteraction = Date.now();
-            startRender();
-            if (window.HomepageStudioGlass) {
-              window.HomepageStudioGlass.refresh(true);
-            }
-          });
-        }
-        startRender();
-      };
-      attachCanvas();
-      captureStart = performance.now();
+          }
+        });
+      }
+      startRender();
       const captureWithRetry = () => {
         captureBackground()
-          .then(attachCanvas)
+          .then(() => startRender())
           .catch(() => {
             if (captureRetries < 3) {
               captureRetries += 1;
               window.setTimeout(captureWithRetry, 2000);
             } else {
-              if (canvas && canvas.parentNode) {
-                canvas.parentNode.removeChild(canvas);
-              }
-              gl = null;
-              console.error("studio glass capture failed");
+              status = "capture-failed";
+              createPlaceholderTextures();
+              startRender();
             }
           });
       };
       captureWithRetry();
+      started = true;
+      status = "running";
       return true;
     } catch (error) {
+      status = "start-failed: " + error.message;
       console.error("studio glass failed", error);
       return false;
     }
@@ -690,19 +954,32 @@ void main() {
 
   window.HomepageStudioGlass = {
     start,
+    scheduleRefresh,
+    probe: (x, y) => {
+      if (!gl || !canvas) return null;
+      renderRunning = true;
+      render(performance.now());
+      const pixels = new Uint8Array(4);
+      gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+      renderRunning = false;
+      return Array.from(pixels);
+    },
     refresh: (recapture) => {
       if (getTargets) refreshShapes();
-      lastInteraction = Date.now();
-      if (recapture && typeof window.html2canvas === "function" && gl) {
+      if (recapture && gl) {
         captureBackground()
-          .then(() => {
-            lastInteraction = Date.now();
-            startRender();
-          })
+          .then(() => startRender())
           .catch(() => {});
-        return;
+      } else {
+        startRender();
       }
-      startRender();
     },
+    status: () => status,
+    bgTextureHeight: 0,
+    captureMs: 0,
+    captureScale: 1,
+    shapeCount: 0,
+    captureStage: "idle",
+    captureStart: 0,
   };
 })();
