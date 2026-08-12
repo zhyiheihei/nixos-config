@@ -563,11 +563,13 @@
         // Back off while a capture is failing/hung: skip the periodic
         // full-page recapture so a wedged html2canvas does not re-queue
         // every 30s (it already retried 3x with a 90s watchdog). A lost
-        // device must also skip until it recovers.
-        if (
-          currentStatus !== "capture-failed" &&
-          currentStatus !== "webgpu-device-lost"
-        ) {
+        // device / persistent render error must also skip until recovery;
+        // status may carry a suffix (e.g. "webgpu-device-lost: <msg>").
+        const isBackoff =
+          currentStatus === "capture-failed" ||
+          currentStatus.indexOf("webgpu-device-lost") === 0 ||
+          currentStatus.indexOf("render-error") === 0;
+        if (!isBackoff) {
           window.HomepageStudioGlass.scheduleRefresh(true);
         }
         if (window.HomepageBootstrap) {
