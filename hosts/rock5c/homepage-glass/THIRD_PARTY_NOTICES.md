@@ -4,8 +4,9 @@
 
 - Source: https://github.com/iyinchao/liquid-glass-studio
 - License: MIT (see `LICENSE` in this directory)
-- Used for: the WebGL liquid glass renderer (`assets/js/studio-glass.js`)
-  and the reference shader math in `reference/liquid-glass-studio/`.
+- Used for: the WebGPU liquid glass renderer (`assets/js/studio-glass.js`
+  driver + `assets/js/studio-glass-webgpu.js` WGSL backend) and the
+  reference shader math in `reference/liquid-glass-studio/`.
 
 ## html2canvas-pro
 
