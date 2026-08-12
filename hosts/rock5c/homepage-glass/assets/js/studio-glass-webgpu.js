@@ -1,6 +1,7 @@
 // WebGPU liquid glass backend (bg -> blur -> main), adapted from
 // iyinchao/liquid-glass-studio WGSL shaders. The page snapshot and shape
-// state are owned by studio-glass.js and pushed through HomepageGlassState.
+// state are owned by studio-glass.js and pushed through the glassState
+// object passed to init().
 (() => {
   "use strict";
 
@@ -77,6 +78,9 @@ fn fs_main(@location(0) v_uv: vec2f) -> @location(0) vec4f {
   let texelSize = 1.0 / u.resolution;
   var color = textureSampleLevel(prevTex, samp, v_uv, 0.0) * weights[0];
   for (var i: i32 = 1; i <= u.blurRadius; i = i + 1) {
+    // Mirrors the reference MAX_BLUR_RADIUS guard: never index past the
+    // weights storage array, even if blurRadius were ever corrupted.
+    if (i >= 16) { break; }
     let w = weights[i];
     color += textureSampleLevel(prevTex, samp, v_uv + vec2f(f32(i) * texelSize.x, 0.0), 0.0) * w;
     color += textureSampleLevel(prevTex, samp, v_uv - vec2f(f32(i) * texelSize.x, 0.0), 0.0) * w;
@@ -85,7 +89,7 @@ fn fs_main(@location(0) v_uv: vec2f) -> @location(0) vec4f {
 }
 `;
 
-  const BLUR_FRAGMENT_V = BLUR_FRAGMENT.replace(
+  const BLUR_FRAGMENT_V = BLUR_FRAGMENT.replaceAll(
     "vec2f(f32(i) * texelSize.x, 0.0)",
     "vec2f(0.0, f32(i) * texelSize.y)"
   );
@@ -280,6 +284,15 @@ fn vec2ToAngle(v: vec2f) -> f32 {
   return angle;
 }
 
+// Mirrors the reference safeNormalize: guard against a zero gradient (smin
+// saddle points, shape symmetry centers) which would make atan2/normalize
+// yield NaN and poison the whole pixel.
+fn safeNormalize(v: vec2f) -> vec2f {
+  let l = length(v);
+  if (l < 1e-8) { return vec2f(0.0); }
+  return v / l;
+}
+
 fn getTextureDispersion(uv: vec2f, mixRate: f32, offset: vec2f, factor: f32) -> vec4f {
   var pixel = vec4f(1.0);
   pixel.r = mix(
@@ -316,7 +329,10 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
   var outColor: vec4f;
   if (merged < 0.005) {
     let nmerged = -1.0 * merged * (u.resolution.y / u.dpr);
-    let xRatio = 1.0 - nmerged / u.refThickness;
+    // clamp: pow(negative, 2.0) is NaN in WGSL; nmerged >= refThickness is
+    // already forced to edgeFactor = 0 below, so mirror that here instead of
+    // relying on the NaN being overwritten afterwards.
+    let xRatio = max(0.0, 1.0 - nmerged / u.refThickness);
     let thetaI = safeAsin(pow(xRatio, 2.0));
     let thetaT = safeAsin(1.0 / u.refFactor * sin(thetaI));
     var edgeFactor = -1.0 * tan(thetaT - thetaI);
@@ -330,9 +346,10 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
       let normal = getNormal(pageCss);
       var blurMixRate: f32;
       if (u.blurEdge > 0) { blurMixRate = 1.0; } else { blurMixRate = edgeH; }
-      var dispScreen = -normal * edgeFactor * 0.05 * u.dpr *
+      // normal and uv are both top-down here; the reference GLSL computes
+      // everything bottom-up with no flip, so do not flip Y a second time.
+      let dispScreen = -normal * edgeFactor * 0.05 * u.dpr *
         vec2f(u.resolution.y / u.resolution.x, 1.0);
-      dispScreen.y = -dispScreen.y;
       let dispCss = dispScreen * (u.resolution / u.dpr);
       let offset = dispCss * u.captureScale / u.textureSize;
       let blurredPixel = getTextureDispersion(uv, blurMixRate, offset, u.refDispersion);
@@ -371,7 +388,10 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
           5.0
         ), 0.0, 1.0
       );
-      let glareAngle = (vec2ToAngle(normalize(normal)) - PI / 4.0 + u.glareAngle) * 2.0;
+      // glare angle is computed from the bottom-up normal (like the
+      // reference), so flip only the angle input; dispersion above uses the
+      // top-down normal directly.
+      let glareAngle = (vec2ToAngle(safeNormalize(vec2f(normal.x, -normal.y))) - PI / 4.0 + u.glareAngle) * 2.0;
       var glareFarside: i32 = 0;
       if ((glareAngle > PI * (2.0 - 0.5) && glareAngle < PI * (4.0 - 0.5)) ||
           glareAngle < PI * (0.0 - 0.5)) {
@@ -435,7 +455,6 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
   let bgTexture = null;
   let blurredTexture = null;
   let hblurTexture = null;
-  let vblurTexture = null;
   let textureSize = { width: 0, height: 0 };
   let state = null;
   let canvas = null;
@@ -470,7 +489,6 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
     if (bgTexture) bgTexture.destroy();
     if (blurredTexture) blurredTexture.destroy();
     if (hblurTexture) hblurTexture.destroy();
-    if (vblurTexture) vblurTexture.destroy();
     // Correct WebGPU usage flags: COPY_DST=2, TEXTURE_BINDING=4,
     // RENDER_ATTACHMENT=16. bg is only uploaded/sampled, but Dawn's
     // copyExternalImageToTexture on macOS copies through a render pass and
@@ -487,7 +505,6 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
     );
     blurredTexture = createTexture(w, h, blurUsage, "homepage-blurred");
     hblurTexture = createTexture(w, h, blurUsage, "homepage-hblur");
-    vblurTexture = createTexture(w, h, blurUsage, "homepage-vblur");
   };
 
   const uploadTexture = (target, source) => {
@@ -616,7 +633,7 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
     return true;
   };
 
-  const setTextures = (bgSource, blurSource) => {
+  const setTextures = (bgSource) => {
     if (!initialized) return;
     resizeTargetTextures(bgSource.width, bgSource.height);
     uploadTexture(bgTexture, bgSource);
@@ -716,10 +733,13 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
       device.queue.writeBuffer(radiiBuffer, 0, state.radii);
     }
 
-    const blurUniforms = new Float32Array(4);
-    blurUniforms[0] = textureSize.width;
-    blurUniforms[1] = textureSize.height;
-    blurUniforms[2] = 1;
+    // blurRadius is an i32 field in WGSL; writing it as f32 would reinterpret
+    // 1.0f (0x3F800000) as 1065353216 and hang the blur loop for ~1e9
+    // iterations per pixel. Write the int with a DataView.
+    const blurUniforms = new DataView(new ArrayBuffer(16));
+    blurUniforms.setFloat32(0, textureSize.width, true);
+    blurUniforms.setFloat32(4, textureSize.height, true);
+    blurUniforms.setInt32(8, 1, true);
     device.queue.writeBuffer(blurUniformBuffer, 0, blurUniforms);
 
     const encoder = device.createCommandEncoder();
@@ -740,12 +760,6 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
     };
 
     blurPass(hblurPipeline, hblurTexture, hblurBindGroup, true);
-    vblurBindGroup = createBindGroup(vblurPipeline.getBindGroupLayout(0), {
-      0: blurUniformBuffer,
-      1: hblurTexture.createView(),
-      2: sampler,
-      3: weightsBuffer,
-    });
     blurPass(vblurPipeline, blurredTexture, vblurBindGroup, true);
 
     const currentTexture = context.getCurrentTexture();
@@ -769,7 +783,6 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
     if (bgTexture) bgTexture.destroy();
     if (blurredTexture) blurredTexture.destroy();
     if (hblurTexture) hblurTexture.destroy();
-    if (vblurTexture) vblurTexture.destroy();
     initialized = false;
   };
 

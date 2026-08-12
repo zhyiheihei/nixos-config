@@ -62,7 +62,7 @@ body,
 }
 
 /* 层叠契约：玻璃画布在最底层，容器内容在玻璃之上但自身透明，
-   材质完全由 WebGL 提供。 */
+   材质完全由 WebGPU 提供。 */
 #homepage-statusbar {
   position: relative;
   z-index: var(--homepage-statusbar-z);
