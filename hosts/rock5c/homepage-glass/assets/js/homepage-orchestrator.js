@@ -59,7 +59,8 @@
       (element) =>
         element &&
         element.getBoundingClientRect().width > 0 &&
-        getComputedStyle(element).display !== "none"
+        getComputedStyle(element).display !== "none" &&
+        getComputedStyle(element).visibility !== "hidden"
     ) || null;
 
   // 一趟同步：先清掉旧标记，再按当前可见容器重建 data-glass 集合，
@@ -156,6 +157,9 @@
       });
       container.insertBefore(bar, container.firstChild);
     }
+    if (bar.parentElement !== container) {
+      container.insertBefore(bar, container.firstChild);
+    }
     bar.setAttribute("data-glass", "");
 
     const tabs = [...new Set(groups.map((group) => group.dataset.tabGroup))];
@@ -185,6 +189,7 @@
         button.textContent = name;
         button.dataset.tab = name;
         button.setAttribute("role", "tab");
+        button.id = "homepage-tab-" + name;
         button.setAttribute("aria-selected", "false");
         button.setAttribute("aria-controls", panelIds);
         button.addEventListener("click", () => {
@@ -195,13 +200,16 @@
         });
         bar.insertBefore(button, bar.children[index] || null);
       }
+      button.id = "homepage-tab-" + name;
       button.setAttribute("aria-controls", panelIds);
       button.classList.toggle("active", name === activeTab);
       button.setAttribute("aria-selected", name === activeTab ? "true" : "false");
+      button.setAttribute("tabindex", name === activeTab ? "0" : "-1");
     });
   };
 
   const dailyQuote = async () => {
+    let quoteRetries = 0;
     const localDayKey = () => {
       const now = new Date();
       return (
@@ -257,7 +265,12 @@
           }
         }
       } catch (e) {
-        // keep the original greeting text when the quote API is unreachable
+        // keep the original greeting text; retry a few times within the day
+        if (quoteRetries < 3 && localDayKey() === dayKey) {
+          quoteRetries += 1;
+          window.setTimeout(refreshQuote, 300000);
+          return;
+        }
       }
 
       const now = new Date();
@@ -393,6 +406,7 @@
   let layoutTimer = 0;
 
   const ensureLayout = () => {
+    buildStatusBar();
     const container = syncDom();
     if (!container) return;
     if (window.HomepageStudioGlass) {
@@ -449,6 +463,13 @@
     window.setInterval(() => {
       if (!document.hidden && window.HomepageStudioGlass) {
         window.HomepageStudioGlass.scheduleRefresh(true);
+        const currentStatus =
+          typeof window.HomepageStudioGlass.statusText === "function"
+            ? window.HomepageStudioGlass.statusText()
+            : "unknown";
+        if (window.HomepageBootstrap && currentStatus !== "running") {
+          window.HomepageBootstrap.status = currentStatus;
+        }
       }
     }, 30000);
   });

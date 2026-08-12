@@ -27,6 +27,7 @@ let
     };
     "/homepage-assets/vendor/" = {
       alias = "/etc/homepage-dashboard/assets/vendor/";
+      allowCORS = true;
       extraConfig = ''
         add_header Cache-Control "public, immutable, max-age=31536000";
       '';
@@ -36,10 +37,10 @@ in
 {
   services.homepage-dashboard = {
     settings = {
-      theme = "dark";
-      color = "neutral";
-      iconStyle = "theme";
-      statusStyle = "dot";
+      theme = lib.mkForce "dark";
+      color = lib.mkForce "neutral";
+      iconStyle = lib.mkForce "theme";
+      statusStyle = lib.mkForce "dot";
     };
 
     # 仅保留 WebGL 玻璃层，CSS/JS 均由本模块提供。
@@ -97,10 +98,19 @@ in
       # homepage-dashboard 的唯一消费者，orchestrator 是 moveSearch 的
       # 唯一所有者；secrets 后续新增 CSS/JS 行为不会再被自动带入。
       assertion =
-        lib.hasInfix "#footer" config.services.homepage-dashboard.customCSS
+        config.services.homepage-dashboard.customCSS
+        == builtins.readFile ./homepage.css
         && lib.hasInfix "homepage-orchestrator.js"
           config.services.homepage-dashboard.customJS;
       message = "homepage-dashboard customCSS/customJS must stay owned by hosts/rock5c/homepage-glass";
+    }
+    {
+      # html2canvas-pro 版本/SRI 同时出现在 default.nix、orchestrator 的
+      # loadScript integrity 与 THIRD_PARTY_NOTICES；升级时必须三处同步。
+      assertion = lib.hasInfix
+        "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM="
+        (builtins.readFile ./assets/js/homepage-orchestrator.js);
+      message = "homepage-orchestrator.js vendor SRI must match default.nix fetchurl";
     }
   ];
 

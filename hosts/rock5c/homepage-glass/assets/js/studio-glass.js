@@ -10,6 +10,7 @@
   const BLUR_RADIUS = 1;
   const SHAPE_ROUNDNESS = 5;
   const MERGE_RATE = 0.05;
+  const CARD_MERGE_RATE = 0.008;
   const REF_THICKNESS = 20;
   const REF_FACTOR = 1.4;
   const REF_DISPERSION = 7;
@@ -60,6 +61,7 @@ uniform float u_radii[MAX_SHAPES];
 uniform vec2 u_mouseSpring;
 uniform vec2 u_mouseVelocity;
 uniform float u_mergeRate;
+uniform float u_cardMergeRate;
 uniform float u_springSizeFactor;
 uniform float u_ballRadius;
 uniform vec4 u_tint;
@@ -188,7 +190,7 @@ float mergedAt(vec2 pageCss) {
     float h = s.w / u_resolution.y;
     float r = u_radii[i] / u_resolution.y;
     float sd = roundedRectSDF(p, center, w, h, r, u_roundness);
-    d = smin(d, sd, u_mergeRate);
+    d = smin(d, sd, u_cardMergeRate);
   }
   vec2 ballCenter = u_mouseSpring / u_resolution.y * u_dpr;
   float ballRadius = u_ballRadius * u_dpr / u_resolution.y;
@@ -203,7 +205,7 @@ float mergedAt(vec2 pageCss) {
   float perp = dot(rel, vec2(-dir.y, dir.x));
   vec2 scaled = vec2(
     along / (1.0 + stretch),
-    perp / max(1.0 - stretch * 0.35, 0.2)
+    perp * (1.0 + stretch * 0.35)
   );
   float ball = length(scaled) - ballRadius;
   return smin(d, ball, u_mergeRate);
@@ -277,12 +279,13 @@ void main() {
     } else {
       float edgeH = nmerged / u_refThickness;
       vec2 normal = getNormal(pageCss);
-      vec2 offset =
+      vec2 dispCss =
         -normal *
         edgeFactor *
         0.05 *
         u_dpr *
         vec2(u_resolution.y / u_resolution.x, 1.0);
+      vec2 offset = dispCss * u_captureScale / u_textureSize;
       vec4 blurredPixel = getTextureDispersion(
         u_bg,
         u_blurredBg,
@@ -366,10 +369,12 @@ void main() {
   if (merged < 0.0) {
     outColor.rgb = max(outColor.rgb - vec3(shadow), 0.0);
   }
-  if (merged > 0.002) {
-    float shadowAlpha =
-      shadow * smoothstep(0.002, 0.004, merged);
-    fragColor = vec4(0.0, 0.0, 0.0, clamp(shadowAlpha, 0.0, 1.0));
+  if (merged > 0.0) {
+    float t = smoothstep(0.0, 0.002, merged);
+    fragColor = vec4(
+      mix(outColor.rgb, vec3(0.0), t),
+      mix(alpha, shadow, t)
+    );
   } else {
     fragColor = vec4(outColor.rgb, alpha);
   }
@@ -407,10 +412,12 @@ void main() {
   let recaptureTimer = 0;
   let rootEl = null;
   let reducedMotion = false;
+  let reducedMotionBound = false;
   let captureInFlight = false;
   let captureQueued = false;
   let captureCount = 0;
   let totalShapes = 0;
+  let lastFrameMs = 0;
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const compileShader = (type, source) => {
@@ -460,6 +467,7 @@ void main() {
       mouseSpring: gl.getUniformLocation(program, "u_mouseSpring"),
       mouseVelocity: gl.getUniformLocation(program, "u_mouseVelocity"),
       mergeRate: gl.getUniformLocation(program, "u_mergeRate"),
+      cardMergeRate: gl.getUniformLocation(program, "u_cardMergeRate"),
       springSizeFactor: gl.getUniformLocation(program, "u_springSizeFactor"),
       ballRadius: gl.getUniformLocation(program, "u_ballRadius"),
       tint: gl.getUniformLocation(program, "u_tint"),
@@ -487,9 +495,9 @@ void main() {
   const getScroll = () => {
     const container = rootEl;
     if (container) {
-      const x = container.scrollLeft || window.pageXOffset || 0;
-      const y = container.scrollTop || window.pageYOffset || 0;
-      return { x, y };
+      // 主路径：滚动发生在 #inner_wrapper 容器内部，rect 在视口中固定，
+      // origin 用视口坐标即可；窗口滚动不在支持范围内。
+      return { x: container.scrollLeft, y: container.scrollTop };
     }
     return {
       x: window.pageXOffset || document.documentElement.scrollLeft || 0,
@@ -545,6 +553,7 @@ void main() {
   };
 
   const render = (now, scheduleNext = true) => {
+    const frameStart = performance.now();
     if (!gl || !program || !bgTexture || gl.isContextLost()) {
       renderRunning = false;
       return;
@@ -590,6 +599,7 @@ void main() {
     );
     gl.uniform2f(uniformLocations.mouseVelocity, mouseVelocity.x, mouseVelocity.y);
     gl.uniform1f(uniformLocations.mergeRate, MERGE_RATE);
+    gl.uniform1f(uniformLocations.cardMergeRate, CARD_MERGE_RATE);
     gl.uniform1f(uniformLocations.springSizeFactor, SPRING_SIZE_FACTOR);
     gl.uniform1f(uniformLocations.ballRadius, BALL_RADIUS_CSS);
     gl.uniform4f(uniformLocations.tint, 1, 1, 1, 0);
@@ -613,6 +623,7 @@ void main() {
     gl.uniform2f(uniformLocations.shadowOffset, 0, -10);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
+    lastFrameMs = performance.now() - frameStart;
     if (
       scheduleNext &&
       !document.hidden &&
@@ -747,14 +758,14 @@ void main() {
     glow(width * 0.12, height * 0.18, Math.max(width, height) * 0.55, "rgba(120,150,255,0.16)");
     glow(width * 0.88, height * 0.12, Math.max(width, height) * 0.5, "rgba(90,220,220,0.12)");
     glow(width * 0.7, height * 0.85, Math.max(width, height) * 0.55, "rgba(200,120,255,0.10)");
-    ctx.fillStyle = "rgba(255,255,255,0.035)";
+    ctx.fillStyle = "rgba(255,255,255,0.06)";
     for (let y = 0; y < height; y += 34) {
       ctx.fillRect(0, y, width, 1);
     }
     for (let x = 0; x < width; x += 34) {
       ctx.fillRect(x, 0, 1, height);
     }
-    ctx.fillStyle = "rgba(255,255,255,0.012)";
+    ctx.fillStyle = "rgba(255,255,255,0.02)";
     for (let y = 0; y < height; y += 8) {
       ctx.fillRect(0, y, width, 1);
     }
@@ -906,10 +917,18 @@ void main() {
       return Promise.resolve();
     }
     captureInFlight = true;
+    const withTimeout = (promise, ms) =>
+      Promise.race([
+        promise,
+        new Promise((_, reject) =>
+          window.setTimeout(() => reject(new Error("capture timeout")), ms)
+        ),
+      ]);
     const attempt = (left) =>
-      captureBackground()
+      withTimeout(captureBackground(), 20000)
         .then(() => {
           captureCount += 1;
+          status = "running";
           if (window.HomepageStudioGlass) {
             window.HomepageStudioGlass.lastError = null;
             window.HomepageStudioGlass.captureStage = "done";
@@ -926,18 +945,21 @@ void main() {
             );
           }
           console.warn("studio glass capture failed", error);
-          if (window.HomepageStudioGlass) {
-            window.HomepageStudioGlass.status = "capture-failed";
-          }
           status = "capture-failed";
         })
-    return attempt(3).then(() => {
+    try {
+      return attempt(3).then(() => {
+        captureInFlight = false;
+        if (captureQueued) {
+          captureQueued = false;
+          return runCapture();
+        }
+      });
+    } catch (error) {
       captureInFlight = false;
-      if (captureQueued) {
-        captureQueued = false;
-        return runCapture();
-      }
-    });
+      status = "capture-failed";
+      return Promise.resolve();
+    }
   };
 
   const scheduleRefresh = (recapture) => {
@@ -964,18 +986,21 @@ void main() {
     getTargets = config.targetFn || null;
     rootEl = config.root || document.getElementById("inner_wrapper") || null;
     reducedMotion = reducedMotionQuery.matches;
-    const onReducedMotionChange = () => {
-      reducedMotion = reducedMotionQuery.matches;
-      if (reducedMotion) {
-        renderRunning = false;
+    if (!reducedMotionBound) {
+      reducedMotionBound = true;
+      const onReducedMotionChange = () => {
+        reducedMotion = reducedMotionQuery.matches;
+        if (reducedMotion) {
+          renderRunning = false;
+        } else {
+          startRender();
+        }
+      };
+      if (!reducedMotionQuery.addEventListener) {
+        reducedMotionQuery.addListener(onReducedMotionChange);
       } else {
-        startRender();
+        reducedMotionQuery.addEventListener("change", onReducedMotionChange);
       }
-    };
-    if (!reducedMotionQuery.addEventListener) {
-      reducedMotionQuery.addListener(onReducedMotionChange);
-    } else {
-      reducedMotionQuery.addEventListener("change", onReducedMotionChange);
     }
     if (started) return true;
     if (!window.WebGL2RenderingContext || typeof window.html2canvas !== "function") {
@@ -1016,8 +1041,8 @@ void main() {
         window.addEventListener("touchmove", onPointer, { passive: true });
         window.addEventListener("pointerdown", onPointer, { passive: true });
         window.addEventListener("touchstart", onPointer, { passive: true });
-        window.addEventListener("pointercancel", onPointer, { passive: true });
-        window.addEventListener("touchcancel", onPointer, { passive: true });
+        window.addEventListener("pointercancel", () => {}, { passive: true });
+        window.addEventListener("touchcancel", () => {}, { passive: true });
         document.addEventListener(
           "scroll",
           () => {
@@ -1077,6 +1102,8 @@ void main() {
       status = "running";
       return true;
     } catch (error) {
+      if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
+      canvasAttached = false;
       status = "start-failed: " + error.message;
       console.error("studio glass failed", error);
       return false;
@@ -1112,6 +1139,11 @@ void main() {
     }),
     refresh: (recapture) => scheduleRefresh(recapture),
     status: () => status,
+    statusText: () => status,
+    dpr: () => dpr,
+    renderRunning: () => renderRunning,
+    captureQueued: () => captureQueued,
+    frameMs: () => lastFrameMs,
     lastError: null,
     bgTextureHeight: 0,
     captureMs: 0,
