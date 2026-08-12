@@ -1,5 +1,14 @@
 :root {
   --homepage-ink: rgba(246, 248, 252, 0.96);
+  --homepage-muted: rgba(246, 248, 252, 0.55);
+  --homepage-faint: rgba(246, 248, 252, 0.42);
+  --homepage-line: rgba(255, 255, 255, 0.10);
+  --homepage-line-strong: rgba(255, 255, 255, 0.14);
+  --homepage-glass: rgba(255, 255, 255, 0.07);
+  --homepage-glass-strong: rgba(255, 255, 255, 0.12);
+  --homepage-shadow: rgba(2, 8, 18, 0.16);
+  --homepage-row-radius: 12px;
+  --homepage-panel-radius: 20px;
 }
 
 html,
@@ -319,14 +328,14 @@ body,
   width: 100%;
   padding: 8px !important;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--homepage-line-strong);
+  border-radius: var(--homepage-panel-radius);
+  background: var(--homepage-glass);
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 10px 28px rgba(2, 8, 18, 0.16);
+    0 10px 28px var(--homepage-shadow);
 }
 
 .homepage-tab-panel .services-list,
@@ -338,10 +347,11 @@ body,
   padding: 0 2px !important;
 }
 
-.service-group-name {
+.service-group-name,
+.bookmark-group-name {
   min-height: 26px;
   align-items: center;
-  color: rgba(246, 248, 252, 0.52) !important;
+  color: var(--homepage-muted) !important;
   font-size: 0.78rem !important;
   font-weight: 600 !important;
   letter-spacing: 0.06em !important;
@@ -351,63 +361,70 @@ body,
   display: none;
 }
 
-.service-card {
+.homepage-tab-panel .service-card,
+.homepage-tab-panel .bookmark > a {
   position: relative;
+  display: block;
   min-height: 64px;
   margin-bottom: 0 !important;
   padding: 8px 6px !important;
   overflow: hidden;
   border: 0 !important;
-  border-radius: 12px !important;
+  border-radius: var(--homepage-row-radius) !important;
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
-  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 180ms ease, box-shadow 180ms ease, background 180ms ease !important;
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), background 180ms ease, box-shadow 180ms ease !important;
 }
 
-.service:not(:last-child) .service-card {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 12px 12px 0 0 !important;
+.homepage-tab-panel .service:not(:last-child) .service-card,
+.homepage-tab-panel .bookmark:not(:last-child) > a {
+  border-bottom: 1px solid var(--homepage-line) !important;
+  border-radius: var(--homepage-row-radius) var(--homepage-row-radius) 0 0 !important;
 }
 
-.service-card:hover {
+.homepage-tab-panel .service-card:hover,
+.homepage-tab-panel .bookmark > a:hover {
   transform: none;
   background: rgba(255, 255, 255, 0.05) !important;
 }
 
-.service-card:active {
+.homepage-tab-panel .service-card:active {
   transform: scale(0.985);
 }
 
-.service-icon {
+.homepage-tab-panel .service-icon,
+.homepage-tab-panel .bookmark-icon {
   width: 42px;
   height: 42px;
   margin-right: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid var(--homepage-line-strong);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--homepage-glass-strong);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
     0 2px 8px rgba(2, 8, 18, 0.12);
 }
 
-.service-icon img,
-.service-icon svg {
+.homepage-tab-panel .service-icon img,
+.homepage-tab-panel .service-icon svg {
   width: 24px;
   height: 24px;
 }
 
-.service-name {
+.homepage-tab-panel .service-name,
+.homepage-tab-panel .bookmark-name {
   font-size: 0.92rem !important;
   font-weight: 600 !important;
-  color: rgba(246, 248, 252, 0.96) !important;
+  color: var(--homepage-ink) !important;
   letter-spacing: 0 !important;
 }
 
-.service-description {
+.homepage-tab-panel .service-description,
+.homepage-tab-panel .bookmark-description {
   margin-top: 3px;
-  color: rgba(246, 248, 252, 0.55) !important;
+  color: var(--homepage-muted) !important;
   font-size: 0.74rem !important;
   font-weight: 400 !important;
 }
@@ -422,39 +439,6 @@ body,
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 9999px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
-}
-
-.bookmark > a {
-  position: relative;
-  display: block;
-  margin-bottom: 0 !important;
-  padding: 8px 6px !important;
-  overflow: hidden;
-  border: 0 !important;
-  border-radius: 12px !important;
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
-  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 180ms ease, background 180ms ease, box-shadow 180ms ease !important;
-}
-
-.bookmark:not(:last-child) > a {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  border-radius: 12px 12px 0 0 !important;
-}
-
-.bookmark > a:hover {
-  transform: none;
-  background: rgba(255, 255, 255, 0.05) !important;
-}
-
-.bookmark-icon {
-  border-radius: 10px !important;
-  background: rgba(255, 255, 255, 0.11) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.16),
-    0 2px 8px rgba(2, 8, 18, 0.10);
 }
 
 #footer {
@@ -491,24 +475,28 @@ body,
     gap: 12px;
   }
 
-  .service-card {
+  .homepage-tab-panel .service-card,
+  .homepage-tab-panel .bookmark > a {
     min-height: 74px;
     padding: 10px 12px !important;
   }
 
-  .service-icon {
+  .homepage-tab-panel .service-icon,
+  .homepage-tab-panel .bookmark-icon {
     width: 42px;
     height: 42px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .service-card,
+  .homepage-tab-panel .service-card,
+  .homepage-tab-panel .bookmark > a,
   .information-widget-search input {
     transition: none !important;
   }
 
-  .service-card:hover {
+  .homepage-tab-panel .service-card:hover,
+  .homepage-tab-panel .bookmark > a:hover {
     transform: none;
   }
 }
