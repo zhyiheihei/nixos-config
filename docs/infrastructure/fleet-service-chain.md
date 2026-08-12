@@ -252,7 +252,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | PVE | `https://pve-5700u.zhyi.cc:8006` | 应用登录 |
 | CouchDB | `https://couchdb.zhyi.cc/_utils/` | 应用管理 |
 | Attic NCPS fallback | `https://attic.zhyi.xin` | 无登录 |
-| VaultS3 | `https://vaults3.zhyi.cc:8443/dashboard/` | S3 凭据 |
+| VaultS3 | 内网 `https://vaults3.zhyi.cc/dashboard/`；公网 `https://vaults3.zhyi.cc:8443/dashboard/` | S3 凭据 |
 | MetaCubeXD | `https://metacubexd.rock5c.zhyi.cc` | 控制 token |
 | 代理订阅 | `https://sub.zhyi.xin` | 应用登录 / 订阅 token |
 | OpenSpeedTest | `https://openspeedtest.rock5c.zhyi.cc` | 私有 |
