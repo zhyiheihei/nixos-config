@@ -58,15 +58,6 @@ in
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
     "bt.localhost".locations."/".proxyPass =
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
-    # Existing bookmarks and automation entries keep working through aliases.
-    "pt.${config.networking.hostName}.zhyi.cc".locations."/".proxyPass =
-      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
-    "pt.localhost".locations."/".proxyPass =
-      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
-    "seedbox.${config.networking.hostName}.zhyi.cc".locations."/".proxyPass =
-      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
-    "seedbox.localhost".locations."/".proxyPass =
-      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
   };
 
   systemd.services.qbittorrent = {
