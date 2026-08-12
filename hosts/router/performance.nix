@@ -1,4 +1,5 @@
 {
+  lib,
   pkgs,
   ...
 }:
@@ -60,7 +61,7 @@ in
   # The public default enables irqbalance on multi-core hosts, but its queue
   # placement hurt RTL8125 multi-queue performance on this board.  Keep the
   # network IRQs pinned by router-rps instead.
-  services.irqbalance.enable = false;
+  services.irqbalance.enable = lib.mkForce false;
 
   systemd.services.router-rps = {
     description = "Spread RTL8125 RX queues across all router cores";
