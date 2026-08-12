@@ -1,4 +1,5 @@
 :root {
+  --homepage-glass-z: 5;
   --homepage-ink: rgba(246, 248, 252, 0.96);
   --homepage-muted: rgba(246, 248, 252, 0.55);
   --homepage-faint: rgba(246, 248, 252, 0.42);
@@ -43,6 +44,10 @@ body,
   padding-bottom: 36px;
   /* Homepage renders content inside this scroll container; keep it stable. */
   overflow-y: auto;
+}
+
+#homepage-shell {
+  min-height: 100%;
 }
 
 #homepage-statusbar {
@@ -120,27 +125,6 @@ body,
   background: rgba(255, 255, 255, 0.85);
 }
 
-.hp-clock {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  line-height: 1;
-}
-
-.hp-clock-time {
-  font-size: 3.4rem !important;
-  font-weight: 200 !important;
-  letter-spacing: -0.02em;
-  color: rgba(255, 255, 255, 0.98);
-}
-
-.hp-clock-date {
-  margin-top: 7px;
-  font-size: 1rem !important;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.72);
-}
-
 .information-widget-datetime {
   flex: 1 1 auto;
   min-width: 260px;
@@ -149,6 +133,13 @@ body,
   border: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
+}
+
+.information-widget-datetime span {
+  font-size: 3rem !important;
+  font-weight: 200 !important;
+  letter-spacing: -0.02em;
+  color: rgba(255, 255, 255, 0.98);
 }
 
 #information-widgets {

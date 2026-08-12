@@ -195,6 +195,7 @@ void main() {
   let scrollRaf = 0;
   let captureRetries = 0;
   let canvasAttached = false;
+  let captureStart = 0;
 
   const compileShader = (type, source) => {
     const shader = gl.createShader(type);
@@ -340,6 +341,7 @@ void main() {
       backgroundColor: null,
       logging: false,
     }).then((snapshot) => {
+      if (bgTexture) gl.deleteTexture(bgTexture);
       bgTexture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, bgTexture);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -357,6 +359,10 @@ void main() {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
       bgTexture.width = snapshot.width;
       bgTexture.height = snapshot.height;
+      if (window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.bgTextureHeight = snapshot.height;
+        window.HomepageStudioGlass.captureMs = performance.now() - captureStart;
+      }
     });
   };
 
@@ -372,14 +378,13 @@ void main() {
       createProgram();
       dpr = window.devicePixelRatio || 1;
       refreshShapes();
+      captureStart = performance.now();
       const attachCanvas = () => {
         if (canvasAttached) return;
         canvasAttached = true;
-          canvas.className = "studio-glass-canvas";
           canvas.style.cssText =
-            "position:fixed;inset:0;z-index:5;pointer-events:none;";
+            "position:fixed;inset:0;z-index:var(--homepage-glass-z);pointer-events:none;";
           document.body.appendChild(canvas);
-          document.documentElement.classList.add("studio-glass");
           window.addEventListener("mousemove", (event) => {
             mouse.x = event.clientX * dpr;
             mouse.y = event.clientY * dpr;

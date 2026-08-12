@@ -15,24 +15,10 @@
     { name: "快捷", test: () => true },
   ];
   const GLASS_TARGETS = [
-    {
-      selector:
-        ".homepage-tab-panel.active .services-group, .homepage-tab-panel.active .bookmark-group",
-      radius: 20,
-    },
-    {
-      selector:
-        "#information-widgets .widget-container:not(.information-widget-datetime)",
-      radius: 16,
-    },
-    {
-      selector: "#homepage-search-section",
-      radius: 18,
-    },
-    {
-      selector: ".homepage-tabbar",
-      radius: 14,
-    },
+    ".homepage-tab-panel.active .services-group, .homepage-tab-panel.active .bookmark-group",
+    "#information-widgets .widget-container:not(.information-widget-datetime)",
+    "#homepage-search-section",
+    ".homepage-tabbar",
   ];
 
   const loadScript = (src) =>
@@ -223,50 +209,14 @@
     window.setInterval(updateTime, 30000);
   };
 
-  const buildClock = () => {
-    const host = document.querySelector(".information-widget-datetime");
-    if (!host) return;
-
-    const render = () => {
-      if (host.querySelector(".hp-clock")) return;
-      const now = new Date();
-      const clock = document.createElement("div");
-      clock.className = "hp-clock";
-      const time = document.createElement("span");
-      time.className = "hp-clock-time";
-      time.textContent = now.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      });
-      const date = document.createElement("span");
-      date.className = "hp-clock-date";
-      date.textContent = now.toLocaleDateString([], {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "long",
-      });
-      clock.append(time, date);
-      host.replaceChildren(clock);
-    };
-
-    render();
-    window.setInterval(render, 30000);
-    const observer = new MutationObserver(() => {
-      if (!host.querySelector(".hp-clock")) render();
-    });
-    observer.observe(host, { childList: true, subtree: true });
-  };
-
   const initStudio = async () => {
     if (studioStarted) return;
     studioStarted = true;
     try {
       await loadScript(
-        "/homepage-assets/liquid-glass/html2canvas-pro.min.js"
+        "/homepage-assets/vendor/html2canvas-pro-1.5.8.min.js"
       );
-      await loadScript("/homepage-assets/liquid-glass/studio-glass.js");
+      await loadScript("/homepage-assets/js/studio-glass.js");
     } catch (error) {
       return;
     }
@@ -274,17 +224,44 @@
     const targets = () =>
       Array.from(
         document.querySelectorAll(
-          GLASS_TARGETS.map((target) => target.selector).join(", ")
+          GLASS_TARGETS.join(", ")
         )
       );
     if (!window.HomepageStudioGlass.start(targets)) {
       studioStarted = false;
-      window.setTimeout(initStudio, 2000);
+      if (studioRetries < 3) {
+        studioRetries += 1;
+        window.setTimeout(initStudio, 2000);
+      }
     }
+  };
+
+  const buildShell = () => {
+    if (document.getElementById("homepage-shell")) return;
+    const shell = document.createElement("div");
+    shell.id = "homepage-shell";
+    const inner = document.getElementById("inner_wrapper");
+    const container = document.querySelector(".container");
+    [
+      "homepage-statusbar",
+      "information-widgets",
+      "homepage-search-section",
+      "layout-groups",
+      "services",
+      "bookmarks",
+    ].forEach((id) => {
+      const element = document.getElementById(id);
+      if (element) shell.appendChild(element);
+    });
+    if (container) container.style.display = "none";
+    (inner || document.body).appendChild(shell);
+    document.documentElement.classList.add("homepage-shell-mode");
   };
 
   let tabsBuilt = false;
   let studioStarted = false;
+  let studioRetries = 0;
+  let layoutRaf = 0;
 
   const ensureLayout = () => {
     const groups = document.querySelectorAll(
@@ -296,17 +273,23 @@
       tabsBuilt = true;
       if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh();
     }
+    buildShell();
     initStudio();
   };
 
   ready(() => {
     buildStatusBar();
-    buildClock();
     moveSearch();
     dailyQuote();
-    initStudio();
     ensureLayout();
-    const layoutObserver = new MutationObserver(ensureLayout);
+    const scheduleEnsure = () => {
+      if (layoutRaf) return;
+      layoutRaf = window.requestAnimationFrame(() => {
+        layoutRaf = 0;
+        ensureLayout();
+      });
+    };
+    const layoutObserver = new MutationObserver(scheduleEnsure);
     layoutObserver.observe(document.body, { childList: true, subtree: true });
   });
 })();

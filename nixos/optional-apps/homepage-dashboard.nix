@@ -6,51 +6,6 @@
   inputs,
   ...
 }:
-let
-  backend = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
-  mkRowLayout = columns: {
-    style = "row";
-    inherit columns;
-  };
-  publicGroups = [
-    "AI 链路"
-    "身份链路"
-    "内容与通讯"
-    "基础设施与运维"
-    "媒体链路"
-    "效率工具"
-  ];
-  privateGroups = [
-    "AI 链路"
-    "家庭服务"
-    "媒体与下载"
-    "效率工具与内容"
-    "基础设施与网络"
-  ];
-  layout = lib.genAttrs (map (name: "公开 · ${name}") publicGroups) (_: mkRowLayout 4)
-    // lib.genAttrs (map (name: "私有 · ${name}") privateGroups) (_: mkRowLayout 4)
-    // { "私有 · 监控" = mkRowLayout 3; };
-  homepageLocations = {
-    "/" = {
-      proxyPass = backend;
-    };
-    "/api/config/" = {
-      proxyPass = backend;
-      extraConfig = ''
-        proxy_hide_header Cache-Control;
-        proxy_hide_header ETag;
-        add_header Cache-Control "no-store, must-revalidate";
-      '';
-    };
-    "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
-    "/homepage-assets/" = {
-      alias = "/etc/homepage-dashboard/assets/";
-      extraConfig = ''
-        add_header Cache-Control "no-cache, must-revalidate";
-      '';
-    };
-  };
-in
 {
   imports = [ "${inputs.secrets}/homepage-dashboard-config.nix" ];
 
@@ -70,31 +25,17 @@ in
 
     settings = {
       title = "Zh Yi @ Dashboard";
-      theme = "dark";
-      color = "neutral";
       headerStyle = "clean";
       language = "zh-CN";
       target = "_blank";
       disableCollapse = true;
       hideVersion = true;
-      iconStyle = "theme";
-      statusStyle = "dot";
-      inherit layout;
       # Ignore errors for network instability
       hideErrors = true;
     };
 
-    # iOS 27 风格液态玻璃，复刻差异：zhyi 个人导航专用样式。
-    customCSS = builtins.readFile ./homepage-dashboard.css;
-
-    # 加载 SVG 实时折射玻璃、标签页布局与每日一言。
-    customJS = ''
-      (() => {
-        const script = document.createElement("script");
-        script.src = "/homepage-assets/liquid-glass/homepage-orchestrator.js";
-        script.defer = true;
-        document.head.appendChild(script);
-      })();
+    customCSS = ''
+      #footer { display: none !important; }
     '';
 
     widgets = [
@@ -124,16 +65,6 @@ in
           format.maximumFractionDigits = 1;
         };
       }
-      {
-        resources = {
-          label = "rock5c";
-          cpu = true;
-          memory = true;
-          disk = "/nix";
-          uptime = true;
-          refresh = 5000;
-        };
-      }
     ];
   };
 
@@ -144,12 +75,6 @@ in
     MemoryDenyWriteExecute = lib.mkForce false;
     SystemCallFilter = lib.mkForce [ ];
   };
-  systemd.services.homepage-dashboard.after = [ "sops-install-secrets.service" ];
-  systemd.services.homepage-dashboard.requires = [ "sops-install-secrets.service" ];
-  systemd.services.homepage-dashboard.environment.HOMEPAGE_ALLOWED_HOSTS = lib.mkForce (
-    "homepage.localhost,homepage.${config.networking.hostName}.zhyi.cc,"
-    + "localhost:${LT.portStr.HomepageDashboard},127.0.0.1:${LT.portStr.HomepageDashboard}"
-  );
 
   users.users.homepage-dashboard = {
     group = "homepage-dashboard";
@@ -157,11 +82,14 @@ in
   };
   users.groups.homepage-dashboard = { };
 
-  environment.etc."homepage-dashboard/assets".source = ./homepage-dashboard-assets;
-
   lantian.nginxVhosts = {
     "homepage.${config.networking.hostName}.zhyi.cc" = {
-      locations = homepageLocations;
+      locations = {
+        "/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
+        };
+        "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
+      };
 
       sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
       noIndex.enable = true;
@@ -171,7 +99,12 @@ in
       listenHTTP.enable = true;
       listenHTTPS.enable = false;
 
-      locations = homepageLocations;
+      locations = {
+        "/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
+        };
+        "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
+      };
 
       noIndex.enable = true;
       accessibleBy = "localhost";
