@@ -30,7 +30,7 @@ let
     // { "私有 · 监控" = mkRowLayout 3; };
   vendorHtml2Canvas = pkgs.fetchurl {
     url = "https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.8/dist/html2canvas-pro.min.js";
-    hash = "sha256-1wqhcrzd9i46f55a1ing3xb1qdr3qpbgddb823i40ph617pd5zsn";
+    hash = "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM=";
   };
 in
 {
