@@ -156,6 +156,7 @@
       bar.className = "homepage-tabbar";
       bar.setAttribute("role", "tablist");
       bar.setAttribute("aria-label", "首页分组");
+      bar.setAttribute("tabindex", "-1");
       bar.addEventListener("keydown", (event) => {
         const buttons = Array.from(bar.querySelectorAll(".homepage-tab"));
         if (buttons.length === 0) return;
@@ -315,6 +316,8 @@
     if (!bar) {
       bar = document.createElement("div");
       bar.id = "homepage-statusbar";
+      bar.setAttribute("role", "status");
+      bar.setAttribute("aria-live", "polite");
       // A fresh bar (e.g. React removed the whole node) must get its content
       // rebuilt too, not just an emptied one.
       statusBarReady = false;
@@ -559,8 +562,12 @@
             : "unknown";
         // Back off while a capture is failing/hung: skip the periodic
         // full-page recapture so a wedged html2canvas does not re-queue
-        // every 30s (it already retried 3x with a 90s watchdog).
-        if (currentStatus !== "capture-failed") {
+        // every 30s (it already retried 3x with a 90s watchdog). A lost
+        // device must also skip until it recovers.
+        if (
+          currentStatus !== "capture-failed" &&
+          currentStatus !== "webgpu-device-lost"
+        ) {
           window.HomepageStudioGlass.scheduleRefresh(true);
         }
         if (window.HomepageBootstrap) {
