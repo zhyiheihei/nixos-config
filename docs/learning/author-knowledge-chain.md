@@ -48,3 +48,18 @@ Gitea 已开启 push-create，私有仓库可以在首次 `push` 时自动创建
 
 实机验证：`git.zhyi.xin` 的 OpenSSH 监听在 2222，Gitea 的 `SSH_PORT` 与上游
 一致为 2222，网页克隆地址与实际连接端口相同。
+
+## AI 链关联（复刻新增）
+
+私有天线已具备接入 AI 链的官方 API 基础：
+
+- Gitea REST `/api/v1`：n8n/LibreChat 可只读拉取 `zhyi/notes` 内容做摘要或问答；
+  PAT 按最小权限创建并进 SOPS。
+- Syncthing REST：`/rest/events` 与 `/rest/db/status` 可做变更事件与同步巡检，
+  作为重索引触发器。
+- Memos 官方 API：可把 AI 生成的摘要/整理结果写回 Memos，形成知识闭环。
+- AI 链模型统一选择 OpenCode Go 的 DeepSeek V4 Flash（UniAPI 别名按 secrets
+  注册表核验）。
+
+候选方案与红线见
+[`docs/infrastructure/ai-knowledge-chain-integration.md`](../infrastructure/ai-knowledge-chain-integration.md)。

@@ -43,3 +43,16 @@
 允许差异与作者原版说明一致：域名（zhyi.xin/zhyi.cc）、用户（zhyi）、复刻主机。
 公开站点从作者的一级域 `lantian.pub` 改为 GitHub Pages 项目页，DNS/评论域名
 对应改为 `zhyiheihei.github.io` 与 `comments.zhyi.xin`。
+
+## AI 链关联状态
+
+- Gitea `zhyi/notes` 是 AI 只读知识源的官方入口：`/api/v1` 读取仓库/文件，
+  供 n8n 与 LibreChat 使用，不改数据库。
+- Syncthing 三机同步状态可通过官方 REST 巡检，作为重索引触发信号。
+- Memos 官方 API 承担 AI 写回/整理；AI Provider 保持 Metapi → UniAPI。
+- Qdrant 未部署，向量 RAG 属 P2 候选；Waline 未启用，恢复前 LLM 审核必须
+  改指 UniAPI。
+- AI 链模型统一选择 OpenCode Go 的 DeepSeek V4 Flash。
+
+详细候选矩阵见
+[`docs/infrastructure/ai-knowledge-chain-integration.md`](../infrastructure/ai-knowledge-chain-integration.md)。

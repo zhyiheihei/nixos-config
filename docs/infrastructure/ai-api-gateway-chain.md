@@ -44,6 +44,14 @@ LibreChat、Metapi、n8n 和 n8n OpenAI Bridge 运行在 `colocrossing`。主 Un
 `AxonHub` 模块仍保留在仓库，但当前没有被任何 host 导入，实机也没有
 `axonhub.service`。它是未部署候选，不属于当前运行链路。
 
+`Qdrant` 模块同样只保留在仓库（与作者原版一致），当前没有任何 host import；
+它不是当前 AI 链的一部分，向量检索相关方案见
+[`ai-knowledge-chain-integration.md`](./ai-knowledge-chain-integration.md)。
+
+AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash。具体模型别名由私有
+`uni-api/` Provider 注册表决定，新增工作流/脚本必须显式选择该模型或通过
+`AI_MODEL` 注入，不能把其他厂商模型作为默认值固化到新链路。
+
 ## 服务职责与位置
 
 | 服务 | 主机 | 作用 | 上游或依赖 |
@@ -54,6 +62,7 @@ LibreChat、Metapi、n8n 和 n8n OpenAI Bridge 运行在 `colocrossing`。主 Un
 | n8n OpenAI Bridge | `colocrossing` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
 | Metapi | `colocrossing` | 可选元聚合网关、站点/账户/模型路由管理 | LTNET UniAPI；SQLite 状态目录 |
 | AxonHub | 未部署 | 仓库保留可选模块，但当前没有 host import 或运行 unit | 部署前需重新确认 PostgreSQL、Redis 与上游契约 |
+| Qdrant | 未部署 | 仓库保留模块，无 host import、无实机 unit | 若启用需先规范为独立 options 模块并核验 embeddings |
 
 核心实现位置：
 
@@ -65,6 +74,44 @@ LibreChat、Metapi、n8n 和 n8n OpenAI Bridge 运行在 `colocrossing`。主 Un
 - [`hosts/colocrossing/configuration.nix`](../../hosts/colocrossing/configuration.nix)
 - [`hosts/rock5c/home-edge.nix`](../../hosts/rock5c/home-edge.nix)
 - [`hosts/jpvm/configuration.nix`](../../hosts/jpvm/configuration.nix)
+
+## 与知识链的连接
+
+AI 链与知识链通过各服务官方 API 连接，禁止用“共享数据库”或“直接改运行态 DB”
+代替 API。完整关系模型与候选矩阵见
+[`ai-knowledge-chain-integration.md`](./ai-knowledge-chain-integration.md)。
+
+当前已确认的合法连接：
+
+- LibreChat 只读知识源：只能通过官方 REST/MCP 接 Gitea、Memos、Miniflux；
+  新增 MCP 用主机级编排或独立模块注入，不修改公共 `mcp-servers.nix`。
+- n8n 自动化：工作流只调 `uni-api.rock5c.zhyi.cc`；Gitea/Memos/Miniflux/
+  Syncthing 均走官方 API。n8n OpenAI Bridge 的方向是“工作流作为模型被 UniAPI
+  调用”，不能反过来让 n8n 把 Metapi/AxonHub 当 Provider 上游。
+- Memos AI：保持 Metapi → UniAPI 的既有路径；Memos 读写集成走
+  `/api/v1/memos` 与 `/memos.api.v1.*`，PAT 进 SOPS。
+- Syncthing：事件/状态查询走 `/rest/events`、`/rest/db/status`，API key 进
+  SOPS；公网 vhost 前的 OAuth 是否放行 API key 需实机验证，必要时走
+  `127.0.0.1` 通道。
+- Waline（未启用）：若恢复公开路线，其 LLM 审核插件必须改指
+  `uni-api.rock5c.zhyi.cc`，不得直连 OpenRouter。
+
+## 官方 API 出处
+
+| 服务 | 官方文档 |
+| --- | --- |
+| UniAPI | `https://github.com/yym68686/uni-api` |
+| LibreChat | `https://www.librechat.ai/docs` |
+| n8n | `https://docs.n8n.io/api/` |
+| n8n OpenAI Bridge | `https://github.com/xddxdd/n8n-openai-bridge` |
+| Metapi | `https://github.com/cita-777/metapi` |
+| AxonHub | `https://github.com/looplj/axonhub` |
+| Qdrant | `https://api.qdrant.tech/api-reference/` |
+| Gitea | `https://docs.gitea.com/development/api-usage` |
+| Syncthing | `https://docs.syncthing.net/dev/rest.html` |
+| Miniflux | `https://miniflux.app/docs/api.html` |
+| ArchiveBox | `https://docs.archivebox.io/dev/` |
+| Memos | `https://github.com/usememos/memos`（`proto/gen/openapi.yaml`） |
 
 ## 已完成的运行态初始化
 

@@ -86,8 +86,15 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
 
 ### 4. AI 链路（colocrossing / UniAPI 网关）
 - 参考 `docs/infrastructure/ai-api-gateway-chain.md`（UniAPI 是唯一 Provider 汇聚点，禁止反向配置网关）
+- 参考 `docs/infrastructure/ai-knowledge-chain-integration.md`（AI 链 ↔ 知识链关系与官方 API）
 - **日志**：UniAPI / LibreChat / n8n 的 error/warn；OAuth token 刷新失败
 - **监控指标**：请求量、错误率（若有 exporter）
+- **数据流转（知识链）**：
+  - Gitea：`curl -fsS -H "Authorization: token $(cat /run/secrets/gitea-ai-token)" https://git.zhyi.xin/api/v1/repos/zhyi/notes` 返回仓库元数据
+  - Syncthing：`curl -fsS -H "X-API-Key: $(cat /run/secrets/syncthing-api-key)" http://127.0.0.1:13834/rest/db/status?folder=notes` 检查 `state/needBytes/errors`
+  - Bridge：`curl -fsS http://127.0.0.1:13333/health` 返回健康
+  - Memos AI：`curl -fsS -H "Authorization: Bearer $(cat /run/secrets/memos-ai-token)" http://127.0.0.1:13819/api/v1/instance/settings/AI` 确认 Provider 仍是 Metapi
+- 模型选择：AI 链默认 OpenCode Go 的 DeepSeek V4 Flash，`/v1/models` 需存在对应别名
 
 ### 5. 备份链路（7 台 → opi5p）
 - **入口**：backup 服务/timer 状态

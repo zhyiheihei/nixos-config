@@ -64,7 +64,7 @@ ArchiveBox 保留“实在不行”的源归档。退役服务的数据是否删
 - [x] 部署 `cnvm`、`opi5p`、`rock5c` 并实机验证；Linkwarden/FreshRSS 单元与容器
       已无残留，ArchiveBox 保留 7 个快照，homepage 已更新。
 - [ ] 确认是否删除 FreshRSS/Linkwarden 数据目录与数据库（默认保留）。
-- [ ] 更新 `fleet-service-chain.md`；提交并对齐 mac / origin / ml-builder。
+- [x] 更新 `fleet-service-chain.md` 知识链章节（2026-08-12）。
 
 ## 浏览器订阅指南
 
@@ -104,6 +104,21 @@ podman exec --user=archivebox archivebox archivebox add <url>
 ```
 
 或直接使用 https://archivebox.opi5p.zhyi.cc/ 的 Add 页面。
+
+## 官方 API 与 AI 输入
+
+- Miniflux 官方 REST：`https://rss.zhyi.xin/v1`，使用 `X-Auth-Token`。
+  常用端点：`/v1/me`、`/v1/feeds`、`/v1/feeds/{id}/entries?status=unread`、
+  `/v1/entries`。vhost 在 Dex OAuth 后，API key 是否可穿透需实机验证；必要时
+  自动化走 colocrossing 本机 `127.0.0.1` 通道。
+- RSSHub：路由支持 `?format=json`，可直接作为 n8n HTTP 节点输入，内容经
+  `uni-api.rock5c.zhyi.cc` 摘要后写入 Memos 或 Notes。
+- ArchiveBox：自动化入口优先官方 CLI/Web UI；新版 JSON API 端点实施期核验后再
+  接入 n8n，不要直接操作其数据库。
+- AI 摘要默认模型为 OpenCode Go 的 DeepSeek V4 Flash（`AI_MODEL` 可覆盖）。
+
+相关闭环见
+[`docs/infrastructure/ai-knowledge-chain-integration.md`](../infrastructure/ai-knowledge-chain-integration.md)。
 
 ## 验证命令
 

@@ -76,6 +76,22 @@ hosts 映射 `198.18.0.120`，容器同时使用 `--add-host` 指向同一地址
 和运维脚本都能走 LTNET 直连。不要把这个 endpoint 改成公网入口或 UniAPI
 之外的网关，也不要让 Metapi 反向成为 UniAPI Provider。
 
+AI 功能中选择的模型统一使用 OpenCode Go 的 DeepSeek V4 Flash；Memos 页面里的
+模型列表来自 Metapi，实际别名以 UniAPI Provider 注册表为准。
+
+## AI 读取与整理（官方 API）
+
+Memos 既可作为 AI 写回目标，也可作为 AI 收件箱：
+
+- 读取：`GET /api/v1/memos`（支持过滤/分页），返回当前用户可见的 memo。
+- 创建：`POST /api/v1/memos`，请求体是 Memo，`content` 为 Markdown，
+  `visibility` 取 `PRIVATE | PROTECTED | PUBLIC`（默认 PRIVATE）。
+- 更新：`PATCH /api/v1/{memo.name=memos/*}`，配合官方字段掩码。
+- 删除：`DELETE /api/v1/{name=memos/*}`。
+
+以上均使用 Personal Access Token（`Authorization: Bearer <PAT>`），由 n8n 或
+`tools/knowledge-chain/notes-digest.sh` 调用，不直接修改 SQLite。
+
 ## 官方 API 配置脚本
 
 部署 Nix 变更后，在 opi5p 上创建一个 Memos Personal Access Token
