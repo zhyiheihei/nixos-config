@@ -117,7 +117,7 @@ in
         notices = builtins.readFile ./THIRD_PARTY_NOTICES.md;
         self = builtins.readFile ./default.nix;
       in lib.hasInfix sri orchestrator
-        && lib.hasInfix ("html2canvas-pro@" + ver) orchestrator
+        && lib.hasInfix ("html2canvas-pro-" + ver + ".min.js") orchestrator
         && lib.hasInfix sri notices
         && lib.hasInfix ver notices
         && lib.hasInfix ("html2canvas-pro@" + ver) self
