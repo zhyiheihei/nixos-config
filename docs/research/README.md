@@ -11,4 +11,5 @@
 | [05-podman-to-nix-evaluation.md](./05-podman-to-nix-evaluation.md) | Podman 容器转 Nix 包替代评估 |
 | [06-moviepilot-nix-replacement-impact.md](./06-moviepilot-nix-replacement-impact.md) | MoviePilot 原生包替换影响评估 |
 | [07-upstream-deviation-audit.md](./07-upstream-deviation-audit.md) | 与作者上游的偏移情况 |
+| [08-zhyi-packages-upstream-deviation-audit.md](./08-zhyi-packages-upstream-deviation-audit.md) | zhyi-packages 与 xddxdd/nur-packages 的偏移情况 |
 | [06-router-lan-drop-netdev-watchdog.md](./06-router-lan-drop-netdev-watchdog.md) | Router LAN 口掉链事故（r8125 NETDEV WATCHDOG） |
