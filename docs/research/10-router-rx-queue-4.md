@@ -99,6 +99,16 @@
   接口记录（`iifidx`），hairpin 双向都从 br-lan 进入，与官方“devices 需覆盖
   双向”的模型冲突，机制上支持跳过 hairpin 的结论。
 
+## 剩余可尝试项（未落地）
+
+- `cake`：内核已内建，可作为 `fq_codel` 的进一步对照；本次未做多轮对比。
+- BBRv3 / TCP Brutal：只作用于本机 socket，不改变转发流量路径；对
+  hairpin 转发重传帮助有限，且都是 out-of-tree 补丁，风险高。
+- Clang / ThinLTO：当前 hairpin 测试 router CPU 约 91% 空闲，不是丢包瓶颈；
+  收益应集中在 CPU 饱和的 NAT/WAN 场景。
+- nft-fullcone：仅支持 UDP，且调研文档记录有安全回归风险。
+- SFE / BCM fullcone：调研结论明确不建议复刻。
+
 ## 验收预期
 
 - `ethtool -l eth0/eth1`：RX 4 / TX 2。
