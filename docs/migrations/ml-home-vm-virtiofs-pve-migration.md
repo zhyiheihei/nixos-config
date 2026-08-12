@@ -3,6 +3,11 @@
 This document records the author-style storage layout used to migrate
 `ml-home-vm` to VirtioFS on `pve-5700u`.
 
+> Later update (2026-08-12): the Hydra host role and the x86-only containers
+> left `pve-5700u` for `ml-builder`; see
+> [pve-5700u-hypervisor-only.md](./pve-5700u-hypervisor-only.md) and the fleet
+> service chain. The VirtioFS storage layout described here remains on PVE.
+
 The migration must keep the current VM disk until the new layout has completed
 both a cold boot and a restore test.
 

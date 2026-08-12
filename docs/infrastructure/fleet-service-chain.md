@@ -33,8 +33,8 @@ flowchart LR
     Router["router\nPPPoE / NAT / DHCP / DNS / Wi-Fi"]
     Rock["rock5c\n家庭边缘 / MetaCubeXD / 主 UniAPI"]
     OPI["opi5p\n应用 / 数据库 / 媒体 / NCPS"]
-    PVE["pve-5700u\nPVE / Hydra / x86-only"]
-    Builder["ml-builder\n主构建机 / ARM 交叉构建"]
+    PVE["pve-5700u\nPVE 宿主（仅虚拟化）"]
+    Builder["ml-builder\nHydra / 主构建机 / ARM 交叉构建"]
     OldVM["ml-home-vm\n已离线（2026-08-03）"]
     Luban["lubancat1\n当前仅 server 基线"]
   end
@@ -46,14 +46,11 @@ flowchart LR
   Router --> OPI
   Colo -->|"LTNET 反代"| Rock
   Rock --> OPI
-  Rock --> PVE
   Rock --> QNAP
   OPI <--> QNAP
   Colo -->|"LibreChat / n8n / Metapi"| Rock
   Rock --> Provider
   JPVM --> Provider
-  PVE -->|"Hydra"| Builder
-  PVE -->|"原生 ARM 回退"| OPI
   Builder -->|"原生 ARM 回退"| OPI
   CNVM -->|"Attic S3 数据面"| OPI
 ```
@@ -67,9 +64,9 @@ flowchart LR
 | --- | --- | --- | --- |
 | `router` | 家庭路由器 | PPPoE、NAT/防火墙、Kea DHCP、CoreDNS、DDNS、hostapd、mDNS、MiniUPnP、NMEA、V2Ray、NCPS client | 运行，0 failed units |
 | `ml-2700` | `client` | 桌面客户端；无专用服务器应用 | LAN 与 LTNET 均不可达，只确认声明 |
-| `ml-builder` | 主 `nix-builder`、server | 受限并发 x86 构建（4 任务 × 8 核）、ARM 交叉构建、分布式 Nix、NCPS client；server 网络/DNS/监控基线 | 运行；builder 表有回边漂移 |
+| `ml-builder` | 主 `nix-builder`、Hydra、server | 单任务受限并发 x86 构建、ARM 交叉构建、Hydra、PostgreSQL、ArchiveTeam、ClawEmail、Epic Awesome Gamer、分布式 Nix、NCPS client；server 网络/DNS/监控基线 | 运行；`backup-nix-persistent` 失败（历史遗留，待复核） |
 | `ml-home-vm` | server | BIRD、WG/WSS、CoreDNS authoritative、Knot、PowerDNS Recursor、Nginx、Filebeat、exporters | 已退役（2026-08-03）：服务迁至 ROCK5C/OPI5P/PVE，备份端点已迁移 OPI5P |
-| `pve-5700u` | PVE、Hydra、回退 builder | Proxmox VE、Hydra、PostgreSQL、ArchiveTeam、ClawEmail、Epic Awesome Gamer、NCPS client、VM 数据备份 | 运行；`backup-nvme-nixos-home-vm` 因备份端点迁移而失败（配置已修，待部署） |
+| `pve-5700u` | PVE 宿主 | Proxmox VE、VM 数据备份 | 运行；`backup-nvme-nixos-home-vm` 待迁移后复核 |
 | `jpvm` | 公网、DN42、`cn-accel` | server 公共基线、公开 UniAPI、V2Ray/OpenVPN 加速 | 公网和 LTNET 均不可达，运行态未验证 |
 | `cnvm` | 公网 server | Attic、Dex、Pocket ID、Vaultwarden、GLAuth、Halo、OAuth2 Proxy、MySQL、PostgreSQL、DNS/Nginx | 运行，0 failed units |
 | `colocrossing` | 公网、DN42、协作与监控中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Prometheus、Grafana、ClickHouse、ZeroTier Controller 等 | 运行；OpenVPN 失败，系统 degraded |
@@ -161,8 +158,8 @@ Waline（comments.zhyi.xin）：已回滚，未部署
 目标链路：
 
 ```text
-Hydra（pve-5700u） -> ml-builder（x86、大包、ARM 交叉）
-                   `-> opi5p（仅原生 ARM、单任务）
+Hydra（ml-builder） -> ml-builder localhost（x86、大包、kvm/test）
+                    `-> opi5p（仅原生 ARM、单任务）
 
 Nix clients -> Attic（cnvm） -> VaultS3（OPI5P -> QNAP）
             `-> NCPS（opi5p:13851） -> 公共上游缓存
@@ -174,9 +171,9 @@ Nix clients -> Attic（cnvm） -> VaultS3（OPI5P -> QNAP）
 - `rock5c`、`lubancat1`：先 Attic，再直接使用公共镜像与 cache.nixos.org；`ml-home-vm` 已退役，不再参与；
 - ml-builder 的 `builders-use-substitutes = false`，由主构建机集中下载后传给远端。
 
-审计发现当前 ml-builder 的 `/etc/nix/machines` 仍同时列出 OPI5P 和 PVE；PVE 又列出
-ml-builder 与 OPI5P。这违反有向无环约束，说明排除 PVE 的新代际尚未在 ml-builder
-生效。在修复前存在再次出现双向输出锁等待的风险。
+2026-08-12 迁移后，`pve-5700u` 不再声明 `nix-builder`，Hydra 与三个 x86-only
+容器迁到 `ml-builder`。ml-builder 的 `/etc/nix/machines` 应只列出 OPI5P，
+`pve-5700u` 不再出现在任何构建派发表中，2026-08-03 记录的双向输出锁风险随迁移闭环。
 
 ### 家庭应用、数据与媒体链
 

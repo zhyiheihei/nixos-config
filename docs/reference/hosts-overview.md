@@ -14,9 +14,9 @@
 | --- | ---: | --- | --- | --- |
 | `router` | 112 | 家庭路由器 | `192.168.0.1` | PPPoE、LAN 网关、DHCP、DNS、DDNS 与 qBittorrent 单实例。 |
 | `ml-2700` | 113 | `client` | `ml-2700.zhyi.cc` | 家庭客户端，LAN 地址 `192.168.0.53`。 |
-| `ml-builder` | 114 | `nix-builder` | `ml-builder.zhyi.cc` | 强构建机，28 vCPU；不运行自动 Attic watch-store。 |
+| `ml-builder` | 114 | `nix-builder` | `ml-builder.zhyi.cc` | 强构建机，28 vCPU；Hydra 与 x86-only 容器（ArchiveTeam/ClawEmail/Epic Awesome Gamer）自 2026-08-12 起运行于此。 |
 | `ml-home-vm` | 115 | x86_64 / 家庭服务 VM | ~~`192.168.0.51`~~ | 已退役（2026-08-03）：应用迁至 ROCK5C/OPI5P/PVE，主机定义已从 flake 移除；`*.ml-home-vm.zhyi.cc` 服务别名由 ROCK 5C 继续承载。 |
-| `pve-5700u` | 116 | `nix-builder` / PVE | `pve-5700u.zhyi.cc` | PVE 宿主、Hydra 与本机构建能力。 |
+| `pve-5700u` | 116 | PVE | `pve-5700u.zhyi.cc` | PVE 宿主（仅虚拟化）；Hydra 与本机构建能力已迁至 ml-builder。 |
 | `jpvm` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.cc` 通配符公网入口。 |
 | `cnvm` | 119 | `server` / 公网入口 | `cnvm.zhyi.cc` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
 | `colocrossing` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、监控栈与 ZeroTier controller。 |

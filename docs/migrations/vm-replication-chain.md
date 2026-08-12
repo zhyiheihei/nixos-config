@@ -3,12 +3,15 @@
 本文记录 `ml-home-vm` 和 `pve-5700u` 对照作者配置后的实际结构与验收方法。
 目标不是逐字复制作者的硬件地址，而是保留相同的角色、数据路径和服务关系。
 
+> 2026-08-12 服务迁移：Hydra、PostgreSQL 与三个 x86-only 容器已迁到 `ml-builder`，
+> `pve-5700u` 只保留 Proxmox VE 与 VM 数据备份。本文其余角色映射保持历史记录。
+
 ## 作者映射
 
 | 当前主机 | 作者主机 | 保留的角色 |
 | --- | --- | --- |
 | `ml-home-vm` | `lt-home-vm` | 家庭服务 VM、持久数据挂载、NCPS |
-| `pve-5700u` | `pve-epyc` | PVE 虚拟化宿主、Hydra、远程构建调度 |
+| `pve-5700u` | `pve-epyc` | PVE 虚拟化宿主（Hydra、远程构建调度已于 2026-08-12 迁至 ml-builder） |
 
 CPU 数量、磁盘设备、网卡名、MAC、城市、域名和局域网网段必须使用当前硬件的真实值，
 不能复制作者环境中的值。`pve-5700u` 使用 Linux bridge `br-lan`，因为作者的
@@ -17,10 +20,10 @@ Open vSwitch 文件硬编码了作者机器的四张网卡。
 ## 当前链路
 
 ```text
-Hydra (pve-5700u .2)
-  |-- x86 / big-parallel --> ml-builder .50
+Hydra (ml-builder .50)
+  |-- x86 / big-parallel --> ml-builder localhost (one job)
   |-- native ARM fallback -> opi5p .62 (one job)
-  `-- native kvm/test ----> Hydra localhost (one job)
+  `-- native kvm/test ----> Hydra localhost (ml-builder, one job)
 
 Nix client
   |-- first --> Attic (attic.zhyi.xin) --> S3
@@ -64,18 +67,24 @@ zerotier-cli info
 birdc show protocols | grep ltnet_colocrossing
 ```
 
-在 `pve-5700u` 继续检查：
+在 `pve-5700u` 检查 PVE 与 VM：
 
 ```bash
 qm list
-systemctl is-active hydra-evaluator hydra-queue-runner hydra-server
+systemctl is-active pveproxy pvedaemon
+```
+
+在 `ml-builder` 检查 Hydra：
+
+```bash
+systemctl is-active hydra-evaluator hydra-queue-runner hydra-server postgresql
 cat /etc/nix/machines-with-localhost
 ```
 
-预期远程构建机表包含受限并发 `ml-builder`（maxJobs=4）和单并发 `opi5p`；Hydra 专用文件另有
-单并发 localhost。`ml-builder` 只声明原生 x86 平台，并通过 `aarch64-cross`
-feature 承接可交叉构建的 ARM 任务；必须执行目标程序的原生 ARM derivation 才交给
-`opi5p`。`ml-home-vm` 不参与构建。
+预期 ml-builder 的 Hydra 专用文件包含单并发 `opi5p` 与 localhost，不包含
+`pve-5700u`；ml-builder 通过 `aarch64-cross` feature 承接可交叉构建的 ARM 任务，
+必须执行目标程序的原生 ARM derivation 才交给 `opi5p`。`pve-5700u` 不再参与构建，
+`ml-home-vm` 不参与构建。
 
 ## 保留事项
 

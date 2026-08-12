@@ -40,23 +40,18 @@ in
 
     # ../../nixos/optional-apps/llama-cpp.nix
     # ../../nixos/optional-apps/llama-cpp-qwen3_6.nix
+    ../../nixos/optional-apps/archiveteam.nix
+    ../../nixos/optional-apps/clawemail.nix
+    ../../nixos/optional-apps/epic-awesome-gamer
+    # Hydra coordinates builds on this host since 2026-08-12; pve-5700u is a
+    # hypervisor-only host after the service evacuation.
+    ../../nixos/optional-apps/hydra
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/nix-distributed.nix
     # ../../nixos/optional-apps/opencl.nix
     # ../../nixos/optional-apps/picoclaw.nix
   ];
 
-  sops.secrets.ml-builder-distributed-ssh-key = {
-    sopsFile = inputs.secrets + "/hydra.yaml";
-    key = "hydra-ssh-privkey";
-    mode = "0400";
-  };
-  # Only designated upload hosts receive this token.  Fleet-wide read access
-  # to the private cache is provided separately by nix-netrc.
-  sops.secrets.attic-upload-key = {
-    sopsFile = inputs.secrets + "/common/attic.yaml";
-    mode = "0400";
-  };
   # nvchecker's netrc lookup reads ~/.netrc, so deploy the GitHub token
   # there for nvfetcher's authenticated API quota.
   sops.secrets.nvfetcher-github-netrc = {
@@ -66,8 +61,6 @@ in
     mode = "0600";
   };
   lantian.nix-distributed = {
-    sshKeyPath = config.sops.secrets.ml-builder-distributed-ssh-key.path;
-
     # Keep the builder graph directed: Hydra/PVE may dispatch to ml-builder,
     # but an incoming build on ml-builder must never be sent back to PVE while
     # PVE is still holding the same output lock.  OPI5P stays available as the

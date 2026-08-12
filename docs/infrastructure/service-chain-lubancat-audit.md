@@ -44,7 +44,8 @@ flowchart LR
   subgraph Home["家庭网络"]
     Rock["ROCK 5C\n边缘与控制面"]
     OPI["OPI5P\n应用、数据库、媒体、NCPS"]
-    PVE["pve-5700u\nHydra、x86-only 容器"]
+    Builder["ml-builder\nHydra、x86-only 容器"]
+    PVE["pve-5700u\nPVE 宿主（仅虚拟化）"]
     OldVM["ml-home-vm\n已退役（2026-08-03）"]
     Luban["LubanCat-1\n当前仅 server 公共基线"]
   end
@@ -57,8 +58,7 @@ flowchart LR
   Router -->|"8443 -> 443"| OPI
   Rock -->|"私有 HTTP/TLS"| OPI
   OPI <-->|"NFS / S3 / 媒体"| QNAP
-  PVE -->|"Hydra 构建调度"| Rock
-  PVE -->|"Hydra 构建调度"| OPI
+  Builder -->|"Hydra 构建调度"| OPI
   Luban -.->|"BIRD / WG / ZT / DNS / 监控基线"| Colo
   OldVM -.->|"BIRD / WG / ZT / DNS / 监控基线"| Colo
 ```
@@ -71,7 +71,8 @@ flowchart LR
 | colocrossing | 公网 Nginx、Gitea、Matrix、邮件、AI、监控、协作服务 | 家庭媒体存储 |
 | ROCK 5C | 家庭入口、MetaCubeXD、UniAPI、Homepage、FastAPI-DLS、reDroid | 数据库、NAR、媒体数据 |
 | OPI5P | 数据库、Immich、Linkwarden、媒体链、NCPS、文件服务、reDroid | 高并发分布式构建 |
-| pve-5700u | Hydra、x86_64-only 容器和虚拟机 | ARM 交叉内核大包 |
+| ml-builder | Hydra、x86_64-only 容器、主构建机 | 数据库、媒体、身份等业务状态服务 |
+| pve-5700u | Proxmox VE 虚拟机宿主 | Hydra、x86-only 容器、构建任务 |
 | ml-home-vm | 已退役（2026-08-03），不再承载用户应用 | 不应再被文档当作在线主机 |
 | LubanCat-1 | 当前只有 `server` 公共基线 | 数据库、缓存、浏览器任务、构建任务 |
 
@@ -97,7 +98,7 @@ flowchart LR
 | ROCK 5C | 7.7 GiB | 2.2 GiB / 5.6 GiB | 256 GB eMMC | 有余量，但可下放部分控制面 |
 | OPI5P | 15 GiB | 9.6 GiB / 6.0 GiB | 2 TB NVMe + QNAP | 压力来自重型应用，不适合向 Luban 平移 |
 | ml-home-vm | 19 GiB（历史快照） | 2.7 GiB / 16 GiB | 虚拟磁盘 + QNAP | 已退役（2026-08-03）；仅作迁移前容量记录 |
-| pve-5700u | 46 GiB | 16 GiB / 30 GiB | `/nix` 使用率约 76% | 保留 Hydra、VM 和 x86-only 服务 |
+| pve-5700u | 46 GiB | 16 GiB / 30 GiB（迁移前快照） | `/nix` 使用率约 76%（迁移前） | 已瘦身为纯 PVE 宿主（2026-08-12） |
 | cnvm | 1.9 GiB | 1.5 GiB / 435 MiB | 云盘 | 内存紧张，但状态服务不宜迁到家庭 SD 板 |
 | colocrossing | 7.7 GiB | 4.3 GiB / 3.4 GiB | 云盘 | swap 已接近满，适合移出少量非关键服务 |
 

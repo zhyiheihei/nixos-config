@@ -55,12 +55,16 @@
 审计方式：子代理 SSH 到各主机执行 `systemctl`、`podman ps` 与
 `systemctl --failed`，只记录原始输出。
 
+2026-08-12 服务迁移后，pve-5700u 的三个 x86-only 容器已随 Hydra 一并迁到
+`ml-builder`；下表位置按迁移后的当前归属更新。
+
 | 主机 | 运行中的 podman 容器 | 失败 unit | 未运行但已定义的服务 |
 | --- | --- | --- | --- |
 | `rock5c` | `moviepilot`、`handbrake`、`metacubexd`、`immich-machine-learning-rknn`、`chinesesubfinder` | 0 | `sonarr`、`radarr`、`bazarr`、`prowlarr`（已迁移/停用） |
 | `opi5p` | `archivebox`、`asf`、`filecodebox`、`home-assistant`、`memos`、`sun-panel`、`sun-panel-helper`、`tachidesk` | 0 | `vertex`、`byparr`、`redroid`、`immich-machine-learning`（迁移中或已停用） |
 | `colocrossing` | `byparr`、`pyison`、`sublinkpro` | 0 | 无 |
-| `pve-5700u` | `archiveteam`、`clawemail`、`epic-awesome-gamer` | 0 | `halo`、`waline` |
+| `ml-builder` | `archiveteam`、`clawemail`、`epic-awesome-gamer` | 0 | `halo`、`waline`（未定义） |
+| `pve-5700u` | 无 | 0 | 无 |
 
 结论：当前生产主机上的 podman 服务运行正常、无失败 unit；但这不等于
 “完美取代 podman”。可替代服务（如 `sublinkpro`、`tachidesk`、
@@ -90,9 +94,9 @@
 | `freshrss` | docker.io/freshrss | opi5p | nixpkgs `freshrss` | 可替换（当前已退役） |
 | `linkwarden` | ghcr.io/linkwarden | opi5p | nixpkgs `linkwarden` | 可替换（当前已退役） |
 | `archivebox` | docker.io/archivebox | opi5p | 无 nixpkgs/NUR | 保留容器：Django + Chromium 链路过重 |
-| `archiveteam` | atdr.meo.ws | pve | 无 nixpkgs/NUR | 保留容器：warrior 运行框架 |
-| `clawemail` | ghcr.io/wangxingfan | pve | 无 nixpkgs/NUR | 有源码，待打包（Node + better-sqlite3） |
-| `epic-awesome-gamer` | ghcr.io/qin2dim | pve | 无 nixpkgs/NUR | 有源码，待打包（Python + xvfb） |
+| `archiveteam` | atdr.meo.ws | ml-builder | 无 nixpkgs/NUR | 保留容器：warrior 运行框架 |
+| `clawemail` | ghcr.io/wangxingfan | ml-builder | 无 nixpkgs/NUR | 有源码，待打包（Node + better-sqlite3） |
+| `epic-awesome-gamer` | ghcr.io/qin2dim | ml-builder | 无 nixpkgs/NUR | 有源码，待打包（Python + xvfb） |
 | `immich-machine-learning-rknn` | immich release-rknn | opi5p/rock5c | 无 nixpkgs/NUR | 保留容器：RKNN 驱动/设备树绑定 |
 | `redroid` | cnflysky / local | opi5p/opi03 | 无 nixpkgs/NUR | 保留容器：Android 内核用户态 |
 | `mmrelay` | ghcr.io/jeremiah-k | 家庭 | 无 nixpkgs/NUR | 保留容器：上游源码未稳定定位 |

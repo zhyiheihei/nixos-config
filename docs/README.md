@@ -83,6 +83,7 @@
 - [colocrossing 迁移到新加坡节点](./migrations/colocrossing-sg-migration.md)
 - [ml-home-vm 与 pve-5700u 复刻验收](./migrations/vm-replication-chain.md)
 - [ml-home-vm VirtioFS 与 PVE 迁移手册](./migrations/ml-home-vm-virtiofs-pve-migration.md)
+- [pve-5700u 瘦身为纯 PVE 宿主](./migrations/pve-5700u-hypervisor-only.md)
 
 ## 历史归档
 
