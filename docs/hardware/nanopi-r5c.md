@@ -260,14 +260,14 @@ Tegra/QEMU 的 `ttyS0`、`ttyAMA0`；与 R5C 的 `ttyS2` 并存后，只能依�
 
 ### 网卡驱动
 
-R5C 的两个 RTL8125 网口使用主线 `r8169` 驱动，与当前 Armbian R5C 配置保持一致。
-真机压力测试中，Realtek 官方 `r8125` out-of-tree 驱动曾出现 TX queue
-`NETDEV WATCHDOG`，连带造成 PPPoE WAN 掉线，因此本板不再加载它。
-2026-08-11 临时 A/B 复现同一事故（eth0 TX queue 0 timeout 6004 ms，LAN 掉链），
-已回滚 r8169，不再重新启用 vendor r8125。
+R5C 的两个 RTL8125 网口使用 vendor `r8125` 驱动，并编译开启 RSS 与多 TX 队列，
+同时关闭 ASPM/EEE，对应 OpenWrt `kmod-r8125-rss` 的高吞吐方案。2026-08-11 曾
+因 r8125 TX queue `NETDEV WATCHDOG` 回滚到主线 `r8169`；2026-08-12 复测确认
+NUR 默认 r8125 没有 RSS、ASPM/EEE 默认开启，因此改用 RSS 版并编译关闭低功耗
+路径后重新启用。若再次复现 WATCHDOG，则按事故记录永久回滚 r8169。
 
 ```nix
-boot.kernelModules = [ "r8169" ];
+boot.kernelModules = [ "r8125" ];
 ```
 
 initrd 不包含通用网卡、NVMe、USB 存储或虚拟机驱动：`/nix` 是本地 Btrfs，
@@ -557,7 +557,8 @@ systemd-analyze blame | head -30
 - Nixpkgs U-Boot 可从 TF 和 eMMC 读取 extlinux；
 - Linux 6.18、R5C DTB、initrd 和真实 systemd 可以启动；
 - `/` 为 tmpfs，`/boot` 为 FAT32，`/nix` 为 Btrfs；
-- 主线 r8169 驱动正常加载，两个 RTL8125 网口以 2.5 Gbps 建立链路；
+- 主线 r8169（此前）/ vendor r8125 RSS 版（2026-08-12 起，待部署验证）正常
+  加载，两个 RTL8125 网口以 2.5 Gbps 建立链路；
 - `hwclock -s --utc` 在 `rtc_rk808` 早期加载后成功从 RTC 恢复系统时钟；
 - `ntpd-rs` 联网后精确校时，无失败服务；
 - WiFi（MT7921）通过 hostapd 提供 `moli-rk-wifi` AP，加入 br-lan 桥接；
