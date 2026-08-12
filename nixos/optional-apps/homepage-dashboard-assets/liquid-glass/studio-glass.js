@@ -361,9 +361,11 @@ void main() {
         .catch(() => {
           if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
           gl = null;
+          console.error("studio glass capture failed");
         });
       return true;
     } catch (error) {
+      console.error("studio glass failed", error);
       return false;
     }
   };
