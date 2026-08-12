@@ -193,6 +193,8 @@ void main() {
   let renderRunning = false;
   let lastInteraction = Date.now();
   let scrollRaf = 0;
+  let captureRetries = 0;
+  let canvasAttached = false;
 
   const compileShader = (type, source) => {
     const shader = gl.createShader(type);
@@ -370,8 +372,9 @@ void main() {
       createProgram();
       dpr = window.devicePixelRatio || 1;
       refreshShapes();
-      captureBackground()
-        .then(() => {
+      const attachCanvas = () => {
+        if (canvasAttached) return;
+        canvasAttached = true;
           canvas.className = "studio-glass-canvas";
           canvas.style.cssText =
             "position:fixed;inset:0;z-index:5;pointer-events:none;";
@@ -403,12 +406,24 @@ void main() {
             startRender();
           });
           startRender();
-        })
-        .catch(() => {
-          if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
-          gl = null;
-          console.error("studio glass capture failed");
-        });
+      };
+      const captureWithRetry = () => {
+        captureBackground()
+          .then(attachCanvas)
+          .catch(() => {
+            if (captureRetries < 3) {
+              captureRetries += 1;
+              window.setTimeout(captureWithRetry, 2000);
+            } else {
+              if (canvas && canvas.parentNode) {
+                canvas.parentNode.removeChild(canvas);
+              }
+              gl = null;
+              console.error("studio glass capture failed");
+            }
+          });
+      };
+      captureWithRetry();
       return true;
     } catch (error) {
       console.error("studio glass failed", error);
@@ -418,9 +433,18 @@ void main() {
 
   window.HomepageStudioGlass = {
     start,
-    refresh: () => {
+    refresh: (recapture) => {
       if (getTargets) refreshShapes();
       lastInteraction = Date.now();
+      if (recapture && typeof window.html2canvas === "function" && gl) {
+        captureBackground()
+          .then(() => {
+            lastInteraction = Date.now();
+            startRender();
+          })
+          .catch(() => {});
+        return;
+      }
       startRender();
     },
   };

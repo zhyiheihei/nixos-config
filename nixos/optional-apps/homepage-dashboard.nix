@@ -79,11 +79,6 @@ in
       hideVersion = true;
       iconStyle = "theme";
       statusStyle = "dot";
-      # 液态玻璃风格：卡片玻璃模糊（背景保持清晰）
-      background = {
-        image = "https://t.alcy.cc/ysz";
-        opacity = 100;
-      };
       inherit layout;
       # Ignore errors for network instability
       hideErrors = true;
@@ -96,7 +91,7 @@ in
     customJS = ''
       (() => {
         const script = document.createElement("script");
-        script.src = "/homepage-assets/liquid-glass/homepage-liquid.js";
+        script.src = "/homepage-assets/liquid-glass/homepage-orchestrator.js";
         script.defer = true;
         document.head.appendChild(script);
       })();
