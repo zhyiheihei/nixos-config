@@ -63,6 +63,27 @@ in
   # network IRQs pinned by router-rps instead.
   services.irqbalance.enable = lib.mkForce false;
 
+  # fq_codel on the LAN egress measurably reduces hairpin TCP retransmits:
+  # 5-run median with mq was 2.293 Gbit/s / 51041 retrans, with fq_codel it
+  # is 2.326 Gbit/s / 23269 retrans (OPI5P hairpin P16, 10s each).
+  systemd.services.router-qdisc = {
+    description = "Use fq_codel on RTL8125 LAN egress";
+    wantedBy = [ "multi-user.target" ];
+    after = [
+      "systemd-networkd.service"
+      "sys-subsystem-net-devices-eth0.device"
+    ];
+    wants = [ "sys-subsystem-net-devices-eth0.device" ];
+    path = [ pkgs.iproute2 ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "${pkgs.iproute2}/bin/tc qdisc replace dev eth0 root fq_codel";
+      Restart = "on-failure";
+      RestartSec = "5";
+    };
+  };
+
   systemd.services.router-rps = {
     description = "Spread RTL8125 RX queues across all router cores";
     wantedBy = [ "multi-user.target" ];
