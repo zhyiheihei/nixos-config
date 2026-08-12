@@ -58,6 +58,16 @@
 - 单连接仍受源站/ISP 与单核路径限制，4 队列与 IRQ 亲和提升的是并发流吞吐，
   多源聚合仍是单流受限场景下的必要手段。
 
+## 2.5G 端点复测（OPI5P）
+
+- router `eth0/eth1` 与 OPI5P `lan0` 均协商为 2500Mb/s；ml-builder 只有 1G
+  网卡，因此此前用 ml-builder 的测量不能代表 router 上限。
+- OPI5P 直连 router：P1 单流 2.32 Gbit/s，P4 2.34 Gbit/s，P8 2.35 Gbit/s，
+  P16 2.37 Gbit/s；反向 P8/P16 约 2.33-2.36 Gbit/s。已接近 2.5G 的 TCP
+  线速上限（约 2.35-2.40 Gbit/s）。
+- OPI5P 经 router hairpin NAT 转发：P1 约 1.99 Gbit/s，P8 2.31 Gbit/s，
+  P16 2.28 Gbit/s；多流下重传较多，但聚合吞吐仍接近 2.3G。
+
 ## 验收预期
 
 - `ethtool -l eth0/eth1`：RX 4 / TX 2。
