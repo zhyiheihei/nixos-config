@@ -79,3 +79,6 @@ nix.profile
 *.cookie*
 .cookies
 cookies.txt
+
+# Local reference checkout used by homepage audits; never commit.
+reference/

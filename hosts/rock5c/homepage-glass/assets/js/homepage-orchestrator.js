@@ -1,5 +1,7 @@
 // Homepage bootstrap: tabs, status bar, clock, quote, and WebGL liquid glass.
 // This file owns DOM/configuration concerns; studio-glass.js owns rendering.
+// The single source of truth for which container is live is the
+// `data-glass-container` attribute; every glass element gets `data-glass`.
 (() => {
   "use strict";
 
@@ -12,25 +14,13 @@
   };
 
   const TAB_ORDER = ["公开", "私有", "快捷"];
+  const CONTAINER_IDS = ["layout-groups", "services", "bookmarks"];
+
   const tabFromName = (name) => {
     if (name.indexOf("公开") !== -1) return "公开";
     if (name.indexOf("私有") !== -1) return "私有";
     return "快捷";
   };
-
-  const GLASS_TARGETS = [
-    "#layout-groups .services-group",
-    "#layout-groups .bookmark-group",
-    "#services .services-group",
-    "#bookmarks .bookmark-group",
-    "#layout-groups .service-card",
-    "#layout-groups .bookmark > a",
-    "#services .service-card",
-    "#bookmarks .bookmark > a",
-    "#information-widgets .widget-container:not(.information-widget-datetime)",
-    "#homepage-search-section",
-    ".homepage-tabbar",
-  ];
 
   const loadScript = (src) =>
     new Promise((resolve, reject) => {
@@ -42,6 +32,7 @@
       }, 20000);
       script.onload = () => {
         window.clearTimeout(timer);
+        script.remove();
         resolve();
       };
       script.onerror = () => {
@@ -59,6 +50,27 @@
     return (title && title.textContent.trim()) || "";
   };
 
+  const findContainer = () =>
+    CONTAINER_IDS.map((id) => document.getElementById(id)).find(Boolean) || null;
+
+  const markGlass = () => {
+    const container = findContainer();
+    if (!container) return null;
+    container.setAttribute("data-glass-container", "");
+    container
+      .querySelectorAll(
+        ":scope > .services-group, :scope > .bookmark-group, " +
+          ".service-card, .bookmark > a"
+      )
+      .forEach((element) => element.setAttribute("data-glass", ""));
+    document
+      .querySelectorAll(
+        "#information-widgets .widget-container, #homepage-search-section, .homepage-tabbar"
+      )
+      .forEach((element) => element.setAttribute("data-glass", ""));
+    return container;
+  };
+
   const moveSearch = () => {
     const search =
       document.querySelector(
@@ -73,20 +85,18 @@
       section.id = "homepage-search-section";
       info.parentNode.insertBefore(section, info.nextSibling);
     }
+    section.setAttribute("data-glass", "");
     if (search.parentElement !== section) {
       section.appendChild(search);
     }
   };
 
   const buildTabs = () => {
-    const containers = ["layout-groups", "services", "bookmarks"]
-      .map((id) => document.getElementById(id))
-      .filter(Boolean);
-    const groups = containers.flatMap((container) =>
-      Array.from(
-        container.querySelectorAll(
-          ":scope > .services-group, :scope > .bookmark-group"
-        )
+    const container = findContainer();
+    if (!container) return;
+    const groups = Array.from(
+      container.querySelectorAll(
+        ":scope > .services-group, :scope > .bookmark-group"
       )
     );
     if (groups.length === 0) return;
@@ -96,48 +106,50 @@
     });
 
     let bar = document.querySelector(".homepage-tabbar");
-    const tabs = [...new Set(groups.map((group) => group.dataset.tabGroup))];
-    const order = TAB_ORDER.filter((name) => tabs.includes(name));
     if (!bar) {
       bar = document.createElement("div");
       bar.className = "homepage-tabbar";
-      order.forEach((name, index) => {
-        const button = document.createElement("button");
+      bar.setAttribute("role", "tablist");
+      bar.setAttribute("aria-label", "首页分组");
+      container.insertBefore(bar, container.firstChild);
+    }
+    bar.setAttribute("data-glass", "");
+
+    const tabs = [...new Set(groups.map((group) => group.dataset.tabGroup))];
+    const order = TAB_ORDER.filter((name) => tabs.includes(name));
+    const current = document.documentElement.dataset.homepageTab;
+    const activeTab = tabs.includes(current) ? current : order[0] || "公开";
+    document.documentElement.dataset.homepageTab = activeTab;
+
+    // Reconcile buttons so late group renders stay in sync.
+    Array.from(bar.querySelectorAll(".homepage-tab")).forEach((button) => {
+      if (!tabs.includes(button.dataset.tab)) button.remove();
+    });
+    order.forEach((name, index) => {
+      let button = bar.querySelector('.homepage-tab[data-tab="' + name + '"]');
+      if (!button) {
+        button = document.createElement("button");
         button.type = "button";
-        button.className = "homepage-tab" + (index === 0 ? " active" : "");
+        button.className = "homepage-tab";
         button.textContent = name;
         button.dataset.tab = name;
+        button.setAttribute("role", "tab");
+        button.setAttribute("aria-selected", "false");
+        button.setAttribute("aria-controls", "homepage-tab-" + name);
         button.addEventListener("click", () => {
           document.documentElement.dataset.homepageTab = name;
-          bar.querySelectorAll(".homepage-tab").forEach((tab) => {
-            tab.classList.toggle("active", tab === button);
-          });
           if (window.HomepageStudioGlass) {
             window.HomepageStudioGlass.scheduleRefresh(true);
           }
         });
-        bar.appendChild(button);
-      });
-    }
-
-    const host = containers[0];
-    if (host && bar.parentElement !== host) {
-      host.insertBefore(bar, host.firstChild);
-    }
-    document.documentElement.dataset.homepageTab =
-      document.documentElement.dataset.homepageTab || order[0] || "公开";
-    bar.querySelectorAll(".homepage-tab").forEach((tab) => {
-      const active = tab.dataset.tab === document.documentElement.dataset.homepageTab;
-      tab.classList.toggle("active", active);
+        bar.insertBefore(button, bar.children[index] || null);
+      }
+      button.classList.toggle("active", name === activeTab);
+      button.setAttribute("aria-selected", name === activeTab ? "true" : "false");
     });
   };
 
   const dailyQuote = async () => {
-    const greeting =
-      document.querySelector(".information-widget-greeting span") ||
-      document.querySelector(".information-widget-greeting");
-    if (!greeting) return;
-
     const localDayKey = () => {
       const now = new Date();
       return (
@@ -149,11 +161,11 @@
         String(now.getDate()).padStart(2, "0")
       );
     };
-    const apply = (text) => {
-      if (greeting) greeting.textContent = text;
-    };
 
     const refreshQuote = async () => {
+      const greeting =
+        document.querySelector(".information-widget-greeting span") ||
+        document.querySelector(".information-widget-greeting");
       const dayKey = localDayKey();
       try {
         let quote = null;
@@ -183,7 +195,15 @@
             window.clearTimeout(timer);
           }
         }
-        apply(quote);
+        const target =
+          document.querySelector(".information-widget-greeting span") ||
+          document.querySelector(".information-widget-greeting");
+        if (target && quote) {
+          target.textContent = quote;
+          if (window.HomepageStudioGlass) {
+            window.HomepageStudioGlass.scheduleRefresh(true);
+          }
+        }
       } catch (e) {
         // keep the original greeting text when the quote API is unreachable
       }
@@ -238,45 +258,73 @@
     window.setInterval(updateTime, 30000);
   };
 
+  let studioStarted = false;
+  let studioAttempts = 0;
+  const MAX_STUDIO_ATTEMPTS = 5;
+
   const initStudio = async () => {
     if (studioStarted) return;
-    studioStarted = true;
+    studioAttempts += 1;
+    window.HomepageBootstrap = {
+      status: "loading",
+      attempts: studioAttempts,
+      error: null,
+    };
     try {
       await loadScript("/homepage-assets/vendor/html2canvas-pro-1.5.8.min.js");
       await loadScript("/homepage-assets/js/studio-glass.js");
     } catch (error) {
-      studioStarted = false;
-      if (studioRetries < 4) {
-        studioRetries += 1;
-        window.setTimeout(initStudio, 2000 * studioRetries);
+      window.HomepageBootstrap = {
+        status: "script-failed",
+        attempts: studioAttempts,
+        error: error.message,
+      };
+      if (studioAttempts < MAX_STUDIO_ATTEMPTS) {
+        window.setTimeout(initStudio, 2000 * studioAttempts);
       }
       return;
     }
     if (!window.HomepageStudioGlass) {
-      studioStarted = false;
+      window.HomepageBootstrap = {
+        status: "missing-global",
+        attempts: studioAttempts,
+        error: "HomepageStudioGlass not defined",
+      };
+      if (studioAttempts < MAX_STUDIO_ATTEMPTS) {
+        window.setTimeout(initStudio, 2000 * studioAttempts);
+      }
       return;
     }
-    const targets = () =>
-      Array.from(document.querySelectorAll(GLASS_TARGETS.join(", ")));
-    if (!window.HomepageStudioGlass.start(targets)) {
-      studioStarted = false;
-      if (studioRetries < 4) {
-        studioRetries += 1;
-        window.setTimeout(initStudio, 2000 * studioRetries);
-      }
+    const container = markGlass();
+    const ok = window.HomepageStudioGlass.start({
+      root: container,
+      targetFn: () => Array.from(document.querySelectorAll("[data-glass]")),
+      zIndex: 5,
+    });
+    if (ok) {
+      studioStarted = true;
+      window.HomepageBootstrap = {
+        status: "running",
+        attempts: studioAttempts,
+        error: null,
+      };
+    } else if (studioAttempts < MAX_STUDIO_ATTEMPTS) {
+      window.setTimeout(initStudio, 2000 * studioAttempts);
+    } else {
+      window.HomepageBootstrap = {
+        status: "start-failed",
+        attempts: studioAttempts,
+        error: "WebGL2 or html2canvas unavailable",
+      };
     }
   };
 
-  let studioStarted = false;
-  let studioRetries = 0;
   let layoutRaf = 0;
+  let layoutTimer = 0;
 
   const ensureLayout = () => {
-    const groups = document.querySelectorAll(
-      "#layout-groups > .services-group, #layout-groups > .bookmark-group, " +
-        "#services > .services-group, #bookmarks > .bookmark-group"
-    );
-    if (groups.length === 0) return;
+    const container = markGlass();
+    if (!container) return;
     buildTabs();
     moveSearch();
     if (window.HomepageStudioGlass) {
@@ -285,20 +333,57 @@
     initStudio();
   };
 
+  const scheduleEnsure = () => {
+    if (layoutRaf) return;
+    layoutRaf = window.requestAnimationFrame(() => {
+      layoutRaf = 0;
+      ensureLayout();
+    });
+  };
+
   ready(() => {
     buildStatusBar();
     moveSearch();
     dailyQuote();
     ensureLayout();
-    const scheduleEnsure = () => {
-      if (layoutRaf) return;
-      layoutRaf = window.requestAnimationFrame(() => {
-        layoutRaf = 0;
-        ensureLayout();
-      });
-    };
-    const layoutObserver = new MutationObserver(scheduleEnsure);
-    layoutObserver.observe(document.body, { childList: true, subtree: true });
     window.setTimeout(scheduleEnsure, 300);
+
+    const layoutObserver = new MutationObserver(scheduleEnsure);
+    layoutObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      attributeFilter: ["data-tab-group", "class"],
+    });
+
+    const resizeObserver = new ResizeObserver(() => {
+      if (layoutTimer) window.clearTimeout(layoutTimer);
+      layoutTimer = window.setTimeout(() => {
+        layoutTimer = 0;
+        ensureLayout();
+      }, 120);
+    });
+    const container = findContainer();
+    if (container) resizeObserver.observe(container);
+
+    const searchInput = () =>
+      document.querySelector(".information-widget-search input");
+    const onSearchInput = () => {
+      if (window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.scheduleRefresh(true);
+      }
+    };
+    document.addEventListener("input", (event) => {
+      if (event.target && event.target.matches(".information-widget-search input")) {
+        onSearchInput();
+      }
+    });
+
+    window.setInterval(() => {
+      if (!document.hidden && window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.scheduleRefresh(true);
+      }
+    }, 30000);
   });
 })();

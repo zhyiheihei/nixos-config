@@ -75,6 +75,25 @@ in
     + "localhost:${LT.portStr.HomepageDashboard},127.0.0.1:${LT.portStr.HomepageDashboard}"
   );
 
+  # 契约断言：secrets search + 公共模块三件套 + 本机 resources 各恰好出现一次。
+  # 防止 secrets 后续新增同名 widget 或模块被重复导入时静默重复。
+  assertions = [
+    {
+      assertion = let
+        widgetKinds = lib.concatMap (w: lib.attrNames w)
+          config.services.homepage-dashboard.widgets;
+        count = kind: lib.length (lib.filter (k: k == kind) widgetKinds);
+      in lib.all (kind: count kind == 1) [
+        "search"
+        "greeting"
+        "datetime"
+        "openmeteo"
+        "resources"
+      ];
+      message = "homepage-dashboard widgets must contain search/greeting/datetime/openmeteo/resources exactly once";
+    }
+  ];
+
   environment.etc."homepage-dashboard/assets/js".source = ./assets/js;
   environment.etc."homepage-dashboard/assets/vendor/html2canvas-pro-1.5.8.min.js".source =
     vendorHtml2Canvas;
