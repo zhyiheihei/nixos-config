@@ -23,6 +23,10 @@
   `cnvm.zhyi.cc.`、`colocrossing.zhyi.cc.` 或 `home-ddns.zhyi.cc.`。
 - `home-ddns.zhyi.cc` 是当前唯一由 Gcore DDNS 维护的动态 RRSet；DNSControl
   使用 `IGNORE` 保留它。
+- `home-ddns.zhyi.cc` 的 A 记录 TTL 固定为 `120s`；router 在 `ppp0` 进入
+  routable 时立即触发 DDNS 更新，另有 hourly timer 兜底。
+- 指向 `home-ddns.zhyi.cc` 的静态 CNAME 统一使用 `120s` TTL，使 WAN IP 变更后
+  旧 CNAME 缓存也能在 2 分钟内失效；此修改不新增动态 RRSet 或健康检查。
 - `twvm` 已退出生产拓扑。当前公网 VPS 为 `jpvm`、`cnvm`、`colocrossing`、`usvm`；
   根域 `zhyi.cc` 指向 `jpvm`，根域 `zhyi.xin` 指向 `cnvm`。
 - 目前不实施公网自动故障转移。未来若恢复该需求，应先升级 Gcore 套餐或迁移到
