@@ -87,13 +87,7 @@
           .forEach((panel) =>
             panel.classList.toggle("active", panel.dataset.tab === name)
           );
-        requestAnimationFrame(() => {
-          if (typeof Container !== "undefined") {
-            Container.instances.forEach((instance) => {
-              if (instance.updateSizeFromDOM) instance.updateSizeFromDOM();
-            });
-          }
-        });
+        window.setTimeout(applySvgGlassToVisible, 60);
       });
       bar.appendChild(button);
     });
@@ -239,135 +233,273 @@
     observer.observe(host, { childList: true, subtree: true });
   };
 
-  const wrapGlass = (element, options) => {
-    if (!element || element.dataset.homepageGlass) return null;
-    if (typeof Container === "undefined") return null;
-
-    const glass = new Container({
-      borderRadius: options.borderRadius,
-      type: "rounded",
-      tintOpacity: options.tintOpacity,
-    });
-    const className = element.className;
-    const id = element.id;
-    glass.element.className = className + " glass-container homepage-glass";
-    if (id) glass.element.id = id;
-
-    Array.from(element.attributes).forEach((attr) => {
-      if (attr.name !== "id" && attr.name !== "class") {
-        glass.element.setAttribute(attr.name, attr.value);
-      }
-    });
-
-    while (element.firstChild) {
-      glass.element.appendChild(element.firstChild);
-    }
-    element.parentNode.replaceChild(glass.element, element);
-    glass.element.dataset.homepageGlass = "1";
-    return glass;
+  const SURFACE_FNS = {
+    convex_squircle: (x) => Math.pow(1 - Math.pow(1 - x, 4), 0.25),
   };
 
-  const initLiquid = async () => {
-    if (prefersReducedMotion()) return;
+  const calculateRefractionProfile = (thickness, bezel, heightFn, ior, samples) => {
+    samples = samples || 128;
+    const eta = 1 / ior;
+    const profile = new Float64Array(samples);
+    for (let i = 0; i < samples; i += 1) {
+      const x = i / samples;
+      const y = heightFn(x);
+      const dx = x < 1 ? 0.0001 : -0.0001;
+      const y2 = heightFn(x + dx);
+      const deriv = (y2 - y) / dx;
+      const mag = Math.sqrt(deriv * deriv + 1);
+      const nx = -deriv / mag;
+      const ny = -1 / mag;
+      const dot = ny;
+      const k = 1 - eta * eta * (1 - dot * dot);
+      if (k < 0) {
+        profile[i] = 0;
+        continue;
+      }
+      const sq = Math.sqrt(k);
+      const rx = -(eta * dot + sq) * nx;
+      const ry = eta - (eta * dot + sq) * ny;
+      profile[i] = rx * ((y * bezel + thickness) / ry);
+    }
+    return profile;
+  };
 
-    const probe = document.createElement("canvas");
-    const gl2 = probe.getContext("webgl2");
-    const gl = probe.getContext("webgl");
-    if (!gl2 && !gl) return;
-
-    try {
-      await loadScript(
-        "/homepage-assets/liquid-glass/html2canvas-pro.min.js"
-      );
-      await loadScript("/homepage-assets/liquid-glass/container.js");
-    } catch (e) {
-      return;
+  const generateDisplacementMap = (w, h, radius, bezelWidth, profile, maxDisp) => {
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    const image = ctx.createImageData(w, h);
+    const d = image.data;
+    for (let i = 0; i < d.length; i += 4) {
+      d[i] = 128;
+      d[i + 1] = 128;
+      d[i + 2] = 0;
+      d[i + 3] = 255;
     }
 
-    window.glassControls = {
-      edgeIntensity: 0.022,
-      rimIntensity: 0.15,
-      baseIntensity: 0.012,
-      edgeDistance: 0.14,
-      rimDistance: 0.7,
-      baseDistance: 0.1,
-      cornerBoost: 0.05,
-      rippleEffect: 0.02,
-      blurRadius: 5.5,
-    };
+    const r = radius;
+    const rSq = r * r;
+    const r1Sq = (r + 1) * (r + 1);
+    const rBSq = Math.max(r - bezelWidth, 0) * Math.max(r - bezelWidth, 0);
+    const wB = w - r * 2;
+    const hB = h - r * 2;
+    const S = profile.length;
 
-    requestAnimationFrame(() => {
-      document
-        .querySelectorAll(
-          "#information-widgets .widget-container:not(.information-widget-datetime)"
-        )
-        .forEach((widget) =>
-          wrapGlass(widget, { borderRadius: 16, tintOpacity: 0.12 })
-        );
-      const search = document.getElementById("homepage-search-section");
-      if (search) {
-        wrapGlass(search, { borderRadius: 18, tintOpacity: 0.1 });
+    for (let y1 = 0; y1 < h; y1 += 1) {
+      for (let x1 = 0; x1 < w; x1 += 1) {
+        const x = x1 < r ? x1 - r : x1 >= w - r ? x1 - r - wB : 0;
+        const y = y1 < r ? y1 - r : y1 >= h - r ? y1 - r - hB : 0;
+        const dSq = x * x + y * y;
+        if (dSq > r1Sq || dSq < rBSq) continue;
+        const dist = Math.sqrt(dSq);
+        const fromSide = r - dist;
+        const op =
+          dSq < rSq ? 1 : 1 - (dist - Math.sqrt(rSq)) / (Math.sqrt(r1Sq) - Math.sqrt(rSq));
+        if (op <= 0 || dist === 0) continue;
+        const cos = x / dist;
+        const sin = y / dist;
+        const bi = Math.min(((fromSide / bezelWidth) * S) | 0, S - 1);
+        const disp = profile[bi] || 0;
+        const dX = (-cos * disp) / maxDisp;
+        const dY = (-sin * disp) / maxDisp;
+        const idx = (y1 * w + x1) * 4;
+        d[idx] = (128 + dX * 127 * op + 0.5) | 0;
+        d[idx + 1] = (128 + dY * 127 * op + 0.5) | 0;
       }
-      const tabbar = document.querySelector(".homepage-tabbar");
-      if (tabbar) {
-        wrapGlass(tabbar, { borderRadius: 14, tintOpacity: 0.12 });
+    }
+    ctx.putImageData(image, 0, 0);
+    return canvas.toDataURL();
+  };
+
+  const generateSpecularMap = (w, h, radius, bezelWidth, angle) => {
+    angle = angle != null ? angle : Math.PI / 3;
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    const image = ctx.createImageData(w, h);
+    const d = image.data;
+    d.fill(0);
+
+    const r = radius;
+    const rSq = r * r;
+    const r1Sq = (r + 1) * (r + 1);
+    const rBSq = Math.max(r - bezelWidth, 0) * Math.max(r - bezelWidth, 0);
+    const wB = w - r * 2;
+    const hB = h - r * 2;
+    const sv = [Math.cos(angle), Math.sin(angle)];
+
+    for (let y1 = 0; y1 < h; y1 += 1) {
+      for (let x1 = 0; x1 < w; x1 += 1) {
+        const x = x1 < r ? x1 - r : x1 >= w - r ? x1 - r - wB : 0;
+        const y = y1 < r ? y1 - r : y1 >= h - r ? y1 - r - hB : 0;
+        const dSq = x * x + y * y;
+        if (dSq > r1Sq || dSq < rBSq) continue;
+        const dist = Math.sqrt(dSq);
+        const fromSide = r - dist;
+        const op =
+          dSq < rSq ? 1 : 1 - (dist - Math.sqrt(rSq)) / (Math.sqrt(r1Sq) - Math.sqrt(rSq));
+        if (op <= 0 || dist === 0) continue;
+        const cos = x / dist;
+        const sin = -y / dist;
+        const dot = Math.abs(cos * sv[0] + sin * sv[1]);
+        const edge = Math.sqrt(Math.max(0, 1 - (1 - fromSide) * (1 - fromSide)));
+        const coeff = dot * edge;
+        const col = (255 * coeff) | 0;
+        const alpha = (col * coeff * op) | 0;
+        const idx = (y1 * w + x1) * 4;
+        d[idx] = col;
+        d[idx + 1] = col;
+        d[idx + 2] = col;
+        d[idx + 3] = alpha;
       }
-      const bindPanels = () => {
-        document
-          .querySelectorAll(
-            "#layout-groups .services-group, #layout-groups .bookmark-group"
-          )
-          .forEach((panel) =>
-            wrapGlass(panel, { borderRadius: 20, tintOpacity: 0.12 })
-          );
-      };
-      const bindPointer = () => {
-        document
-          .querySelectorAll(
-            ".homepage-glass.services-group, .homepage-glass.bookmark-group, .homepage-glass.widget-container, .homepage-glass.homepage-tabbar"
-          )
-          .forEach((element) => {
-            if (element.dataset.homepagePointer === "1") return;
-            element.dataset.homepagePointer = "1";
-            element.addEventListener("pointermove", (event) => {
-              const rect = element.getBoundingClientRect();
-              element.style.setProperty(
-                "--lx",
-                event.clientX - rect.left + "px"
-              );
-              element.style.setProperty(
-                "--ly",
-                event.clientY - rect.top + "px"
-              );
-            });
-          });
-      };
-      const refreshGlass = () => {
-        bindPanels();
-        bindPointer();
-      };
-      refreshGlass();
-      const cardObserver = new MutationObserver(refreshGlass);
-      cardObserver.observe(document.body, { childList: true, subtree: true });
+    }
+    ctx.putImageData(image, 0, 0);
+    return canvas.toDataURL();
+  };
 
-      const checkReady = window.setInterval(() => {
-        if (
-          typeof Container !== "undefined" &&
-          Container.pageSnapshot &&
-          Container.instances.some((instance) => instance.webglInitialized)
-        ) {
-          document.documentElement.classList.add("webgl-glass");
-          window.clearInterval(checkReady);
-        }
-      }, 250);
+  let glassCounter = 0;
 
-      window.addEventListener("resize", () => {
-        if (typeof Container !== "undefined") {
-          Container.instances.forEach((instance) => {
-            if (instance.updateSizeFromDOM) instance.updateSizeFromDOM();
-          });
-        }
+  const getGlassSvgDefs = () => {
+    let svg = document.getElementById("homepage-svg-defs");
+    if (svg) return svg;
+    svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.id = "homepage-svg-defs";
+    svg.setAttribute("width", "0");
+    svg.setAttribute("height", "0");
+    svg.style.position = "absolute";
+    svg.style.overflow = "hidden";
+    svg.setAttribute("color-interpolation-filters", "sRGB");
+    const defs = document.createElementNS("http://www.w3.org/2000/svg", "defs");
+    svg.appendChild(defs);
+    document.body.appendChild(svg);
+    return svg;
+  };
+
+  const applySvgGlass = (element, options) => {
+    if (!element) return;
+    const rect = element.getBoundingClientRect();
+    const w = Math.round(rect.width);
+    const h = Math.round(rect.height);
+    if (w < 8 || h < 8) return;
+
+    const radius = options.radius || 18;
+    const bezel = Math.min(
+      26,
+      radius - 1,
+      Math.min(w, h) / 2 - 1
+    );
+    if (bezel < 2) return;
+
+    const profile = calculateRefractionProfile(
+      14,
+      bezel,
+      SURFACE_FNS.convex_squircle,
+      1.52,
+      128
+    );
+    let maxDisp = 1;
+    for (let i = 0; i < profile.length; i += 1) {
+      maxDisp = Math.max(maxDisp, Math.abs(profile[i]));
+    }
+    const dispUrl = generateDisplacementMap(
+      w,
+      h,
+      radius,
+      bezel,
+      profile,
+      maxDisp
+    );
+    const specUrl = generateSpecularMap(
+      w,
+      h,
+      radius,
+      bezel * 2.5,
+      Math.PI / 3
+    );
+
+    const svg = getGlassSvgDefs();
+    const oldId = element.dataset.homepageGlassFilter;
+    if (oldId) {
+      const old = document.getElementById(oldId);
+      if (old && old.parentNode) old.parentNode.removeChild(old);
+    }
+
+    glassCounter += 1;
+    const id = "homepage-svg-glass-" + glassCounter;
+    const filter = document.createElementNS("http://www.w3.org/2000/svg", "filter");
+    filter.id = id;
+    filter.setAttribute("x", "-20%");
+    filter.setAttribute("y", "-20%");
+    filter.setAttribute("width", "140%");
+    filter.setAttribute("height", "140%");
+    filter.innerHTML =
+      '<feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blurred_source" />' +
+      '<feImage href="' +
+      dispUrl +
+      '" x="0" y="0" width="' +
+      w +
+      '" height="' +
+      h +
+      '" result="disp_map" />' +
+      '<feDisplacementMap in="blurred_source" in2="disp_map" scale="' +
+      maxDisp +
+      '" xChannelSelector="R" yChannelSelector="G" result="displaced" />' +
+      '<feColorMatrix in="displaced" type="saturate" values="4" result="displaced_sat" />' +
+      '<feImage href="' +
+      specUrl +
+      '" x="0" y="0" width="' +
+      w +
+      '" height="' +
+      h +
+      '" result="spec_layer" />' +
+      '<feComposite in="displaced_sat" in2="spec_layer" operator="in" result="spec_masked" />' +
+      '<feComponentTransfer in="spec_layer" result="spec_faded"><feFuncA type="linear" slope="0.55" /></feComponentTransfer>' +
+      '<feBlend in="spec_masked" in2="displaced" mode="normal" result="with_sat" />' +
+      '<feBlend in="spec_faded" in2="with_sat" mode="normal" />';
+    svg.querySelector("defs").appendChild(filter);
+
+    element.dataset.homepageGlassFilter = id;
+    element.classList.add("homepage-svg-glass");
+    element.style.setProperty("backdrop-filter", "url(#" + id + ")", "important");
+    element.style.setProperty("-webkit-backdrop-filter", "url(#" + id + ")", "important");
+    element.style.setProperty(
+      "background",
+      options.tint || "rgba(255, 255, 255, 0.055)",
+      "important"
+    );
+  };
+
+  const applySvgGlassToVisible = () => {
+    const targets = document.querySelectorAll(
+      ".homepage-tab-panel.active .services-group, " +
+        ".homepage-tab-panel.active .bookmark-group, " +
+        "#information-widgets .widget-container:not(.information-widget-datetime), " +
+        "#homepage-search-section, " +
+        ".homepage-tabbar"
+    );
+    targets.forEach((element) => {
+      const radius = element.classList.contains("homepage-tabbar")
+        ? 14
+        : element.classList.contains("services-group") ||
+          element.classList.contains("bookmark-group")
+        ? 20
+        : 16;
+      applySvgGlass(element, {
+        radius: radius,
+        tint: "rgba(255, 255, 255, 0.055)",
       });
+    });
+    document.documentElement.classList.add("svg-glass");
+  };
+
+  const initLiquid = () => {
+    applySvgGlassToVisible();
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(applySvgGlassToVisible, 120);
     });
   };
 
