@@ -23,6 +23,21 @@
    不能消费另一个 NUR 仓库作为 flake 输入，直接移除会让
    `test-nur-eval` 失败。
 
+## 已完成的替换测试
+
+| 服务 | 主机 | 状态 | API 验证 |
+| --- | --- | --- | --- |
+| `sublinkpro` | colocrossing | 原生包运行，podman 停 | version/login/nodes/subcription/shares/静态订阅均 200 |
+| `filecodebox` | opi5p | 原生包运行，podman 停 | `/health`、上传初始化接口、vhost 200 |
+| `memos` | opi5p | 原生包运行，podman 停 | `/healthz`、`/api/v1/memos`、登录接口 |
+| `sun-panel` | opi5p | 原生包运行，podman 停 | `/api/about`、登录接口 |
+
+## 不可完整替代的复核
+
+- `metacubexd`：nixpkgs `metacubexd` 只是 Clash.Meta 官方 Dashboard
+  （`meta.description = "Clash.Meta Dashboard, The Official One, XD"`），
+  不含当前容器里的 mihomo 服务端；因此保留 podman。
+
 ## 2026-08-11 实机运行审计
 
 审计方式：子代理 SSH 到各主机执行 `systemctl`、`podman ps` 与
