@@ -1,10 +1,12 @@
 :root {
   --homepage-glass-z: 5;
+  --homepage-content-z: 10;
+  --homepage-widgets-z: 20;
+  --homepage-statusbar-z: 30;
   --homepage-ink: rgba(246, 248, 252, 0.96);
   --homepage-muted: rgba(246, 248, 252, 0.55);
   --homepage-line: rgba(255, 255, 255, 0.10);
   --homepage-line-strong: rgba(255, 255, 255, 0.14);
-  --homepage-shadow: rgba(2, 8, 18, 0.16);
   --homepage-row-radius: 12px;
   --homepage-panel-radius: 20px;
 }
@@ -18,12 +20,16 @@ body,
   -webkit-font-smoothing: antialiased;
 }
 
+/* 背景细节必须和 studio-glass.js 的 paintPageBackground 保持同一套图样，
+   否则玻璃面板与周围背景会出现亮度 seam。 */
 #background {
   opacity: 1 !important;
   background-image:
     radial-gradient(1200px 800px at 12% 18%, rgba(120, 150, 255, 0.16), transparent 55%),
     radial-gradient(900px 700px at 88% 12%, rgba(90, 220, 220, 0.12), transparent 50%),
     radial-gradient(1000px 900px at 70% 85%, rgba(200, 120, 255, 0.10), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 34px),
     linear-gradient(180deg, #0b1020, #101a2e 52%, #0a0e18) !important;
   background-position: center !important;
   background-size: cover !important;
@@ -49,9 +55,19 @@ body,
   overflow-y: auto;
 }
 
+.studio-glass-canvas {
+  transition: opacity 180ms ease;
+}
+
+.studio-glass-canvas.is-capturing {
+  opacity: 0;
+}
+
+/* 层叠契约：玻璃画布在最底层，容器内容在玻璃之上但自身透明，
+   材质完全由 WebGL 提供。 */
 #homepage-statusbar {
   position: relative;
-  z-index: 70;
+  z-index: var(--homepage-statusbar-z);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -126,7 +142,7 @@ body,
 
 #information-widgets {
   position: static;
-  z-index: 60;
+  z-index: var(--homepage-widgets-z);
   margin: 26px 28px 10px !important;
   padding: 0 !important;
   border: 0 !important;
@@ -149,14 +165,12 @@ body,
   min-height: 46px !important;
   margin: 4px 4px !important;
   padding: 8px 14px !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border: 0 !important;
   border-radius: 16px !important;
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 8px 24px rgba(2, 8, 18, 0.16) !important;
+  box-shadow: none !important;
 }
 
 #information-widgets .information-widget-datetime {
@@ -170,10 +184,11 @@ body,
 }
 
 #information-widgets .information-widget-datetime span {
-  font-size: 3rem !important;
+  font-size: clamp(2rem, 6vw, 3rem) !important;
   font-weight: 200 !important;
   letter-spacing: 0;
   color: rgba(255, 255, 255, 0.98);
+  white-space: nowrap;
 }
 
 .primary-text,
@@ -194,6 +209,7 @@ body,
 
 #homepage-search-section {
   position: relative;
+  z-index: var(--homepage-content-z);
   width: min(100%, 640px);
   margin: 4px auto 20px !important;
   padding: 0 20px;
@@ -229,6 +245,11 @@ body,
   box-shadow: none !important;
 }
 
+.information-widget-search input:focus-visible {
+  outline: 2px solid rgba(140, 165, 255, 0.55) !important;
+  outline-offset: 2px;
+}
+
 .information-widget-search button[aria-haspopup="listbox"] {
   top: 50% !important;
   bottom: auto !important;
@@ -238,27 +259,14 @@ body,
   background: transparent !important;
 }
 
-#layout-groups,
-#services,
-#bookmarks {
+/* 单一容器真相：运行时会选中 #layout-groups / #services / #bookmarks
+   中实际存在的一个并打上 data-glass-container。 */
+[data-glass-container] {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
-}
-
-#layout-groups {
   margin: 8px 28px 0 !important;
   align-items: stretch;
-}
-
-#services {
-  margin: 8px 28px 0 !important;
-  align-items: stretch;
-  gap: 16px;
-}
-
-#bookmarks {
-  margin: 8px 28px 0 !important;
 }
 
 .homepage-tabbar {
@@ -269,14 +277,12 @@ body,
   max-width: 520px;
   margin: 0 auto 18px;
   padding: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 0;
   border-radius: 14px;
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.14),
-    0 10px 28px rgba(2, 8, 18, 0.20);
+  box-shadow: none;
 }
 
 .homepage-tab {
@@ -291,7 +297,7 @@ body,
   font-weight: 590;
   letter-spacing: 0;
   cursor: pointer;
-  transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+  transition: background 160ms ease, color 160ms ease;
 }
 
 .homepage-tab:hover {
@@ -301,34 +307,22 @@ body,
 
 .homepage-tab.active {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.18);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.24),
-    0 4px 14px rgba(2, 8, 18, 0.16);
+  background: rgba(255, 255, 255, 0.16);
+  box-shadow: none;
 }
 
-#layout-groups [data-tab-group],
-#services [data-tab-group],
-#bookmarks [data-tab-group] {
+[data-glass-container] > [data-tab-group] {
   display: none;
 }
 
-html[data-homepage-tab="公开"] #layout-groups [data-tab-group="公开"],
-html[data-homepage-tab="公开"] #services [data-tab-group="公开"],
-html[data-homepage-tab="公开"] #bookmarks [data-tab-group="公开"],
-html[data-homepage-tab="私有"] #layout-groups [data-tab-group="私有"],
-html[data-homepage-tab="私有"] #services [data-tab-group="私有"],
-html[data-homepage-tab="私有"] #bookmarks [data-tab-group="私有"],
-html[data-homepage-tab="快捷"] #layout-groups [data-tab-group="快捷"],
-html[data-homepage-tab="快捷"] #services [data-tab-group="快捷"],
-html[data-homepage-tab="快捷"] #bookmarks [data-tab-group="快捷"] {
+html[data-homepage-tab="公开"] [data-glass-container] > [data-tab-group="公开"],
+html[data-homepage-tab="私有"] [data-glass-container] > [data-tab-group="私有"],
+html[data-homepage-tab="快捷"] [data-glass-container] > [data-tab-group="快捷"] {
   display: block;
 }
 
-#layout-groups .services-group,
-#layout-groups .bookmark-group,
-#services .services-group,
-#bookmarks .bookmark-group {
+[data-glass-container] > .services-group,
+[data-glass-container] > .bookmark-group {
   flex: none;
   width: 100%;
   padding: 8px !important;
@@ -341,12 +335,9 @@ html[data-homepage-tab="快捷"] #bookmarks [data-tab-group="快捷"] {
   box-shadow: none;
 }
 
-#layout-groups .services-list,
-#layout-groups .bookmark-list,
-#layout-groups .bookmark-group ul,
-#services .services-list,
-#bookmarks .bookmark-list,
-#bookmarks .bookmark-group ul {
+[data-glass-container] .services-list,
+[data-glass-container] .bookmark-list,
+[data-glass-container] .bookmark-group ul {
   display: block;
 }
 
@@ -364,10 +355,8 @@ html[data-homepage-tab="快捷"] #bookmarks [data-tab-group="快捷"] {
   display: none;
 }
 
-#layout-groups .service-card,
-#layout-groups .bookmark > a,
-#services .service-card,
-#bookmarks .bookmark > a {
+[data-glass-container] .service-card,
+[data-glass-container] .bookmark > a {
   position: relative;
   display: block;
   min-height: 64px;
@@ -380,73 +369,49 @@ html[data-homepage-tab="快捷"] #bookmarks [data-tab-group="快捷"] {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
-  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), background 180ms ease, box-shadow 180ms ease !important;
+  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1) !important;
 }
 
-#layout-groups .service:not(:last-child) .service-card,
-#layout-groups .bookmark:not(:last-child) > a,
-#services .service:not(:last-child) .service-card,
-#bookmarks .bookmark:not(:last-child) > a {
-  border-bottom: 0 !important;
-  border-radius: var(--homepage-row-radius) var(--homepage-row-radius) 0 0 !important;
-}
-
-#layout-groups .service-card:hover,
-#layout-groups .bookmark > a:hover,
-#services .service-card:hover,
-#bookmarks .bookmark > a:hover {
+[data-glass-container] .service-card:hover,
+[data-glass-container] .bookmark > a:hover {
   transform: none;
   background: transparent !important;
 }
 
-#layout-groups .service-card:active,
-#layout-groups .bookmark > a:active,
-#services .service-card:active,
-#bookmarks .bookmark > a:active {
+[data-glass-container] .service-card:active,
+[data-glass-container] .bookmark > a:active {
   transform: scale(0.985);
 }
 
-#layout-groups .service-icon,
-#layout-groups .bookmark-icon,
-#services .service-icon,
-#bookmarks .bookmark-icon {
+[data-glass-container] .service-icon,
+[data-glass-container] .bookmark-icon {
   width: 42px;
   height: 42px;
   margin-right: 8px;
-  border: 1px solid var(--homepage-line-strong);
+  border: 0;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.18),
-    0 2px 8px rgba(2, 8, 18, 0.12);
+  background: transparent;
+  box-shadow: none;
 }
 
-#layout-groups .service-icon img,
-#layout-groups .service-icon svg,
-#layout-groups .bookmark-icon img,
-#layout-groups .bookmark-icon svg,
-#services .service-icon img,
-#services .service-icon svg,
-#bookmarks .bookmark-icon img,
-#bookmarks .bookmark-icon svg {
+[data-glass-container] .service-icon img,
+[data-glass-container] .service-icon svg,
+[data-glass-container] .bookmark-icon img,
+[data-glass-container] .bookmark-icon svg {
   width: 24px;
   height: 24px;
 }
 
-#layout-groups .service-name,
-#layout-groups .bookmark-name,
-#services .service-name,
-#bookmarks .bookmark-name {
+[data-glass-container] .service-name,
+[data-glass-container] .bookmark-name {
   font-size: 0.92rem !important;
   font-weight: 600 !important;
   color: var(--homepage-ink) !important;
   letter-spacing: 0 !important;
 }
 
-#layout-groups .service-description,
-#layout-groups .bookmark-description,
-#services .service-description,
-#bookmarks .bookmark-description {
+[data-glass-container] .service-description,
+[data-glass-container] .bookmark-description {
   margin-top: 3px;
   color: var(--homepage-muted) !important;
   font-size: 0.74rem !important;
@@ -459,10 +424,10 @@ html[data-homepage-tab="快捷"] #bookmarks [data-tab-group="快捷"] {
 }
 
 .service-tag {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: transparent !important;
+  border: 0;
   border-radius: 9999px;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
+  box-shadow: none;
 }
 
 #footer {
@@ -495,57 +460,38 @@ html[data-homepage-tab="快捷"] #bookmarks [data-tab-group="快捷"] {
     padding: 0 12px;
   }
 
-  #services {
+  [data-glass-container] {
     margin: 4px 12px 0 !important;
-    gap: 14px;
-  }
-
-  #layout-groups {
-    margin: 4px 12px 0 !important;
-    gap: 14px;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
   .homepage-tabbar {
     margin: 0 auto 12px;
   }
 
-  #layout-groups,
-  #services,
-  #bookmarks {
-    grid-template-columns: 1fr;
-    gap: 12px;
-  }
-
-  #layout-groups .service-card,
-  #layout-groups .bookmark > a,
-  #services .service-card,
-  #bookmarks .bookmark > a {
+  [data-glass-container] .service-card,
+  [data-glass-container] .bookmark > a {
     min-height: 74px;
     padding: 10px 12px !important;
   }
 
-  #layout-groups .service-icon,
-  #layout-groups .bookmark-icon,
-  #services .service-icon,
-  #bookmarks .bookmark-icon {
+  [data-glass-container] .service-icon,
+  [data-glass-container] .bookmark-icon {
     width: 42px;
     height: 42px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #layout-groups .service-card,
-  #layout-groups .bookmark > a,
-  #services .service-card,
-  #bookmarks .bookmark > a,
+  [data-glass-container] .service-card,
+  [data-glass-container] .bookmark > a,
   .information-widget-search input {
     transition: none !important;
   }
 
-  #layout-groups .service-card:hover,
-  #layout-groups .bookmark > a:hover,
-  #services .service-card:hover,
-  #bookmarks .bookmark > a:hover {
+  [data-glass-container] .service-card:hover,
+  [data-glass-container] .bookmark > a:hover {
     transform: none;
   }
 }

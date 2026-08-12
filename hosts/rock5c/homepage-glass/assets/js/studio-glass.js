@@ -175,7 +175,7 @@ float smin(float a, float b, float k) {
 float mergedAt(vec2 pageCss) {
   vec2 p = pageCss / u_resolution.y * u_dpr;
   float d = 1e20;
-  float margin = (u_ballRadius + 80.0) * u_dpr;
+  float margin = u_ballRadius + 80.0;
   for (int i = 0; i < MAX_SHAPES; i++) {
     if (i >= u_shapeCount) break;
     vec4 s = u_shapes[i];
@@ -193,7 +193,7 @@ float mergedAt(vec2 pageCss) {
   vec2 ballCenter = u_mouseSpring / u_resolution.y * u_dpr;
   float ballRadius = u_ballRadius * u_dpr / u_resolution.y;
   float pulse = 1.0 + 0.02 * sin(u_time * 1.4);
-  float stretch = clamp(length(u_mouseVelocity) * u_springSizeFactor * 0.0000012, 0.0, 0.35);
+  float stretch = clamp(length(u_mouseVelocity) * u_springSizeFactor * 0.00002, 0.0, 0.5);
   ballRadius *= pulse * (1.0 + stretch);
   float ball = sdCircle(p - ballCenter, ballRadius);
   return smin(d, ball, u_mergeRate);
@@ -251,11 +251,6 @@ void main() {
       abs(mergedAt(pageCss + u_shadowOffset)) *
       (u_resolution.y / u_dpr)
   ) * 0.6 * u_shadowFactor;
-
-  if (merged > 0.0) {
-    fragColor = vec4(0.0, 0.0, 0.0, clamp(shadow, 0.0, 1.0));
-    return;
-  }
 
   vec4 outColor;
   if (merged < 0.005) {
@@ -357,7 +352,15 @@ void main() {
   }
 
   outColor = mix(outColor, texture(u_bg, uv), smoothstep(-0.001, 0.001, merged));
-  fragColor = outColor;
+  float alpha = 1.0 - smoothstep(0.0, 0.002, merged);
+  if (merged < 0.0) {
+    outColor.rgb = max(outColor.rgb - vec3(shadow), 0.0);
+  }
+  if (merged > 0.002) {
+    fragColor = vec4(0.0, 0.0, 0.0, clamp(shadow, 0.0, 1.0));
+  } else {
+    fragColor = vec4(outColor.rgb, alpha);
+  }
 }`;
 
   let canvas = null;
@@ -389,6 +392,15 @@ void main() {
   let status = "idle";
   let resizeTimer = 0;
   let refreshTimer = 0;
+  let rootEl = null;
+  let zIndex = 5;
+  let reducedMotion = false;
+  let captureInFlight = false;
+  let captureQueued = false;
+  let captureCount = 0;
+  let totalShapes = 0;
+  let lastError = null;
+  const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const compileShader = (type, source) => {
     const shader = gl.createShader(type);
@@ -462,7 +474,7 @@ void main() {
   };
 
   const getScroll = () => {
-    const container = document.getElementById("inner_wrapper");
+    const container = rootEl;
     if (container) {
       return { x: container.scrollLeft, y: container.scrollTop };
     }
@@ -473,7 +485,7 @@ void main() {
   };
 
   const updateOrigin = () => {
-    const container = document.getElementById("inner_wrapper");
+    const container = rootEl;
     if (!container) {
       origin = { x: 0, y: 0 };
       return;
@@ -499,7 +511,8 @@ void main() {
       return rect.width > 0 && rect.height > 0;
     });
     const scroll = getScroll();
-    shapeCount = Math.min(visible.length, MAX_SHAPES);
+    totalShapes = visible.length;
+    shapeCount = Math.min(totalShapes, MAX_SHAPES);
     shapeArray = new Float32Array(shapeCount * 4);
     radiusArray = new Float32Array(shapeCount);
     visible.slice(0, shapeCount).forEach((element, i) => {
@@ -513,11 +526,13 @@ void main() {
     });
     if (window.HomepageStudioGlass) {
       window.HomepageStudioGlass.shapeCount = shapeCount;
+      window.HomepageStudioGlass.totalShapes = totalShapes;
+      window.HomepageStudioGlass.truncated = totalShapes > MAX_SHAPES;
     }
   };
 
-  const render = (now) => {
-    if (!gl || !program || !bgTexture) {
+  const render = (now, scheduleNext = true) => {
+    if (!gl || !program || !bgTexture || gl.isContextLost()) {
       renderRunning = false;
       return;
     }
@@ -555,7 +570,11 @@ void main() {
       gl.uniform4fv(uniformLocations.shapes, shapeArray);
       gl.uniform1fv(uniformLocations.radii, radiusArray);
     }
-    gl.uniform2f(uniformLocations.mouseSpring, mouseSpring.x, mouseSpring.y);
+    gl.uniform2f(
+      uniformLocations.mouseSpring,
+      mouseSpring.x + scroll.x,
+      mouseSpring.y + scroll.y
+    );
     gl.uniform2f(uniformLocations.mouseVelocity, mouseVelocity.x, mouseVelocity.y);
     gl.uniform1f(uniformLocations.mergeRate, MERGE_RATE);
     gl.uniform1f(uniformLocations.springSizeFactor, SPRING_SIZE_FACTOR);
@@ -581,7 +600,11 @@ void main() {
     gl.uniform2f(uniformLocations.shadowOffset, 0, 10);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-    if (!document.hidden) {
+    if (
+      scheduleNext &&
+      !document.hidden &&
+      (!reducedMotion || Date.now() - lastInteraction < 1500)
+    ) {
       rafId = window.requestAnimationFrame(render);
     } else {
       renderRunning = false;
@@ -711,6 +734,13 @@ void main() {
     glow(width * 0.12, height * 0.18, Math.max(width, height) * 0.55, "rgba(120,150,255,0.16)");
     glow(width * 0.88, height * 0.12, Math.max(width, height) * 0.5, "rgba(90,220,220,0.12)");
     glow(width * 0.7, height * 0.85, Math.max(width, height) * 0.55, "rgba(200,120,255,0.10)");
+    ctx.fillStyle = "rgba(255,255,255,0.016)";
+    for (let y = 0; y < height; y += 34) {
+      ctx.fillRect(0, y, width, 1);
+    }
+    for (let x = 0; x < width; x += 34) {
+      ctx.fillRect(x, 0, 1, height);
+    }
   };
 
   const makeTexture = (source) => {
@@ -735,7 +765,7 @@ void main() {
   };
 
   const createPlaceholderTextures = () => {
-    const container = document.getElementById("inner_wrapper");
+    const container = rootEl;
     const rootWidth = container ? container.scrollWidth : window.innerWidth;
     const rootHeight = container ? container.scrollHeight : window.innerHeight;
     const width = Math.max(2, Math.round(rootWidth));
@@ -759,7 +789,7 @@ void main() {
   };
 
   const captureBackground = () => {
-    const container = document.getElementById("inner_wrapper");
+    const container = rootEl;
     const root = container || document.body;
     const token = ++captureToken;
     const rootWidth = container ? container.scrollWidth : window.innerWidth;
@@ -799,7 +829,21 @@ void main() {
       out.height = snapshot.height;
       const ctx = out.getContext("2d");
       paintPageBackground(ctx, out.width, out.height);
+      ctx.filter = "saturate(1.22) contrast(1.04) brightness(0.96)";
       ctx.drawImage(snapshot, 0, 0);
+      ctx.filter = "none";
+      const darkTop = ctx.createLinearGradient(0, 0, 0, out.height);
+      darkTop.addColorStop(0, "rgba(90,120,255,0.10)");
+      darkTop.addColorStop(0.28, "rgba(90,120,255,0)");
+      darkTop.addColorStop(1, "rgba(90,120,255,0)");
+      ctx.fillStyle = darkTop;
+      ctx.fillRect(0, 0, out.width, out.height);
+      const darkBottom = ctx.createLinearGradient(0, 0, 0, out.height);
+      darkBottom.addColorStop(0, "rgba(5,8,14,0)");
+      darkBottom.addColorStop(0.86, "rgba(5,8,14,0.52)");
+      darkBottom.addColorStop(1, "rgba(5,8,14,0.52)");
+      ctx.fillStyle = darkBottom;
+      ctx.fillRect(0, 0, out.width, out.height);
 
       if (window.HomepageStudioGlass) {
         window.HomepageStudioGlass.captureStage = "blur";
@@ -826,23 +870,72 @@ void main() {
     });
   };
 
+  const runCapture = () => {
+    if (captureInFlight) {
+      captureQueued = true;
+      return Promise.resolve();
+    }
+    captureInFlight = true;
+    if (captureCount > 0 && canvas) {
+      canvas.classList.add("is-capturing");
+    }
+    return captureBackground()
+      .then(() => {
+        captureCount += 1;
+        if (canvas) canvas.classList.remove("is-capturing");
+      })
+      .catch((error) => {
+        lastError = error;
+        if (window.HomepageStudioGlass) {
+          window.HomepageStudioGlass.captureStage = "failed";
+          window.HomepageStudioGlass.lastError = error.message;
+        }
+        console.warn("studio glass capture failed", error);
+        createPlaceholderTextures();
+        startRender();
+      })
+      .then(() => {
+        captureInFlight = false;
+        if (captureQueued) {
+          captureQueued = false;
+          return runCapture();
+        }
+      });
+  };
+
   const scheduleRefresh = (recapture) => {
     if (refreshTimer) window.clearTimeout(refreshTimer);
     refreshTimer = window.setTimeout(() => {
       refreshTimer = 0;
       if (getTargets) refreshShapes();
       if (recapture && gl) {
-        captureBackground()
-          .then(() => startRender())
-          .catch(() => {});
+        runCapture().then(() => startRender());
       } else {
         startRender();
       }
     }, recapture ? 180 : 0);
   };
 
-  const start = (targetFn) => {
-    getTargets = targetFn;
+  const start = (options) => {
+    const config =
+      typeof options === "function" ? { targetFn: options } : options || {};
+    getTargets = config.targetFn || null;
+    rootEl = config.root || document.getElementById("inner_wrapper") || null;
+    zIndex = config.zIndex || 5;
+    reducedMotion = reducedMotionQuery.matches;
+    const onReducedMotionChange = () => {
+      reducedMotion = reducedMotionQuery.matches;
+      if (reducedMotion) {
+        renderRunning = false;
+      } else {
+        startRender();
+      }
+    };
+    if (!reducedMotionQuery.addEventListener) {
+      reducedMotionQuery.addListener(onReducedMotionChange);
+    } else {
+      reducedMotionQuery.addEventListener("change", onReducedMotionChange);
+    }
     if (started) return true;
     if (!window.WebGL2RenderingContext || typeof window.html2canvas !== "function") {
       status = "unavailable";
@@ -865,8 +958,12 @@ void main() {
       createPlaceholderTextures();
       if (!canvasAttached) {
         canvasAttached = true;
+        canvas.className = "studio-glass-canvas";
+        canvas.setAttribute("aria-hidden", "true");
         canvas.style.cssText =
-          "position:fixed;inset:0;z-index:var(--homepage-glass-z);pointer-events:none;";
+          "position:fixed;inset:0;z-index:" +
+          zIndex +
+          ";pointer-events:none;";
         document.body.appendChild(canvas);
 
         const onPointer = (event) => {
@@ -903,6 +1000,7 @@ void main() {
         );
         canvas.addEventListener("webglcontextlost", (event) => {
           event.preventDefault();
+          if (rafId) window.cancelAnimationFrame(rafId);
           renderRunning = false;
           status = "context-lost";
         });
@@ -910,7 +1008,7 @@ void main() {
           try {
             createProgram();
             createPlaceholderTextures();
-            captureBackground()
+            runCapture()
               .then(() => startRender())
               .catch(() => {});
             status = "running";
@@ -928,7 +1026,7 @@ void main() {
       }
       startRender();
       const captureWithRetry = () => {
-        captureBackground()
+        runCapture()
           .then(() => startRender())
           .catch(() => {
             if (captureRetries < 3) {
@@ -936,8 +1034,6 @@ void main() {
               window.setTimeout(captureWithRetry, 2000);
             } else {
               status = "capture-failed";
-              createPlaceholderTextures();
-              startRender();
             }
           });
       };
@@ -957,8 +1053,10 @@ void main() {
     scheduleRefresh,
     probe: (x, y) => {
       if (!gl || !canvas) return null;
+      if (rafId) window.cancelAnimationFrame(rafId);
+      rafId = 0;
       renderRunning = true;
-      render(performance.now());
+      render(performance.now(), false);
       const pixels = new Uint8Array(4);
       gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
       renderRunning = false;
@@ -972,22 +1070,18 @@ void main() {
       radii: radiusArray
         ? Array.from(radiusArray).slice(0, Math.min(shapeCount, 24))
         : null,
+      total: totalShapes,
+      truncated: totalShapes > MAX_SHAPES,
     }),
-    refresh: (recapture) => {
-      if (getTargets) refreshShapes();
-      if (recapture && gl) {
-        captureBackground()
-          .then(() => startRender())
-          .catch(() => {});
-      } else {
-        startRender();
-      }
-    },
+    refresh: (recapture) => scheduleRefresh(recapture),
     status: () => status,
+    lastError: null,
     bgTextureHeight: 0,
     captureMs: 0,
     captureScale: 1,
     shapeCount: 0,
+    totalShapes: 0,
+    truncated: false,
     captureStage: "idle",
     captureStart: 0,
   };
