@@ -40,6 +40,18 @@
 4. 部署 pve-5700u 新代际，移除 Hydra、容器与 `nix-builder` 标签。
 5. 按下方验收清单复核，再提交文档与代码。
 
+## 完成状态（2026-08-12）
+
+- ml-builder 新代际已部署：Hydra（evaluator/queue-runner/server/notify/watchdog）、
+  PostgreSQL 与三个容器均 active；`machines-with-localhost` 只含 `opi5p` 与
+  `localhost`，不包含 `pve-5700u`。
+- `hydra.zhyi.cc` 已由 colocrossing 反代到 ml-builder LTNET（`198.18.0.114:13300`），
+  公网返回 200。
+- pve-5700u 新代际已部署：Proxmox VE 与 VM（`fn-os`、`ubuntu`）保持运行，
+  Hydra/PostgreSQL/容器/builder 角色已移除，`/etc/nix/machines*` 已不存在。
+- VM 数据备份 `backup-nvme-nixos-home-vm` 手动触发成功（39782 个文件，19.7 GiB）。
+- 两机 `systemctl --failed` 均为 0（除 pve 备份服务在下次定时运行前的历史状态）。
+
 ## 验收清单
 
 ```bash
