@@ -195,11 +195,21 @@
       renderRunning = false;
       return;
     }
-    tickMouse(now);
-    updateGlassState();
-    window.HomepageGlassWebGPU.render();
-    lastFrameMs = performance.now() - frameStart;
-    scheduleNextFrame(scheduleNext);
+    try {
+      tickMouse(now);
+      updateGlassState();
+      window.HomepageGlassWebGPU.render();
+      lastFrameMs = performance.now() - frameStart;
+      scheduleNextFrame(scheduleNext);
+    } catch (error) {
+      // A render exception must not freeze the loop: reset renderRunning so
+      // the next interaction can startRender() again, and surface the error.
+      renderRunning = false;
+      status = "render-error: " + error.message;
+      if (window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.lastError = error.message;
+      }
+    }
   };
 
   const startRender = () => {
@@ -405,18 +415,21 @@
           window.HomepageStudioGlass.lastError = "capture hung";
         }
       }, 90000);
+      return hungTimer;
     };
-    armHungTimer();
+    // Track our own watchdog id: hungTimer is module-global and a newer
+    // capture may re-arm it, so a superseded attempt must never clear it.
+    let myTimer = armHungTimer();
     const attempt = async (left) => {
       const baseToken = captureToken;
       try {
         const ok = await captureBackground();
-        if (hungTimer) window.clearTimeout(hungTimer);
         if (ok === false) {
-          // Superseded by the hang timer: it already reset the flags, and a
-          // newer capture may own captureInFlight. Do not touch state here.
+          // Superseded by the hang timer (or a newer capture): it owns the
+          // watchdog now; do not clear it and do not touch state.
           return "superseded";
         }
+        if (hungTimer === myTimer) window.clearTimeout(hungTimer);
         captureCount += 1;
         status = "running";
         if (window.HomepageStudioGlass) {
@@ -428,11 +441,10 @@
         if (baseToken !== captureToken - 1) {
           // This attempt's capture was invalidated (hang timer fired or a
           // newer capture started); its failure is stale, so neither update
-          // state nor retry.
-          if (hungTimer) window.clearTimeout(hungTimer);
+          // state, retry, nor clear the (possibly newer) watchdog.
           return "superseded";
         }
-        if (hungTimer) window.clearTimeout(hungTimer);
+        if (hungTimer === myTimer) window.clearTimeout(hungTimer);
         if (window.HomepageStudioGlass) {
           window.HomepageStudioGlass.captureStage = "failed";
           window.HomepageStudioGlass.lastError = error.message;
@@ -443,7 +455,7 @@
           );
           // Re-arm the 90s watchdog for the retry; without it a hung retry
           // would leave captureInFlight set forever and stall the chain.
-          armHungTimer();
+          myTimer = armHungTimer();
           return attempt(left - 1);
         }
         console.warn("studio glass capture failed", error);

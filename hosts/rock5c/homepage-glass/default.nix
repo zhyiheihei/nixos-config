@@ -128,7 +128,9 @@ in
     {
       # assets/js 整目录由 vhost alias 服务；WebGPU 后端由 studio-glass.js
       # 运行时加载，若误删文件构建不会失败但线上会静默降级。白名单断言
-      # 目录恰好包含这三个文件——多余的调试/敏感脚本会被拒绝进产物。
+      # 目录恰好包含这三个文件——多余的调试/敏感脚本会被拒绝进产物；
+      # 同时强制 orchestrator/studio-glass 确实按运行时 URL 引用它们，
+      # 防止拼写漂移造成线上 404 静默降级。
       assertion = let
         jsFiles = builtins.attrNames (builtins.readDir ./assets/js);
         required = [
@@ -136,8 +138,12 @@ in
           "studio-glass.js"
           "studio-glass-webgpu.js"
         ];
-      in builtins.sort (a: b: a < b) jsFiles == builtins.sort (a: b: a < b) required;
-      message = "hosts/rock5c/homepage-glass/assets/js must contain exactly the orchestrator and both glass backends";
+        orchestrator = builtins.readFile ./assets/js/homepage-orchestrator.js;
+        studio = builtins.readFile ./assets/js/studio-glass.js;
+      in builtins.sort (a: b: a < b) jsFiles == builtins.sort (a: b: a < b) required
+        && lib.hasInfix "/homepage-assets/js/studio-glass.js" orchestrator
+        && lib.hasInfix "/homepage-assets/js/studio-glass-webgpu.js" studio;
+      message = "hosts/rock5c/homepage-glass/assets/js must contain exactly the glass scripts and reference them via their served URLs";
     }
     {
       # 公共模块 vhost 是 locations 的宿主；主机模块只在其上挂资产路由。

@@ -745,11 +745,11 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
 
     const encoder = device.createCommandEncoder();
 
-    const blurPass = (pipeline, target, bindGroup, clear) => {
+    const blurPass = (pipeline, target, bindGroup) => {
       const pass = encoder.beginRenderPass({
         colorAttachments: [{
           view: target.createView(),
-          loadOp: clear ? "clear" : "load",
+          loadOp: "clear",
           storeOp: "store",
         }],
       });
@@ -760,8 +760,8 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
       pass.end();
     };
 
-    blurPass(hblurPipeline, hblurTexture, hblurBindGroup, true);
-    blurPass(vblurPipeline, blurredTexture, vblurBindGroup, true);
+    blurPass(hblurPipeline, hblurTexture, hblurBindGroup);
+    blurPass(vblurPipeline, blurredTexture, vblurBindGroup);
 
     const currentTexture = context.getCurrentTexture();
     const pass = encoder.beginRenderPass({
