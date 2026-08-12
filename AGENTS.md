@@ -13,6 +13,7 @@
   `docs/reference/hosts-overview.md`（当前主机清单）。
 - 修改后请优先验证：`nix flake check` 或 `make build`，并保留 Nix 文件中的原有结构和命名习惯。
 - **工作规范（必读）**：[`docs/operations/work-norms.md`](docs/operations/work-norms.md)——改动必提交+对齐三方仓库、对照作者原版（`../nixos-config-exam/`）不偏离、不动公共模块（`flake-modules/` 与公共 `nixos/` 模块）、查官方/实际不猜、巡检看报错/指标、聚焦当前任务、构建只用 ml-builder、大任务先出方案。
+- **Skill 使用规范（必读）**：[`docs/operations/skills-recommendation.md`](docs/operations/skills-recommendation.md)——先按任务分级决定是否启用 skill；简单改动不强制全流程，复杂任务必须出方案并确认，skill 与工作规范冲突时以工作规范为准。
 - AI 网关链路以 [`docs/infrastructure/ai-api-gateway-chain.md`](docs/infrastructure/ai-api-gateway-chain.md) 为准：UniAPI 是唯一 Provider 汇聚点；LibreChat 直连 `rock5c` 上的 UniAPI，n8n Bridge 是 UniAPI 的 Provider，AxonHub 与 Metapi 是并列管理网关。禁止把任一网关反向配置为 UniAPI Provider 或擅自重置其运行态数据库。
 
 ## 项目概述
