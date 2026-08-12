@@ -2,6 +2,7 @@
 {
   index = 112;
   system = "aarch64-linux";
+  hostname = "192.168.0.1";
   tags = with tags; [ lan-access ];
   cpuThreads = 4;
   manualDeploy = true;

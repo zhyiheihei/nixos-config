@@ -560,8 +560,8 @@ systemd-analyze blame | head -30
 - Nixpkgs U-Boot 可从 TF 和 eMMC 读取 extlinux；
 - Linux 6.18、R5C DTB、initrd 和真实 systemd 可以启动；
 - `/` 为 tmpfs，`/boot` 为 FAT32，`/nix` 为 Btrfs；
-- 主线 r8169（此前）/ vendor r8125 RSS 版（2026-08-12 起，待部署验证）正常
-  加载，两个 RTL8125 网口以 2.5 Gbps 建立链路；
+- 主线 r8169（此前）/ vendor r8125 RSS 版（2026-08-12 起，已验证部署并开启
+  4 个 RX 队列）正常加载，两个 RTL8125 网口以 2.5 Gbps 建立链路；
 - `hwclock -s --utc` 在 `rtc_rk808` 早期加载后成功从 RTC 恢复系统时钟；
 - `ntpd-rs` 联网后精确校时，无失败服务；
 - WiFi（MT7921）通过 hostapd 提供 `moli-rk-wifi` AP，加入 br-lan 桥接；

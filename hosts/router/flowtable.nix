@@ -7,6 +7,31 @@ let
   nft = "${lib.getExe' pkgs.nftables "nft"}";
   flowtableScript = pkgs.writeShellScript "router-flowtable" ''
     set -eu
+
+    wan_rule='ct state { established, related } iifname "ppp0" flow add @f'
+    lan_rule='ct state { established, related } iifname "br-lan" oifname "ppp0" flow add @f'
+
+    delete_flow_rules() {
+      filter=$1
+      handles=$(
+        ${nft} -a list chain inet lantian FILTER_FORWARD |
+          grep 'flow add @f' |
+          grep "$filter" |
+          sed -n 's/.*# handle \([0-9][0-9]*\).*/\1/p' || true
+      )
+      for handle in $handles; do
+        ${nft} delete rule inet lantian FILTER_FORWARD handle "$handle"
+      done
+    }
+
+    ensure_flow_rule() {
+      pattern=$1
+      rule=$2
+      if ! ${nft} list chain inet lantian FILTER_FORWARD | grep -Fq "$pattern"; then
+        ${nft} insert rule inet lantian FILTER_FORWARD $rule comment "router-flowtable"
+      fi
+    }
+
     i=0
     while [ ! -e /sys/class/net/br-lan ] || [ ! -e /sys/class/net/ppp0 ]; do
       sleep 1
@@ -17,17 +42,6 @@ let
       fi
     done
 
-    delete_flow_rules() {
-      handles=$(
-        ${nft} -a list chain inet lantian FILTER_FORWARD |
-          grep 'flow add @f' |
-          sed -n 's/.*# handle \([0-9][0-9]*\).*/\1/p' || true
-      )
-      for handle in $handles; do
-        ${nft} delete rule inet lantian FILTER_FORWARD handle "$handle"
-      done
-    }
-
     rebuild=0
     if ! ${nft} list flowtable inet lantian f >/dev/null 2>&1; then
       rebuild=1
@@ -37,33 +51,27 @@ let
     fi
 
     if [ "$rebuild" -eq 1 ]; then
-      delete_flow_rules
+      delete_flow_rules 'flow add @f'
       if ${nft} list flowtable inet lantian f >/dev/null 2>&1; then
         ${nft} delete flowtable inet lantian f
       fi
       ${nft} -f /etc/nftables/flowtable.nft
-      # Offload WAN traffic only.  Hairpin (br-lan -> br-lan) flows measured
-      # 184k -> 83k sender retransmits when excluded from the flowtable at
-      # 2.3G, while throughput stayed at 2.28 Gbit/s.
-      ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } iifname "ppp0" flow add @f
-      ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } iifname "br-lan" oifname != "br-lan" flow add @f
+      ensure_flow_rule 'iifname "ppp0" flow add @f' "$wan_rule"
+      ensure_flow_rule 'iifname "br-lan" oifname "ppp0" flow add @f' "$lan_rule"
     else
-      # Remove the obsolete generic rule, then reassert the two scoped rules.
-      obsolete=$(
+      # One-time migration: drop unowned flow-add rules, then reassert ours.
+      unowned=$(
         ${nft} -a list chain inet lantian FILTER_FORWARD |
           grep 'flow add @f' |
-          grep -v 'iifname' |
+          grep -v 'router-flowtable' |
           sed -n 's/.*# handle \([0-9][0-9]*\).*/\1/p' || true
       )
-      for handle in $obsolete; do
+      for handle in $unowned; do
         ${nft} delete rule inet lantian FILTER_FORWARD handle "$handle"
       done
-      if ! ${nft} list chain inet lantian FILTER_FORWARD | grep -q 'iifname "ppp0" flow add @f'; then
-        ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } iifname "ppp0" flow add @f
-      fi
-      if ! ${nft} list chain inet lantian FILTER_FORWARD | grep -q 'iifname "br-lan" oifname != "br-lan" flow add @f'; then
-        ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } iifname "br-lan" oifname != "br-lan" flow add @f
-      fi
+      delete_flow_rules 'router-flowtable'
+      ensure_flow_rule 'iifname "ppp0" flow add @f' "$wan_rule"
+      ensure_flow_rule 'iifname "br-lan" oifname "ppp0" flow add @f' "$lan_rule"
     fi
   '';
 in
@@ -72,7 +80,11 @@ in
   # and the flowtable needs real netdevs.  Upstream NixOS issue #141802
   # endorses adding flow offload with a separate service after interfaces are
   # up; its failure is non-critical.  Requires the new kernel with
-  # NF_FLOW_TABLE support after a staged boot.
+  # NF_FLOW_TABLE support after a staged boot.  Only WAN (ppp0) flows are
+  # offloaded; hairpin flows stay on the normal netfilter path because the
+  # measured retransmit benefit is documented in docs/research/10.  Note that
+  # offloaded flows bypass the rest of FILTER_FORWARD, so policy that can
+  # change after the first packet must live in pre-forward hooks.
   environment.etc."nftables/flowtable.nft".text = ''
     add flowtable inet lantian f {
       hook ingress priority filter
@@ -130,6 +142,7 @@ in
     ];
     serviceConfig = {
       Type = "oneshot";
+      TimeoutStartSec = "150";
       ExecStart = flowtableScript;
     };
   };
