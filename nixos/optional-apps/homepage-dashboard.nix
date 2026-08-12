@@ -167,7 +167,7 @@ in
 
   lantian.nginxVhosts = {
     "homepage.${config.networking.hostName}.zhyi.cc" = {
-      inherit homepageLocations;
+      locations = homepageLocations;
 
       sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
       noIndex.enable = true;
@@ -177,7 +177,7 @@ in
       listenHTTP.enable = true;
       listenHTTPS.enable = false;
 
-      inherit homepageLocations;
+      locations = homepageLocations;
 
       noIndex.enable = true;
       accessibleBy = "localhost";
