@@ -63,6 +63,7 @@
   let captureInFlight = false;
   let captureQueued = false;
   let captureCount = 0;
+  let hungTimer = 0;
   let totalShapes = 0;
   let lastFrameMs = 0;
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
