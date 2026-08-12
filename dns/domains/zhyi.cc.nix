@@ -82,32 +82,32 @@ let
       recordType = "CNAME";
       name = "sub";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
 
     {
       recordType = "CNAME";
       name = "couchdb";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
       name = "ha";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
       name = "qnap";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
       name = "vaults3";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
 
     {
