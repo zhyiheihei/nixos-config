@@ -10,36 +10,15 @@
     ../../nixos/hardware/smart.nix
     ../../nixos/pve.nix
 
-    # Match the upstream pve-epyc role: Hydra runs on the PVE host.
-    ../../nixos/optional-apps/hydra
     ../../nixos/optional-apps/ncps-client.nix
 
     ./enable-smart.nix
     ./hardware-configuration.nix
-    ./ml-home-x86.nix
   ];
 
   boot.kernelParams = [
     "amd_pstate=active"
     "amd_pstate.shared_mem=1"
-  ];
-
-  # This host has less memory than the author's pve-epyc. Keep the existing
-  # swap usable so Hydra evaluation cannot force the kernel to kill a VM.
-  boot.kernel.sysctl."vm.swappiness" = lib.mkForce 10;
-
-  # Hydra and two resident VMs share this host. Keep fallback builds at one
-  # derivation at a time; unlimited cores avoid wasting the local CPU while
-  # the single job stays inside its memory budget.
-  nix.settings.max-jobs = lib.mkForce 1;
-
-  # Do not let an upstream merge silently turn the VM host back into a
-  # high-concurrency builder. ml-builder is the only node allowed to do that.
-  assertions = [
-    {
-      assertion = LT.this.nixBuilder.maxJobs == 1 && config.nix.settings.max-jobs == 1;
-      message = "pve-5700u must remain a single-job fallback builder; use ml-builder for parallel builds";
-    }
   ];
 
   boot.loader.grub = {

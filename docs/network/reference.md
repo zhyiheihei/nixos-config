@@ -65,7 +65,7 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 | `主机.zhyi.cc`、`*.主机.zhyi.cc` | `host-recs.nix` 按主机公网或 LTNET 地址生成 | 作者式主机与私有服务命名；不经过统一公网入口 |
 | `*.ml-home-vm.zhyi.cc` | 历史 CNAME | `ml-home-vm` 已退役；服务由 `rock5c`/`opi5p` 承载，入口以 vhost/DNS 为准 |
 | `ha.zhyi.cc`、`vaults3.zhyi.cc` | CNAME 到 `home-ddns.zhyi.cc` | 家庭动态公网入口 |
-| `hydra.zhyi.cc` | CNAME 到 `jpvm.zhyi.cc` | 对应作者 `bwg-lax -> pve-epyc.ltnet`，由 JPVM 反代到 `pve-5700u` 的 Hydra 端口 |
+| `hydra.zhyi.cc` | CNAME 到 `colocrossing.zhyi.cc` | colocrossing Nginx 反代到 `ml-builder` 的 Hydra 端口（LTNET `198.18.0.114`） |
 | `attic.zhyi.xin` | CNAME 到 `colocrossing.zhyi.cc` | colocrossing 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
 | `colocrossing.zhyi.cc` | A `203.55.176.158` | SSH、Colmena、ZeroTier controller 与公共服务入口 |
 | `zhyi.xin` | A `101.96.199.157` | CNVM 上的公开根站入口 |
@@ -79,12 +79,9 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 `443`。VaultS3 的公网转发和 LAN Hairpin 同样将外部 8443 转换为 OPI5P 的标准
 443；Nginx 不额外监听 8443。不要把 `8443` 固化进 DNS 记录或内部服务配置。
 
-作者的 Hydra 公网入口 `bwg-lax` 通过 HE.net SIT tunnel 拥有公网 IPv6，家庭
-`pve-epyc` 也有公网 IPv6，因此 ZeroTier 可以绕开 IPv4 双 NAT。当前 JPVM
-只有 IPv4 链路本地地址，家庭 PVE 虽有公网 IPv6，但无法与 JPVM 建立 IPv6
-物理路径；在补齐 JPVM 的原生 IPv6 或作者同类 HE.net tunnel 前，IPv4 UDP
-打洞可能被双层 NAT 阻断。不要把 Hydra 临时改到 CNVM 或家庭 LAN 地址来掩盖
-这个前置条件。
+Hydra 已于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统一由 colocrossing
+的 Nginx vhost 反代到 ml-builder 的 LTNET 地址，不再依赖 JPVM 直连或家庭 PVE 的
+公网 IPv6。不要把 Hydra 改回 pve-5700u 或改到 CNVM 来掩盖入口问题。
 
 ## 局域网覆盖
 

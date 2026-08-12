@@ -7,7 +7,7 @@
 ## 当前结构
 
 ```text
-Hydra (pve-5700u) / 手动构建 (ml-builder)
+Hydra (ml-builder) / 手动构建 (ml-builder)
   -> attic push lantian
   -> Attic (colocrossing)
   -> PostgreSQL + VaultS3 (home-ddns) bucket nix-cache
@@ -24,8 +24,8 @@ Hydra (pve-5700u) / 手动构建 (ml-builder)
 - S3 凭据与上传 token 只在私有 secrets 仓库的 `common/attic.yaml` 中以 SOPS 加密
   保存。修改它必须遵循 secrets 仓库的 `docs/sops-manual.md`。
 - 全体受管主机只通过 `common/nix.yaml` 的 `nix-netrc` 获得 `lantian` 的读取权限。
-  上传凭据只部署到 `ml-builder` 和 `pve-5700u`；前者用于手动上传，后者由 Hydra
-  自动上传。
+  上传凭据只部署到 `ml-builder`；Hydra 自动上传与手动上传都由它承担。2026-08-12
+  迁移后 `pve-5700u` 不再部署上传 token。
 - Hydra 在
   [`nixos/optional-apps/hydra/default.nix`](../../nixos/optional-apps/hydra/default.nix)
   中通过 post-build hook 上传成功构建的输出。不要同时在多台机器启用
@@ -36,7 +36,7 @@ Hydra (pve-5700u) / 手动构建 (ml-builder)
 | 凭据 | 保存位置 | 部署范围 | 权限 |
 | --- | --- | --- | --- |
 | Attic fleet read token | `common/nix.yaml` 的 `nix-netrc` | 所有受管主机 | 仅 `pull lantian` |
-| Attic upload token | `common/attic.yaml` 的 `attic-upload-key` | `ml-builder`、`pve-5700u` | `pull/push lantian` |
+| Attic upload token | `common/attic.yaml` 的 `attic-upload-key` | 仅 `ml-builder` | `pull/push lantian` |
 | Attic JWT/S3 凭据 | `common/attic.yaml` 的 `attic-credentials` | 仅 `colocrossing` 的 `atticd` | 服务端管理与存储 |
 | Cache public key | `helpers/constants/nix.nix` | 公开配置 | 只用于验证 NAR 签名 |
 
@@ -77,8 +77,8 @@ curl --fail --netrc-file /run/secrets/nix-netrc \
 普通 `curl` 也不会自动使用 Nix 的 netrc，因此检查时必须显式指定
 `--netrc-file`。
 
-当前已验证 `ml-builder`、`pve-5700u`、`router` 和 `opi5p` 的认证请求均返回
-`200`；同一 URL 的匿名请求返回 `401`。其中只有前两台存在
+当前已验证 `ml-builder`、`router` 和 `opi5p` 的认证请求均返回 `200`；同一 URL
+的匿名请求返回 `401`。2026-08-12 后只有 `ml-builder` 存在
 `/run/secrets/attic-upload-key`。
 
 在 colocrossing 上：
@@ -99,7 +99,7 @@ journalctl -u atticd.service --since '30 minutes ago' --no-pager
 2. 将其以上述 netrc 格式写入 secrets 仓库的 `common/nix.yaml` 中
    `nix-netrc` 字段；不要把 JWT 输出到终端日志或 Shell history。
 3. 更新主仓库的 `secrets` flake input，先部署全部受管主机。
-4. 在至少 `ml-builder`、`pve-5700u` 和一台普通客户端验证带认证的
+4. 在至少 `ml-builder` 和一台普通客户端验证带认证的
    `nix-cache-info` 及一次真实 substitution。
 5. 使用临时管理 token 登录 Attic，然后执行：
 
@@ -137,9 +137,9 @@ make all
 
 ## 上传
 
-`pve-5700u` 的 Hydra 会自动登录并上传。`ml-builder` 只安装客户端并取得上传
-凭据，不启用 `attic-watch-store`；这与作者默认不在构建机持续监视整个 Nix store
-的做法一致。手动上传：
+`ml-builder` 的 Hydra 会自动登录并上传，同一主机也保留手动上传凭据，不启用
+`attic-watch-store`；这与作者默认不在构建机持续监视整个 Nix store 的做法一致。
+手动上传：
 
 ```bash
 attic login --set-default lantian https://attic.zhyi.xin \

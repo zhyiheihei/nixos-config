@@ -109,8 +109,8 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
 - **监控指标**：`coredns_dns_requests_total`（按 server/zone）、knot exporter
 - **数据流转**：`dig` 抽查公网域名（注意 DNS 发布走 GitHub Actions dnscontrol，生效有 TTL 延迟；国内网络可能 UDP 53 劫持，用 DoH 交叉验证）
 
-### 7. 分布式构建链（ml-builder / opi5p / pve-5700u）
-- **入口**：nix daemon、buildMachines（ml-builder 通告 x86_64+aarch64，opi5p 仅 native aarch64、无 big-parallel）
+### 7. 分布式构建链（ml-builder / opi5p）
+- **入口**：nix daemon、Hydra（ml-builder）、buildMachines（ml-builder 通告 x86_64+aarch64，opi5p 仅 native aarch64、无 big-parallel；pve-5700u 不再参与构建）
 - **日志**：`Cannot build ... (no substituter)` = 远程 builder 缺输入（`builders-use-substitutes=false` 所致）；对策：`nix copy --to ssh://nix-builder@<builder> --derivation <drv>` 或 qemu 本机构建
 - **注意**：opi5p 负载敏感，巡检/部署时不要连续压它（此前多次重试导致 SSH 无响应）；qemu TCG 编译 arm 慢但可用（binfmt 已注册）
 
