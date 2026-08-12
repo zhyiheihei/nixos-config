@@ -39,10 +39,13 @@
 - `hosts/router/qbittorrent.nix`：`Session\AsyncIOThreadsCount=4`、
   `Session\DiskCacheSize=256`、`Session\DiskCacheTTL=60`，限制 4 核 router 上
   的 torrent IO 资源占用。
+- `hosts/router/configuration.nix`：Colmena 目标改为
+  `192.168.0.1:2222`（`mkForce` 覆盖公共模块的 `router.zhyi.cc`），避免
+  LTNET/ZeroTier 路径触发 sshd per-source 惩罚导致 apply 反复断连。
 
 ## 实机验收（2026-08-12）
 
-- router 当前代际 57；`ethtool -l eth0/eth1` 均为 RX 4 / TX 2，RSS 表覆盖
+- router 当前代际 58；`ethtool -l eth0/eth1` 均为 RX 4 / TX 2，RSS 表覆盖
   queue 0-3，四个 `rx-*` 的 `rps_cpus=f`、`rps_flow_cnt=8192`。
 - 关闭 irqbalance 后 queue 中断亲和为 `0,1,2,3`；此前 irqbalance 把它排成
   `0,3,3,3`，是 rx_missed/多流重传的主要来源之一。
