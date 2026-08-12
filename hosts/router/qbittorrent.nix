@@ -2,47 +2,34 @@
   config,
   lib,
   LT,
-  pkgs,
-  utils,
   ...
 }:
 let
   activationMarker = "/nix/persistent/var/lib/qbittorrent-router/ready";
   user = "zhyi";
   group = "users";
-  authSubnetWhitelist = "192.168.0.62,192.168.0.64";
-  # One non-hidden download root for every qBittorrent client after the merge.
-  # MoviePilot skips hidden paths during transfer, so the unified path must be
-  # a plain directory instead of the old ".downloads-*" names.
+  # MoviePilot skips hidden paths during transfer, so the unified download
+  # root must be a plain directory instead of the old ".downloads-*" names.
   unifiedDownloadPath = "/mnt/storage/downloads";
-  # Single qBittorrent instance after the downloader merge.  PT and seedbox
-  # units are kept defined by their modules but disabled below; torrent data
-  # is already on the shared NFS paths, so one client can own all of them.
-  qbitServices = [ "qbittorrent" ];
-  qbitPreStart = instance: ''
-    conf=/var/lib/${instance}/qBittorrent/config/qBittorrent.conf
-    mkdir -p "$(dirname "$conf")"
-    touch "$conf"
-    if ! grep -q '^\[Preferences\]$' "$conf"; then
-      printf '[Preferences]\n' >> "$conf"
-    fi
-    sed -i '/^WebUI\\AuthSubnetWhitelistEnabled=/d' "$conf"
-    sed -i '/^WebUI\\AuthSubnetWhitelist=/d' "$conf"
-    sed -i '/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelistEnabled=true' "$conf"
-    sed -i '/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelist=${authSubnetWhitelist}' "$conf"
-  '';
 in
 {
   imports = [
-    ../../nixos/optional-apps/qbittorrent.nix
-    ../../nixos/optional-apps/qbittorrent-pt.nix
-    ../../nixos/optional-apps/qbittorrent-seedbox.nix
-    ../../nixos/optional-cron-jobs/qbittorrent-pt-cleanup
+    ../../nixos/optional-apps/qbittorrent-unified.nix
     # Author-style layout: qBittorrent and its WebUI vhosts live on the same
     # host, so router serves bt/pt/seedbox.router.zhyi.cc directly.
     ../../nixos/common-apps/nginx/nginx.nix
     ../../nixos/common-apps/nginx/vhost-options/default.nix
   ];
+
+  lantian.qbittorrent-unified = {
+    enable = true;
+    torrentingPort = 31220;
+    networkInterface = "ppp0";
+    authSubnetWhitelist = [
+      "192.168.0.62"
+      "192.168.0.64"
+    ];
+  };
 
   # This router's qBittorrent build does not treat IPv4 127.0.0.1 as loopback
   # for the WebUI auth bypass, while [::1] works. Keep the author-style vhost
@@ -64,8 +51,6 @@ in
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
   };
 
-  services.qbittorrent.torrentingPort = lib.mkForce 31220;
-
   systemd.tmpfiles.settings.qbittorrent-router = {
     "/mnt/storage".d = {
       mode = "755";
@@ -83,35 +68,19 @@ in
     };
   };
 
-  systemd.services = lib.mkMerge [
-    (lib.genAttrs qbitServices (_: {
-      unitConfig.ConditionPathExists = activationMarker;
-      partOf = [ "qbittorrent-router.target" ];
-      after = [ "mnt-storage.mount" ];
-      requires = [ "mnt-storage.mount" ];
-    }))
-    {
-      qbittorrent.preStart = lib.mkAfter (qbitPreStart "qbittorrent");
-      qbittorrent.serviceConfig.BindPaths = [
-        unifiedDownloadPath
-      ];
-      # Old multi-instance units stay defined in their modules for rollback,
-      # but are no longer part of the active single-client stack.
-      qbittorrent-pt.enable = lib.mkForce false;
-      qbittorrent-seedbox.enable = lib.mkForce false;
-      qbittorrent-pt-cleanup.enable = lib.mkForce false;
-    }
-  ];
+  systemd.services.qbittorrent = {
+    unitConfig.ConditionPathExists = activationMarker;
+    partOf = [ "qbittorrent-router.target" ];
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
+    serviceConfig.BindPaths = [ unifiedDownloadPath ];
+  };
 
   systemd.targets.qbittorrent-router = {
     description = "Router qBittorrent downloaders";
     wantedBy = [ "multi-user.target" ];
     unitConfig.ConditionPathExists = activationMarker;
-    wants = map (name: "${name}.service") qbitServices;
+    wants = [ "qbittorrent.service" ];
     after = [ "mnt-storage.mount" ];
   };
-
-  systemd.timers.qbittorrent-pt-cleanup.enable = lib.mkForce false;
-
-  lantian.qbittorrent-seedbox.downloadPath = unifiedDownloadPath;
 }

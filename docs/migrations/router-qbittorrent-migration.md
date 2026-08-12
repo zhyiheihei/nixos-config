@@ -4,6 +4,11 @@
 日期：2026-08-06  
 目标：把 opi5p 上的 `qbittorrent`、`qbittorrent-pt`、`qbittorrent-seedbox` 三个下载器迁移到 `router`，下载路径继续使用 QNAP NFS `/mnt/storage`。
 
+> 2026-08-12 规范化：单实例的 qBittorrent 配置已抽到公共
+> `nixos/optional-apps/qbittorrent-unified.nix`（官方客户端、单接口绑定、统一保存
+> 路径、WebUI 白名单等），router 的 `hosts/router/qbittorrent.nix` 只保留目录映射、
+> 激活门闩与主机级 vhost 别名。
+
 ## 1. 现状与前提
 
 - router 已部署 NFS 客户端并实测挂载成功：`192.168.0.40:/nixos` 挂到 `/mnt/storage`，NFSv4.1，`nofail`，不影响网关启动。
