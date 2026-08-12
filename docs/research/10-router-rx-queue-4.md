@@ -39,6 +39,9 @@
 - `hosts/router/qbittorrent.nix`：`Session\AsyncIOThreadsCount=4`、
   `Session\DiskCacheSize=256`、`Session\DiskCacheTTL=60`，限制 4 核 router 上
   的 torrent IO 资源占用。
+- `hosts/router/flowtable.nix`：flowtable 前向规则改为只卸载 WAN 流量
+  （`iifname "ppp0"` 与 `iifname "br-lan" oifname != "br-lan"`），跳过
+  br-lan → br-lan hairpin；自愈脚本改为管理多条 flow-add 规则。
 - `hosts/router/configuration.nix`：Colmena 目标改为
   `192.168.0.1:2222`（`mkForce` 覆盖公共模块的 `router.zhyi.cc`），避免
   LTNET/ZeroTier 路径触发 sshd per-source 惩罚导致 apply 反复断连。
@@ -67,6 +70,16 @@
   线速上限（约 2.35-2.40 Gbit/s）。
 - OPI5P 经 router hairpin NAT 转发：P1 约 1.99 Gbit/s，P8 2.31 Gbit/s，
   P16 2.28 Gbit/s；多流下重传较多，但聚合吞吐仍接近 2.3G。
+
+## flowtable 丢包 A/B（OPI5P hairpin P16，20 秒）
+
+- 全量 flowtable：2.22 Gbit/s，sender 重传 184088。
+- 完全关闭 flowtable：2.27 Gbit/s，sender 重传 103502。
+- 精简 WAN-only flowtable（已落地）：2.28 Gbit/s，sender 重传 82546。
+- XPS 收拢：2.27 Gbit/s，重传 95084（比 `xps_cpus=f` 更差）。
+- NAPI `2000/40000`：2.24 Gbit/s，重传 145785（比 `1200/30000` 更差）。
+- 测试期间 router CPU 约 91% 空闲、eth0 `rx_missed` 仅增加约 451；重传
+  主要由 OPI5P 发送端感知的 hairpin 乱序引起，不是 router 网卡大量丢包。
 
 ## 验收预期
 

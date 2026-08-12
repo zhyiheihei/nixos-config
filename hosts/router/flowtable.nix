@@ -17,6 +17,17 @@ let
       fi
     done
 
+    delete_flow_rules() {
+      handles=$(
+        ${nft} -a list chain inet lantian FILTER_FORWARD |
+          grep 'flow add @f' |
+          sed -n 's/.*# handle \([0-9][0-9]*\).*/\1/p' || true
+      )
+      for handle in $handles; do
+        ${nft} delete rule inet lantian FILTER_FORWARD handle "$handle"
+      done
+    }
+
     rebuild=0
     if ! ${nft} list flowtable inet lantian f >/dev/null 2>&1; then
       rebuild=1
@@ -26,25 +37,32 @@ let
     fi
 
     if [ "$rebuild" -eq 1 ]; then
-      if ${nft} list chain inet lantian FILTER_FORWARD | grep -q 'flow add @f'; then
-        handle=$(
-          ${nft} -a list chain inet lantian FILTER_FORWARD |
-            grep 'flow add @f' |
-            tail -1 |
-            sed -n 's/.*# handle \([0-9][0-9]*\).*/\1/p'
-        )
-        if [ -n "$handle" ]; then
-          ${nft} delete rule inet lantian FILTER_FORWARD handle "$handle"
-        fi
-      fi
+      delete_flow_rules
       if ${nft} list flowtable inet lantian f >/dev/null 2>&1; then
         ${nft} delete flowtable inet lantian f
       fi
       ${nft} -f /etc/nftables/flowtable.nft
-      ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } flow add @f
+      # Offload WAN traffic only.  Hairpin (br-lan -> br-lan) flows measured
+      # 184k -> 83k sender retransmits when excluded from the flowtable at
+      # 2.3G, while throughput stayed at 2.28 Gbit/s.
+      ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } iifname "ppp0" flow add @f
+      ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } iifname "br-lan" oifname != "br-lan" flow add @f
     else
-      if ! ${nft} list chain inet lantian FILTER_FORWARD | grep -q 'flow add @f'; then
-        ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } flow add @f
+      # Remove the obsolete generic rule, then reassert the two scoped rules.
+      obsolete=$(
+        ${nft} -a list chain inet lantian FILTER_FORWARD |
+          grep 'flow add @f' |
+          grep -v 'iifname' |
+          sed -n 's/.*# handle \([0-9][0-9]*\).*/\1/p' || true
+      )
+      for handle in $obsolete; do
+        ${nft} delete rule inet lantian FILTER_FORWARD handle "$handle"
+      done
+      if ! ${nft} list chain inet lantian FILTER_FORWARD | grep -q 'iifname "ppp0" flow add @f'; then
+        ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } iifname "ppp0" flow add @f
+      fi
+      if ! ${nft} list chain inet lantian FILTER_FORWARD | grep -q 'iifname "br-lan" oifname != "br-lan" flow add @f'; then
+        ${nft} insert rule inet lantian FILTER_FORWARD ct state { established, related } iifname "br-lan" oifname != "br-lan" flow add @f
       fi
     fi
   '';
@@ -93,7 +111,8 @@ in
   };
 
   # nftables reloads flush the table and PPPoE redials recreate ppp0; the
-  # idempotent script re-adds the flowtable and forward rule on a short timer.
+  # idempotent script re-adds the flowtable and scoped forward rules on a
+  # short timer.
   systemd.timers.router-flowtable-check = {
     wantedBy = [ "timers.target" ];
     timerConfig = {
