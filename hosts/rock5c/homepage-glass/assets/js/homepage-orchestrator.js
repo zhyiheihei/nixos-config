@@ -1,4 +1,4 @@
-// Homepage bootstrap: tabs, status bar, clock, quote, and WebGL liquid glass.
+// Homepage bootstrap: tabs, status bar, clock, quote, and WebGPU liquid glass.
 // This file owns DOM/configuration concerns; studio-glass.js owns rendering.
 // The single source of truth for which container is live is the
 // `data-glass-container` attribute; every glass element gets `data-glass`.
@@ -407,7 +407,7 @@
     try {
       const container = syncDom();
       const root = document.getElementById("inner_wrapper") || container;
-      const ok = window.HomepageStudioGlass.start({
+      const ok = await window.HomepageStudioGlass.start({
         root,
         targetFn: () => Array.from(document.querySelectorAll("[data-glass]")),
       });
@@ -426,7 +426,7 @@
         window.HomepageBootstrap = {
           status: "start-failed",
           attempts: studioAttempts,
-          error: "WebGL2 or html2canvas unavailable",
+          error: "WebGPU or html2canvas unavailable",
         };
       }
     } catch (error) {
