@@ -1,3 +1,4 @@
+// SVG refraction approach inspired by archisvaze/liquid-glass (iOS 26-style demo).
 (() => {
   const ready = (fn) => {
     if (document.readyState === "loading") {
@@ -6,18 +7,6 @@
       fn();
     }
   };
-
-  const prefersReducedMotion = () =>
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  const loadScript = (src) =>
-    new Promise((resolve, reject) => {
-      const script = document.createElement("script");
-      script.src = src;
-      script.onload = resolve;
-      script.onerror = () => reject(new Error("load failed: " + src));
-      document.head.appendChild(script);
-    });
 
   const groupName = (group) => {
     const title =
@@ -491,7 +480,6 @@
         tint: "rgba(255, 255, 255, 0.055)",
       });
     });
-    document.documentElement.classList.add("svg-glass");
   };
 
   const initLiquid = () => {
