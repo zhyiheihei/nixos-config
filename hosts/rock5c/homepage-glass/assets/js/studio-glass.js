@@ -400,7 +400,10 @@ void main() {
   };
 
   const render = () => {
-    if (!gl || !program || !bgTexture) return;
+    if (!gl || !program || !bgTexture) {
+      renderRunning = false;
+      return;
+    }
     tickMouse();
     const width = Math.round(window.innerWidth * dpr);
     const height = Math.round(window.innerHeight * dpr);
@@ -557,6 +560,57 @@ void main() {
     });
   };
 
+  const createPlaceholderTextures = () => {
+    const container = document.getElementById("inner_wrapper");
+    const rootWidth = container ? container.scrollWidth : window.innerWidth;
+    const rootHeight = container ? container.scrollHeight : window.innerHeight;
+    const width = Math.max(2, Math.round(rootWidth));
+    const height = Math.max(2, Math.round(rootHeight));
+    const placeholder = document.createElement("canvas");
+    placeholder.width = width;
+    placeholder.height = height;
+    const ctx = placeholder.getContext("2d");
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#0b1020");
+    gradient.addColorStop(0.52, "#101a2e");
+    gradient.addColorStop(1, "#0a0e18");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    captureScale = 1;
+
+    const makeTexture = (source) => {
+      const texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        source
+      );
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      texture.width = source.width;
+      texture.height = source.height;
+      return texture;
+    };
+
+    const newBg = makeTexture(placeholder);
+    const newBlur = makeTexture(placeholder);
+    if (bgTexture) gl.deleteTexture(bgTexture);
+    if (blurredTexture) gl.deleteTexture(blurredTexture);
+    bgTexture = newBg;
+    blurredTexture = newBlur;
+    if (window.HomepageStudioGlass) {
+      window.HomepageStudioGlass.bgTextureHeight = height;
+      window.HomepageStudioGlass.captureMs = 0;
+    }
+  };
+
   const start = (targetFn) => {
     getTargets = targetFn;
     if (!window.WebGL2RenderingContext || typeof window.html2canvas !== "function") {
@@ -569,10 +623,10 @@ void main() {
       createProgram();
       dpr = window.devicePixelRatio || 1;
       refreshShapes();
-      captureStart = performance.now();
+      createPlaceholderTextures();
       const attachCanvas = () => {
-        if (canvasAttached) return;
-        canvasAttached = true;
+        if (!canvasAttached) {
+          canvasAttached = true;
           canvas.style.cssText =
             "position:fixed;inset:0;z-index:var(--homepage-glass-z);pointer-events:none;";
           document.body.appendChild(canvas);
@@ -605,8 +659,11 @@ void main() {
               window.HomepageStudioGlass.refresh(true);
             }
           });
-          startRender();
+        }
+        startRender();
       };
+      attachCanvas();
+      captureStart = performance.now();
       const captureWithRetry = () => {
         captureBackground()
           .then(attachCanvas)
