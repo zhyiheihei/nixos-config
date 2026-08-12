@@ -11,7 +11,7 @@
           recordType = "CNAME";
           name = "autoconfig";
           target = "home-ddns.zhyi.cc.";
-          ttl = "10m";
+          ttl = "2m";
         }
       ];
     }

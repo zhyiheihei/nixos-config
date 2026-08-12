@@ -37,7 +37,9 @@ in
     wantedBy = [ "timers.target" ];
     partOf = [ "ddns-gcore.service" ];
     timerConfig = {
-      OnCalendar = "hourly";
+      # Keep the WAN IP refresh window short: home services depend on
+      # home-ddns.zhyi.cc, and the A record TTL is already 120s.
+      OnCalendar = "*:0/5";
       Persistent = true;
       Unit = "ddns-gcore.service";
     };

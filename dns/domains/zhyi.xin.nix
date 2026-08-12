@@ -23,7 +23,7 @@ let
       recordType = "CNAME";
       name = "asf";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
@@ -53,7 +53,7 @@ let
       recordType = "CNAME";
       name = "books";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
@@ -71,7 +71,7 @@ let
       recordType = "CNAME";
       name = "filebox";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
@@ -119,25 +119,25 @@ let
       recordType = "CNAME";
       name = "immich";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
       name = "index";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
       name = "index-helper";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
       name = "jellyfin";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
@@ -233,7 +233,7 @@ let
       recordType = "CNAME";
       name = "tachidesk";
       target = homeDdnsTarget;
-      ttl = "1h";
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
