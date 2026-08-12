@@ -131,9 +131,115 @@
       }
 
       #inner_wrapper {
-        width: min(100%, 1680px);
+        width: min(100%, 1440px);
         margin: 0 auto;
         padding-bottom: 36px;
+      }
+
+      #homepage-statusbar {
+        position: relative;
+        z-index: 70;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 44px;
+        padding: 0 32px;
+        color: rgba(255, 255, 255, 0.94);
+        font-size: 15px;
+        font-weight: 600;
+        letter-spacing: 0;
+        pointer-events: none;
+      }
+
+      .homepage-status-time {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .homepage-status-icons {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .homepage-status-signal {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 11px;
+      }
+
+      .homepage-status-signal i {
+        width: 3px;
+        border-radius: 1.5px;
+        background: currentColor;
+      }
+
+      .homepage-status-signal i:nth-child(1) { height: 4px; }
+      .homepage-status-signal i:nth-child(2) { height: 6px; }
+      .homepage-status-signal i:nth-child(3) { height: 8px; }
+      .homepage-status-signal i:nth-child(4) { height: 11px; }
+
+      .homepage-status-network {
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .homepage-status-battery {
+        position: relative;
+        width: 24px;
+        height: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.85);
+        border-radius: 3.5px;
+      }
+
+      .homepage-status-battery::before {
+        content: "";
+        position: absolute;
+        inset: 2px;
+        border-radius: 1.5px;
+        background: currentColor;
+      }
+
+      .homepage-status-battery::after {
+        content: "";
+        position: absolute;
+        top: 3px;
+        right: -3.5px;
+        width: 2px;
+        height: 5px;
+        border-radius: 0 2px 2px 0;
+        background: rgba(255, 255, 255, 0.85);
+      }
+
+      .hp-clock {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        line-height: 1;
+      }
+
+      .hp-clock-time {
+        font-size: 3.4rem !important;
+        font-weight: 200 !important;
+        letter-spacing: -0.02em;
+        color: rgba(255, 255, 255, 0.98);
+      }
+
+      .hp-clock-date {
+        margin-top: 7px;
+        font-size: 1rem !important;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.72);
+      }
+
+      .information-widget-datetime {
+        flex: 1 1 auto;
+        min-width: 260px;
+        min-height: 64px !important;
+        padding: 0 16px !important;
+        border: 0 !important;
+        background: transparent !important;
+        box-shadow: none !important;
       }
 
       #information-widgets {
