@@ -30,11 +30,39 @@ rules:
 直连规则本身已存在，但 `fake-ip-filter` 没有覆盖家庭域名，且
 `respect-rules: false` 让 DNS 解析不遵循规则，因此产生冲突。
 
-## 推荐配置
+## 官方依据
 
-在 FlClash 的全局 DNS/覆写配置中调整，或对当前 profile 增加以下 override：
+- Mihomo 官方 DNS 文档：<https://wiki.metacubex.one/config/dns/>
+  - `fake-ip-filter`：命中列表的域名不会下发 fake-ip 映射，支持 `*.zhyi.cc`
+    这类域名通配。
+  - `nameserver-policy`：指定域名的解析服务器，优先于 nameserver/fallback。
+  - `respect-rules`：DNS 连接遵守路由规则。
+- FlClash 官方源码：`lib/views/config/dns.dart` 提供 fake-ip-filter、
+  nameserver-policy、respect-rules、fake-ip-range 的官方 UI 编辑项；
+  `lib/views/config/rules.dart` 提供“全局规则”页面。
 
-可直接参考 [flclash-home-override.yaml](./flclash-home-override.yaml)。
+## 推荐配置（FlClash UI）
+
+不要在 FlClash 运行目录里直接改 `config.yaml` 或 `database.sqlite`，这些会在
+应用重启时被 FlClash 重新生成。按官方 UI 配置：
+
+1. FlClash → 设置 → DNS（必要时先打开 “Override DNS / 覆写 DNS”）。
+2. `fake-ip-filter` 增加：
+   - `*.zhyi.cc`
+   - `*.zhyi.xin`
+   - `*.zhyi.dn42`
+   - `*.local`
+3. `nameserver-policy` 增加：
+   - `*.zhyi.cc` → `https://dns.alidns.com/dns-query`
+   - `*.zhyi.xin` → `https://dns.alidns.com/dns-query`
+4. 打开 `respect-rules`。
+5. 把 `fake-ip-range` 从默认的 `198.18.0.1/16` 改为不与内网重叠的网段，例如
+   `28.0.0.1/16`。默认段正好落在 LTNET `198.18.0.0/15` 内，会与真实内网地址
+   冲突。
+6. FlClash → 规则 → 添加全局直连规则（保持放在 MATCH 之前）。
+
+也可参考 [flclash-home-override.yaml](./flclash-home-override.yaml) 作为
+profile/扩展配置的对照内容，但优先使用 FlClash UI。
 
 ```yaml
 dns:
