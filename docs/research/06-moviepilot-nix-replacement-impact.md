@@ -42,6 +42,18 @@
 
 ## 结论
 
-生产 `rock5c` 暂不直接切换。先在 lubancat 用临时 `CONFIG_DIR` 启动原生
-`moviepilot`，验证进程、`/api/v1/system/version`、登录与前端静态资源；
-通过后再决定是否切 rock5c。
+生产 `rock5c` 暂不直接切换。已在 lubancat 用临时 `CONFIG_DIR` 完成首轮
+验证：
+
+- 修复前 aarch64 包 wrapper 指向不存在的构建平台 bash，启动即失败；
+  改为目标平台 bash 后 wrapper 可运行。
+- MoviePilot 上游依赖 `fastapi~=0.96.0` / `starlette~=0.27.0`，nixpkgs
+  当前是 `fastapi 0.139.0` / `starlette 1.3.1`；插件路由初始化遇到
+  `_IncludedRouter` 无 `path` 属性，已通过过滤无 `path` 路由兼容。
+- lubancat 实测：`moviepilot start` 后前后端均 running，前端
+  `http://127.0.0.1:3000/` 返回 200；`/api/v1/auth/providers`、
+  `/api/v1/login/wallpaper` 200；`/api/v1/login/access-token` 返回结构化
+  422 校验响应。
+
+仍需回归：rock5c 的 SOCKS5 代理环境、`--add-host`、插件健康恢复 timer、
+Dex OIDC 回调，以及真实 `/nix/persistent/var/lib/moviepilot` 数据。
