@@ -15,7 +15,7 @@
     { name: "快捷", test: () => true },
   ];
   const GLASS_TARGETS = [
-    ".homepage-tab-panel.active .services-group, .homepage-tab-panel.active .bookmark-group",
+    "#layout-groups .services-group, #layout-groups .bookmark-group",
     "#information-widgets .widget-container:not(.information-widget-datetime)",
     "#homepage-search-section",
     ".homepage-tabbar",
@@ -89,14 +89,10 @@
       button.dataset.tab = name;
       button.addEventListener("click", () => {
         const tabbar = button.closest(".homepage-tabbar") || bar;
+        document.documentElement.dataset.homepageTab = name;
         tabbar
           .querySelectorAll(".homepage-tab")
           .forEach((tab) => tab.classList.toggle("active", tab === button));
-        document
-          .querySelectorAll(".homepage-tab-panel")
-          .forEach((panel) =>
-            panel.classList.toggle("active", panel.dataset.tab === name)
-          );
         window.setTimeout(() => {
           if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh(true);
         }, 60);
@@ -104,24 +100,16 @@
       bar.appendChild(button);
     });
 
-    const host = containers[0];
-
-    order.forEach((name) => {
-      const panel = document.createElement("div");
-      panel.className =
-        "homepage-tab-panel" + (name === order[0] ? " active" : "");
-      panel.dataset.tab = name;
-      groups
-        .filter((group) => tabFromName(groupName(group)) === name)
-        .forEach((group) => panel.appendChild(group));
-      host.appendChild(panel);
+    groups.forEach((group) => {
+      group.classList.add("homepage-tab-group-" + tabFromName(groupName(group)));
     });
 
+    const host = containers[0];
+    if (host) host.insertBefore(bar, host.firstChild);
     containers.forEach((container) => {
       container.classList.add("homepage-tabs-enabled");
-      if (container !== host) container.style.display = "none";
     });
-    host.insertBefore(bar, host.firstChild);
+    document.documentElement.dataset.homepageTab = order[0] || "公开";
   };
 
   const dailyQuote = async () => {
@@ -236,28 +224,6 @@
     }
   };
 
-  const buildShell = () => {
-    if (document.getElementById("homepage-shell")) return;
-    const shell = document.createElement("div");
-    shell.id = "homepage-shell";
-    const inner = document.getElementById("inner_wrapper");
-    const container = document.querySelector(".container");
-    [
-      "homepage-statusbar",
-      "information-widgets",
-      "homepage-search-section",
-      "layout-groups",
-      "services",
-      "bookmarks",
-    ].forEach((id) => {
-      const element = document.getElementById(id);
-      if (element) shell.appendChild(element);
-    });
-    if (container) container.style.display = "none";
-    (inner || document.body).appendChild(shell);
-    document.documentElement.classList.add("homepage-shell-mode");
-  };
-
   let tabsBuilt = false;
   let studioStarted = false;
   let studioRetries = 0;
@@ -273,7 +239,7 @@
       tabsBuilt = true;
       if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh();
     }
-    buildShell();
+    if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh();
     initStudio();
   };
 

@@ -20,30 +20,86 @@ in vec2 v_uv;
 out vec4 fragColor;
 
 uniform sampler2D u_bg;
+uniform sampler2D u_blurredBg;
 uniform vec2 u_resolution;
 uniform vec2 u_textureSize;
 uniform float u_scrollY;
 uniform float u_dpr;
+uniform float u_captureScale;
 uniform int u_shapeCount;
 uniform vec4 u_shapes[MAX_SHAPES];
 uniform float u_radii[MAX_SHAPES];
 uniform vec2 u_mouseSpring;
 uniform float u_mergeRate;
+uniform float u_refThickness;
+uniform float u_refFactor;
+uniform float u_refDispersion;
+uniform float u_refFresnelRange;
+uniform float u_refFresnelHardness;
+uniform float u_refFresnelFactor;
+uniform float u_glareRange;
+uniform float u_glareHardness;
+uniform float u_glareFactor;
+uniform float u_glareConvergence;
+uniform float u_glareOppositeFactor;
+uniform float u_glareAngle;
+uniform float u_ballRadius;
+uniform float u_tint;
+uniform float u_blurRadius;
+uniform int u_blurEdge;
 
-const float REF_THICKNESS = 20.0;
-const float REF_FACTOR = 1.4;
-const float REF_DISPERSION = 7.0;
-const float FRESNEL_RANGE = 30.0;
-const float FRESNEL_HARDNESS = 0.2;
-const float FRESNEL_FACTOR = 0.2;
-const float GLARE_RANGE = 30.0;
-const float GLARE_HARDNESS = 0.2;
-const float GLARE_FACTOR = 0.9;
-const float GLARE_CONVERGENCE = 0.5;
-const float GLARE_OPPOSITE = 0.8;
-const float GLARE_ANGLE = -0.785398;
-const float BALL_RADIUS = 33.0;
-const float TINT = 0.02;
+const vec3 D65_WHITE = vec3(0.95045592705, 1.0, 1.08905775076);
+const mat3 RGB_TO_XYZ_M = mat3(
+  0.4124, 0.3576, 0.1805,
+  0.2126, 0.7152, 0.0722,
+  0.0193, 0.1192, 0.9505
+);
+const mat3 XYZ_TO_RGB_M = mat3(
+  3.2406255, -1.537208, -0.4986286,
+  -0.9689307, 1.8757561, 0.0415175,
+  0.0557101, -0.2040211, 1.0569959
+);
+float UNCOMPAND_SRGB(float a) {
+  return a > 0.04045 ? pow((a + 0.055) / 1.055, 2.4) : a / 12.92;
+}
+float COMPAND_RGB(float a) {
+  return a <= 0.0031308 ? 12.92 * a : 1.055 * pow(a, 0.41666666666) - 0.055;
+}
+vec3 SRGB_TO_XYZ(vec3 srgb) {
+  vec3 linear = vec3(UNCOMPAND_SRGB(srgb.r), UNCOMPAND_SRGB(srgb.g), UNCOMPAND_SRGB(srgb.b));
+  return linear * RGB_TO_XYZ_M;
+}
+vec3 XYZ_TO_SRGB(vec3 xyz) {
+  vec3 linear = xyz * XYZ_TO_RGB_M;
+  return vec3(COMPAND_RGB(linear.r), COMPAND_RGB(linear.g), COMPAND_RGB(linear.b));
+}
+float XYZ_TO_LAB_F(float x) {
+  return x > 0.00885645167 ? pow(x, 0.333333333) : 7.78703703704 * x + 0.13793103448;
+}
+vec3 XYZ_TO_LAB(vec3 xyz) {
+  vec3 s = xyz / D65_WHITE;
+  s = vec3(XYZ_TO_LAB_F(s.x), XYZ_TO_LAB_F(s.y), XYZ_TO_LAB_F(s.z));
+  return vec3(116.0 * s.y - 16.0, 500.0 * (s.x - s.y), 200.0 * (s.y - s.z));
+}
+vec3 LAB_TO_LCH(vec3 lab) {
+  return vec3(lab.x, sqrt(dot(lab.yz, lab.yz)), atan(lab.z, lab.y) * 57.2957795131);
+}
+vec3 SRGB_TO_LCH(vec3 srgb) {
+  return LAB_TO_LCH(XYZ_TO_LAB(SRGB_TO_XYZ(srgb)));
+}
+float LAB_TO_XYZ_F(float x) {
+  return x > 0.206897 ? x * x * x : 0.12841854934 * (x - 0.137931034);
+}
+vec3 LAB_TO_XYZ(vec3 lab) {
+  float w = (lab.x + 16.0) / 116.0;
+  return D65_WHITE * vec3(LAB_TO_XYZ_F(w + lab.y / 500.0), LAB_TO_XYZ_F(w), LAB_TO_XYZ_F(w - lab.z / 200.0));
+}
+vec3 LCH_TO_LAB(vec3 lch) {
+  return vec3(lch.x, lch.y * cos(lch.z * 0.01745329251), lch.y * sin(lch.z * 0.01745329251));
+}
+vec3 LCH_TO_SRGB(vec3 lch) {
+  return XYZ_TO_SRGB(LAB_TO_XYZ(LCH_TO_LAB(lch)));
+}
 
 float sdCircle(vec2 p, float r) {
   return length(p) - r;
@@ -78,7 +134,7 @@ float mergedSDF(vec2 p) {
     vec2 halfSize = u_shapes[i].zw * 0.5;
     d = min(d, sdRoundRect(p - center, halfSize, u_radii[i]));
   }
-  float ball = sdCircle(p - u_mouseSpring, BALL_RADIUS * u_dpr);
+  float ball = sdCircle(p - u_mouseSpring, u_ballRadius * u_dpr);
   d = smin(d, ball, u_mergeRate * u_resolution.y);
   return d;
 }
@@ -91,14 +147,25 @@ vec2 mergedNormal(vec2 p) {
   float dy =
     mergedSDF(p + vec2(0.0, h.y)) -
     mergedSDF(p - vec2(0.0, h.y));
-  return normalize(vec2(dx, dy));
+  return vec2(dx, dy);
 }
 
-vec4 sampleDisperse(vec2 uv, vec2 offset, float factor) {
-  float r = texture(u_bg, uv + offset * (1.0 - 0.02 * factor)).r;
-  float g = texture(u_bg, uv + offset).g;
-  float b = texture(u_bg, uv + offset * (1.0 + 0.02 * factor)).b;
-  return vec4(r, g, b, 1.0);
+vec4 getTextureDispersion(vec2 uv, vec2 offset, float mixRate, float factor) {
+  const float N_R = 1.0 - 0.02;
+  const float N_G = 1.0;
+  const float N_B = 1.0 + 0.02;
+  float bgR = texture(u_bg, uv + offset * (1.0 - (N_R - 1.0) * factor)).r;
+  float bgG = texture(u_bg, uv + offset * (1.0 - (N_G - 1.0) * factor)).g;
+  float bgB = texture(u_bg, uv + offset * (1.0 - (N_B - 1.0) * factor)).b;
+  float blurR = texture(u_blurredBg, uv + offset * (1.0 - (N_R - 1.0) * factor)).r;
+  float blurG = texture(u_blurredBg, uv + offset * (1.0 - (N_G - 1.0) * factor)).g;
+  float blurB = texture(u_blurredBg, uv + offset * (1.0 - (N_B - 1.0) * factor)).b;
+  return vec4(
+    mix(bgR, blurR, mixRate),
+    mix(bgG, blurG, mixRate),
+    mix(bgB, blurB, mixRate),
+    1.0
+  );
 }
 
 void main() {
@@ -109,70 +176,103 @@ void main() {
     return;
   }
 
-  vec2 uv = p / u_textureSize;
+  vec2 uv = p * (u_captureScale / u_dpr) / u_textureSize;
   float dist = -merged;
   vec2 normal = mergedNormal(p);
-
-  float xRatio = 1.0 - dist / REF_THICKNESS;
-  float thetaI = asin(clamp(pow(max(xRatio, 0.0), 2.0), 0.0, 1.0));
-  float thetaT = asin(clamp(1.0 / REF_FACTOR * sin(thetaI), -1.0, 1.0));
-  float edgeFactor = -tan(thetaT - thetaI);
-  if (dist >= REF_THICKNESS) edgeFactor = 0.0;
-
-  vec2 offset =
-    -normal *
-    edgeFactor *
-    0.05 *
-    u_dpr *
-    vec2(u_resolution.y / u_resolution.x, 1.0);
-
-  vec4 color = edgeFactor <= 0.0
-    ? texture(u_bg, uv)
-    : sampleDisperse(uv, offset, REF_DISPERSION);
-
   float distCss = dist / u_dpr;
-  float fresnel = clamp(
-    pow(
-      1.0 -
-        distCss / 1500.0 * pow(500.0 / FRESNEL_RANGE, 2.0) +
-        FRESNEL_HARDNESS,
-      5.0
-    ),
-    0.0,
-    1.0
-  );
-  color = mix(color, vec4(1.0), fresnel * FRESNEL_FACTOR * 0.7);
 
-  float glareGeo = clamp(
-    pow(
-      1.0 -
-        distCss / 1500.0 * pow(500.0 / GLARE_RANGE, 2.0) +
-        GLARE_HARDNESS,
-      5.0
-    ),
-    0.0,
-    1.0
-  );
-  float angle = (atan(normal.y, normal.x) - PI / 4.0 + GLARE_ANGLE) * 2.0;
-  int farside = 0;
-  if (
-    (angle > PI * (2.0 - 0.5) && angle < PI * (4.0 - 0.5)) ||
-    angle < PI * (0.0 - 0.5)
-  ) {
-    farside = 1;
+  float xRatio = 1.0 - dist / u_refThickness;
+  float thetaI = asin(clamp(pow(max(xRatio, 0.0), 2.0), 0.0, 1.0));
+  float thetaT = asin(clamp(1.0 / u_refFactor * sin(thetaI), -1.0, 1.0));
+  float edgeFactor = -tan(thetaT - thetaI);
+  if (dist >= u_refThickness) edgeFactor = 0.0;
+  float edgeH = clamp(dist / u_refThickness, 0.0, 1.0);
+
+  vec4 color;
+  if (merged < 0.005) {
+    if (edgeFactor <= 0.0) {
+      color = texture(u_blurredBg, uv);
+      color = mix(color, vec4(1.0), u_tint * 0.8);
+    } else {
+      vec2 offset =
+        -normal *
+        edgeFactor *
+        0.05 *
+        u_dpr *
+        vec2(u_resolution.y / u_resolution.x, 1.0);
+      color = getTextureDispersion(
+        uv,
+        offset,
+        u_blurEdge > 0 ? 1.0 : edgeH,
+        u_refDispersion
+      );
+      color = mix(color, vec4(1.0), u_tint * 0.8);
+
+      float fresnel = clamp(
+        pow(
+          1.0 -
+            distCss / 1500.0 * pow(500.0 / u_refFresnelRange, 2.0) +
+            u_refFresnelHardness,
+          5.0
+        ),
+        0.0,
+        1.0
+      );
+      vec3 fresnelLch = SRGB_TO_LCH(
+        mix(vec3(1.0), vec3(1.0), u_tint * 0.5)
+      );
+      fresnelLch.x += 20.0 * fresnel * u_refFresnelFactor;
+      fresnelLch.x = clamp(fresnelLch.x, 0.0, 100.0);
+      color = mix(
+        color,
+        vec4(LCH_TO_SRGB(fresnelLch), 1.0),
+        fresnel * u_refFresnelFactor * 0.7 * length(normal)
+      );
+
+      float glareGeo = clamp(
+        pow(
+          1.0 -
+            distCss / 1500.0 * pow(500.0 / u_glareRange, 2.0) +
+            u_glareHardness,
+          5.0
+        ),
+        0.0,
+        1.0
+      );
+      float angle = (atan(normal.y, normal.x) - PI / 4.0 + u_glareAngle) * 2.0;
+      int farside = 0;
+      if (
+        (angle > PI * (2.0 - 0.5) && angle < PI * (4.0 - 0.5)) ||
+        angle < PI * (0.0 - 0.5)
+      ) {
+        farside = 1;
+      }
+      float angleFactor =
+        (0.5 + sin(angle) * 0.5) *
+        (farside == 1 ? 1.2 * u_glareOppositeFactor : 1.2) *
+        u_glareFactor;
+      angleFactor = clamp(
+        pow(angleFactor, 0.1 + u_glareConvergence * 2.0),
+        0.0,
+        1.0
+      );
+      vec3 glareLch = SRGB_TO_LCH(
+        mix(color.rgb, vec3(1.0), u_tint * 0.5)
+      );
+      glareLch.x += 150.0 * angleFactor * glareGeo;
+      glareLch.y += 30.0 * angleFactor * glareGeo;
+      glareLch.x = clamp(glareLch.x, 0.0, 120.0);
+      color = mix(
+        color,
+        vec4(LCH_TO_SRGB(glareLch), 1.0),
+        angleFactor * glareGeo * length(normal)
+      );
+    }
+  } else {
+    color = texture(u_bg, uv);
   }
-  float angleFactor =
-    (0.5 + sin(angle) * 0.5) *
-    (farside == 1 ? 1.2 * GLARE_OPPOSITE : 1.2) *
-    GLARE_FACTOR;
-  angleFactor = clamp(
-    pow(angleFactor, 0.1 + GLARE_CONVERGENCE * 2.0),
-    0.0,
-    1.0
-  );
-  color = mix(color, vec4(1.0), angleFactor * glareGeo);
-  color = mix(color, vec4(1.0), TINT);
 
+  color = mix(color, texture(u_bg, uv), smoothstep(-0.001, 0.001, merged));
   float alpha = 1.0 - smoothstep(-1.0, 1.0, merged);
   fragColor = vec4(color.rgb, alpha);
 }`;
@@ -181,6 +281,9 @@ void main() {
   let gl = null;
   let program = null;
   let bgTexture = null;
+  let blurredTexture = null;
+  let captureScale = 1;
+  let captureToken = 0;
   let shapeArray = null;
   let radiusArray = null;
   let shapeCount = 0;
@@ -231,32 +334,60 @@ void main() {
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     uniformLocations = {
       bg: gl.getUniformLocation(program, "u_bg"),
+      blurredBg: gl.getUniformLocation(program, "u_blurredBg"),
       resolution: gl.getUniformLocation(program, "u_resolution"),
       textureSize: gl.getUniformLocation(program, "u_textureSize"),
       scrollY: gl.getUniformLocation(program, "u_scrollY"),
       dpr: gl.getUniformLocation(program, "u_dpr"),
+      captureScale: gl.getUniformLocation(program, "u_captureScale"),
       shapeCount: gl.getUniformLocation(program, "u_shapeCount"),
       shapes: gl.getUniformLocation(program, "u_shapes"),
       radii: gl.getUniformLocation(program, "u_radii"),
       mouseSpring: gl.getUniformLocation(program, "u_mouseSpring"),
       mergeRate: gl.getUniformLocation(program, "u_mergeRate"),
+      refThickness: gl.getUniformLocation(program, "u_refThickness"),
+      refFactor: gl.getUniformLocation(program, "u_refFactor"),
+      refDispersion: gl.getUniformLocation(program, "u_refDispersion"),
+      refFresnelRange: gl.getUniformLocation(program, "u_refFresnelRange"),
+      refFresnelHardness: gl.getUniformLocation(program, "u_refFresnelHardness"),
+      refFresnelFactor: gl.getUniformLocation(program, "u_refFresnelFactor"),
+      glareRange: gl.getUniformLocation(program, "u_glareRange"),
+      glareHardness: gl.getUniformLocation(program, "u_glareHardness"),
+      glareFactor: gl.getUniformLocation(program, "u_glareFactor"),
+      glareConvergence: gl.getUniformLocation(program, "u_glareConvergence"),
+      glareOppositeFactor: gl.getUniformLocation(program, "u_glareOppositeFactor"),
+      glareAngle: gl.getUniformLocation(program, "u_glareAngle"),
+      ballRadius: gl.getUniformLocation(program, "u_ballRadius"),
+      tint: gl.getUniformLocation(program, "u_tint"),
+      blurRadius: gl.getUniformLocation(program, "u_blurRadius"),
+      blurEdge: gl.getUniformLocation(program, "u_blurEdge"),
     };
   };
 
   const getScrollTop = () => {
     const container = document.getElementById("inner_wrapper");
-    if (container) return container.scrollTop || 0;
+    if (container) return container.scrollTop;
     return window.pageYOffset || document.documentElement.scrollTop || 0;
+  };
+
+  const getScrollLeft = () => {
+    const container = document.getElementById("inner_wrapper");
+    if (container) return container.scrollLeft;
+    return window.pageXOffset || document.documentElement.scrollLeft || 0;
   };
 
   const refreshShapes = () => {
     const elements = getTargets ? getTargets() : [];
-    shapeCount = Math.min(elements.length, MAX_SHAPES);
+    const visible = elements.filter((element) => {
+      const rect = element.getBoundingClientRect();
+      return rect.width > 0 && rect.height > 0;
+    });
+    shapeCount = Math.min(visible.length, MAX_SHAPES);
     shapeArray = new Float32Array(shapeCount * 4);
     radiusArray = new Float32Array(shapeCount);
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft || 0;
+    const scrollX = getScrollLeft();
     const scrollY = getScrollTop();
-    elements.slice(0, shapeCount).forEach((element, i) => {
+    visible.slice(0, shapeCount).forEach((element, i) => {
       const rect = element.getBoundingClientRect();
       const radius =
         parseFloat(getComputedStyle(element).borderRadius) || 20;
@@ -287,17 +418,18 @@ void main() {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, bgTexture);
     gl.uniform1i(uniformLocations.bg, 0);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, blurredTexture);
+    gl.uniform1i(uniformLocations.blurredBg, 1);
     gl.uniform2f(uniformLocations.resolution, width, height);
     gl.uniform2f(
       uniformLocations.textureSize,
       bgTexture.width,
       bgTexture.height
     );
-    gl.uniform1f(
-      uniformLocations.scrollY,
-      getScrollTop() * dpr
-    );
+    gl.uniform1f(uniformLocations.scrollY, getScrollTop() * dpr);
     gl.uniform1f(uniformLocations.dpr, dpr);
+    gl.uniform1f(uniformLocations.captureScale, captureScale);
     gl.uniform1i(uniformLocations.shapeCount, shapeCount);
     if (shapeCount > 0) {
       gl.uniform4fv(uniformLocations.shapes, shapeArray);
@@ -309,6 +441,22 @@ void main() {
       mouseSpring.y + getScrollTop() * dpr
     );
     gl.uniform1f(uniformLocations.mergeRate, 0.05);
+    gl.uniform1f(uniformLocations.refThickness, 20.0);
+    gl.uniform1f(uniformLocations.refFactor, 1.4);
+    gl.uniform1f(uniformLocations.refDispersion, 7.0);
+    gl.uniform1f(uniformLocations.refFresnelRange, 30.0);
+    gl.uniform1f(uniformLocations.refFresnelHardness, 0.2);
+    gl.uniform1f(uniformLocations.refFresnelFactor, 0.2);
+    gl.uniform1f(uniformLocations.glareRange, 30.0);
+    gl.uniform1f(uniformLocations.glareHardness, 0.2);
+    gl.uniform1f(uniformLocations.glareFactor, 0.9);
+    gl.uniform1f(uniformLocations.glareConvergence, 0.5);
+    gl.uniform1f(uniformLocations.glareOppositeFactor, 0.8);
+    gl.uniform1f(uniformLocations.glareAngle, -0.785398);
+    gl.uniform1f(uniformLocations.ballRadius, 100.0);
+    gl.uniform1f(uniformLocations.tint, 0.0);
+    gl.uniform1f(uniformLocations.blurRadius, 1.0);
+    gl.uniform1i(uniformLocations.blurEdge, 1);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     if (Date.now() - lastInteraction < 1500) {
       rafId = window.requestAnimationFrame(render);
@@ -332,18 +480,39 @@ void main() {
   const captureBackground = () => {
     const container = document.getElementById("inner_wrapper");
     const root = container || document.body;
+    const token = ++captureToken;
     return window.html2canvas(root, {
       scale: Math.min(dpr, 2),
-      windowWidth: container ? container.scrollWidth : window.innerWidth,
-      windowHeight: container ? container.scrollHeight : window.innerHeight,
+      width: container ? container.scrollWidth : window.innerWidth,
+      height: container ? container.scrollHeight : window.innerHeight,
+      scrollX: 0,
+      scrollY: 0,
+      onclone: (doc) => {
+        const inner = doc.getElementById("inner_wrapper");
+        if (inner) {
+          inner.style.height = "auto";
+          inner.style.maxHeight = "none";
+          inner.style.overflow = "visible";
+        }
+      },
       useCORS: true,
       allowTaint: true,
       backgroundColor: null,
       logging: false,
     }).then((snapshot) => {
-      if (bgTexture) gl.deleteTexture(bgTexture);
-      bgTexture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, bgTexture);
+      if (token !== captureToken) return;
+      const rootWidth = container ? container.scrollWidth : window.innerWidth;
+      captureScale = snapshot.width / rootWidth;
+
+      const blurCanvas = document.createElement("canvas");
+      blurCanvas.width = snapshot.width;
+      blurCanvas.height = snapshot.height;
+      const blurCtx = blurCanvas.getContext("2d");
+      blurCtx.filter = "blur(2px)";
+      blurCtx.drawImage(snapshot, 0, 0);
+
+      const newBg = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, newBg);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
       gl.texImage2D(
         gl.TEXTURE_2D,
@@ -357,8 +526,30 @@ void main() {
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
       gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      bgTexture.width = snapshot.width;
-      bgTexture.height = snapshot.height;
+      newBg.width = snapshot.width;
+      newBg.height = snapshot.height;
+
+      const newBlur = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, newBlur);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        blurCanvas
+      );
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      newBlur.width = blurCanvas.width;
+      newBlur.height = blurCanvas.height;
+
+      if (bgTexture) gl.deleteTexture(bgTexture);
+      if (blurredTexture) gl.deleteTexture(blurredTexture);
+      bgTexture = newBg;
+      blurredTexture = newBlur;
       if (window.HomepageStudioGlass) {
         window.HomepageStudioGlass.bgTextureHeight = snapshot.height;
         window.HomepageStudioGlass.captureMs = performance.now() - captureStart;
@@ -385,19 +576,20 @@ void main() {
           canvas.style.cssText =
             "position:fixed;inset:0;z-index:var(--homepage-glass-z);pointer-events:none;";
           document.body.appendChild(canvas);
-          window.addEventListener("mousemove", (event) => {
+          const onPointer = (event) => {
             mouse.x = event.clientX * dpr;
             mouse.y = event.clientY * dpr;
             lastInteraction = Date.now();
             startRender();
-          });
+          };
+          window.addEventListener("pointermove", onPointer, { passive: true });
+          window.addEventListener("touchmove", onPointer, { passive: true });
           document.addEventListener(
             "scroll",
             () => {
               if (scrollRaf) return;
               scrollRaf = window.requestAnimationFrame(() => {
                 scrollRaf = 0;
-                if (getTargets) refreshShapes();
                 lastInteraction = Date.now();
                 startRender();
               });
@@ -409,6 +601,9 @@ void main() {
             refreshShapes();
             lastInteraction = Date.now();
             startRender();
+            if (window.HomepageStudioGlass) {
+              window.HomepageStudioGlass.refresh(true);
+            }
           });
           startRender();
       };

@@ -46,10 +46,6 @@ body,
   overflow-y: auto;
 }
 
-#homepage-shell {
-  min-height: 100%;
-}
-
 #homepage-statusbar {
   position: relative;
   z-index: 70;
@@ -305,18 +301,26 @@ body,
     0 4px 14px rgba(2, 8, 18, 0.16);
 }
 
-.homepage-tab-panel {
+.homepage-tab-group-公开,
+.homepage-tab-group-私有,
+.homepage-tab-group-快捷 {
   display: none;
 }
 
-.homepage-tab-panel.active {
+html[data-homepage-tab="公开"] .homepage-tab-group-公开,
+html[data-homepage-tab="私有"] .homepage-tab-group-私有,
+html[data-homepage-tab="快捷"] .homepage-tab-group-快捷 {
+  display: block;
+}
+
+#layout-groups {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
 
-.homepage-tab-panel .services-group,
-.homepage-tab-panel .bookmark-group {
+#layout-groups .services-group,
+#layout-groups .bookmark-group {
   flex: none;
   width: 100%;
   padding: 8px !important;
@@ -331,17 +335,10 @@ body,
     0 10px 28px var(--homepage-shadow);
 }
 
-.homepage-tab-panel .services-list,
-.homepage-tab-panel .bookmark-list {
+#layout-groups .services-list,
+#layout-groups .bookmark-list,
+#layout-groups .bookmark-group ul {
   display: block;
-}
-
-.homepage-tab-panel .bookmark-group ul {
-  display: block !important;
-}
-
-.services-group {
-  padding: 0 2px !important;
 }
 
 .service-group-name,
@@ -358,8 +355,8 @@ body,
   display: none;
 }
 
-.homepage-tab-panel .service-card,
-.homepage-tab-panel .bookmark > a {
+#layout-groups .service-card,
+#layout-groups .bookmark > a {
   position: relative;
   display: block;
   min-height: 64px;
@@ -375,24 +372,24 @@ body,
   transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), background 180ms ease, box-shadow 180ms ease !important;
 }
 
-.homepage-tab-panel .service:not(:last-child) .service-card,
-.homepage-tab-panel .bookmark:not(:last-child) > a {
+#layout-groups .service:not(:last-child) .service-card,
+#layout-groups .bookmark:not(:last-child) > a {
   border-bottom: 1px solid var(--homepage-line) !important;
   border-radius: var(--homepage-row-radius) var(--homepage-row-radius) 0 0 !important;
 }
 
-.homepage-tab-panel .service-card:hover,
-.homepage-tab-panel .bookmark > a:hover {
+#layout-groups .service-card:hover,
+#layout-groups .bookmark > a:hover {
   transform: none;
   background: rgba(255, 255, 255, 0.05) !important;
 }
 
-.homepage-tab-panel .service-card:active {
+#layout-groups .service-card:active {
   transform: scale(0.985);
 }
 
-.homepage-tab-panel .service-icon,
-.homepage-tab-panel .bookmark-icon {
+#layout-groups .service-icon,
+#layout-groups .bookmark-icon {
   width: 42px;
   height: 42px;
   margin-right: 8px;
@@ -404,22 +401,22 @@ body,
     0 2px 8px rgba(2, 8, 18, 0.12);
 }
 
-.homepage-tab-panel .service-icon img,
-.homepage-tab-panel .service-icon svg {
+#layout-groups .service-icon img,
+#layout-groups .service-icon svg {
   width: 24px;
   height: 24px;
 }
 
-.homepage-tab-panel .service-name,
-.homepage-tab-panel .bookmark-name {
+#layout-groups .service-name,
+#layout-groups .bookmark-name {
   font-size: 0.92rem !important;
   font-weight: 600 !important;
   color: var(--homepage-ink) !important;
   letter-spacing: 0 !important;
 }
 
-.homepage-tab-panel .service-description,
-.homepage-tab-panel .bookmark-description {
+#layout-groups .service-description,
+#layout-groups .bookmark-description {
   margin-top: 3px;
   color: var(--homepage-muted) !important;
   font-size: 0.74rem !important;
@@ -467,33 +464,33 @@ body,
     margin: 0 auto 12px;
   }
 
-  .homepage-tab-panel.active {
+  #layout-groups {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  .homepage-tab-panel .service-card,
-  .homepage-tab-panel .bookmark > a {
+  #layout-groups .service-card,
+  #layout-groups .bookmark > a {
     min-height: 74px;
     padding: 10px 12px !important;
   }
 
-  .homepage-tab-panel .service-icon,
-  .homepage-tab-panel .bookmark-icon {
+  #layout-groups .service-icon,
+  #layout-groups .bookmark-icon {
     width: 42px;
     height: 42px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .homepage-tab-panel .service-card,
-  .homepage-tab-panel .bookmark > a,
+  #layout-groups .service-card,
+  #layout-groups .bookmark > a,
   .information-widget-search input {
     transition: none !important;
   }
 
-  .homepage-tab-panel .service-card:hover,
-  .homepage-tab-panel .bookmark > a:hover {
+  #layout-groups .service-card:hover,
+  #layout-groups .bookmark > a:hover {
     transform: none;
   }
 }
