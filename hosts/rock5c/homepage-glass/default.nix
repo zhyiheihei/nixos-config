@@ -6,48 +6,40 @@
   ...
 }:
 let
-  mkRowLayout = columns: {
-    style = "row";
-    inherit columns;
-  };
-  publicGroups = [
-    "AI 链路"
-    "身份链路"
-    "内容与通讯"
-    "基础设施与运维"
-    "媒体链路"
-    "效率工具"
-  ];
-  privateGroups = [
-    "AI 链路"
-    "家庭服务"
-    "媒体与下载"
-    "效率工具与内容"
-    "基础设施与网络"
-  ];
-  layout = lib.genAttrs (map (name: "公开 · ${name}") publicGroups) (_: mkRowLayout 4)
-    // lib.genAttrs (map (name: "私有 · ${name}") privateGroups) (_: mkRowLayout 4)
-    // { "私有 · 监控" = mkRowLayout 3; };
   vendorHtml2Canvas = pkgs.fetchurl {
     url = "https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.8/dist/html2canvas-pro.min.js";
     hash = "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM=";
   };
+  homepageLocations = {
+    "/api/config/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
+      extraConfig = ''
+        proxy_hide_header Cache-Control;
+        proxy_hide_header ETag;
+        add_header Cache-Control "no-store, must-revalidate";
+      '';
+    };
+    "/homepage-assets/js/" = {
+      alias = "/etc/homepage-dashboard/assets/js/";
+      extraConfig = ''
+        add_header Cache-Control "no-cache, must-revalidate";
+      '';
+    };
+    "/homepage-assets/vendor/" = {
+      alias = "/etc/homepage-dashboard/assets/vendor/";
+      extraConfig = ''
+        add_header Cache-Control "public, immutable, max-age=31536000";
+      '';
+    };
+  };
 in
 {
   services.homepage-dashboard = {
-    settings = lib.mkForce {
-      title = "Zh Yi @ Dashboard";
+    settings = {
       theme = "dark";
       color = "neutral";
-      headerStyle = "clean";
-      language = "zh-CN";
-      target = "_blank";
-      disableCollapse = true;
-      hideVersion = true;
       iconStyle = "theme";
       statusStyle = "dot";
-      inherit layout;
-      hideErrors = true;
     };
 
     # 仅保留 WebGL 玻璃层，CSS/JS 均由本模块提供。
@@ -60,33 +52,9 @@ in
       })();
     '';
 
-    widgets = lib.mkForce [
-      {
-        greeting = {
-          text_size = "xl";
-          text = config.services.homepage-dashboard.settings.title;
-        };
-      }
-      {
-        datetime = {
-          text_size = "xl";
-          format = {
-            dateStyle = "short";
-            timeStyle = "short";
-            hour12 = true;
-          };
-        };
-      }
-      {
-        openmeteo = {
-          latitude = LT.this.city.lat;
-          longitude = LT.this.city.lng;
-          timezone = config.time.timeZone;
-          units = "metric";
-          cache = 5;
-          format.maximumFractionDigits = 1;
-        };
-      }
+    # secrets 的 search widget 与公共模块的 greeting/datetime/openmeteo
+    # 保留不动，这里只追加 rock5c 专属的资源监控卡。
+    widgets = lib.mkAfter [
       {
         resources = {
           label = "rock5c";
@@ -113,52 +81,10 @@ in
 
   lantian.nginxVhosts = {
     "homepage.${config.networking.hostName}.zhyi.cc" = {
-      locations = {
-        "/api/config/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
-          extraConfig = ''
-            proxy_hide_header Cache-Control;
-            proxy_hide_header ETag;
-            add_header Cache-Control "no-store, must-revalidate";
-          '';
-        };
-        "/homepage-assets/js/" = {
-          alias = "/etc/homepage-dashboard/assets/js/";
-          extraConfig = ''
-            add_header Cache-Control "no-cache, must-revalidate";
-          '';
-        };
-        "/homepage-assets/vendor/" = {
-          alias = "/etc/homepage-dashboard/assets/vendor/";
-          extraConfig = ''
-            add_header Cache-Control "public, immutable, max-age=31536000";
-          '';
-        };
-      };
+      locations = homepageLocations;
     };
     "homepage.localhost" = {
-      locations = {
-        "/api/config/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
-          extraConfig = ''
-            proxy_hide_header Cache-Control;
-            proxy_hide_header ETag;
-            add_header Cache-Control "no-store, must-revalidate";
-          '';
-        };
-        "/homepage-assets/js/" = {
-          alias = "/etc/homepage-dashboard/assets/js/";
-          extraConfig = ''
-            add_header Cache-Control "no-cache, must-revalidate";
-          '';
-        };
-        "/homepage-assets/vendor/" = {
-          alias = "/etc/homepage-dashboard/assets/vendor/";
-          extraConfig = ''
-            add_header Cache-Control "public, immutable, max-age=31536000";
-          '';
-        };
-      };
+      locations = homepageLocations;
     };
   };
 }

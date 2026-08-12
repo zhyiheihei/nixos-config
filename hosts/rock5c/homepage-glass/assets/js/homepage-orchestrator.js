@@ -1,5 +1,8 @@
 // Homepage bootstrap: tabs, status bar, clock, quote, and WebGL liquid glass.
+// This file owns DOM/configuration concerns; studio-glass.js owns rendering.
 (() => {
+  "use strict";
+
   const ready = (fn) => {
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", fn);
@@ -9,14 +12,21 @@
   };
 
   const TAB_ORDER = ["公开", "私有", "快捷"];
-  const TAB_RULES = [
-    { name: "公开", test: (name) => name.indexOf("公开") !== -1 },
-    { name: "私有", test: (name) => name.indexOf("私有") !== -1 },
-    { name: "快捷", test: () => true },
-  ];
+  const tabFromName = (name) => {
+    if (name.indexOf("公开") !== -1) return "公开";
+    if (name.indexOf("私有") !== -1) return "私有";
+    return "快捷";
+  };
+
   const GLASS_TARGETS = [
+    "#layout-groups .services-group",
+    "#layout-groups .bookmark-group",
     "#services .services-group",
     "#bookmarks .bookmark-group",
+    "#layout-groups .service-card",
+    "#layout-groups .bookmark > a",
+    "#services .service-card",
+    "#bookmarks .bookmark > a",
     "#information-widgets .widget-container:not(.information-widget-datetime)",
     "#homepage-search-section",
     ".homepage-tabbar",
@@ -26,8 +36,19 @@
     new Promise((resolve, reject) => {
       const script = document.createElement("script");
       script.src = src;
-      script.onload = resolve;
-      script.onerror = () => reject(new Error("load failed: " + src));
+      const timer = window.setTimeout(() => {
+        script.remove();
+        reject(new Error("timeout: " + src));
+      }, 20000);
+      script.onload = () => {
+        window.clearTimeout(timer);
+        resolve();
+      };
+      script.onerror = () => {
+        window.clearTimeout(timer);
+        script.remove();
+        reject(new Error("load failed: " + src));
+      };
       document.head.appendChild(script);
     });
 
@@ -36,11 +57,6 @@
       group.querySelector(".service-group-name") ||
       group.querySelector(".bookmark-group-name");
     return (title && title.textContent.trim()) || "";
-  };
-
-  const tabFromName = (name) => {
-    const rule = TAB_RULES.find((item) => item.test(name));
-    return rule ? rule.name : "快捷";
   };
 
   const moveSearch = () => {
@@ -63,9 +79,7 @@
   };
 
   const buildTabs = () => {
-    if (document.querySelector(".homepage-tabbar")) return;
-
-    const containers = ["services", "bookmarks"]
+    const containers = ["layout-groups", "services", "bookmarks"]
       .map((id) => document.getElementById(id))
       .filter(Boolean);
     const groups = containers.flatMap((container) =>
@@ -77,40 +91,45 @@
     );
     if (groups.length === 0) return;
 
-    const tabs = [...new Set(groups.map((group) => tabFromName(groupName(group))))];
-    const order = TAB_ORDER.filter((name) => tabs.includes(name));
-    const bar = document.createElement("div");
-    bar.className = "homepage-tabbar";
-
-    order.forEach((name, index) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = "homepage-tab" + (index === 0 ? " active" : "");
-      button.textContent = name;
-      button.dataset.tab = name;
-      button.addEventListener("click", () => {
-        const tabbar = button.closest(".homepage-tabbar") || bar;
-        document.documentElement.dataset.homepageTab = name;
-        tabbar
-          .querySelectorAll(".homepage-tab")
-          .forEach((tab) => tab.classList.toggle("active", tab === button));
-        window.setTimeout(() => {
-          if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh(true);
-        }, 60);
-      });
-      bar.appendChild(button);
-    });
-
     groups.forEach((group) => {
-      group.classList.add("homepage-tab-group-" + tabFromName(groupName(group)));
+      group.dataset.tabGroup = tabFromName(groupName(group));
     });
+
+    let bar = document.querySelector(".homepage-tabbar");
+    const tabs = [...new Set(groups.map((group) => group.dataset.tabGroup))];
+    const order = TAB_ORDER.filter((name) => tabs.includes(name));
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.className = "homepage-tabbar";
+      order.forEach((name, index) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "homepage-tab" + (index === 0 ? " active" : "");
+        button.textContent = name;
+        button.dataset.tab = name;
+        button.addEventListener("click", () => {
+          document.documentElement.dataset.homepageTab = name;
+          bar.querySelectorAll(".homepage-tab").forEach((tab) => {
+            tab.classList.toggle("active", tab === button);
+          });
+          if (window.HomepageStudioGlass) {
+            window.HomepageStudioGlass.scheduleRefresh(true);
+          }
+        });
+        bar.appendChild(button);
+      });
+    }
 
     const host = containers[0];
-    if (host) host.insertBefore(bar, host.firstChild);
-    containers.forEach((container) => {
-      container.classList.add("homepage-tabs-enabled");
+    if (host && bar.parentElement !== host) {
+      host.insertBefore(bar, host.firstChild);
+    }
+    document.documentElement.dataset.homepageTab =
+      document.documentElement.dataset.homepageTab || order[0] || "公开";
+    bar.querySelectorAll(".homepage-tab").forEach((tab) => {
+      const active = tab.dataset.tab === document.documentElement.dataset.homepageTab;
+      tab.classList.toggle("active", active);
     });
-    document.documentElement.dataset.homepageTab = order[0] || "公开";
   };
 
   const dailyQuote = async () => {
@@ -119,41 +138,62 @@
       document.querySelector(".information-widget-greeting");
     if (!greeting) return;
 
-    const dayKey = "homepage-hitokoto-" + new Date().toISOString().slice(0, 10);
+    const localDayKey = () => {
+      const now = new Date();
+      return (
+        "homepage-hitokoto-" +
+        now.getFullYear() +
+        "-" +
+        String(now.getMonth() + 1).padStart(2, "0") +
+        "-" +
+        String(now.getDate()).padStart(2, "0")
+      );
+    };
     const apply = (text) => {
       if (greeting) greeting.textContent = text;
     };
 
-    try {
-      let quote = null;
+    const refreshQuote = async () => {
+      const dayKey = localDayKey();
       try {
-        quote = window.localStorage.getItem(dayKey);
-      } catch (e) {
-        quote = null;
-      }
-
-      if (!quote) {
-        const controller = new AbortController();
-        const timer = window.setTimeout(() => controller.abort(), 9000);
-        const response = await fetch(
-          "https://v1.hitokoto.cn/?encode=json&lang=cn&c=d",
-          { signal: controller.signal }
-        );
-        window.clearTimeout(timer);
-        if (!response.ok) throw new Error("hitokoto " + response.status);
-        const data = await response.json();
-        quote = data.hitokoto + (data.from ? " —— " + data.from : "");
+        let quote = null;
         try {
-          window.localStorage.setItem(dayKey, quote);
+          quote = window.localStorage.getItem(dayKey);
         } catch (e) {
-          // keep quote for this visit even if storage is unavailable
+          quote = null;
         }
+
+        if (!quote) {
+          const controller = new AbortController();
+          const timer = window.setTimeout(() => controller.abort(), 9000);
+          try {
+            const response = await fetch(
+              "https://v1.hitokoto.cn/?encode=json&lang=cn&c=d",
+              { signal: controller.signal }
+            );
+            if (!response.ok) throw new Error("hitokoto " + response.status);
+            const data = await response.json();
+            quote = data.hitokoto + (data.from ? " —— " + data.from : "");
+            try {
+              window.localStorage.setItem(dayKey, quote);
+            } catch (e) {
+              // keep quote for this visit even if storage is unavailable
+            }
+          } finally {
+            window.clearTimeout(timer);
+          }
+        }
+        apply(quote);
+      } catch (e) {
+        // keep the original greeting text when the quote API is unreachable
       }
 
-      apply(quote);
-    } catch (e) {
-      // keep the original greeting text when the quote API is unreachable
-    }
+      const now = new Date();
+      const nextDay = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      window.setTimeout(refreshQuote, nextDay.getTime() - now.getTime() + 5000);
+    };
+
+    refreshQuote();
   };
 
   const buildStatusBar = () => {
@@ -202,45 +242,46 @@
     if (studioStarted) return;
     studioStarted = true;
     try {
-      await loadScript(
-        "/homepage-assets/vendor/html2canvas-pro-1.5.8.min.js"
-      );
+      await loadScript("/homepage-assets/vendor/html2canvas-pro-1.5.8.min.js");
       await loadScript("/homepage-assets/js/studio-glass.js");
     } catch (error) {
+      studioStarted = false;
+      if (studioRetries < 4) {
+        studioRetries += 1;
+        window.setTimeout(initStudio, 2000 * studioRetries);
+      }
       return;
     }
-    if (!window.HomepageStudioGlass) return;
+    if (!window.HomepageStudioGlass) {
+      studioStarted = false;
+      return;
+    }
     const targets = () =>
-      Array.from(
-        document.querySelectorAll(
-          GLASS_TARGETS.join(", ")
-        )
-      );
+      Array.from(document.querySelectorAll(GLASS_TARGETS.join(", ")));
     if (!window.HomepageStudioGlass.start(targets)) {
       studioStarted = false;
-      if (studioRetries < 3) {
+      if (studioRetries < 4) {
         studioRetries += 1;
-        window.setTimeout(initStudio, 2000);
+        window.setTimeout(initStudio, 2000 * studioRetries);
       }
     }
   };
 
-  let tabsBuilt = false;
   let studioStarted = false;
   let studioRetries = 0;
   let layoutRaf = 0;
 
   const ensureLayout = () => {
     const groups = document.querySelectorAll(
-      ".services-group, .bookmark-group"
+      "#layout-groups > .services-group, #layout-groups > .bookmark-group, " +
+        "#services > .services-group, #bookmarks > .bookmark-group"
     );
     if (groups.length === 0) return;
-    if (!tabsBuilt) {
-      buildTabs();
-      tabsBuilt = true;
-      if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh();
+    buildTabs();
+    moveSearch();
+    if (window.HomepageStudioGlass) {
+      window.HomepageStudioGlass.scheduleRefresh(false);
     }
-    if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh();
     initStudio();
   };
 
@@ -258,5 +299,6 @@
     };
     const layoutObserver = new MutationObserver(scheduleEnsure);
     layoutObserver.observe(document.body, { childList: true, subtree: true });
+    window.setTimeout(scheduleEnsure, 300);
   });
 })();
