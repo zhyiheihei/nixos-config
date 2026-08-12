@@ -54,7 +54,7 @@
   const buildTabs = () => {
     if (document.querySelector(".homepage-tabbar")) return;
 
-    const containers = ["services", "bookmarks"]
+    const containers = ["layout-groups", "services", "bookmarks"]
       .map((id) => document.getElementById(id))
       .filter(Boolean);
     const groups = containers.flatMap((container) =>
@@ -198,7 +198,7 @@
 
     try {
       await loadScript(
-        "/homepage-assets/liquid-glass/html2canvas.min.js"
+        "/homepage-assets/liquid-glass/html2canvas-pro.min.js"
       );
       await loadScript("/homepage-assets/liquid-glass/container.js");
     } catch (e) {
@@ -226,11 +226,16 @@
       if (search) {
         wrapGlass(search, { borderRadius: 24, tintOpacity: 0.08 });
       }
-      document
-        .querySelectorAll("#services .service-card")
-        .forEach((card) =>
-          wrapGlass(card, { borderRadius: 22, tintOpacity: 0.1 })
-        );
+      const bindCards = () => {
+        document
+          .querySelectorAll(".service-card")
+          .forEach((card) =>
+            wrapGlass(card, { borderRadius: 22, tintOpacity: 0.1 })
+          );
+      };
+      bindCards();
+      const cardObserver = new MutationObserver(bindCards);
+      cardObserver.observe(document.body, { childList: true, subtree: true });
 
       const checkReady = window.setInterval(() => {
         if (
@@ -253,10 +258,29 @@
     });
   };
 
+  let tabsBuilt = false;
+  let liquidStarted = false;
+
+  const ensureLayout = () => {
+    const groups = document.querySelectorAll(
+      ".services-group, .bookmark-group"
+    );
+    if (groups.length === 0) return;
+    if (!tabsBuilt) {
+      buildTabs();
+      tabsBuilt = true;
+    }
+    if (!liquidStarted) {
+      liquidStarted = true;
+      initLiquid();
+    }
+  };
+
   ready(() => {
     moveSearch();
-    buildTabs();
     dailyQuote();
-    initLiquid();
+    ensureLayout();
+    const layoutObserver = new MutationObserver(ensureLayout);
+    layoutObserver.observe(document.body, { childList: true, subtree: true });
   });
 })();
