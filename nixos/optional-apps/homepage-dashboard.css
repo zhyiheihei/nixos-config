@@ -4,8 +4,6 @@
   --homepage-faint: rgba(246, 248, 252, 0.42);
   --homepage-line: rgba(255, 255, 255, 0.10);
   --homepage-line-strong: rgba(255, 255, 255, 0.14);
-  --homepage-glass: rgba(255, 255, 255, 0.10);
-  --homepage-glass-strong: rgba(255, 255, 255, 0.16);
   --homepage-shadow: rgba(2, 8, 18, 0.16);
   --homepage-row-radius: 12px;
   --homepage-panel-radius: 20px;
@@ -177,9 +175,9 @@ body,
   padding: 8px 14px !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 16px !important;
-  background: var(--homepage-glass) !important;
-  backdrop-filter: blur(24px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 8px 24px rgba(2, 8, 18, 0.16) !important;
@@ -219,7 +217,7 @@ body,
   padding: 0 3.5rem 0 1.25rem !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
   border-radius: 16px !important;
-  background: rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 10px 28px rgba(2, 8, 18, 0.22) !important;
@@ -277,9 +275,9 @@ body,
   padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
-  background: var(--homepage-glass);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 10px 28px rgba(2, 8, 18, 0.20);
@@ -331,9 +329,9 @@ body,
   overflow: hidden;
   border: 1px solid var(--homepage-line-strong);
   border-radius: var(--homepage-panel-radius);
-  background: var(--homepage-glass);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     0 10px 28px var(--homepage-shadow);
@@ -406,7 +404,7 @@ body,
   margin-right: 8px;
   border: 1px solid var(--homepage-line-strong);
   border-radius: 12px;
-  background: var(--homepage-glass-strong);
+  background: rgba(255, 255, 255, 0.12);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.18),
     0 2px 8px rgba(2, 8, 18, 0.12);
@@ -444,12 +442,6 @@ body,
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 9999px;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.10);
-}
-
-html.studio-glass .homepage-svg-glass {
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  background: transparent !important;
 }
 
 #footer {

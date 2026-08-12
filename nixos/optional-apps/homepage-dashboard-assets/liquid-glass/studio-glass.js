@@ -245,6 +245,7 @@ void main() {
 
   const render = () => {
     if (!gl || !program || !bgTexture) return;
+    tickMouse();
     const width = Math.round(window.innerWidth * dpr);
     const height = Math.round(window.innerHeight * dpr);
     if (canvas.width !== width || canvas.height !== height) {
@@ -292,12 +293,6 @@ void main() {
     mouseSpring.y += (mouse.y - mouseSpring.y) * 0.08;
   };
 
-  const loop = () => {
-    tickMouse();
-    render();
-    rafId = window.requestAnimationFrame(loop);
-  };
-
   const captureBackground = () =>
     window.html2canvas(document.body, {
       scale: Math.min(dpr, 2),
@@ -342,15 +337,6 @@ void main() {
           canvas.style.cssText =
             "position:fixed;inset:0;z-index:5;pointer-events:none;";
           document.body.appendChild(canvas);
-          document.querySelectorAll(".homepage-svg-glass").forEach((element) => {
-            element.style.removeProperty("backdrop-filter");
-            element.style.removeProperty("-webkit-backdrop-filter");
-            element.style.removeProperty("background");
-          });
-          const svgDefs = document.getElementById("homepage-svg-defs");
-          if (svgDefs && svgDefs.parentNode) {
-            svgDefs.parentNode.removeChild(svgDefs);
-          }
           document.documentElement.classList.add("studio-glass");
           window.addEventListener("mousemove", (event) => {
             mouse.x = event.clientX * dpr;
@@ -360,7 +346,7 @@ void main() {
             dpr = window.devicePixelRatio || 1;
             refreshShapes();
           });
-          loop();
+          render();
         })
         .catch(() => {
           if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
