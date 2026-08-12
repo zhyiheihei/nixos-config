@@ -28,6 +28,9 @@ let
     sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=${unifiedDownloadPath}/" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\Interface=ppp0" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceName=ppp0" "$conf"
+    # Bind only ppp0's IPv4 address; the interface also carries two global
+    # IPv6 addresses that PTTime rejects as "multi-IP" announces.
+    sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceAddress=0.0.0.0" "$conf"
     sed -i '/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelistEnabled=true' "$conf"
     sed -i "/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelist=${authSubnetWhitelist}" "$conf"
   '';
