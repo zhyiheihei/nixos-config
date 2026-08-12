@@ -78,7 +78,8 @@
       button.textContent = name;
       button.dataset.tab = name;
       button.addEventListener("click", () => {
-        bar
+        const tabbar = button.closest(".homepage-tabbar") || bar;
+        tabbar
           .querySelectorAll(".homepage-tab")
           .forEach((tab) => tab.classList.toggle("active", tab === button));
         document
@@ -206,35 +207,65 @@
     }
 
     window.glassControls = {
-      edgeIntensity: 0.012,
-      rimIntensity: 0.1,
-      baseIntensity: 0.01,
-      edgeDistance: 0.18,
-      rimDistance: 0.9,
-      baseDistance: 0.12,
-      cornerBoost: 0.03,
-      rippleEffect: 0.035,
-      blurRadius: 6.0,
+      edgeIntensity: 0.022,
+      rimIntensity: 0.15,
+      baseIntensity: 0.012,
+      edgeDistance: 0.14,
+      rimDistance: 0.7,
+      baseDistance: 0.1,
+      cornerBoost: 0.05,
+      rippleEffect: 0.02,
+      blurRadius: 5.5,
     };
 
     requestAnimationFrame(() => {
-      const header = document.getElementById("information-widgets");
+      document
+        .querySelectorAll("#information-widgets .widget-container")
+        .forEach((widget) =>
+          wrapGlass(widget, { borderRadius: 16, tintOpacity: 0.12 })
+        );
       const search = document.getElementById("homepage-search-section");
-      if (header) {
-        wrapGlass(header, { borderRadius: 28, tintOpacity: 0.1 });
-      }
       if (search) {
-        wrapGlass(search, { borderRadius: 24, tintOpacity: 0.08 });
+        wrapGlass(search, { borderRadius: 18, tintOpacity: 0.1 });
+      }
+      const tabbar = document.querySelector(".homepage-tabbar");
+      if (tabbar) {
+        wrapGlass(tabbar, { borderRadius: 14, tintOpacity: 0.12 });
       }
       const bindCards = () => {
         document
           .querySelectorAll(".service-card")
           .forEach((card) =>
-            wrapGlass(card, { borderRadius: 22, tintOpacity: 0.1 })
+            wrapGlass(card, { borderRadius: 18, tintOpacity: 0.12 })
           );
       };
-      bindCards();
-      const cardObserver = new MutationObserver(bindCards);
+      const bindPointer = () => {
+        document
+          .querySelectorAll(
+            ".service-card, .homepage-glass.widget-container, .homepage-glass.homepage-tabbar"
+          )
+          .forEach((element) => {
+            if (element.dataset.homepagePointer === "1") return;
+            element.dataset.homepagePointer = "1";
+            element.addEventListener("pointermove", (event) => {
+              const rect = element.getBoundingClientRect();
+              element.style.setProperty(
+                "--lx",
+                event.clientX - rect.left + "px"
+              );
+              element.style.setProperty(
+                "--ly",
+                event.clientY - rect.top + "px"
+              );
+            });
+          });
+      };
+      const refreshGlass = () => {
+        bindCards();
+        bindPointer();
+      };
+      refreshGlass();
+      const cardObserver = new MutationObserver(refreshGlass);
       cardObserver.observe(document.body, { childList: true, subtree: true });
 
       const checkReady = window.setInterval(() => {

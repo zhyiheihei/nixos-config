@@ -108,13 +108,15 @@
       #__next {
         min-height: 100%;
         background: transparent !important;
+        font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
+        -webkit-font-smoothing: antialiased;
       }
 
       #background {
         opacity: 1 !important;
         background-position: center !important;
         background-size: cover !important;
-        filter: saturate(1.1) contrast(1.02);
+        filter: saturate(1.22) contrast(1.04) brightness(0.92);
       }
 
       #page_wrapper::before {
@@ -124,8 +126,8 @@
         z-index: 1;
         pointer-events: none;
         background:
-          radial-gradient(120% 70% at 50% 0%, rgba(8, 12, 20, 0.18), transparent 58%),
-          linear-gradient(180deg, rgba(5, 8, 14, 0.10), rgba(5, 8, 14, 0.42) 82%);
+          linear-gradient(180deg, rgba(90, 120, 255, 0.10), transparent 28%),
+          linear-gradient(180deg, rgba(5, 8, 14, 0.16), rgba(5, 8, 14, 0.52) 86%);
       }
 
       #inner_wrapper {
@@ -135,39 +137,38 @@
       }
 
       #information-widgets {
-        position: sticky;
-        top: 16px;
+        position: static;
         z-index: 60;
-        margin: 20px 28px 12px !important;
-        padding: 10px 14px !important;
-        border: 1px solid var(--homepage-glass-border) !important;
-        border-radius: 28px !important;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.045)) !important;
-        backdrop-filter: blur(22px) saturate(170%) !important;
-        -webkit-backdrop-filter: blur(22px) saturate(170%) !important;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.18),
-          inset 0 -1px 0 rgba(255, 255, 255, 0.04),
-          0 18px 44px var(--homepage-shadow) !important;
+        margin: 26px 28px 10px !important;
+        padding: 0 !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
       }
 
       #widgets-wrap {
         align-items: center;
+        gap: 8px;
       }
 
       .widget-container {
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
-        min-height: 48px !important;
-        margin: 2px 4px !important;
-        padding: 6px 12px !important;
-        border: 0 !important;
+        min-height: 46px !important;
+        margin: 4px 4px !important;
+        padding: 8px 14px !important;
+        border: 1px solid rgba(255, 255, 255, 0.12) !important;
         border-radius: 16px !important;
-        background: transparent !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-        box-shadow: none !important;
+        background: rgba(255, 255, 255, 0.07) !important;
+        backdrop-filter: blur(18px) saturate(160%) !important;
+        -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.14),
+          0 8px 24px rgba(2, 8, 18, 0.16) !important;
       }
 
       .primary-text,
@@ -179,8 +180,9 @@
       }
 
       .information-widget-greeting {
-        max-width: 640px;
-        font-size: 1rem !important;
+        max-width: 520px;
+        font-size: 1.05rem !important;
+        font-weight: 600 !important;
         line-height: 1.4;
         white-space: normal;
       }
@@ -199,17 +201,17 @@
       }
 
       .information-widget-search input {
-        height: 3.5rem !important;
-        padding: 0 4rem !important;
+        height: 3.25rem !important;
+        padding: 0 3.5rem 0 1.25rem !important;
         border: 1px solid rgba(255, 255, 255, 0.16) !important;
-        border-radius: 9999px !important;
+        border-radius: 16px !important;
         background: rgba(255, 255, 255, 0.09) !important;
         box-shadow:
           inset 0 1px 0 rgba(255, 255, 255, 0.14),
           0 10px 28px rgba(2, 8, 18, 0.22) !important;
         color: var(--homepage-ink) !important;
         font-size: 1rem !important;
-        text-align: center;
+        text-align: left;
         transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease !important;
       }
 
@@ -254,30 +256,30 @@
       .homepage-tabbar {
         display: flex;
         justify-content: center;
-        gap: 6px;
+        gap: 4px;
         max-width: 520px;
         margin: 0 auto 18px;
-        padding: 6px;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        border-radius: 9999px;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.05));
-        backdrop-filter: blur(20px) saturate(170%);
-        -webkit-backdrop-filter: blur(20px) saturate(170%);
+        padding: 4px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(18px) saturate(160%);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
         box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.16),
-          0 12px 32px rgba(2, 8, 18, 0.24);
+          inset 0 1px 0 rgba(255, 255, 255, 0.14),
+          0 10px 28px rgba(2, 8, 18, 0.20);
       }
 
       .homepage-tab {
         flex: 1;
         max-width: 160px;
-        padding: 10px 18px;
+        padding: 9px 18px;
         border: 0;
-        border-radius: 9999px;
+        border-radius: 10px;
         background: transparent;
         color: rgba(246, 248, 252, 0.62);
-        font-size: 0.92rem;
-        font-weight: 600;
+        font-size: 0.88rem;
+        font-weight: 590;
         letter-spacing: 0;
         cursor: pointer;
         transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
@@ -290,10 +292,10 @@
 
       .homepage-tab.active {
         color: #ffffff;
-        background: linear-gradient(180deg, rgba(140, 165, 255, 0.42), rgba(110, 130, 255, 0.28));
+        background: rgba(255, 255, 255, 0.18);
         box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.30),
-          0 6px 18px rgba(70, 100, 255, 0.22);
+          inset 0 1px 0 rgba(255, 255, 255, 0.24),
+          0 4px 14px rgba(2, 8, 18, 0.16);
       }
 
       .homepage-tab-panel {
@@ -323,39 +325,33 @@
       }
 
       .service-group-name {
-        min-height: 30px;
+        min-height: 26px;
         align-items: center;
-        color: rgba(246, 248, 252, 0.78) !important;
-        font-size: 0.92rem !important;
+        color: rgba(246, 248, 252, 0.52) !important;
+        font-size: 0.78rem !important;
         font-weight: 600 !important;
-        letter-spacing: 0 !important;
+        letter-spacing: 0.06em !important;
       }
 
       .service-group-name::before {
-        content: "";
-        width: 4px;
-        height: 15px;
-        margin-right: 9px;
-        border-radius: 9999px;
-        background: linear-gradient(180deg, rgba(140, 165, 255, 0.9), rgba(90, 220, 195, 0.7));
-        box-shadow: 0 0 12px rgba(120, 150, 255, 0.35);
+        display: none;
       }
 
       .service-card {
         position: relative;
-        min-height: 84px;
-        margin-bottom: 12px !important;
-        padding: 12px 14px !important;
+        min-height: 78px;
+        margin-bottom: 10px !important;
+        padding: 10px 12px !important;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.15) !important;
-        border-radius: 22px !important;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)) !important;
-        backdrop-filter: blur(18px) saturate(160%) !important;
-        -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        border-radius: 18px !important;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.035)) !important;
+        backdrop-filter: blur(16px) saturate(160%) !important;
+        -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
         box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.16),
           inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-          0 12px 30px rgba(2, 8, 18, 0.24) !important;
+          0 8px 24px rgba(2, 8, 18, 0.18) !important;
         transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 180ms ease, box-shadow 180ms ease, background 180ms ease !important;
       }
 
@@ -366,19 +362,21 @@
         z-index: 0;
         border-radius: inherit;
         pointer-events: none;
-        background: radial-gradient(340px circle at var(--lx, 50%) var(--ly, 0%), rgba(255, 255, 255, 0.16), transparent 58%);
+        background:
+          linear-gradient(115deg, rgba(255, 255, 255, 0.18), transparent 38%),
+          radial-gradient(320px circle at var(--lx, 50%) var(--ly, 0%), rgba(255, 255, 255, 0.14), transparent 58%);
         opacity: 0;
         transition: opacity 180ms ease;
       }
 
       .service-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(255, 255, 255, 0.28) !important;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.06)) !important;
+        transform: scale(1.015);
+        border-color: rgba(255, 255, 255, 0.24) !important;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05)) !important;
         box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.24),
+          inset 0 1px 0 rgba(255, 255, 255, 0.20),
           inset 0 -1px 0 rgba(255, 255, 255, 0.06),
-          0 18px 40px rgba(2, 8, 18, 0.30) !important;
+          0 12px 28px rgba(2, 8, 18, 0.22) !important;
       }
 
       .service-card:hover::before {
@@ -390,24 +388,26 @@
       }
 
       .service-icon {
-        width: 46px;
-        height: 46px;
+        width: 42px;
+        height: 42px;
         margin-right: 8px;
         border: 1px solid rgba(255, 255, 255, 0.14);
-        border-radius: 15px;
-        background: rgba(255, 255, 255, 0.10);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.12);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.18),
+          0 2px 8px rgba(2, 8, 18, 0.12);
       }
 
       .service-icon img,
       .service-icon svg {
-        width: 25px;
-        height: 25px;
+        width: 24px;
+        height: 24px;
       }
 
       .service-name {
-        font-size: 0.95rem !important;
-        font-weight: 650 !important;
+        font-size: 0.92rem !important;
+        font-weight: 600 !important;
         color: rgba(246, 248, 252, 0.96) !important;
         letter-spacing: 0 !important;
       }
@@ -435,32 +435,34 @@
         position: relative;
         display: block;
         margin-bottom: 10px !important;
-        padding: 10px 12px !important;
+        padding: 9px 11px !important;
         overflow: hidden;
         border: 1px solid rgba(255, 255, 255, 0.14) !important;
-        border-radius: 18px !important;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.04)) !important;
-        backdrop-filter: blur(16px) saturate(160%) !important;
-        -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+        border-radius: 16px !important;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)) !important;
+        backdrop-filter: blur(14px) saturate(160%) !important;
+        -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
         box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.16),
-          0 8px 24px rgba(2, 8, 18, 0.20) !important;
+          inset 0 1px 0 rgba(255, 255, 255, 0.14),
+          0 6px 20px rgba(2, 8, 18, 0.16) !important;
         transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 180ms ease, background 180ms ease, box-shadow 180ms ease !important;
       }
 
       .bookmark > a:hover {
-        transform: translateY(-2px);
-        border-color: rgba(255, 255, 255, 0.28) !important;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.06)) !important;
+        transform: scale(1.015);
+        border-color: rgba(255, 255, 255, 0.24) !important;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05)) !important;
         box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.22),
-          0 14px 32px rgba(2, 8, 18, 0.26) !important;
+          inset 0 1px 0 rgba(255, 255, 255, 0.18),
+          0 10px 26px rgba(2, 8, 18, 0.20) !important;
       }
 
       .bookmark-icon {
-        border-radius: 12px !important;
-        background: rgba(255, 255, 255, 0.10) !important;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14);
+        border-radius: 10px !important;
+        background: rgba(255, 255, 255, 0.11) !important;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.16),
+          0 2px 8px rgba(2, 8, 18, 0.10);
       }
 
       .homepage-glass {
@@ -482,39 +484,47 @@
         z-index: 1;
       }
 
-      .homepage-glass#information-widgets {
-        display: flex !important;
-        flex-wrap: wrap !important;
-        padding: 10px 14px !important;
-      }
-
       .homepage-glass#homepage-search-section {
         display: block !important;
         padding: 0 20px !important;
       }
 
-      .homepage-glass.service-card {
-        display: block !important;
-        padding: 12px 14px !important;
+      .homepage-glass.widget-container {
+        display: flex !important;
+        padding: 8px 14px !important;
       }
 
-      html.webgl-glass .homepage-glass#information-widgets,
-      html.webgl-glass .homepage-glass#homepage-search-section {
+      .homepage-glass.homepage-tabbar {
+        display: flex !important;
+        padding: 4px !important;
+      }
+
+      .homepage-glass.service-card {
+        display: block !important;
+        padding: 10px 12px !important;
+      }
+
+      html.webgl-glass .homepage-glass {
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+
+      html.webgl-glass .homepage-glass#homepage-search-section,
+      html.webgl-glass .homepage-glass.widget-container,
+      html.webgl-glass .homepage-glass.homepage-tabbar {
         border: 0 !important;
         box-shadow: none !important;
       }
 
       html.webgl-glass .homepage-glass.service-card {
-        background: transparent !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
         border: 1px solid rgba(255, 255, 255, 0.16) !important;
         box-shadow: none !important;
       }
 
       html.webgl-glass .homepage-glass.service-card:hover {
-        border-color: rgba(255, 255, 255, 0.32) !important;
-        box-shadow: 0 14px 34px rgba(2, 8, 18, 0.28) !important;
+        border-color: rgba(255, 255, 255, 0.26) !important;
+        box-shadow: 0 10px 28px rgba(2, 8, 18, 0.22) !important;
       }
 
       #footer {
@@ -523,15 +533,13 @@
 
       @media (max-width: 768px) {
         #information-widgets {
-          top: 10px;
-          margin: 12px 12px 8px !important;
-          padding: 8px 10px !important;
-          border-radius: 22px !important;
+          margin: 14px 12px 6px !important;
+          padding: 0 !important;
         }
 
         .widget-container {
-          min-height: 44px !important;
-          padding: 4px 8px !important;
+          min-height: 42px !important;
+          padding: 6px 10px !important;
         }
 
         #homepage-search-section {
