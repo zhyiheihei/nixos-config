@@ -347,6 +347,10 @@ void main() {
             element.style.removeProperty("-webkit-backdrop-filter");
             element.style.removeProperty("background");
           });
+          const svgDefs = document.getElementById("homepage-svg-defs");
+          if (svgDefs && svgDefs.parentNode) {
+            svgDefs.parentNode.removeChild(svgDefs);
+          }
           document.documentElement.classList.add("studio-glass");
           window.addEventListener("mousemove", (event) => {
             mouse.x = event.clientX * dpr;
