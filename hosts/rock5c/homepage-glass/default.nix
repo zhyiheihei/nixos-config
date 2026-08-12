@@ -105,27 +105,30 @@ in
       message = "homepage-dashboard customCSS/customJS must stay owned by hosts/rock5c/homepage-glass";
     }
     {
-      # html2canvas-pro 版本/SRI 同时出现在 default.nix、orchestrator 的
-      # loadScript integrity 与 THIRD_PARTY_NOTICES；升级时必须三处同步。
-      # SRI 哈希本身三处强制（orchestrator + notices + default.nix）。
-      assertion = lib.hasInfix
-        "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM="
-        (builtins.readFile ./assets/js/homepage-orchestrator.js)
-        && lib.hasInfix
-          "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM="
-          (builtins.readFile ./THIRD_PARTY_NOTICES.md)
-        && lib.hasInfix "1.5.8" (builtins.readFile ./THIRD_PARTY_NOTICES.md)
-        && lib.hasInfix "html2canvas-pro@1.5.8"
-          (builtins.readFile ./default.nix)
-        && lib.hasInfix
-          "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM="
-          (builtins.readFile ./default.nix);
-      message = "html2canvas-pro SRI must match across default.nix / orchestrator / THIRD_PARTY_NOTICES";
+      # html2canvas-pro 版本/SRI 同时出现在 default.nix（fetchurl URL + etc
+      # 落盘文件名 + SRI）、orchestrator 的 loadScript URL/integrity 与
+      # THIRD_PARTY_NOTICES；升级时必须全部同步。SRI 三处强制、版本串四处
+      # 强制，防止"断言全过但 orchestrator URL 与落盘文件名不同步导致
+      # 线上 404 静默降级"。
+      assertion = let
+        sri = "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM=";
+        ver = "1.5.8";
+        orchestrator = builtins.readFile ./assets/js/homepage-orchestrator.js;
+        notices = builtins.readFile ./THIRD_PARTY_NOTICES.md;
+        self = builtins.readFile ./default.nix;
+      in lib.hasInfix sri orchestrator
+        && lib.hasInfix ("html2canvas-pro@" + ver) orchestrator
+        && lib.hasInfix sri notices
+        && lib.hasInfix ver notices
+        && lib.hasInfix ("html2canvas-pro@" + ver) self
+        && lib.hasInfix ("html2canvas-pro-" + ver + ".min.js") self
+        && lib.hasInfix sri self;
+      message = "html2canvas-pro version/SRI must stay in sync across default.nix / orchestrator / THIRD_PARTY_NOTICES";
     }
     {
       # assets/js 整目录由 vhost alias 服务；WebGPU 后端由 studio-glass.js
-      # 运行时加载，若误删文件构建不会失败但线上会静默降级。用 readDir
-      # 断言关键文件必须在场。
+      # 运行时加载，若误删文件构建不会失败但线上会静默降级。白名单断言
+      # 目录恰好包含这三个文件——多余的调试/敏感脚本会被拒绝进产物。
       assertion = let
         jsFiles = builtins.attrNames (builtins.readDir ./assets/js);
         required = [
@@ -133,8 +136,8 @@ in
           "studio-glass.js"
           "studio-glass-webgpu.js"
         ];
-      in lib.all (f: builtins.elem f jsFiles) required;
-      message = "hosts/rock5c/homepage-glass/assets/js must keep the orchestrator and both glass backends";
+      in builtins.sort (a: b: a < b) jsFiles == builtins.sort (a: b: a < b) required;
+      message = "hosts/rock5c/homepage-glass/assets/js must contain exactly the orchestrator and both glass backends";
     }
     {
       # 公共模块 vhost 是 locations 的宿主；主机模块只在其上挂资产路由。

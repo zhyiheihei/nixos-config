@@ -285,11 +285,12 @@ fn vec2ToAngle(v: vec2f) -> f32 {
 }
 
 // Mirrors the reference safeNormalize: guard against a zero gradient (smin
-// saddle points, shape symmetry centers) which would make atan2/normalize
-// yield NaN and poison the whole pixel.
+// saddle points, shape symmetry centers) which would make normalize yield
+// NaN. Fall back to a unit vector rather than the zero vector, because
+// atan2(0, 0) is NaN in WGSL too.
 fn safeNormalize(v: vec2f) -> vec2f {
   let l = length(v);
-  if (l < 1e-8) { return vec2f(0.0); }
+  if (l < 1e-8) { return vec2f(1.0, 0.0); }
   return v / l;
 }
 
@@ -709,7 +710,7 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
   };
 
   const render = () => {
-    if (!initialized) return;
+    if (!initialized || !mainBindGroup || !hblurBindGroup || !vblurBindGroup) return;
     const width = Math.round(window.innerWidth * state.dpr);
     const height = Math.round(window.innerHeight * state.dpr);
     if (canvas.width !== width || canvas.height !== height) {
