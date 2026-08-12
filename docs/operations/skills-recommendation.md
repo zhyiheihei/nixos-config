@@ -24,6 +24,7 @@
 | Superpowers 插件 | `writing-skills` | 只有反复踩坑且无法脚本化时才建新 skill |
 | GitHub 插件（已装） | `github` / `gh-fix-ci` / `gh-address-comments` / `yeet` | GitHub/CI/PR 场景 |
 | 系统 | `skill-installer` / `openai-docs` / `plugin-creator` / `skill-creator` / `imagegen` | 装 skill、查 OpenAI 文档等特定场景 |
+| ZCode 环境（2026-08-12 实测已装） | `review-agent`、`playwright-interactive`、`gh-fix-ci`、`browser-use:web-gui-tester` / `browser-use:control-browser`、`document-skills:pdf` / `docx` / `pptx`、`zcode-guide:diagnosing-*` | 本会话实际可用清单：`review-agent`（变更缺陷审查）、`playwright-interactive`（前端 E2E/视觉 QA 交互调试）、`gh-fix-ci`（CI 修复）按第 2/3 节路由；其余按需启用 |
 
 ## 2. 任务分级（强制入口）
 
@@ -86,6 +87,8 @@
 | `figma/*`、`notion/*`、`linear`、`sentry`、`playwright`、`screenshot`、`pdf`、`speech`、`transcribe`、`jupyter-notebook`、`winui-app`、`aspnet-core`、`chatgpt-apps`、`render-deploy`、`vercel-deploy`、`netlify-deploy`、`cloudflare-deploy`、`migrate-to-codex`、`cli-creator` 等应用类 skill | 与 NixOS 基础设施运维无关，装进来只会增加误触发和流程噪音 |
 | `security-best-practices` / `security-ownership-map` / `security-threat-model` | 仓库已有 `minimal-policies`、`service-harden` 等约束；只在专门安全审计时按需安装/启用 |
 | `define-goal` | 当前 `/goal` 与目标工具已覆盖，不需要额外 skill |
+
+> 注（2026-08-12 同步）：`playwright`（curated 应用类，仍不推荐）与已装的 `playwright-interactive`（交互式调试类）不是同一个 skill；`gh-fix-ci` 已在 ZCode 环境安装，对应第 2 节 CI/GitHub 分级。`review-agent`、`playwright-interactive`、`gh-fix-ci` 为 ZCode 会话经用户确认安装的例外，不影响其余「暂不推荐」结论。
 
 ## 7. 开始任务前检查清单
 
