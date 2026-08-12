@@ -1,4 +1,4 @@
-// SVG refraction approach inspired by archisvaze/liquid-glass (iOS 26-style demo).
+// Homepage bootstrap: tabs, status bar, clock, quote, and WebGL liquid glass.
 (() => {
   const ready = (fn) => {
     if (document.readyState === "loading") {
@@ -260,6 +260,8 @@
   };
 
   const initStudio = async () => {
+    if (studioStarted) return;
+    studioStarted = true;
     try {
       await loadScript(
         "/homepage-assets/liquid-glass/html2canvas-pro.min.js"
@@ -275,7 +277,10 @@
           GLASS_TARGETS.map((target) => target.selector).join(", ")
         )
       );
-    window.HomepageStudioGlass.start(targets);
+    if (!window.HomepageStudioGlass.start(targets)) {
+      studioStarted = false;
+      window.setTimeout(initStudio, 2000);
+    }
   };
 
   let tabsBuilt = false;
@@ -289,11 +294,9 @@
     if (!tabsBuilt) {
       buildTabs();
       tabsBuilt = true;
+      if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh();
     }
-    if (!studioStarted) {
-      studioStarted = true;
-      initStudio();
-    }
+    initStudio();
   };
 
   ready(() => {
@@ -301,6 +304,7 @@
     buildClock();
     moveSearch();
     dailyQuote();
+    initStudio();
     ensureLayout();
     const layoutObserver = new MutationObserver(ensureLayout);
     layoutObserver.observe(document.body, { childList: true, subtree: true });

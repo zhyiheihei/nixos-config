@@ -189,6 +189,10 @@ void main() {
   let dpr = 1;
   let rafId = 0;
   let getTargets = null;
+  let uniformLocations = null;
+  let renderRunning = false;
+  let lastInteraction = Date.now();
+  let scrollRaf = 0;
 
   const compileShader = (type, source) => {
     const shader = gl.createShader(type);
@@ -222,6 +226,18 @@ void main() {
     const loc = gl.getAttribLocation(program, "a_position");
     gl.enableVertexAttribArray(loc);
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    uniformLocations = {
+      bg: gl.getUniformLocation(program, "u_bg"),
+      resolution: gl.getUniformLocation(program, "u_resolution"),
+      textureSize: gl.getUniformLocation(program, "u_textureSize"),
+      scrollY: gl.getUniformLocation(program, "u_scrollY"),
+      dpr: gl.getUniformLocation(program, "u_dpr"),
+      shapeCount: gl.getUniformLocation(program, "u_shapeCount"),
+      shapes: gl.getUniformLocation(program, "u_shapes"),
+      radii: gl.getUniformLocation(program, "u_radii"),
+      mouseSpring: gl.getUniformLocation(program, "u_mouseSpring"),
+      mergeRate: gl.getUniformLocation(program, "u_mergeRate"),
+    };
   };
 
   const getScrollTop = () => {
@@ -267,31 +283,42 @@ void main() {
     gl.useProgram(program);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, bgTexture);
-    gl.uniform1i(gl.getUniformLocation(program, "u_bg"), 0);
-    gl.uniform2f(gl.getUniformLocation(program, "u_resolution"), width, height);
+    gl.uniform1i(uniformLocations.bg, 0);
+    gl.uniform2f(uniformLocations.resolution, width, height);
     gl.uniform2f(
-      gl.getUniformLocation(program, "u_textureSize"),
+      uniformLocations.textureSize,
       bgTexture.width,
       bgTexture.height
     );
     gl.uniform1f(
-      gl.getUniformLocation(program, "u_scrollY"),
+      uniformLocations.scrollY,
       getScrollTop() * dpr
     );
-    gl.uniform1f(gl.getUniformLocation(program, "u_dpr"), dpr);
-    gl.uniform1i(gl.getUniformLocation(program, "u_shapeCount"), shapeCount);
+    gl.uniform1f(uniformLocations.dpr, dpr);
+    gl.uniform1i(uniformLocations.shapeCount, shapeCount);
     if (shapeCount > 0) {
-      gl.uniform4fv(gl.getUniformLocation(program, "u_shapes"), shapeArray);
-      gl.uniform1fv(gl.getUniformLocation(program, "u_radii"), radiusArray);
+      gl.uniform4fv(uniformLocations.shapes, shapeArray);
+      gl.uniform1fv(uniformLocations.radii, radiusArray);
     }
     gl.uniform2f(
-      gl.getUniformLocation(program, "u_mouseSpring"),
+      uniformLocations.mouseSpring,
       mouseSpring.x,
       mouseSpring.y + getScrollTop() * dpr
     );
-    gl.uniform1f(gl.getUniformLocation(program, "u_mergeRate"), 0.05);
+    gl.uniform1f(uniformLocations.mergeRate, 0.05);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
-    rafId = window.requestAnimationFrame(render);
+    if (Date.now() - lastInteraction < 1500) {
+      rafId = window.requestAnimationFrame(render);
+    } else {
+      renderRunning = false;
+    }
+  };
+
+  const startRender = () => {
+    if (!renderRunning) {
+      renderRunning = true;
+      render();
+    }
   };
 
   const tickMouse = () => {
@@ -299,12 +326,17 @@ void main() {
     mouseSpring.y += (mouse.y - mouseSpring.y) * 0.08;
   };
 
-  const captureBackground = () =>
-    window.html2canvas(document.body, {
+  const captureBackground = () => {
+    const container = document.getElementById("inner_wrapper");
+    const root = container || document.body;
+    return window.html2canvas(root, {
       scale: Math.min(dpr, 2),
+      windowWidth: container ? container.scrollWidth : window.innerWidth,
+      windowHeight: container ? container.scrollHeight : window.innerHeight,
       useCORS: true,
       allowTaint: true,
       backgroundColor: null,
+      logging: false,
     }).then((snapshot) => {
       bgTexture = gl.createTexture();
       gl.bindTexture(gl.TEXTURE_2D, bgTexture);
@@ -324,6 +356,7 @@ void main() {
       bgTexture.width = snapshot.width;
       bgTexture.height = snapshot.height;
     });
+  };
 
   const start = (targetFn) => {
     getTargets = targetFn;
@@ -347,19 +380,29 @@ void main() {
           window.addEventListener("mousemove", (event) => {
             mouse.x = event.clientX * dpr;
             mouse.y = event.clientY * dpr;
+            lastInteraction = Date.now();
+            startRender();
           });
           document.addEventListener(
             "scroll",
             () => {
-              if (getTargets) refreshShapes();
+              if (scrollRaf) return;
+              scrollRaf = window.requestAnimationFrame(() => {
+                scrollRaf = 0;
+                if (getTargets) refreshShapes();
+                lastInteraction = Date.now();
+                startRender();
+              });
             },
             { capture: true, passive: true }
           );
           window.addEventListener("resize", () => {
             dpr = window.devicePixelRatio || 1;
             refreshShapes();
+            lastInteraction = Date.now();
+            startRender();
           });
-          render();
+          startRender();
         })
         .catch(() => {
           if (canvas && canvas.parentNode) canvas.parentNode.removeChild(canvas);
@@ -377,6 +420,8 @@ void main() {
     start,
     refresh: () => {
       if (getTargets) refreshShapes();
+      lastInteraction = Date.now();
+      startRender();
     },
   };
 })();
