@@ -25,6 +25,13 @@
           subnet = "192.168.0.0/24";
           interface = "br-lan";
           pools = [ { pool = "192.168.0.100 - 192.168.0.249"; } ];
+          reservations = [
+            {
+              hostname = "fn-os";
+              hw-address = "bc:24:11:a4:51:4e";
+              ip-address = "192.168.0.41";
+            }
+          ];
           option-data = [
             {
               name = "routers";
