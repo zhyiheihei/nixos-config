@@ -8,6 +8,33 @@
     }
   };
 
+  const TAB_ORDER = ["公开", "私有", "快捷"];
+  const TAB_RULES = [
+    { name: "公开", test: (name) => name.indexOf("公开") !== -1 },
+    { name: "私有", test: (name) => name.indexOf("私有") !== -1 },
+    { name: "快捷", test: () => true },
+  ];
+  const GLASS_TARGETS = [
+    {
+      selector:
+        ".homepage-tab-panel.active .services-group, .homepage-tab-panel.active .bookmark-group",
+      radius: 20,
+    },
+    {
+      selector:
+        "#information-widgets .widget-container:not(.information-widget-datetime)",
+      radius: 16,
+    },
+    {
+      selector: "#homepage-search-section",
+      radius: 18,
+    },
+    {
+      selector: ".homepage-tabbar",
+      radius: 14,
+    },
+  ];
+
   const groupName = (group) => {
     const title =
       group.querySelector(".service-group-name") ||
@@ -16,9 +43,8 @@
   };
 
   const tabFromName = (name) => {
-    if (name.indexOf("私有") !== -1) return "私有";
-    if (name.indexOf("公开") !== -1) return "公开";
-    return "快捷";
+    const rule = TAB_RULES.find((item) => item.test(name));
+    return rule ? rule.name : "快捷";
   };
 
   const moveSearch = () => {
@@ -56,7 +82,7 @@
     if (groups.length === 0) return;
 
     const tabs = [...new Set(groups.map((group) => tabFromName(groupName(group))))];
-    const order = ["公开", "私有", "快捷"].filter((name) => tabs.includes(name));
+    const order = TAB_ORDER.filter((name) => tabs.includes(name));
     const bar = document.createElement("div");
     bar.className = "homepage-tabbar";
 
@@ -461,23 +487,12 @@
   };
 
   const applySvgGlassToVisible = () => {
-    const targets = document.querySelectorAll(
-      ".homepage-tab-panel.active .services-group, " +
-        ".homepage-tab-panel.active .bookmark-group, " +
-        "#information-widgets .widget-container:not(.information-widget-datetime), " +
-        "#homepage-search-section, " +
-        ".homepage-tabbar"
-    );
-    targets.forEach((element) => {
-      const radius = element.classList.contains("homepage-tabbar")
-        ? 14
-        : element.classList.contains("services-group") ||
-          element.classList.contains("bookmark-group")
-        ? 20
-        : 16;
-      applySvgGlass(element, {
-        radius: radius,
-        tint: "rgba(255, 255, 255, 0.055)",
+    GLASS_TARGETS.forEach((target) => {
+      document.querySelectorAll(target.selector).forEach((element) => {
+        applySvgGlass(element, {
+          radius: target.radius,
+          tint: "rgba(255, 255, 255, 0.055)",
+        });
       });
     });
   };

@@ -6,6 +6,51 @@
   inputs,
   ...
 }:
+let
+  backend = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
+  mkRowLayout = columns: {
+    style = "row";
+    inherit columns;
+  };
+  publicGroups = [
+    "AI 链路"
+    "身份链路"
+    "内容与通讯"
+    "基础设施与运维"
+    "媒体链路"
+    "效率工具"
+  ];
+  privateGroups = [
+    "AI 链路"
+    "家庭服务"
+    "媒体与下载"
+    "效率工具与内容"
+    "基础设施与网络"
+  ];
+  layout = lib.genAttrs (map (name: "公开 · ${name}") publicGroups) (_: mkRowLayout 4)
+    // lib.genAttrs (map (name: "私有 · ${name}") privateGroups) (_: mkRowLayout 4)
+    // { "私有 · 监控" = mkRowLayout 3; };
+  homepageLocations = {
+    "/" = {
+      proxyPass = backend;
+    };
+    "/api/config/" = {
+      proxyPass = backend;
+      extraConfig = ''
+        proxy_hide_header Cache-Control;
+        proxy_hide_header ETag;
+        add_header Cache-Control "no-store, must-revalidate";
+      '';
+    };
+    "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
+    "/homepage-assets/" = {
+      alias = "/etc/homepage-dashboard/assets/";
+      extraConfig = ''
+        add_header Cache-Control "no-cache, must-revalidate";
+      '';
+    };
+  };
+in
 {
   imports = [ "${inputs.secrets}/homepage-dashboard-config.nix" ];
 
@@ -40,56 +85,7 @@
         image = "https://t.alcy.cc/ysz";
         opacity = 100;
       };
-      layout = {
-        "公开 · AI 链路" = {
-          style = "row";
-          columns = 4;
-        };
-        "公开 · 身份链路" = {
-          style = "row";
-          columns = 4;
-        };
-        "公开 · 内容与通讯" = {
-          style = "row";
-          columns = 4;
-        };
-        "公开 · 基础设施与运维" = {
-          style = "row";
-          columns = 4;
-        };
-        "公开 · 媒体链路" = {
-          style = "row";
-          columns = 4;
-        };
-        "公开 · 效率工具" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · AI 链路" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · 家庭服务" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · 媒体与下载" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · 效率工具与内容" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · 基础设施与网络" = {
-          style = "row";
-          columns = 4;
-        };
-        "私有 · 监控" = {
-          style = "row";
-          columns = 3;
-        };
-      };
+      inherit layout;
       # Ignore errors for network instability
       hideErrors = true;
     };
@@ -171,26 +167,7 @@
 
   lantian.nginxVhosts = {
     "homepage.${config.networking.hostName}.zhyi.cc" = {
-      locations = {
-        "/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
-        };
-        "/api/config/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
-          extraConfig = ''
-            proxy_hide_header Cache-Control;
-            proxy_hide_header ETag;
-            add_header Cache-Control "no-store, must-revalidate";
-          '';
-        };
-        "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
-        "/homepage-assets/" = {
-          alias = "/etc/homepage-dashboard/assets/";
-          extraConfig = ''
-            add_header Cache-Control "no-cache, must-revalidate";
-          '';
-        };
-      };
+      inherit homepageLocations;
 
       sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
       noIndex.enable = true;
@@ -200,26 +177,7 @@
       listenHTTP.enable = true;
       listenHTTPS.enable = false;
 
-      locations = {
-        "/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
-        };
-        "/api/config/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
-          extraConfig = ''
-            proxy_hide_header Cache-Control;
-            proxy_hide_header ETag;
-            add_header Cache-Control "no-store, must-revalidate";
-          '';
-        };
-        "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
-        "/homepage-assets/" = {
-          alias = "/etc/homepage-dashboard/assets/";
-          extraConfig = ''
-            add_header Cache-Control "no-cache, must-revalidate";
-          '';
-        };
-      };
+      inherit homepageLocations;
 
       noIndex.enable = true;
       accessibleBy = "localhost";
