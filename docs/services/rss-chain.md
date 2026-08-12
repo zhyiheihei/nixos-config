@@ -115,7 +115,8 @@ podman exec --user=archivebox archivebox archivebox add <url>
   `uni-api.rock5c.zhyi.cc` 摘要后写入 Memos 或 Notes。
 - ArchiveBox：自动化入口优先官方 CLI/Web UI；新版 JSON API 端点实施期核验后再
   接入 n8n，不要直接操作其数据库。
-- AI 摘要默认模型为 OpenCode Go 的 DeepSeek V4 Flash（`AI_MODEL` 可覆盖）。
+- AI 摘要默认模型为 OpenCode Go 的 DeepSeek V4 Flash（UniAPI 别名
+  `deepseek-v4-flash:opencode-go`，`AI_MODEL` 可覆盖）。
 
 相关闭环见
 [`docs/infrastructure/ai-knowledge-chain-integration.md`](../infrastructure/ai-knowledge-chain-integration.md)。

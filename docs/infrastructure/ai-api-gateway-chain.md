@@ -48,9 +48,10 @@ LibreChat、Metapi、n8n 和 n8n OpenAI Bridge 运行在 `colocrossing`。主 Un
 它不是当前 AI 链的一部分，向量检索相关方案见
 [`ai-knowledge-chain-integration.md`](./ai-knowledge-chain-integration.md)。
 
-AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash。具体模型别名由私有
-`uni-api/` Provider 注册表决定，新增工作流/脚本必须显式选择该模型或通过
-`AI_MODEL` 注入，不能把其他厂商模型作为默认值固化到新链路。
+AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模型别名为
+`deepseek-v4-flash:opencode-go`（2026-08-12 实机 `/v1/models` 核验存在）。新增
+工作流/脚本必须显式选择该模型或通过 `AI_MODEL` 注入，不能把其他厂商模型作为
+默认值固化到新链路。
 
 ## 服务职责与位置
 

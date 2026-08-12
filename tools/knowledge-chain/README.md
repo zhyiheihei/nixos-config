@@ -22,7 +22,7 @@
 | `GITEA_REPO` | `zhyi/notes` | Notes 仓库 |
 | `UNIAPI_BASE_URL` | `https://uni-api.rock5c.zhyi.cc` | UniAPI 根地址 |
 | `MEMOS_BASE_URL` | `http://127.0.0.1:13819` | Memos 本机入口 |
-| `AI_MODEL` | `deepseek-v4-flash` | AI 链默认模型：OpenCode Go DeepSeek V4 Flash |
+| `AI_MODEL` | `deepseek-v4-flash:opencode-go` | AI 链默认模型：UniAPI 上的 OpenCode Go DeepSeek V4 Flash 别名 |
 | `MEMOS_VISIBILITY` | `PRIVATE` | 写入 Memos 的可见性 |
 | `MAX_INPUT_BYTES` | `120000` | 喂给模型的输入上限 |
 | `NOTES_PREFIX` | 空 | 只处理该子目录下的笔记 |
