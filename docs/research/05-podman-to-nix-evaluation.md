@@ -37,6 +37,18 @@
 - `metacubexd`：nixpkgs `metacubexd` 只是 Clash.Meta 官方 Dashboard
   （`meta.description = "Clash.Meta Dashboard, The Official One, XD"`），
   不含当前容器里的 mihomo 服务端；因此保留 podman。
+- `moviepilot`：原生包已在 lubancat 完成启动/API 验证，但 `moviepilot
+  start` 只有后台 daemon 语义，systemd 无法直接获得稳定重启语义；生产
+  `rock5c` 保留 podman，详见
+  [06-moviepilot-nix-replacement-impact.md](./06-moviepilot-nix-replacement-impact.md)。
+- `home-assistant`：当前容器 `--privileged`、host 网络并挂载 `/dev` 与
+  `docker.sock`；nixpkgs `services.home-assistant` 默认不提供等价能力，
+  未做生产切换前保留 podman。
+
+## 已对齐上游的服务
+
+- `waline`：上游作者本身就是 Nix systemd 服务，本仓库已改为相同的
+  `pkgs.nur-xddxdd.waline` 实现（含两个上游补丁），域名保持 zhyi 侧。
 
 ## 2026-08-11 实机运行审计
 
