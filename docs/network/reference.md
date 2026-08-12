@@ -19,7 +19,7 @@
 
 | 主机 | index | 家庭局域网 IPv4 | ZeroTier 节点 ID | LTNET IPv4 | WireGuard/LTNET 声明 |
 | --- | ---: | --- | --- | --- | --- |
-| `ml-builder` | 114 | `192.168.0.50` | `2c86750714` | `198.18.0.114` | 仅最小系统；不声明 server mesh 对等 |
+| `ml-builder` | 114 | `192.168.0.50` | `2c86750714` | `198.18.0.114` | 主构建机 + Hydra；经 WSS 接入 server mesh |
 | `ml-home-vm` | 115 | `192.168.0.51`（保留地址） | `c340ae9a91` | `198.18.0.115` | 已退役（2026-08-03）；不再参与 server mesh |
 | `colocrossing` | 120 | 无 | `76d1b20a73` | `198.18.0.120` | SG 公网节点；server mesh、DN42 与 ZeroTier controller |
 | `ml-2700` | 113 | `192.168.0.53` | `214f8619a9` | `198.18.0.113` | 当前没有 server mesh 声明 |
