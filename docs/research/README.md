@@ -14,3 +14,4 @@
 | [08-zhyi-packages-upstream-deviation-audit.md](./08-zhyi-packages-upstream-deviation-audit.md) | zhyi-packages 与 xddxdd/nur-packages 的偏移情况 |
 | [06-router-lan-drop-netdev-watchdog.md](./06-router-lan-drop-netdev-watchdog.md) | Router LAN 口掉链事故（r8125 NETDEV WATCHDOG） |
 | [09-router-rss-gigabit-success-case.md](./09-router-rss-gigabit-success-case.md) | R5C r8125 RSS 恢复千兆线速成功案例 |
+| [10-router-rx-queue-4.md](./10-router-rx-queue-4.md) | r8125 默认 2 个 RX 队列根因与 4 队列改动 |
