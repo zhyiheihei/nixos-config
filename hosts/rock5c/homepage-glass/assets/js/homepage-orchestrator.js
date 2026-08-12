@@ -216,7 +216,7 @@
         button.setAttribute("aria-controls", panelIds);
         button.addEventListener("click", () => {
           document.documentElement.dataset.homepageTab = name;
-          buildTabs(container);
+          buildTabs(findContainer());
           if (window.HomepageStudioGlass) {
             window.HomepageStudioGlass.scheduleRefresh(true);
           }
@@ -306,6 +306,8 @@
     if (!bar) {
       bar = document.createElement("div");
       bar.id = "homepage-statusbar";
+    } else if (statusBarReady && bar.childElementCount === 0) {
+      statusBarReady = false;
     }
     if (!statusBarReady) {
     const time = document.createElement("span");
@@ -328,13 +330,6 @@
     icons.append(signal, network, battery);
     bar.append(time, icons);
 
-    const container = document.querySelector(".container");
-    if (container && bar.parentElement !== container) {
-      container.insertBefore(bar, container.firstChild);
-    } else if (!container && bar.parentElement !== document.body) {
-      document.body.insertBefore(bar, document.body.firstChild);
-    }
-
     const updateTime = () => {
       time.textContent = new Date().toLocaleTimeString([], {
         hour: "2-digit",
@@ -345,6 +340,13 @@
     updateTime();
     window.setInterval(updateTime, 30000);
       statusBarReady = true;
+    }
+
+    const container = document.querySelector(".container");
+    if (container && bar.parentElement !== container) {
+      container.insertBefore(bar, container.firstChild);
+    } else if (!container && bar.parentElement !== document.body) {
+      document.body.insertBefore(bar, document.body.firstChild);
     }
   };
 
@@ -502,6 +504,29 @@
           window.HomepageStudioGlass
         ) {
           window.HomepageStudioGlass.scheduleRefresh(false);
+        }
+      },
+      { passive: true }
+    );
+    const refreshAfterTransition = () => {
+      if (window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.scheduleRefresh(false);
+      }
+    };
+    document.addEventListener(
+      "pointerout",
+      () => window.setTimeout(refreshAfterTransition, 220),
+      { passive: true }
+    );
+    document.addEventListener(
+      "transitionend",
+      (event) => {
+        if (
+          event.target &&
+          event.target.closest &&
+          event.target.closest("[data-glass]")
+        ) {
+          refreshAfterTransition();
         }
       },
       { passive: true }

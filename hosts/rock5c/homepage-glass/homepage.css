@@ -25,13 +25,6 @@ body,
 #background {
   opacity: 1 !important;
   background-image:
-    radial-gradient(1200px 1200px at 12% 18%, rgba(120, 150, 255, 0.16), transparent 55%),
-    radial-gradient(900px 900px at 88% 12%, rgba(90, 220, 220, 0.12), transparent 50%),
-    radial-gradient(1000px 1000px at 70% 85%, rgba(200, 120, 255, 0.10), transparent 55%),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 34px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 34px),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 8px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 8px),
     linear-gradient(180deg, #0b1020, #101a2e 52%, #0a0e18) !important;
   background-color: #0b1020 !important;
   background-position: center !important;
@@ -40,14 +33,7 @@ body,
 }
 
 #page_wrapper::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: var(--homepage-bg-overlay-z);
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(90, 120, 255, 0.10), transparent 28%),
-    linear-gradient(180deg, rgba(5, 8, 14, 0.16), rgba(5, 8, 14, 0.52) 86%);
+  content: none;
 }
 
 #inner_wrapper {
@@ -56,6 +42,18 @@ body,
   padding-bottom: 36px;
   /* Homepage renders content inside this scroll container; keep it stable. */
   overflow-y: auto;
+  /* 背景图样与 studio-glass.js 的 paintPageBackground/paintPageOverlays
+     一致；放在滚动容器上使背景随页面锚定，玻璃纹理与真实背景无 seam。 */
+  background-image:
+    radial-gradient(1200px 1200px at 12% 18%, rgba(120, 150, 255, 0.16), transparent 55%),
+    radial-gradient(900px 900px at 88% 12%, rgba(90, 220, 220, 0.12), transparent 50%),
+    radial-gradient(1000px 1000px at 70% 85%, rgba(200, 120, 255, 0.10), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 8px),
+    linear-gradient(180deg, rgba(90, 120, 255, 0.10), rgba(90, 120, 255, 0) 28%),
+    linear-gradient(180deg, rgba(5, 8, 14, 0), rgba(5, 8, 14, 0.52) 86%);
 }
 
 .studio-glass-canvas {
