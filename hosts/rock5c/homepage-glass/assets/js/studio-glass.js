@@ -194,8 +194,18 @@ float mergedAt(vec2 pageCss) {
   float ballRadius = u_ballRadius * u_dpr / u_resolution.y;
   float pulse = 1.0 + 0.02 * sin(u_time * 1.4);
   float stretch = clamp(length(u_mouseVelocity) * u_springSizeFactor * 0.00002, 0.0, 0.5);
-  ballRadius *= pulse * (1.0 + stretch);
-  float ball = sdCircle(p - ballCenter, ballRadius);
+  ballRadius *= pulse;
+  vec2 rel = p - ballCenter;
+  vec2 dir = length(u_mouseVelocity) > 1e-3
+    ? normalize(u_mouseVelocity)
+    : vec2(1.0, 0.0);
+  float along = dot(rel, dir);
+  float perp = dot(rel, vec2(-dir.y, dir.x));
+  vec2 scaled = vec2(
+    along / (1.0 + stretch),
+    perp / max(1.0 - stretch * 0.35, 0.2)
+  );
+  float ball = length(scaled) - ballRadius;
   return smin(d, ball, u_mergeRate);
 }
 
@@ -357,7 +367,9 @@ void main() {
     outColor.rgb = max(outColor.rgb - vec3(shadow), 0.0);
   }
   if (merged > 0.002) {
-    fragColor = vec4(0.0, 0.0, 0.0, clamp(shadow, 0.0, 1.0));
+    float shadowAlpha =
+      shadow * smoothstep(0.002, 0.004, merged);
+    fragColor = vec4(0.0, 0.0, 0.0, clamp(shadowAlpha, 0.0, 1.0));
   } else {
     fragColor = vec4(outColor.rgb, alpha);
   }
@@ -377,13 +389,13 @@ void main() {
   let mouseSpring = { x: -4000, y: -4000 };
   let mouseVelocity = { x: 0, y: 0 };
   let lastTick = performance.now();
+  let lastInteraction = Date.now();
   let dpr = 1;
   let rafId = 0;
   let getTargets = null;
   let uniformLocations = null;
   let renderRunning = false;
   let scrollRaf = 0;
-  let captureRetries = 0;
   let captureStart = 0;
   let startTime = performance.now();
   let canvasAttached = false;
@@ -391,15 +403,14 @@ void main() {
   let started = false;
   let status = "idle";
   let resizeTimer = 0;
-  let refreshTimer = 0;
+  let shapeTimer = 0;
+  let recaptureTimer = 0;
   let rootEl = null;
-  let zIndex = 5;
   let reducedMotion = false;
   let captureInFlight = false;
   let captureQueued = false;
   let captureCount = 0;
   let totalShapes = 0;
-  let lastError = null;
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   const compileShader = (type, source) => {
@@ -476,7 +487,9 @@ void main() {
   const getScroll = () => {
     const container = rootEl;
     if (container) {
-      return { x: container.scrollLeft, y: container.scrollTop };
+      const x = container.scrollLeft || window.pageXOffset || 0;
+      const y = container.scrollTop || window.pageYOffset || 0;
+      return { x, y };
     }
     return {
       x: window.pageXOffset || document.documentElement.scrollLeft || 0,
@@ -597,7 +610,7 @@ void main() {
     gl.uniform1f(uniformLocations.time, (performance.now() - startTime) / 1000);
     gl.uniform1f(uniformLocations.shadowExpand, SHADOW_EXPAND);
     gl.uniform1f(uniformLocations.shadowFactor, SHADOW_FACTOR);
-    gl.uniform2f(uniformLocations.shadowOffset, 0, 10);
+    gl.uniform2f(uniformLocations.shadowOffset, 0, -10);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
 
     if (
@@ -734,11 +747,18 @@ void main() {
     glow(width * 0.12, height * 0.18, Math.max(width, height) * 0.55, "rgba(120,150,255,0.16)");
     glow(width * 0.88, height * 0.12, Math.max(width, height) * 0.5, "rgba(90,220,220,0.12)");
     glow(width * 0.7, height * 0.85, Math.max(width, height) * 0.55, "rgba(200,120,255,0.10)");
-    ctx.fillStyle = "rgba(255,255,255,0.016)";
+    ctx.fillStyle = "rgba(255,255,255,0.035)";
     for (let y = 0; y < height; y += 34) {
       ctx.fillRect(0, y, width, 1);
     }
     for (let x = 0; x < width; x += 34) {
+      ctx.fillRect(x, 0, 1, height);
+    }
+    ctx.fillStyle = "rgba(255,255,255,0.012)";
+    for (let y = 0; y < height; y += 8) {
+      ctx.fillRect(0, y, width, 1);
+    }
+    for (let x = 0; x < width; x += 8) {
       ctx.fillRect(x, 0, 1, height);
     }
   };
@@ -768,13 +788,18 @@ void main() {
     const container = rootEl;
     const rootWidth = container ? container.scrollWidth : window.innerWidth;
     const rootHeight = container ? container.scrollHeight : window.innerHeight;
-    const width = Math.max(2, Math.round(rootWidth));
-    const height = Math.max(2, Math.round(rootHeight));
+    const maxEdge = Math.min(
+      gl ? gl.getParameter(gl.MAX_TEXTURE_SIZE) : 4096,
+      MAX_TEXTURE_EDGE
+    );
+    const scale = Math.min(1, maxEdge / rootWidth, maxEdge / rootHeight);
+    const width = Math.max(2, Math.round(rootWidth * scale));
+    const height = Math.max(2, Math.round(rootHeight * scale));
     const placeholder = document.createElement("canvas");
     placeholder.width = width;
     placeholder.height = height;
     paintPageBackground(placeholder.getContext("2d"), width, height);
-    captureScale = 1;
+    captureScale = scale;
 
     const newBg = makeTexture(placeholder);
     const newBlur = makeTexture(placeholder);
@@ -828,10 +853,15 @@ void main() {
       out.width = snapshot.width;
       out.height = snapshot.height;
       const ctx = out.getContext("2d");
-      paintPageBackground(ctx, out.width, out.height);
+      const bgLayer = document.createElement("canvas");
+      bgLayer.width = out.width;
+      bgLayer.height = out.height;
+      paintPageBackground(bgLayer.getContext("2d"), out.width, out.height);
+      ctx.drawImage(bgLayer, 0, 0);
       ctx.filter = "saturate(1.22) contrast(1.04) brightness(0.96)";
-      ctx.drawImage(snapshot, 0, 0);
+      ctx.drawImage(bgLayer, 0, 0);
       ctx.filter = "none";
+      ctx.drawImage(snapshot, 0, 0);
       const darkTop = ctx.createLinearGradient(0, 0, 0, out.height);
       darkTop.addColorStop(0, "rgba(90,120,255,0.10)");
       darkTop.addColorStop(0.28, "rgba(90,120,255,0)");
@@ -876,44 +906,56 @@ void main() {
       return Promise.resolve();
     }
     captureInFlight = true;
-    if (captureCount > 0 && canvas) {
-      canvas.classList.add("is-capturing");
-    }
-    return captureBackground()
-      .then(() => {
-        captureCount += 1;
-        if (canvas) canvas.classList.remove("is-capturing");
-      })
-      .catch((error) => {
-        lastError = error;
-        if (window.HomepageStudioGlass) {
-          window.HomepageStudioGlass.captureStage = "failed";
-          window.HomepageStudioGlass.lastError = error.message;
-        }
-        console.warn("studio glass capture failed", error);
-        createPlaceholderTextures();
-        startRender();
-      })
-      .then(() => {
-        captureInFlight = false;
-        if (captureQueued) {
-          captureQueued = false;
-          return runCapture();
-        }
-      });
+    const attempt = (left) =>
+      captureBackground()
+        .then(() => {
+          captureCount += 1;
+          if (window.HomepageStudioGlass) {
+            window.HomepageStudioGlass.lastError = null;
+            window.HomepageStudioGlass.captureStage = "done";
+          }
+        })
+        .catch((error) => {
+          if (window.HomepageStudioGlass) {
+            window.HomepageStudioGlass.captureStage = "failed";
+            window.HomepageStudioGlass.lastError = error.message;
+          }
+          if (left > 0) {
+            return new Promise((resolve) =>
+              window.setTimeout(() => resolve(attempt(left - 1)), 2000)
+            );
+          }
+          console.warn("studio glass capture failed", error);
+          if (window.HomepageStudioGlass) {
+            window.HomepageStudioGlass.status = "capture-failed";
+          }
+          status = "capture-failed";
+        })
+    return attempt(3).then(() => {
+      captureInFlight = false;
+      if (captureQueued) {
+        captureQueued = false;
+        return runCapture();
+      }
+    });
   };
 
   const scheduleRefresh = (recapture) => {
-    if (refreshTimer) window.clearTimeout(refreshTimer);
-    refreshTimer = window.setTimeout(() => {
-      refreshTimer = 0;
-      if (getTargets) refreshShapes();
-      if (recapture && gl) {
-        runCapture().then(() => startRender());
-      } else {
+    if (recapture) {
+      if (recaptureTimer) window.clearTimeout(recaptureTimer);
+      recaptureTimer = window.setTimeout(() => {
+        recaptureTimer = 0;
+        if (getTargets) refreshShapes();
+        if (gl) runCapture().then(() => startRender());
+      }, 180);
+    } else {
+      if (shapeTimer) window.clearTimeout(shapeTimer);
+      shapeTimer = window.setTimeout(() => {
+        shapeTimer = 0;
+        if (getTargets) refreshShapes();
         startRender();
-      }
-    }, recapture ? 180 : 0);
+      }, 0);
+    }
   };
 
   const start = (options) => {
@@ -921,7 +963,6 @@ void main() {
       typeof options === "function" ? { targetFn: options } : options || {};
     getTargets = config.targetFn || null;
     rootEl = config.root || document.getElementById("inner_wrapper") || null;
-    zIndex = config.zIndex || 5;
     reducedMotion = reducedMotionQuery.matches;
     const onReducedMotionChange = () => {
       reducedMotion = reducedMotionQuery.matches;
@@ -961,25 +1002,29 @@ void main() {
         canvas.className = "studio-glass-canvas";
         canvas.setAttribute("aria-hidden", "true");
         canvas.style.cssText =
-          "position:fixed;inset:0;z-index:" +
-          zIndex +
-          ";pointer-events:none;";
+          "position:fixed;inset:0;pointer-events:none;";
         document.body.appendChild(canvas);
 
         const onPointer = (event) => {
           mouse.x = event.clientX;
           mouse.y = event.clientY;
           lastTick = performance.now();
+          lastInteraction = Date.now();
           startRender();
         };
         window.addEventListener("pointermove", onPointer, { passive: true });
         window.addEventListener("touchmove", onPointer, { passive: true });
+        window.addEventListener("pointerdown", onPointer, { passive: true });
+        window.addEventListener("touchstart", onPointer, { passive: true });
+        window.addEventListener("pointercancel", onPointer, { passive: true });
+        window.addEventListener("touchcancel", onPointer, { passive: true });
         document.addEventListener(
           "scroll",
           () => {
             if (scrollRaf) return;
             scrollRaf = window.requestAnimationFrame(() => {
               scrollRaf = 0;
+              lastInteraction = Date.now();
               startRender();
             });
           },
@@ -992,6 +1037,7 @@ void main() {
             resizeTimer = window.setTimeout(() => {
               resizeTimer = 0;
               dpr = window.devicePixelRatio || 1;
+              lastInteraction = Date.now();
               refreshShapes();
               scheduleRefresh(true);
             }, 220);
@@ -1020,24 +1066,13 @@ void main() {
           if (document.hidden) {
             renderRunning = false;
           } else {
+            lastInteraction = Date.now();
             startRender();
           }
         });
       }
       startRender();
-      const captureWithRetry = () => {
-        runCapture()
-          .then(() => startRender())
-          .catch(() => {
-            if (captureRetries < 3) {
-              captureRetries += 1;
-              window.setTimeout(captureWithRetry, 2000);
-            } else {
-              status = "capture-failed";
-            }
-          });
-      };
-      captureWithRetry();
+      runCapture().then(() => startRender());
       started = true;
       status = "running";
       return true;
@@ -1053,6 +1088,7 @@ void main() {
     scheduleRefresh,
     probe: (x, y) => {
       if (!gl || !canvas) return null;
+      const wasRunning = renderRunning;
       if (rafId) window.cancelAnimationFrame(rafId);
       rafId = 0;
       renderRunning = true;
@@ -1060,6 +1096,7 @@ void main() {
       const pixels = new Uint8Array(4);
       gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
       renderRunning = false;
+      if (wasRunning) startRender();
       return Array.from(pixels);
     },
     debugShapes: () => ({

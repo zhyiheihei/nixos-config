@@ -5,8 +5,6 @@
   --homepage-statusbar-z: 30;
   --homepage-ink: rgba(246, 248, 252, 0.96);
   --homepage-muted: rgba(246, 248, 252, 0.55);
-  --homepage-line: rgba(255, 255, 255, 0.10);
-  --homepage-line-strong: rgba(255, 255, 255, 0.14);
   --homepage-row-radius: 12px;
   --homepage-panel-radius: 20px;
 }
@@ -28,8 +26,10 @@ body,
     radial-gradient(1200px 800px at 12% 18%, rgba(120, 150, 255, 0.16), transparent 55%),
     radial-gradient(900px 700px at 88% 12%, rgba(90, 220, 220, 0.12), transparent 50%),
     radial-gradient(1000px 900px at 70% 85%, rgba(200, 120, 255, 0.10), transparent 55%),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 34px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.016) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 8px),
     linear-gradient(180deg, #0b1020, #101a2e 52%, #0a0e18) !important;
   background-position: center !important;
   background-size: cover !important;
@@ -56,11 +56,8 @@ body,
 }
 
 .studio-glass-canvas {
+  z-index: var(--homepage-glass-z);
   transition: opacity 180ms ease;
-}
-
-.studio-glass-canvas.is-capturing {
-  opacity: 0;
 }
 
 /* 层叠契约：玻璃画布在最底层，容器内容在玻璃之上但自身透明，
@@ -302,17 +299,21 @@ body,
 
 .homepage-tab:hover {
   color: rgba(246, 248, 252, 0.92);
-  background: rgba(255, 255, 255, 0.08);
+  background: transparent;
 }
 
 .homepage-tab.active {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.16);
+  background: transparent;
   box-shadow: none;
 }
 
 [data-glass-container] > [data-tab-group] {
   display: none;
+}
+
+.homepage-single-group > [data-tab-group] {
+  grid-column: 1 / -1;
 }
 
 html[data-homepage-tab="公开"] [data-glass-container] > [data-tab-group="公开"],

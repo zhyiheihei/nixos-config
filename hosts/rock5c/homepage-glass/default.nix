@@ -92,11 +92,23 @@ in
       ];
       message = "homepage-dashboard widgets must contain search/greeting/datetime/openmeteo/resources exactly once";
     }
+    {
+      # customCSS/customJS 有意整体替换 secrets 的同名键：rock5c 是
+      # homepage-dashboard 的唯一消费者，orchestrator 是 moveSearch 的
+      # 唯一所有者；secrets 后续新增 CSS/JS 行为不会再被自动带入。
+      assertion =
+        lib.hasInfix "#footer" config.services.homepage-dashboard.customCSS
+        && lib.hasInfix "homepage-orchestrator.js"
+          config.services.homepage-dashboard.customJS;
+      message = "homepage-dashboard customCSS/customJS must stay owned by hosts/rock5c/homepage-glass";
+    }
   ];
 
   environment.etc."homepage-dashboard/assets/js".source = ./assets/js;
   environment.etc."homepage-dashboard/assets/vendor/html2canvas-pro-1.5.8.min.js".source =
     vendorHtml2Canvas;
+  environment.etc."homepage-dashboard/assets/vendor/html2canvas-pro-LICENSE.txt".source =
+    ./assets/vendor/html2canvas-pro-LICENSE.txt;
 
   lantian.nginxVhosts = {
     "homepage.${config.networking.hostName}.zhyi.cc" = {
