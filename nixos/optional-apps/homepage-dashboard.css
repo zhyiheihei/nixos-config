@@ -252,6 +252,7 @@ body,
   background: rgba(255, 255, 255, 0.12) !important;
 }
 
+#layout-groups,
 #services,
 #bookmarks {
   display: block;
@@ -341,6 +342,10 @@ body,
 .homepage-tab-panel .services-list,
 .homepage-tab-panel .bookmark-list {
   display: block;
+}
+
+.homepage-tab-panel .bookmark-group ul {
+  display: block !important;
 }
 
 .services-group {
