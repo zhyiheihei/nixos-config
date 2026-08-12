@@ -13,9 +13,9 @@
 - **两条链通过官方 API 连接**：知识服务用 Gitea/Memos/Miniflux/Syncthing 官方 API
   暴露读写，AI 链用 UniAPI 的 OpenAI 兼容 `/v1` 提供推理，n8n 充当自动化中枢，
   LibreChat 与本地 AI 客户端通过 MCP/官方 REST 消费知识。
-- **模型选择**：AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash；UniAPI 中的实际
-  模型别名以私有 `uni-api/` Provider 注册表为准，工具脚本默认 `deepseek-v4-flash`
-  并允许通过 `AI_MODEL` 覆盖。
+- **模型选择**：AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 精确别名
+  `deepseek-v4-flash:opencode-go`（2026-08-12 实机核验）；工具脚本默认该别名并
+  允许通过 `AI_MODEL` 覆盖。
 
 ## 关系模型
 
@@ -161,5 +161,17 @@ curl -fsS \
 - 官方文档 URL 已在本文件核对；部分端点（ArchiveBox JSON API、pyison 搜索接口、
   Miniflux/Syncthing API key 穿透 OAuth vhost 的能力）需实施期实机验证。
 - jpvm 与 ml-2700 当前不可达，公开 UniAPI 与本地 AI 客户端运行态未验证。
-- UniAPI 的 `deepseek-v4-flash` 模型别名是否存在于当前 Provider 注册表，需以
-  `/v1/models` 实机核验。
+- UniAPI 的 `deepseek-v4-flash:opencode-go` 模型别名已于 2026-08-12 在
+  `colocrossing` 通过 `/v1/models` 实机核验存在。
+
+## 实机核验记录（2026-08-12）
+
+- UniAPI `/v1/models` 可见 `deepseek-v4-flash:opencode-go` 与
+  `deepseek-v4-flash` 等别名；OpenCode Go 供应商密钥已挂载为
+  `uni-api-opencode-go-api-key`。
+- Gitea `https://git.zhyi.xin/api/v1/version` 返回 `1.27.1`。
+- n8n OpenAI Bridge `http://127.0.0.1:13333/health` 返回
+  `{"status":"ok",...}`。
+- Syncthing `notes` 文件夹 `/rest/db/status?folder=notes` 为
+  `state=idle`、`needBytes=0`、`errors=0`。
+- Memos `GET /api/v1/memos`（公开可见 memo）可访问；写回仍需 PAT。

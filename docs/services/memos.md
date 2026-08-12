@@ -77,7 +77,8 @@ hosts 映射 `198.18.0.120`，容器同时使用 `--add-host` 指向同一地址
 之外的网关，也不要让 Metapi 反向成为 UniAPI Provider。
 
 AI 功能中选择的模型统一使用 OpenCode Go 的 DeepSeek V4 Flash；Memos 页面里的
-模型列表来自 Metapi，实际别名以 UniAPI Provider 注册表为准。
+模型列表来自 Metapi，实际模型名使用 UniAPI 别名
+`deepseek-v4-flash:opencode-go`。
 
 ## AI 读取与整理（官方 API）
 

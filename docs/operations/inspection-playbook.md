@@ -94,7 +94,8 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
   - Syncthing：`curl -fsS -H "X-API-Key: $(cat /run/secrets/syncthing-api-key)" http://127.0.0.1:13834/rest/db/status?folder=notes` 检查 `state/needBytes/errors`
   - Bridge：`curl -fsS http://127.0.0.1:13333/health` 返回健康
   - Memos AI：`curl -fsS -H "Authorization: Bearer $(cat /run/secrets/memos-ai-token)" http://127.0.0.1:13819/api/v1/instance/settings/AI` 确认 Provider 仍是 Metapi
-- 模型选择：AI 链默认 OpenCode Go 的 DeepSeek V4 Flash，`/v1/models` 需存在对应别名
+- 模型选择：AI 链默认 OpenCode Go 的 DeepSeek V4 Flash，`/v1/models` 需存在
+  `deepseek-v4-flash:opencode-go` 别名
 
 ### 5. 备份链路（7 台 → opi5p）
 - **入口**：backup 服务/timer 状态
