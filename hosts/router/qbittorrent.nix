@@ -23,6 +23,7 @@ let
     sed -i '/^Session\\Interface=/d' "$conf"
     sed -i '/^Session\\InterfaceName=/d' "$conf"
     sed -i '/^Session\\InterfaceAddress=/d' "$conf"
+    sed -i '/^Session\\GlobalDLSpeedLimit=/d' "$conf"
     sed -i '/^WebUI\\AuthSubnetWhitelistEnabled=/d' "$conf"
     sed -i '/^WebUI\\AuthSubnetWhitelist=/d' "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=${unifiedDownloadPath}/" "$conf"
@@ -31,6 +32,9 @@ let
     # Bind only ppp0's IPv4 address; the interface also carries two global
     # IPv6 addresses that PTTime rejects as "multi-IP" announces.
     sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceAddress=0.0.0.0" "$conf"
+    # Full broadband throughput requires removing the 10MB/s global download
+    # cap that was carried into the migrated runtime config.
+    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalDLSpeedLimit=0" "$conf"
     sed -i '/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelistEnabled=true' "$conf"
     sed -i "/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelist=${authSubnetWhitelist}" "$conf"
   '';
