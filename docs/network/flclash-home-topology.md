@@ -34,6 +34,8 @@ rules:
 
 在 FlClash 的全局 DNS/覆写配置中调整，或对当前 profile 增加以下 override：
 
+可直接参考 [flclash-home-override.yaml](./flclash-home-override.yaml)。
+
 ```yaml
 dns:
   respect-rules: true
