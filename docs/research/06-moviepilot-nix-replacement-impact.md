@@ -57,3 +57,12 @@
 
 仍需回归：rock5c 的 SOCKS5 代理环境、`--add-host`、插件健康恢复 timer、
 Dex OIDC 回调，以及真实 `/nix/persistent/var/lib/moviepilot` 数据。
+
+## 进程管理差异（决定暂不切生产）
+
+`moviepilot start` 只有后台启动语义（`Type=forking`），没有前台模式：
+命令会拉起后端/前端进程后返回，且不提供 `--foreground`。systemd 若直接
+用 `Restart=always` 无法覆盖其子进程，需要额外健康巡检才能保证崩溃自动
+拉起。当前生产 `rock5c` 的 podman 单元由 systemd 直接管理容器，重启语义
+更可靠。因此在补齐“forking + 健康巡检”验证前，`rock5c` 保留 podman，
+原生包只作为 lubancat 验证结论保留。
