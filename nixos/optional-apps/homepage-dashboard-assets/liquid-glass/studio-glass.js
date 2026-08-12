@@ -42,7 +42,7 @@ const float GLARE_FACTOR = 0.9;
 const float GLARE_CONVERGENCE = 0.5;
 const float GLARE_OPPOSITE = 0.8;
 const float GLARE_ANGLE = -0.785398;
-const float BALL_RADIUS = 100.0;
+const float BALL_RADIUS = 33.0;
 const float TINT = 0.06;
 
 float sdCircle(vec2 p, float r) {
@@ -224,13 +224,19 @@ void main() {
     gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
   };
 
+  const getScrollTop = () => {
+    const container = document.getElementById("inner_wrapper");
+    if (container) return container.scrollTop || 0;
+    return window.pageYOffset || document.documentElement.scrollTop || 0;
+  };
+
   const refreshShapes = () => {
     const elements = getTargets ? getTargets() : [];
     shapeCount = Math.min(elements.length, MAX_SHAPES);
     shapeArray = new Float32Array(shapeCount * 4);
     radiusArray = new Float32Array(shapeCount);
     const scrollX = window.pageXOffset || document.documentElement.scrollLeft || 0;
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    const scrollY = getScrollTop();
     elements.slice(0, shapeCount).forEach((element, i) => {
       const rect = element.getBoundingClientRect();
       const radius =
@@ -270,7 +276,7 @@ void main() {
     );
     gl.uniform1f(
       gl.getUniformLocation(program, "u_scrollY"),
-      (window.pageYOffset || document.documentElement.scrollTop || 0) * dpr
+      getScrollTop() * dpr
     );
     gl.uniform1f(gl.getUniformLocation(program, "u_dpr"), dpr);
     gl.uniform1i(gl.getUniformLocation(program, "u_shapeCount"), shapeCount);
@@ -281,7 +287,7 @@ void main() {
     gl.uniform2f(
       gl.getUniformLocation(program, "u_mouseSpring"),
       mouseSpring.x,
-      mouseSpring.y
+      mouseSpring.y + getScrollTop() * dpr
     );
     gl.uniform1f(gl.getUniformLocation(program, "u_mergeRate"), 0.05);
     gl.drawArrays(gl.TRIANGLES, 0, 6);
@@ -342,6 +348,13 @@ void main() {
             mouse.x = event.clientX * dpr;
             mouse.y = event.clientY * dpr;
           });
+          document.addEventListener(
+            "scroll",
+            () => {
+              if (getTargets) refreshShapes();
+            },
+            { capture: true, passive: true }
+          );
           window.addEventListener("resize", () => {
             dpr = window.devicePixelRatio || 1;
             refreshShapes();
