@@ -96,11 +96,7 @@
 
     # iOS 27 风格液态玻璃，复刻差异：zhyi 个人导航专用样式。
     customCSS = ''      :root {
-        --homepage-glass-hi: rgba(255, 255, 255, 0.16);
-        --homepage-glass-border: rgba(255, 255, 255, 0.14);
         --homepage-ink: rgba(246, 248, 252, 0.96);
-        --homepage-muted: rgba(246, 248, 252, 0.58);
-        --homepage-shadow: rgba(2, 8, 18, 0.32);
       }
 
       html,
@@ -472,25 +468,9 @@
         border-radius: 12px 12px 0 0 !important;
       }
 
-      .service-card::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        z-index: 0;
-        border-radius: inherit;
-        pointer-events: none;
-        background: radial-gradient(320px circle at var(--lx, 50%) var(--ly, 0%), rgba(255, 255, 255, 0.10), transparent 58%);
-        opacity: 0;
-        transition: opacity 180ms ease;
-      }
-
       .service-card:hover {
         transform: none;
         background: rgba(255, 255, 255, 0.05) !important;
-      }
-
-      .service-card:hover::before {
-        opacity: 1;
       }
 
       .service-card:active {
@@ -572,76 +552,6 @@
         box-shadow:
           inset 0 1px 0 rgba(255, 255, 255, 0.16),
           0 2px 8px rgba(2, 8, 18, 0.10);
-      }
-
-      .homepage-glass {
-        position: relative !important;
-        gap: 0 !important;
-        padding: 0 !important;
-        align-items: stretch !important;
-        justify-content: flex-start !important;
-        overflow: hidden;
-      }
-
-      .homepage-glass > canvas {
-        z-index: 0 !important;
-        border-radius: inherit !important;
-      }
-
-      .homepage-glass > *:not(canvas) {
-        position: relative;
-        z-index: 1;
-      }
-
-      .homepage-glass#homepage-search-section {
-        display: block !important;
-        padding: 0 20px !important;
-      }
-
-      .homepage-glass.widget-container {
-        display: flex !important;
-        padding: 8px 14px !important;
-      }
-
-      .homepage-glass.homepage-tabbar {
-        display: flex !important;
-        padding: 4px !important;
-      }
-
-      .homepage-glass.services-group,
-      .homepage-glass.bookmark-group {
-        display: block !important;
-        padding: 8px !important;
-      }
-
-      .homepage-glass.service-card {
-        display: block !important;
-        padding: 10px 12px !important;
-      }
-
-      html.webgl-glass .homepage-glass {
-        background: transparent !important;
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-      }
-
-      html.webgl-glass .homepage-glass#homepage-search-section,
-      html.webgl-glass .homepage-glass.widget-container,
-      html.webgl-glass .homepage-glass.homepage-tabbar,
-      html.webgl-glass .homepage-glass.services-group,
-      html.webgl-glass .homepage-glass.bookmark-group {
-        border: 0 !important;
-        box-shadow: none !important;
-      }
-
-      html.webgl-glass .homepage-glass.service-card {
-        border: 1px solid rgba(255, 255, 255, 0.16) !important;
-        box-shadow: none !important;
-      }
-
-      html.webgl-glass .homepage-glass.service-card:hover {
-        border-color: rgba(255, 255, 255, 0.26) !important;
-        box-shadow: 0 10px 28px rgba(2, 8, 18, 0.22) !important;
       }
 
       #footer {
