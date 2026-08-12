@@ -40,6 +40,8 @@ body,
   width: min(100%, 1440px);
   margin: 0 auto;
   padding-bottom: 36px;
+  /* Homepage renders content inside this scroll container; keep it stable. */
+  overflow-y: auto;
 }
 
 #homepage-statusbar {

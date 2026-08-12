@@ -80,7 +80,6 @@ in
       iconStyle = "theme";
       statusStyle = "dot";
       # 液态玻璃风格：卡片玻璃模糊（背景保持清晰）
-      cardBlur = "xl";
       background = {
         image = "https://t.alcy.cc/ysz";
         opacity = 100;
