@@ -232,17 +232,19 @@
       if (tabbar) {
         wrapGlass(tabbar, { borderRadius: 14, tintOpacity: 0.12 });
       }
-      const bindCards = () => {
+      const bindPanels = () => {
         document
-          .querySelectorAll(".service-card")
-          .forEach((card) =>
-            wrapGlass(card, { borderRadius: 18, tintOpacity: 0.12 })
+          .querySelectorAll(
+            "#layout-groups .services-group, #layout-groups .bookmark-group"
+          )
+          .forEach((panel) =>
+            wrapGlass(panel, { borderRadius: 20, tintOpacity: 0.12 })
           );
       };
       const bindPointer = () => {
         document
           .querySelectorAll(
-            ".service-card, .homepage-glass.widget-container, .homepage-glass.homepage-tabbar"
+            ".homepage-glass.services-group, .homepage-glass.bookmark-group, .homepage-glass.widget-container, .homepage-glass.homepage-tabbar"
           )
           .forEach((element) => {
             if (element.dataset.homepagePointer === "1") return;
@@ -261,7 +263,7 @@
           });
       };
       const refreshGlass = () => {
-        bindCards();
+        bindPanels();
         bindPointer();
       };
       refreshGlass();

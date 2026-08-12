@@ -312,12 +312,21 @@
       .homepage-tab-panel .bookmark-group {
         flex: none;
         width: 100%;
-        padding: 0 2px !important;
+        padding: 8px !important;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(18px) saturate(160%);
+        -webkit-backdrop-filter: blur(18px) saturate(160%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.12),
+          0 10px 28px rgba(2, 8, 18, 0.16);
       }
 
       .homepage-tab-panel .services-list,
       .homepage-tab-panel .bookmark-list {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        display: block;
       }
 
       .services-group {
@@ -339,20 +348,22 @@
 
       .service-card {
         position: relative;
-        min-height: 78px;
-        margin-bottom: 10px !important;
-        padding: 10px 12px !important;
+        min-height: 64px;
+        margin-bottom: 0 !important;
+        padding: 8px 6px !important;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.14) !important;
-        border-radius: 18px !important;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.035)) !important;
-        backdrop-filter: blur(16px) saturate(160%) !important;
-        -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.16),
-          inset 0 -1px 0 rgba(255, 255, 255, 0.05),
-          0 8px 24px rgba(2, 8, 18, 0.18) !important;
+        border: 0 !important;
+        border-radius: 12px !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
         transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 180ms ease, box-shadow 180ms ease, background 180ms ease !important;
+      }
+
+      .service:not(:last-child) .service-card {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 12px 12px 0 0 !important;
       }
 
       .service-card::before {
@@ -362,21 +373,14 @@
         z-index: 0;
         border-radius: inherit;
         pointer-events: none;
-        background:
-          linear-gradient(115deg, rgba(255, 255, 255, 0.18), transparent 38%),
-          radial-gradient(320px circle at var(--lx, 50%) var(--ly, 0%), rgba(255, 255, 255, 0.14), transparent 58%);
+        background: radial-gradient(320px circle at var(--lx, 50%) var(--ly, 0%), rgba(255, 255, 255, 0.10), transparent 58%);
         opacity: 0;
         transition: opacity 180ms ease;
       }
 
       .service-card:hover {
-        transform: scale(1.015);
-        border-color: rgba(255, 255, 255, 0.24) !important;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.05)) !important;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.20),
-          inset 0 -1px 0 rgba(255, 255, 255, 0.06),
-          0 12px 28px rgba(2, 8, 18, 0.22) !important;
+        transform: none;
+        background: rgba(255, 255, 255, 0.05) !important;
       }
 
       .service-card:hover::before {
@@ -434,27 +438,26 @@
       .bookmark > a {
         position: relative;
         display: block;
-        margin-bottom: 10px !important;
-        padding: 9px 11px !important;
+        margin-bottom: 0 !important;
+        padding: 8px 6px !important;
         overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.14) !important;
-        border-radius: 16px !important;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.035)) !important;
-        backdrop-filter: blur(14px) saturate(160%) !important;
-        -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.14),
-          0 6px 20px rgba(2, 8, 18, 0.16) !important;
+        border: 0 !important;
+        border-radius: 12px !important;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        box-shadow: none !important;
         transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 180ms ease, background 180ms ease, box-shadow 180ms ease !important;
       }
 
+      .bookmark:not(:last-child) > a {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 12px 12px 0 0 !important;
+      }
+
       .bookmark > a:hover {
-        transform: scale(1.015);
-        border-color: rgba(255, 255, 255, 0.24) !important;
-        background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05)) !important;
-        box-shadow:
-          inset 0 1px 0 rgba(255, 255, 255, 0.18),
-          0 10px 26px rgba(2, 8, 18, 0.20) !important;
+        transform: none;
+        background: rgba(255, 255, 255, 0.05) !important;
       }
 
       .bookmark-icon {
@@ -499,6 +502,12 @@
         padding: 4px !important;
       }
 
+      .homepage-glass.services-group,
+      .homepage-glass.bookmark-group {
+        display: block !important;
+        padding: 8px !important;
+      }
+
       .homepage-glass.service-card {
         display: block !important;
         padding: 10px 12px !important;
@@ -512,7 +521,9 @@
 
       html.webgl-glass .homepage-glass#homepage-search-section,
       html.webgl-glass .homepage-glass.widget-container,
-      html.webgl-glass .homepage-glass.homepage-tabbar {
+      html.webgl-glass .homepage-glass.homepage-tabbar,
+      html.webgl-glass .homepage-glass.services-group,
+      html.webgl-glass .homepage-glass.bookmark-group {
         border: 0 !important;
         box-shadow: none !important;
       }
