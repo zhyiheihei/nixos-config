@@ -12,9 +12,6 @@ in
     "prometheus.colocrossing.zhyi.cc"
     "rsshub.zhyi.xin"
   ];
-  # Keep VaultS3 on the LAN path instead of the public home-DDNS hairpin,
-  # which is flaky from this host.
-  networking.hosts."${LT.hosts.opi5p.interconnect.IPv4}" = [ "vaults3.zhyi.cc" ];
 
   lantian.nginxVhosts = {
     "qnap.zhyi.cc" = {
