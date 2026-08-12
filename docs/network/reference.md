@@ -64,7 +64,7 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 | --- | --- | --- |
 | `主机.zhyi.cc`、`*.主机.zhyi.cc` | `host-recs.nix` 按主机公网或 LTNET 地址生成 | 作者式主机与私有服务命名；不经过统一公网入口 |
 | `*.ml-home-vm.zhyi.cc` | 历史 CNAME | `ml-home-vm` 已退役；服务由 `rock5c`/`opi5p` 承载，入口以 vhost/DNS 为准 |
-| `ha.zhyi.cc`、`sub.zhyi.cc`、`vaults3.zhyi.cc` | CNAME 到 `home-ddns.zhyi.cc` | 家庭动态公网入口 |
+| `ha.zhyi.cc`、`vaults3.zhyi.cc` | CNAME 到 `home-ddns.zhyi.cc` | 家庭动态公网入口 |
 | `hydra.zhyi.cc` | CNAME 到 `jpvm.zhyi.cc` | 对应作者 `bwg-lax -> pve-epyc.ltnet`，由 JPVM 反代到 `pve-5700u` 的 Hydra 端口 |
 | `attic.zhyi.xin` | CNAME 到 `colocrossing.zhyi.cc` | colocrossing 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
 | `colocrossing.zhyi.cc` | A `203.55.176.158` | SSH、Colmena、ZeroTier controller 与公共服务入口 |
