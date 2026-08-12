@@ -66,7 +66,6 @@ _: [
   "usvm.zhyi.cc"
   "lg.zhyi.cc"
   "lg.zhyi.dn42"
-  "sub.zhyi.cc"
   "sub.zhyi.xin"
   # keep-sorted end
 ]
