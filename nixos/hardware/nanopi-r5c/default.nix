@@ -32,7 +32,10 @@ let
   # OpenWrt's high-throughput r8125-rss build enables RSS and multiple TX
   # queues; NUR's default disables both.  Disable ASPM/EEE at build time too:
   # the PHY/PCIe low-power paths were the suspected cause of the earlier
-  # NETDEV WATCHDOG stalls, and OpenWrt builds with CONFIG_ASPM=n.
+  # NETDEV WATCHDOG stalls, and OpenWrt builds with CONFIG_ASPM=n.  The
+  # upstream driver follows netif_get_num_default_rss_queues(), which halves
+  # the physical core count (2 on this 4-core board); use all online CPUs so
+  # each RTL8125 gets 4 RX queues.  TX stays at the driver's 2-queue cap.
   r8125Module = (pkgs.nur-xddxdd.r8125.override {
     inherit (crossPkgs) stdenv;
     kernel = r5cKernel;
@@ -43,6 +46,7 @@ let
       sed -i 's/^ENABLE_EEE = y/ENABLE_EEE = n/' src/Makefile
       sed -i 's/^ENABLE_MULTIPLE_TX_QUEUE = n/ENABLE_MULTIPLE_TX_QUEUE = y/' src/Makefile
       sed -i 's/^ENABLE_RSS_SUPPORT = n/ENABLE_RSS_SUPPORT = y/' src/Makefile
+      sed -i 's/netif_get_num_default_rss_queues()/num_online_cpus()/' src/r8125_n.c
     '';
   });
   # Keep only the firmware requested by the installed MT7921/BT adapter and
