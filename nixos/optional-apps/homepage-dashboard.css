@@ -4,8 +4,8 @@
   --homepage-faint: rgba(246, 248, 252, 0.42);
   --homepage-line: rgba(255, 255, 255, 0.10);
   --homepage-line-strong: rgba(255, 255, 255, 0.14);
-  --homepage-glass: rgba(255, 255, 255, 0.07);
-  --homepage-glass-strong: rgba(255, 255, 255, 0.12);
+  --homepage-glass: rgba(255, 255, 255, 0.10);
+  --homepage-glass-strong: rgba(255, 255, 255, 0.16);
   --homepage-shadow: rgba(2, 8, 18, 0.16);
   --homepage-row-radius: 12px;
   --homepage-panel-radius: 20px;
@@ -177,9 +177,9 @@ body,
   padding: 8px 14px !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
   border-radius: 16px !important;
-  background: rgba(255, 255, 255, 0.07) !important;
-  backdrop-filter: blur(18px) saturate(160%) !important;
-  -webkit-backdrop-filter: blur(18px) saturate(160%) !important;
+  background: var(--homepage-glass) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 8px 24px rgba(2, 8, 18, 0.16) !important;
@@ -219,7 +219,7 @@ body,
   padding: 0 3.5rem 0 1.25rem !important;
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
   border-radius: 16px !important;
-  background: rgba(255, 255, 255, 0.09) !important;
+  background: rgba(255, 255, 255, 0.12) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 10px 28px rgba(2, 8, 18, 0.22) !important;
@@ -277,9 +277,9 @@ body,
   padding: 4px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  background: var(--homepage-glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 10px 28px rgba(2, 8, 18, 0.20);
@@ -332,8 +332,8 @@ body,
   border: 1px solid var(--homepage-line-strong);
   border-radius: var(--homepage-panel-radius);
   background: var(--homepage-glass);
-  backdrop-filter: blur(18px) saturate(160%);
-  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.12),
     0 10px 28px var(--homepage-shadow);

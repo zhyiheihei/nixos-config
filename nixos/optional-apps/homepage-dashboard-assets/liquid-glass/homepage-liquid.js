@@ -401,17 +401,17 @@
 
     const radius = options.radius || 18;
     const bezel = Math.min(
-      26,
+      40,
       radius - 1,
       Math.min(w, h) / 2 - 1
     );
     if (bezel < 2) return;
 
     const profile = calculateRefractionProfile(
-      14,
+      34,
       bezel,
       SURFACE_FNS.convex_squircle,
-      1.52,
+      1.6,
       128
     );
     let maxDisp = 1;
@@ -450,7 +450,7 @@
     filter.setAttribute("width", "140%");
     filter.setAttribute("height", "140%");
     filter.innerHTML =
-      '<feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blurred_source" />' +
+      '<feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blurred_source" />' +
       '<feImage href="' +
       dispUrl +
       '" x="0" y="0" width="' +
@@ -461,7 +461,7 @@
       '<feDisplacementMap in="blurred_source" in2="disp_map" scale="' +
       maxDisp +
       '" xChannelSelector="R" yChannelSelector="G" result="displaced" />' +
-      '<feColorMatrix in="displaced" type="saturate" values="4" result="displaced_sat" />' +
+      '<feColorMatrix in="displaced" type="saturate" values="5.5" result="displaced_sat" />' +
       '<feImage href="' +
       specUrl +
       '" x="0" y="0" width="' +
@@ -470,7 +470,7 @@
       h +
       '" result="spec_layer" />' +
       '<feComposite in="displaced_sat" in2="spec_layer" operator="in" result="spec_masked" />' +
-      '<feComponentTransfer in="spec_layer" result="spec_faded"><feFuncA type="linear" slope="0.55" /></feComponentTransfer>' +
+      '<feComponentTransfer in="spec_layer" result="spec_faded"><feFuncA type="linear" slope="0.9" /></feComponentTransfer>' +
       '<feBlend in="spec_masked" in2="displaced" mode="normal" result="with_sat" />' +
       '<feBlend in="spec_faded" in2="with_sat" mode="normal" />';
     svg.querySelector("defs").appendChild(filter);
@@ -491,7 +491,7 @@
       document.querySelectorAll(target.selector).forEach((element) => {
         applySvgGlass(element, {
           radius: target.radius,
-          tint: "rgba(255, 255, 255, 0.055)",
+          tint: "rgba(255, 255, 255, 0.09)",
         });
       });
     });
