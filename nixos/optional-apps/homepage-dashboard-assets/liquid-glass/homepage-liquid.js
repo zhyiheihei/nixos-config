@@ -35,6 +35,15 @@
     },
   ];
 
+  const loadScript = (src) =>
+    new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = resolve;
+      script.onerror = () => reject(new Error("load failed: " + src));
+      document.head.appendChild(script);
+    });
+
   const groupName = (group) => {
     const title =
       group.querySelector(".service-group-name") ||
@@ -102,7 +111,10 @@
           .forEach((panel) =>
             panel.classList.toggle("active", panel.dataset.tab === name)
           );
-        window.setTimeout(applySvgGlassToVisible, 60);
+        window.setTimeout(() => {
+          applySvgGlassToVisible();
+          if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh();
+        }, 60);
       });
       bar.appendChild(button);
     });
@@ -506,8 +518,28 @@
     });
   };
 
+  const initStudio = async () => {
+    try {
+      await loadScript(
+        "/homepage-assets/liquid-glass/html2canvas-pro.min.js"
+      );
+      await loadScript("/homepage-assets/liquid-glass/studio-glass.js");
+    } catch (error) {
+      return;
+    }
+    if (!window.HomepageStudioGlass) return;
+    const targets = () =>
+      Array.from(
+        document.querySelectorAll(
+          GLASS_TARGETS.map((target) => target.selector).join(", ")
+        )
+      );
+    window.HomepageStudioGlass.start(targets);
+  };
+
   let tabsBuilt = false;
   let liquidStarted = false;
+  let studioStarted = false;
 
   const ensureLayout = () => {
     const groups = document.querySelectorAll(
@@ -521,6 +553,10 @@
     if (!liquidStarted) {
       liquidStarted = true;
       initLiquid();
+    }
+    if (!studioStarted) {
+      studioStarted = true;
+      initStudio();
     }
   };
 
