@@ -36,5 +36,9 @@ DRY_RUN=1 bash tools/knowledge-chain/notes-digest.sh
 bash tools/knowledge-chain/notes-digest.sh
 ```
 
+> 注意：`/run/secrets/gitea-ai-token` 等默认路径是 P1 目标挂载点，当前尚未在
+> 私有 `nixos-secrets` 与主机级 SOPS 配置中创建。运行前先在 secrets 仓库新增
+> 对应密钥，并通过 `hosts/<host>/` 层声明挂载；不改公共模块、不改数据库。
+
 官方 API 出处见
 [`docs/infrastructure/ai-knowledge-chain-integration.md`](../../docs/infrastructure/ai-knowledge-chain-integration.md)。

@@ -110,6 +110,12 @@ flowchart LR
 3. LibreChat 只读知识源：独立模块注入 Gitea/Memos 官方 REST，不改公共 MCP 模块。
 4. Syncthing REST 事件驱动重索引：先验证 API key 通道，再接入 n8n。
 
+P1 运行态前置：`/run/secrets/gitea-ai-token`、`/run/secrets/memos-ai-token`、
+`/run/secrets/miniflux-api-key`、`/run/secrets/syncthing-api-key` 是目标挂载路径。
+它们当前尚未在私有 `nixos-secrets` 与主机级 SOPS 配置中创建；为避免修改公共模块，
+运行前需在 secrets 仓库新增对应密钥，并通过 `hosts/<host>/` 层声明挂载，不写入
+`nixos/` 公共模块。
+
 ### P2 条件项
 
 - Qdrant 向量 RAG：先核验 UniAPI embeddings 与端口登记，以独立规范模块试点。
