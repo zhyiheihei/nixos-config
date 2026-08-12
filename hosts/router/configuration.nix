@@ -16,6 +16,7 @@
     ./performance.nix
     ./prometheus.nix
     ./qbittorrent.nix
+    ./quality-monitoring.nix
     ./vaults3.nix
     ./wifi.nix
 
