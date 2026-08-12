@@ -240,16 +240,17 @@ body,
   background: rgba(255, 255, 255, 0.12) !important;
 }
 
-#layout-groups,
 #services,
 #bookmarks {
-  display: block;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 
 #services {
   margin: 8px 28px 0 !important;
   align-items: stretch;
-  gap: 18px;
+  gap: 16px;
 }
 
 #bookmarks {
@@ -260,6 +261,7 @@ body,
   display: flex;
   justify-content: center;
   gap: 4px;
+  grid-column: 1 / -1;
   max-width: 520px;
   margin: 0 auto 18px;
   padding: 4px;
@@ -313,14 +315,8 @@ html[data-homepage-tab="快捷"] .homepage-tab-group-快捷 {
   display: block;
 }
 
-#layout-groups {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
-
-#layout-groups .services-group,
-#layout-groups .bookmark-group {
+#services .services-group,
+#bookmarks .bookmark-group {
   flex: none;
   width: 100%;
   padding: 8px !important;
@@ -335,9 +331,9 @@ html[data-homepage-tab="快捷"] .homepage-tab-group-快捷 {
     0 10px 28px var(--homepage-shadow);
 }
 
-#layout-groups .services-list,
-#layout-groups .bookmark-list,
-#layout-groups .bookmark-group ul {
+#services .services-list,
+#bookmarks .bookmark-list,
+#bookmarks .bookmark-group ul {
   display: block;
 }
 
@@ -355,8 +351,8 @@ html[data-homepage-tab="快捷"] .homepage-tab-group-快捷 {
   display: none;
 }
 
-#layout-groups .service-card,
-#layout-groups .bookmark > a {
+#services .service-card,
+#bookmarks .bookmark > a {
   position: relative;
   display: block;
   min-height: 64px;
@@ -372,24 +368,25 @@ html[data-homepage-tab="快捷"] .homepage-tab-group-快捷 {
   transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1), background 180ms ease, box-shadow 180ms ease !important;
 }
 
-#layout-groups .service:not(:last-child) .service-card,
-#layout-groups .bookmark:not(:last-child) > a {
+#services .service:not(:last-child) .service-card,
+#bookmarks .bookmark:not(:last-child) > a {
   border-bottom: 1px solid var(--homepage-line) !important;
   border-radius: var(--homepage-row-radius) var(--homepage-row-radius) 0 0 !important;
 }
 
-#layout-groups .service-card:hover,
-#layout-groups .bookmark > a:hover {
+#services .service-card:hover,
+#bookmarks .bookmark > a:hover {
   transform: none;
   background: rgba(255, 255, 255, 0.05) !important;
 }
 
-#layout-groups .service-card:active {
+#services .service-card:active,
+#bookmarks .bookmark > a:active {
   transform: scale(0.985);
 }
 
-#layout-groups .service-icon,
-#layout-groups .bookmark-icon {
+#services .service-icon,
+#bookmarks .bookmark-icon {
   width: 42px;
   height: 42px;
   margin-right: 8px;
@@ -401,22 +398,24 @@ html[data-homepage-tab="快捷"] .homepage-tab-group-快捷 {
     0 2px 8px rgba(2, 8, 18, 0.12);
 }
 
-#layout-groups .service-icon img,
-#layout-groups .service-icon svg {
+#services .service-icon img,
+#services .service-icon svg,
+#bookmarks .bookmark-icon img,
+#bookmarks .bookmark-icon svg {
   width: 24px;
   height: 24px;
 }
 
-#layout-groups .service-name,
-#layout-groups .bookmark-name {
+#services .service-name,
+#bookmarks .bookmark-name {
   font-size: 0.92rem !important;
   font-weight: 600 !important;
   color: var(--homepage-ink) !important;
   letter-spacing: 0 !important;
 }
 
-#layout-groups .service-description,
-#layout-groups .bookmark-description {
+#services .service-description,
+#bookmarks .bookmark-description {
   margin-top: 3px;
   color: var(--homepage-muted) !important;
   font-size: 0.74rem !important;
@@ -464,33 +463,34 @@ html[data-homepage-tab="快捷"] .homepage-tab-group-快捷 {
     margin: 0 auto 12px;
   }
 
-  #layout-groups {
+  #services,
+  #bookmarks {
     grid-template-columns: 1fr;
     gap: 12px;
   }
 
-  #layout-groups .service-card,
-  #layout-groups .bookmark > a {
+  #services .service-card,
+  #bookmarks .bookmark > a {
     min-height: 74px;
     padding: 10px 12px !important;
   }
 
-  #layout-groups .service-icon,
-  #layout-groups .bookmark-icon {
+  #services .service-icon,
+  #bookmarks .bookmark-icon {
     width: 42px;
     height: 42px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #layout-groups .service-card,
-  #layout-groups .bookmark > a,
+  #services .service-card,
+  #bookmarks .bookmark > a,
   .information-widget-search input {
     transition: none !important;
   }
 
-  #layout-groups .service-card:hover,
-  #layout-groups .bookmark > a:hover {
+  #services .service-card:hover,
+  #bookmarks .bookmark > a:hover {
     transform: none;
   }
 }

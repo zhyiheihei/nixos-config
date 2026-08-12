@@ -15,7 +15,8 @@
     { name: "快捷", test: () => true },
   ];
   const GLASS_TARGETS = [
-    "#layout-groups .services-group, #layout-groups .bookmark-group",
+    "#services .services-group",
+    "#bookmarks .bookmark-group",
     "#information-widgets .widget-container:not(.information-widget-datetime)",
     "#homepage-search-section",
     ".homepage-tabbar",
@@ -64,7 +65,7 @@
   const buildTabs = () => {
     if (document.querySelector(".homepage-tabbar")) return;
 
-    const containers = ["layout-groups", "services", "bookmarks"]
+    const containers = ["services", "bookmarks"]
       .map((id) => document.getElementById(id))
       .filter(Boolean);
     const groups = containers.flatMap((container) =>
