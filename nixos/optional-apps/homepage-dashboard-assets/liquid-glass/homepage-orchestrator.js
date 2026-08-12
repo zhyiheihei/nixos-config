@@ -112,7 +112,7 @@
             panel.classList.toggle("active", panel.dataset.tab === name)
           );
         window.setTimeout(() => {
-          if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh();
+          if (window.HomepageStudioGlass) window.HomepageStudioGlass.refresh(true);
         }, 60);
       });
       bar.appendChild(button);
