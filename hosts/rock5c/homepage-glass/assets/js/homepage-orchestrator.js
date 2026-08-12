@@ -22,10 +22,14 @@
     return "快捷";
   };
 
-  const loadScript = (src) =>
+  const loadScript = (src, integrity) =>
     new Promise((resolve, reject) => {
       const script = document.createElement("script");
       script.src = src;
+      if (integrity) {
+        script.integrity = integrity;
+        script.crossOrigin = "anonymous";
+      }
       const timer = window.setTimeout(() => {
         script.remove();
         reject(new Error("timeout: " + src));
@@ -51,16 +55,28 @@
   };
 
   const findContainer = () =>
-    CONTAINER_IDS.map((id) => document.getElementById(id)).find(Boolean) || null;
+    CONTAINER_IDS.map((id) => document.getElementById(id)).find(
+      (element) =>
+        element &&
+        element.getBoundingClientRect().width > 0 &&
+        getComputedStyle(element).display !== "none"
+    ) || null;
 
-  const markGlass = () => {
+  // 一趟同步：先清掉旧标记，再按当前可见容器重建 data-glass 集合，
+  // 避免 React 移动节点后残留 stale 标记。
+  const syncDom = () => {
+    document
+      .querySelectorAll("[data-glass-container], [data-glass]")
+      .forEach((element) => {
+        element.removeAttribute("data-glass-container");
+        element.removeAttribute("data-glass");
+      });
     const container = findContainer();
     if (!container) return null;
     container.setAttribute("data-glass-container", "");
     container
       .querySelectorAll(
-        ":scope > .services-group, :scope > .bookmark-group, " +
-          ".service-card, .bookmark > a"
+        ".service-card, .bookmark > a"
       )
       .forEach((element) => element.setAttribute("data-glass", ""));
     document
@@ -68,6 +84,8 @@
         "#information-widgets .widget-container, #homepage-search-section, .homepage-tabbar"
       )
       .forEach((element) => element.setAttribute("data-glass", ""));
+    buildTabs(container);
+    moveSearch();
     return container;
   };
 
@@ -91,8 +109,7 @@
     }
   };
 
-  const buildTabs = () => {
-    const container = findContainer();
+  const buildTabs = (container) => {
     if (!container) return;
     const groups = Array.from(
       container.querySelectorAll(
@@ -103,6 +120,18 @@
 
     groups.forEach((group) => {
       group.dataset.tabGroup = tabFromName(groupName(group));
+      if (!group.id) {
+        group.id =
+          "homepage-tab-panel-" +
+          group.dataset.tabGroup +
+          "-" +
+          Array.from(container.querySelectorAll(":scope > .services-group, :scope > .bookmark-group")).indexOf(group);
+      }
+      group.setAttribute("role", "tabpanel");
+      group.setAttribute(
+        "aria-labelledby",
+        "homepage-tab-" + group.dataset.tabGroup
+      );
     });
 
     let bar = document.querySelector(".homepage-tabbar");
@@ -111,6 +140,20 @@
       bar.className = "homepage-tabbar";
       bar.setAttribute("role", "tablist");
       bar.setAttribute("aria-label", "首页分组");
+      bar.addEventListener("keydown", (event) => {
+        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+        const buttons = Array.from(bar.querySelectorAll(".homepage-tab"));
+        if (buttons.length === 0) return;
+        const currentIndex = buttons.findIndex((button) =>
+          button.classList.contains("active")
+        );
+        const delta = event.key === "ArrowRight" ? 1 : -1;
+        const nextIndex =
+          (currentIndex + delta + buttons.length) % buttons.length;
+        event.preventDefault();
+        buttons[nextIndex].focus();
+        buttons[nextIndex].click();
+      });
       container.insertBefore(bar, container.firstChild);
     }
     bar.setAttribute("data-glass", "");
@@ -120,6 +163,10 @@
     const current = document.documentElement.dataset.homepageTab;
     const activeTab = tabs.includes(current) ? current : order[0] || "公开";
     document.documentElement.dataset.homepageTab = activeTab;
+    const activeGroupCount = groups.filter(
+      (group) => group.dataset.tabGroup === activeTab
+    ).length;
+    container.classList.toggle("homepage-single-group", activeGroupCount === 1);
 
     // Reconcile buttons so late group renders stay in sync.
     Array.from(bar.querySelectorAll(".homepage-tab")).forEach((button) => {
@@ -127,6 +174,10 @@
     });
     order.forEach((name, index) => {
       let button = bar.querySelector('.homepage-tab[data-tab="' + name + '"]');
+      const panelIds = groups
+        .filter((group) => group.dataset.tabGroup === name)
+        .map((group) => group.id)
+        .join(" ");
       if (!button) {
         button = document.createElement("button");
         button.type = "button";
@@ -135,7 +186,7 @@
         button.dataset.tab = name;
         button.setAttribute("role", "tab");
         button.setAttribute("aria-selected", "false");
-        button.setAttribute("aria-controls", "homepage-tab-" + name);
+        button.setAttribute("aria-controls", panelIds);
         button.addEventListener("click", () => {
           document.documentElement.dataset.homepageTab = name;
           if (window.HomepageStudioGlass) {
@@ -144,6 +195,7 @@
         });
         bar.insertBefore(button, bar.children[index] || null);
       }
+      button.setAttribute("aria-controls", panelIds);
       button.classList.toggle("active", name === activeTab);
       button.setAttribute("aria-selected", name === activeTab ? "true" : "false");
     });
@@ -259,11 +311,21 @@
   };
 
   let studioStarted = false;
+  let studioLoading = false;
   let studioAttempts = 0;
   const MAX_STUDIO_ATTEMPTS = 5;
 
   const initStudio = async () => {
-    if (studioStarted) return;
+    if (studioStarted || studioLoading) return;
+    if (studioAttempts >= MAX_STUDIO_ATTEMPTS) {
+      window.HomepageBootstrap = {
+        status: "stopped",
+        attempts: studioAttempts,
+        error: "max studio attempts reached",
+      };
+      return;
+    }
+    studioLoading = true;
     studioAttempts += 1;
     window.HomepageBootstrap = {
       status: "loading",
@@ -271,9 +333,13 @@
       error: null,
     };
     try {
-      await loadScript("/homepage-assets/vendor/html2canvas-pro-1.5.8.min.js");
+      await loadScript(
+        "/homepage-assets/vendor/html2canvas-pro-1.5.8.min.js",
+        "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM="
+      );
       await loadScript("/homepage-assets/js/studio-glass.js");
     } catch (error) {
+      studioLoading = false;
       window.HomepageBootstrap = {
         status: "script-failed",
         attempts: studioAttempts,
@@ -285,6 +351,7 @@
       return;
     }
     if (!window.HomepageStudioGlass) {
+      studioLoading = false;
       window.HomepageBootstrap = {
         status: "missing-global",
         attempts: studioAttempts,
@@ -295,18 +362,21 @@
       }
       return;
     }
-    const container = markGlass();
+    const container = syncDom();
+    const root = document.getElementById("inner_wrapper") || container;
     const ok = window.HomepageStudioGlass.start({
-      root: container,
+      root,
       targetFn: () => Array.from(document.querySelectorAll("[data-glass]")),
-      zIndex: 5,
     });
+    studioLoading = false;
     if (ok) {
       studioStarted = true;
       window.HomepageBootstrap = {
         status: "running",
         attempts: studioAttempts,
         error: null,
+        glassContainerCount: document.querySelectorAll("[data-glass-container]").length,
+        glassCount: document.querySelectorAll("[data-glass]").length,
       };
     } else if (studioAttempts < MAX_STUDIO_ATTEMPTS) {
       window.setTimeout(initStudio, 2000 * studioAttempts);
@@ -323,10 +393,8 @@
   let layoutTimer = 0;
 
   const ensureLayout = () => {
-    const container = markGlass();
+    const container = syncDom();
     if (!container) return;
-    buildTabs();
-    moveSearch();
     if (window.HomepageStudioGlass) {
       window.HomepageStudioGlass.scheduleRefresh(false);
     }
@@ -367,8 +435,6 @@
     const container = findContainer();
     if (container) resizeObserver.observe(container);
 
-    const searchInput = () =>
-      document.querySelector(".information-widget-search input");
     const onSearchInput = () => {
       if (window.HomepageStudioGlass) {
         window.HomepageStudioGlass.scheduleRefresh(true);
