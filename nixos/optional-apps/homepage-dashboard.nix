@@ -181,7 +181,6 @@
             proxy_hide_header Cache-Control;
             proxy_hide_header ETag;
             add_header Cache-Control "no-store, must-revalidate";
-            expires -1;
           '';
         };
         "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
@@ -211,7 +210,6 @@
             proxy_hide_header Cache-Control;
             proxy_hide_header ETag;
             add_header Cache-Control "no-store, must-revalidate";
-            expires -1;
           '';
         };
         "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
