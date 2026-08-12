@@ -175,8 +175,22 @@
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
         };
+        "/api/config/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
+          extraConfig = ''
+            proxy_hide_header Cache-Control;
+            proxy_hide_header ETag;
+            add_header Cache-Control "no-store, must-revalidate";
+            expires -1;
+          '';
+        };
         "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
-        "/homepage-assets/".alias = "/etc/homepage-dashboard/assets/";
+        "/homepage-assets/" = {
+          alias = "/etc/homepage-dashboard/assets/";
+          extraConfig = ''
+            add_header Cache-Control "no-cache, must-revalidate";
+          '';
+        };
       };
 
       sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
@@ -191,8 +205,22 @@
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
         };
+        "/api/config/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.HomepageDashboard}";
+          extraConfig = ''
+            proxy_hide_header Cache-Control;
+            proxy_hide_header ETag;
+            add_header Cache-Control "no-store, must-revalidate";
+            expires -1;
+          '';
+        };
         "/icons-custom/".alias = inputs.secrets + "/homepage-dashboard-icons/";
-        "/homepage-assets/".alias = "/etc/homepage-dashboard/assets/";
+        "/homepage-assets/" = {
+          alias = "/etc/homepage-dashboard/assets/";
+          extraConfig = ''
+            add_header Cache-Control "no-cache, must-revalidate";
+          '';
+        };
       };
 
       noIndex.enable = true;
