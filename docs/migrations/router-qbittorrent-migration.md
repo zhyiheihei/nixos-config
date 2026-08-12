@@ -5,9 +5,9 @@
 目标：把 opi5p 上的 `qbittorrent`、`qbittorrent-pt`、`qbittorrent-seedbox` 三个下载器迁移到 `router`，下载路径继续使用 QNAP NFS `/mnt/storage`。
 
 > 2026-08-12 规范化：公共模块保持不动，router 的
-> `hosts/router/qbittorrent.nix` 只导入现有 `qbittorrent.nix`，并写主机级扩展键
-> （官方客户端、固定端口、单接口绑定、统一保存路径、WebUI 白名单）与目录映射；
-> 单实例即当前唯一 qBittorrent，不再聚合弃用实例。
+> `hosts/router/qbittorrent.nix` 只做主机级扩展键（官方客户端、固定端口、单接口
+> 绑定、统一保存路径、WebUI 白名单）；目录映射独立放在
+> `hosts/router/qbittorrent-directory.nix`；不新增 fork 自创公共模块。
 
 ## 1. 现状与前提
 

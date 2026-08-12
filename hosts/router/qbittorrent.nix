@@ -7,11 +7,7 @@
 }:
 let
   activationMarker = "/nix/persistent/var/lib/qbittorrent-router/ready";
-  user = "zhyi";
-  group = "users";
   authSubnetWhitelist = "192.168.0.62,192.168.0.64";
-  # MoviePilot skips hidden paths during transfer, so the unified download
-  # root must be a plain directory instead of the old ".downloads-*" names.
   unifiedDownloadPath = "/mnt/storage/downloads";
   qbitPreStart = ''
     conf=/var/lib/qbittorrent/qBittorrent/config/qBittorrent.conf
@@ -38,6 +34,7 @@ let
 in
 {
   imports = [
+    ./qbittorrent-directory.nix
     ../../nixos/optional-apps/qbittorrent.nix
     # Author-style layout: qBittorrent and its WebUI vhosts live on the same
     # host, so router serves bt/pt/seedbox.router.zhyi.cc directly.
@@ -72,28 +69,8 @@ in
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
   };
 
-  systemd.tmpfiles.settings.qbittorrent-router = {
-    "/mnt/storage".d = {
-      mode = "755";
-      user = "root";
-      group = "root";
-    };
-    "${unifiedDownloadPath}".d = {
-      mode = "755";
-      inherit user group;
-    };
-    "/nix/persistent/var/lib/qbittorrent-router".d = {
-      mode = "0700";
-      user = "root";
-      group = "root";
-    };
-  };
-
   systemd.services.qbittorrent = {
     unitConfig.ConditionPathExists = activationMarker;
-    after = [ "mnt-storage.mount" ];
-    requires = [ "mnt-storage.mount" ];
     preStart = lib.mkAfter qbitPreStart;
-    serviceConfig.BindPaths = [ unifiedDownloadPath ];
   };
 }
