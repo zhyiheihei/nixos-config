@@ -964,6 +964,15 @@ void main() {
       renderRunning = false;
       return Array.from(pixels);
     },
+    debugShapes: () => ({
+      count: shapeCount,
+      shapes: shapeArray
+        ? Array.from(shapeArray).slice(0, Math.min(shapeCount, 24) * 4)
+        : null,
+      radii: radiusArray
+        ? Array.from(radiusArray).slice(0, Math.min(shapeCount, 24))
+        : null,
+    }),
     refresh: (recapture) => {
       if (getTargets) refreshShapes();
       if (recapture && gl) {
