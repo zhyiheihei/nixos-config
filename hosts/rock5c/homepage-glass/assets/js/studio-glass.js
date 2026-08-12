@@ -2,6 +2,8 @@
 // Reference: https://github.com/iyinchao/liquid-glass-studio
 // Shader math mirrors src/shaders/fragment-main.glsl STEP 9 (transparent
 // liquid glass, near-zero blur) and src/shaders/fragment-bg.glsl shadow.
+// MIT License (c) iyinchao/liquid-glass-studio contributors; full license
+// text is distributed beside this module and under /homepage-assets/vendor/.
 (() => {
   "use strict";
 
@@ -30,9 +32,7 @@
 
   const VERTEX = `#version 300 es
 in vec2 a_position;
-out vec2 v_uv;
 void main() {
-  v_uv = a_position * 0.5 + 0.5;
   gl_Position = vec4(a_position, 0.0, 1.0);
 }`;
 
@@ -44,7 +44,6 @@ precision highp float;
 #define MAX_SHAPES ${MAX_SHAPES}
 #define PI 3.14159265359
 
-in vec2 v_uv;
 out vec4 fragColor;
 
 uniform sampler2D u_bg;
@@ -279,12 +278,14 @@ void main() {
     } else {
       float edgeH = nmerged / u_refThickness;
       vec2 normal = getNormal(pageCss);
-      vec2 dispCss =
+      vec2 dispScreenUv =
         -normal *
         edgeFactor *
         0.05 *
         u_dpr *
         vec2(u_resolution.y / u_resolution.x, 1.0);
+      dispScreenUv.y *= -1.0;
+      vec2 dispCss = dispScreenUv * (u_resolution / u_dpr);
       vec2 offset = dispCss * u_captureScale / u_textureSize;
       vec4 blurredPixel = getTextureDispersion(
         u_bg,
@@ -365,15 +366,14 @@ void main() {
   }
 
   outColor = mix(outColor, texture(u_bg, uv), smoothstep(-0.001, 0.001, merged));
-  float alpha = 1.0 - smoothstep(0.0, 0.002, merged);
-  if (merged < 0.0) {
-    outColor.rgb = max(outColor.rgb - vec3(shadow), 0.0);
-  }
+  float distCss = -merged * (u_resolution.y / u_dpr);
+  float interiorFade = smoothstep(0.0, 6.0, distCss);
+  float alpha = mix(1.0, 0.12, interiorFade);
   if (merged > 0.0) {
     float t = smoothstep(0.0, 0.002, merged);
     fragColor = vec4(
       mix(outColor.rgb, vec3(0.0), t),
-      mix(alpha, shadow, t)
+      mix(alpha, clamp(shadow * 4.0, 0.0, 0.85), t)
     );
   } else {
     fragColor = vec4(outColor.rgb, alpha);
@@ -741,7 +741,7 @@ void main() {
     return output;
   };
 
-  const paintPageBackground = (ctx, width, height) => {
+  const paintPageBackground = (ctx, width, height, scale = 1) => {
     const gradient = ctx.createLinearGradient(0, 0, 0, height);
     gradient.addColorStop(0, "#0b1020");
     gradient.addColorStop(0.52, "#101a2e");
@@ -759,17 +759,17 @@ void main() {
     glow(width * 0.88, height * 0.12, Math.max(width, height) * 0.5, "rgba(90,220,220,0.12)");
     glow(width * 0.7, height * 0.85, Math.max(width, height) * 0.55, "rgba(200,120,255,0.10)");
     ctx.fillStyle = "rgba(255,255,255,0.06)";
-    for (let y = 0; y < height; y += 34) {
+    for (let y = 0; y < height; y += 34 * scale) {
       ctx.fillRect(0, y, width, 1);
     }
-    for (let x = 0; x < width; x += 34) {
+    for (let x = 0; x < width; x += 34 * scale) {
       ctx.fillRect(x, 0, 1, height);
     }
     ctx.fillStyle = "rgba(255,255,255,0.02)";
-    for (let y = 0; y < height; y += 8) {
+    for (let y = 0; y < height; y += 8 * scale) {
       ctx.fillRect(0, y, width, 1);
     }
-    for (let x = 0; x < width; x += 8) {
+    for (let x = 0; x < width; x += 8 * scale) {
       ctx.fillRect(x, 0, 1, height);
     }
   };
@@ -809,7 +809,7 @@ void main() {
     const placeholder = document.createElement("canvas");
     placeholder.width = width;
     placeholder.height = height;
-    paintPageBackground(placeholder.getContext("2d"), width, height);
+    paintPageBackground(placeholder.getContext("2d"), width, height, scale);
     captureScale = scale;
 
     const newBg = makeTexture(placeholder);
@@ -867,7 +867,12 @@ void main() {
       const bgLayer = document.createElement("canvas");
       bgLayer.width = out.width;
       bgLayer.height = out.height;
-      paintPageBackground(bgLayer.getContext("2d"), out.width, out.height);
+      paintPageBackground(
+        bgLayer.getContext("2d"),
+        out.width,
+        out.height,
+        out.width / rootWidth
+      );
       ctx.drawImage(bgLayer, 0, 0);
       ctx.filter = "saturate(1.22) contrast(1.04) brightness(0.96)";
       ctx.drawImage(bgLayer, 0, 0);
@@ -917,49 +922,37 @@ void main() {
       return Promise.resolve();
     }
     captureInFlight = true;
-    const withTimeout = (promise, ms) =>
-      Promise.race([
-        promise,
-        new Promise((_, reject) =>
-          window.setTimeout(() => reject(new Error("capture timeout")), ms)
-        ),
-      ]);
-    const attempt = (left) =>
-      withTimeout(captureBackground(), 20000)
-        .then(() => {
-          captureCount += 1;
-          status = "running";
-          if (window.HomepageStudioGlass) {
-            window.HomepageStudioGlass.lastError = null;
-            window.HomepageStudioGlass.captureStage = "done";
-          }
-        })
-        .catch((error) => {
-          if (window.HomepageStudioGlass) {
-            window.HomepageStudioGlass.captureStage = "failed";
-            window.HomepageStudioGlass.lastError = error.message;
-          }
-          if (left > 0) {
-            return new Promise((resolve) =>
-              window.setTimeout(() => resolve(attempt(left - 1)), 2000)
-            );
-          }
-          console.warn("studio glass capture failed", error);
-          status = "capture-failed";
-        })
-    try {
-      return attempt(3).then(() => {
+    const attempt = async (left) => {
+      try {
+        await captureBackground();
+        captureCount += 1;
+        status = "running";
+        if (window.HomepageStudioGlass) {
+          window.HomepageStudioGlass.lastError = null;
+          window.HomepageStudioGlass.captureStage = "done";
+        }
+      } catch (error) {
+        if (window.HomepageStudioGlass) {
+          window.HomepageStudioGlass.captureStage = "failed";
+          window.HomepageStudioGlass.lastError = error.message;
+        }
+        if (left > 0) {
+          await new Promise((resolve) =>
+            window.setTimeout(resolve, 2000 * (3 - left + 1))
+          );
+          return attempt(left - 1);
+        }
+        console.warn("studio glass capture failed", error);
+        status = "capture-failed";
+      }
+    };
+    return attempt(3).then(() => {
         captureInFlight = false;
         if (captureQueued) {
           captureQueued = false;
           return runCapture();
         }
       });
-    } catch (error) {
-      captureInFlight = false;
-      status = "capture-failed";
-      return Promise.resolve();
-    }
   };
 
   const scheduleRefresh = (recapture) => {
@@ -1038,11 +1031,8 @@ void main() {
           startRender();
         };
         window.addEventListener("pointermove", onPointer, { passive: true });
-        window.addEventListener("touchmove", onPointer, { passive: true });
         window.addEventListener("pointerdown", onPointer, { passive: true });
-        window.addEventListener("touchstart", onPointer, { passive: true });
         window.addEventListener("pointercancel", () => {}, { passive: true });
-        window.addEventListener("touchcancel", () => {}, { passive: true });
         document.addEventListener(
           "scroll",
           () => {
@@ -1119,12 +1109,15 @@ void main() {
       if (rafId) window.cancelAnimationFrame(rafId);
       rafId = 0;
       renderRunning = true;
-      render(performance.now(), false);
-      const pixels = new Uint8Array(4);
-      gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-      renderRunning = false;
-      if (wasRunning) startRender();
-      return Array.from(pixels);
+      try {
+        render(performance.now(), false);
+        const pixels = new Uint8Array(4);
+        gl.readPixels(x, y, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+        return Array.from(pixels);
+      } finally {
+        renderRunning = false;
+        if (wasRunning) startRender();
+      }
     },
     debugShapes: () => ({
       count: shapeCount,
@@ -1143,6 +1136,7 @@ void main() {
     dpr: () => dpr,
     renderRunning: () => renderRunning,
     captureQueued: () => captureQueued,
+    captureCount: () => captureCount,
     frameMs: () => lastFrameMs,
     lastError: null,
     bgTextureHeight: 0,

@@ -15,6 +15,8 @@
 
   const TAB_ORDER = ["公开", "私有", "快捷"];
   const CONTAINER_IDS = ["layout-groups", "services", "bookmarks"];
+  let resizeObserver = null;
+  let resizeTarget = null;
 
   const tabFromName = (name) => {
     if (name.indexOf("公开") !== -1) return "公开";
@@ -60,7 +62,11 @@
         element &&
         element.getBoundingClientRect().width > 0 &&
         getComputedStyle(element).display !== "none" &&
-        getComputedStyle(element).visibility !== "hidden"
+        getComputedStyle(element).visibility !== "hidden" &&
+        element.querySelector(
+          ":scope > .services-group, :scope > .bookmark-group, " +
+            ".service-card, .bookmark > a"
+        )
     ) || null;
 
   // 一趟同步：先清掉旧标记，再按当前可见容器重建 data-glass 集合，
@@ -74,6 +80,15 @@
       });
     const container = findContainer();
     if (!container) return null;
+    if (resizeObserver) {
+      if (resizeTarget && resizeTarget !== container) {
+        resizeObserver.unobserve(resizeTarget);
+      }
+      if (resizeTarget !== container) {
+        resizeObserver.observe(container);
+        resizeTarget = container;
+      }
+    }
     container.setAttribute("data-glass-container", "");
     container
       .querySelectorAll(
@@ -142,15 +157,22 @@
       bar.setAttribute("role", "tablist");
       bar.setAttribute("aria-label", "首页分组");
       bar.addEventListener("keydown", (event) => {
-        if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
         const buttons = Array.from(bar.querySelectorAll(".homepage-tab"));
         if (buttons.length === 0) return;
-        const currentIndex = buttons.findIndex((button) =>
+        let nextIndex = buttons.findIndex((button) =>
           button.classList.contains("active")
         );
-        const delta = event.key === "ArrowRight" ? 1 : -1;
-        const nextIndex =
-          (currentIndex + delta + buttons.length) % buttons.length;
+        if (event.key === "ArrowRight") {
+          nextIndex = (nextIndex + 1) % buttons.length;
+        } else if (event.key === "ArrowLeft") {
+          nextIndex = (nextIndex - 1 + buttons.length) % buttons.length;
+        } else if (event.key === "Home") {
+          nextIndex = 0;
+        } else if (event.key === "End") {
+          nextIndex = buttons.length - 1;
+        } else {
+          return;
+        }
         event.preventDefault();
         buttons[nextIndex].focus();
         buttons[nextIndex].click();
@@ -194,6 +216,7 @@
         button.setAttribute("aria-controls", panelIds);
         button.addEventListener("click", () => {
           document.documentElement.dataset.homepageTab = name;
+          buildTabs(container);
           if (window.HomepageStudioGlass) {
             window.HomepageStudioGlass.scheduleRefresh(true);
           }
@@ -223,9 +246,6 @@
     };
 
     const refreshQuote = async () => {
-      const greeting =
-        document.querySelector(".information-widget-greeting span") ||
-        document.querySelector(".information-widget-greeting");
       const dayKey = localDayKey();
       try {
         let quote = null;
@@ -282,15 +302,18 @@
   };
 
   const buildStatusBar = () => {
-    if (document.getElementById("homepage-statusbar")) return;
-
-    const bar = document.createElement("div");
-    bar.id = "homepage-statusbar";
+    let bar = document.getElementById("homepage-statusbar");
+    if (!bar) {
+      bar = document.createElement("div");
+      bar.id = "homepage-statusbar";
+    }
+    if (!statusBarReady) {
     const time = document.createElement("span");
     time.className = "homepage-status-time";
 
     const icons = document.createElement("span");
     icons.className = "homepage-status-icons";
+    icons.setAttribute("aria-hidden", "true");
     const signal = document.createElement("span");
     signal.className = "homepage-status-signal";
     for (let i = 0; i < 4; i += 1) {
@@ -306,9 +329,9 @@
     bar.append(time, icons);
 
     const container = document.querySelector(".container");
-    if (container) {
+    if (container && bar.parentElement !== container) {
       container.insertBefore(bar, container.firstChild);
-    } else {
+    } else if (!container && bar.parentElement !== document.body) {
       document.body.insertBefore(bar, document.body.firstChild);
     }
 
@@ -321,7 +344,11 @@
     };
     updateTime();
     window.setInterval(updateTime, 30000);
+      statusBarReady = true;
+    }
   };
+
+  let statusBarReady = false;
 
   let studioStarted = false;
   let studioLoading = false;
@@ -375,30 +402,39 @@
       }
       return;
     }
-    const container = syncDom();
-    const root = document.getElementById("inner_wrapper") || container;
-    const ok = window.HomepageStudioGlass.start({
-      root,
-      targetFn: () => Array.from(document.querySelectorAll("[data-glass]")),
-    });
-    studioLoading = false;
-    if (ok) {
-      studioStarted = true;
-      window.HomepageBootstrap = {
-        status: "running",
-        attempts: studioAttempts,
-        error: null,
-        glassContainerCount: document.querySelectorAll("[data-glass-container]").length,
-        glassCount: document.querySelectorAll("[data-glass]").length,
-      };
-    } else if (studioAttempts < MAX_STUDIO_ATTEMPTS) {
-      window.setTimeout(initStudio, 2000 * studioAttempts);
-    } else {
+    try {
+      const container = syncDom();
+      const root = document.getElementById("inner_wrapper") || container;
+      const ok = window.HomepageStudioGlass.start({
+        root,
+        targetFn: () => Array.from(document.querySelectorAll("[data-glass]")),
+      });
+      if (ok) {
+        studioStarted = true;
+        window.HomepageBootstrap = {
+          status: "running",
+          attempts: studioAttempts,
+          error: null,
+          glassContainerCount: document.querySelectorAll("[data-glass-container]").length,
+          glassCount: document.querySelectorAll("[data-glass]").length,
+        };
+      } else if (studioAttempts < MAX_STUDIO_ATTEMPTS) {
+        window.setTimeout(initStudio, 2000 * studioAttempts);
+      } else {
+        window.HomepageBootstrap = {
+          status: "start-failed",
+          attempts: studioAttempts,
+          error: "WebGL2 or html2canvas unavailable",
+        };
+      }
+    } catch (error) {
       window.HomepageBootstrap = {
         status: "start-failed",
         attempts: studioAttempts,
-        error: "WebGL2 or html2canvas unavailable",
+        error: error.message,
       };
+    } finally {
+      studioLoading = false;
     }
   };
 
@@ -424,6 +460,13 @@
   };
 
   ready(() => {
+    resizeObserver = new ResizeObserver(() => {
+      if (layoutTimer) window.clearTimeout(layoutTimer);
+      layoutTimer = window.setTimeout(() => {
+        layoutTimer = 0;
+        ensureLayout();
+      }, 120);
+    });
     buildStatusBar();
     moveSearch();
     dailyQuote();
@@ -434,20 +477,9 @@
     layoutObserver.observe(document.body, {
       childList: true,
       subtree: true,
-      characterData: true,
       attributes: true,
       attributeFilter: ["data-tab-group", "class"],
     });
-
-    const resizeObserver = new ResizeObserver(() => {
-      if (layoutTimer) window.clearTimeout(layoutTimer);
-      layoutTimer = window.setTimeout(() => {
-        layoutTimer = 0;
-        ensureLayout();
-      }, 120);
-    });
-    const container = findContainer();
-    if (container) resizeObserver.observe(container);
 
     const onSearchInput = () => {
       if (window.HomepageStudioGlass) {
@@ -460,6 +492,21 @@
       }
     });
 
+    document.addEventListener(
+      "pointerover",
+      (event) => {
+        if (
+          event.target &&
+          event.target.closest &&
+          event.target.closest("[data-glass]") &&
+          window.HomepageStudioGlass
+        ) {
+          window.HomepageStudioGlass.scheduleRefresh(false);
+        }
+      },
+      { passive: true }
+    );
+
     window.setInterval(() => {
       if (!document.hidden && window.HomepageStudioGlass) {
         window.HomepageStudioGlass.scheduleRefresh(true);
@@ -467,8 +514,11 @@
           typeof window.HomepageStudioGlass.statusText === "function"
             ? window.HomepageStudioGlass.statusText()
             : "unknown";
-        if (window.HomepageBootstrap && currentStatus !== "running") {
+        if (window.HomepageBootstrap) {
           window.HomepageBootstrap.status = currentStatus;
+          if (currentStatus === "running") {
+            window.HomepageBootstrap.error = null;
+          }
         }
       }
     }, 30000);

@@ -109,8 +109,26 @@ in
       # loadScript integrity 与 THIRD_PARTY_NOTICES；升级时必须三处同步。
       assertion = lib.hasInfix
         "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM="
-        (builtins.readFile ./assets/js/homepage-orchestrator.js);
+        (builtins.readFile ./assets/js/homepage-orchestrator.js)
+        && lib.hasInfix "1.5.8" (builtins.readFile ./THIRD_PARTY_NOTICES.md)
+        && lib.hasInfix "html2canvas-pro@1.5.8"
+          (builtins.readFile ./default.nix);
       message = "homepage-orchestrator.js vendor SRI must match default.nix fetchurl";
+    }
+    {
+      # 公共模块 vhost 是 locations 的宿主；主机模块只在其上挂资产路由。
+      assertion = let
+        vhosts = config.lantian.nginxVhosts;
+      in lib.all (name:
+        vhosts ? ${name}
+        && vhosts.${name}.locations ? "/api/config/"
+        && vhosts.${name}.locations ? "/homepage-assets/js/"
+        && vhosts.${name}.locations ? "/homepage-assets/vendor/"
+      ) [
+        "homepage.${config.networking.hostName}.zhyi.cc"
+        "homepage.localhost"
+      ];
+      message = "homepage nginx vhosts must keep the glass asset locations";
     }
   ];
 
@@ -119,6 +137,10 @@ in
     vendorHtml2Canvas;
   environment.etc."homepage-dashboard/assets/vendor/html2canvas-pro-LICENSE.txt".source =
     ./assets/vendor/html2canvas-pro-LICENSE.txt;
+  environment.etc."homepage-dashboard/assets/vendor/THIRD_PARTY_NOTICES.md".source =
+    ./THIRD_PARTY_NOTICES.md;
+  environment.etc."homepage-dashboard/assets/vendor/liquid-glass-studio-LICENSE.txt".source =
+    ./LICENSE;
 
   lantian.nginxVhosts = {
     "homepage.${config.networking.hostName}.zhyi.cc" = {
