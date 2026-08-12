@@ -43,7 +43,7 @@ const float GLARE_CONVERGENCE = 0.5;
 const float GLARE_OPPOSITE = 0.8;
 const float GLARE_ANGLE = -0.785398;
 const float BALL_RADIUS = 33.0;
-const float TINT = 0.06;
+const float TINT = 0.02;
 
 float sdCircle(vec2 p, float r) {
   return length(p) - r;
