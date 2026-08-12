@@ -49,10 +49,10 @@ float sdCircle(vec2 p, float r) {
   return length(p) - r;
 }
 
-float sdRoundRect(vec2 p, vec2 half, float r) {
-  vec2 d = abs(p) - half;
+float sdRoundRect(vec2 p, vec2 halfSize, float r) {
+  vec2 d = abs(p) - halfSize;
   if (d.x > -r && d.y > -r) {
-    vec2 c = abs(p) - (half - vec2(r));
+    vec2 c = abs(p) - (halfSize - vec2(r));
     float n = 4.0;
     float v = pow(pow(max(c.x, 0.0), n) + pow(max(c.y, 0.0), n), 1.0 / n);
     return v - r;
@@ -75,8 +75,8 @@ float mergedSDF(vec2 p) {
   for (int i = 0; i < MAX_SHAPES; i++) {
     if (i >= u_shapeCount) break;
     vec2 center = u_shapes[i].xy + u_shapes[i].zw * 0.5;
-    vec2 half = u_shapes[i].zw * 0.5;
-    d = min(d, sdRoundRect(p - center, half, u_radii[i]));
+    vec2 halfSize = u_shapes[i].zw * 0.5;
+    d = min(d, sdRoundRect(p - center, halfSize, u_radii[i]));
   }
   float ball = sdCircle(p - u_mouseSpring, BALL_RADIUS * u_dpr);
   d = smin(d, ball, u_mergeRate * u_resolution.y);
