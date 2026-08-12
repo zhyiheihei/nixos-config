@@ -31,7 +31,7 @@ let
     # that caused NIC rx_missed/retransmits under multi-flow load.  Pin each
     # queue IRQ to its matching CPU instead and disable irqbalance below.
     for dev in eth0 eth1; do
-      for q in $(seq 0 $((queueCount - 1))); do
+      for q in $(seq 0 $(( ${toString queueCount} - 1 ))); do
         irq=$(
           awk -v dev="$dev" -v q="$q" \
             '$NF == dev "-" q { sub(":", "", $1); print $1 }' \
@@ -47,7 +47,7 @@ let
       for q in /sys/class/net/$dev/queues/rx-*; do
         if [ -e "$q/rps_cpus" ]; then
           echo f > "$q/rps_cpus"
-          echo ${flowEntriesPerQueue} > "$q/rps_flow_cnt"
+          echo ${toString flowEntriesPerQueue} > "$q/rps_flow_cnt"
         fi
       done
       for q in /sys/class/net/$dev/queues/tx-*; do
