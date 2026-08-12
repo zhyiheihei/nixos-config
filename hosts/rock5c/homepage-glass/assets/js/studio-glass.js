@@ -397,6 +397,7 @@ void main() {
   let lastInteraction = Date.now();
   let dpr = 1;
   let rafId = 0;
+  let idleTimer = 0;
   let getTargets = null;
   let uniformLocations = null;
   let renderRunning = false;
@@ -629,13 +630,26 @@ void main() {
       !document.hidden &&
       (!reducedMotion || Date.now() - lastInteraction < 1500)
     ) {
-      rafId = window.requestAnimationFrame(render);
+      if (Date.now() - lastInteraction < 2500) {
+        rafId = window.requestAnimationFrame(render);
+      } else {
+        renderRunning = false;
+        if (idleTimer) window.clearTimeout(idleTimer);
+        idleTimer = window.setTimeout(() => {
+          idleTimer = 0;
+          if (!renderRunning) startRender();
+        }, 2000);
+      }
     } else {
       renderRunning = false;
     }
   };
 
   const startRender = () => {
+    if (idleTimer) {
+      window.clearTimeout(idleTimer);
+      idleTimer = 0;
+    }
     if (!renderRunning) {
       renderRunning = true;
       rafId = window.requestAnimationFrame(render);
@@ -774,6 +788,21 @@ void main() {
     }
   };
 
+  const paintPageOverlays = (ctx, width, height) => {
+    const darkTop = ctx.createLinearGradient(0, 0, 0, height);
+    darkTop.addColorStop(0, "rgba(90,120,255,0.10)");
+    darkTop.addColorStop(0.28, "rgba(90,120,255,0)");
+    darkTop.addColorStop(1, "rgba(90,120,255,0)");
+    ctx.fillStyle = darkTop;
+    ctx.fillRect(0, 0, width, height);
+    const darkBottom = ctx.createLinearGradient(0, 0, 0, height);
+    darkBottom.addColorStop(0, "rgba(5,8,14,0)");
+    darkBottom.addColorStop(0.86, "rgba(5,8,14,0.52)");
+    darkBottom.addColorStop(1, "rgba(5,8,14,0.52)");
+    ctx.fillStyle = darkBottom;
+    ctx.fillRect(0, 0, width, height);
+  };
+
   const makeTexture = (source) => {
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
@@ -809,7 +838,9 @@ void main() {
     const placeholder = document.createElement("canvas");
     placeholder.width = width;
     placeholder.height = height;
-    paintPageBackground(placeholder.getContext("2d"), width, height, scale);
+    const pctx = placeholder.getContext("2d");
+    paintPageBackground(pctx, width, height, scale);
+    paintPageOverlays(pctx, width, height);
     captureScale = scale;
 
     const newBg = makeTexture(placeholder);
@@ -878,18 +909,7 @@ void main() {
       ctx.drawImage(bgLayer, 0, 0);
       ctx.filter = "none";
       ctx.drawImage(snapshot, 0, 0);
-      const darkTop = ctx.createLinearGradient(0, 0, 0, out.height);
-      darkTop.addColorStop(0, "rgba(90,120,255,0.10)");
-      darkTop.addColorStop(0.28, "rgba(90,120,255,0)");
-      darkTop.addColorStop(1, "rgba(90,120,255,0)");
-      ctx.fillStyle = darkTop;
-      ctx.fillRect(0, 0, out.width, out.height);
-      const darkBottom = ctx.createLinearGradient(0, 0, 0, out.height);
-      darkBottom.addColorStop(0, "rgba(5,8,14,0)");
-      darkBottom.addColorStop(0.86, "rgba(5,8,14,0.52)");
-      darkBottom.addColorStop(1, "rgba(5,8,14,0.52)");
-      ctx.fillStyle = darkBottom;
-      ctx.fillRect(0, 0, out.width, out.height);
+      paintPageOverlays(ctx, out.width, out.height);
 
       if (window.HomepageStudioGlass) {
         window.HomepageStudioGlass.captureStage = "blur";
@@ -922,9 +942,20 @@ void main() {
       return Promise.resolve();
     }
     captureInFlight = true;
+    let hungTimer = window.setTimeout(() => {
+      captureToken += 1;
+      captureInFlight = false;
+      captureQueued = false;
+      status = "capture-failed";
+      if (window.HomepageStudioGlass) {
+        window.HomepageStudioGlass.captureStage = "failed";
+        window.HomepageStudioGlass.lastError = "capture hung";
+      }
+    }, 90000);
     const attempt = async (left) => {
       try {
         await captureBackground();
+        if (hungTimer) window.clearTimeout(hungTimer);
         captureCount += 1;
         status = "running";
         if (window.HomepageStudioGlass) {
@@ -932,6 +963,7 @@ void main() {
           window.HomepageStudioGlass.captureStage = "done";
         }
       } catch (error) {
+        if (hungTimer) window.clearTimeout(hungTimer);
         if (window.HomepageStudioGlass) {
           window.HomepageStudioGlass.captureStage = "failed";
           window.HomepageStudioGlass.lastError = error.message;
@@ -1024,6 +1056,10 @@ void main() {
         document.body.appendChild(canvas);
 
         const onPointer = (event) => {
+          if (idleTimer) {
+            window.clearTimeout(idleTimer);
+            idleTimer = 0;
+          }
           mouse.x = event.clientX;
           mouse.y = event.clientY;
           lastTick = performance.now();
@@ -1039,6 +1075,10 @@ void main() {
             if (scrollRaf) return;
             scrollRaf = window.requestAnimationFrame(() => {
               scrollRaf = 0;
+              if (idleTimer) {
+                window.clearTimeout(idleTimer);
+                idleTimer = 0;
+              }
               lastInteraction = Date.now();
               startRender();
             });
@@ -1051,6 +1091,10 @@ void main() {
             if (resizeTimer) window.clearTimeout(resizeTimer);
             resizeTimer = window.setTimeout(() => {
               resizeTimer = 0;
+              if (idleTimer) {
+                window.clearTimeout(idleTimer);
+                idleTimer = 0;
+              }
               dpr = window.devicePixelRatio || 1;
               lastInteraction = Date.now();
               refreshShapes();
@@ -1081,6 +1125,10 @@ void main() {
           if (document.hidden) {
             renderRunning = false;
           } else {
+            if (idleTimer) {
+              window.clearTimeout(idleTimer);
+              idleTimer = 0;
+            }
             lastInteraction = Date.now();
             startRender();
           }

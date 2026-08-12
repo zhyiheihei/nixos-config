@@ -6,6 +6,13 @@
   ...
 }:
 let
+  bootstrapJs = ''
+    (() => {
+      const script = document.createElement("script");
+      script.src = "/homepage-assets/js/homepage-orchestrator.js";
+      document.head.appendChild(script);
+    })();
+  '';
   vendorHtml2Canvas = pkgs.fetchurl {
     url = "https://cdn.jsdelivr.net/npm/html2canvas-pro@1.5.8/dist/html2canvas-pro.min.js";
     hash = "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM=";
@@ -45,13 +52,7 @@ in
 
     # 仅保留 WebGL 玻璃层，CSS/JS 均由本模块提供。
     customCSS = lib.mkForce (builtins.readFile ./homepage.css);
-    customJS = lib.mkForce ''
-      (() => {
-        const script = document.createElement("script");
-        script.src = "/homepage-assets/js/homepage-orchestrator.js";
-        document.head.appendChild(script);
-      })();
-    '';
+    customJS = lib.mkForce bootstrapJs;
 
     # secrets 的 search widget 与公共模块的 greeting/datetime/openmeteo
     # 保留不动，这里只追加 rock5c 专属的资源监控卡。
@@ -100,8 +101,7 @@ in
       assertion =
         config.services.homepage-dashboard.customCSS
         == builtins.readFile ./homepage.css
-        && lib.hasInfix "homepage-orchestrator.js"
-          config.services.homepage-dashboard.customJS;
+        && config.services.homepage-dashboard.customJS == bootstrapJs;
       message = "homepage-dashboard customCSS/customJS must stay owned by hosts/rock5c/homepage-glass";
     }
     {
@@ -112,6 +112,9 @@ in
         (builtins.readFile ./assets/js/homepage-orchestrator.js)
         && lib.hasInfix "1.5.8" (builtins.readFile ./THIRD_PARTY_NOTICES.md)
         && lib.hasInfix "html2canvas-pro@1.5.8"
+          (builtins.readFile ./default.nix)
+        && lib.hasInfix
+          "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM="
           (builtins.readFile ./default.nix);
       message = "homepage-orchestrator.js vendor SRI must match default.nix fetchurl";
     }
@@ -121,9 +124,16 @@ in
         vhosts = config.lantian.nginxVhosts;
       in lib.all (name:
         vhosts ? ${name}
+        && vhosts.${name}.locations ? "/"
+        && vhosts.${name}.locations ? "/icons-custom/"
         && vhosts.${name}.locations ? "/api/config/"
         && vhosts.${name}.locations ? "/homepage-assets/js/"
         && vhosts.${name}.locations ? "/homepage-assets/vendor/"
+        && vhosts.${name}.locations."/homepage-assets/vendor/".allowCORS == true
+        && vhosts.${name}.locations."/homepage-assets/js/".alias
+          == "/etc/homepage-dashboard/assets/js/"
+        && vhosts.${name}.locations."/homepage-assets/vendor/".alias
+          == "/etc/homepage-dashboard/assets/vendor/"
       ) [
         "homepage.${config.networking.hostName}.zhyi.cc"
         "homepage.localhost"
