@@ -50,7 +50,7 @@ in
       statusStyle = lib.mkForce "dot";
     };
 
-    # 仅保留 WebGL 玻璃层，CSS/JS 均由本模块提供。
+    # 仅保留 WebGPU 玻璃层，CSS/JS 均由本模块提供。
     customCSS = lib.mkForce (builtins.readFile ./homepage.css);
     customJS = lib.mkForce bootstrapJs;
 
@@ -107,16 +107,34 @@ in
     {
       # html2canvas-pro 版本/SRI 同时出现在 default.nix、orchestrator 的
       # loadScript integrity 与 THIRD_PARTY_NOTICES；升级时必须三处同步。
+      # SRI 哈希本身三处强制（orchestrator + notices + default.nix）。
       assertion = lib.hasInfix
         "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM="
         (builtins.readFile ./assets/js/homepage-orchestrator.js)
+        && lib.hasInfix
+          "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM="
+          (builtins.readFile ./THIRD_PARTY_NOTICES.md)
         && lib.hasInfix "1.5.8" (builtins.readFile ./THIRD_PARTY_NOTICES.md)
         && lib.hasInfix "html2canvas-pro@1.5.8"
           (builtins.readFile ./default.nix)
         && lib.hasInfix
           "sha256-Vv/S7gkGXkDiEGi19tbFIzccVh/PxqBKcYbE1H5mEPM="
           (builtins.readFile ./default.nix);
-      message = "homepage-orchestrator.js vendor SRI must match default.nix fetchurl";
+      message = "html2canvas-pro SRI must match across default.nix / orchestrator / THIRD_PARTY_NOTICES";
+    }
+    {
+      # assets/js 整目录由 vhost alias 服务；WebGPU 后端由 studio-glass.js
+      # 运行时加载，若误删文件构建不会失败但线上会静默降级。用 readDir
+      # 断言关键文件必须在场。
+      assertion = let
+        jsFiles = builtins.attrNames (builtins.readDir ./assets/js);
+        required = [
+          "homepage-orchestrator.js"
+          "studio-glass.js"
+          "studio-glass-webgpu.js"
+        ];
+      in lib.all (f: builtins.elem f jsFiles) required;
+      message = "hosts/rock5c/homepage-glass/assets/js must keep the orchestrator and both glass backends";
     }
     {
       # 公共模块 vhost 是 locations 的宿主；主机模块只在其上挂资产路由。

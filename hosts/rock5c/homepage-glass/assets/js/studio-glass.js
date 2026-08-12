@@ -10,7 +10,6 @@
 
   const MAX_SHAPES = 128;
   const BALL_RADIUS_CSS = 100;
-  const BLUR_RADIUS = 1;
   const SHAPE_ROUNDNESS = 5;
   const MERGE_RATE = 0.05;
   const CARD_MERGE_RATE = 0.008;
@@ -233,85 +232,6 @@
     mouseSpring.y += mouseVelocity.y * dt;
   };
 
-  const gaussianKernel = (radius) => {
-    const sigma = radius / 3.0;
-    const kernel = [];
-    let sum = 0;
-    for (let i = 0; i <= radius; i++) {
-      const weight = Math.exp((-0.5 * i * i) / (sigma * sigma));
-      kernel.push(weight);
-      sum += i === 0 ? weight : weight * 2;
-    }
-    return kernel.map((w) => w / sum);
-  };
-
-  const twoPassBlur = (source, radius) => {
-    const weights = gaussianKernel(radius);
-    const width = source.width;
-    const height = source.height;
-    const src = source.getContext("2d", { willReadFrequently: true });
-    const image = src.getImageData(0, 0, width, height);
-    const data = image.data;
-    const horizontal = new Uint8ClampedArray(data);
-    const vertical = new Uint8ClampedArray(data);
-
-    for (let y = 0; y < height; y++) {
-      const row = y * width * 4;
-      for (let x = 0; x < width; x++) {
-        let r = 0;
-        let g = 0;
-        let b = 0;
-        let a = 0;
-        for (let i = -radius; i <= radius; i++) {
-          const xi = Math.min(width - 1, Math.max(0, x + i));
-          const o = row + xi * 4;
-          const w = weights[Math.abs(i)];
-          r += data[o] * w;
-          g += data[o + 1] * w;
-          b += data[o + 2] * w;
-          a += data[o + 3] * w;
-        }
-        const o = row + x * 4;
-        horizontal[o] = r;
-        horizontal[o + 1] = g;
-        horizontal[o + 2] = b;
-        horizontal[o + 3] = a;
-      }
-    }
-
-    for (let y = 0; y < height; y++) {
-      const row = y * width * 4;
-      for (let x = 0; x < width; x++) {
-        let r = 0;
-        let g = 0;
-        let b = 0;
-        let a = 0;
-        for (let i = -radius; i <= radius; i++) {
-          const yi = Math.min(height - 1, Math.max(0, y + i));
-          const o = yi * width * 4 + x * 4;
-          const w = weights[Math.abs(i)];
-          r += horizontal[o] * w;
-          g += horizontal[o + 1] * w;
-          b += horizontal[o + 2] * w;
-          a += horizontal[o + 3] * w;
-        }
-        const o = row + x * 4;
-        vertical[o] = r;
-        vertical[o + 1] = g;
-        vertical[o + 2] = b;
-        vertical[o + 3] = a;
-      }
-    }
-
-    const output = document.createElement("canvas");
-    output.width = width;
-    output.height = height;
-    output
-      .getContext("2d")
-      .putImageData(new ImageData(vertical, width, height), 0, 0);
-    return output;
-  };
-
   const paintPageBackground = (ctx, width, height, scale = 1) => {
     const gradient = ctx.createLinearGradient(0, 0, 0, height);
     gradient.addColorStop(0, "#0b1020");
@@ -378,7 +298,7 @@
 
     if (window.HomepageGlassWebGPU) {
       updateGlassState();
-      window.HomepageGlassWebGPU.setTextures(placeholder, placeholder);
+      window.HomepageGlassWebGPU.setTextures(placeholder);
     }
     if (window.HomepageStudioGlass) {
       window.HomepageStudioGlass.bgTextureHeight = height;
@@ -418,7 +338,9 @@
       backgroundColor: null,
       logging: false,
     }).then((snapshot) => {
-      if (token !== captureToken) return;
+      // false signals the capture was superseded (hang timer or a newer
+      // capture); runCapture must not update state in that case.
+      if (token !== captureToken) return false;
       if (window.HomepageStudioGlass) {
         window.HomepageStudioGlass.captureStage = "composite";
       }
@@ -443,15 +365,13 @@
       paintPageOverlays(ctx, out.width, out.height);
 
       if (window.HomepageStudioGlass) {
-        window.HomepageStudioGlass.captureStage = "blur";
-      }
-      const blurOut = twoPassBlur(out, BLUR_RADIUS);
-      if (window.HomepageStudioGlass) {
         window.HomepageStudioGlass.captureStage = "upload";
       }
       if (window.HomepageGlassWebGPU) {
         updateGlassState();
-        window.HomepageGlassWebGPU.setTextures(out, blurOut);
+        // The GPU blur pass (hblur/vblur) derives the blurred layer from the
+        // same bg texture, so the CPU two-pass blur is not needed here.
+        window.HomepageGlassWebGPU.setTextures(out);
       }
       captureScale = out.width / rootWidth;
       if (window.HomepageStudioGlass) {
@@ -462,6 +382,7 @@
         window.HomepageStudioGlass.captureMs = performance.now() - captureStart;
         window.HomepageStudioGlass.captureScale = captureScale;
       }
+      return true;
     });
   };
 
@@ -483,14 +404,20 @@
     }, 90000);
     const attempt = async (left) => {
       try {
-        await captureBackground();
+        const ok = await captureBackground();
         if (hungTimer) window.clearTimeout(hungTimer);
+        if (ok === false) {
+          // Superseded by the hang timer: it already reset the flags, and a
+          // newer capture may own captureInFlight. Do not touch state here.
+          return "superseded";
+        }
         captureCount += 1;
         status = "running";
         if (window.HomepageStudioGlass) {
           window.HomepageStudioGlass.lastError = null;
           window.HomepageStudioGlass.captureStage = "done";
         }
+        return "done";
       } catch (error) {
         if (hungTimer) window.clearTimeout(hungTimer);
         if (window.HomepageStudioGlass) {
@@ -505,9 +432,11 @@
         }
         console.warn("studio glass capture failed", error);
         status = "capture-failed";
+        return "failed";
       }
     };
-    return attempt(3).then(() => {
+    return attempt(3).then((result) => {
+        if (result === "superseded") return;
         captureInFlight = false;
         if (captureQueued) {
           captureQueued = false;
@@ -517,6 +446,11 @@
   };
 
   const scheduleRefresh = (recapture) => {
+    // Nothing to refresh before start(): shape/hover/30s recapture must not
+    // run html2canvas while the backend is unavailable (start failed) or not
+    // yet initialized, otherwise every interaction pays for a discarded
+    // full-page capture.
+    if (!started) return;
     if (recapture) {
       if (recaptureTimer) window.clearTimeout(recaptureTimer);
       recaptureTimer = window.setTimeout(() => {
@@ -704,7 +638,6 @@
   window.HomepageStudioGlass = {
     start,
     scheduleRefresh,
-    probe: () => null, // WebGPU canvas has no synchronous readback; debug via status()
     debugShapes: () => ({
       count: shapeCount,
       shapes: shapeArray

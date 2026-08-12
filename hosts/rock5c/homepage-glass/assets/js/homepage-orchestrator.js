@@ -338,7 +338,10 @@
       });
     };
     updateTime();
-    window.setInterval(updateTime, 30000);
+    // Rebuilds only happen for an empty bar, but the old interval must not
+    // keep driving a detached <span> forever.
+    if (statusTimer) window.clearInterval(statusTimer);
+    statusTimer = window.setInterval(updateTime, 30000);
       statusBarReady = true;
     }
 
@@ -351,6 +354,7 @@
   };
 
   let statusBarReady = false;
+  let statusTimer = null;
 
   let studioStarted = false;
   let studioLoading = false;
@@ -435,6 +439,9 @@
         attempts: studioAttempts,
         error: error.message,
       };
+      if (studioAttempts < MAX_STUDIO_ATTEMPTS) {
+        window.setTimeout(initStudio, 2000 * studioAttempts);
+      }
     } finally {
       studioLoading = false;
     }
@@ -540,9 +547,15 @@
             ? window.HomepageStudioGlass.statusText()
             : "unknown";
         if (window.HomepageBootstrap) {
-          window.HomepageBootstrap.status = currentStatus;
-          if (currentStatus === "running") {
-            window.HomepageBootstrap.error = null;
+          // Terminal failure states (start-failed/stopped/etc.) must not be
+          // overwritten by later studio status updates, otherwise the two
+          // state machines contradict each other on failure semantics.
+          const terminal = ["start-failed", "stopped", "script-failed", "missing-global"];
+          if (!terminal.includes(window.HomepageBootstrap.status)) {
+            window.HomepageBootstrap.status = currentStatus;
+            if (currentStatus === "running") {
+              window.HomepageBootstrap.error = null;
+            }
           }
         }
       }
