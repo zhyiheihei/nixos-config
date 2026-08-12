@@ -1,5 +1,6 @@
 :root {
   --homepage-glass-z: 5;
+  --homepage-bg-overlay-z: 1;
   --homepage-content-z: 10;
   --homepage-widgets-z: 20;
   --homepage-statusbar-z: 30;
@@ -14,6 +15,7 @@ body,
 #__next {
   min-height: 100%;
   background: transparent !important;
+  background-color: transparent !important;
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "PingFang SC", "Helvetica Neue", sans-serif !important;
   -webkit-font-smoothing: antialiased;
 }
@@ -23,14 +25,15 @@ body,
 #background {
   opacity: 1 !important;
   background-image:
-    radial-gradient(1200px 800px at 12% 18%, rgba(120, 150, 255, 0.16), transparent 55%),
-    radial-gradient(900px 700px at 88% 12%, rgba(90, 220, 220, 0.12), transparent 50%),
-    radial-gradient(1000px 900px at 70% 85%, rgba(200, 120, 255, 0.10), transparent 55%),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 34px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.035) 0 1px, transparent 1px 34px),
-    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 8px),
-    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 8px),
+    radial-gradient(1200px 1200px at 12% 18%, rgba(120, 150, 255, 0.16), transparent 55%),
+    radial-gradient(900px 900px at 88% 12%, rgba(90, 220, 220, 0.12), transparent 50%),
+    radial-gradient(1000px 1000px at 70% 85%, rgba(200, 120, 255, 0.10), transparent 55%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 34px),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 8px),
     linear-gradient(180deg, #0b1020, #101a2e 52%, #0a0e18) !important;
+  background-color: #0b1020 !important;
   background-position: center !important;
   background-size: cover !important;
   filter: saturate(1.22) contrast(1.04) brightness(0.96);
@@ -40,7 +43,7 @@ body,
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 1;
+  z-index: var(--homepage-bg-overlay-z);
   pointer-events: none;
   background:
     linear-gradient(180deg, rgba(90, 120, 255, 0.10), transparent 28%),
@@ -138,7 +141,7 @@ body,
 }
 
 #information-widgets {
-  position: static;
+  position: relative;
   z-index: var(--homepage-widgets-z);
   margin: 26px 28px 10px !important;
   padding: 0 !important;
@@ -259,6 +262,8 @@ body,
 /* 单一容器真相：运行时会选中 #layout-groups / #services / #bookmarks
    中实际存在的一个并打上 data-glass-container。 */
 [data-glass-container] {
+  position: relative;
+  z-index: var(--homepage-content-z);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
@@ -308,12 +313,24 @@ body,
   box-shadow: none;
 }
 
+.homepage-tab:focus-visible {
+  outline: 2px solid rgba(140, 165, 255, 0.6);
+  outline-offset: 2px;
+}
+
 [data-glass-container] > [data-tab-group] {
   display: none;
 }
 
 .homepage-single-group > [data-tab-group] {
   grid-column: 1 / -1;
+}
+
+.homepage-single-group .services-list,
+.homepage-single-group .bookmark-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
 }
 
 html[data-homepage-tab="公开"] [data-glass-container] > [data-tab-group="公开"],
@@ -375,7 +392,7 @@ html[data-homepage-tab="快捷"] [data-glass-container] > [data-tab-group="快�
 
 [data-glass-container] .service-card:hover,
 [data-glass-container] .bookmark > a:hover {
-  transform: none;
+  transform: translateY(-1px);
   background: transparent !important;
 }
 
