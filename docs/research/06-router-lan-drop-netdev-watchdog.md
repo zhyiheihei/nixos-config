@@ -47,6 +47,9 @@ r8125 触发 NETDEV WATCHDOG；此前的 link down 主要来自重启、PPPoE �
 - 已按方案 B 准备回滚：`nixos/hardware/nanopi-r5c/default.nix` 移除 r8125、
   恢复主线 r8169；尚未部署/重启。
 - 板卡文档 `docs/hardware/nanopi-r5c.md` 已同步记录本次复现，r8125 A/B 关闭。
+- 2026-08-12 跟进：为追 OpenWrt 高吞吐，重新启用 vendor r8125 的 RSS/多队列
+  构建，并在编译期关闭 ASPM/EEE（NUR 默认全部开启）；计划维护窗口部署复测。
+  若再次出现 NETDEV WATCHDOG，则执行方案 B 永久回滚 r8169。
 
 ## 未完成
 

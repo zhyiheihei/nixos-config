@@ -29,6 +29,22 @@ let
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = ./kernel-config;
   };
+  # OpenWrt's high-throughput r8125-rss build enables RSS and multiple TX
+  # queues; NUR's default disables both.  Disable ASPM/EEE at build time too:
+  # the PHY/PCIe low-power paths were the suspected cause of the earlier
+  # NETDEV WATCHDOG stalls, and OpenWrt builds with CONFIG_ASPM=n.
+  r8125Module = (pkgs.nur-xddxdd.r8125.override {
+    inherit (crossPkgs) stdenv;
+    kernel = r5cKernel;
+  }).overrideAttrs (old: {
+    requiredSystemFeatures = [ "aarch64-cross" ];
+    postPatch = (old.postPatch or "") + ''
+      sed -i 's/^CONFIG_ASPM = y/CONFIG_ASPM = n/' src/Makefile
+      sed -i 's/^ENABLE_EEE = y/ENABLE_EEE = n/' src/Makefile
+      sed -i 's/^ENABLE_MULTIPLE_TX_QUEUE = n/ENABLE_MULTIPLE_TX_QUEUE = y/' src/Makefile
+      sed -i 's/^ENABLE_RSS_SUPPORT = n/ENABLE_RSS_SUPPORT = y/' src/Makefile
+    '';
+  });
   # Keep only the firmware requested by the installed MT7921/BT adapter and
   # RTL8125 NICs instead of retaining the complete linux-firmware package
   # (roughly 800 MiB) in every R5C system closure.
@@ -101,20 +117,18 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 
   boot = {
-    # Match Armbian's NanoPi R5C support and use the in-tree r8169 driver for
-    # both RTL8125 NICs.  The 2026-08-11 LAN drop reproduced the vendor r8125
-    # TX queue stall (NETDEV WATCHDOG) already documented in
-    # docs/hardware/nanopi-r5c.md, so the r8125 A/B is closed.
+    # Use the vendor r8125 driver with RSS and multiple TX queues, matching
+    # OpenWrt's kmod-r8125-rss recipe.  ASPM/EEE are compiled out to avoid the
+    # PHY/PCIe low-power paths behind the earlier NETDEV WATCHDOG stall.
     initrd.availableKernelModules = lib.mkForce [ ];
     initrd.kernelModules = lib.mkForce [ ];
     kernelModules = lib.mkForce [
       "ledtrig_netdev"
-      "r8169"
+      "r8125"
       "rtc_rk808"
     ];
-    # In-tree drivers only; keep the initrd and closure free of out-of-tree
-    # vendor modules.
-    extraModulePackages = lib.mkForce [ ];
+    blacklistedKernelModules = lib.mkForce [ "r8169" ];
+    extraModulePackages = lib.mkForce [ r8125Module ];
     kernelParams = [
       # The uart8250 earlycon parser must not be given the baud rate here; doing
       # so hides all output after U-Boot's "Starting kernel ..." line.

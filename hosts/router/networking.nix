@@ -45,8 +45,8 @@
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStart = [
-        "${pkgs.ethtool}/bin/ethtool --set-eee eth0 eee off"
-        "${pkgs.ethtool}/bin/ethtool --set-eee eth1 eee off"
+        "-${pkgs.ethtool}/bin/ethtool --set-eee eth0 eee off"
+        "-${pkgs.ethtool}/bin/ethtool --set-eee eth1 eee off"
       ];
     };
   };
