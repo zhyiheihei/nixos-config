@@ -46,6 +46,8 @@ let
       sed -i 's/^ENABLE_EEE = y/ENABLE_EEE = n/' src/Makefile
       sed -i 's/^ENABLE_MULTIPLE_TX_QUEUE = n/ENABLE_MULTIPLE_TX_QUEUE = y/' src/Makefile
       sed -i 's/^ENABLE_RSS_SUPPORT = n/ENABLE_RSS_SUPPORT = y/' src/Makefile
+      grep -q 'netif_get_num_default_rss_queues()' src/r8125_n.c \
+        || { echo "r8125 RSS queue call missing; queue patch would silently no-op" >&2; exit 1; }
       sed -i 's/netif_get_num_default_rss_queues()/num_online_cpus()/' src/r8125_n.c
     '';
   });

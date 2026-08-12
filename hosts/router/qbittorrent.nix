@@ -80,6 +80,8 @@ in
 
   systemd.services.qbittorrent = {
     unitConfig.ConditionPathExists = activationMarker;
+    after = [ "var-lib.mount" ];
+    requires = [ "var-lib.mount" ];
     preStart = lib.mkAfter qbitPreStart;
   };
 }

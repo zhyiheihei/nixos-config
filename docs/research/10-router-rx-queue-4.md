@@ -32,21 +32,22 @@
 - `nixos/hardware/nanopi-r5c/default.nix`：r8125 `postPatch` 增加
   `sed -i 's/netif_get_num_default_rss_queues()/num_online_cpus()/' src/r8125_n.c`。
 - `hosts/router/performance.nix`：
-  `net.core.rps_sock_flow_entries` 16384 → 32768，
+  `net.core.rps_sock_flow_entries` 16384 → 65536，
   `net.core.flow_limit_table_len` 8192 → 16384，匹配 4 队列 × 8192 流深；
   关闭 irqbalance，`router-rps` 把 eth0/eth1 的 queue 0-3 中断钉到 CPU 0-3；
-  `net.core.netdev_budget` 600 → 1200、`budget_usecs` 20000 → 30000。
+  `net.core.netdev_budget` 600 → 1200、`budget_usecs` 20000 → 30000；
+  `router-rps` 同时维护 mq + 每队列 `fq_codel`，并每分钟重断言 qdisc/亲和/
+  RPS/XPS，避免 r8125 驱动重置后静默退化。
 - `hosts/router/qbittorrent.nix`：`Session\AsyncIOThreadsCount=4`、
   `Session\DiskCacheSize=256`、`Session\DiskCacheTTL=60`，限制 4 核 router 上
-  的 torrent IO 资源占用。
+  的 torrent IO 资源占用；服务显式依赖 `var-lib.mount`，避免持久化挂载未就绪
+  时写入 tmpfs。
 - `hosts/router/flowtable.nix`：flowtable 前向规则改为只卸载 WAN 流量
-  （`iifname "ppp0"` 与 `iifname "br-lan" oifname != "br-lan"`），跳过
-  br-lan → br-lan hairpin；自愈脚本改为管理多条 flow-add 规则。
-- `hosts/router/performance.nix`：新增 `router-qdisc` 服务，把 eth0 根 qdisc
-  设为 `fq_codel`，降低 LAN 出口 TCP 乱序/重传。
-- `hosts/router/configuration.nix`：Colmena 目标改为
-  `192.168.0.1:2222`（`mkForce` 覆盖公共模块的 `router.zhyi.cc`），避免
-  LTNET/ZeroTier 路径触发 sshd per-source 惩罚导致 apply 反复断连。
+  （`iifname "ppp0"` 与 `iifname "br-lan" oifname "ppp0"`），跳过
+  br-lan → br-lan hairpin；自愈脚本只维护带 `router-flowtable` 注释的规则。
+- `hosts/router/host.nix`：`hostname = "192.168.0.1"`，让公共
+  `colmena-deployment.nix` 直接派生 Colmena 目标，避免 LTNET/ZeroTier 路径
+  触发 sshd per-source 惩罚导致 apply 反复断连。
 
 ## 实机验收（2026-08-12）
 
@@ -73,7 +74,7 @@
 - OPI5P 经 router hairpin NAT 转发：P1 约 1.99 Gbit/s，P8 2.31 Gbit/s，
   P16 2.28 Gbit/s；多流下重传较多，但聚合吞吐仍接近 2.3G。
 
-## flowtable 丢包 A/B（OPI5P hairpin P16，20 秒）
+## flowtable 丢包 A/B（OPI5P hairpin P16，10 秒）
 
 - 以下为 5 轮（每轮 10 秒）中位数：
   - 无 flowtable：2.255 Gbit/s，sender 重传 79973。
@@ -87,7 +88,7 @@
 ## fq_codel qdisc A/B（OPI5P hairpin P16，5 轮中位数）
 
 - `mq` + `pfifo_fast`（原配置）：2.293 Gbit/s，sender 重传 51041。
-- `fq_codel`（已落地）：2.326 Gbit/s，sender 重传 23269。
+- `mq` + 每队列 `fq_codel`（已落地）：2.326 Gbit/s，sender 重传 23269。
 - 结论：`fq_codel` 在吞吐略升的同时把重传中位数再降约 54%，是当前最有效的
   单变量改进；内核未启用 `fq`，`fq_codel`/`cake` 为内建可用项。
 
@@ -108,13 +109,18 @@
   收益应集中在 CPU 饱和的 NAT/WAN 场景。
 - nft-fullcone：仅支持 UDP，且调研文档记录有安全回归风险。
 - SFE / BCM fullcone：调研结论明确不建议复刻。
+- NAPI `1200/30000`：已消除 WAN rx_missed，但未做 DNS/ICMP 延迟对照；上线后
+  需监控 softirq 与 DNS 延迟。
+- qBittorrent 三个 IO 参数是打包 A/B，不是单变量隔离；升级 qBittorrent 前应
+  重新核对该版本配置键。
 
 ## 验收预期
 
 - `ethtool -l eth0/eth1`：RX 4 / TX 2。
 - `ethtool -x eth0/eth1`：indirection table 覆盖 queue 0-3。
 - `/proc/interrupts`：eth0/eth1 的 queue 0-3 中断随流量增长。
-- `sysctl net.core.rps_sock_flow_entries`：32768；四个 `rx-*` 的
+- `sysctl net.core.rps_sock_flow_entries`：65536（双网卡 × 4 队列 × 8192）；
+  四个 `rx-*` 的
   `rps_cpus=f`、`rps_flow_cnt=8192`。
 - iperf 多连接对照：并发吞吐应不低于 2 队列基线；单连接仍受源站/ISP 与单核
   路径限制，不以 4 队列作为单流线速的依据。
