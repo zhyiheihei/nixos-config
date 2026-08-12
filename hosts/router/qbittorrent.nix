@@ -24,6 +24,9 @@ let
     sed -i '/^Session\\InterfaceName=/d' "$conf"
     sed -i '/^Session\\InterfaceAddress=/d' "$conf"
     sed -i '/^Session\\GlobalDLSpeedLimit=/d' "$conf"
+    sed -i '/^Session\\AsyncIOThreadsCount=/d' "$conf"
+    sed -i '/^Session\\DiskCacheSize=/d' "$conf"
+    sed -i '/^Session\\DiskCacheTTL=/d' "$conf"
     sed -i '/^WebUI\\AuthSubnetWhitelistEnabled=/d' "$conf"
     sed -i '/^WebUI\\AuthSubnetWhitelist=/d' "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=${unifiedDownloadPath}/" "$conf"
@@ -35,6 +38,14 @@ let
     # Full broadband throughput requires removing the 10MB/s global download
     # cap that was carried into the migrated runtime config.
     sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalDLSpeedLimit=0" "$conf"
+    # qBittorrent defaults to 10 async IO threads and an auto-sized disk
+    # cache; on the 4-core R5C router cap both to keep torrent IO from
+    # starving NAT/softirq work (measured 2026-08-12: load 9-13 -> ~4.6,
+    # WAN rx_missed 0).  Keys verified in qbittorrent release-5.2.3
+    # sessionimpl.cpp.
+    sed -i "/^\[BitTorrent\]$/a Session\\\\AsyncIOThreadsCount=4" "$conf"
+    sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheSize=256" "$conf"
+    sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheTTL=60" "$conf"
     sed -i '/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelistEnabled=true' "$conf"
     sed -i "/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelist=${authSubnetWhitelist}" "$conf"
   '';

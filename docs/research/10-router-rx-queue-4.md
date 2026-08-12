@@ -33,8 +33,27 @@
   `sed -i 's/netif_get_num_default_rss_queues()/num_online_cpus()/' src/r8125_n.c`。
 - `hosts/router/performance.nix`：
   `net.core.rps_sock_flow_entries` 16384 → 32768，
-  `net.core.flow_limit_table_len` 8192 → 16384，匹配 4 队列 × 8192 流深。
-- 提交：`d5392b99`；ml-builder 构建 router toplevel 已通过，待部署重启后验收。
+  `net.core.flow_limit_table_len` 8192 → 16384，匹配 4 队列 × 8192 流深；
+  关闭 irqbalance，`router-rps` 把 eth0/eth1 的 queue 0-3 中断钉到 CPU 0-3；
+  `net.core.netdev_budget` 600 → 1200、`budget_usecs` 20000 → 30000。
+- `hosts/router/qbittorrent.nix`：`Session\AsyncIOThreadsCount=4`、
+  `Session\DiskCacheSize=256`、`Session\DiskCacheTTL=60`，限制 4 核 router 上
+  的 torrent IO 资源占用。
+
+## 实机验收（2026-08-12）
+
+- router 当前代际 57；`ethtool -l eth0/eth1` 均为 RX 4 / TX 2，RSS 表覆盖
+  queue 0-3，四个 `rx-*` 的 `rps_cpus=f`、`rps_flow_cnt=8192`。
+- 关闭 irqbalance 后 queue 中断亲和为 `0,1,2,3`；此前 irqbalance 把它排成
+  `0,3,3,3`，是 rx_missed/多流重传的主要来源之一。
+- NAPI budget A/B（qBittorrent 负载下，20 秒 WAN 采样）：
+  `600/20000`：808386 包、461 Mbit/s、rx_missed 1338；
+  `1200/30000`：918840 包、529 Mbit/s、rx_missed 0。
+- iperf hairpin P4 reverse：亲和修正后 1.40 Gbit/s、重传 284；修正前
+  1.32 Gbit/s、重传 10059。
+- qBittorrent IO 参数生效后系统负载从 9-13 降到约 4.6；WAN 20 秒仍 0 missed。
+- 单连接仍受源站/ISP 与单核路径限制，4 队列与 IRQ 亲和提升的是并发流吞吐，
+  多源聚合仍是单流受限场景下的必要手段。
 
 ## 验收预期
 
@@ -50,4 +69,5 @@
 
 - `nixos/hardware/nanopi-r5c/default.nix`
 - `hosts/router/performance.nix`
+- `hosts/router/qbittorrent.nix`
 - `docs/research/09-router-rss-gigabit-success-case.md`
