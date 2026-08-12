@@ -161,6 +161,84 @@
     }
   };
 
+  const buildStatusBar = () => {
+    if (document.getElementById("homepage-statusbar")) return;
+
+    const bar = document.createElement("div");
+    bar.id = "homepage-statusbar";
+    const time = document.createElement("span");
+    time.className = "homepage-status-time";
+
+    const icons = document.createElement("span");
+    icons.className = "homepage-status-icons";
+    const signal = document.createElement("span");
+    signal.className = "homepage-status-signal";
+    for (let i = 0; i < 4; i += 1) {
+      const barPart = document.createElement("i");
+      signal.appendChild(barPart);
+    }
+    const network = document.createElement("span");
+    network.className = "homepage-status-network";
+    network.textContent = "5G";
+    const battery = document.createElement("span");
+    battery.className = "homepage-status-battery";
+    icons.append(signal, network, battery);
+    bar.append(time, icons);
+
+    const container = document.querySelector(".container");
+    if (container) {
+      container.insertBefore(bar, container.firstChild);
+    } else {
+      document.body.insertBefore(bar, document.body.firstChild);
+    }
+
+    const updateTime = () => {
+      time.textContent = new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+    };
+    updateTime();
+    window.setInterval(updateTime, 30000);
+  };
+
+  const buildClock = () => {
+    const host = document.querySelector(".information-widget-datetime");
+    if (!host) return;
+
+    const render = () => {
+      if (host.querySelector(".hp-clock")) return;
+      const now = new Date();
+      const clock = document.createElement("div");
+      clock.className = "hp-clock";
+      const time = document.createElement("span");
+      time.className = "hp-clock-time";
+      time.textContent = now.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      });
+      const date = document.createElement("span");
+      date.className = "hp-clock-date";
+      date.textContent = now.toLocaleDateString([], {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "long",
+      });
+      clock.append(time, date);
+      host.replaceChildren(clock);
+    };
+
+    render();
+    window.setInterval(render, 30000);
+    const observer = new MutationObserver(() => {
+      if (!host.querySelector(".hp-clock")) render();
+    });
+    observer.observe(host, { childList: true, subtree: true });
+  };
+
   const wrapGlass = (element, options) => {
     if (!element || element.dataset.homepageGlass) return null;
     if (typeof Container === "undefined") return null;
@@ -220,7 +298,9 @@
 
     requestAnimationFrame(() => {
       document
-        .querySelectorAll("#information-widgets .widget-container")
+        .querySelectorAll(
+          "#information-widgets .widget-container:not(.information-widget-datetime)"
+        )
         .forEach((widget) =>
           wrapGlass(widget, { borderRadius: 16, tintOpacity: 0.12 })
         );
@@ -310,6 +390,8 @@
   };
 
   ready(() => {
+    buildStatusBar();
+    buildClock();
     moveSearch();
     dailyQuote();
     ensureLayout();
