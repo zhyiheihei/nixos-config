@@ -196,7 +196,16 @@
 
     // Reconcile buttons so late group renders stay in sync.
     Array.from(bar.querySelectorAll(".homepage-tab")).forEach((button) => {
-      if (!tabs.includes(button.dataset.tab)) button.remove();
+      if (!tabs.includes(button.dataset.tab)) {
+        // Do not strand keyboard focus on a removed button.
+        if (document.activeElement === button) {
+          const fallback = bar.querySelector(
+            '.homepage-tab[data-tab="' + activeTab + '"]'
+          );
+          (fallback || bar).focus();
+        }
+        button.remove();
+      }
     });
     order.forEach((name, index) => {
       let button = bar.querySelector('.homepage-tab[data-tab="' + name + '"]');
@@ -306,6 +315,9 @@
     if (!bar) {
       bar = document.createElement("div");
       bar.id = "homepage-statusbar";
+      // A fresh bar (e.g. React removed the whole node) must get its content
+      // rebuilt too, not just an emptied one.
+      statusBarReady = false;
     } else if (statusBarReady && bar.childElementCount === 0) {
       statusBarReady = false;
     }
@@ -541,11 +553,16 @@
 
     window.setInterval(() => {
       if (!document.hidden && window.HomepageStudioGlass) {
-        window.HomepageStudioGlass.scheduleRefresh(true);
         const currentStatus =
           typeof window.HomepageStudioGlass.statusText === "function"
             ? window.HomepageStudioGlass.statusText()
             : "unknown";
+        // Back off while a capture is failing/hung: skip the periodic
+        // full-page recapture so a wedged html2canvas does not re-queue
+        // every 30s (it already retried 3x with a 90s watchdog).
+        if (currentStatus !== "capture-failed") {
+          window.HomepageStudioGlass.scheduleRefresh(true);
+        }
         if (window.HomepageBootstrap) {
           // Terminal failure states (start-failed/stopped/etc.) must not be
           // overwritten by later studio status updates, otherwise the two

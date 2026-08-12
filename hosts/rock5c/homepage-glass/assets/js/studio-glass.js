@@ -392,17 +392,22 @@
       return Promise.resolve();
     }
     captureInFlight = true;
-    let hungTimer = window.setTimeout(() => {
-      captureToken += 1;
-      captureInFlight = false;
-      captureQueued = false;
-      status = "capture-failed";
-      if (window.HomepageStudioGlass) {
-        window.HomepageStudioGlass.captureStage = "failed";
-        window.HomepageStudioGlass.lastError = "capture hung";
-      }
-    }, 90000);
+    const armHungTimer = () => {
+      if (hungTimer) window.clearTimeout(hungTimer);
+      hungTimer = window.setTimeout(() => {
+        captureToken += 1;
+        captureInFlight = false;
+        captureQueued = false;
+        status = "capture-failed";
+        if (window.HomepageStudioGlass) {
+          window.HomepageStudioGlass.captureStage = "failed";
+          window.HomepageStudioGlass.lastError = "capture hung";
+        }
+      }, 90000);
+    };
+    armHungTimer();
     const attempt = async (left) => {
+      const baseToken = captureToken;
       try {
         const ok = await captureBackground();
         if (hungTimer) window.clearTimeout(hungTimer);
@@ -419,6 +424,13 @@
         }
         return "done";
       } catch (error) {
+        if (baseToken !== captureToken - 1) {
+          // This attempt's capture was invalidated (hang timer fired or a
+          // newer capture started); its failure is stale, so neither update
+          // state nor retry.
+          if (hungTimer) window.clearTimeout(hungTimer);
+          return "superseded";
+        }
         if (hungTimer) window.clearTimeout(hungTimer);
         if (window.HomepageStudioGlass) {
           window.HomepageStudioGlass.captureStage = "failed";
@@ -428,6 +440,9 @@
           await new Promise((resolve) =>
             window.setTimeout(resolve, 2000 * (3 - left + 1))
           );
+          // Re-arm the 90s watchdog for the retry; without it a hung retry
+          // would leave captureInFlight set forever and stall the chain.
+          armHungTimer();
           return attempt(left - 1);
         }
         console.warn("studio glass capture failed", error);
