@@ -4,6 +4,12 @@
   ...
 }:
 {
+  # Colmena should reach this host over the home LAN instead of the LTNET
+  # hostname; the ZeroTier path gets sshd per-source penalties and caused
+  # repeated apply failures.  sshd on this board listens on port 2222 only.
+  deployment.targetHost = "192.168.0.1";
+  deployment.targetPort = 2222;
+
   imports = [
     ../../nixos/minimal.nix
 
