@@ -264,7 +264,10 @@ R5C 的两个 RTL8125 网口使用 vendor `r8125` 驱动，并编译开启 RSS �
 同时关闭 ASPM/EEE，对应 OpenWrt `kmod-r8125-rss` 的高吞吐方案。2026-08-11 曾
 因 r8125 TX queue `NETDEV WATCHDOG` 回滚到主线 `r8169`；2026-08-12 复测确认
 NUR 默认 r8125 没有 RSS、ASPM/EEE 默认开启，因此改用 RSS 版并编译关闭低功耗
-路径后重新启用。若再次复现 WATCHDOG，则按事故记录永久回滚 r8169。
+路径后重新启用。驱动默认跟随内核 `netif_get_num_default_rss_queues()`，4 核
+RK3568 只得到 2 个 RX 队列；本仓库覆写为 `num_online_cpus()` 以启用 4 个 RX
+队列，TX 仍受驱动 2 队列上限约束。若再次复现 WATCHDOG，则按事故记录永久回滚
+r8169。
 
 ```nix
 boot.kernelModules = [ "r8125" ];
