@@ -315,7 +315,9 @@ in
           greencloud) server=greencloud.zhyi.cc; display="🇸🇬 新加坡 GreenCloud" ;;
           tencent) server=tencent.zhyi.cc; display="🇰🇷 韩国 Tencent" ;;
         esac
-        link="vless://$SUBLINK_V2RAY_UUID@$server:443?encryption=none&security=tls&sni=$server&fp=chrome&type=xhttp&path=/ray&host=$server&mode=stream-up#$node"
+        # SublinkPro sets NameMode=link on add, so the LinkName (#fragment)
+        # is what clients see; use the standardized display name there.
+        link="vless://$SUBLINK_V2RAY_UUID@$server:443?encryption=none&security=tls&sni=$server&fp=chrome&type=xhttp&path=/ray&host=$server&mode=stream-up#$display"
         curl_auth -X POST "$api/api/v1/nodes/add" \
           --data-urlencode "link=$link" \
           --data-urlencode "name=$display" \
@@ -323,7 +325,7 @@ in
       done
 
       ids=$(curl_auth "$api/api/v1/nodes/get" \
-        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="hostdare" or .LinkName=="google" or .LinkName=="greencloud" or .LinkName=="tencent") | .ID] | join(",")')
+        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="🇯🇵 日本 HostDare" or .LinkName=="🇺🇸 美国 Google" or .LinkName=="🇸🇬 新加坡 GreenCloud" or .LinkName=="🇰🇷 韩国 Tencent") | .ID] | join(",")')
       if [ -z "$ids" ]; then
         echo "No overseas Xray nodes found after seeding" >&2
         exit 1
