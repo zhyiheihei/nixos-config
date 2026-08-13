@@ -1,8 +1,4 @@
-{
-  lib,
-  LT,
-  ...
-}:
+{ ... }:
 {
   imports = [ ../../nixos/optional-apps/immich-rknn-worker.nix ];
 
@@ -13,16 +9,7 @@
 
   # librknnrt logs a harmless "static shape type" warning on every RKNN model
   # load. Level 0 keeps real E RKNN errors while silencing that W RKNN noise.
+  # The worker's model/image downloads are proxied via the router SOCKS5
+  # endpoint defined in configuration.nix.
   virtualisation.oci-containers.containers.immich-machine-learning-rknn.environment.RKNN_LOG_LEVEL = "0";
-
-  # Route the RKNN worker's model/image downloads through the router SOCKS5
-  # proxy instead of ROCK 5C's own MetaCubeXD mixed port.
-  systemd.services.podman-immich-machine-learning-rknn.environment = {
-    HTTP_PROXY = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    HTTPS_PROXY = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    NO_PROXY = lib.mkForce "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
-    http_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    https_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    no_proxy = lib.mkForce "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
-  };
 }
