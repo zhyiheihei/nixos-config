@@ -26,7 +26,6 @@
     ../../nixos/optional-apps/librechat.nix
     ../../nixos/optional-apps/maddy.nix
     ../../nixos/optional-apps/matrix-synapse
-    ../../nixos/optional-apps/metapi.nix
     ../../nixos/optional-apps/miniflux.nix
     ../../nixos/optional-apps/n8n
     ../../nixos/optional-apps/netbox.nix

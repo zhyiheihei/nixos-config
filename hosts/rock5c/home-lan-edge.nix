@@ -5,12 +5,16 @@ in
 {
   networking.hosts."${LT.hosts.greencloud.ltnet.IPv4}" = [
     "axonhub.greencloud.zhyi.cc"
-    "metapi.greencloud.zhyi.cc"
     "n8n-bridge.greencloud.zhyi.cc"
     "n8n.zhyi.xin"
     "openai-edge-tts.greencloud.zhyi.cc"
     "prometheus.greencloud.zhyi.cc"
     "rsshub.zhyi.xin"
+  ];
+
+  # Metapi moved from greencloud to tencent (2026-08-14).
+  networking.hosts."${LT.hosts.tencent.ltnet.IPv4}" = [
+    "metapi.tencent.zhyi.cc"
   ];
 
   lantian.nginxVhosts = {

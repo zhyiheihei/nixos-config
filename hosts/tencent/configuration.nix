@@ -4,6 +4,7 @@
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
+    ../../nixos/optional-apps/metapi.nix
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/uni-api.nix
   ];
