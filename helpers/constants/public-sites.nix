@@ -64,6 +64,7 @@ _: [
   "jpvm.zhyi.cc"
   "colocrossing.zhyi.cc"
   "usvm.zhyi.cc"
+  "tencent.zhyi.cc"
   "lg.zhyi.cc"
   "lg.zhyi.dn42"
   "sub.zhyi.xin"
