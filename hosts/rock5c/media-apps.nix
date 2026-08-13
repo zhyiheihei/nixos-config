@@ -54,6 +54,14 @@ in
   virtualisation.oci-containers.containers.moviepilot.image =
     lib.mkForce "docker.io/jxxghp/moviepilot-v3:latest";
 
+  # v3's resource auto-update (curl_cffi download of user.sites.v3.bin /
+  # sites.cpython-*.so) crashes the backend with SIGSEGV on this 8 GiB host
+  # (2026-08-13, reproduced 3x at the same step even with memory headroom;
+  # core dump then also fails to allocate). Resources are already at
+  # v3.0.3/v3.0.0 on disk, so disabling updates loses nothing.
+  virtualisation.oci-containers.containers.moviepilot.environment.AUTO_UPDATE_RESOURCE =
+    "false";
+
   systemd.tmpfiles.settings.media-apps."/nix/persistent/var/lib/media-apps"."d" = {
     mode = "0700";
     user = "root";
