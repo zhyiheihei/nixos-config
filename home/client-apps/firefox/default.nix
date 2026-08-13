@@ -99,6 +99,9 @@ let
         "gfx.x11-egl.force-enabled" = true;
         "image.avif.enabled" = true;
         "image.jxl.enabled" = true;
+        # Fork: zh_CN system locale is set (upstream relies on it), but Firefox
+        # defaults to en-US (intl.locale.matchOS=false). Pin the UI language.
+        "intl.locale.requested" = "zh-CN";
         "media.av1.enabled" = true;
         "media.ffmpeg.vaapi.enabled" = true;
         "media.hardware-video-decoding.force-enabled" = true;
