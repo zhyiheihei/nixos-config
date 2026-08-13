@@ -26,6 +26,11 @@
   # radeonsi so hardware encoding works.
   environment.variables.LIBVA_DRIVER_NAME = lib.mkForce "radeonsi";
 
+  # The running user session inherited iHD at login, so /etc/environment alone
+  # won't reach the sunshine user unit until the next login. Pin the variable
+  # on the unit itself so it applies on restart.
+  systemd.user.services.sunshine.environment.LIBVA_DRIVER_NAME = "radeonsi";
+
   # Force the mature VA-API hardware encoder. The default h264_vulkan (RADV)
   # produced blocky artifacts on this APU, and vaapi is only probed after
   # vulkan in Sunshine's encoder priority list.
