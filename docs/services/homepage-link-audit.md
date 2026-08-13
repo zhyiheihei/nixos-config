@@ -16,11 +16,11 @@ Homepage 同时作为个人导航页使用。Bing 搜索栏、Quick Launch、常
 
 `17 · 私有 · 监控 · 主机资源` 分组为每台非 `client` 主机生成一张卡片，通过
 Homepage 的 `prometheusmetric` widget 展示 node exporter 的 CPU、内存与磁盘
-占用。数据源是 colocrossing 上仅供私网访问的只读 Prometheus API
-`https://prometheus.colocrossing.zhyi.cc`，vhost 在
-`hosts/colocrossing/configuration.nix` 中声明为 `accessibleBy = "private"`，
+占用。数据源是 greencloud 上仅供私网访问的只读 Prometheus API
+`https://prometheus.greencloud.zhyi.cc`，vhost 在
+`hosts/greencloud/configuration.nix` 中声明为 `accessibleBy = "private"`，
 不叠加 OAuth，不暴露到公网。rock5c 在
-`hosts/rock5c/home-lan-edge.nix` 中把该域名固定解析到 colocrossing 的 LTNET
+`hosts/rock5c/home-lan-edge.nix` 中把该域名固定解析到 greencloud 的 LTNET
 地址，避免 Homepage 走公网入口被私网 ACL 拒绝。
 
 `18 · 私有 · 监控 · NAS 存储` 分组将 opi5p 挂载的 QNAP NFS

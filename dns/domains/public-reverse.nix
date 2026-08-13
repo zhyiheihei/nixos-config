@@ -4,7 +4,7 @@ lib.mkIf false {
   domains = [
     (config.common.reverse6 {
       prefix = "2a11:8083:11:191b::/64";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
     })
   ];
 }

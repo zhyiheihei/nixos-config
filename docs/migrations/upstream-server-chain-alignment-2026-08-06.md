@@ -32,7 +32,7 @@
 
 - 没有主机 import `axonhub.nix`，主链路已对齐；
 - `hosts/rock5c/home-lan-edge.nix` 仍残留
-  `axonhub.colocrossing.zhyi.cc` 的 hosts 映射，属于死配置。
+  `axonhub.greencloud.zhyi.cc` 的 hosts 映射，属于死配置。
 
 建议：删除该映射，一行改动，无运行影响。
 
@@ -84,22 +84,22 @@ mihomo。
 
 - `nixos/server-apps/mihomo.nix` 存在，但本地加了 `lantian.mihomo.enable`
   option（默认 true）；
-- `colocrossing`、`hostdare`、`google` 三台 cn-accel 主机显式
+- `greencloud`、`hostdare`、`google` 三台 cn-accel 主机显式
   `lantian.mihomo.enable = false`，注释说明使用 v2ray 出口并省内存；
 - `nixos/server-apps/v2ray.nix` 与作者一致，按 cn-accel 标签启用，
   因此我们目前只跑 v2ray，作者是 v2ray + mihomo。
 
 建议：删除三处 `lantian.mihomo.enable = false`，恢复作者默认链路。
-注意 hostdare（1 vCPU）和 google（2GB）内存较小，建议先 colocrossing，
+注意 hostdare（1 vCPU）和 google（2GB）内存较小，建议先 greencloud，
 另外两台 dry-run + 内存观察后决定。
 
 ### 2. actual 记账（`4223a903`、`0ffe18a3`）
 
-作者在 colocrossing 启用 `actual.nix` 并补 OAuth。
+作者在 greencloud 启用 `actual.nix` 并补 OAuth。
 
 本仓库现状：`nixos/optional-apps/actual.nix` 存在，但没有主机 import。
 
-建议：在 colocrossing 加入 import 并配置数据目录/证书。
+建议：在 greencloud 加入 import 并配置数据目录/证书。
 
 ### 3. ncmm cron（`07653345`）
 
@@ -207,7 +207,7 @@ router 已有 conntrack 指标和 Grafana 面板。
 
 1. 低风险纯对齐：删 axonhub 残留映射、补 it-tools、speedtest-go、
    nf_conntrack/ICMP sysctl、conntrack 告警、webfinger 302。
-2. mihomo：先在 colocrossing 开启，hostdare/google 评估内存后再决定。
+2. mihomo：先在 greencloud 开启，hostdare/google 评估内存后再决定。
 3. actual、ncmm、auto-mihoyo、skyland：先确认 secrets 凭据，再补模块
    和主机 import。
 4. lancache、asterisk、open5gs 等大服务：单独出方案确认。

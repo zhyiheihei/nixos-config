@@ -29,7 +29,7 @@
   };
 
   ltnet.tcpTransportPeers.hostdare = "hostdare.zhyi.cc";
-  ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
+  ltnet.tcpTransportPeers.greencloud = "greencloud.zhyi.cc";
   ltnet.tcpTransportPeers.google = "google.zhyi.cc";
 
   # Keep author-style server metadata even without enabling the dn42 tag;

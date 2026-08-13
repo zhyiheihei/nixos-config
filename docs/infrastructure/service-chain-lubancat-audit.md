@@ -19,12 +19,12 @@ LubanCat-1 可以承担一组低写入、ARM64 原生、可由现有入口反向
 2. FastAPI-DLS：从 ROCK 5C 迁入，预计释放约 122 MiB，迁移前必须备份 SQLite 和
    RSA key；
 3. vlmcsd：从 ROCK 5C 迁入，资源占用很小，但服务地址可由 BIRD 保持透明；
-4. Pyison：从 colocrossing 迁入，先确认容器镜像具有 ARM64 manifest，公网 TLS
-   入口仍留在 colocrossing；
-5. tg-bot-cleaner：从 colocrossing 迁入，复制 Telethon session 等状态后再切换。
+4. Pyison：从 greencloud 迁入，先确认容器镜像具有 ARM64 manifest，公网 TLS
+   入口仍留在 greencloud；
+5. tg-bot-cleaner：从 greencloud 迁入，复制 Telethon session 等状态后再切换。
 
 这一批预计让 LubanCat-1 从约 478 MiB 基线增长到约 0.9 GiB，仍保留约 1 GiB
-物理内存和 zram 作为峰值余量。ROCK 5C 可释放约 346 MiB，colocrossing 只能释放
+物理内存和 zram 作为峰值余量。ROCK 5C 可释放约 346 MiB，greencloud 只能释放
 少量内存。该方案不会显著降低 OPI5P 的 9 GiB 以上使用量；OPI5P 的主要负载不适合
 迁到只有 SD 卡和 2 GiB RAM 的板卡。
 
@@ -37,7 +37,7 @@ flowchart LR
   QNAP["QNAP\n媒体与大文件"]
 
   subgraph Cloud["公网节点"]
-    Colo["colocrossing\n公网入口、协作、AI、监控"]
+    Colo["greencloud\n公网入口、协作、AI、监控"]
     CNVM["cnvm\n身份、Vaultwarden、Attic"]
   end
 
@@ -68,7 +68,7 @@ flowchart LR
 | 主机 | 当前主要职责 | 不应混入的职责 |
 | --- | --- | --- |
 | cnvm | Attic、Dex、Pocket ID、Vaultwarden、Halo、GLAuth | 家庭数据面、重型构建 |
-| colocrossing | 公网 Nginx、Gitea、Matrix、邮件、AI、监控、协作服务 | 家庭媒体存储 |
+| greencloud | 公网 Nginx、Gitea、Matrix、邮件、AI、监控、协作服务 | 家庭媒体存储 |
 | ROCK 5C | 家庭入口、MetaCubeXD、UniAPI、Homepage、FastAPI-DLS、reDroid | 数据库、NAR、媒体数据 |
 | OPI5P | 数据库、Immich、Linkwarden、媒体链、NCPS、文件服务、reDroid | 高并发分布式构建 |
 | ml-builder | Hydra、x86_64-only 容器、主构建机 | 数据库、媒体、身份等业务状态服务 |
@@ -81,11 +81,11 @@ flowchart LR
 | 链路 | 当前路径 | 迁移时必须保持的条件 |
 | --- | --- | --- |
 | 身份 | 客户端 -> cnvm -> Dex/Pocket ID/GLAuth | 域名、回调 URL 和数据库位置不变 |
-| AI | 客户端 -> colocrossing/ROCK 5C -> UniAPI -> Provider | UniAPI 继续作为唯一 Provider 汇聚点 |
-| 家庭应用 | 客户端 -> colocrossing 或 Router -> ROCK 5C -> OPI5P | 公网 TLS 和原 Host/SNI 不变 |
+| AI | 客户端 -> greencloud/ROCK 5C -> UniAPI -> Provider | UniAPI 继续作为唯一 Provider 汇聚点 |
+| 家庭应用 | 客户端 -> greencloud 或 Router -> ROCK 5C -> OPI5P | 公网 TLS 和原 Host/SNI 不变 |
 | 媒体与存储 | 客户端 -> OPI5P -> QNAP | 不让 ROCK 5C 或 LubanCat-1 中转大流量 |
 | 构建与缓存 | Hydra/构建机 -> NCPS/Attic -> 上游缓存 | 不把 NAR 缓存和构建写入 SD 卡 |
-| 监控 | 各主机 exporter -> colocrossing Prometheus/Grafana | 被迁服务的 scrape target 同步修改 |
+| 监控 | 各主机 exporter -> greencloud Prometheus/Grafana | 被迁服务的 scrape target 同步修改 |
 
 ## 资源快照
 
@@ -100,7 +100,7 @@ flowchart LR
 | ml-home-vm | 19 GiB（历史快照） | 2.7 GiB / 16 GiB | 虚拟磁盘 + QNAP | 已退役（2026-08-03）；仅作迁移前容量记录 |
 | pve-5700u | 46 GiB | 16 GiB / 30 GiB（迁移前快照） | `/nix` 使用率约 76%（迁移前） | 已瘦身为纯 PVE 宿主（2026-08-12） |
 | cnvm | 1.9 GiB | 1.5 GiB / 435 MiB | 云盘 | 内存紧张，但状态服务不宜迁到家庭 SD 板 |
-| colocrossing | 7.7 GiB | 4.3 GiB / 3.4 GiB | 云盘 | swap 已接近满，适合移出少量非关键服务 |
+| greencloud | 7.7 GiB | 4.3 GiB / 3.4 GiB | 云盘 | swap 已接近满，适合移出少量非关键服务 |
 
 LubanCat-1 的常驻基线主要是 Nginx、Yggdrasil、CoreDNS、ZeroTier、BIRD、exporter
 和日志组件。迁移后应把稳定状态控制在约 1.1–1.2 GiB 以下，并至少保留
@@ -115,14 +115,14 @@ LubanCat-1 的常驻基线主要是 Nginx、Yggdrasil、CoreDNS、ZeroTier、BIR
 | Homepage Dashboard | ROCK 5C | 约 224 MiB cgroup | 声明式配置与 secrets，低写入 | 建议；迁入后保留原域名和入口反代 |
 | FastAPI-DLS | ROCK 5C | 约 122 MiB | SQLite、RSA keys、既有租约 URL | 建议；停写、校验数据后单实例切换 |
 | vlmcsd | ROCK 5C | 很小 | netns、BIRD 服务地址 | 建议；位置可由路由透明化 |
-| Pyison | colocrossing | 约 13 MiB | 容器，近似无状态 | 建议；先验证 ARM64 镜像，公网入口不动 |
-| tg-bot-cleaner | colocrossing | 预计数十 MiB | Telegram secrets、session 状态 | 建议；复制 session，禁止双实例运行 |
+| Pyison | greencloud | 约 13 MiB | 容器，近似无状态 | 建议；先验证 ARM64 镜像，公网入口不动 |
+| tg-bot-cleaner | greencloud | 预计数十 MiB | Telegram secrets、session 状态 | 建议；复制 session，禁止双实例运行 |
 
 预计目标拓扑：
 
 ```mermaid
 flowchart LR
-  Client["客户端"] --> Colo["colocrossing\n公网 TLS 入口"]
+  Client["客户端"] --> Colo["greencloud\n公网 TLS 入口"]
   Client --> Router["Router\n家庭入口"]
 
   Colo --> Rock["ROCK 5C\nMetaCubeXD / UniAPI / edge proxy"]
@@ -138,7 +138,7 @@ flowchart LR
 
 | 服务 | 来源 | 限制 | 决策 |
 | --- | --- | --- | --- |
-| Radicale | colocrossing | 用户日历、LDAP、文件状态 | 备份 collections 后可迁，非第一批 |
+| Radicale | greencloud | 用户日历、LDAP、文件状态 | 备份 collections 后可迁，非第一批 |
 | SunPanel | OPI5P | 两个容器和本地配置，实际约 21 MiB | 可迁但几乎不能缓解 OPI5P |
 | ASF | OPI5P | host network、约 37 MiB、持久配置 | 可迁但收益有限 |
 | Memos | OPI5P | SQLite，实际约 8 MiB | 风险大于节省，不优先 |
@@ -173,7 +173,7 @@ Jellyfin 与媒体自动化。建议另行审计：
 1. 如果两个 RK3588 上只需要一个 Android 实例，停用一套重复 reDroid，可直接
    节省约 850 MiB；
 2. 调整 ClamAV 扫描时段或常驻策略，而不是迁到 LubanCat-1；
-3. colocrossing 的监控数据库若需整体减压，应优先迁到当前在线的可靠 NVMe/VM
+3. greencloud 的监控数据库若需整体减压，应优先迁到当前在线的可靠 NVMe/VM
    主机，不要迁到 2 GiB 板卡；`ml-home-vm` 已退役，不能再作为候选；
 4. cnvm 的压力应通过实例扩容，或把 Halo 这类完整状态链迁到可靠 NVMe 主机；不要
    为释放几十 MiB 把公网状态服务放到家庭 SD 卡。
@@ -211,7 +211,7 @@ birdc show protocols
 ## 与作者原版的偏差边界
 
 作者原版仍把 Pyison、imapfilter、Radicale、RSSHub、tg-bot-cleaner 和
-Yggdrasil ALFIS 放在 colocrossing，把 FastAPI-DLS、UniAPI、vlmcsd 放在家庭 VM。
+Yggdrasil ALFIS 放在 greencloud，把 FastAPI-DLS、UniAPI、vlmcsd 放在家庭 VM。
 本方案把其中少量轻服务放到 LubanCat-1，是为了利用新增硬件的主机级调整，不应演变
 成公共模块分叉。
 

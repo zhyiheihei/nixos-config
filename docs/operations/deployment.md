@@ -44,7 +44,7 @@ nix run .#colmena -- build --on rock5c
 nix run .#colmena -- apply --on rock5c
 
 # 以逗号分隔多个主机。
-nix run .#colmena -- apply --on rock5c,colocrossing
+nix run .#colmena -- apply --on rock5c,greencloud
 ```
 
 先确认 SSH、DNS 和目标机当前地址可用。网络、入口或 SSH host key 变更后，不要把

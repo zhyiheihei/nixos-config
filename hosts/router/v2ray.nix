@@ -35,7 +35,7 @@ let
         protocol = "vless";
         settings.vnext = [
           {
-            address = LT.publicIPv4For "colocrossing";
+            address = LT.publicIPv4For "greencloud";
             port = 443;
             users = [
               {
@@ -70,7 +70,7 @@ let
             xhttpSettings = xhttpSettings // {
               mode = "stream-up";
               downloadSettings = {
-                address = LT.publicIPv4For "colocrossing";
+                address = LT.publicIPv4For "greencloud";
                 port = 443;
                 inherit
                   network

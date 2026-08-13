@@ -21,11 +21,11 @@
 
 ```mermaid
 flowchart LR
-  User[用户] -->|Dex OIDC| LibreChat[LibreChat colocrossing]
-  User -->|Dex OAuth| N8N[n8n colocrossing]
+  User[用户] -->|Dex OIDC| LibreChat[LibreChat greencloud]
+  User -->|Dex OAuth| N8N[n8n greencloud]
   User --> Memos[Memos opi5p]
   LibreChat -->|OpenAI v1| UniRock[UniAPI rock5c]
-  Memos -->|AI v1| Metapi[Metapi colocrossing]
+  Memos -->|AI v1| Metapi[Metapi greencloud]
   Metapi -->|OpenAI v1| UniRock
   UniRock -->|LTNET| Bridge[n8n OpenAI Bridge]
   Bridge -->|n8n API| N8N
@@ -47,16 +47,16 @@ flowchart LR
 | 服务 | 主机 | 状态 | 官方 API / 协议 | 认证 | 文档 |
 | --- | --- | --- | --- | --- | --- |
 | UniAPI | `rock5c`、`hostdare` | 运行 / 声明（hostdare 未验证） | OpenAI 兼容 `/v1`（`/v1/models`、`/v1/chat/completions`） | Bearer `uni-api-admin-api-key` | `https://github.com/yym68686/uni-api` |
-| LibreChat | `colocrossing` | 运行 | Web/客户端 REST `/api/*`；自定义 endpoint 指向 UniAPI | Dex OIDC + 会话/JWT | `https://www.librechat.ai/docs` |
-| n8n | `colocrossing` | 运行 | REST `/api/v1`（workflows/executions/credentials）、webhooks | API key / Dex OAuth | `https://docs.n8n.io/api/` |
-| n8n OpenAI Bridge | `colocrossing` | 运行 | OpenAI 兼容 `/v1/*`、`/health` | Bearer token | `https://github.com/xddxdd/n8n-openai-bridge` |
-| Metapi | `colocrossing` | 运行 | OpenAI 兼容 `/v1` + 管理 API | UI 口令 + `PROXY_TOKEN` | `https://github.com/cita-777/metapi` |
+| LibreChat | `greencloud` | 运行 | Web/客户端 REST `/api/*`；自定义 endpoint 指向 UniAPI | Dex OIDC + 会话/JWT | `https://www.librechat.ai/docs` |
+| n8n | `greencloud` | 运行 | REST `/api/v1`（workflows/executions/credentials）、webhooks | API key / Dex OAuth | `https://docs.n8n.io/api/` |
+| n8n OpenAI Bridge | `greencloud` | 运行 | OpenAI 兼容 `/v1/*`、`/health` | Bearer token | `https://github.com/xddxdd/n8n-openai-bridge` |
+| Metapi | `greencloud` | 运行 | OpenAI 兼容 `/v1` + 管理 API | UI 口令 + `PROXY_TOKEN` | `https://github.com/cita-777/metapi` |
 | AxonHub | 未部署 | 未部署 | 未部署；模块保留 | 未部署 | `https://github.com/looplj/axonhub` |
 | Qdrant | 未部署 | 未部署 | REST 6333 / gRPC 6334（`/collections`、`/points`、`/search`） | 可选 API Key | `https://api.qdrant.tech/api-reference/` |
-| Gitea | `colocrossing` | 运行 | REST `/api/v1`（`/repos/{owner}/{repo}/...`）、Git/SSH 2222、webhook | API Token / OAuth2 / Basic | `https://docs.gitea.com/development/api-usage` |
+| Gitea | `greencloud` | 运行 | REST `/api/v1`（`/repos/{owner}/{repo}/...`）、Git/SSH 2222、webhook | API Token / OAuth2 / Basic | `https://docs.gitea.com/development/api-usage` |
 | Syncthing | 三机 | 运行 | REST `/rest/*`（`/rest/events`、`/rest/db/status` 等） | `X-API-Key` | `https://docs.syncthing.net/dev/rest.html` |
-| Miniflux | `colocrossing` | 运行 | REST `/v1`（`/v1/me`、`/v1/feeds`、`/v1/entries`） | `X-Auth-Token` | `https://miniflux.app/docs/api.html` |
-| RSSHub | `colocrossing` | 运行 | HTTP 路由 + `?format=json` | private vhost | `https://docs.rsshub.app/` |
+| Miniflux | `greencloud` | 运行 | REST `/v1`（`/v1/me`、`/v1/feeds`、`/v1/entries`） | `X-Auth-Token` | `https://miniflux.app/docs/api.html` |
+| RSSHub | `greencloud` | 运行 | HTTP 路由 + `?format=json` | private vhost | `https://docs.rsshub.app/` |
 | ArchiveBox | `opi5p` | 运行 | CLI（`archivebox add/list/export`）、Web UI；JSON API 端点待核验 | Dex OAuth / 容器 CLI | `https://docs.archivebox.io/dev/` |
 | Memos | `opi5p` | 运行 | REST `/api/v1/memos`、Connect `/memos.api.v1.*` | Personal Access Token | `https://github.com/usememos/memos`（`proto/gen/openapi.yaml`） |
 | Dex | `cnvm` | 运行 | OIDC：`/auth`、`/token`、`/userinfo`、`.well-known/openid-configuration` | OIDC client secret | `https://dexidp.io/docs/` |
@@ -69,7 +69,7 @@ flowchart LR
 | C2 | LibreChat 知识源 | Gitea REST / 官方 MCP | 聊天界面内搜索/读取笔记 | 社区 MCP 无官方保证；需独立模块注入，不改公共 `mcp-servers.nix` | P1 |
 | C3 | Syncthing 事件驱动 | Syncthing `/rest/events`、`/rest/db/status` | Notes 变更触发重索引或 AI 摘要 | 事件轮询延迟；API key 管理 | P1 |
 | C4 | pyison 全文检索 | pyison HTTP 搜索（待核验） | 轻量检索 Blog/docs | API 未文档化；索引新鲜度依赖重建 | P2 |
-| C5 | Memos 读写集成 | Memos `/api/v1/memos` + Connect API | 检索/创建/归档 memo，知识闭环 | PAT 范围；colocrossing→opi5p 走 LTNET | P2 |
+| C5 | Memos 读写集成 | Memos `/api/v1/memos` + Connect API | 检索/创建/归档 memo，知识闭环 | PAT 范围；greencloud→opi5p 走 LTNET | P2 |
 | C6 | Qdrant 向量 RAG | Qdrant REST + UniAPI embeddings | Notes/Memos 语义检索 | 未部署；端口未登记；需先核验 embeddings | P2 |
 | C7 | Gitea Actions 索引 | Gitea webhook / Actions | push 即触发重索引 | runner 资源；凭据写入 Notes 仓库需谨慎 | P2 |
 | C8 | 本地 AI 客户端 | filesystem / Gitea MCP | 编码代理读写 Notes | AI 写权限；ml-2700 不可达期间无法验证 | P2 |
@@ -127,17 +127,17 @@ P1 运行态前置：`/run/secrets/gitea-ai-token`、`/run/secrets/memos-ai-toke
 以下命令只验证，不打印密钥；在对应主机以 root/授权账号执行。
 
 ```bash
-# Gitea 官方 API 读取 Notes 仓库（colocrossing 或可访问主机）
+# Gitea 官方 API 读取 Notes 仓库（greencloud 或可访问主机）
 curl -fsS \
   -H "Authorization: token $(cat /run/secrets/gitea-ai-token)" \
   https://git.zhyi.xin/api/v1/repos/zhyi/notes
 
-# UniAPI 模型列表（rock5c / colocrossing）
+# UniAPI 模型列表（rock5c / greencloud）
 curl -fsS \
   -H "Authorization: Bearer $(cat /run/secrets/uni-api-admin-api-key)" \
   https://uni-api.rock5c.zhyi.cc/v1/models | jq '(.data // []) | length'
 
-# n8n OpenAI Bridge 健康检查（colocrossing）
+# n8n OpenAI Bridge 健康检查（greencloud）
 curl -fsS http://127.0.0.1:13333/health
 
 # Memos 官方 API 读取（opi5p）
@@ -145,7 +145,7 @@ curl -fsS \
   -H "Authorization: Bearer $(cat /run/secrets/memos-ai-token)" \
   http://127.0.0.1:13819/api/v1/memos | jq '.memos | length'
 
-# Miniflux 官方 API（colocrossing；需先验证 X-Auth-Token 是否可穿透 Dex OAuth vhost）
+# Miniflux 官方 API（greencloud；需先验证 X-Auth-Token 是否可穿透 Dex OAuth vhost）
 curl -fsS \
   -H "X-Auth-Token: $(cat /run/secrets/miniflux-api-key)" \
   https://rss.zhyi.xin/v1/me
@@ -162,7 +162,7 @@ curl -fsS \
   Miniflux/Syncthing API key 穿透 OAuth vhost 的能力）需实施期实机验证。
 - hostdare 与 ml-2700 当前不可达，公开 UniAPI 与本地 AI 客户端运行态未验证。
 - UniAPI 的 `deepseek-v4-flash:opencode-go` 模型别名已于 2026-08-12 在
-  `colocrossing` 通过 `/v1/models` 实机核验存在。
+  `greencloud` 通过 `/v1/models` 实机核验存在。
 
 ## 实机核验记录（2026-08-12）
 

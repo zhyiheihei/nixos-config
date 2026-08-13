@@ -27,7 +27,7 @@
 
 | 服务 | 主机 | 状态 | API 验证 |
 | --- | --- | --- | --- |
-| `sublinkpro` | colocrossing | 原生包运行，podman 停 | version/login/nodes/subcription/shares/静态订阅均 200 |
+| `sublinkpro` | greencloud | 原生包运行，podman 停 | version/login/nodes/subcription/shares/静态订阅均 200 |
 | `filecodebox` | opi5p | 原生包运行，podman 停 | `/health`、上传初始化接口、vhost 200 |
 | `memos` | opi5p | 原生包运行，podman 停 | `/healthz`、`/api/v1/memos`、登录接口 |
 | `sun-panel` | opi5p | 原生包运行，podman 停 | `/api/about`、登录接口 |
@@ -62,7 +62,7 @@
 | --- | --- | --- | --- |
 | `rock5c` | `moviepilot`、`handbrake`、`metacubexd`、`immich-machine-learning-rknn`、`chinesesubfinder` | 0 | `sonarr`、`radarr`、`bazarr`、`prowlarr`（已迁移/停用） |
 | `opi5p` | `archivebox`、`asf`、`filecodebox`、`home-assistant`、`memos`、`sun-panel`、`sun-panel-helper`、`tachidesk` | 0 | `vertex`、`byparr`、`redroid`、`immich-machine-learning`（迁移中或已停用） |
-| `colocrossing` | `byparr`、`pyison`、`sublinkpro` | 0 | 无 |
+| `greencloud` | `byparr`、`pyison`、`sublinkpro` | 0 | 无 |
 | `ml-builder` | `archiveteam`、`clawemail`、`epic-awesome-gamer` | 0 | `halo`、`waline`（未定义） |
 | `pve-5700u` | 无 | 0 | 无 |
 
@@ -83,13 +83,13 @@
 | `halo` | docker.io/halohub | pve/opi5p | nixpkgs `halo` | 可替换 |
 | `handbrake` | emcd39 / zocker160 | rock5c | nixpkgs `handbrake` | 基础可替换，硬件变体仍看驱动 |
 | `asf` | ghcr.io/justarchinet | opi5p | nixpkgs `archisteamfarm` | 可替换 |
-| `byparr` | ghcr.io/thephaseless | colocrossing | nixpkgs `bazarr` | 可替换 |
+| `byparr` | ghcr.io/thephaseless | greencloud | nixpkgs `bazarr` | 可替换 |
 | `waline` | docker.io/lizheming | pve/opi5p | NUR xddxdd | 可替换 |
 | `moviepilot` | docker.io/jxxghp | rock5c | zhyi-packages | 已收录 |
 | `filecodebox` | docker.io/lanol | opi5p | zhyi-packages | 已收录 |
 | `sun-panel` + helper | docker.io/hslr | opi5p | zhyi-packages | 主面板已收录 |
 | `vertex` | docker.io/lswl | opi5p | zhyi-packages | 已收录 |
-| `sublinkpro` | docker.io/zerodeng | colocrossing | zhyi-packages（新增） | 已收录 |
+| `sublinkpro` | docker.io/zerodeng | greencloud | zhyi-packages（新增） | 已收录 |
 | `tachidesk` | ghcr.io/suwayomi | opi5p | zhyi-packages（新增） | 已收录 |
 | `freshrss` | docker.io/freshrss | opi5p | nixpkgs `freshrss` | 可替换（当前已退役） |
 | `linkwarden` | ghcr.io/linkwarden | opi5p | nixpkgs `linkwarden` | 可替换（当前已退役） |

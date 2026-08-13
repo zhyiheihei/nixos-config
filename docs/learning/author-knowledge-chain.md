@@ -37,7 +37,7 @@ Git/Markdown 天线：
 - `~/Documents/Blog`：公开天线，含 `content/` 目录。
 - `~/Documents/Notes` 是 `/nix/persistent/media/Notes` 的 bindfs 视图，
   与作者客户端 Documents 同款；Syncthing 同步该持久目录到 `opi5p` /
-  `colocrossing`。
+  `greencloud`。
 - Notes 仓库与本仓库相互独立，不共享 `.git` 或绑定目录。
 - Git 远端在运行时配置，不额外提供脚本：
   - 私有：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`

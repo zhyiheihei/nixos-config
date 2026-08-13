@@ -83,7 +83,7 @@
 - 所有改动 Nix 文件 `nix-instantiate --parse` 通过；
 - `generated.json` 与 `public-peers.json` JSON 校验通过；
 - `public-peers.json`、`skyland-auto-checkin.nix` 与作者版本逐字节一致；
-- ml-builder 已拉取 `cb0312f6`，`colocrossing` 整机配置求值成功，
+- ml-builder 已拉取 `cb0312f6`，`greencloud` 整机配置求值成功，
   仅有既有弃用警告（pointerCursor、netbox、routeConfig）；
 - `LT.sources.skyland-auto-checkin` 在 ml-builder 上解析成功；
 - `nix flake check --no-build` 仍失败于既有的

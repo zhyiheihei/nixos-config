@@ -36,7 +36,7 @@
 - Dex secret 从 Open WebUI client 切换到 LibreChat client
 
 主仓库的 `flake.lock` 已锁定上述 secrets 提交，因此部署 `ml-home-vm` 后 Homepage
-会加载新卡片；部署 `colocrossing` 后 LibreChat 服务及入口才会实际可用。
+会加载新卡片；部署 `greencloud` 后 LibreChat 服务及入口才会实际可用。
 
 ## 本次合并中仍保留的有意偏差
 
@@ -52,7 +52,7 @@
 本次把 5 个本地 `host.nix` 的 DN42 region 从裸数字改成作者的新命名常量：
 
 - `cnvm`、`hostdare`、`ml-home-vm`、`google`：`Asia-E`
-- `colocrossing`：`Asia-SE`
+- `greencloud`：`Asia-SE`
 
 这属于接口对齐；主机本身及其实际地域仍是 fork 差异。
 
@@ -70,23 +70,23 @@
 `http://uni-api.localhost/v1`。本 fork 的既定架构是：
 
 ```text
-LibreChat (colocrossing)
+LibreChat (greencloud)
     -> https://uni-api.ml-home-vm.zhyi.cc/v1
     -> Provider
 ```
 
 所以 `nixos/optional-apps/librechat.nix` 有 3 处必要适配：
 
-1. 导入私有 `uni-api/` Provider 注册表，而不在 `colocrossing` 再启动一个 UniAPI。
+1. 导入私有 `uni-api/` Provider 注册表，而不在 `greencloud` 再启动一个 UniAPI。
 2. `baseURL` 指向 `ml-home-vm` 上的 UniAPI。
 3. 使用 `zhyi.xin` 对应证书，因为公开入口是 `ai.zhyi.xin`。
 
 这是本次最明确的运行架构偏差。它遵守仓库既有约束：UniAPI 是唯一 Provider
 汇聚点，不能形成网关反向嵌套或请求环路。
 
-### 4. colocrossing 的服务组合
+### 4. greencloud 的服务组合
 
-`hosts/colocrossing/configuration.nix` 按作者迁移方向用 LibreChat 替换 Open
+`hosts/greencloud/configuration.nix` 按作者迁移方向用 LibreChat 替换 Open
 WebUI，但保留显式 `nginx-api.nix` 导入。原因是旧 Open WebUI 模块曾间接带入
 该能力；移除旧模块后需要显式保留本地主机依赖。
 
@@ -120,7 +120,7 @@ WebUI，但保留显式 `nginx-api.nix` 导入。原因是旧 Open WebUI 模块�
 
 以下历史迁移文档仍可能出现 “Open WebUI”：
 
-- `docs/migrations/colocrossing-sg-migration.md`
+- `docs/migrations/greencloud-sg-migration.md`
 - `docs/migrations/ml-home-vm-virtiofs-pve-migration.md`
 
 它们描述迁移当时的旧系统，不代表当前服务拓扑，因此未机械替换。当前架构以
@@ -130,7 +130,7 @@ WebUI，但保留显式 `nginx-api.nix` 导入。原因是旧 Open WebUI 模块�
 
 - `cnvm` 配置 dry-run 求值成功，Vaultwarden 为 `1.37.0`，Web Vault 为
   `2026.6.4+0`。
-- `colocrossing` 配置 dry-run 求值成功，LibreChat 已启用。
+- `greencloud` 配置 dry-run 求值成功，LibreChat 已启用。
 - 两次远程检查均以退出码 0 完成。
 - NCPS 返回过已清理 narinfo 的 HTTP 500，公共缓存也出现连接重置；这是缓存基础
   设施问题，没有造成模块求值失败。

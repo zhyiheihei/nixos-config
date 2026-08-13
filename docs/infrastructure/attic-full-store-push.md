@@ -51,7 +51,7 @@ rm -rf /tmp/attic-copy-test
 网络错误或 HTTP 502 后，先检查服务端：
 
 ```bash
-ssh -A -p 2222 root@colocrossing.zhyi.cc \
+ssh -A -p 2222 root@greencloud.zhyi.cc \
   'systemctl status atticd.service --no-pager -l; journalctl -u atticd.service -n 100 --no-pager'
 ```
 

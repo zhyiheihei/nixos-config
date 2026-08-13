@@ -42,7 +42,7 @@
         {
           recordType = "PTR";
           name = "225";
-          target = "colocrossing.zhyi.dn42.";
+          target = "greencloud.zhyi.dn42.";
         }
 
         config.common.nameservers.DN42

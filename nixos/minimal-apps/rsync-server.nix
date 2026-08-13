@@ -6,7 +6,7 @@
   ...
 }:
 let
-  primaryServer = "colocrossing";
+  primaryServer = "greencloud";
   syncAddress = "${LT.hosts.${primaryServer}.ltnet.IPv4Prefix}.1";
 in
 {

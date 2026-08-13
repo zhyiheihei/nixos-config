@@ -68,10 +68,10 @@ Memos 的 AI Provider 指向 Metapi，而不是直接指向 UniAPI：
 | 项 | 值 |
 | --- | --- |
 | Provider type | `OPENAI` |
-| endpoint | `https://metapi.colocrossing.zhyi.cc/v1` |
+| endpoint | `https://metapi.greencloud.zhyi.cc/v1` |
 | API key | `uni-api/keys.yaml` 的 `uni-api-admin-api-key` |
 
-`metapi.colocrossing.zhyi.cc` 是 private vhost，只从 LTNET 访问。opi5p 已声明
+`metapi.greencloud.zhyi.cc` 是 private vhost，只从 LTNET 访问。opi5p 已声明
 hosts 映射 `198.18.0.120`，容器同时使用 `--add-host` 指向同一地址，保证 Memos
 和运维脚本都能走 LTNET 直连。不要把这个 endpoint 改成公网入口或 UniAPI
 之外的网关，也不要让 Metapi 反向成为 UniAPI Provider。

@@ -29,7 +29,7 @@
 | `DRY_RUN` | 空 | 非空时只打印摘要，不写 Memos |
 | `OUTPUT_FILE` | 空 | 非空时先把摘要写到该文件 |
 
-示例（在 colocrossing/opi5p 上执行）：
+示例（在 greencloud/opi5p 上执行）：
 
 ```bash
 DRY_RUN=1 bash tools/knowledge-chain/notes-digest.sh

@@ -21,7 +21,7 @@
   # This board is behind the home NAT. Carry its public-server mesh peers over
   # the existing WSS transport, matching the established ml-home-vm topology.
   ltnet.tcpTransportPeers.hostdare = "hostdare.zhyi.cc";
-  ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
+  ltnet.tcpTransportPeers.greencloud = "greencloud.zhyi.cc";
   ltnet.tcpTransportPeers.google = "google.zhyi.cc";
   # Server-role BIRD configuration consumes the region even without dn42.
   dn42.region = constants.dn42.region.Asia-E;

@@ -7,8 +7,8 @@
 
 | 服务 | 运行主机 | 职责 |
 | --- | --- | --- |
-| RSSHub | `colocrossing` | 为没有原生 RSS 的站点生成订阅源 |
-| Miniflux | `colocrossing` | 原生 RSS 与 RSSHub 订阅的统一阅读入口 |
+| RSSHub | `greencloud` | 为没有原生 RSS 的站点生成订阅源 |
+| Miniflux | `greencloud` | 原生 RSS 与 RSSHub 订阅的统一阅读入口 |
 | ArchiveBox | `opi5p` | 无法订阅的站点/页面归档 |
 
 退役对象：FreshRSS、Linkwarden。用户 2026-08-05 指示：**Miniflux 旧订阅不要补**；
@@ -16,7 +16,7 @@ ArchiveBox 保留“实在不行”的源归档。退役服务的数据是否删
 
 ## 实机盘点与处置（2026-08-05）
 
-### Miniflux（colocrossing，2.3.3）
+### Miniflux（greencloud，2.3.3）
 
 - 处置后共 41 个订阅，全部启用；用户 `zhyi` 一个。
 - 已修正 URL：
@@ -50,7 +50,7 @@ ArchiveBox 保留“实在不行”的源归档。退役服务的数据是否删
 - DNS：无 `freshrss.*` / `linkwarden.*` 残留记录。
 - `zhyi.xin` 由 cnvm 的 Halo 提供；项目不再自动生成大规模 `/etc/hosts` 映射，
   统一走自建 DNS/公共 DNS（apex A 记录指向 cnvm），避免 Miniflux 抓到
-  colocrossing 上的空静态目录（403/404）。
+  greencloud 上的空静态目录（403/404）。
 - Dex（cnvm）：`freshrss`、`linkwarden` 两个 OAuth client 已移除并部署生效。
 - `freshrss.nix`、`linkwarden.nix` 与对应端口常量保留为公共模块文件，只是不再
   import；Dex 两个 client 已移除。
@@ -110,7 +110,7 @@ podman exec --user=archivebox archivebox archivebox add <url>
 - Miniflux 官方 REST：`https://rss.zhyi.xin/v1`，使用 `X-Auth-Token`。
   常用端点：`/v1/me`、`/v1/feeds`、`/v1/feeds/{id}/entries?status=unread`、
   `/v1/entries`。vhost 在 Dex OAuth 后，API key 是否可穿透需实机验证；必要时
-  自动化走 colocrossing 本机 `127.0.0.1` 通道。
+  自动化走 greencloud 本机 `127.0.0.1` 通道。
 - RSSHub：路由支持 `?format=json`，可直接作为 n8n HTTP 节点输入，内容经
   `uni-api.rock5c.zhyi.cc` 摘要后写入 Memos 或 Notes。
 - ArchiveBox：自动化入口优先官方 CLI/Web UI；新版 JSON API 端点实施期核验后再
@@ -124,10 +124,10 @@ podman exec --user=archivebox archivebox archivebox add <url>
 ## 验证命令
 
 ```bash
-# Miniflux 订阅与解析错误（colocrossing）
+# Miniflux 订阅与解析错误（greencloud）
 sudo -u postgres psql -d miniflux -c "select id, feed_url, disabled, parsing_error_msg from feeds order by id;"
 
-# RSSHub 路由抽查（colocrossing）
+# RSSHub 路由抽查（greencloud）
 curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:13248/zhihu/hot
 
 # 退役确认（opi5p）

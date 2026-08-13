@@ -3,13 +3,13 @@ let
   qnapAddress = "192.168.0.40";
 in
 {
-  networking.hosts."${LT.hosts.colocrossing.ltnet.IPv4}" = [
-    "axonhub.colocrossing.zhyi.cc"
-    "metapi.colocrossing.zhyi.cc"
-    "n8n-bridge.colocrossing.zhyi.cc"
+  networking.hosts."${LT.hosts.greencloud.ltnet.IPv4}" = [
+    "axonhub.greencloud.zhyi.cc"
+    "metapi.greencloud.zhyi.cc"
+    "n8n-bridge.greencloud.zhyi.cc"
     "n8n.zhyi.xin"
-    "openai-edge-tts.colocrossing.zhyi.cc"
-    "prometheus.colocrossing.zhyi.cc"
+    "openai-edge-tts.greencloud.zhyi.cc"
+    "prometheus.greencloud.zhyi.cc"
     "rsshub.zhyi.xin"
   ];
 

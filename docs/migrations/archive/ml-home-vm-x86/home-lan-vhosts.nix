@@ -5,12 +5,12 @@ in
 {
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ "vaults3.zhyi.cc" ];
-    "${LT.hosts.colocrossing.ltnet.IPv4}" = [
-      "axonhub.colocrossing.zhyi.cc"
-      "metapi.colocrossing.zhyi.cc"
-      "n8n-bridge.colocrossing.zhyi.cc"
+    "${LT.hosts.greencloud.ltnet.IPv4}" = [
+      "axonhub.greencloud.zhyi.cc"
+      "metapi.greencloud.zhyi.cc"
+      "n8n-bridge.greencloud.zhyi.cc"
       "n8n.zhyi.xin"
-      "openai-edge-tts.colocrossing.zhyi.cc"
+      "openai-edge-tts.greencloud.zhyi.cc"
       "rsshub.zhyi.xin"
     ];
   };

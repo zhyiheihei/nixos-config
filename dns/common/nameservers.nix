@@ -2,13 +2,13 @@ _:
 let
   PublicServers = [
     "cnvm.zhyi.cc."
-    "colocrossing.zhyi.cc."
+    "greencloud.zhyi.cc."
     "hostdare.zhyi.cc."
   ];
 
   LTNetServers = [
     "cnvm.ltnet.zhyi.cc."
-    "colocrossing.ltnet.zhyi.cc."
+    "greencloud.ltnet.zhyi.cc."
     "hostdare.ltnet.zhyi.cc."
   ];
 

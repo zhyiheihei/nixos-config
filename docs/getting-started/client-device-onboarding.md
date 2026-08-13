@@ -7,7 +7,7 @@
 
 - 设备能访问互联网
 - 网络 ID：`466270de75000001`
-- 控制器：colocrossing（端口 9994）
+- 控制器：greencloud（端口 9994）
 - 地址分配：IPv4 `198.18.0.<index>`，IPv6 `fdd8:1938:4e88::<index>`
 
 ## 各平台安装与入网
@@ -151,7 +151,7 @@
 cd /nix/src/nixos-config
 nix flake lock --update-input secrets
 sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK NIX_SSHOPTS='-F /dev/null -o StrictHostKeyChecking=no' \
-  nix run .#colmena -- apply --on colocrossing
+  nix run .#colmena -- apply --on greencloud
 ```
 
 部署后控制器自动推送新成员配置，设备几秒内变为 `OK` 并获得固定 IP。
@@ -195,4 +195,4 @@ https://sonarr.rock5c.zhyi.cc   # Sonarr
 - ZeroTier 通信全程加密（Curve25519 + AES）
 - 设备只获得 `198.18.0.x` 内网地址，不暴露任何公网端口
 - 所有 Web 服务仍走 HTTPS（Let's Encrypt 证书）
-- 撤销设备：从 `zerotier-additional-hosts.nix` 删除条目并重新部署 colocrossing
+- 撤销设备：从 `zerotier-additional-hosts.nix` 删除条目并重新部署 greencloud

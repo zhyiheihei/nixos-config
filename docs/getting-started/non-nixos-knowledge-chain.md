@@ -5,7 +5,7 @@
 
 - `~/Documents/Notes` 是 Markdown 笔记目录，同时也是独立 git 仓库
 - Gitea 提供私有 Git 权威：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`
-- Syncthing 在 ml-2700 / opi5p / colocrossing 之间同步 Notes，新设备加入后成为第四个节点
+- Syncthing 在 ml-2700 / opi5p / greencloud 之间同步 Notes，新设备加入后成为第四个节点
 
 ## 1. 当前节点与设备 ID
 
@@ -13,14 +13,14 @@
 | --- | --- | --- |
 | ml-2700 | NixOS 客户端 | `OFHULYP-EHZTYED-ZJKMBJ6-YNC3SSO-GHQD33A-IF4B6QI-IGLCDTF-VZFHJAH` |
 | opi5p | 服务器 | `6OVUWPX-LFALVDJ-BMNP24B-LAQQSTJ-BJWPIN4-3TA6GFC-NGAD22X-BRK5HQZ` |
-| colocrossing | 服务器 | `N5O6F67-DQRWGKH-LMAOLVW-VJN53EP-MGLEXJ2-AMXHLWE-KHO4XW6-4NR64QP` |
+| greencloud | 服务器 | `N5O6F67-DQRWGKH-LMAOLVW-VJN53EP-MGLEXJ2-AMXHLWE-KHO4XW6-4NR64QP` |
 | Mac（本机） | 待加入 | 安装 Syncthing 后在 GUI 中查看 |
 
 现有节点的 Syncthing Web GUI：
 
 - `https://syncthing.ml-2700.zhyi.cc`
 - `https://syncthing.opi5p.zhyi.cc`
-- `https://syncthing.colocrossing.zhyi.cc`
+- `https://syncthing.greencloud.zhyi.cc`
 
 ## 2. 安装 Syncthing（macOS）
 

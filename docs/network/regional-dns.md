@@ -50,10 +50,10 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
 
 - 2026-08-10：新增本文档；recursor 公共上游按地区扩容；国内 CoreDNS 增加
   DNSPod 兜底；minimal 默认 fallback 按 `LT.this.city.country` 分流；移除
-  cnvm/hostdare/google/colocrossing 与默认重复的显式 nameserver（colocrossing 仅保留
+  cnvm/hostdare/google/greencloud 与默认重复的显式 nameserver（greencloud 仅保留
   Google IPv6）。
 - 2026-08-10（独立 agent 验证与部署）：`0abf17ee` 在 ml-builder 上求值通过，
-  cnvm toplevel 构建成功；`google`、`colocrossing` 已部署，运行态 resolv.conf、
+  cnvm toplevel 构建成功；`google`、`greencloud` 已部署，运行态 resolv.conf、
   `/etc/pdns-recursor/recursor.yml` 与 `dig @198.19.0.253` 均符合预期。
 - 2026-08-10（SERVFAIL 根因）：AliDNS、DNSPod、Google 对 `zhyi.cc`/`zhyi.xin`
   均返回 NOERROR 且无 RRSIG/AD，而 recursor 报 EDE 6（DNSSEC Bogus），因此按
@@ -71,10 +71,10 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
   `attic.zhyi.xin`、`vaults3.zhyi.cc` 等解析均为 NOERROR，热缓存 0-1 ms；
   据此撤销 `attic-s3-connect-timeout.patch`，无补丁部署后 atticd active、
   Attic 443 与 VaultS3 8443 探测均 200。
-- 2026-08-10（Attic 迁移）：按作者布局把 Attic 迁回 `colocrossing` 公网 VPS，
-  S3 后端保持现有 VaultS3；`attic.zhyi.xin` 公网 DNS 指向 colocrossing。
-- 2026-08-10（Attic 迁移执行）：colocrossing 已部署 atticd 并恢复元数据，
-  DNS 已切换，cnvm 的 atticd 已移除；待 colocrossing 链路稳定后重推
+- 2026-08-10（Attic 迁移）：按作者布局把 Attic 迁回 `greencloud` 公网 VPS，
+  S3 后端保持现有 VaultS3；`attic.zhyi.xin` 公网 DNS 指向 greencloud。
+- 2026-08-10（Attic 迁移执行）：greencloud 已部署 atticd 并恢复元数据，
+  DNS 已切换，cnvm 的 atticd 已移除；待 greencloud 链路稳定后重推
   moviepilot 并清理临时 dump/key。
 - 待办：`hostdare` 流量耗尽不可达，配置未切换；配额恢复后执行
   `colmena apply --on hostdare` 并复核。

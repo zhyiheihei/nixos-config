@@ -84,7 +84,7 @@ in
     chain NAT_PREROUTING {
       type nat hook prerouting priority -95; policy accept;
 
-      # Public services: direct PPPoE WAN → colocrossing.
+      # Public services: direct PPPoE WAN → greencloud.
       fib daddr type local tcp dport { 80, 443, 2222 } iifname "ppp0" dnat ip to ${edgeAddress}
       fib daddr type local udp dport 443 iifname "ppp0" dnat ip to ${edgeAddress}
       fib daddr type local tcp dport { 80, 443, 2222 } iifname "ppp0" dnat ip6 to [fc00:192:168::10]

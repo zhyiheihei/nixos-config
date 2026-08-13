@@ -185,7 +185,7 @@ SSH              root@lubancat1.zhyi.cc:2222
 
 首启时 SOPS 和 node-exporter 的失败均属于身份尚未注册的连带结果：前者需要把新
 host recipient 写入 secrets 并全库 rekey，后者等待 ZeroTier 控制器分配 LTNET
-地址。现已完成全库 rekey 和 colocrossing 控制器的声明式部署；设备已取得
+地址。现已完成全库 rekey 和 greencloud 控制器的声明式部署；设备已取得
 `198.18.0.124`，并通过 `sops-install-secrets -check-mode sopsfile` 实机验证新密文
 可由持久化 SSH host key 解密。切换新系统代际后仍须重新检查 `systemctl --failed`，
 不能把首启失败状态保留下来。
@@ -198,12 +198,12 @@ host recipient 写入 secrets 并全库 rekey，后者等待 ZeroTier 控制器�
 这些应用已经切换。
 
 主机直接导入作者已有的 `nixos/server.nix`，没有复制或裁剪公共 server 模块。
-`host.nix` 只增加角色标签、Asia-E 区域和家庭 NAT 主机沿用的 hostdare、colocrossing、
+`host.nix` 只增加角色标签、Asia-E 区域和家庭 NAT 主机沿用的 hostdare、greencloud、
 google WSS peer。WireGuard/BIRD、CoreDNS、Nginx、Yggdrasil、Prometheus exporters、
 rsync 等服务均来自作者的公共模块。它不带 `nix-builder` 标签，Hydra 和分布式 Nix
 不会向这块 2 GiB 板卡派发大包。
 
-对端部署后，LubanCat-1 到 colocrossing 的 `wgmesh120` 握手正常，双方 BIRD peer
+对端部署后，LubanCat-1 到 greencloud 的 `wgmesh120` 握手正常，双方 BIRD peer
 均为 `Established`，`198.18.120.1` 经该接口可达。此前因缺少直连路由失败的
 `rsync-nix-sync-servers.service` 已重新执行成功，并完成 Nginx reload；最终
 `systemctl --failed` 为 0，systemd 状态为 `running`。

@@ -105,7 +105,7 @@ fileSystems."/nix" = {
 
 ### 2.2 BIOS 三分区布局
 
-适用于 `colocrossing` 这类 BIOS QEMU VM：
+适用于 `greencloud` 这类 BIOS QEMU VM：
 
 | 分区 | 大小 | 文件系统 | 挂载点 |
 | --- | --- | --- | --- |
@@ -769,7 +769,7 @@ systemctl reboot
 | SSH host key 改变 | 持久化私钥是否为安装前确定的那把 | 先核对指纹，再更新 `known_hosts` |
 | 22 和 2222 都暂时不通 | 控制台、启动日志、DHCP、sshd | 先确认系统是否启动，不要把网络故障当磁盘故障 |
 | `No route to host`、BIRD Idle | WireGuard endpoint、WSS transport、对端配置 | 修 LTNET 对端和路由，不改分区 |
-| rsync/nginx 首次失败 | 证书尚未从 colocrossing 同步 | 先恢复 LTNET，再重跑 rsync 和 nginx |
+| rsync/nginx 首次失败 | 证书尚未从 greencloud 同步 | 先恢复 LTNET，再重跑 rsync 和 nginx |
 | Colmena 返回 code 4 | `systemctl --failed` 中的具体应用 | 系统可能已经切换成功，单独修失败服务 |
 | `Too many authentication failures` | SSH agent 提供了过多密钥 | 使用 `IdentitiesOnly=yes` 和公钥 selector 文件 |
 | 闭包复制看似长时间无输出 | 目标 substituter 超时或正在复制大路径 | 检查进程；必要时使用 Colmena `--no-substitute` 直接传输 |

@@ -76,7 +76,7 @@
       {
         recordType = "fakeALIAS";
         name = "avatar";
-        target = "colocrossing";
+        target = "greencloud";
         ttl = "1h";
       }
 
@@ -160,7 +160,7 @@
     DN42Email = domain: [
       (config.common.hostRecs.mapAddresses {
         name = "mx.${domain}.";
-        addresses = LT.hosts."colocrossing".dn42;
+        addresses = LT.hosts."greencloud".dn42;
       })
       {
         recordType = "MX";

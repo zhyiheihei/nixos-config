@@ -6,7 +6,7 @@
 
 | 自有域名 | 对应作者职责 | 适用内容 | 公网入口 |
 | --- | --- | --- | --- |
-| `zhyi.xin` | `lantian.pub` 与作者公开应用 | 主公开域：面向用户的应用、身份与协作服务 | colocrossing:443；身份服务由 cnvm 直接承载 |
+| `zhyi.xin` | `lantian.pub` 与作者公开应用 | 主公开域：面向用户的应用、身份与协作服务 | greencloud:443；身份服务由 cnvm 直接承载 |
 | `zhyi.cc` | 主机与互联命名职责 | 基础设施、主机名、私有服务 | 按实际承载主机或基础设施入口解析 |
 | `moliy.site` | `ltn.pw` | 个人/附属站点 | 保持现有用途 |
 
@@ -15,16 +15,16 @@
 ### `zhyi.xin`
 
 `zhyi.xin` 是本部署的主公开域。大多数应用记录 CNAME 到
-`colocrossing.zhyi.cc`。服务在 colocrossing 本机运行时由本机 Nginx 直接提供；
-服务在 `rock5c`/`opi5p` 等家庭主机运行时，由 colocrossing 保留原始 Host 和 SNI 反向代理：
+`greencloud.zhyi.cc`。服务在 greencloud 本机运行时由本机 Nginx 直接提供；
+服务在 `rock5c`/`opi5p` 等家庭主机运行时，由 greencloud 保留原始 Host 和 SNI 反向代理：
 
 ```text
-客户端 -> colocrossing:443 -> 本机服务
-客户端 -> colocrossing:443 -> rock5c LTNET:443 -> 家庭服务
+客户端 -> greencloud:443 -> 本机服务
+客户端 -> greencloud:443 -> rock5c LTNET:443 -> 家庭服务
 ```
 
 CNVM 本机承载 Dex、Pocket ID、Vaultwarden 与 Attic，它们的 DNS 直接指向
-`cnvm.zhyi.cc`。colocrossing 承载 Gitea、Matrix、RSS、AI 和监控等服务。
+`cnvm.zhyi.cc`。greencloud 承载 Gitea、Matrix、RSS、AI 和监控等服务。
 `asf`、`books`、`filebox`、`immich`、`index` 与 `index-helper` 保持作者的独立
 公开域名形态，并通过 `home-ddns.zhyi.cc` 进入家庭服务。`jellyfin` 与 `tachidesk`
 同样指向家庭 DDNS；它们的应用、状态与 TLS 入口均位于 `opi5p`
@@ -44,13 +44,13 @@ OPI5P 的标准 443。客户端统一使用
 `zhyi.cc` 承载主机和基础设施名称。主机记录由 `host-recs.nix` 根据每台主机的
 公网、LTNET、DN42 与互联地址生成；`*.主机.zhyi.cc` 跟随对应主机记录。作者采用
 主机子域名的私有服务继续使用 `服务.主机.zhyi.cc`，例如
-`homepage.rock5c.zhyi.cc`、`metapi.colocrossing.zhyi.cc` 和
+`homepage.rock5c.zhyi.cc`、`metapi.greencloud.zhyi.cc` 和
 `uni-api.rock5c.zhyi.cc`。这些名字不应为了公网可达而另建同名的
 `服务.zhyi.xin` 入口。
 
 基础设施的独立正式域名保持作者原有形态，例如 `dashboard.zhyi.cc`、
 `prometheus.zhyi.cc` 和 `ai-api.zhyi.cc`。`vaults3.zhyi.cc` 指向家庭 DDNS，
-专用于 S3 存储后端；`colocrossing.zhyi.cc` 保持主机直连记录。
+专用于 S3 存储后端；`greencloud.zhyi.cc` 保持主机直连记录。
 
 ### `moliy.site`
 
@@ -61,7 +61,7 @@ OPI5P 的标准 443。客户端统一使用
 
 - 先在作者原版确认服务是独立公开域名还是主机子域名，再决定当前名称；不能只凭
   服务用途猜测公开性。
-- 作者的独立公开用户应用使用 `<service>.zhyi.xin`，并在 colocrossing 声明实际
+- 作者的独立公开用户应用使用 `<service>.zhyi.xin`，并在 greencloud 声明实际
   承载机；作者的主机私有服务使用 `<service>.<host>.zhyi.cc`。
 - `helpers/constants/public-sites.nix`、vhost 的 `accessibleBy`/认证设置与 DNS
   必须一起审计。Gitea 等带自身认证的服务仍然是公开服务，不能仅因需要登录就改成

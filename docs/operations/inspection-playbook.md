@@ -36,7 +36,7 @@ curl -sS "http://127.0.0.1:9090/api/v1/query" --data-urlencode 'query=<指标>' 
 
 ## 各链路巡检清单
 
-### 1. 监控链（colocrossing）
+### 1. 监控链（greencloud）
 - **入口**：prometheus / alertmanager / grafana 服务 active
 - **日志**：各服务 journalctl 的 error/warn（如 Grafana datasource 报错、Prometheus 抓取失败）
 - **监控指标**：
@@ -82,9 +82,9 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
 - **入口**：nginx、homepage-dashboard、rsshub（若启用）、zerotier、wgmesh
 - **日志**：nginx error.log 的 5xx 比例；homepage-dashboard 的 `Error calling`（siteMonitor 失败）；zerotier 的 peer 丢包
 - **监控指标**：`router_dhcp_active_leases`（textfile，注意重复序列会致整个 gather 失败）、`node_network_*`（router 国际 ZT 链路）、homepage 的 66 个 siteMonitor
-- **数据流转**：`nix-sync-servers` 定时任务 Finished（router → colocrossing 经 rock5c 网关）
+- **数据流转**：`nix-sync-servers` 定时任务 Finished（router → greencloud 经 rock5c 网关）
 
-### 4. AI 链路（colocrossing / UniAPI 网关）
+### 4. AI 链路（greencloud / UniAPI 网关）
 - 参考 `docs/infrastructure/ai-api-gateway-chain.md`（UniAPI 是唯一 Provider 汇聚点，禁止反向配置网关）
 - 参考 `docs/infrastructure/ai-knowledge-chain-integration.md`（AI 链 ↔ 知识链关系与官方 API）
 - **日志**：UniAPI / LibreChat / n8n 的 error/warn；OAuth token 刷新失败

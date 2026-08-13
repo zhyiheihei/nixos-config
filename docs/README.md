@@ -80,7 +80,7 @@
 - [2026-08-03 作者配置复刻偏移审计](./migrations/upstream-replica-audit-2026-08-03.md)
 - [2026-07-28 上游对齐偏差审计](./migrations/upstream-alignment-audit-2026-07-28.md)
 - [下载与媒体链路迁移到 OPI5P](./migrations/opi5p-media-pipeline.md)
-- [colocrossing 迁移到新加坡节点](./migrations/colocrossing-sg-migration.md)
+- [greencloud 迁移到新加坡节点](./migrations/greencloud-sg-migration.md)
 - [ml-home-vm 与 pve-5700u 复刻验收](./migrations/vm-replication-chain.md)
 - [ml-home-vm VirtioFS 与 PVE 迁移手册](./migrations/ml-home-vm-virtiofs-pve-migration.md)
 - [pve-5700u 瘦身为纯 PVE 宿主](./migrations/pve-5700u-hypervisor-only.md)

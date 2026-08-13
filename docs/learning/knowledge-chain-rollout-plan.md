@@ -11,7 +11,7 @@
 | --- | --- | --- |
 | 主力客户端 | `lt-hp-omen` | `ml-2700` |
 | 家庭数据服务器 | `lt-home-vm` | `opi5p` |
-| 公网异地节点 | `colocrossing` | `colocrossing` |
+| 公网异地节点 | `greencloud` | `greencloud` |
 
 角色映射保留。Syncthing 使用官方模块和 REST API 做三机文件夹同步，不引入自定义
 bindfs 挂载。
@@ -27,7 +27,7 @@ ml-2700
 opi5p
   /mnt/storage/media/Notes      <- Syncthing 家庭副本
 
-colocrossing
+greencloud
   /nix/persistent/media/Notes   <- Syncthing 异地副本
 ```
 
@@ -38,7 +38,7 @@ colocrossing
 - 在 `Notes` 仓库提交并 push 到 `ssh://git@git.zhyi.xin:2222/zhyi/notes.git`。
 - 启用 `nixos/optional-apps/syncthing`，`syncthing` 用户加入 `zhyi` 组并开放
   Notes 写权限；Syncthing 文件夹直接指向 `~/Documents/Notes`，不使用 bindfs。
-- 用 Syncthing 官方 GUI/REST 在 ml-2700 / opi5p / colocrossing 三台机器上完成
+- 用 Syncthing 官方 GUI/REST 在 ml-2700 / opi5p / greencloud 三台机器上完成
   配对，不引入仓库内脚本（作者原版没有该脚本）。
 - 保留 GPG、SSH 权限。
 
@@ -48,7 +48,7 @@ colocrossing
 
 - ml-2700：`~/Documents/Notes` 包含项目 docs 的测试笔记，git 可提交并 push Gitea。
 - Gitea `zhyi/notes` 能 `git ls-remote` 看到新提交。
-- ml-2700 / opi5p / colocrossing 的 `notes` 文件夹状态为 `idle`、`needBytes=0`、
+- ml-2700 / opi5p / greencloud 的 `notes` 文件夹状态为 `idle`、`needBytes=0`、
   `errors=0`。
 - 文档与本文件同步更新。
 
