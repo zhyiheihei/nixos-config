@@ -25,8 +25,11 @@
 
       # Browser access to the Web UI from LAN / LTNET must be explicitly
       # allowed, otherwise CSRF protection blocks the pairing page.
-      # Comma-separated because nixpkgs' settings option only accepts atoms.
-      csrf_allowed_origins = "https://192.168.0.53:47990,https://198.18.0.113:47990,https://ml-2700.zhyi.cc:47990";
+      csrf_allowed_origins = [
+        "https://192.168.0.53:47990"
+        "https://198.18.0.113:47990"
+        "https://ml-2700.zhyi.cc:47990"
+      ];
 
       # Auto adjust screen resolution to client
       global_prep_cmd = builtins.toJSON [
