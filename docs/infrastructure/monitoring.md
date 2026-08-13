@@ -87,3 +87,20 @@ nix run .#colmena -- apply --on greencloud
 
 只部署 `greencloud`，等待一个 scrape interval 后再复核。LTNet、DNS、HTTPS
 入口或证书同步异常应在对应链路修复，不能放宽探针条件来掩盖。
+
+## 近期变更（2026-08-13）
+
+- 主机改名：`colocrossing`→`greencloud`、`jpvm`→`hostdare`、`usvm`→`google`。
+  仪表盘查询全部基于动态 label（`{{instance}}`、`job=`），改名后实例与目标
+  自动跟随，无需改仪表盘代码。
+- 新主机 `tencent`（首尔，public-facing）上线：node/bird/coredns/nginx/knot/
+  wireguard exporter 与 `https://tencent.zhyi.cc` 等黑盒目标自动纳入。
+- 公共 UniAPI 入口 `ai-api.zhyi.cc` 从不可达的 `hostdare` 迁至 `tencent`。
+  该入口受 API key 保护（未认证返回 401/403），新增 `https_ok_403` 探测
+  （`blackbox-exporter.nix`），403 视为存活；`服务与网络健康` 的
+  「公网服务可用」面板计入该 job。
+- `SearXNG` 从 `opi5p` 迁至 `tencent`（`searx.tencent.zhyi.cc`，私有 vhost，
+  不探测）。
+- 家庭路由器 v2ray 代理出口从 `greencloud` 切至 `tencent`
+  （`hosts/router/v2ray.nix`）。路由器仪表盘监控 WAN/接口，不感知出口切换；
+  代理可用性以家庭侧实测为准。
