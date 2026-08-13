@@ -26,14 +26,6 @@ in
 
   networking.networkmanager.enable = lib.mkForce false;
 
-  # The installed board is the 4 GiB variant. zram is a safety margin for
-  # activation and evaluation; this board must not become a build worker.
-  zramSwap = {
-    enable = true;
-    algorithm = "zstd";
-    memoryPercent = 50;
-  };
-
   # Android's bpfloader needs this writable and enabled.  The repository-wide
   # hardening default is irreversible until reboot, so override it declaratively
   # before the first reDroid start rather than trying to repair it at runtime.
