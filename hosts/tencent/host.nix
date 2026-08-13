@@ -15,11 +15,11 @@
   cpuThreads = 2;
   hostname = "tencent.zhyi.cc";
   city = geo.cities."KR Seoul";
-  manualDeploy = true;
   # Generated during the 2026-08-13 reinstall at /nix/persistent/etc/ssh;
   # fingerprint SHA256:mQsADD14m6vckwHEmIan3gOcixlPtRos7eaNQQNiCEo.
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMKKFpoUJp+JQE4eKn47qIpeBo9y7eclUqoO0zaUIVY8 root@localhost";
-  zerotier = null;
+  # Collected on first boot via zerotier-cli info (2026-08-13).
+  zerotier = "7edc5323e0";
 
   ltnet.tcpTransportDomain = "tencent.zhyi.cc";
 
