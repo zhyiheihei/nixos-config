@@ -15,4 +15,12 @@
 
   # cn-accel is used for the v2ray exit; skip mihomo to save memory.
   lantian.mihomo.enable = false;
+
+  # Korea has no entry in the shared yggdrasil regionMappings
+  # (nixos/common-apps/yggdrasil/default.nix); peer the closest regions
+  # instead of editing the public module.
+  services.yggdrasil.regions = [
+    "japan"
+    "singapore"
+  ];
 }
