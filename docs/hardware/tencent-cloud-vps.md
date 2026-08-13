@@ -84,3 +84,18 @@ key、SOPS 身份）在 `/nix/persistent`。详细布局见
 DN42 的 BGP 对等（`services.dn42` peer 或 peerfinder secret）在 LTNET 建立后
 按需配置（当前全 fleet 均未启用，与本机无关）；`tencent.zhyi.dn42` 记录由
 `dns/common/host-recs.nix` 的 `hostRecs.DN42` 自动生成，无需手改。
+
+## 公网 IPv6（2026-08-13 启用）
+
+腾讯云给每个实例一个静态公网 IPv6（`/128`，无前缀委派）+ 一个 DHCPv6 ULA。
+eth0 的 `accept_ra` 为 0，RA 不提供默认路由；实机验证后采用：
+
+- `host.nix`：`public.IPv6 = "240d:c000:f05f:8900:4678:c7be:842a:0"`；
+- `configuration.nix`：eth0 静态地址 + 显式默认路由
+  `via fe80::fcee:6cff:fe22:4ade`（网关 link-local，由路由器 MAC
+  `fe:ee:6c:22:4a:de` 推导，`GatewayOnLink`），`IPv6AcceptRA = "no"`。
+
+融入链路：DNS AAAA（`tencent.zhyi.cc` / `v6.tencent.zhyi.cc`，hostRecs 自动）、
+ZeroTier v6/9993 endpoint、nginx `[::]` 监听（vhost 默认双栈）。Overlay 路由层
+（bird/babel）的 IPv6 一直随 LTNET（`fdd8:1938:4e88::128`）工作，与本机公网 v6
+无关。防火墙的 wg-zhyi v6 DNAT 仅作用于作者 buyvm 特例，不适用于本机。
