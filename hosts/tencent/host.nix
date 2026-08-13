@@ -25,6 +25,8 @@
 
   public = {
     IPv4 = "43.155.239.124";
+    # Tencent CVM static public IPv6 (single /128, no prefix delegation).
+    IPv6 = "240d:c000:f05f:8900:4678:c7be:842a:0";
   };
 
   dn42 = {
