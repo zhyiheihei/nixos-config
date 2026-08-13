@@ -22,8 +22,9 @@
   - `🇺🇸 美国 Google`（google.zhyi.cc）
   - `🇸🇬 新加坡 GreenCloud`（greencloud.zhyi.cc）
   - `🇰🇷 韩国 Tencent`（tencent.zhyi.cc）
-  - seed 服务会清理旧主机名遗留节点（`jpvm`/`usvm`/`colocrossing`），节点名以
-    LinkName（链接 #fragment，机器名）为准，显示名 `name` 用规范命名
+  - seed 服务会清理旧主机名遗留节点（`jpvm`/`usvm`/`colocrossing`）。SublinkPro
+    添加节点时 `NameMode=link`，客户端看到的是链接 `#fragment`（LinkName），因此
+    seed 与面板添加节点都用**规范命名作为 fragment**，`name` 字段保持一致
 - 机场节点：机场 `xsus`（id=1，`xs.sujieok.cn`，每 12 小时自动拉取）——订阅
   通过 `airports=1` 挂载，机场新增节点会自动进入统一订阅，无需手动添加
 - Clash 模板：`./template/unified-clash.yaml`——**分流规则与机场 xsus 完全一致**
@@ -45,9 +46,9 @@ seed 服务（`sublinkpro-seed.service`）在全新数据库上仍会创建自�
 （`api/clients.go` 的 `getSubscriptionUsage`：累加各机场 `usage_*` 字段，
 expire 取最近）。只有开启用量获取的机场才参与统计。
 
-机场 `xsus` 目前**未开启**用量获取（`fetch_usage_info=0`），因此订阅返回
-`upload=0; download=0; total=0`。要显示机场真实配额（当前 total≈168G，
-剩余≈18.92G，到期 2026-10-16）：
+机场 `xsus` 的用量获取**已开启**（2026-08-13 通过官方 API 设置
+`fetch_usage_info` 并 `refresh-usage`），统一订阅当前返回机场真实配额
+（`total≈168G`，upload/download 实时，到期 2026-10-16）。后续如需重新刷新：
 
 ```bash
 # 在 greencloud 上（需要机场完整字段，含订阅 URL；勿写入配置/仓库）
