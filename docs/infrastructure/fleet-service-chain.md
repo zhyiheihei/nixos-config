@@ -285,7 +285,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | MoviePilot | `https://moviepilot.rock5c.zhyi.cc` | 应用登录 |
 | Home Assistant | `https://ha.zhyi.cc` | Dex OAuth |
 | Syncthing | `https://syncthing.opi5p.zhyi.cc` | Dex OAuth |
-| Syncthing (Colocrossing) | `https://syncthing.greencloud.zhyi.cc` | Dex OAuth |
+| Syncthing (GreenCloud) | `https://syncthing.greencloud.zhyi.cc` | Dex OAuth |
 | ArchiveBox | `https://archivebox.opi5p.zhyi.cc` | Dex OAuth |
 | WebDAV（webdev） | `https://dav.opi5p.zhyi.cc` | Basic Auth |
 | QNAP NAS | `https://qnap.zhyi.cc` | 应用管理 |
