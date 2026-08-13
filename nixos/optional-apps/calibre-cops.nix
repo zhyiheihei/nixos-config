@@ -111,7 +111,7 @@ in
       $config['cops_provide_kepub'] = '1';
       # $config['cops_server_side_render'] = '.';
       $config['cops_template'] = 'bootstrap5';
-      $config['cops_title_default'] = 'Lan Tian @ Books';
+      $config['cops_title_default'] = 'Magic Flash @ Books';
       $config['cops_titles_split_first_letter'] = '0';
       $config['cops_use_fancyapps'] = '0';
       # $config['cops_use_url_rewriting'] = '1';

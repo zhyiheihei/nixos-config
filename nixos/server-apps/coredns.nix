@@ -48,7 +48,7 @@ let
         ${dnssec null}
       }
 
-      # DN42 Lan Tian Authoritatives
+      # DN42 Magic Flash Authoritatives
       ${forwardZone "zhyi.dn42" "Kzhyi.dn42.+013+23771"}
       ${forwardZone "asn.zhyi.dn42" null}
       ${forwardZone "224/27.46.20.172.in-addr.arpa" "K224_27.46.20.172.in-addr.arpa.+013+49136"}
@@ -76,7 +76,7 @@ let
 
       # Public Internet Authoritative
 
-      # Lan Tian Mobile VoLTE
+      # Magic Flash Mobile VoLTE
       ${forwardZone "mnc001.mcc001.3gppnetwork.org" null}
       ${forwardZone "mnc010.mcc315.3gppnetwork.org" null}
       ${forwardZone "mnc999.mcc999.3gppnetwork.org" null}
