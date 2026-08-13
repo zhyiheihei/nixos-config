@@ -1,16 +1,12 @@
 {
   config,
-  inputs,
   LT,
   ...
 }:
 {
-  sops.secrets.dex-vaultwarden-secret = {
-    sopsFile = inputs.secrets + "/common/dex.yaml";
-    owner = "vaultwarden";
-    group = "vaultwarden";
-  };
-
+  # The dex-vaultwarden-secret itself is declared in dex.nix (mode 0444 so
+  # both the dex and vaultwarden service users can read it); here we only
+  # render it into a systemd EnvironmentFile for the vaultwarden unit.
   sops.templates."vaultwarden-sso.env" = {
     content = "SSO_CLIENT_SECRET=${config.sops.secrets.dex-vaultwarden-secret.path}";
     owner = "vaultwarden";
