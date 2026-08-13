@@ -27,7 +27,7 @@
   routable 时立即触发 DDNS 更新，另有 hourly timer 兜底。
 - 指向 `home-ddns.zhyi.cc` 的静态 CNAME 统一使用 `120s` TTL，使 WAN IP 变更后
   旧 CNAME 缓存也能在 2 分钟内失效；此修改不新增动态 RRSet 或健康检查。
-- `twvm` 已退出生产拓扑。当前公网 VPS 为 `jpvm`、`cnvm`、`colocrossing`、`usvm`；
+- `twvm` 已退出生产拓扑。当前公网 VPS 为 `jpvm`、`cnvm`、`colocrossing`、`google`；
   根域 `zhyi.cc` 指向 `jpvm`，根域 `zhyi.xin` 指向 `cnvm`。
 - 目前不实施公网自动故障转移。未来若恢复该需求，应先升级 Gcore 套餐或迁移到
   支持多条健康检查记录的 DNS 提供商；不要在免费套餐上重新批量改 GEO。

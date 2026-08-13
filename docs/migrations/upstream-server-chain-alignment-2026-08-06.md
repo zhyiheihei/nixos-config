@@ -84,13 +84,13 @@ mihomo。
 
 - `nixos/server-apps/mihomo.nix` 存在，但本地加了 `lantian.mihomo.enable`
   option（默认 true）；
-- `colocrossing`、`jpvm`、`usvm` 三台 cn-accel 主机显式
+- `colocrossing`、`jpvm`、`google` 三台 cn-accel 主机显式
   `lantian.mihomo.enable = false`，注释说明使用 v2ray 出口并省内存；
 - `nixos/server-apps/v2ray.nix` 与作者一致，按 cn-accel 标签启用，
   因此我们目前只跑 v2ray，作者是 v2ray + mihomo。
 
 建议：删除三处 `lantian.mihomo.enable = false`，恢复作者默认链路。
-注意 jpvm（1 vCPU）和 usvm（2GB）内存较小，建议先 colocrossing，
+注意 jpvm（1 vCPU）和 google（2GB）内存较小，建议先 colocrossing，
 另外两台 dry-run + 内存观察后决定。
 
 ### 2. actual 记账（`4223a903`、`0ffe18a3`）
@@ -207,7 +207,7 @@ router 已有 conntrack 指标和 Grafana 面板。
 
 1. 低风险纯对齐：删 axonhub 残留映射、补 it-tools、speedtest-go、
    nf_conntrack/ICMP sysctl、conntrack 告警、webfinger 302。
-2. mihomo：先在 colocrossing 开启，jpvm/usvm 评估内存后再决定。
+2. mihomo：先在 colocrossing 开启，jpvm/google 评估内存后再决定。
 3. actual、ncmm、auto-mihoyo、skyland：先确认 secrets 凭据，再补模块
    和主机 import。
 4. lancache、asterisk、open5gs 等大服务：单独出方案确认。

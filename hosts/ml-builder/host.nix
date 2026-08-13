@@ -44,7 +44,7 @@
   # the same WSS transport used by the other home server nodes.
   ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
   ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
-  ltnet.tcpTransportPeers.usvm = "usvm.zhyi.cc";
+  ltnet.tcpTransportPeers.google = "google.zhyi.cc";
   dn42.region = constants.dn42.region.Asia-E;
 
 }

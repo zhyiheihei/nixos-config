@@ -99,7 +99,7 @@ rec {
 
   maintenanceHosts = {
     "opi5p" = [ "home" ];
-    "usvm" = [ "storagebox" ];
+    "google" = [ "storagebox" ];
   };
 
   resticCommands = lib.mapAttrsToList (

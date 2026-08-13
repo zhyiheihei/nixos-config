@@ -16,7 +16,7 @@
   city = geo.cities."JP Tokyo";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFdTsRnGGIr6WOBU0eG0fmaURyYUd5BIUlwBUpsmqHJT molishanguang@gmail.com";
   zerotier = "47c75f186a";
-  ltnet.tcpTransportDomain = "usvm.zhyi.cc";
+  ltnet.tcpTransportDomain = "google.zhyi.cc";
   public = {
     IPv4 = "35.212.152.140";
   };

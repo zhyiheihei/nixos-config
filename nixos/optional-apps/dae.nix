@@ -57,7 +57,7 @@ in
 
         node {
           v2ray: "socks5://localhost:${LT.portStr.V2Ray.SocksClient}"
-          usvm: "socks5://${LT.hosts.usvm.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
+          google: "socks5://${LT.hosts.google.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
         }
 
         dns {
@@ -80,7 +80,7 @@ in
 
         group {
           proxy {
-            filter: name(v2ray, usvm)
+            filter: name(v2ray, google)
             policy: min_moving_avg
           }
         }

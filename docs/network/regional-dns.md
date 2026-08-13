@@ -50,10 +50,10 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
 
 - 2026-08-10：新增本文档；recursor 公共上游按地区扩容；国内 CoreDNS 增加
   DNSPod 兜底；minimal 默认 fallback 按 `LT.this.city.country` 分流；移除
-  cnvm/jpvm/usvm/colocrossing 与默认重复的显式 nameserver（colocrossing 仅保留
+  cnvm/jpvm/google/colocrossing 与默认重复的显式 nameserver（colocrossing 仅保留
   Google IPv6）。
 - 2026-08-10（独立 agent 验证与部署）：`0abf17ee` 在 ml-builder 上求值通过，
-  cnvm toplevel 构建成功；`usvm`、`colocrossing` 已部署，运行态 resolv.conf、
+  cnvm toplevel 构建成功；`google`、`colocrossing` 已部署，运行态 resolv.conf、
   `/etc/pdns-recursor/recursor.yml` 与 `dig @198.19.0.253` 均符合预期。
 - 2026-08-10（SERVFAIL 根因）：AliDNS、DNSPod、Google 对 `zhyi.cc`/`zhyi.xin`
   均返回 NOERROR 且无 RRSIG/AD，而 recursor 报 EDE 6（DNSSEC Bogus），因此按

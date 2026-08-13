@@ -27,7 +27,7 @@ flowchart LR
     CNVM["cnvm\n身份 / Vaultwarden / Attic / Halo"]
     Colo["colocrossing\n公网入口 / 协作 / AI 前端 / 监控"]
     JPVM["jpvm\n公开 UniAPI / DN42（未验证）"]
-    USVM["usvm\n网络出口；日志后端当前缺失"]
+    USVM["google\n网络出口；日志后端当前缺失"]
   end
 
   subgraph Home["家庭网络"]
@@ -59,7 +59,7 @@ flowchart LR
 ## 主机账本
 
 审计时共声明 14 台主机。10 台可连接，其中 8 台为 `running`；`colocrossing` 与
-`usvm` 因 `openvpn-gameaccel.service` 失败处于 `degraded`。另外 4 台只能核对声明。
+`google` 因 `openvpn-gameaccel.service` 失败处于 `degraded`。另外 4 台只能核对声明。
 
 | 主机 | 角色 | 主要服务归属 | 审计状态 |
 | --- | --- | --- | --- |
@@ -71,7 +71,7 @@ flowchart LR
 | `jpvm` | 公网、DN42、`cn-accel` | server 公共基线、公开 UniAPI、V2Ray/OpenVPN 加速 | 公网和 LTNET 均不可达，运行态未验证 |
 | `cnvm` | 公网 server | Attic、Dex、Pocket ID、Vaultwarden、GLAuth、Halo、OAuth2 Proxy、MySQL、PostgreSQL、DNS/Nginx | 运行，0 failed units |
 | `colocrossing` | 公网、DN42、协作与监控中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Prometheus、Grafana、ClickHouse、ZeroTier Controller 等 | 运行；OpenVPN 失败，系统 degraded |
-| `usvm` | 公网、`cn-accel` | server 公共基线、V2Ray、Filebeat；声明中的日志汇聚后端当前不存在 | 运行；OpenVPN 失败，系统 degraded |
+| `google` | 公网、`cn-accel` | server 公共基线、V2Ray、Filebeat；声明中的日志汇聚后端当前不存在 | 运行；OpenVPN 失败，系统 degraded |
 | `opi5p` | server、原生 ARM 回退 builder | 数据库、家庭应用、下载自动化、NCPS、文件服务、打印、ClamAV、reDroid | 运行，0 failed units |
 | `rock5c` | server、家庭边缘 | 家庭 Nginx 入口、MetaCubeXD、Homepage、主 UniAPI、FastAPI-DLS、GLAuth、vlmcsd、媒体应用（MoviePilot/Jellyfin/HandBrake）、reDroid | 运行，0 failed units |
 | `lubancat1` | `low-ram` server | BIRD、WG/WSS、Yggdrasil、ZeroTier、CoreDNS、Nginx、exporters、Bluetooth | 运行，0 failed units；尚未迁入用户应用 |
@@ -213,7 +213,7 @@ ml-home-vm 已退役，旧 `*.ml-home-vm.zhyi.cc` 名称不应再被当作实际
 在凭据不完整时阻止启动，应标记为“已声明、未运行”。
 
 日志链当前不完整：非 `low-ram` server 的 Filebeat 配置为发送到
-`es-ingest.usvm.zhyi.cc`，但 `usvm` 没有导入 Elasticsearch 模块，实机也没有
+`es-ingest.google.zhyi.cc`，但 `google` 没有导入 Elasticsearch 模块，实机也没有
 Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行”。
 
 ## 服务清单与 Homepage 核对（2026-08-11 复核）
@@ -314,10 +314,10 @@ NFS 等生成卡片；WebDAV 卡片保留在 `08 · 私有 · 家庭服务` 分�
 | 优先级 | 漂移 | 风险 | 后续处理 |
 | --- | --- | --- | --- |
 | P0 | ml-builder 运行态仍把 PVE 列为下游 builder | PVE 与 ml-builder 可再次互相等待同一 store lock | 部署 ml-builder 后复核 `/etc/nix/machines` |
-| P0 | Filebeat 指向不存在的 usvm Elasticsearch | 舰队日志持续无法落库 | 对照作者决定恢复 Elasticsearch 或关闭/改写日志链 |
+| P0 | Filebeat 指向不存在的 google Elasticsearch | 舰队日志持续无法落库 | 对照作者决定恢复 Elasticsearch 或关闭/改写日志链 |
 | P1 | LibreChat/Metapi 曾使用未解析的 `uni-api.ml-home-vm.zhyi.cc` | AI 调用依赖旧别名 | 已统一改为 `uni-api.rock5c.zhyi.cc` 并完成模型检查 |
 | P1 | AxonHub 只在文档出现，未部署 | 运维人员会误判已有网关和数据库 | 保持“未部署候选”，除非明确重新导入模块 |
-| P1 | colocrossing、usvm 的 OpenVPN gameaccel 同时失败 | 两台系统 degraded，CN 加速链不完整 | 检查证书、密钥和服务日志后修复或明确禁用 |
+| P1 | colocrossing、google 的 OpenVPN gameaccel 同时失败 | 两台系统 degraded，CN 加速链不完整 | 检查证书、密钥和服务日志后修复或明确禁用 |
 | P2 | hosts 概览仍把 LubanCat-1 写成 DHCP/minimal，遗漏 OPI03 | 接入与容量判断错误 | 已随本次文档更新 |
 | P2 | ROCK 5C/OPI5P 部分迁移注释仍称入口在 ml-home-vm | 后续维护可能把代理改回旧 VM | 当前链路文档已改为 ROCK 5C；历史迁移注释保留为记录 |
 

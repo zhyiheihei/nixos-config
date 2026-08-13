@@ -32,7 +32,7 @@
   # the existing WSS transport, matching the established ml-home-vm topology.
   ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
   ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
-  ltnet.tcpTransportPeers.usvm = "usvm.zhyi.cc";
+  ltnet.tcpTransportPeers.google = "google.zhyi.cc";
   # Server-role BIRD configuration consumes the region even without dn42.
   dn42.region = constants.dn42.region.Asia-E;
   zerotier = "7e7ce20750";
