@@ -7,8 +7,9 @@
 {
   index = 122;
   system = "aarch64-linux";
-  # Follow the author's native-architecture builder topology: this RK3588
-  # handles aarch64 derivations whose build scripts must execute target code.
+  # Native ARM fallback builder: this RK3588 handles aarch64 derivations
+  # whose build scripts must execute target code; the dedicated build path
+  # remains ml-builder (see docs/reference/hosts-overview.md).
   tags = with tags; [
     lan-access
     nix-builder

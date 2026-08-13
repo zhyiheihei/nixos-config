@@ -52,6 +52,16 @@ in
     https_proxy = config.lantian.ncps.proxy;
     no_proxy = ncpsProxyBypass;
   };
+  # NCPS cache lives on the local NVMe-backed persistent filesystem, not on
+  # the NFS-backed /mnt/storage. Kept together with the service's proxy
+  # settings per module-placement-norms §2/§3.
+  lantian.ncps = {
+    dataPath = "/nix/persistent/var/cache/ncps";
+    tempPath = "/nix/persistent/var/cache/ncps-tmp";
+    proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    proxyUnit = null;
+    storageUnit = "nix.mount";
+  };
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.
   # Match ml-builder so a healthy private cache is not disabled prematurely.
@@ -117,9 +127,9 @@ in
   # started manually. Yggdrasil still starts via multi-user.target.
   systemd.services.yggdrasil.unitConfig.Before = lib.mkForce [ ];
 
-  # TEMPORARY: with reDroid disabled, expand zram to the full 8 GiB so the
-  # immich RKNN build (onnxruntime) can proceed without OOM. Remove together
-  # with the redroid disable above.
+  # reDroid is intentionally disabled (2026-08, memory pressure policy; the
+  # RKNN worker moved to ROCK 5C). While it stays off, keep the full zram
+  # capacity available to the remaining services; revisit when reDroid returns.
   zramSwap.memoryPercent = lib.mkForce 100;
 
   # This is a production media/database/reDroid node first and an ARM builder
@@ -175,8 +185,9 @@ in
   '';
 
   virtualisation.oci-containers.containers.redroid = {
-    # TEMPORARY: disabled while opi5p hosts the immich RKNN build and memory
-    # is tight (8 GiB total). Re-enable by removing this line.
+    # Intentionally disabled (2026-08): reDroid stays off while memory is
+    # shared with the production media/database stack. Re-enable deliberately
+    # by removing this line.
     autoStart = lib.mkForce false;
     image = "docker.io/cnflysky/redroid-rk3588:lineage-20";
     labels."io.containers.autoupdate" = "registry";
@@ -217,7 +228,7 @@ in
   };
 
   systemd.services.podman-redroid = {
-    # TEMPORARY: disabled together with the redroid container above.
+    # Intentionally disabled together with the redroid container above.
     enable = lib.mkForce false;
     wants = [ "network-online.target" ];
     after = [ "network-online.target" ];
