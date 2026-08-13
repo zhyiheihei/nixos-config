@@ -24,8 +24,9 @@
 | `opi5p` | 122 | RK3588 / reDroid | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。 |
 | `rock5c` | 123 | RK3588 / 家庭边缘 | `192.168.0.64` | Radxa ROCK 5C；边缘代理、控制链、MetaCubeXD 与 reDroid。 |
 | `lubancat1` | 124 | RK3566 / `server` / `low-ram` | `192.168.0.65` | 原版 LubanCat-1（非 V2），2 GiB RAM、无 eMMC；server 基线已上线，尚未迁入用户应用。 |
-| `h28k` | 125 | RK3528 / 异地路由器（预部署） | WAN DHCP / LAN `192.168.30.1` | HINLINK H28K；双千兆口、Kea、CoreDNS 与 nftables NAT；SSH/SOPS/ZeroTier 身份待首启采集。 |
+| `h28k` | 125 | RK3528 / 异地路由器（预部署） | WAN DHCP / LAN `192.168.30.1` | HINLINK H28K；双千兆口、Kea、CoreDNS 与 nftables NAT；SSH/SOPS/ZeroTier 身份已采集（08-04 修正 ZeroTier 身份），仍在家中 staging（临时 SSH 放行规则保留），待迁异地站点。 |
 | `opi03` | 126 | H618 / reDroid 实验设备 | DHCP（未固定） | Orange Pi Zero 3；本地 Android 镜像和硬件加速仍在开发，尚未完成正式网络身份与实机验收。 |
+| `taishanpi` | 127 | RK3566 / 暂停维护 | 未定（Wi-Fi bring-up） | LCKFB Taishan Pi（泰山派）；无有线网卡，Wi-Fi/MIPI 适配中；2026-08 起暂停维护。 |
 
 家庭局域网地址、MAC 与 DHCP 边界以 [家庭局域网 IP 规划](../network/home-lan-ip-plan.md)
 为准；LTNET、ZeroTier、WireGuard 与 DN42 关系以
