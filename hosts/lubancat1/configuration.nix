@@ -28,14 +28,6 @@
 
   networking.networkmanager.enable = lib.mkForce false;
 
-  # The installed board has 2 GiB RAM. zram provides a small safety margin for
-  # NixOS activation without turning this low-power board into a build worker.
-  zramSwap = {
-    enable = true;
-    algorithm = "zstd";
-    memoryPercent = 50;
-  };
-
   # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
   # author's backup semantics by pointing the endpoint at the migrated host.
   lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
