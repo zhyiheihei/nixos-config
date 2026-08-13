@@ -96,7 +96,7 @@
       };
       ShowHomeButton = false;
       SupportMenu = {
-        Title = "Lan Tian @ Blog";
+        Title = "Magic Flash @ Blog";
         URL = "https://zhyi.xin";
         AccessKey = "S";
       };

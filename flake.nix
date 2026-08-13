@@ -1,5 +1,5 @@
 {
-  description = "Lan Tian's NixOS Flake";
+  description = "Magic Flash's NixOS Flake";
 
   inputs = {
     # Common libraries

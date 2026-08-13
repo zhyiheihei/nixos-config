@@ -25,7 +25,7 @@ let
       meshtastic = {
         connection_type = "serial";
         serial_port = "/dev/ttyUSB0";
-        meshnet_name = "Lan Tian";
+        meshnet_name = "Magic Flash";
         message_interactions = {
           reactions = false;
           replies = false;

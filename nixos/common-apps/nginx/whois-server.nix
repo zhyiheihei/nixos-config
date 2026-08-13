@@ -161,7 +161,7 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
           rewrite "^/([0-9]+)$" /AS$1 last;
           rewrite "^/([0-9]+)\.([0-9]+)\.([0-9]+)\.([0-9]+)$" /$1.$2.$3.$4/32 last;
           rewrite "^/([0-9a-fA-F:]+)$" /$1/128 last;
-          return 200 "% Lan Tian Nginx-based WHOIS Server\n% GET $request_uri:\n% 404 Not Found\n";
+          return 200 "% Magic Flash Nginx-based WHOIS Server\n% GET $request_uri:\n% 404 Not Found\n";
         '';
 
         "~* \"^/[Aa][Ss]([0-9]+)$\"".extraConfig = ''

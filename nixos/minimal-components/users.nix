@@ -44,7 +44,7 @@ in
       hashedPassword = lib.mkForce unixHashedPassword;
       isNormalUser = true;
       isSystemUser = lib.mkForce false;
-      description = "Lan Tian";
+      description = "Magic Flash";
       group = "zhyi";
       extraGroups = [
         # keep-sorted start
