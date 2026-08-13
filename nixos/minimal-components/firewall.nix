@@ -366,7 +366,7 @@ in
     '';
   };
 
-  networking.nftables = {
+  config.networking.nftables = {
     enable = true;
     tables = {
       lantian = {
