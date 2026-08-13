@@ -134,7 +134,7 @@ in
       accessibleBy = "localhost";
     };
   }
-  // lib.optionalAttrs (config.networking.hostName == "hostdare") {
+  // lib.optionalAttrs (config.networking.hostName == "tencent") {
     "ai-api.zhyi.cc" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";

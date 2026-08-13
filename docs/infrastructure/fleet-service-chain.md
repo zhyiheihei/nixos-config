@@ -26,8 +26,8 @@ flowchart LR
   subgraph Public["公网节点"]
     CNVM["cnvm\n身份 / Vaultwarden / Attic / Halo"]
     Colo["greencloud\n公网入口 / 协作 / AI 前端 / 监控"]
-    JPVM["hostdare\n公开 UniAPI / DN42（未验证）"]
-    USVM["google\n网络出口；日志后端当前缺失"]
+    HOSTDARE["hostdare\n公开 UniAPI / DN42（未验证）"]
+    GOOGLE["google\n网络出口；日志后端当前缺失"]
   end
 
   subgraph Home["家庭网络"]
@@ -51,7 +51,7 @@ flowchart LR
   OPI <--> QNAP
   Colo -->|"LibreChat / n8n / Metapi"| Rock
   Rock --> Provider
-  JPVM --> Provider
+  HOSTDARE --> Provider
   Builder -->|"原生 ARM 回退"| OPI
   CNVM -->|"Attic S3 数据面"| OPI
 ```
@@ -264,7 +264,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | Uni API | `https://uni-api.rock5c.zhyi.cc` | API key |
 | MetaAPI | `https://metapi.greencloud.zhyi.cc` | 应用口令 / token |
 | n8n OpenAI Bridge | `https://n8n-bridge.greencloud.zhyi.cc/health` | bearer token |
-| SearxNG | `https://searx.opi5p.zhyi.cc` | 私有 |
+| SearxNG | `https://searx.tencent.zhyi.cc` | 私有 |
 | FastAPI DLS | `https://fastapi-dls.rock5c.zhyi.cc` | 租约 token |
 | RSSHub | `https://rsshub.zhyi.xin` | 私有 |
 | PVE | `https://pve-5700u.zhyi.cc:8006` | 应用登录 |
