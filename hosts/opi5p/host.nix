@@ -30,7 +30,7 @@
   };
   # This board is behind the home NAT. Carry its public-server mesh peers over
   # the existing WSS transport, matching the established ml-home-vm topology.
-  ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
+  ltnet.tcpTransportPeers.hostdare = "hostdare.zhyi.cc";
   ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
   ltnet.tcpTransportPeers.google = "google.zhyi.cc";
   # Server-role BIRD configuration consumes the region even without dn42.

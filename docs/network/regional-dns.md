@@ -50,7 +50,7 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
 
 - 2026-08-10：新增本文档；recursor 公共上游按地区扩容；国内 CoreDNS 增加
   DNSPod 兜底；minimal 默认 fallback 按 `LT.this.city.country` 分流；移除
-  cnvm/jpvm/google/colocrossing 与默认重复的显式 nameserver（colocrossing 仅保留
+  cnvm/hostdare/google/colocrossing 与默认重复的显式 nameserver（colocrossing 仅保留
   Google IPv6）。
 - 2026-08-10（独立 agent 验证与部署）：`0abf17ee` 在 ml-builder 上求值通过，
   cnvm toplevel 构建成功；`google`、`colocrossing` 已部署，运行态 resolv.conf、
@@ -76,5 +76,5 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
 - 2026-08-10（Attic 迁移执行）：colocrossing 已部署 atticd 并恢复元数据，
   DNS 已切换，cnvm 的 atticd 已移除；待 colocrossing 链路稳定后重推
   moviepilot 并清理临时 dump/key。
-- 待办：`jpvm` 流量耗尽不可达，配置未切换；配额恢复后执行
-  `colmena apply --on jpvm` 并复核。
+- 待办：`hostdare` 流量耗尽不可达，配置未切换；配额恢复后执行
+  `colmena apply --on hostdare` 并复核。

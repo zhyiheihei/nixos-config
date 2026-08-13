@@ -40,7 +40,7 @@ curl -sS "http://127.0.0.1:9090/api/v1/query" --data-urlencode 'query=<指标>' 
 - **入口**：prometheus / alertmanager / grafana 服务 active
 - **日志**：各服务 journalctl 的 error/warn（如 Grafana datasource 报错、Prometheus 抓取失败）
 - **监控指标**：
-  - `up{job!="blackbox"}` 的 down 目标（排除已知离线机：jpvm 流量耗尽、opi03/h28k 未部署）
+  - `up{job!="blackbox"}` 的 down 目标（排除已知离线机：hostdare 流量耗尽、opi03/h28k 未部署）
   - `scrape_samples_scraped` / 抓取成功率（router 国际 ZT 链路丢包，node job 已调 2m/110s）
   - 关键 exporter：blackbox、wireguard、coredns（knot）、bird、mysql、exportarr（radarr/sonarr/bazarr/prowlarr）
 - **面板**：Grafana 各面板非空（「设备性能」「链路速率」「各接口实时吞吐」等），注意 panel 的 refId 不能重复（Grafana 13+）
@@ -129,6 +129,6 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
 
 - 🔴 必须当次处理或明确排期；🟡 记录并观察；🟢 说明为何是噪音（避免下次重复排查）
 - 已知离线/噪音清单（巡检时直接排除，节省时间）：
-  - jpvm（流量耗尽离线，blackbox/node 告警属预期）
+  - hostdare（流量耗尽离线，blackbox/node 告警属预期）
   - opi03 / h28k（未部署，或用户工作中）
   - prowlarr `Missing translation`、decluttarr pre-start、jellyfin WS 断开 = 噪音

@@ -26,7 +26,7 @@ flowchart LR
   subgraph Public["公网节点"]
     CNVM["cnvm\n身份 / Vaultwarden / Attic / Halo"]
     Colo["colocrossing\n公网入口 / 协作 / AI 前端 / 监控"]
-    JPVM["jpvm\n公开 UniAPI / DN42（未验证）"]
+    JPVM["hostdare\n公开 UniAPI / DN42（未验证）"]
     USVM["google\n网络出口；日志后端当前缺失"]
   end
 
@@ -68,7 +68,7 @@ flowchart LR
 | `ml-builder` | 主 `nix-builder`、Hydra、server | 单任务受限并发 x86 构建、ARM 交叉构建、Hydra、PostgreSQL、ArchiveTeam、ClawEmail、Epic Awesome Gamer、分布式 Nix、NCPS client；server 网络/DNS/监控基线 | 运行，0 failed units（2026-08-12 复核） |
 | `ml-home-vm` | server | BIRD、WG/WSS、CoreDNS authoritative、Knot、PowerDNS Recursor、Nginx、Filebeat、exporters | 已退役（2026-08-03）：服务迁至 ROCK5C/OPI5P/PVE，备份端点已迁移 OPI5P |
 | `pve-5700u` | PVE 宿主 | Proxmox VE、VM 数据备份 | 运行，0 failed units；VM 数据备份迁移后复核通过 |
-| `jpvm` | 公网、DN42、`cn-accel` | server 公共基线、公开 UniAPI、V2Ray/OpenVPN 加速 | 公网和 LTNET 均不可达，运行态未验证 |
+| `hostdare` | 公网、DN42、`cn-accel` | server 公共基线、公开 UniAPI、V2Ray/OpenVPN 加速 | 公网和 LTNET 均不可达，运行态未验证 |
 | `cnvm` | 公网 server | Attic、Dex、Pocket ID、Vaultwarden、GLAuth、Halo、OAuth2 Proxy、MySQL、PostgreSQL、DNS/Nginx | 运行，0 failed units |
 | `colocrossing` | 公网、DN42、协作与监控中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Prometheus、Grafana、ClickHouse、ZeroTier Controller 等 | 运行；OpenVPN 失败，系统 degraded |
 | `google` | 公网、`cn-accel` | server 公共基线、V2Ray、Filebeat；声明中的日志汇聚后端当前不存在 | 运行；OpenVPN 失败，系统 degraded |
@@ -120,7 +120,7 @@ LibreChat / Metapi / n8n（colocrossing）
                     |
                     `-> n8n OpenAI Bridge（colocrossing）
 
-ai-api.zhyi.cc -> 独立 UniAPI（jpvm，当前未验证） -> 外部 Provider
+ai-api.zhyi.cc -> 独立 UniAPI（hostdare，当前未验证） -> 外部 Provider
 ```
 
 - `LibreChat`、`n8n`、`n8n-openai-bridge` 和 `Metapi` 已确认在 `colocrossing` 运行；
@@ -129,7 +129,7 @@ ai-api.zhyi.cc -> 独立 UniAPI（jpvm，当前未验证） -> 外部 Provider
   通过 LTNET 访问 ROCK 5C 上的主 UniAPI；
 - `AxonHub` 模块存在，但没有被任何 host 导入，实机也没有 `axonhub.service`；它是
   未部署候选，不是当前链路的一部分；
-- `jpvm` 声明独立公开 UniAPI，但主机不可达，不能标记为已运行。
+- `hostdare` 声明独立公开 UniAPI，但主机不可达，不能标记为已运行。
 
 UniAPI 仍是唯一外部 Provider 汇聚点。不得把 Metapi、AxonHub 或 n8n Bridge 反向
 配置为循环上游。

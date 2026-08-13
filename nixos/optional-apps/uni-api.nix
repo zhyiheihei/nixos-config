@@ -134,7 +134,7 @@ in
       accessibleBy = "localhost";
     };
   }
-  // lib.optionalAttrs (config.networking.hostName == "jpvm") {
+  // lib.optionalAttrs (config.networking.hostName == "hostdare") {
     "ai-api.zhyi.cc" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";

@@ -15,13 +15,12 @@ let
     "50kvm" = LT.hosts.cnvm;
     gigsgigscloud = LT.hosts.cnvm;
     hetzner-de = LT.hosts."colocrossing";
-    hostdare = LT.hosts.jpvm;
     linkin = LT.hosts.cnvm;
     oneprovider = LT.hosts."colocrossing";
     soyoustart = LT.hosts."colocrossing";
     v-ps-hkg = LT.hosts.cnvm;
-    v-ps-sjc = LT.hosts.jpvm;
-    virmach-ny3ip = LT.hosts.jpvm;
+    v-ps-sjc = LT.hosts.hostdare;
+    virmach-ny3ip = LT.hosts.hostdare;
     # keep-sorted end
   }
   // lib.optionalAttrs (LT.hosts ? buyvm) {

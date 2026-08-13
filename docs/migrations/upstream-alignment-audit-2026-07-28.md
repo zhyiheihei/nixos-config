@@ -46,12 +46,12 @@
 ### 1. 主机清单与主机身份
 
 不恢复作者已删除或本地不存在的主机，也不把本地主机改回作者的名称、地址和
-硬件。当前继续使用 `cnvm`、`jpvm`、`ml-home-vm`、`google`、`router`、
+硬件。当前继续使用 `cnvm`、`hostdare`、`ml-home-vm`、`google`、`router`、
 `ml-builder`、`opi5p` 等本地主机。
 
 本次把 5 个本地 `host.nix` 的 DN42 region 从裸数字改成作者的新命名常量：
 
-- `cnvm`、`jpvm`、`ml-home-vm`、`google`：`Asia-E`
+- `cnvm`、`hostdare`、`ml-home-vm`、`google`：`Asia-E`
 - `colocrossing`：`Asia-SE`
 
 这属于接口对齐；主机本身及其实际地域仍是 fork 差异。
