@@ -13,19 +13,19 @@ rock5c -- LTNET -- greencloud -- public IPv4 -- hostdare -- public IPv4 -- cnvm
 - `hostdare` reflects routes between `greencloud` and `cnvm`.
 - `hostdare` is the active external DN42 ingress and public LTNET relay.
 - ZeroTier remains the management and discovery network. It is not the normal
-  data path for the greencloud-to-JPVM BGP session.
+  data path for the greencloud-to-hostdare BGP session.
 - Hosts without a public or shared interconnect can still use the automatic
   ZeroTier fallback inherited by the WireGuard mesh module.
 
 The explicit `ltnet.peers` lists prevent retained upstream example hosts from
 joining the live mesh. A null list preserves the author's full-mesh behavior.
 
-`greencloud` and `cnvm` initiate WireGuard sessions to JPVM's fixed public
-IPv4 address. JPVM learns the roaming home endpoint from authenticated
+`greencloud` and `cnvm` initiate WireGuard sessions to hostdare's fixed public
+IPv4 address. hostdare learns the roaming home endpoint from authenticated
 WireGuard traffic. These two cross-provider WireGuard sessions are carried by
 wstunnel over `hostdare.zhyi.cc:443` because the direct UDP path is asymmetric. The
 upper WireGuard and BIRD topology remains unchanged, and the wstunnel server is
-restricted to JPVM's two local WireGuard ports.
+restricted to hostdare's two local WireGuard ports.
 
 ## Rsync path
 

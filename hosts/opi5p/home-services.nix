@@ -11,7 +11,6 @@
     ../../nixos/optional-apps/immich-rockchip.nix
     ../../nixos/optional-apps/memos-nix.nix
     ../../nixos/optional-apps/ncps.nix
-    ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/sun-panel-nix.nix
     ../../nixos/optional-apps/syncthing

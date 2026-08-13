@@ -80,7 +80,7 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 443；Nginx 不额外监听 8443。不要把 `8443` 固化进 DNS 记录或内部服务配置。
 
 Hydra 已于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统一由 greencloud
-的 Nginx vhost 反代到 ml-builder 的 LTNET 地址，不再依赖 JPVM 直连或家庭 PVE 的
+的 Nginx vhost 反代到 ml-builder 的 LTNET 地址，不再依赖 hostdare 直连或家庭 PVE 的
 公网 IPv6。不要把 Hydra 改回 pve-5700u 或改到 CNVM 来掩盖入口问题。
 
 ## 局域网覆盖

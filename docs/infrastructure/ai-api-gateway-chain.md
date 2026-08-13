@@ -33,7 +33,7 @@ ROCK 5C UniAPI ─> n8n OpenAI Bridge (greencloud) ─> n8n 工作流
 ai-api.zhyi.cc ───────────────────> hostdare UniAPI ─────────> Provider
 ```
 
-`ai-api.zhyi.cc` 是 JPVM 上的独立公开 UniAPI 入口；它也从同一份 secrets Provider
+`ai-api.zhyi.cc` 是 tencent 上的独立公开 UniAPI 入口；它也从同一份 secrets Provider
 注册表导入配置，但不依赖 greencloud 的 AxonHub 或 Metapi。
 
 LibreChat、Metapi、n8n 和 n8n OpenAI Bridge 运行在 `greencloud`。主 UniAPI
@@ -168,7 +168,7 @@ greencloud），除非明确要废弃相应网关；否则会丢失运行态初�
   secrets，而不是分别塞入多个网关。
 - **保留私有访问边界。** `metapi.greencloud.zhyi.cc` 是 private vhost；未来重新
   部署的 `axonhub.greencloud.zhyi.cc` 也必须保持 private。公开 API 入口由
-  `ai-api.zhyi.cc` 的 JPVM UniAPI 承担。
+  `ai-api.zhyi.cc` 的 tencent UniAPI 承担。
 - **不把运行态当 Nix 声明。** Nix 负责服务存在和 secret 文件挂载；应用内 channel、
   account、route、管理员、工作流等数据由各自数据库持久化和备份。
 
