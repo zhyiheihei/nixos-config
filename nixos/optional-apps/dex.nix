@@ -120,6 +120,17 @@ let
           "https://*.*.zhyi.cc/oauth2/callback"
         ];
       }
+      {
+        id = "vaultwarden";
+        name = "Vaultwarden";
+        secret = {
+          _secret = config.sops.secrets.dex-vaultwarden-secret.path;
+        };
+        redirectURIs = [
+          "https://bitwarden.zhyi.xin/sso-connector.html"
+          "bitwarden://sso-callback"
+        ];
+      }
       # keep-sorted end
     ];
   };
@@ -162,6 +173,7 @@ in
         "memos"
         "moviepilot"
         "oauth2-proxy"
+        "vaultwarden"
         # keep-sorted end
       ]
   );
