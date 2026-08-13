@@ -44,7 +44,9 @@
       };
       initial_session = {
         command = "startplasma-wayland";
-        user = "lantian";
+        # Fork deviation: this fork renames the user to zhyi, so greetd must
+        # start the session as zhyi instead of upstream's lantian.
+        user = "zhyi";
       };
     };
   };
