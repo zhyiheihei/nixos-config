@@ -342,7 +342,7 @@ in
   flapAlerted = ''
     protocol bgp sys_flapalerted {
       local ${LT.this.dn42.IPv6} as ${DN42_AS};
-      neighbor ${LT.hosts."colocrossing".ltnet.IPv6} as ${DN42_AS} port ${LT.portStr.FlapAlerted.BGP};
+      neighbor ${LT.hosts."greencloud".ltnet.IPv6} as ${DN42_AS} port ${LT.portStr.FlapAlerted.BGP};
 
       # Send all routes for analysis
       interpret communities off;

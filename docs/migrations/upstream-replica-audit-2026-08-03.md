@@ -95,7 +95,7 @@
 - `vhost-matrix-element/`、`vhost-tools/`、`vhost-um/` 仍依赖
   `!low-disk`；
 - `low-disk` 仍存在于标签常量以及 `cnvm`、`hostdare`、`google`；
-- 本地只有 `cnvm`、`hostdare`、`google`、`colocrossing` 标记为
+- 本地只有 `cnvm`、`hostdare`、`google`、`greencloud` 标记为
   `public-facing`，内网的 `ml-builder`、`ml-home-vm`、`opi5p`、
   `rock5c` 等不应自动承载这些公开站点。
 
@@ -209,7 +209,7 @@ inputs.nur-xddxdd.nixosModules.nix-cache-attic
 
 ## 推荐执行顺序
 
-1. 在 Linux 构建机求值公开主机 `colocrossing` 和内网主机 `opi5p`；
+1. 在 Linux 构建机求值公开主机 `greencloud` 和内网主机 `opi5p`；
 2. 比较两台主机生成的 Nginx vhost，确认公开站点边界；
 3. 检查私有 Attic、NCPS 的 substituter 与 trusted key 没有被作者模块覆盖；
 4. 逐台运行 NixOS 配置求值，最后再运行全局 `nix flake check`；

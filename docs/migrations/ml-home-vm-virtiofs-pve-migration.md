@@ -201,7 +201,7 @@ The migration completed on 2026-07-16 with VM ID 105 on `pve-5700u`.
   path. Keep it for at least one week and until an independent restore test
   has passed.
 
-During the migration, a full PVE storage pool paused the former colocrossing
+During the migration, a full PVE storage pool paused the former greencloud
 VM 200 with a QEMU I/O error. Free PVE storage and verify `qm status` before
 resuming a paused VM; do not treat the resulting guest time jump or service
 failures as independent application faults. Colocrossing was later migrated to

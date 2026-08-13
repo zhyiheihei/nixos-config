@@ -40,7 +40,7 @@
 
 ## 7. 部署/构建谨慎，不压生产机
 
-- 构建只发生在 **ml-builder**（colocrossing 会 OOM，opi5p 内存压力大）
+- 构建只发生在 **ml-builder**（greencloud 会 OOM，opi5p 内存压力大）
 - opi5p 负载敏感：不连续重试部署、不并发压它
 - 远程构建缺输入（no substituter）时：`nix copy --derivation` 到 builder，或 qemu 本机构建，或调整 buildMachines（excludeHosts）
 - ml-builder 的 OOM 可能来自单个链接器（如 Firefox 的 `ld.lld` 峰值 25-30G），

@@ -40,7 +40,7 @@ curl -fsS https://attic.zhyi.xin/lantian/nix-cache-info
 ```
 
 缓存 URL 和公钥以 `helpers/constants/nix.nix` 为准。若 Attic 不可达，先检查
-DNS、到 colocrossing 的局域网覆盖及服务端状态，不要临时关闭签名校验。
+DNS、到 greencloud 的局域网覆盖及服务端状态，不要临时关闭签名校验。
 
 ## 构建验收
 

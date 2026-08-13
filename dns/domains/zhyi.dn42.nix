@@ -29,28 +29,28 @@
 
         (config.common.hostRecs.mapAddresses {
           name = "${domain}.";
-          addresses = LT.hosts."colocrossing".dn42;
+          addresses = LT.hosts."greencloud".dn42;
           ttl = "10m";
         })
 
         (config.common.hostRecs.mapAddresses {
           name = "gopher.${domain}.";
-          addresses = LT.hosts.colocrossing.dn42;
+          addresses = LT.hosts.greencloud.dn42;
         })
 
         (config.common.hostRecs.mapAddresses {
           name = "whois.${domain}.";
-          addresses = LT.hosts.colocrossing.dn42;
+          addresses = LT.hosts.greencloud.dn42;
         })
 
         (config.common.hostRecs.mapAddresses {
           name = "dns-authoritative.${domain}.";
-          addresses = LT.hosts.colocrossing.dn42;
+          addresses = LT.hosts.greencloud.dn42;
         })
 
         (config.common.hostRecs.mapAddresses {
           name = "dns-recursive.${domain}.";
-          addresses = LT.hosts.colocrossing.dn42;
+          addresses = LT.hosts.greencloud.dn42;
         })
 
         (config.common.records.DN42Email domain)

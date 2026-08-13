@@ -28,18 +28,18 @@ AxonHub：模块保留，当前未部署
 ```text
 LibreChat   ──────────────────────> ROCK 5C UniAPI ─> Provider
 Metapi      ──────────────────────> ROCK 5C UniAPI ─> Provider
-ROCK 5C UniAPI ─> n8n OpenAI Bridge (colocrossing) ─> n8n 工作流
+ROCK 5C UniAPI ─> n8n OpenAI Bridge (greencloud) ─> n8n 工作流
 
 ai-api.zhyi.cc ───────────────────> hostdare UniAPI ─────────> Provider
 ```
 
 `ai-api.zhyi.cc` 是 JPVM 上的独立公开 UniAPI 入口；它也从同一份 secrets Provider
-注册表导入配置，但不依赖 colocrossing 的 AxonHub 或 Metapi。
+注册表导入配置，但不依赖 greencloud 的 AxonHub 或 Metapi。
 
-LibreChat、Metapi、n8n 和 n8n OpenAI Bridge 运行在 `colocrossing`。主 UniAPI
+LibreChat、Metapi、n8n 和 n8n OpenAI Bridge 运行在 `greencloud`。主 UniAPI
 实际运行在 `rock5c`；LibreChat 与 Metapi 直接使用
-`https://uni-api.rock5c.zhyi.cc/v1`。UniAPI 通过 LTNET 回调 colocrossing 上的 n8n Bridge
-（`https://n8n-bridge.colocrossing.zhyi.cc/v1`）。
+`https://uni-api.rock5c.zhyi.cc/v1`。UniAPI 通过 LTNET 回调 greencloud 上的 n8n Bridge
+（`https://n8n-bridge.greencloud.zhyi.cc/v1`）。
 
 `AxonHub` 模块仍保留在仓库，但当前没有被任何 host 导入，实机也没有
 `axonhub.service`。它是未部署候选，不属于当前运行链路。
@@ -58,10 +58,10 @@ AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模
 | 服务 | 主机 | 作用 | 上游或依赖 |
 | --- | --- | --- | --- |
 | UniAPI | `rock5c`、`hostdare` | Provider 注册表、模型别名与 OpenAI 兼容 API；hostdare 当前不可达、运行态未验证 | 私有 `uni-api/` secrets |
-| LibreChat | `colocrossing` | 交互式 AI 前端，使用 Dex OIDC 登录 | `uni-api.rock5c.zhyi.cc` |
-| n8n | `colocrossing` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
-| n8n OpenAI Bridge | `colocrossing` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
-| Metapi | `colocrossing` | 可选元聚合网关、站点/账户/模型路由管理 | LTNET UniAPI；SQLite 状态目录 |
+| LibreChat | `greencloud` | 交互式 AI 前端，使用 Dex OIDC 登录 | `uni-api.rock5c.zhyi.cc` |
+| n8n | `greencloud` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
+| n8n OpenAI Bridge | `greencloud` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
+| Metapi | `greencloud` | 可选元聚合网关、站点/账户/模型路由管理 | LTNET UniAPI；SQLite 状态目录 |
 | AxonHub | 未部署 | 仓库保留可选模块，但当前没有 host import 或运行 unit | 部署前需重新确认 PostgreSQL、Redis 与上游契约 |
 | Qdrant | 未部署 | 仓库保留模块，无 host import、无实机 unit | 若启用需先规范为独立 options 模块并核验 embeddings |
 
@@ -72,7 +72,7 @@ AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模
 - [`nixos/optional-apps/n8n/n8n-openai-bridge.nix`](../../nixos/optional-apps/n8n/n8n-openai-bridge.nix)
 - [`nixos/optional-apps/axonhub.nix`](../../nixos/optional-apps/axonhub.nix)
 - [`nixos/optional-apps/metapi.nix`](../../nixos/optional-apps/metapi.nix)
-- [`hosts/colocrossing/configuration.nix`](../../hosts/colocrossing/configuration.nix)
+- [`hosts/greencloud/configuration.nix`](../../hosts/greencloud/configuration.nix)
 - [`hosts/rock5c/home-edge.nix`](../../hosts/rock5c/home-edge.nix)
 - [`hosts/hostdare/configuration.nix`](../../hosts/hostdare/configuration.nix)
 
@@ -131,7 +131,7 @@ AI 链与知识链通过各服务官方 API 连接，禁止用“共享数据库
   `uni-api-admin-api-key`。这是当前模块的作者式全局 secrets 约定。
 
 不要删除可能保留的 AxonHub PostgreSQL/Redis 历史数据或 `/var/lib/metapi`（位于
-colocrossing），除非明确要废弃相应网关；否则会丢失运行态初始化和应用内管理数据。
+greencloud），除非明确要废弃相应网关；否则会丢失运行态初始化和应用内管理数据。
 
 ## Secrets 与密钥边界
 
@@ -159,22 +159,22 @@ colocrossing），除非明确要废弃相应网关；否则会丢失运行态�
 
 - **不要改主调用路径。** LibreChat 的自定义 UniAPI endpoint 使用
   `https://uni-api.rock5c.zhyi.cc/v1`，后端即 ROCK 5C；n8n Bridge 作为 `lantian.llm-providers`
-  的 `n8n` Provider 被 UniAPI 通过 `https://n8n-bridge.colocrossing.zhyi.cc/v1` 调用。两者都
+  的 `n8n` Provider 被 UniAPI 通过 `https://n8n-bridge.greencloud.zhyi.cc/v1` 调用。两者都
   不能改为 AxonHub 或 Metapi，除非明确迁移整个调用契约并单独验证。
 - **不要制造回环。** 禁止将 `axonhub.*`、`metapi.*` 或 `ai-api.zhyi.cc` 配成 UniAPI
   的 Provider；禁止给 Metapi/AxonHub 再添加指向自身的上游。
 - **不重复保存外部 Provider 凭据。** Metapi 当前只保存对本机 UniAPI 的凭据；
   AxonHub 若重新部署也只能这样配置。新增外部 Provider 时优先更新 `uni-api/`
   secrets，而不是分别塞入多个网关。
-- **保留私有访问边界。** `metapi.colocrossing.zhyi.cc` 是 private vhost；未来重新
-  部署的 `axonhub.colocrossing.zhyi.cc` 也必须保持 private。公开 API 入口由
+- **保留私有访问边界。** `metapi.greencloud.zhyi.cc` 是 private vhost；未来重新
+  部署的 `axonhub.greencloud.zhyi.cc` 也必须保持 private。公开 API 入口由
   `ai-api.zhyi.cc` 的 JPVM UniAPI 承担。
 - **不把运行态当 Nix 声明。** Nix 负责服务存在和 secret 文件挂载；应用内 channel、
   account、route、管理员、工作流等数据由各自数据库持久化和备份。
 
 ## 健康检查
 
-以下命令在 `colocrossing` 以 root 执行；只验证，不打印密钥：
+以下命令在 `greencloud` 以 root 执行；只验证，不打印密钥：
 
 ```bash
 systemctl is-active librechat metapi n8n n8n-openai-bridge

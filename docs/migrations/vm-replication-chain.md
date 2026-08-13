@@ -42,7 +42,7 @@ ml-home-vm /mnt/storage --> QNAP .40:/nixos (NFSv4.1)
 
 - `ml-home-vm` 的 `/nix` 来自 `virtiofs-nixos-home-vm`，`/mnt/storage` 来自
   `192.168.2.93:/nixos`。
-- `ml-home-vm` 的 ZeroTier 为 `ONLINE`，`ltnet_colocrossing` 为 `Established`。
+- `ml-home-vm` 的 ZeroTier 为 `ONLINE`，`ltnet_greencloud` 为 `Established`。
 - Attic 的 `Priority` 小于 NCPS，且家庭客户端解析 Attic 与 VaultS3 时不应绕经公网。
 - Hydra 成功完成系统任务后，通过 RunCommand 将构建结果上传到 Attic。
 
@@ -64,7 +64,7 @@ curl -fsS http://192.168.2.51:13851/nix-cache-info
 findmnt --target /nix
 findmnt --target /mnt/storage
 zerotier-cli info
-birdc show protocols | grep ltnet_colocrossing
+birdc show protocols | grep ltnet_greencloud
 ```
 
 在 `pve-5700u` 检查 PVE 与 VM：

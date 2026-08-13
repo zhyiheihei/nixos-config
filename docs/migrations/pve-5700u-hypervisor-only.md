@@ -23,7 +23,7 @@
 
 ## 入口变化
 
-- `hydra.zhyi.cc` DNS 继续 CNAME 到 `colocrossing.zhyi.cc`；colocrossing 的
+- `hydra.zhyi.cc` DNS 继续 CNAME 到 `greencloud.zhyi.cc`；greencloud 的
   `hydra.zhyi.cc` vhost 后端改为 `ml-builder` LTNET 地址（主机级覆盖，
   不动公共 `vhost-hydra-proxy.nix`）。
 - `archiveteam.ml-builder.zhyi.cc`、`clawemail.ml-builder.zhyi.cc` 等私有 vhost
@@ -35,7 +35,7 @@
 2. 用 rsync 把 `/var/lib/postgresql/`、`/var/lib/hydra/`、`/var/lib/archiveteam/`、
    `/var/lib/clawemail/`、`/var/lib/epic-awesome-gamer/` 从 pve-5700u 复制到
    ml-builder。
-3. 部署 ml-builder（Hydra + PostgreSQL + 三个容器）与 colocrossing（hydra 反代
+3. 部署 ml-builder（Hydra + PostgreSQL + 三个容器）与 greencloud（hydra 反代
    后端），确认服务与数据恢复。
 4. 部署 pve-5700u 新代际，移除 Hydra、容器与 `nix-builder` 标签。
 5. 按下方验收清单复核，再提交文档与代码。
@@ -45,7 +45,7 @@
 - ml-builder 新代际已部署：Hydra（evaluator/queue-runner/server/notify/watchdog）、
   PostgreSQL 与三个容器均 active；`machines-with-localhost` 只含 `opi5p` 与
   `localhost`，不包含 `pve-5700u`。
-- `hydra.zhyi.cc` 已由 colocrossing 反代到 ml-builder LTNET（`198.18.0.114:13300`），
+- `hydra.zhyi.cc` 已由 greencloud 反代到 ml-builder LTNET（`198.18.0.114:13300`），
   公网返回 200。
 - pve-5700u 新代际已部署：Proxmox VE 与 VM（`fn-os`、`ubuntu`）保持运行，
   Hydra/PostgreSQL/容器/builder 角色已移除，`/etc/nix/machines*` 已不存在。

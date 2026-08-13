@@ -168,6 +168,6 @@ and new databases during this phase.
 - All backup clients connect directly to `opi5p.zhyi.cc:2222`; OPI5P chroots the
   `sftp` user onto the QNAP-backed `/run/sftp` tree.  This is selected per host
   through `lantian.backup.sftpEndpoint`.  `ml-home-vm` went offline on
-  2026-08-03, so cnvm, colocrossing, lubancat1, ml-builder, opi5p, pve-5700u,
+  2026-08-03, so cnvm, greencloud, lubancat1, ml-builder, opi5p, pve-5700u,
   rock5c and google have all been migrated to OPI5P in the same round.
 - ROCK 5C eMMC stores only its NixOS system and low-write control-plane state.

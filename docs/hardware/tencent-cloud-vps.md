@@ -69,9 +69,9 @@ key、SOPS 身份）在 `/nix/persistent`。详细布局见
 - [ ] `sops-install-secrets`、`sshd`（2222）active；`systemctl --failed` 全解释。
 - [x] SSH host key 指纹与 `host.nix` 一致；管理端 `known_hosts` 更新。
 - [x] `zerotier-cli info` 取 node ID（`7edc5323e0`）写入 `host.nix`，控制器
-      （colocrossing）放行，`listnetworks` 为 OK，分配到
+      （greencloud）放行，`listnetworks` 为 OK，分配到
       `198.18.0.128/24` / `fdd8:1938:4e88::128/64`。
-- [x] `wg show` 7 个 peer handshake（colocrossing/cnvm/google/ml-builder/rock5c/
+- [x] `wg show` 7 个 peer handshake（greencloud/cnvm/google/ml-builder/rock5c/
       lubancat1/opi5p），babel 路由收敛，`birdc show protocols` ltdocker up。
       **hostdare 例外**：部署时 hostdare（36.50.85.113）从 mac/ml-builder 均不可达
       （既有问题），wgmesh128 待其恢复后部署。

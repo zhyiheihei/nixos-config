@@ -59,7 +59,7 @@ in
           + lib.concatMapStringsSep "," (n: LT.hosts."${n}".ltnet.IPv4) [
             # ml-home-vm retired 2026-08-03; author nodes (terrahost,
             # virmach-ny6g) do not exist in this replica.
-            "colocrossing"
+            "greencloud"
           ];
         wsrep_sst_method = "rsync_wan";
         wsrep_node_address = LT.this.ltnet.IPv4;

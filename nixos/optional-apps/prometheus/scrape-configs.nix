@@ -109,7 +109,7 @@ in
         "node"
         "enable"
       ];
-      # router (home) reaches colocrossing over a lossy international ZT
+      # router (home) reaches greencloud over a lossy international ZT
       # path; widen the interval/timeout so retransmits can finish the
       # response (timeout must stay below interval).
       timeout = "110s";

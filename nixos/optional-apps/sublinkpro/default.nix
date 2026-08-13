@@ -85,20 +85,20 @@ in
             path: /ray
             host: google.zhyi.cc
             mode: stream-up
-        - name: colocrossing
+        - name: greencloud
           type: vless
-          server: colocrossing.zhyi.cc
+          server: greencloud.zhyi.cc
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: colocrossing.zhyi.cc
+          servername: greencloud.zhyi.cc
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: colocrossing.zhyi.cc
+            host: greencloud.zhyi.cc
             mode: stream-up
 
       proxy-groups:
@@ -107,7 +107,7 @@ in
           proxies:
             - hostdare
             - google
-            - colocrossing
+            - greencloud
             - DIRECT
 
       rules:
@@ -285,11 +285,11 @@ in
         ${pkgs.curl}/bin/curl -fsS -H "Authorization: Bearer $token" "$@"
       }
 
-      for node in hostdare google colocrossing; do
+      for node in hostdare google greencloud; do
         case "$node" in
           hostdare) server=hostdare.zhyi.cc ;;
           google) server=google.zhyi.cc ;;
-          colocrossing) server=colocrossing.zhyi.cc ;;
+          greencloud) server=greencloud.zhyi.cc ;;
         esac
         link="vless://$SUBLINK_V2RAY_UUID@$server:443?encryption=none&security=tls&sni=$server&fp=chrome&type=xhttp&path=/ray&host=$server&mode=stream-up#$node"
         curl_auth -X POST "$api/api/v1/nodes/add" \
@@ -299,7 +299,7 @@ in
       done
 
       ids=$(curl_auth "$api/api/v1/nodes/get" \
-        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="hostdare" or .LinkName=="google" or .LinkName=="colocrossing") | .ID] | join(",")')
+        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="hostdare" or .LinkName=="google" or .LinkName=="greencloud") | .ID] | join(",")')
       if [ -z "$ids" ]; then
         echo "No overseas Xray nodes found after seeding" >&2
         exit 1

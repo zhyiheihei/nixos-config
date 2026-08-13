@@ -107,7 +107,7 @@ Server host 还必须完成：
 1. 在 `per-host/wg-priv/<hostname>.yaml` 中加密保存 WireGuard 私钥。
 2. 从该私钥派生公钥，并加入 secrets 的 `wg-pubkey.nix`。
 3. 首次启动后运行 `zerotier-cli info`，把 node ID 写入 `host.nix`。
-4. 重新构建并切换 ZeroTier controller 所在的 `colocrossing`。
+4. 重新构建并切换 ZeroTier controller 所在的 `greencloud`。
 5. 显式 peer 拓扑要检查两端都生成对应 `wgmesh<index>`。
 
 验收命令：

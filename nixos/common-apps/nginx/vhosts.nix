@@ -37,7 +37,7 @@ let
         # Plausible Analytics
         "= /api/event" = {
           proxyPass = "http://198.18.${
-            builtins.toString LT.hosts."colocrossing".index
+            builtins.toString LT.hosts."greencloud".index
           }.138:${LT.portStr.Plausible}";
           extraConfig = enableCompression;
         };

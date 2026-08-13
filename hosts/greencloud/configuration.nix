@@ -115,7 +115,7 @@
     };
   };
 
-  lantian.nginxVhosts."colocrossing.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  lantian.nginxVhosts."greencloud.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
   # Hydra moved from pve-5700u to ml-builder on 2026-08-12. The common vhost
   # module keeps the upstream pve-epyc target; override only the backend here.
@@ -125,11 +125,11 @@
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets. Kept off
   # the OAuth-protected public vhost and restricted to private networks only.
-  lantian.nginxVhosts."prometheus.colocrossing.zhyi.cc" = {
+  lantian.nginxVhosts."prometheus.greencloud.zhyi.cc" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.Prometheus.Daemon}";
     };
-    sslCertificate = "lets-encrypt-colocrossing.zhyi.cc";
+    sslCertificate = "lets-encrypt-greencloud.zhyi.cc";
     noIndex.enable = true;
     accessibleBy = "private";
   };

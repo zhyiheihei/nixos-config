@@ -25,7 +25,7 @@ flowchart LR
 
   subgraph Public["公网节点"]
     CNVM["cnvm\n身份 / Vaultwarden / Attic / Halo"]
-    Colo["colocrossing\n公网入口 / 协作 / AI 前端 / 监控"]
+    Colo["greencloud\n公网入口 / 协作 / AI 前端 / 监控"]
     JPVM["hostdare\n公开 UniAPI / DN42（未验证）"]
     USVM["google\n网络出口；日志后端当前缺失"]
   end
@@ -58,7 +58,7 @@ flowchart LR
 
 ## 主机账本
 
-审计时共声明 14 台主机。10 台可连接，其中 8 台为 `running`；`colocrossing` 与
+审计时共声明 14 台主机。10 台可连接，其中 8 台为 `running`；`greencloud` 与
 `google` 因 `openvpn-gameaccel.service` 失败处于 `degraded`。另外 4 台只能核对声明。
 
 | 主机 | 角色 | 主要服务归属 | 审计状态 |
@@ -70,7 +70,7 @@ flowchart LR
 | `pve-5700u` | PVE 宿主 | Proxmox VE、VM 数据备份 | 运行，0 failed units；VM 数据备份迁移后复核通过 |
 | `hostdare` | 公网、DN42、`cn-accel` | server 公共基线、公开 UniAPI、V2Ray/OpenVPN 加速 | 公网和 LTNET 均不可达，运行态未验证 |
 | `cnvm` | 公网 server | Attic、Dex、Pocket ID、Vaultwarden、GLAuth、Halo、OAuth2 Proxy、MySQL、PostgreSQL、DNS/Nginx | 运行，0 failed units |
-| `colocrossing` | 公网、DN42、协作与监控中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Prometheus、Grafana、ClickHouse、ZeroTier Controller 等 | 运行；OpenVPN 失败，系统 degraded |
+| `greencloud` | 公网、DN42、协作与监控中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Prometheus、Grafana、ClickHouse、ZeroTier Controller 等 | 运行；OpenVPN 失败，系统 degraded |
 | `google` | 公网、`cn-accel` | server 公共基线、V2Ray、Filebeat；声明中的日志汇聚后端当前不存在 | 运行；OpenVPN 失败，系统 degraded |
 | `opi5p` | server、原生 ARM 回退 builder | 数据库、家庭应用、下载自动化、NCPS、文件服务、打印、ClamAV、reDroid | 运行，0 failed units |
 | `rock5c` | server、家庭边缘 | 家庭 Nginx 入口、MetaCubeXD、Homepage、主 UniAPI、FastAPI-DLS、GLAuth、vlmcsd、媒体应用（MoviePilot/Jellyfin/HandBrake）、reDroid | 运行，0 failed units |
@@ -85,12 +85,12 @@ flowchart LR
 | 功能 | 运行主机 | 说明 |
 | --- | --- | --- |
 | 家庭 WAN/LAN | `router` | PPPoE、DHCP、NAT、Wi-Fi、DDNS 与家庭 Hairpin 入口 |
-| 公网应用入口 | `colocrossing` | 大部分 `zhyi.xin` 应用、OAuth 入口与到家庭 ROCK 5C 的 LTNET 反代 |
+| 公网应用入口 | `greencloud` | 大部分 `zhyi.xin` 应用、OAuth 入口与到家庭 ROCK 5C 的 LTNET 反代 |
 | 身份与 Attic 入口 | `cnvm` | Dex、Pocket ID、Vaultwarden 与 Attic 直接在本机终止 HTTPS |
 | 家庭 Web 边缘 | `rock5c` | 原 `*.ml-home-vm.zhyi.cc` 服务别名及家庭应用入口；向 OPI5P、PVE、QNAP 反代 |
 | 家庭数据直达 | `opi5p` | 8443 家庭入站、VaultS3、媒体与文件服务，不经 ROCK 5C 中转大流量 |
-| 证书 | `colocrossing` | ACME timers 集中续签各主机和域名证书 |
-| Overlay/路由 | 各 server；控制器在 `colocrossing` | BIRD、WireGuard/WSS、Yggdrasil、ZeroTier；DN42/RPKI/Bird-LG 主要在 colocrossing |
+| 证书 | `greencloud` | ACME timers 集中续签各主机和域名证书 |
+| Overlay/路由 | 各 server；控制器在 `greencloud` | BIRD、WireGuard/WSS、Yggdrasil、ZeroTier；DN42/RPKI/Bird-LG 主要在 greencloud |
 
 家庭 server 的公共基线并不表示它们都承担公网应用。`ml-home-vm`、`ml-builder` 和
 `lubancat1` 当前主要使用该基线取得 LTNET、DNS、监控、备份与远程管理能力。
@@ -113,19 +113,19 @@ flowchart LR
 ### AI 链
 
 ```text
-LibreChat / Metapi / n8n（colocrossing）
+LibreChat / Metapi / n8n（greencloud）
                     |
                     v
          主 UniAPI（rock5c） -> 外部 Provider
                     |
-                    `-> n8n OpenAI Bridge（colocrossing）
+                    `-> n8n OpenAI Bridge（greencloud）
 
 ai-api.zhyi.cc -> 独立 UniAPI（hostdare，当前未验证） -> 外部 Provider
 ```
 
-- `LibreChat`、`n8n`、`n8n-openai-bridge` 和 `Metapi` 已确认在 `colocrossing` 运行；
+- `LibreChat`、`n8n`、`n8n-openai-bridge` 和 `Metapi` 已确认在 `greencloud` 运行；
 - 主 `uni-api.service` 已确认在 `rock5c` 运行；`ml-home-vm` 没有该 unit；
-- LibreChat 与 Metapi 已改为直接使用 `uni-api.rock5c.zhyi.cc`，由 colocrossing
+- LibreChat 与 Metapi 已改为直接使用 `uni-api.rock5c.zhyi.cc`，由 greencloud
   通过 LTNET 访问 ROCK 5C 上的主 UniAPI；
 - `AxonHub` 模块存在，但没有被任何 host 导入，实机也没有 `axonhub.service`；它是
   未部署候选，不是当前链路的一部分；
@@ -139,9 +139,9 @@ UniAPI 仍是唯一外部 Provider 汇聚点。不得把 Metapi、AxonHub 或 n8
 ```text
 ml-2700 Notes（bindfs 持久目录）
   -> git push Gitea（git.zhyi.xin，私有权威）
-  -> Syncthing 三机（ml-2700 / opi5p / colocrossing）
+  -> Syncthing 三机（ml-2700 / opi5p / greencloud）
 
-Blog（ml-2700 本地 Astro 骨架）-> pyison（posts.zhyi.xin，colocrossing）
+Blog（ml-2700 本地 Astro 骨架）-> pyison（posts.zhyi.xin，greencloud）
 Waline（comments.zhyi.xin）：已回滚，未部署
 ```
 
@@ -149,7 +149,7 @@ Waline（comments.zhyi.xin）：已回滚，未部署
   三机分发；Notes 与 nixos-config 不共用 `.git`。
 - 公开天线：`~/Documents/Blog` 为 Astro 骨架，公开路线暂停；
   `zhyiheihei/blog` 待创建后推送；Waline 未部署。
-- 知识输入：RSSHub/Miniflux（colocrossing）、ArchiveBox/Memos（opi5p）。
+- 知识输入：RSSHub/Miniflux（greencloud）、ArchiveBox/Memos（opi5p）。
 - AI 关联：详见
   [`ai-knowledge-chain-integration.md`](./ai-knowledge-chain-integration.md)；
   Qdrant 未部署，AxonHub 未部署。
@@ -182,7 +182,7 @@ Nix clients -> Attic（cnvm） -> VaultS3（OPI5P -> QNAP）
 
 - 数据库与缓存（opi5p）：PostgreSQL、MySQL、Redis for Immich、Redis for SearXNG；
 - 家庭应用（opi5p）：Immich、Memos、Home Assistant、ArchiveBox、FileCodeBox、
-  SunPanel、SearXNG、Calibre COPS；RSS 阅读链为 colocrossing 的 Miniflux/RSSHub，
+  SunPanel、SearXNG、Calibre COPS；RSS 阅读链为 greencloud 的 Miniflux/RSSHub，
   ArchiveBox 承担无法订阅站点的归档；
 - 下载链路（router）：qBittorrent 单实例；
 - 下载消费方（opi5p）：Bitmagnet、PeerBanHelper、Tachidesk；
@@ -199,7 +199,7 @@ ml-home-vm 已退役，旧 `*.ml-home-vm.zhyi.cc` 名称不应再被当作实际
 
 ### 协作、监控与日志链
 
-`colocrossing` 承担：
+`greencloud` 承担：
 
 - 协作/内容：Gitea、Gitea Actions、Matrix Synapse workers、Mautrix GMessages、
   Lemmy、Maddy、NetBox、Bepasty、Radicale、Miniflux、RSSHub、Quassel、Syncthing；
@@ -262,8 +262,8 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | Bird Looking Glass | `https://lg.zhyi.cc` | 公开只读 |
 | FlapAlerted | `https://flapalerted.zhyi.cc` | 公开只读 |
 | Uni API | `https://uni-api.rock5c.zhyi.cc` | API key |
-| MetaAPI | `https://metapi.colocrossing.zhyi.cc` | 应用口令 / token |
-| n8n OpenAI Bridge | `https://n8n-bridge.colocrossing.zhyi.cc/health` | bearer token |
+| MetaAPI | `https://metapi.greencloud.zhyi.cc` | 应用口令 / token |
+| n8n OpenAI Bridge | `https://n8n-bridge.greencloud.zhyi.cc/health` | bearer token |
 | SearxNG | `https://searx.opi5p.zhyi.cc` | 私有 |
 | FastAPI DLS | `https://fastapi-dls.rock5c.zhyi.cc` | 租约 token |
 | RSSHub | `https://rsshub.zhyi.xin` | 私有 |
@@ -280,7 +280,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | MoviePilot | `https://moviepilot.rock5c.zhyi.cc` | 应用登录 |
 | Home Assistant | `https://ha.zhyi.cc` | Dex OAuth |
 | Syncthing | `https://syncthing.opi5p.zhyi.cc` | Dex OAuth |
-| Syncthing (Colocrossing) | `https://syncthing.colocrossing.zhyi.cc` | Dex OAuth |
+| Syncthing (Colocrossing) | `https://syncthing.greencloud.zhyi.cc` | Dex OAuth |
 | ArchiveBox | `https://archivebox.opi5p.zhyi.cc` | Dex OAuth |
 | WebDAV（webdev） | `https://dav.opi5p.zhyi.cc` | Basic Auth |
 | QNAP NAS | `https://qnap.zhyi.cc` | 应用管理 |
@@ -317,7 +317,7 @@ NFS 等生成卡片；WebDAV 卡片保留在 `08 · 私有 · 家庭服务` 分�
 | P0 | Filebeat 指向不存在的 google Elasticsearch | 舰队日志持续无法落库 | 对照作者决定恢复 Elasticsearch 或关闭/改写日志链 |
 | P1 | LibreChat/Metapi 曾使用未解析的 `uni-api.ml-home-vm.zhyi.cc` | AI 调用依赖旧别名 | 已统一改为 `uni-api.rock5c.zhyi.cc` 并完成模型检查 |
 | P1 | AxonHub 只在文档出现，未部署 | 运维人员会误判已有网关和数据库 | 保持“未部署候选”，除非明确重新导入模块 |
-| P1 | colocrossing、google 的 OpenVPN gameaccel 同时失败 | 两台系统 degraded，CN 加速链不完整 | 检查证书、密钥和服务日志后修复或明确禁用 |
+| P1 | greencloud、google 的 OpenVPN gameaccel 同时失败 | 两台系统 degraded，CN 加速链不完整 | 检查证书、密钥和服务日志后修复或明确禁用 |
 | P2 | hosts 概览仍把 LubanCat-1 写成 DHCP/minimal，遗漏 OPI03 | 接入与容量判断错误 | 已随本次文档更新 |
 | P2 | ROCK 5C/OPI5P 部分迁移注释仍称入口在 ml-home-vm | 后续维护可能把代理改回旧 VM | 当前链路文档已改为 ROCK 5C；历史迁移注释保留为记录 |
 

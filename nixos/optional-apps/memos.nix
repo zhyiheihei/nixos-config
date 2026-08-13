@@ -36,8 +36,8 @@
       };
     };
 
-    networking.hosts."${LT.hosts.colocrossing.ltnet.IPv4}" = [
-      "metapi.colocrossing.zhyi.cc"
+    networking.hosts."${LT.hosts.greencloud.ltnet.IPv4}" = [
+      "metapi.greencloud.zhyi.cc"
     ];
 
     virtualisation.oci-containers.containers.memos = {
@@ -46,7 +46,7 @@
       ports = [ "127.0.0.1:${LT.portStr.Memos}:${LT.portStr.Memos}" ];
       volumes = [ "${config.lantian.memos.storage}:/var/opt/memos" ];
       extraOptions = [
-        "--add-host=metapi.colocrossing.zhyi.cc:${LT.hosts.colocrossing.ltnet.IPv4}"
+        "--add-host=metapi.greencloud.zhyi.cc:${LT.hosts.greencloud.ltnet.IPv4}"
       ];
       environment = {
         MEMOS_MODE = "prod";

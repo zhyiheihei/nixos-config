@@ -21,7 +21,7 @@
 | --- | ---: | --- | --- | --- | --- |
 | `ml-builder` | 114 | `192.168.0.50` | `2c86750714` | `198.18.0.114` | 主构建机 + Hydra；经 WSS 接入 server mesh |
 | `ml-home-vm` | 115 | `192.168.0.51`（保留地址） | `c340ae9a91` | `198.18.0.115` | 已退役（2026-08-03）；不再参与 server mesh |
-| `colocrossing` | 120 | 无 | `76d1b20a73` | `198.18.0.120` | SG 公网节点；server mesh、DN42 与 ZeroTier controller |
+| `greencloud` | 120 | 无 | `76d1b20a73` | `198.18.0.120` | SG 公网节点；server mesh、DN42 与 ZeroTier controller |
 | `ml-2700` | 113 | `192.168.0.53` | `214f8619a9` | `198.18.0.113` | 当前没有 server mesh 声明 |
 | `pve-5700u` | 116 | `192.168.0.2` | `706ba6d04d` | `198.18.0.116` | 当前没有 server mesh 声明 |
 | `hostdare` | 117 | 无 | `a073934677` | `198.18.0.117` | server mesh 全互联；为 WSS/TCP WireGuard transport 服务端 |
@@ -41,13 +41,13 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 | --- | --- |
 | 私钥 | 每台启用 mesh 的主机从 `per-host/wg-priv/<hostname>.yaml` 由 SOPS 解密 |
 | 公钥 | 由 secrets 的 `wg-pubkey.nix` 提供；不在仓库文档中复制 |
-| 对等选择 | 当前 server mesh 由在线节点组成（`colocrossing`、`hostdare`、`cnvm`、`google` 等）；`ml-home-vm` 已退役，不再参与 |
+| 对等选择 | 当前 server mesh 由在线节点组成（`greencloud`、`hostdare`、`cnvm`、`google` 等）；`ml-home-vm` 已退役，不再参与 |
 | 端点选择 | 同一 `interconnect.name` 时走局域网；跨网段优先使用各 host 声明的 WSS/TCP transport |
 | TCP transport | 在线家庭节点与公网 server 之间的 WireGuard 经本地 WSS/TCP `443` 封装；WireGuard 本体只在本机回环与 `wstunnel` 间通信 |
 | 路由 | BIRD 通过每条 `wgmesh<peer-index>` 链路上的 IPv6 link-local iBGP 交换 LTNET、DN42 与附加路由 |
 | 可观察性 | WireGuard exporter 监听本机 LTNET IPv4；BIRD 配置见 `nixos/server-apps/bird/config/ltnet.nix` |
 
-当前 DN42 前缀只由 `colocrossing` 宣告：`172.20.46.224/27` 与 `fdd8:1938:4e88::/48`。不要将家庭局域网前缀加入 DN42 路由。
+当前 DN42 前缀只由 `greencloud` 宣告：`172.20.46.224/27` 与 `fdd8:1938:4e88::/48`。不要将家庭局域网前缀加入 DN42 路由。
 
 ## 内部数据库入口
 
@@ -65,11 +65,11 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 | `主机.zhyi.cc`、`*.主机.zhyi.cc` | `host-recs.nix` 按主机公网或 LTNET 地址生成 | 作者式主机与私有服务命名；不经过统一公网入口 |
 | `*.ml-home-vm.zhyi.cc` | 历史 CNAME | `ml-home-vm` 已退役；服务由 `rock5c`/`opi5p` 承载，入口以 vhost/DNS 为准 |
 | `ha.zhyi.cc`、`vaults3.zhyi.cc` | CNAME 到 `home-ddns.zhyi.cc` | 家庭动态公网入口 |
-| `hydra.zhyi.cc` | CNAME 到 `colocrossing.zhyi.cc` | colocrossing Nginx 反代到 `ml-builder` 的 Hydra 端口（LTNET `198.18.0.114`） |
-| `attic.zhyi.xin` | CNAME 到 `colocrossing.zhyi.cc` | colocrossing 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
-| `colocrossing.zhyi.cc` | A `203.55.176.158` | SSH、Colmena、ZeroTier controller 与公共服务入口 |
+| `hydra.zhyi.cc` | CNAME 到 `greencloud.zhyi.cc` | greencloud Nginx 反代到 `ml-builder` 的 Hydra 端口（LTNET `198.18.0.114`） |
+| `attic.zhyi.xin` | CNAME 到 `greencloud.zhyi.cc` | greencloud 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
+| `greencloud.zhyi.cc` | A `203.55.176.158` | SSH、Colmena、ZeroTier controller 与公共服务入口 |
 | `zhyi.xin` | A `101.96.199.157` | CNVM 上的公开根站入口 |
-| 具名 `zhyi.xin` Web 服务 | 显式 CNAME 到 `home-ddns`、`colocrossing` 或 `cnvm` | 按作者服务角色逐项声明，不使用统一通配符兜底 |
+| 具名 `zhyi.xin` Web 服务 | 显式 CNAME 到 `home-ddns`、`greencloud` 或 `cnvm` | 按作者服务角色逐项声明，不使用统一通配符兜底 |
 | `hostdare.zhyi.cc` | A `36.50.85.113` | `hostdare` 自身服务 |
 | `autoconfig.moliy.site` | CNAME 到 `home-ddns.zhyi.cc` | 家庭公网入口 |
 
@@ -79,7 +79,7 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 `443`。VaultS3 的公网转发和 LAN Hairpin 同样将外部 8443 转换为 OPI5P 的标准
 443；Nginx 不额外监听 8443。不要把 `8443` 固化进 DNS 记录或内部服务配置。
 
-Hydra 已于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统一由 colocrossing
+Hydra 已于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统一由 greencloud
 的 Nginx vhost 反代到 ml-builder 的 LTNET 地址，不再依赖 JPVM 直连或家庭 PVE 的
 公网 IPv6。不要把 Hydra 改回 pve-5700u 或改到 CNVM 来掩盖入口问题。
 

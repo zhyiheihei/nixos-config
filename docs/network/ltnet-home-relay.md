@@ -6,21 +6,21 @@ the peer layout to the links that are actually reachable.
 ## Active topology
 
 ```text
-rock5c -- LTNET -- colocrossing -- public IPv4 -- hostdare -- public IPv4 -- cnvm
+rock5c -- LTNET -- greencloud -- public IPv4 -- hostdare -- public IPv4 -- cnvm
 ```
 
-- `colocrossing` is the SG public node and reflects routes to `rock5c`.
-- `hostdare` reflects routes between `colocrossing` and `cnvm`.
+- `greencloud` is the SG public node and reflects routes to `rock5c`.
+- `hostdare` reflects routes between `greencloud` and `cnvm`.
 - `hostdare` is the active external DN42 ingress and public LTNET relay.
 - ZeroTier remains the management and discovery network. It is not the normal
-  data path for the colocrossing-to-JPVM BGP session.
+  data path for the greencloud-to-JPVM BGP session.
 - Hosts without a public or shared interconnect can still use the automatic
   ZeroTier fallback inherited by the WireGuard mesh module.
 
 The explicit `ltnet.peers` lists prevent retained upstream example hosts from
 joining the live mesh. A null list preserves the author's full-mesh behavior.
 
-`colocrossing` and `cnvm` initiate WireGuard sessions to JPVM's fixed public
+`greencloud` and `cnvm` initiate WireGuard sessions to JPVM's fixed public
 IPv4 address. JPVM learns the roaming home endpoint from authenticated
 WireGuard traffic. These two cross-provider WireGuard sessions are carried by
 wstunnel over `hostdare.zhyi.cc:443` because the direct UDP path is asymmetric. The
@@ -30,7 +30,7 @@ restricted to JPVM's two local WireGuard ports.
 ## Rsync path
 
 The author's rsync service uses the primary server's routed LTNET address.
-After moving colocrossing to the SG node, both the listener and clients use:
+After moving greencloud to the SG node, both the listener and clients use:
 
 ```text
 198.18.120.1:873
@@ -97,7 +97,7 @@ nix run .#colmena -- apply --on cnvm --no-substitute
 CNVM must forward both sides of the public HTTPS service:
 
 - TCP 443 uses TLS SNI routing.
-- UDP 443 forwards QUIC to colocrossing UDP 8443.
+- UDP 443 forwards QUIC to greencloud UDP 8443.
 
 The origin advertises `Alt-Svc: h3=":443"`. Removing the UDP forwarding leaves
 that advertisement active but makes browser OIDC redirects fail with protocol
@@ -115,8 +115,8 @@ curl -fsS https://attic.zhyi.xin/lantian/nix-cache-info
 Expected BGP sessions are:
 
 ```text
-rock5c <-> colocrossing
-colocrossing <-> hostdare
+rock5c <-> greencloud
+greencloud <-> hostdare
 hostdare <-> cnvm
 ```
 

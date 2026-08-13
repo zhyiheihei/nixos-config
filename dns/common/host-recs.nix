@@ -14,10 +14,10 @@ let
     # keep-sorted start
     "50kvm" = LT.hosts.cnvm;
     gigsgigscloud = LT.hosts.cnvm;
-    hetzner-de = LT.hosts."colocrossing";
+    hetzner-de = LT.hosts."greencloud";
     linkin = LT.hosts.cnvm;
-    oneprovider = LT.hosts."colocrossing";
-    soyoustart = LT.hosts."colocrossing";
+    oneprovider = LT.hosts."greencloud";
+    soyoustart = LT.hosts."greencloud";
     v-ps-hkg = LT.hosts.cnvm;
     v-ps-sjc = LT.hosts.hostdare;
     virmach-ny3ip = LT.hosts.hostdare;

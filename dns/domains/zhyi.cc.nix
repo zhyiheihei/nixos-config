@@ -23,9 +23,9 @@ let
     {
       recordType = "CNAME";
       name = "hydra";
-      # hydra runs on colocrossing; the home-DDNS target was left from the
+      # hydra runs on greencloud; the home-DDNS target was left from the
       # pre-migration layout and made rock5c's siteMonitor fail.
-      target = "colocrossing";
+      target = "greencloud";
       ttl = "1h";
     }
     {
@@ -39,43 +39,43 @@ let
     {
       recordType = "CNAME";
       name = "alert";
-      target = "colocrossing";
+      target = "greencloud";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "dashboard";
-      target = "colocrossing";
+      target = "greencloud";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "flapalerted";
-      target = "colocrossing";
+      target = "greencloud";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "lg";
-      target = "colocrossing";
+      target = "greencloud";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "netbox";
-      target = "colocrossing";
+      target = "greencloud";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "prometheus";
-      target = "colocrossing";
+      target = "greencloud";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "rsync-ci";
-      target = "colocrossing";
+      target = "greencloud";
       ttl = "1h";
     }
     {

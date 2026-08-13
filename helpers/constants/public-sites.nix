@@ -62,7 +62,7 @@ _: [
   "cnvm.zhyi.cc"
   "flapalerted.zhyi.cc"
   "hostdare.zhyi.cc"
-  "colocrossing.zhyi.cc"
+  "greencloud.zhyi.cc"
   "google.zhyi.cc"
   "tencent.zhyi.cc"
   "lg.zhyi.cc"

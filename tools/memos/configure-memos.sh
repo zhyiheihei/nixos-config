@@ -102,7 +102,7 @@ AI_JSON="$(
             id: "metapi",
             title: "Metapi",
             type: "OPENAI",
-            endpoint: "https://metapi.colocrossing.zhyi.cc/v1",
+            endpoint: "https://metapi.greencloud.zhyi.cc/v1",
             apiKey: $apiKey
           }
         ]

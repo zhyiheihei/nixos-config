@@ -24,10 +24,10 @@
 四个域名由 DNSControl 声明为静态 `CNAME -> cnvm.zhyi.cc.`。TLS 流量路径为：
 
 ```text
-客户端 -> cnvm:443 -> colocrossing LTNET:443 -> ml-home-vm:8443
+客户端 -> cnvm:443 -> greencloud LTNET:443 -> ml-home-vm:8443
 ```
 
-`hosts/colocrossing/configuration.nix` 按 TLS SNI 将这些域名转发到
+`hosts/greencloud/configuration.nix` 按 TLS SNI 将这些域名转发到
 `ml-home-vm`。Vaultwarden 使用自身认证；FileCodeBox 与两项 Sun Panel 服务使用
 Dex OAuth。
 

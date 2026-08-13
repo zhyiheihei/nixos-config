@@ -2,12 +2,12 @@
 
 ## 概览
 
-`sub.zhyi.xin` 由 colocrossing 上的 SublinkPro 提供，用来管理 Clash/mihomo
+`sub.zhyi.xin` 由 greencloud 上的 SublinkPro 提供，用来管理 Clash/mihomo
 订阅并生成统一订阅。入口经过仓库 OAuth 代理，面板内部登录账号为 `admin`，
 密码与其它面板统一使用 `default-pw`。
 
 - 管理页面：`https://sub.zhyi.xin/`
-- 统一订阅地址：见 colocrossing 上
+- 统一订阅地址：见 greencloud 上
   `/var/lib/sublinkpro/unified-subscription.txt`
 - 统一订阅格式：`https://sub.zhyi.xin/c/?token=<lowercase default-pw>&client=clash`
   （也支持 `client=v2ray`、`client=mihomo`）
@@ -16,7 +16,7 @@
 
 「统一订阅」当前组成（全部通过官方 API 配置，未改动数据库）：
 
-- 自建节点：`hostdare`、`google`、`colocrossing`（group=overseas，三个 VLESS xhttp
+- 自建节点：`hostdare`、`google`、`greencloud`（group=overseas，三个 VLESS xhttp
   节点，443 端口，`/ray`，`stream-up`，UUID 来自 SOPS `v2ray-key`）
 - 机场节点：机场 `xsus`（id=1，`xs.sujieok.cn`，每 12 小时自动拉取）——订阅
   通过 `airports=1` 挂载，机场新增节点会自动进入统一订阅，无需手动添加
@@ -38,7 +38,7 @@ seed 服务（`sublinkpro-seed.service`）在全新数据库上仍会创建三�
 统一订阅的 Clash 规则来自模板 `unified-clash.yaml`，它由机场 xsus 的 Clash
 订阅（`https://xs.sujieok.cn/...`）生成。机场更新规则后需要重新同步：
 
-1. 在 colocrossing 上抓取机场 Clash 配置（服务器直连，与机场拉取同源）：
+1. 在 greencloud 上抓取机场 Clash 配置（服务器直连，与机场拉取同源）：
    ```bash
    curl -sS -L -m 60 -A "clash-verge/2.0.0" "<机场URL>" -o /tmp/xsus-clash.yaml
    ```
@@ -93,5 +93,5 @@ curl -sS --get http://127.0.0.1:13818/c/ \
 
 ## 备注
 
-2026-08-10 首次部署时 colocrossing 曾失联并多次重启，回滚后本次以受限容器重新
+2026-08-10 首次部署时 greencloud 曾失联并多次重启，回滚后本次以受限容器重新
 部署；若再次出现主机级失联，先看服务商控制台日志，不要直接重复部署。

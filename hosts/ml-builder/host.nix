@@ -43,7 +43,7 @@
   # This host is behind the home NAT. Carry its public-server mesh peers over
   # the same WSS transport used by the other home server nodes.
   ltnet.tcpTransportPeers.hostdare = "hostdare.zhyi.cc";
-  ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
+  ltnet.tcpTransportPeers.greencloud = "greencloud.zhyi.cc";
   ltnet.tcpTransportPeers.google = "google.zhyi.cc";
   dn42.region = constants.dn42.region.Asia-E;
 

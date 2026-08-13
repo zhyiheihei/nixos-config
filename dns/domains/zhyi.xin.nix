@@ -10,13 +10,13 @@ let
     {
       recordType = "CNAME";
       name = "ai";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "api";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -28,19 +28,19 @@ let
     {
       recordType = "CNAME";
       name = "attic";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "autoconfig";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "avatar";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -58,13 +58,13 @@ let
     {
       recordType = "CNAME";
       name = "cal";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "element";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -76,37 +76,37 @@ let
     {
       recordType = "CNAME";
       name = "gemini";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "git";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "google-ssl";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "google-test-ssl";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "gopher";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "hidden";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -142,19 +142,19 @@ let
     {
       recordType = "CNAME";
       name = "lemmy";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "letsencrypt-ssl";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "letsencrypt-test-ssl";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -166,67 +166,67 @@ let
     {
       recordType = "CNAME";
       name = "mail";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "matrix";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "matrix-client";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "matrix-federation";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "n8n";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "pb";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "posts";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "rss";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "rsshub";
-      target = "colocrossing.ltnet.zhyi.cc.";
+      target = "greencloud.ltnet.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "stats";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "sub";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -238,13 +238,13 @@ let
     {
       recordType = "CNAME";
       name = "tools";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "whois";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -256,7 +256,7 @@ let
     {
       recordType = "CNAME";
       name = "zerossl";
-      target = "colocrossing.zhyi.cc.";
+      target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
   ];
