@@ -30,10 +30,13 @@ let
     sed -i '/^WebUI\\AuthSubnetWhitelistEnabled=/d' "$conf"
     sed -i '/^WebUI\\AuthSubnetWhitelist=/d' "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=${unifiedDownloadPath}/" "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\Interface=ppp0" "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceName=ppp0" "$conf"
-    # Bind only ppp0's IPv4 address; the interface also carries two global
-    # IPv6 addresses that PTTime rejects as "multi-IP" announces.
+    # Leave Session\Interface unset ("Any interface") instead of pinning ppp0.
+    # Verified 2026-08-13 on qbittorrent 5.2.3 / libtorrent 2.0.13: with
+    # InterfaceAddress=0.0.0.0 qBittorrent listens IPv4-only (the two global
+    # IPv6 addresses on ppp0 are not listened, so PTTime keeps single-IP
+    # announces) and re-binds automatically when ppp0's address changes after
+    # a PPPoE redial — the previous ppp0-pinned listener kept the stale IP
+    # until a manual restart, stalling all downloads (2026-08-13 incident).
     sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceAddress=0.0.0.0" "$conf"
     # Full broadband throughput requires removing the 10MB/s global download
     # cap that was carried into the migrated runtime config.
