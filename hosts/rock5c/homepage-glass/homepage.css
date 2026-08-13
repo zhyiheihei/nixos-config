@@ -42,9 +42,14 @@ body,
   padding-bottom: 36px;
   /* Homepage renders content inside this scroll container; keep it stable. */
   overflow-y: auto;
-  /* 背景图样与 studio-glass.js 的 paintPageBackground/paintPageOverlays
-     一致；放在滚动容器上使背景随页面锚定，玻璃纹理与真实背景无 seam。 */
+  /* 背景第一层为随机图片（https://t.alcy.cc/ysz/）；studio-glass.js 预加载
+     同一张图并注入 blob URL（--homepage-bg-image），保证页面背景与玻璃纹理
+     严格同一张图，且滚动时背景随页面锚定无 seam。暗化层保证卡片文字在任意
+     图片上的可读性；其余 overlay 层与 paintPageBackground/paintPageOverlays
+     保持同一套图样。 */
   background-image:
+    var(--homepage-bg-image, url("https://t.alcy.cc/ysz/")),
+    linear-gradient(180deg, rgba(8, 12, 22, 0.42), rgba(8, 12, 22, 0.42)),
     radial-gradient(1200px 1200px at 12% 18%, rgba(120, 150, 255, 0.16), transparent 55%),
     radial-gradient(900px 900px at 88% 12%, rgba(90, 220, 220, 0.12), transparent 50%),
     radial-gradient(1000px 1000px at 70% 85%, rgba(200, 120, 255, 0.10), transparent 55%),
@@ -54,6 +59,9 @@ body,
     repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.02) 0 1px, transparent 1px 8px),
     linear-gradient(180deg, rgba(90, 120, 255, 0.10), rgba(90, 120, 255, 0) 28%),
     linear-gradient(180deg, rgba(5, 8, 14, 0), rgba(5, 8, 14, 0.52) 86%);
+  background-size: cover, auto, auto, auto, auto, auto, auto, auto, auto, auto, auto;
+  background-position: center, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-repeat: no-repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat, repeat;
 }
 
 .studio-glass-canvas {
