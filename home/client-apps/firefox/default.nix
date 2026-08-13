@@ -34,6 +34,7 @@ let
       extensions = {
         packages = with pkgs.firefox-addons; [
           # keep-sorted start
+          adnauseam
           auto-novel-addon
           awardwallet
           bilisponsorblock
@@ -66,7 +67,6 @@ let
           tampermonkey
           tweaks-for-youtube
           ublacklist
-          ublock-origin
           wappalyzer
           # keep-sorted end
         ];
@@ -84,7 +84,6 @@ let
         # AI Sidebar
         "browser.ml.chat.provider" = "https://ai.zhyi.xin";
         "browser.tabs.groups.enabled" = false;
-        "browser.tabs.groups.smart.enabled" = false;
         "browser.tabs.unloadTabInContextMenu" = true;
         "extensions.autoDisableScopes" = 0; # Auto enable installed extensions
         "extensions.update.enabled" = false;
@@ -112,6 +111,7 @@ let
         "sidebar.verticalTabs" = true;
         "svg.context-properties.content.enabled" = true;
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
+        "webgl.disabled" = true;
         # keep-sorted end
       }
       // builtins.listToAttrs (
@@ -134,9 +134,18 @@ in
     betterfox = {
       enable = true;
       profiles.zhyi.settings = {
-        securefox.enable = true;
-        peskyfox.enable = true;
-        peskyfox.ai.enable = false;
+        securefox = {
+          enable = true;
+          # Required by AdNauseam
+          tracking-protection."browser.contentblocking.category".value = "standard";
+        };
+
+        peskyfox = {
+          enable = true;
+          ai."browser.ai.control.default".value = "available";
+          ai."browser.ml.enable".value = true;
+          ai."browser.ml.chat.enabled".value = true;
+        };
       };
     };
   };

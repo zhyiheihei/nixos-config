@@ -9,6 +9,11 @@
     ../../nixos/client.nix
 
     ./hardware-configuration.nix
+    ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/pipewire-combined-sink-alsa.nix
+    ../../nixos/optional-apps/pipewire-roc-source.nix
+    ../../nixos/optional-apps/pipewire-vban-recv.nix
+    ../../nixos/optional-apps/pipewire-volume-control.nix
     ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/syncthing
   ];
@@ -43,6 +48,26 @@
     device = "/nix/persistent/media/Notes";
     fsType = "fuse.bindfs";
     options = LT.constants.bindfsMountOptions;
+  };
+
+  # NFS share from the fork's file server (opi5p), mirroring the author's
+  # client mount of lt-home-vm:/storage. Auto-mounted, non-blocking.
+  fileSystems."/mnt/share" = {
+    device = "${LT.hosts.opi5p.ltnet.IPv4}:/storage";
+    fsType = "nfs";
+    options = [
+      "_netdev"
+      "noatime"
+      "noauto"
+      "clientaddr=${LT.this.ltnet.IPv4}"
+      "hard"
+      "vers=4.2"
+      "nconnect=16"
+      "x-systemd.automount"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.mount-timeout=5s"
+    ];
   };
 
   boot.loader.grub = {
