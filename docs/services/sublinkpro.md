@@ -16,8 +16,14 @@
 
 「统一订阅」当前组成（全部通过官方 API 配置，未改动数据库）：
 
-- 自建节点：`hostdare`、`google`、`greencloud`（group=overseas，三个 VLESS xhttp
-  节点，443 端口，`/ray`，`stream-up`，UUID 来自 SOPS `v2ray-key`）
+- 自建节点（group=overseas，VLESS xhttp 节点，443 端口，`/ray`，`stream-up`，
+  UUID 来自 SOPS `v2ray-key`；命名与机场风格统一为「地区 + 厂商」）：
+  - `🇯🇵 日本 HostDare`（hostdare.zhyi.cc）
+  - `🇺🇸 美国 Google`（google.zhyi.cc）
+  - `🇸🇬 新加坡 GreenCloud`（greencloud.zhyi.cc）
+  - `🇰🇷 韩国 Tencent`（tencent.zhyi.cc）
+  - seed 服务会清理旧主机名遗留节点（`jpvm`/`usvm`/`colocrossing`），节点名以
+    LinkName（链接 #fragment，机器名）为准，显示名 `name` 用规范命名
 - 机场节点：机场 `xsus`（id=1，`xs.sujieok.cn`，每 12 小时自动拉取）——订阅
   通过 `airports=1` 挂载，机场新增节点会自动进入统一订阅，无需手动添加
 - Clash 模板：`./template/unified-clash.yaml`——**分流规则与机场 xsus 完全一致**
@@ -29,9 +35,37 @@
 - Surge 模板：`./template/surge.conf`（seed 自带，未随机场规则）
 - 分享 token：由 `default-pw` 转小写得到（官方 `/c/` 查询会把 token 转小写）
 
-seed 服务（`sublinkpro-seed.service`）在全新数据库上仍会创建三个自建节点、
+seed 服务（`sublinkpro-seed.service`）在全新数据库上仍会创建自建节点、
 「统一订阅」（初始模板 `./template/clash.yaml`）和分享 token；上述调整在 seed
 之后通过 API 完成。seed 幂等，重启不会覆盖「统一订阅」的模板引用与机场挂载。
+
+## 订阅流量配额（subscription-userinfo）
+
+统一订阅的 `subscription-userinfo` 头由 SublinkPro 聚合订阅内机场的用量生成
+（`api/clients.go` 的 `getSubscriptionUsage`：累加各机场 `usage_*` 字段，
+expire 取最近）。只有开启用量获取的机场才参与统计。
+
+机场 `xsus` 目前**未开启**用量获取（`fetch_usage_info=0`），因此订阅返回
+`upload=0; download=0; total=0`。要显示机场真实配额（当前 total≈168G，
+剩余≈18.92G，到期 2026-10-16）：
+
+```bash
+# 在 greencloud 上（需要机场完整字段，含订阅 URL；勿写入配置/仓库）
+login=$(curl -fsS -X POST http://127.0.0.1:13818/api/v1/auth/login \
+  -d "username=admin" --data-urlencode "password=$SUBLINK_ADMIN_PASSWORD")
+token=$(printf '%s' "$login" | jq -r '.data.accessToken')
+# 1. 开启用量获取（PUT 完整机场 JSON，字段与面板一致；fetch_usage_info=true）
+# 2. 立即刷新用量
+curl -fsS -H "Authorization: Bearer $token" -X POST \
+  http://127.0.0.1:13818/api/v1/airports/1/refresh-usage
+# 3. 验证
+curl -sS -D - -o /dev/null --get http://127.0.0.1:13818/c/ \
+  --data-urlencode "token=$(printf '%s' "$SUBLINK_SHARE_TOKEN" | tr A-Z a-z)" \
+  --data-urlencode "client=clash" | grep -i subscription-userinfo
+```
+
+> SublinkPro 无原生「机场配额 + 额外额度」加成；如需在机场基础上 +100G
+> 显示，需给 zhyi-packages 的 sublinkpro 打补丁或 nginx 层覆盖，暂未实施。
 
 ## 同步机场分流规则
 

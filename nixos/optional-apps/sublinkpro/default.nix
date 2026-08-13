@@ -55,7 +55,7 @@ in
       ipv6: true
 
       proxies:
-        - name: hostdare
+        - name: 🇯🇵 日本 HostDare
           type: vless
           server: hostdare.zhyi.cc
           port: 443
@@ -70,7 +70,7 @@ in
             path: /ray
             host: hostdare.zhyi.cc
             mode: stream-up
-        - name: google
+        - name: 🇺🇸 美国 Google
           type: vless
           server: google.zhyi.cc
           port: 443
@@ -85,7 +85,7 @@ in
             path: /ray
             host: google.zhyi.cc
             mode: stream-up
-        - name: greencloud
+        - name: 🇸🇬 新加坡 GreenCloud
           type: vless
           server: greencloud.zhyi.cc
           port: 443
@@ -100,14 +100,30 @@ in
             path: /ray
             host: greencloud.zhyi.cc
             mode: stream-up
+        - name: 🇰🇷 韩国 Tencent
+          type: vless
+          server: tencent.zhyi.cc
+          port: 443
+          uuid: "${config.sops.placeholder.v2ray-key}"
+          network: xhttp
+          tls: true
+          udp: true
+          servername: tencent.zhyi.cc
+          client-fingerprint: chrome
+          encryption: ""
+          xhttp-opts:
+            path: /ray
+            host: tencent.zhyi.cc
+            mode: stream-up
 
       proxy-groups:
         - name: PROXY
           type: select
           proxies:
-            - hostdare
-            - google
-            - greencloud
+            - 🇯🇵 日本 HostDare
+            - 🇺🇸 美国 Google
+            - 🇸🇬 新加坡 GreenCloud
+            - 🇰🇷 韩国 Tencent
             - DIRECT
 
       rules:
@@ -138,7 +154,7 @@ in
       ipv6: true
 
       proxies:
-        - name: hostdare
+        - name: 🇯🇵 日本 HostDare
           type: vless
           server: hostdare.zhyi.cc
           port: 443
@@ -158,7 +174,7 @@ in
         - name: PROXY
           type: select
           proxies:
-            - hostdare
+            - 🇯🇵 日本 HostDare
             - DIRECT
 
       rules:
@@ -285,21 +301,29 @@ in
         ${pkgs.curl}/bin/curl -fsS -H "Authorization: Bearer $token" "$@"
       }
 
-      for node in hostdare google greencloud; do
+      # Remove stale node names from earlier host renames (jpvm/usvm/colocrossing).
+      stale_ids=$(curl_auth "$api/api/v1/nodes/get" \
+        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="jpvm" or .LinkName=="usvm" or .LinkName=="colocrossing") | .ID] | join(" ")')
+      for stale_id in $stale_ids; do
+        curl_auth -X DELETE "$api/api/v1/nodes/delete?id=$stale_id" || true
+      done
+
+      for node in hostdare google greencloud tencent; do
         case "$node" in
-          hostdare) server=hostdare.zhyi.cc ;;
-          google) server=google.zhyi.cc ;;
-          greencloud) server=greencloud.zhyi.cc ;;
+          hostdare) server=hostdare.zhyi.cc; display="🇯🇵 日本 HostDare" ;;
+          google) server=google.zhyi.cc; display="🇺🇸 美国 Google" ;;
+          greencloud) server=greencloud.zhyi.cc; display="🇸🇬 新加坡 GreenCloud" ;;
+          tencent) server=tencent.zhyi.cc; display="🇰🇷 韩国 Tencent" ;;
         esac
         link="vless://$SUBLINK_V2RAY_UUID@$server:443?encryption=none&security=tls&sni=$server&fp=chrome&type=xhttp&path=/ray&host=$server&mode=stream-up#$node"
         curl_auth -X POST "$api/api/v1/nodes/add" \
           --data-urlencode "link=$link" \
-          --data-urlencode "name=$node" \
+          --data-urlencode "name=$display" \
           --data-urlencode "group=overseas" || true
       done
 
       ids=$(curl_auth "$api/api/v1/nodes/get" \
-        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="hostdare" or .LinkName=="google" or .LinkName=="greencloud") | .ID] | join(",")')
+        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="hostdare" or .LinkName=="google" or .LinkName=="greencloud" or .LinkName=="tencent") | .ID] | join(",")')
       if [ -z "$ids" ]; then
         echo "No overseas Xray nodes found after seeding" >&2
         exit 1
