@@ -113,6 +113,30 @@ in
               follow_redirects = false;
             };
           };
+          # ai-api.zhyi.cc (public UniAPI on tencent) is API-key protected and
+          # answers 401/403 when unauthenticated; treat those as "up" so the
+          # probe only fires on DNS/TLS/routing failure.
+          https_ok_403 = {
+            prober = "http";
+            timeout = "15s";
+            http = {
+              fail_if_not_ssl = true;
+              valid_status_codes = [
+                200
+                204
+                206
+                301
+                302
+                303
+                304
+                307
+                308
+                401
+                403
+              ];
+              follow_redirects = false;
+            };
+          };
           dns = {
             prober = "dns";
             timeout = "15s";
@@ -153,6 +177,14 @@ in
       metrics_path = "/probe";
       params.module = [ "https_2xx" ];
       static_configs = [ { targets = httpMonitorTargets ++ httpPublicFacingHosts; } ];
+      relabel_configs = relabelConfigs;
+    }
+    {
+      job_name = "https_ok_403";
+      scrape_interval = "1m";
+      metrics_path = "/probe";
+      params.module = [ "https_ok_403" ];
+      static_configs = [ { targets = [ "https://ai-api.zhyi.cc" ]; } ];
       relabel_configs = relabelConfigs;
     }
     {
@@ -206,6 +238,16 @@ in
                 annotations = {
                   summary = "⚠️ DNS service {{$labels.instance}} failed.";
                   description = "Blackbox probe for {{$labels.instance}} did not return the expected DNS response.";
+                };
+              }
+              {
+                alert = "public_uni_api_failed";
+                expr = ''probe_success{job="https_ok_403"} == 0'';
+                for = "15m";
+                labels.severity = "warning";
+                annotations = {
+                  summary = "⚠️ 公共 UniAPI {{$labels.instance}} failed.";
+                  description = "Blackbox probe for {{$labels.instance}} did not return an accepted response (401/403 counts as up).";
                 };
               }
               {

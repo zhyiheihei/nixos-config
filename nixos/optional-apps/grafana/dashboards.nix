@@ -406,7 +406,7 @@ let
         title = "公网服务可用";
         x = 16;
         y = 0;
-        expr = ''sum(probe_success{job="https_2xx"})'';
+        expr = ''sum(probe_success{job=~"https_2xx|https_ok_403"})'';
       })
       (stat {
         id = 6;
