@@ -46,6 +46,14 @@ in
 
   lantian.moviepilot.enable = true;
 
+  # MoviePilot v3 (upgraded 2026-08-13): per the official wiki, v3 reuses the
+  # v2 /config directory and SQLite DB, so volume/env mappings stay identical
+  # and no data migration is needed (full backup taken before switching).
+  # Overridden here at host level to keep the public optional-apps module
+  # upstream-aligned.
+  virtualisation.oci-containers.containers.moviepilot.image =
+    lib.mkForce "docker.io/jxxghp/moviepilot-v3:latest";
+
   systemd.tmpfiles.settings.media-apps."/nix/persistent/var/lib/media-apps"."d" = {
     mode = "0700";
     user = "root";
