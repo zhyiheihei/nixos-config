@@ -153,6 +153,13 @@ in
       owner = "dex";
       group = "dex";
     };
+    dex-vaultwarden-secret = {
+      sopsFile = inputs.secrets + "/common/dex.yaml";
+      owner = "dex";
+      group = "dex";
+      # Vaultwarden SSO reads this secret too, as its own service user.
+      mode = "0444";
+    };
   }
   // builtins.listToAttrs (
     builtins.map
@@ -173,7 +180,6 @@ in
         "memos"
         "moviepilot"
         "oauth2-proxy"
-        "vaultwarden"
         # keep-sorted end
       ]
   );
