@@ -263,6 +263,10 @@ in
   # the image pull on the same stable egress as the other OPI5P workloads.
   systemd.services.podman-byparr.environment = proxyEnvironment;
 
+  # Ignis downloads the Obsidian app from its official source on first run;
+  # keep that traffic on the router SOCKS5 proxy like the other workloads.
+  systemd.services.podman-ignis.environment = proxyEnvironment;
+
   # Immich transcodes and extracts video thumbnails through ffmpeg. Use the
   # repo's Rockchip build (rkmpp/RGA) and let the service reach the VPU and
   # Mali render nodes; the default immich unit hides /dev and pins a plain

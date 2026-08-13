@@ -121,6 +121,7 @@ rec {
     FileCodeBox = 13827;
     SunPanel = 13828;
     SunPanelHelper = 13829;
+    Ignis = 13832;
     Syncthing = 13834;
     MoviePilot.Frontend = 13890;
     MoviePilot.Backend = 13891;
