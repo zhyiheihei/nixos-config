@@ -36,9 +36,18 @@ rec {
   hydra = prev.hydra.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/hydra-protect-private-project.patch ];
   });
+  # Systemd socket activation support, from https://github.com/esnet/iperf/pull/1171
+  iperf3 = prev.iperf3.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ../patches/iperf3-socket-activation.patch ];
+    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.autoreconfHook ];
+    buildInputs = (old.buildInputs or [ ]) ++ [ final.systemdMinimal ];
+  });
   knot-dns = prev.knot-dns.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/knot-disable-semantic-check.patch ];
     doCheck = false;
+  });
+  lemmy-server = prev.lemmy-server.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ../patches/lemmy-disable-specific-error.patch ];
   });
   matrix-synapse = prev.matrix-synapse.override { inherit matrix-synapse-unwrapped; };
   matrix-synapse-unwrapped = prev.matrix-synapse-unwrapped.overrideAttrs (old: {
