@@ -7,6 +7,7 @@
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/filecodebox-nix.nix
     ../../nixos/optional-apps/home-assistant.nix
+    ../../nixos/optional-apps/ignis.nix
     ../../nixos/optional-apps/immich.nix
     ../../nixos/optional-apps/immich-rockchip.nix
     ../../nixos/optional-apps/memos-nix.nix
@@ -30,6 +31,10 @@
   lantian.immich.storage = "/mnt/storage/immich";
   lantian.syncthing.storage = "/mnt/storage/media";
   services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
+
+  # Ignis vault is the knowledge-chain Notes folder (Syncthing home copy on the
+  # NFS share); the module defaults already point at it, just enable it here.
+  lantian.ignis.enable = true;
 
   # The hourly timer can fire before sops-install-secrets writes the calendar
   # sync script on a fresh boot; make the run wait for the secret explicitly.

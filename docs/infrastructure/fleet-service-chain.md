@@ -140,6 +140,7 @@ UniAPI 仍是唯一外部 Provider 汇聚点。不得把 Metapi、AxonHub 或 n8
 ml-2700 Notes（bindfs 持久目录）
   -> git push Gitea（git.zhyi.xin，私有权威）
   -> Syncthing 三机（ml-2700 / opi5p / greencloud）
+Ignis（web Obsidian，opi5p）直接读写 opi5p 上的 Notes 副本
 
 Blog（ml-2700 本地 Astro 骨架）-> pyison（posts.zhyi.xin，greencloud）
 Waline（comments.zhyi.xin）：已回滚，未部署
@@ -147,6 +148,10 @@ Waline（comments.zhyi.xin）：已回滚，未部署
 
 - 私有天线：`~/Documents/Notes` 是独立 git 仓库，Gitea 为权威源，Syncthing 负责
   三机分发；Notes 与 nixos-config 不共用 `.git`。
+- Web 版 Obsidian：Ignis（`ignis.opi5p.zhyi.cc`）把 opi5p 的
+  `/mnt/storage/media/Notes` 挂为 vault，浏览器里编辑的内容仍在 Syncthing/Gitea
+  分发内；nginx 层走 oauth2-proxy（Dex SSO）。详见
+  [`../services/ignis.md`](../services/ignis.md)。
 - 公开天线：`~/Documents/Blog` 为 Astro 骨架，公开路线暂停；
   `zhyiheihei/blog` 待创建后推送；Waline 未部署。
 - 知识输入：RSSHub/Miniflux（greencloud）、ArchiveBox/Memos（opi5p）。
