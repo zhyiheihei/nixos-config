@@ -16,9 +16,9 @@
   hostname = "tencent.zhyi.cc";
   city = geo.cities."KR Seoul";
   manualDeploy = true;
-  # First boot generates this key under /nix/persistent/etc/ssh. Add the
-  # collected public key here before SOPS rekey and regular deployment.
-  ssh.ed25519 = null;
+  # Generated during the 2026-08-13 reinstall at /nix/persistent/etc/ssh;
+  # fingerprint SHA256:mQsADD14m6vckwHEmIan3gOcixlPtRos7eaNQQNiCEo.
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMKKFpoUJp+JQE4eKn47qIpeBo9y7eclUqoO0zaUIVY8 root@localhost";
   zerotier = null;
 
   ltnet.tcpTransportDomain = "tencent.zhyi.cc";
