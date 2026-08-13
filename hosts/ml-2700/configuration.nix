@@ -15,6 +15,12 @@
 
   lantian.syncthing.storage = "/nix/persistent/media";
 
+  # Host-level override (optional-apps/sunshine.nix is a public module, left
+  # untouched): allow browser access to the Sunshine Web UI from LAN / LTNET,
+  # otherwise CSRF protection blocks the pairing page. Comma-separated because
+  # the settings option only accepts atom values.
+  services.sunshine.settings.csrf_allowed_origins = "https://192.168.0.53:47990,https://198.18.0.113:47990,https://ml-2700.zhyi.cc:47990";
+
   # Notes is a bindfs view of the Syncthing-managed storage, matching the
   # author's client Documents layout. The Notes repo stays independent from
   # this repository.
