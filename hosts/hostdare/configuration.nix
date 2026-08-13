@@ -19,7 +19,7 @@
     networkConfig.DHCP = "ipv4";
   };
 
-  lantian.nginxVhosts."jpvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  lantian.nginxVhosts."hostdare.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
   # cn-accel is used for the v2ray exit; skip mihomo to save memory.
   lantian.mihomo.enable = false;

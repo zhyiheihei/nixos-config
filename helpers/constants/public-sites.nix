@@ -61,7 +61,7 @@ _: [
   # keep-sorted start
   "cnvm.zhyi.cc"
   "flapalerted.zhyi.cc"
-  "jpvm.zhyi.cc"
+  "hostdare.zhyi.cc"
   "colocrossing.zhyi.cc"
   "google.zhyi.cc"
   "tencent.zhyi.cc"

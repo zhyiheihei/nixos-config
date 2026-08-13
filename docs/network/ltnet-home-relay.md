@@ -6,12 +6,12 @@ the peer layout to the links that are actually reachable.
 ## Active topology
 
 ```text
-rock5c -- LTNET -- colocrossing -- public IPv4 -- jpvm -- public IPv4 -- cnvm
+rock5c -- LTNET -- colocrossing -- public IPv4 -- hostdare -- public IPv4 -- cnvm
 ```
 
 - `colocrossing` is the SG public node and reflects routes to `rock5c`.
-- `jpvm` reflects routes between `colocrossing` and `cnvm`.
-- `jpvm` is the active external DN42 ingress and public LTNET relay.
+- `hostdare` reflects routes between `colocrossing` and `cnvm`.
+- `hostdare` is the active external DN42 ingress and public LTNET relay.
 - ZeroTier remains the management and discovery network. It is not the normal
   data path for the colocrossing-to-JPVM BGP session.
 - Hosts without a public or shared interconnect can still use the automatic
@@ -23,7 +23,7 @@ joining the live mesh. A null list preserves the author's full-mesh behavior.
 `colocrossing` and `cnvm` initiate WireGuard sessions to JPVM's fixed public
 IPv4 address. JPVM learns the roaming home endpoint from authenticated
 WireGuard traffic. These two cross-provider WireGuard sessions are carried by
-wstunnel over `jpvm.zhyi.cc:443` because the direct UDP path is asymmetric. The
+wstunnel over `hostdare.zhyi.cc:443` because the direct UDP path is asymmetric. The
 upper WireGuard and BIRD topology remains unchanged, and the wstunnel server is
 restricted to JPVM's two local WireGuard ports.
 
@@ -116,8 +116,8 @@ Expected BGP sessions are:
 
 ```text
 rock5c <-> colocrossing
-colocrossing <-> jpvm
-jpvm <-> cnvm
+colocrossing <-> hostdare
+hostdare <-> cnvm
 ```
 
 All must report `Established`. A rapidly increasing one-way WireGuard transfer

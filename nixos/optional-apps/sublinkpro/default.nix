@@ -55,20 +55,20 @@ in
       ipv6: true
 
       proxies:
-        - name: jpvm
+        - name: hostdare
           type: vless
-          server: jpvm.zhyi.cc
+          server: hostdare.zhyi.cc
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: jpvm.zhyi.cc
+          servername: hostdare.zhyi.cc
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: jpvm.zhyi.cc
+            host: hostdare.zhyi.cc
             mode: stream-up
         - name: google
           type: vless
@@ -105,7 +105,7 @@ in
         - name: PROXY
           type: select
           proxies:
-            - jpvm
+            - hostdare
             - google
             - colocrossing
             - DIRECT
@@ -126,7 +126,7 @@ in
     '';
   };
 
-  sops.templates."sublinkpro-jpvm.yaml" = {
+  sops.templates."sublinkpro-hostdare.yaml" = {
     owner = "nginx";
     group = "nginx";
     mode = "0440";
@@ -138,27 +138,27 @@ in
       ipv6: true
 
       proxies:
-        - name: jpvm
+        - name: hostdare
           type: vless
-          server: jpvm.zhyi.cc
+          server: hostdare.zhyi.cc
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: jpvm.zhyi.cc
+          servername: hostdare.zhyi.cc
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: jpvm.zhyi.cc
+            host: hostdare.zhyi.cc
             mode: stream-up
 
       proxy-groups:
         - name: PROXY
           type: select
           proxies:
-            - jpvm
+            - hostdare
             - DIRECT
 
       rules:
@@ -285,9 +285,9 @@ in
         ${pkgs.curl}/bin/curl -fsS -H "Authorization: Bearer $token" "$@"
       }
 
-      for node in jpvm google colocrossing; do
+      for node in hostdare google colocrossing; do
         case "$node" in
-          jpvm) server=jpvm.zhyi.cc ;;
+          hostdare) server=hostdare.zhyi.cc ;;
           google) server=google.zhyi.cc ;;
           colocrossing) server=colocrossing.zhyi.cc ;;
         esac
@@ -299,7 +299,7 @@ in
       done
 
       ids=$(curl_auth "$api/api/v1/nodes/get" \
-        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="jpvm" or .LinkName=="google" or .LinkName=="colocrossing") | .ID] | join(",")')
+        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="hostdare" or .LinkName=="google" or .LinkName=="colocrossing") | .ID] | join(",")')
       if [ -z "$ids" ]; then
         echo "No overseas Xray nodes found after seeding" >&2
         exit 1
@@ -350,7 +350,7 @@ in
         proxyWebsockets = true;
       };
       "= /mihomo.yaml" = mkSubscriptionLocation "sublinkpro-mihomo.yaml";
-      "= /jpvm.yaml" = mkSubscriptionLocation "sublinkpro-jpvm.yaml";
+      "= /hostdare.yaml" = mkSubscriptionLocation "sublinkpro-hostdare.yaml";
     };
     sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;

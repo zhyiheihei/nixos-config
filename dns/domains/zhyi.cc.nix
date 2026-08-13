@@ -11,13 +11,13 @@ let
     {
       recordType = "CNAME";
       name = "ai-api";
-      target = "jpvm";
+      target = "hostdare";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "autoconfig";
-      target = "jpvm";
+      target = "hostdare";
       ttl = "1h";
     }
     {
@@ -129,7 +129,7 @@ in
         {
           recordType = "A";
           name = "@";
-          address = LT.hosts.jpvm.public.IPv4;
+          address = LT.hosts.hostdare.public.IPv4;
           ttl = "10m";
         }
         {

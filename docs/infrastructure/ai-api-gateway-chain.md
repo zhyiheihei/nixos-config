@@ -30,7 +30,7 @@ LibreChat   ──────────────────────> 
 Metapi      ──────────────────────> ROCK 5C UniAPI ─> Provider
 ROCK 5C UniAPI ─> n8n OpenAI Bridge (colocrossing) ─> n8n 工作流
 
-ai-api.zhyi.cc ───────────────────> jpvm UniAPI ─────────> Provider
+ai-api.zhyi.cc ───────────────────> hostdare UniAPI ─────────> Provider
 ```
 
 `ai-api.zhyi.cc` 是 JPVM 上的独立公开 UniAPI 入口；它也从同一份 secrets Provider
@@ -57,7 +57,7 @@ AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模
 
 | 服务 | 主机 | 作用 | 上游或依赖 |
 | --- | --- | --- | --- |
-| UniAPI | `rock5c`、`jpvm` | Provider 注册表、模型别名与 OpenAI 兼容 API；jpvm 当前不可达、运行态未验证 | 私有 `uni-api/` secrets |
+| UniAPI | `rock5c`、`hostdare` | Provider 注册表、模型别名与 OpenAI 兼容 API；hostdare 当前不可达、运行态未验证 | 私有 `uni-api/` secrets |
 | LibreChat | `colocrossing` | 交互式 AI 前端，使用 Dex OIDC 登录 | `uni-api.rock5c.zhyi.cc` |
 | n8n | `colocrossing` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
 | n8n OpenAI Bridge | `colocrossing` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
@@ -74,7 +74,7 @@ AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模
 - [`nixos/optional-apps/metapi.nix`](../../nixos/optional-apps/metapi.nix)
 - [`hosts/colocrossing/configuration.nix`](../../hosts/colocrossing/configuration.nix)
 - [`hosts/rock5c/home-edge.nix`](../../hosts/rock5c/home-edge.nix)
-- [`hosts/jpvm/configuration.nix`](../../hosts/jpvm/configuration.nix)
+- [`hosts/hostdare/configuration.nix`](../../hosts/hostdare/configuration.nix)
 
 ## 与知识链的连接
 
@@ -146,7 +146,7 @@ colocrossing），除非明确要废弃相应网关；否则会丢失运行态�
 轮换 `uni-api-admin-api-key` 的正确顺序：
 
 1. 在构建机的私有 secrets 仓库按其 SOPS 文档加密更新 key。
-2. 部署 `rock5c` 与 `jpvm`，确认两台 UniAPI 的 `/v1/models` 均可认证；jpvm 不可达
+2. 部署 `rock5c` 与 `hostdare`，确认两台 UniAPI 的 `/v1/models` 均可认证；hostdare 不可达
    时不能假定轮换已经完成。
 3. 在 Metapi 的 `UniAPI` API-key 账户中更新上游 key；只有重新部署 AxonHub 后才
    更新其 channel。

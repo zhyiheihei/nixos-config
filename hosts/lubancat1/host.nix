@@ -22,7 +22,7 @@
   };
   # This server sits behind the home NAT. Match the established home server
   # topology and carry its public mesh peers over the existing WSS endpoints.
-  ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
+  ltnet.tcpTransportPeers.hostdare = "hostdare.zhyi.cc";
   ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
   ltnet.tcpTransportPeers.google = "google.zhyi.cc";
   # Server-role BIRD configuration consumes the region even without dn42.

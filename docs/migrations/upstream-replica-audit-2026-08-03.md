@@ -94,8 +94,8 @@
   `public-facing` 条件；
 - `vhost-matrix-element/`、`vhost-tools/`、`vhost-um/` 仍依赖
   `!low-disk`；
-- `low-disk` 仍存在于标签常量以及 `cnvm`、`jpvm`、`google`；
-- 本地只有 `cnvm`、`jpvm`、`google`、`colocrossing` 标记为
+- `low-disk` 仍存在于标签常量以及 `cnvm`、`hostdare`、`google`；
+- 本地只有 `cnvm`、`hostdare`、`google`、`colocrossing` 标记为
   `public-facing`，内网的 `ml-builder`、`ml-home-vm`、`opi5p`、
   `rock5c` 等不应自动承载这些公开站点。
 

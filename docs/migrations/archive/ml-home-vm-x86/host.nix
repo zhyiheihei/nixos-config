@@ -28,7 +28,7 @@
     IPv4 = "192.168.0.51";
   };
 
-  ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
+  ltnet.tcpTransportPeers.hostdare = "hostdare.zhyi.cc";
   ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
   ltnet.tcpTransportPeers.google = "google.zhyi.cc";
 

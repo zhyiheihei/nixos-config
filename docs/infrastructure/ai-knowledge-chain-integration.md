@@ -46,7 +46,7 @@ flowchart LR
 
 | 服务 | 主机 | 状态 | 官方 API / 协议 | 认证 | 文档 |
 | --- | --- | --- | --- | --- | --- |
-| UniAPI | `rock5c`、`jpvm` | 运行 / 声明（jpvm 未验证） | OpenAI 兼容 `/v1`（`/v1/models`、`/v1/chat/completions`） | Bearer `uni-api-admin-api-key` | `https://github.com/yym68686/uni-api` |
+| UniAPI | `rock5c`、`hostdare` | 运行 / 声明（hostdare 未验证） | OpenAI 兼容 `/v1`（`/v1/models`、`/v1/chat/completions`） | Bearer `uni-api-admin-api-key` | `https://github.com/yym68686/uni-api` |
 | LibreChat | `colocrossing` | 运行 | Web/客户端 REST `/api/*`；自定义 endpoint 指向 UniAPI | Dex OIDC + 会话/JWT | `https://www.librechat.ai/docs` |
 | n8n | `colocrossing` | 运行 | REST `/api/v1`（workflows/executions/credentials）、webhooks | API key / Dex OAuth | `https://docs.n8n.io/api/` |
 | n8n OpenAI Bridge | `colocrossing` | 运行 | OpenAI 兼容 `/v1/*`、`/health` | Bearer token | `https://github.com/xddxdd/n8n-openai-bridge` |
@@ -160,7 +160,7 @@ curl -fsS \
 
 - 官方文档 URL 已在本文件核对；部分端点（ArchiveBox JSON API、pyison 搜索接口、
   Miniflux/Syncthing API key 穿透 OAuth vhost 的能力）需实施期实机验证。
-- jpvm 与 ml-2700 当前不可达，公开 UniAPI 与本地 AI 客户端运行态未验证。
+- hostdare 与 ml-2700 当前不可达，公开 UniAPI 与本地 AI 客户端运行态未验证。
 - UniAPI 的 `deepseek-v4-flash:opencode-go` 模型别名已于 2026-08-12 在
   `colocrossing` 通过 `/v1/models` 实机核验存在。
 

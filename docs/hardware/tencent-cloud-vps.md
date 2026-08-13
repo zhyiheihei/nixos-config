@@ -73,7 +73,7 @@ key、SOPS 身份）在 `/nix/persistent`。详细布局见
       `198.18.0.128/24` / `fdd8:1938:4e88::128/64`。
 - [x] `wg show` 7 个 peer handshake（colocrossing/cnvm/google/ml-builder/rock5c/
       lubancat1/opi5p），babel 路由收敛，`birdc show protocols` ltdocker up。
-      **jpvm 例外**：部署时 jpvm（36.50.85.113）从 mac/ml-builder 均不可达
+      **hostdare 例外**：部署时 hostdare（36.50.85.113）从 mac/ml-builder 均不可达
       （既有问题），wgmesh128 待其恢复后部署。
 - [x] `manualDeploy` 移除，colmena 部署 tencent/cnvm/google/ml-builder/rock5c/
       lubancat1/opi5p 成功（新 netdev 需手动 `systemctl restart systemd-networkd`

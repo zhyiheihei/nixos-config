@@ -3,13 +3,13 @@ let
   PublicServers = [
     "cnvm.zhyi.cc."
     "colocrossing.zhyi.cc."
-    "jpvm.zhyi.cc."
+    "hostdare.zhyi.cc."
   ];
 
   LTNetServers = [
     "cnvm.ltnet.zhyi.cc."
     "colocrossing.ltnet.zhyi.cc."
-    "jpvm.ltnet.zhyi.cc."
+    "hostdare.ltnet.zhyi.cc."
   ];
 
   DN42Servers = [
