@@ -5,6 +5,8 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
       locations = {
         "/" = {
           proxyPass = "http://${LT.hosts.pve-5700u.ltnet.IPv4}:${LT.portStr.Hydra}";
+          blockBadUserAgents = true;
+          blockBadTLSSignatures = true;
           extraConfig = ''
             limit_req zone=slow burst=20 nodelay;
             limit_req_status 429;
