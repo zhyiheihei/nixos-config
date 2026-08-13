@@ -2,35 +2,25 @@
 # server architecture: tmpfs / (impermanence), dedicated /boot, persistent
 # btrfs /nix with neededForBoot = true.
 #
-# Template for the initial install:
-# - Confirm firmware in the install environment: test -d /sys/firmware/efi
-# - UEFI: vda1 vfat /boot + vda2 btrfs /nix (as below)
-# - BIOS: 2 MiB bios_grub + ext4 /boot + btrfs /nix, with
-#   boot.loader.grub.device = "/dev/vda"
-# - Replace the /dev/vda* device paths with the UUIDs read from the live
-#   install environment (docs/operations/nixos-reinstallation-guide.md §3.3);
-#   do not copy another machine's UUIDs.
+# BIOS layout (confirmed in install env: test -d /sys/firmware/efi → BIOS):
+# - 2 MiB bios_grub (unmounted) + 1 GiB ext4 /boot + btrfs /nix
+# - boot.loader.grub.device = "/dev/vda"
+# Device paths were confirmed in the live install environment; UUIDs may be
+# swapped in per docs/operations/nixos-reinstallation-guide.md §3.3.
 _: {
   imports = [
     ../../nixos/hardware/qemu.nix
   ];
 
-  boot.loader.grub = {
-    efiSupport = true;
-    device = "nodev";
-  };
+  boot.loader.grub.device = "/dev/vda";
 
   fileSystems."/boot" = {
-    device = "/dev/vda1";
-    fsType = "vfat";
-    options = [
-      "fmask=0077"
-      "dmask=0077"
-    ];
+    device = "/dev/vda2";
+    fsType = "ext4";
   };
 
   fileSystems."/nix" = {
-    device = "/dev/vda2";
+    device = "/dev/vda3";
     fsType = "btrfs";
     neededForBoot = true;
     options = [
