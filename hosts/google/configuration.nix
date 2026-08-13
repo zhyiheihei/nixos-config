@@ -11,7 +11,7 @@
     networkConfig.DHCP = "ipv4";
   };
 
-  lantian.nginxVhosts."usvm.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  lantian.nginxVhosts."google.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
   # Keep enough compressed swap headroom for builds and make the
   # socket-activated Nix daemon recover after memory pressure.

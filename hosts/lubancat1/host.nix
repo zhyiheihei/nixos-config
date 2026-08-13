@@ -24,7 +24,7 @@
   # topology and carry its public mesh peers over the existing WSS endpoints.
   ltnet.tcpTransportPeers.jpvm = "jpvm.zhyi.cc";
   ltnet.tcpTransportPeers.colocrossing = "colocrossing.zhyi.cc";
-  ltnet.tcpTransportPeers.usvm = "usvm.zhyi.cc";
+  ltnet.tcpTransportPeers.google = "google.zhyi.cc";
   # Server-role BIRD configuration consumes the region even without dn42.
   dn42.region = constants.dn42.region.Asia-E;
 }

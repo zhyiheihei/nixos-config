@@ -70,20 +70,20 @@ in
             path: /ray
             host: jpvm.zhyi.cc
             mode: stream-up
-        - name: usvm
+        - name: google
           type: vless
-          server: usvm.zhyi.cc
+          server: google.zhyi.cc
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: usvm.zhyi.cc
+          servername: google.zhyi.cc
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: usvm.zhyi.cc
+            host: google.zhyi.cc
             mode: stream-up
         - name: colocrossing
           type: vless
@@ -106,7 +106,7 @@ in
           type: select
           proxies:
             - jpvm
-            - usvm
+            - google
             - colocrossing
             - DIRECT
 
@@ -285,10 +285,10 @@ in
         ${pkgs.curl}/bin/curl -fsS -H "Authorization: Bearer $token" "$@"
       }
 
-      for node in jpvm usvm colocrossing; do
+      for node in jpvm google colocrossing; do
         case "$node" in
           jpvm) server=jpvm.zhyi.cc ;;
-          usvm) server=usvm.zhyi.cc ;;
+          google) server=google.zhyi.cc ;;
           colocrossing) server=colocrossing.zhyi.cc ;;
         esac
         link="vless://$SUBLINK_V2RAY_UUID@$server:443?encryption=none&security=tls&sni=$server&fp=chrome&type=xhttp&path=/ray&host=$server&mode=stream-up#$node"
@@ -299,7 +299,7 @@ in
       done
 
       ids=$(curl_auth "$api/api/v1/nodes/get" \
-        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="jpvm" or .LinkName=="usvm" or .LinkName=="colocrossing") | .ID] | join(",")')
+        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="jpvm" or .LinkName=="google" or .LinkName=="colocrossing") | .ID] | join(",")')
       if [ -z "$ids" ]; then
         echo "No overseas Xray nodes found after seeding" >&2
         exit 1

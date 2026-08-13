@@ -16,7 +16,7 @@
 
 「统一订阅」当前组成（全部通过官方 API 配置，未改动数据库）：
 
-- 自建节点：`jpvm`、`usvm`、`colocrossing`（group=overseas，三个 VLESS xhttp
+- 自建节点：`jpvm`、`google`、`colocrossing`（group=overseas，三个 VLESS xhttp
   节点，443 端口，`/ray`，`stream-up`，UUID 来自 SOPS `v2ray-key`）
 - 机场节点：机场 `xsus`（id=1，`xs.sujieok.cn`，每 12 小时自动拉取）——订阅
   通过 `airports=1` 挂载，机场新增节点会自动进入统一订阅，无需手动添加

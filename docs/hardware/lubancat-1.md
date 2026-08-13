@@ -199,7 +199,7 @@ host recipient 写入 secrets 并全库 rekey，后者等待 ZeroTier 控制器�
 
 主机直接导入作者已有的 `nixos/server.nix`，没有复制或裁剪公共 server 模块。
 `host.nix` 只增加角色标签、Asia-E 区域和家庭 NAT 主机沿用的 jpvm、colocrossing、
-usvm WSS peer。WireGuard/BIRD、CoreDNS、Nginx、Yggdrasil、Prometheus exporters、
+google WSS peer。WireGuard/BIRD、CoreDNS、Nginx、Yggdrasil、Prometheus exporters、
 rsync 等服务均来自作者的公共模块。它不带 `nix-builder` 标签，Hydra 和分布式 Nix
 不会向这块 2 GiB 板卡派发大包。
 

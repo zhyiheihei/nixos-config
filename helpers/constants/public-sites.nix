@@ -63,7 +63,7 @@ _: [
   "flapalerted.zhyi.cc"
   "jpvm.zhyi.cc"
   "colocrossing.zhyi.cc"
-  "usvm.zhyi.cc"
+  "google.zhyi.cc"
   "tencent.zhyi.cc"
   "lg.zhyi.cc"
   "lg.zhyi.dn42"

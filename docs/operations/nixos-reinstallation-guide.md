@@ -40,7 +40,7 @@ host key 时，不得执行分区步骤。
 以下变量只用于说明。每次安装必须按实际机器填写：
 
 ```bash
-HOST=usvm
+HOST=google
 TARGET_IP=35.212.152.140
 INSTALL_SSH_PORT=22
 DISK=/dev/sda
@@ -72,7 +72,7 @@ ip route
 
 ### 2.1 UEFI 两分区布局
 
-适用于 `usvm` 这类 UEFI VPS，也适用于作者体系中的物理 client：
+适用于 `google` 这类 UEFI VPS，也适用于作者体系中的物理 client：
 
 | 分区 | 大小 | 文件系统 | 挂载点 |
 | --- | --- | --- | --- |
@@ -218,7 +218,7 @@ blkid "$BOOT_DEV" "$NIX_DEV"
 
 ```bash
 cd /nix/src/nixos-config
-HOST=usvm
+HOST=google
 
 nix eval --raw \
   ".#nixosConfigurations.${HOST}.config.fileSystems.\"/nix\".device"
@@ -291,7 +291,7 @@ ss -lntp | grep ':22 '
 cd /nix/src/nixos-config
 git pull --ff-only
 
-HOST=usvm
+HOST=google
 CLOSURE=$(nix build --no-link --print-out-paths \
   ".#nixosConfigurations.${HOST}.config.system.build.toplevel" -L)
 
@@ -454,7 +454,7 @@ nix store ping --store local
 cd /nix/src/nixos-config
 git pull --ff-only
 
-HOST=usvm
+HOST=google
 CLOSURE=$(nix build --no-link --print-out-paths \
   ".#nixosConfigurations.${HOST}.config.system.build.toplevel" -L)
 INSTALL_TOOLS=$(nix build --no-link --print-out-paths \
