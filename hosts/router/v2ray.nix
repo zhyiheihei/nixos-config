@@ -35,7 +35,7 @@ let
         protocol = "vless";
         settings.vnext = [
           {
-            address = LT.publicIPv4For "greencloud";
+            address = LT.publicIPv4For "tencent";
             port = 443;
             users = [
               {
@@ -52,11 +52,11 @@ let
             network = "xhttp";
             security = "tls";
             tlsSettings = {
-              serverName = "zhyi.xin";
+              serverName = "tencent.zhyi.cc";
               fingerprint = "firefox";
             };
             xhttpSettings = {
-              host = "zhyi.xin";
+              host = "tencent.zhyi.cc";
               path = "/ray";
               xmux = {
                 maxConcurrency = 128;
@@ -70,7 +70,7 @@ let
             xhttpSettings = xhttpSettings // {
               mode = "stream-up";
               downloadSettings = {
-                address = LT.publicIPv4For "greencloud";
+                address = LT.publicIPv4For "tencent";
                 port = 443;
                 inherit
                   network
