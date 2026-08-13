@@ -29,6 +29,9 @@
   const SHADOW_FACTOR = 0.15;
   const SPRING_SIZE_FACTOR = 10;
   const MAX_TEXTURE_EDGE = 4096;
+  // 随机图片背景 API；与 homepage.css #inner_wrapper 的
+  // --homepage-bg-image 变量（初始 url）保持一致。
+  const BACKGROUND_IMAGE_URL = "https://t.alcy.cc/ysz/";
 
   let canvas = null;
   let captureScale = 1;
@@ -64,6 +67,9 @@
   let captureQueued = false;
   let captureCount = 0;
   let hungTimer = 0;
+  let bgImage = null;
+  let bgCanvas = null;
+  let bgBlobUrl = null;
   let totalShapes = 0;
   let lastFrameMs = 0;
   const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -243,13 +249,8 @@
     mouseSpring.y += mouseVelocity.y * dt;
   };
 
-  const paintPageBackground = (ctx, width, height, scale = 1) => {
-    const gradient = ctx.createLinearGradient(0, 0, 0, height);
-    gradient.addColorStop(0, "#0b1020");
-    gradient.addColorStop(0.52, "#101a2e");
-    gradient.addColorStop(1, "#0a0e18");
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, width, height);
+  // 光晕 + 网格 overlay，与 CSS #inner_wrapper 的对应背景层保持同一套图样。
+  const paintGlowAndGrid = (ctx, width, height, scale = 1) => {
     const glow = (x, y, r, color) => {
       const radial = ctx.createRadialGradient(x, y, 0, x, y, r);
       radial.addColorStop(0, color);
@@ -274,6 +275,31 @@
     for (let x = 0; x < width; x += 8 * scale) {
       ctx.fillRect(x, 0, 1, height);
     }
+  };
+
+  const paintPageBackground = (ctx, width, height, scale = 1) => {
+    if (bgCanvas) {
+      // 随机图片背景：cover 变换与 CSS #inner_wrapper background-size: cover
+      // 完全一致（同容器尺寸、同居中），保证玻璃纹理与真实背景无 seam。
+      const iw = bgCanvas.width;
+      const ih = bgCanvas.height;
+      const s = Math.max(width / iw, height / ih);
+      const dw = iw * s;
+      const dh = ih * s;
+      ctx.drawImage(bgCanvas, (width - dw) / 2, (height - dh) / 2, dw, dh);
+      // 暗化层与 CSS 的 rgba(8,12,22,0.42) 层一致，保证卡片可读。
+      ctx.fillStyle = "rgba(8, 12, 22, 0.42)";
+      ctx.fillRect(0, 0, width, height);
+      paintGlowAndGrid(ctx, width, height, scale);
+      return;
+    }
+    const gradient = ctx.createLinearGradient(0, 0, 0, height);
+    gradient.addColorStop(0, "#0b1020");
+    gradient.addColorStop(0.52, "#101a2e");
+    gradient.addColorStop(1, "#0a0e18");
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+    paintGlowAndGrid(ctx, width, height, scale);
   };
 
   const paintPageOverlays = (ctx, width, height) => {
@@ -586,6 +612,47 @@
     });
   };
 
+  // 预加载随机图片背景（https://t.alcy.cc/ysz/）。加载成功后缩放到统一
+  // 尺寸，并通过 canvas.toBlob 生成 blob URL 注入 CSS 变量——保证页面
+  // 背景与玻璃纹理严格同一张图（随机 API 每次请求可能返回不同图，直接
+  // 用同一 URL 的两次请求会不一致）。
+  const preloadBackground = () => {
+    if (bgImage) return;
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.onload = () => {
+      const maxEdge = 2560;
+      const s = Math.min(
+        1,
+        maxEdge / Math.max(img.naturalWidth, img.naturalHeight)
+      );
+      const c = document.createElement("canvas");
+      c.width = Math.max(2, Math.round(img.naturalWidth * s));
+      c.height = Math.max(2, Math.round(img.naturalHeight * s));
+      c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+      bgImage = img;
+      bgCanvas = c;
+      c.toBlob((blob) => {
+        if (!blob) return;
+        if (bgBlobUrl) URL.revokeObjectURL(bgBlobUrl);
+        bgBlobUrl = URL.createObjectURL(blob);
+        const inner = rootEl || document.getElementById("inner_wrapper");
+        if (inner) {
+          inner.style.setProperty(
+            "--homepage-bg-image",
+            'url("' + bgBlobUrl + '")'
+          );
+        }
+        scheduleRefresh(true);
+      }, "image/webp", 0.88);
+    };
+    img.onerror = () => {
+      bgImage = null;
+      bgCanvas = null;
+    };
+    img.src = BACKGROUND_IMAGE_URL;
+  };
+
   const attachDeviceLostHandler = () => {
     const wgpu = window.HomepageGlassWebGPU;
     if (!wgpu || !wgpu.device || !wgpu.device.lost) return;
@@ -627,6 +694,7 @@
     try {
       dpr = window.devicePixelRatio || 1;
       refreshShapes();
+      preloadBackground();
       canvas = makeCanvas();
       let gpuReady = false;
       try {
