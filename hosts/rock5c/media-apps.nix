@@ -1,21 +1,10 @@
 {
   lib,
-  LT,
   pkgs,
   ...
 }:
 let
   activationMarker = "/nix/persistent/var/lib/media-apps/ready";
-  proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
-  proxyEnvironment = {
-    HTTP_PROXY = proxy;
-    HTTPS_PROXY = proxy;
-    NO_PROXY = proxyBypass;
-    http_proxy = proxy;
-    https_proxy = proxy;
-    no_proxy = proxyBypass;
-  };
   gatedServices = [
     "jellyfin"
     "sonarr"
@@ -28,13 +17,6 @@ let
     "prometheus-exportarr-radarr-exporter"
     "prometheus-exportarr-prowlarr-exporter"
     "prometheus-exportarr-bazarr-exporter"
-  ];
-  proxiedServices = [
-    "sonarr"
-    "radarr"
-    "bazarr"
-    "prowlarr"
-    "podman-handbrake"
   ];
   # These services are fully replaced by MoviePilot.  The units remain defined
   # in their modules for rollback, but must not run alongside the new chain.
@@ -76,9 +58,6 @@ in
     }))
     (lib.genAttrs migratedServices (_: {
       enable = lib.mkForce false;
-    }))
-    (lib.genAttrs proxiedServices (_: {
-      environment = proxyEnvironment;
     }))
     {
       # Never scan an empty local directory when the NAS mount is absent.

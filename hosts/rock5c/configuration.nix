@@ -5,8 +5,19 @@
   ...
 }:
 let
-  moviepilotProxy = "socks5h://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+  proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
   proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+  proxyEnvironment = {
+    HTTP_PROXY = proxy;
+    HTTPS_PROXY = proxy;
+    NO_PROXY = proxyBypass;
+    http_proxy = proxy;
+    https_proxy = proxy;
+    no_proxy = proxyBypass;
+  };
+  # MoviePilot container: PySocks resolves hostnames locally with socks5;
+  # socks5h keeps GitHub/plugin traffic on the router proxy with remote DNS.
+  moviepilotProxy = "socks5h://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
 in
 {
   imports = [
@@ -74,6 +85,12 @@ in
   virtualisation.oci-containers.containers.moviepilot.extraOptions = [
     "--add-host=jellyfin-api.rock5c.zhyi.cc:${LT.this.interconnect.IPv4}"
   ];
+
+  # Handbrake image pulls and the distributed RKNN worker's model/image
+  # downloads go through the same stable router egress. Moved here from
+  # media-apps.nix / immich-ml.nix per module-placement-norms §3.
+  systemd.services.podman-handbrake.environment = proxyEnvironment;
+  systemd.services.podman-immich-machine-learning-rknn.environment = lib.genAttrs (lib.attrNames proxyEnvironment) (k: lib.mkForce proxyEnvironment.${k});
 
   # Match the onboard GMAC by its permanent address so future driver or probe
   # ordering changes cannot silently move the static LAN configuration.

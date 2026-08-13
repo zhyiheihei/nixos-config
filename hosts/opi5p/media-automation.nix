@@ -26,12 +26,12 @@ let
     "podman-tachidesk"
     "podman-vertex"
   ];
+  # flexget-runner and iyuuplus are replaced by MoviePilot (disabled units in
+  # migratedServices below), so their proxy environment would be dead config.
   proxiedServices = [
     "bitmagnet-dht"
     "bitmagnet-http"
     "bitmagnet-queue"
-    "flexget-runner"
-    "iyuuplus"
     "podman-tachidesk"
     "podman-vertex"
   ];
