@@ -28,13 +28,5 @@ in
       sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
-
-    "couchdb.zhyi.xin" = {
-      # CouchDB (Obsidian Livesync) migrated from the QNAP NAS to OPI5P
-      # (2026-08); qnap.zhyi.xin above still targets the NAS web UI.
-      locations."/".proxyPass = "http://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.CouchDB}";
-      sslCertificate = "lets-encrypt-zhyi.xin";
-      noIndex.enable = true;
-    };
   };
 }
