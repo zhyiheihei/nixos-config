@@ -20,18 +20,18 @@ in
   ];
 
   lantian.nginxVhosts = {
-    "qnap.zhyi.cc" = {
+    "qnap.zhyi.xin" = {
       locations."/" = {
         proxyPass = "http://${qnapAddress}:8080";
         proxyWebsockets = true;
       };
-      sslCertificate = "lets-encrypt-zhyi.cc";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
 
-    "couchdb.zhyi.cc" = {
+    "couchdb.zhyi.xin" = {
       locations."/".proxyPass = "http://${qnapAddress}:5984";
-      sslCertificate = "lets-encrypt-zhyi.cc";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
   };
