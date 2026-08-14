@@ -13,12 +13,12 @@
 
   lantian.hubproxy.enable = true;
 
-  # searx 的 favicon 缓存库默认放 /var/cache/searx（uwsgi 服务的
-  # CacheDirectory，属主 uwsgi）；而搜索进程以 searx 用户跑 vassal 且
-  # uwsgi 的 immediate-gid 不继承补充组，永远写不进去 → HTML 搜索 500
-  # （JSON/RSS 正常）。把缓存库改到 searx 自己拥有的 /run/searx
-  # （tmpfs，favicon 缓存重启丢失可接受）。
-  services.searx.faviconsSettings.favicons.cache.db_url = lib.mkForce "/run/searx/faviconcache.db";
+  # searx 的 favicon 缓存（作者布局：/var/cache/searx，uwsgi 服务
+  # CacheDirectory 属主）由 vassal 进程写入；vassal 以 searx:searx 运行
+  # 且 uwsgi immediate-gid 不继承补充组 → sqlite 打不开，HTML 搜索 500。
+  # 保持作者模块不动：主机层给 vassal 加 uwsgi 补充组 + 缓存目录组可写。
+  services.uwsgi.instance.vassals.searx.additional-gid = "uwsgi";
+  systemd.services.uwsgi.serviceConfig.CacheDirectoryMode = "0775";
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
   # from greencloud 2026-08-14 with the monitoring stack). Private only: Homepage
