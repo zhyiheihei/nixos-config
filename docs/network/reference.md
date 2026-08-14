@@ -25,7 +25,7 @@
 | `ml-2700` | 113 | `192.168.0.53` | `214f8619a9` | `198.18.0.113` | 当前没有 server mesh 声明 |
 | `pve-5700u` | 116 | `192.168.0.2` | `706ba6d04d` | `198.18.0.116` | 当前没有 server mesh 声明 |
 | `hostdare` | 117 | 无 | `a073934677` | `198.18.0.117` | server mesh 全互联；为 WSS/TCP WireGuard transport 服务端 |
-| `cnvm` | 119 | 无 | `ecd09d7bc2` | `198.18.0.119` | server mesh 全互联；到 `hostdare` 经 WSS/TCP |
+| `volcengine` | 119 | 无 | `ecd09d7bc2` | `198.18.0.119` | server mesh 全互联；到 `hostdare` 经 WSS/TCP |
 | `google` | 121 | 无 | `47c75f186a` | `198.18.0.121` | server mesh 全互联；公网节点 |
 | `h28k` | 125 | `192.168.30.1`（独立站点 LAN） | 待首启采集 | `198.18.0.125` | 预部署；以后承载附加路由 `192.168.30.0/24` |
 | `molishanguang-macbook` | 200 | 无 | `174ea952dd` | `198.18.0.200` | 额外 ZeroTier 客户端；不参与 server mesh |
@@ -41,7 +41,7 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 | --- | --- |
 | 私钥 | 每台启用 mesh 的主机从 `per-host/wg-priv/<hostname>.yaml` 由 SOPS 解密 |
 | 公钥 | 由 secrets 的 `wg-pubkey.nix` 提供；不在仓库文档中复制 |
-| 对等选择 | 当前 server mesh 由在线节点组成（`greencloud`、`hostdare`、`cnvm`、`google` 等）；`ml-home-vm` 已退役，不再参与 |
+| 对等选择 | 当前 server mesh 由在线节点组成（`greencloud`、`hostdare`、`volcengine`、`google` 等）；`ml-home-vm` 已退役，不再参与 |
 | 端点选择 | 同一 `interconnect.name` 时走局域网；跨网段优先使用各 host 声明的 WSS/TCP transport |
 | TCP transport | 在线家庭节点与公网 server 之间的 WireGuard 经本地 WSS/TCP `443` 封装；WireGuard 本体只在本机回环与 `wstunnel` 间通信 |
 | 路由 | BIRD 通过每条 `wgmesh<peer-index>` 链路上的 IPv6 link-local iBGP 交换 LTNET、DN42 与附加路由 |
@@ -68,8 +68,8 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 | `hydra.zhyi.xin` | CNAME 到 `greencloud.zhyi.cc` | greencloud Nginx 反代到 `ml-builder` 的 Hydra 端口（LTNET `198.18.0.114`） |
 | `attic.zhyi.xin` | CNAME 到 `greencloud.zhyi.cc` | greencloud 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
 | `greencloud.zhyi.cc` | A `203.55.176.158` | SSH、Colmena、ZeroTier controller 与公共服务入口 |
-| `zhyi.xin` | A `101.96.199.157` | CNVM 上的公开根站入口 |
-| 具名 `zhyi.xin` Web 服务 | 显式 CNAME 到 `home-ddns`、`greencloud` 或 `cnvm` | 按作者服务角色逐项声明，不使用统一通配符兜底 |
+| `zhyi.xin` | A `101.96.199.157` | VOLCENGINE 上的公开根站入口 |
+| 具名 `zhyi.xin` Web 服务 | 显式 CNAME 到 `home-ddns`、`greencloud` 或 `volcengine` | 按作者服务角色逐项声明，不使用统一通配符兜底 |
 | `hostdare.zhyi.cc` | A `36.50.85.113` | `hostdare` 自身服务 |
 | `autoconfig.moliy.site` | CNAME 到 `home-ddns.zhyi.cc` | 家庭公网入口 |
 
@@ -81,7 +81,7 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 
 Hydra 已于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统一由 greencloud
 的 Nginx vhost 反代到 ml-builder 的 LTNET 地址，不再依赖 hostdare 直连或家庭 PVE 的
-公网 IPv6。不要把 Hydra 改回 pve-5700u 或改到 CNVM 来掩盖入口问题。
+公网 IPv6。不要把 Hydra 改回 pve-5700u 或改到 VOLCENGINE 来掩盖入口问题。
 
 ## 局域网覆盖
 
@@ -90,9 +90,9 @@ Hydra 已于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统�
 | `pve-5700u` | `ml-builder.zhyi.cc -> 192.168.0.50` | LAN 内主机互访 |
 | `opi5p` | `vaults3.zhyi.xin ->` 本机 interconnect 地址 | VaultS3 本机访问不绕公网 |
 
-MetaCubeXD 运行于 `rock5c`（`192.168.0.64:7892`）；控制界面和 Clash API 仅绑定回环地址，并经 `metacubexd.rock5c.zhyi.cc` 的私有 Nginx vhost 访问。Halo 与根域 `zhyi.xin` 由 CNVM 承载。
+MetaCubeXD 运行于 `rock5c`（`192.168.0.64:7892`）；控制界面和 Clash API 仅绑定回环地址，并经 `metacubexd.rock5c.zhyi.cc` 的私有 Nginx vhost 访问。Halo 与根域 `zhyi.xin` 由 VOLCENGINE 承载。
 
-`zhyi.xin` 的公开入口统一静态指向 `cnvm`，不配置自动故障转移。`hostdare`
+`zhyi.xin` 的公开入口统一静态指向 `volcengine`，不配置自动故障转移。`hostdare`
 承担原 TWVM 的公网 LTNET 中继职责，TWVM 不再属于生产拓扑。
 
 ## 清理判定

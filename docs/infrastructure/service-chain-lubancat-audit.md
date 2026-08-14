@@ -38,7 +38,7 @@ flowchart LR
 
   subgraph Cloud["公网节点"]
     Colo["greencloud\n公网入口、协作、AI、监控"]
-    CNVM["cnvm\n身份、Vaultwarden、Attic"]
+    VOLCENGINE["volcengine\n身份、Vaultwarden、Attic"]
   end
 
   subgraph Home["家庭网络"]
@@ -51,7 +51,7 @@ flowchart LR
   end
 
   Internet -->|"zhyi.xin 公网应用"| Colo
-  Internet -->|"身份与 Attic"| CNVM
+  Internet -->|"身份与 Attic"| VOLCENGINE
   Internet -->|"家庭 DDNS :8443"| Router
   Colo -->|"LTNET HTTPS 反代"| Rock
   Router -->|"80/443"| Rock
@@ -67,7 +67,7 @@ flowchart LR
 
 | 主机 | 当前主要职责 | 不应混入的职责 |
 | --- | --- | --- |
-| cnvm | Attic、Dex、Pocket ID、Vaultwarden、Halo、GLAuth | 家庭数据面、重型构建 |
+| volcengine | Attic、Dex、Pocket ID、Vaultwarden、Halo、GLAuth | 家庭数据面、重型构建 |
 | greencloud | 公网 Nginx、Gitea、Matrix、邮件、AI、监控、协作服务 | 家庭媒体存储 |
 | ROCK 5C | 家庭入口、MetaCubeXD、UniAPI、Homepage、FastAPI-DLS、reDroid | 数据库、NAR、媒体数据 |
 | OPI5P | 数据库、Immich、Linkwarden、媒体链、NCPS、文件服务、reDroid | 高并发分布式构建 |
@@ -80,7 +80,7 @@ flowchart LR
 
 | 链路 | 当前路径 | 迁移时必须保持的条件 |
 | --- | --- | --- |
-| 身份 | 客户端 -> cnvm -> Dex/Pocket ID/GLAuth | 域名、回调 URL 和数据库位置不变 |
+| 身份 | 客户端 -> volcengine -> Dex/Pocket ID/GLAuth | 域名、回调 URL 和数据库位置不变 |
 | AI | 客户端 -> greencloud/ROCK 5C -> UniAPI -> Provider | UniAPI 继续作为唯一 Provider 汇聚点 |
 | 家庭应用 | 客户端 -> greencloud 或 Router -> ROCK 5C -> OPI5P | 公网 TLS 和原 Host/SNI 不变 |
 | 媒体与存储 | 客户端 -> OPI5P -> QNAP | 不让 ROCK 5C 或 LubanCat-1 中转大流量 |
@@ -99,7 +99,7 @@ flowchart LR
 | OPI5P | 15 GiB | 9.6 GiB / 6.0 GiB | 2 TB NVMe + QNAP | 压力来自重型应用，不适合向 Luban 平移 |
 | ml-home-vm | 19 GiB（历史快照） | 2.7 GiB / 16 GiB | 虚拟磁盘 + QNAP | 已退役（2026-08-03）；仅作迁移前容量记录 |
 | pve-5700u | 46 GiB | 16 GiB / 30 GiB（迁移前快照） | `/nix` 使用率约 76%（迁移前） | 已瘦身为纯 PVE 宿主（2026-08-12） |
-| cnvm | 1.9 GiB | 1.5 GiB / 435 MiB | 云盘 | 内存紧张，但状态服务不宜迁到家庭 SD 板 |
+| volcengine | 1.9 GiB | 1.5 GiB / 435 MiB | 云盘 | 内存紧张，但状态服务不宜迁到家庭 SD 板 |
 | greencloud | 7.7 GiB | 4.3 GiB / 3.4 GiB | 云盘 | swap 已接近满，适合移出少量非关键服务 |
 
 LubanCat-1 的常驻基线主要是 Nginx、Yggdrasil、CoreDNS、ZeroTier、BIRD、exporter
@@ -175,7 +175,7 @@ Jellyfin 与媒体自动化。建议另行审计：
 2. 调整 ClamAV 扫描时段或常驻策略，而不是迁到 LubanCat-1；
 3. greencloud 的监控数据库若需整体减压，应优先迁到当前在线的可靠 NVMe/VM
    主机，不要迁到 2 GiB 板卡；`ml-home-vm` 已退役，不能再作为候选；
-4. cnvm 的压力应通过实例扩容，或把 Halo 这类完整状态链迁到可靠 NVMe 主机；不要
+4. volcengine 的压力应通过实例扩容，或把 Halo 这类完整状态链迁到可靠 NVMe 主机；不要
    为释放几十 MiB 把公网状态服务放到家庭 SD 卡。
 
 ## 执行规范与回滚

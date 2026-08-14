@@ -23,7 +23,7 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
 2. 在同一个文件的 sops secret 列表加入 `"moviepilot"`。
 3. 在 secrets 仓库 `common/dex.yaml` 增加
    `dex-moviepilot-secret`（64 位随机 hex），用 `sops` 编辑并提交。
-4. 更新主仓库 `flake.lock` 的 secrets 提交并部署 `cnvm`。
+4. 更新主仓库 `flake.lock` 的 secrets 提交并部署 `volcengine`。
 5. 在应用侧配置 OIDC：
 
    - issuer：`https://login.zhyi.xin`

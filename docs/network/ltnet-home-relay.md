@@ -6,11 +6,11 @@ the peer layout to the links that are actually reachable.
 ## Active topology
 
 ```text
-rock5c -- LTNET -- greencloud -- public IPv4 -- hostdare -- public IPv4 -- cnvm
+rock5c -- LTNET -- greencloud -- public IPv4 -- hostdare -- public IPv4 -- volcengine
 ```
 
 - `greencloud` is the SG public node and reflects routes to `rock5c`.
-- `hostdare` reflects routes between `greencloud` and `cnvm`.
+- `hostdare` reflects routes between `greencloud` and `volcengine`.
 - `hostdare` is the active external DN42 ingress and public LTNET relay.
 - ZeroTier remains the management and discovery network. It is not the normal
   data path for the greencloud-to-hostdare BGP session.
@@ -20,7 +20,7 @@ rock5c -- LTNET -- greencloud -- public IPv4 -- hostdare -- public IPv4 -- cnvm
 The explicit `ltnet.peers` lists prevent retained upstream example hosts from
 joining the live mesh. A null list preserves the author's full-mesh behavior.
 
-`greencloud` and `cnvm` initiate WireGuard sessions to hostdare's fixed public
+`greencloud` and `volcengine` initiate WireGuard sessions to hostdare's fixed public
 IPv4 address. hostdare learns the roaming home endpoint from authenticated
 WireGuard traffic. These two cross-provider WireGuard sessions are carried by
 wstunnel over `hostdare.zhyi.cc:443` because the direct UDP path is asymmetric. The
@@ -46,7 +46,7 @@ The active Nix cache order on NCPS clients is:
 Attic -> NCPS -> public upstream caches
 ```
 
-Attic is `https://attic.zhyi.xin/lantian` (served by cnvm). NCPS runs on
+Attic is `https://attic.zhyi.xin/lantian` (served by volcengine). NCPS runs on
 `opi5p:13851`. The TUNA binary cache was removed because it returned a
 valid narinfo followed by HTTP 403 for the referenced NAR, which made NCPS
 return HTTP 500 instead of falling back. The same failed store path was
@@ -89,12 +89,12 @@ If DNS is already broken while deploying this change, use Colmena's direct
 closure copy so the target does not query every configured substituter first:
 
 ```bash
-nix run .#colmena -- apply --on cnvm --no-substitute
+nix run .#colmena -- apply --on volcengine --no-substitute
 ```
 
 ## Public HTTP/3 ingress
 
-CNVM must forward both sides of the public HTTPS service:
+VOLCENGINE must forward both sides of the public HTTPS service:
 
 - TCP 443 uses TLS SNI routing.
 - UDP 443 forwards QUIC to greencloud UDP 8443.
@@ -117,7 +117,7 @@ Expected BGP sessions are:
 ```text
 rock5c <-> greencloud
 greencloud <-> hostdare
-hostdare <-> cnvm
+hostdare <-> volcengine
 ```
 
 All must report `Established`. A rapidly increasing one-way WireGuard transfer

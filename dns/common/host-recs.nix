@@ -12,13 +12,13 @@ let
 
   replacedHosts = {
     # keep-sorted start
-    "50kvm" = LT.hosts.cnvm;
-    gigsgigscloud = LT.hosts.cnvm;
+    "50kvm" = LT.hosts.volcengine;
+    gigsgigscloud = LT.hosts.volcengine;
     hetzner-de = LT.hosts."greencloud";
-    linkin = LT.hosts.cnvm;
+    linkin = LT.hosts.volcengine;
     oneprovider = LT.hosts."greencloud";
     soyoustart = LT.hosts."greencloud";
-    v-ps-hkg = LT.hosts.cnvm;
+    v-ps-hkg = LT.hosts.volcengine;
     v-ps-sjc = LT.hosts.hostdare;
     virmach-ny3ip = LT.hosts.hostdare;
     # keep-sorted end

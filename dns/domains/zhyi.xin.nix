@@ -57,7 +57,7 @@ let
     {
       recordType = "CNAME";
       name = "bitwarden";
-      target = "cnvm.zhyi.cc.";
+      target = "volcengine.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -147,7 +147,7 @@ let
     {
       recordType = "CNAME";
       name = "id";
-      target = "cnvm.zhyi.cc.";
+      target = "volcengine.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -195,7 +195,7 @@ let
     {
       recordType = "CNAME";
       name = "login";
-      target = "cnvm.zhyi.cc.";
+      target = "volcengine.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -330,7 +330,7 @@ in
         {
           recordType = "A";
           name = "@";
-          address = LT.hosts.cnvm.public.IPv4;
+          address = LT.hosts.volcengine.public.IPv4;
           ttl = "10m";
         }
 

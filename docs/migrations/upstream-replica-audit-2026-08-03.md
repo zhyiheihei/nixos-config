@@ -94,8 +94,8 @@
   `public-facing` 条件；
 - `vhost-matrix-element/`、`vhost-tools/`、`vhost-um/` 仍依赖
   `!low-disk`；
-- `low-disk` 仍存在于标签常量以及 `cnvm`、`hostdare`、`google`；
-- 本地只有 `cnvm`、`hostdare`、`google`、`greencloud` 标记为
+- `low-disk` 仍存在于标签常量以及 `volcengine`、`hostdare`、`google`；
+- 本地只有 `volcengine`、`hostdare`、`google`、`greencloud` 标记为
   `public-facing`，内网的 `ml-builder`、`ml-home-vm`、`opi5p`、
   `rock5c` 等不应自动承载这些公开站点。
 
@@ -191,8 +191,8 @@ inputs.nur-xddxdd.nixosModules.nix-cache-attic
 - VaultS3 当前链路为
   `客户端 :8443 -> Router DNAT/回流 -> OPI5P nginx :443 -> NAS :9000`；
 - OPI5P 只在标准 HTTPS 端口 443 提供入口，Router 负责外部 8443 映射；
-- CNVM 与 ml-builder 均可从最终 Attic NAR 地址取得相同的 HTTP 200 内容；
-- Router、OPI5P、CNVM 相关服务均处于 active，无 failed unit；
+- VOLCENGINE 与 ml-builder 均可从最终 Attic NAR 地址取得相同的 HTTP 200 内容；
+- Router、OPI5P、VOLCENGINE 相关服务均处于 active，无 failed unit；
 - Hydra 的构建委派方向已验证为 PVE/Hydra 到 ml-builder/OPI，未出现反向递归；
 - OPI5P 历史 OOM 计数未继续增长，ARM builder 已降低并发；
 - Rock 5C 的 reDroid、MetaCubeXD 与备份链路已通过运行检查。

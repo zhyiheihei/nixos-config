@@ -60,7 +60,7 @@ _: [
 
   # Intentionally public without authentication
   # keep-sorted start
-  "cnvm.zhyi.cc"
+  "volcengine.zhyi.cc"
   "flapalerted.zhyi.xin"
   "hostdare.zhyi.cc"
   "greencloud.zhyi.cc"

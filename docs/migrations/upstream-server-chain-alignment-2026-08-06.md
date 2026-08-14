@@ -195,7 +195,7 @@ router 已有 conntrack 指标和 Grafana 面板。
 
 以下属于本地迁移和 ARM 适配产出，不是作者弃用项，对齐时不删除：
 
-- `halo`（cnvm）
+- `halo`（volcengine）
 - `home-assistant`、`memos`、`sun-panel`、`filecodebox`（opi5p）
 - `metacubexd`、`worker-vless2sub`、`homepage-dashboard`（rock5c）
 - `immich-rockchip`、`immich-rknn-worker`、`jellyfin-rockchip`、

@@ -1,4 +1,4 @@
-# Do not modify this file! It was generated for the CNVM QEMU guest.
+# Do not modify this file! It was generated for the VOLCENGINE QEMU guest.
 _: {
   imports = [
     ../../nixos/hardware/qemu.nix

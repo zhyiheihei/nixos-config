@@ -60,9 +60,9 @@ let
   monitoredHostsExceptSelf = lib.filterAttrs (n: _: n != config.networking.hostName) monitoredHosts;
 
   httpPublicFacingHosts = lib.mapAttrsToList (n: _: "https://${n}.zhyi.cc") (
-    # cnvm serves the *.zhyi.xin entry domain; its <hostname>.zhyi.cc vhost
+    # volcengine serves the *.zhyi.xin entry domain; its <hostname>.zhyi.cc vhost
     # carries no real service, so its public endpoints are listed explicitly.
-    lib.filterAttrs (n: _: n != "cnvm") monitoredHosts
+    lib.filterAttrs (n: _: n != "volcengine") monitoredHosts
   );
 
   publicFacingHostsExceptSelf =
