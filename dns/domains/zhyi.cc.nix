@@ -39,13 +39,13 @@ let
     {
       recordType = "CNAME";
       name = "alert";
-      target = "greencloud";
+      target = "tencent";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "dashboard";
-      target = "greencloud";
+      target = "tencent";
       ttl = "1h";
     }
     {
@@ -69,7 +69,7 @@ let
     {
       recordType = "CNAME";
       name = "prometheus";
-      target = "greencloud";
+      target = "tencent";
       ttl = "1h";
     }
     {
@@ -162,15 +162,6 @@ in
 
         (config.common.hostRecs.LTNet "ltnet.${domain}.")
         (config.common.hostRecs.DN42 "dn42.${domain}.")
-
-        # hubproxy acceleration service: LTNET-internal only (resolves to
-        # tencent's ZeroTier/LTNET address; the vhost is private-only).
-        {
-          recordType = "CNAME";
-          name = "hub.ltnet";
-          target = "tencent.ltnet.zhyi.cc.";
-          ttl = "1h";
-        }
 
         # AhaSend 邮件发送基础设施（此前在 gcore 面板手动添加，
         # 纳入配置使 dnscontrol push 不再删除已验证记录）

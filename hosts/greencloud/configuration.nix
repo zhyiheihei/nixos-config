@@ -18,7 +18,6 @@
     ../../nixos/optional-apps/bird-lg-go.nix
     ../../nixos/optional-apps/byparr.nix
     ../../nixos/optional-apps/flapalerted.nix
-    ../../nixos/optional-apps/grafana.nix
     ../../nixos/optional-apps/gitea
     ../../nixos/optional-apps/gitea-actions.nix
     ../../nixos/optional-apps/imapfilter.nix
@@ -31,7 +30,6 @@
     ../../nixos/optional-apps/netbox.nix
     ../../nixos/optional-apps/nginx-api.nix
     ../../nixos/optional-apps/plausible.nix
-    ../../nixos/optional-apps/prometheus
     ../../nixos/optional-apps/pyison
     ../../nixos/optional-apps/quassel.nix
     ../../nixos/optional-apps/radicale.nix
@@ -116,29 +114,11 @@
 
   lantian.nginxVhosts."greencloud.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
-  # Certificate for the LTNET-internal hubproxy entry (hub.ltnet.zhyi.cc is
-  # not covered by the *.zhyi.cc wildcard). Issued here via the existing
-  # gcore DNS-01 pipeline and synced to all hosts through /nix/sync-servers.
-  security.acme.certs =
-    (pkgs.callPackage ../../nixos/optional-apps/acme/common.nix { inherit config; })
-    .mkLetsEncryptCert "hub.ltnet.zhyi.cc";
-
   # Hydra moved from pve-5700u to ml-builder on 2026-08-12. The common vhost
   # module keeps the upstream pve-epyc target; override only the backend here.
   lantian.nginxVhosts."hydra.zhyi.cc".locations."/".proxyPass = lib.mkForce (
     "http://${LT.hosts.ml-builder.ltnet.IPv4}:${LT.portStr.Hydra}"
   );
-
-  # Read-only Prometheus API for Homepage's prometheusmetric widgets. Kept off
-  # the OAuth-protected public vhost and restricted to private networks only.
-  lantian.nginxVhosts."prometheus.greencloud.zhyi.cc" = {
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.Prometheus.Daemon}";
-    };
-    sslCertificate = "lets-encrypt-greencloud.zhyi.cc";
-    noIndex.enable = true;
-    accessibleBy = "private";
-  };
 
   virtualisation.oci-containers.containers.byparr.ports = [
     "${LT.this.ltnet.IPv4}:${LT.portStr.FlareSolverr}:8191"

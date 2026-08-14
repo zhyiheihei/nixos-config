@@ -26,40 +26,16 @@
   # author's backup semantics by pointing the endpoint at the migrated host.
   lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
 
-  # cnvm 在国内，Docker Hub 不可达。优先走自家 hubproxy（tencent，LTNET
-  # 隧道），daocloud 保留作隧道不可达时的兜底。
+  # cnvm 在国内，Docker Hub 不可达。优先走自家 hubproxy（hub.tencent.zhyi.cc，
+  # LTNET 隧道），daocloud 保留作隧道不可达时的兜底。
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
     [[registry]]
     location = "docker.io"
 
     [[registry.mirror]]
-    location = "hub.ltnet.zhyi.cc"
+    location = "hub.tencent.zhyi.cc"
 
     [[registry.mirror]]
     location = "docker.m.daocloud.io"
-
-    [[registry]]
-    location = "ghcr.io"
-
-    [[registry.mirror]]
-    location = "hub.ltnet.zhyi.cc/v2/ghcr.io"
-
-    [[registry]]
-    location = "gcr.io"
-
-    [[registry.mirror]]
-    location = "hub.ltnet.zhyi.cc/v2/gcr.io"
-
-    [[registry]]
-    location = "quay.io"
-
-    [[registry.mirror]]
-    location = "hub.ltnet.zhyi.cc/v2/quay.io"
-
-    [[registry]]
-    location = "registry.k8s.io"
-
-    [[registry.mirror]]
-    location = "hub.ltnet.zhyi.cc/v2/registry.k8s.io"
   '';
 }

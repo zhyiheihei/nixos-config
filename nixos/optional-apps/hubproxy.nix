@@ -102,5 +102,18 @@ in
       isSystemUser = true;
     };
     users.groups.hubproxy = { };
+
+    # Private-only: reachable via ZeroTier/LTNET (resolved through the home
+    # edge's hosts override), not from the public internet.
+    lantian.nginxVhosts."hub.${config.networking.hostName}.zhyi.cc" = {
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.HubProxy}";
+        proxyNoTimeout = true;
+      };
+
+      accessibleBy = "private";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      noIndex.enable = true;
+    };
   };
 }

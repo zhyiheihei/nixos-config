@@ -4,27 +4,26 @@
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
+    ../../nixos/optional-apps/grafana.nix
     ../../nixos/optional-apps/hubproxy.nix
     ../../nixos/optional-apps/metapi.nix
+    ../../nixos/optional-apps/prometheus
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/uni-api.nix
   ];
 
   lantian.hubproxy.enable = true;
 
-  # Docker/GitHub/HuggingFace acceleration for LTNET devices. Private only:
-  # resolves via hub.ltnet.zhyi.cc to tencent's ZeroTier/LTNET address
-  # (198.18.0.128); the vhost rejects non-reserved source addresses, so the
-  # public internet can never use it as a free mirror.
-  lantian.nginxVhosts."hub.ltnet.zhyi.cc" = {
+  # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
+  # from greencloud 2026-08-14 with the monitoring stack). Private only: Homepage
+  # resolves prometheus.tencent.zhyi.cc to tencent's LTNET address (198.18.0.128).
+  lantian.nginxVhosts."prometheus.tencent.zhyi.cc" = {
     locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.HubProxy}";
-      proxyNoTimeout = true;
+      proxyPass = "http://127.0.0.1:${LT.portStr.Prometheus.Daemon}";
     };
-
-    sslCertificate = "lets-encrypt-hub.ltnet.zhyi.cc";
-    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-tencent.zhyi.cc";
     noIndex.enable = true;
+    accessibleBy = "private";
   };
 
   boot.kernelParams = [ "console=ttyS0,115200" ];
