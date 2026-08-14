@@ -1,6 +1,7 @@
 {
   lib,
   LT,
+  pkgs,
   ...
 }:
 let
@@ -64,4 +65,26 @@ in
   # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
   # author's backup semantics by pointing the endpoint at the migrated host.
   lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
+
+  # Media library + download chain live on the NAS (same direct NFS mount as
+  # rock5c used for the docker MoviePilot); MoviePilot needs it for downloads
+  # and library imports.
+  boot.supportedFilesystems = [ "nfs" ];
+  environment.systemPackages = [ pkgs.nfs-utils ];
+  fileSystems."/mnt/storage" = {
+    device = "192.168.0.40:/nixos";
+    fsType = "nfs";
+    options = [
+      "_netdev"
+      "noatime"
+      "hard"
+      "vers=4.1"
+      "nconnect=16"
+    ];
+  };
+
+  systemd.services.moviepilot-backend = {
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
+  };
 }
