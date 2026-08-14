@@ -25,7 +25,8 @@ flowchart LR
 
   subgraph Public["公网节点"]
     CNVM["cnvm\n身份 / Vaultwarden / Attic / Halo"]
-    Colo["greencloud\n公网入口 / 协作 / AI 前端 / 监控"]
+    Colo["greencloud\n公网入口 / 协作 / AI 前端"]
+    TENCENT["tencent\n公网入口 / DN42 / 监控中心"]
     HOSTDARE["hostdare\n公开 UniAPI / DN42（未验证）"]
     GOOGLE["google\n网络出口；日志后端当前缺失"]
   end
@@ -70,7 +71,8 @@ flowchart LR
 | `pve-5700u` | PVE 宿主 | Proxmox VE、VM 数据备份 | 运行，0 failed units；VM 数据备份迁移后复核通过 |
 | `hostdare` | 公网、DN42、`cn-accel` | server 公共基线、公开 UniAPI、V2Ray/OpenVPN 加速 | 公网和 LTNET 均不可达，运行态未验证 |
 | `cnvm` | 公网 server | Attic、Dex、Pocket ID、Vaultwarden、GLAuth、Halo、OAuth2 Proxy、MySQL、PostgreSQL、DNS/Nginx | 运行，0 failed units |
-| `greencloud` | 公网、DN42、协作与监控中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Prometheus、Grafana、ClickHouse、ZeroTier Controller 等 | 运行；OpenVPN 失败，系统 degraded |
+| `greencloud` | 公网、DN42、协作内容中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Plausible、ClickHouse、ZeroTier Controller 等（监控栈 2026-08-14 迁至 tencent） | 运行；OpenVPN 失败，系统 degraded |
+| `tencent` | 公网、DN42、监控中心 | 监控栈（Prometheus/Alertmanager/Blackbox/Grafana）、UniAPI、Metapi、SearXNG、hubproxy（监控栈 2026-08-14 自 greencloud 迁入） | 运行，0 failed units |
 | `google` | 公网、`cn-accel` | server 公共基线、V2Ray、Filebeat；声明中的日志汇聚后端当前不存在 | 运行；OpenVPN 失败，系统 degraded |
 | `opi5p` | server、原生 ARM 回退 builder | 数据库、家庭应用、下载自动化、NCPS、文件服务、打印、ClamAV、reDroid | 运行，0 failed units |
 | `rock5c` | server、家庭边缘 | 家庭 Nginx 入口、MetaCubeXD、Homepage、主 UniAPI、FastAPI-DLS、GLAuth、vlmcsd、媒体应用（MoviePilot/Jellyfin/HandBrake）、reDroid | 运行，0 failed units |
@@ -86,6 +88,7 @@ flowchart LR
 | --- | --- | --- |
 | 家庭 WAN/LAN | `router` | PPPoE、DHCP、NAT、Wi-Fi、DDNS 与家庭 Hairpin 入口 |
 | 公网应用入口 | `greencloud` | 大部分 `zhyi.xin` 应用、OAuth 入口与到家庭 ROCK 5C 的 LTNET 反代 |
+| 监控入口 | `tencent` | `alert`/`dashboard`/`prometheus`（zhyi.cc）自 greencloud 迁入；Grafana/Prometheus 经 Dex 登录 |
 | 身份与 Attic 入口 | `cnvm` | Dex、Pocket ID、Vaultwarden 与 Attic 直接在本机终止 HTTPS |
 | 家庭 Web 边缘 | `rock5c` | 原 `*.ml-home-vm.zhyi.cc` 服务别名及家庭应用入口；向 OPI5P、PVE、QNAP 反代 |
 | 家庭数据直达 | `opi5p` | 8443 家庭入站、VaultS3、媒体与文件服务，不经 ROCK 5C 中转大流量 |

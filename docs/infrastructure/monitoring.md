@@ -3,7 +3,7 @@
 本文描述当前仓库的监控链路和操作边界。配置来源是
 `nixos/minimal-components/prometheus-exporters.nix`、
 `nixos/optional-apps/prometheus/`、`nixos/optional-apps/grafana.nix` 与
-`hosts/greencloud/`。
+`hosts/tencent/`（监控栈自 2026-08-14 起从 greencloud 迁至 tencent）。
 
 ## 拓扑
 
@@ -14,14 +14,14 @@
 服务专用 exporter（BIRD、CoreDNS、PostgreSQL、MySQL、WireGuard、SMART、ARR 等）
   └─ LTNet IPv4 上的对应端口
 
-greencloud
+tencent
   ├─ Prometheus：拉取所有 exporter，并保存 365 天或最多 10 GiB 数据
   ├─ Blackbox exporter：每分钟探测已声明的 HTTPS、DNS、Gopher、WHOIS 入口
   ├─ Alertmanager：向 Telegram 发送告警和恢复通知
   └─ Grafana：通过 Dex 登录，公开入口为 dashboard.zhyi.cc
 ```
 
-Prometheus、Alertmanager 和 Grafana 只监听本机，由 `greencloud` 的 Nginx
+Prometheus、Alertmanager 和 Grafana 只监听本机，由 `tencent` 的 Nginx
 虚拟主机提供入口。不要为了监控直接向公网开放 exporter 端口。
 
 Elasticsearch 日志链路与监控栈彼此独立。Filebeat 当前仍被声明为把日志发送到
@@ -48,7 +48,7 @@ Elasticsearch 日志链路与监控栈彼此独立。Filebeat 当前仍被声明
 
 ## 日常核查
 
-从构建机经 SSH 登录 `greencloud` 后执行：
+从构建机经 SSH 登录 `tencent` 后执行：
 
 ```bash
 systemctl is-active prometheus alertmanager grafana
@@ -66,7 +66,7 @@ curl -fsS http://127.0.0.1:9090/api/v1/alerts \
 
 - `https://dashboard.zhyi.cc`
 - `https://prometheus.zhyi.cc`
-- `https://prometheus.greencloud.zhyi.cc`（仅私网可达，供 Homepage 资源卡片做只读查询，不叠加 OAuth；rock5c 通过 `hosts/rock5c/home-lan-edge.nix` 固定解析到 greencloud LTNET 地址）
+- `https://prometheus.tencent.zhyi.cc`（仅私网可达，供 Homepage 资源卡片做只读查询，不叠加 OAuth；rock5c 通过 `hosts/rock5c/home-lan-edge.nix` 固定解析到 tencent LTNET 地址）
 - `https://alert.zhyi.cc`
 
 三者均使用 Dex 身份认证。Homepage 只链接这些入口，不链接 exporter 或本地监听
@@ -76,17 +76,28 @@ curl -fsS http://127.0.0.1:9090/api/v1/alerts \
 
 所有求值、构建和部署在 `ml-builder` 执行（见
 [构建与部署](../operations/deployment.md)）。监控栈变更按 Colmena 流程构建并
-只部署 `greencloud`：
+只部署 `tencent`：
 
 ```bash
 ssh -A -p 2222 root@ml-builder.zhyi.cc
 cd /nix/src/nixos-config
-nix run .#colmena -- build --on greencloud
-nix run .#colmena -- apply --on greencloud
+nix run .#colmena -- build --on tencent
+nix run .#colmena -- apply --on tencent
 ```
 
-只部署 `greencloud`，等待一个 scrape interval 后再复核。LTNet、DNS、HTTPS
+只部署 `tencent`，等待一个 scrape interval 后再复核。LTNet、DNS、HTTPS
 入口或证书同步异常应在对应链路修复，不能放宽探针条件来掩盖。
+
+## 近期变更（2026-08-14）
+
+- 监控栈（Prometheus/Alertmanager/Blackbox/Grafana + MariaDB）从 `greencloud`
+  迁至 `tencent`（全新开始，未迁移历史数据）。`alert`/`dashboard`/`prometheus`
+  CNAME 与 Homepage 只读入口（`prometheus.tencent.zhyi.cc`）随之切换；
+  `flapalerted` 留在 greencloud（属 DN42 链路，非监控栈）。迁移动机：greencloud
+  内存压力（7.7 GiB / 20+ 服务），SSH 曾因内存耗尽无法握手。
+- tencent 为 4 GiB 无 swap 的 VPS：监控栈常驻内存偏高（grafana+MariaDB 较吃
+  内存），若水位紧张应缩短 retention 或把 grafana 数据库换 sqlite，而不是堆到
+  greencloud 上。
 
 ## 近期变更（2026-08-13）
 
