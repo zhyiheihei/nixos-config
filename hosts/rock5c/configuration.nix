@@ -131,11 +131,41 @@ in
   boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
 
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
+    # Self-hosted acceleration via hubproxy on tencent (LTNET only, so it
+    # must not be on hosts outside the ZeroTier network). daocloud is kept
+    # as a fallback mirror when the tunnel is unreachable.
     [[registry]]
     location = "docker.io"
 
     [[registry.mirror]]
+    location = "hub.ltnet.zhyi.cc"
+
+    [[registry.mirror]]
     location = "docker.m.daocloud.io"
+
+    [[registry]]
+    location = "ghcr.io"
+
+    [[registry.mirror]]
+    location = "hub.ltnet.zhyi.cc/ghcr.io"
+
+    [[registry]]
+    location = "gcr.io"
+
+    [[registry.mirror]]
+    location = "hub.ltnet.zhyi.cc/gcr.io"
+
+    [[registry]]
+    location = "quay.io"
+
+    [[registry.mirror]]
+    location = "hub.ltnet.zhyi.cc/quay.io"
+
+    [[registry]]
+    location = "registry.k8s.io"
+
+    [[registry.mirror]]
+    location = "hub.ltnet.zhyi.cc/registry.k8s.io"
   '';
 
   # BrushFlow/SubtitleAssistant can lose their dynamic page/API routes after a
