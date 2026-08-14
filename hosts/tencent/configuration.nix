@@ -12,16 +12,17 @@
 
   lantian.hubproxy.enable = true;
 
-  # Docker/GitHub/HuggingFace acceleration for LAN devices. Private only:
-  # reachable via ZeroTier/LTNET (198.18.0.128), not from the public
-  # internet, to avoid being used as a free public mirror.
-  lantian.nginxVhosts."hub.zhyi.cc" = {
+  # Docker/GitHub/HuggingFace acceleration for LTNET devices. Private only:
+  # resolves via hub.ltnet.zhyi.cc to tencent's ZeroTier/LTNET address
+  # (198.18.0.128); the vhost rejects non-reserved source addresses, so the
+  # public internet can never use it as a free mirror.
+  lantian.nginxVhosts."hub.ltnet.zhyi.cc" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.HubProxy}";
       proxyNoTimeout = true;
     };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-hub.ltnet.zhyi.cc";
     accessibleBy = "private";
     noIndex.enable = true;
   };

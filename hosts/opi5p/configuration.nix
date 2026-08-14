@@ -177,11 +177,40 @@ in
   # CSF/Bifrost driver. Keep the image outside the immutable system closure;
   # Podman pulls it at runtime and stores Android state on persistent /nix.
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
+    # Self-hosted acceleration via hubproxy on tencent (LTNET only);
+    # daocloud kept as fallback when the tunnel is unreachable.
     [[registry]]
     location = "docker.io"
 
     [[registry.mirror]]
+    location = "hub.ltnet.zhyi.cc"
+
+    [[registry.mirror]]
     location = "docker.m.daocloud.io"
+
+    [[registry]]
+    location = "ghcr.io"
+
+    [[registry.mirror]]
+    location = "hub.ltnet.zhyi.cc/ghcr.io"
+
+    [[registry]]
+    location = "gcr.io"
+
+    [[registry.mirror]]
+    location = "hub.ltnet.zhyi.cc/gcr.io"
+
+    [[registry]]
+    location = "quay.io"
+
+    [[registry.mirror]]
+    location = "hub.ltnet.zhyi.cc/quay.io"
+
+    [[registry]]
+    location = "registry.k8s.io"
+
+    [[registry.mirror]]
+    location = "hub.ltnet.zhyi.cc/registry.k8s.io"
   '';
 
   virtualisation.oci-containers.containers.redroid = {

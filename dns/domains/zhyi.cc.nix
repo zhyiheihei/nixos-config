@@ -22,14 +22,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "hub";
-      # Resolve to the ZeroTier/LTNET address, not the public IP: the hubproxy
-      # vhost is private-only, so this must never route through the internet.
-      target = "tencent.ltnet.zhyi.cc.";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "hydra";
       # hydra runs on greencloud; the home-DDNS target was left from the
       # pre-migration layout and made rock5c's siteMonitor fail.
@@ -170,6 +162,15 @@ in
 
         (config.common.hostRecs.LTNet "ltnet.${domain}.")
         (config.common.hostRecs.DN42 "dn42.${domain}.")
+
+        # hubproxy acceleration service: LTNET-internal only (resolves to
+        # tencent's ZeroTier/LTNET address; the vhost is private-only).
+        {
+          recordType = "CNAME";
+          name = "hub.ltnet";
+          target = "tencent.ltnet.zhyi.cc.";
+          ttl = "1h";
+        }
 
         # AhaSend 邮件发送基础设施（此前在 gcore 面板手动添加，
         # 纳入配置使 dnscontrol push 不再删除已验证记录）
