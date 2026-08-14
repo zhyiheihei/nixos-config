@@ -44,23 +44,10 @@ in
     ../../nixos/optional-apps/moviepilot.nix
   ];
 
-  lantian.moviepilot.enable = true;
-
-  # MoviePilot v3 (upgraded 2026-08-13): per the official wiki, v3 reuses the
-  # v2 /config directory and SQLite DB, so volume/env mappings stay identical
-  # and no data migration is needed (full backup taken before switching).
-  # Overridden here at host level to keep the public optional-apps module
-  # upstream-aligned.
-  virtualisation.oci-containers.containers.moviepilot.image =
-    lib.mkForce "docker.io/jxxghp/moviepilot-v3:latest";
-
-  # v3's resource auto-update (curl_cffi download of user.sites.v3.bin /
-  # sites.cpython-*.so) crashes the backend with SIGSEGV on this 8 GiB host
-  # (2026-08-13, reproduced 3x at the same step even with memory headroom;
-  # core dump then also fails to allocate). Resources are already at
-  # v3.0.3/v3.0.0 on disk, so disabling updates loses nothing.
-  virtualisation.oci-containers.containers.moviepilot.environment.AUTO_UPDATE_RESOURCE =
-    "false";
+  # MoviePilot migrated to lubancat1 as the nix package (2026-08-14);
+  # the docker container stays disabled here for rollback.  Data lives at
+  # /nix/persistent/var/lib/moviepilot and was rsynced to lubancat1.
+  lantian.moviepilot.enable = lib.mkForce false;
 
   systemd.tmpfiles.settings.media-apps."/nix/persistent/var/lib/media-apps"."d" = {
     mode = "0700";

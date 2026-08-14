@@ -19,6 +19,9 @@ let
     # makePythonPath over the flake-exposed propagatedBuildInputs picks the
     # wrong outputs (e.g. pyopenssl-dev) and breaks imports.
     eval "$(sed -n '/^export \(PATH\|PYTHONPATH\)=/p' ${mp}/bin/moviepilot)"
+    # v3 agent capabilities probe shutil.which("ffmpeg"); the docker image
+    # ships it, the nix package does not.
+    export PATH="${lib.makeBinPath [ pkgs.ffmpeg ]}:$PATH"
     export PYTHONUNBUFFERED=1
     export MOVIEPILOT_AUTO_UPDATE=false
     export CONFIG_DIR="${cfg.dataDir}"

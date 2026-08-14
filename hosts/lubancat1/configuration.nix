@@ -3,6 +3,13 @@
   LT,
   ...
 }:
+let
+  # MoviePilot traffic (GitHub plugin repos, TMDB, site sync) egresses via
+  # the router proxy like the docker variant on rock5c; socks5h keeps DNS on
+  # the proxy so GitHub/plugin lookups work.
+  moviepilotProxy = "socks5h://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+  moviepilotBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+in
 {
   imports = [
     ../../nixos/server.nix
@@ -14,6 +21,26 @@
   # frontend managed directly by systemd.  Test deployment on this low-ram
   # board; data persists under /nix/persistent.
   lantian.moviepilotNix.enable = true;
+
+  systemd.services.moviepilot-backend.serviceConfig.Environment = [
+    "HTTP_PROXY=${moviepilotProxy}"
+    "HTTPS_PROXY=${moviepilotProxy}"
+    "NO_PROXY=${moviepilotBypass}"
+    "http_proxy=${moviepilotProxy}"
+    "https_proxy=${moviepilotProxy}"
+    "no_proxy=${moviepilotBypass}"
+  ];
+
+  lantian.nginxVhosts."moviepilot.lubancat1.zhyi.cc" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:3000";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
+    sslCertificate = "zerossl-lubancat1.zhyi.cc";
+    noIndex.enable = true;
+    accessibleBy = "private";
+  };
 
   # The first-boot DHCP inventory is complete. Keep the board outside the
   # router's dynamic .100-.249 pool and use the same static LAN layout as the
