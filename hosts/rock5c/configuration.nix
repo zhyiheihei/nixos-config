@@ -15,9 +15,6 @@ let
     https_proxy = proxy;
     no_proxy = proxyBypass;
   };
-  # MoviePilot container: PySocks resolves hostnames locally with socks5;
-  # socks5h keeps GitHub/plugin traffic on the router proxy with remote DNS.
-  moviepilotProxy = "socks5h://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
 in
 {
   imports = [
@@ -70,21 +67,6 @@ in
       no_proxy = lib.mkForce proxyBypass;
     };
   };
-
-  # MoviePilot container: PySocks resolves hostnames locally with socks5;
-  # socks5h keeps GitHub/plugin traffic on the router proxy with remote DNS.
-  systemd.services.podman-moviepilot.environment = {
-    HTTP_PROXY = moviepilotProxy;
-    HTTPS_PROXY = moviepilotProxy;
-    NO_PROXY = proxyBypass;
-    http_proxy = moviepilotProxy;
-    https_proxy = moviepilotProxy;
-    no_proxy = proxyBypass;
-  };
-
-  virtualisation.oci-containers.containers.moviepilot.extraOptions = [
-    "--add-host=jellyfin-api.rock5c.zhyi.cc:${LT.this.interconnect.IPv4}"
-  ];
 
   # Handbrake image pulls and the distributed RKNN worker's model/image
   # downloads go through the same stable router egress. Moved here from
@@ -146,48 +128,5 @@ in
     [[registry.mirror]]
     location = "docker.m.daocloud.io"
   '';
-
-  # BrushFlow/SubtitleAssistant can lose their dynamic page/API routes after a
-  # container restart.  Only reload when the route is actually missing, so the
-  # health check never causes churn during normal operation.
-  systemd.services.moviepilot-plugin-health = {
-    description = "Restore missing MoviePilot plugin API routes";
-    serviceConfig = {
-      Type = "oneshot";
-    };
-    script = ''
-      PW=$(${pkgs.coreutils}/bin/cat /run/secrets/default-pw)
-      TOKEN=$(${pkgs.curl}/bin/curl -sS -X POST \
-        http://127.0.0.1:13890/api/v1/login/access-token \
-        -H "Content-Type: application/x-www-form-urlencoded" \
-        --data-urlencode "username=zhyi" \
-        --data-urlencode "password=$PW" \
-        | ${pkgs.python3}/bin/python3 -c "import json,sys;print(json.load(sys.stdin)['access_token'])")
-      for plugin in BrushFlow SubtitleAssistant; do
-        if [ "$plugin" = "BrushFlow" ]; then
-          endpoint="page/$plugin"
-        else
-          endpoint="$plugin/tasks"
-        fi
-        code=$(${pkgs.curl}/bin/curl -sS -o /dev/null -w "%{http_code}" \
-          "http://127.0.0.1:13890/api/v1/plugin/$endpoint" \
-          -H "Authorization: Bearer $TOKEN" 2>/dev/null || true)
-        if [ "$code" != "200" ]; then
-          ${pkgs.curl}/bin/curl -sS \
-            "http://127.0.0.1:13890/api/v1/plugin/reload/$plugin" \
-            -H "Authorization: Bearer $TOKEN" >/dev/null 2>&1 || true
-        fi
-      done
-    '';
-  };
-
-  systemd.timers.moviepilot-plugin-health = {
-    description = "Check MoviePilot plugin API routes every 5 minutes";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "*:0/5";
-      Persistent = true;
-    };
-  };
-
 }
+
