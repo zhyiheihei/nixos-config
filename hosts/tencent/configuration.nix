@@ -13,11 +13,6 @@
 
   lantian.hubproxy.enable = true;
 
-  # searx 供个人浏览器直接访问：作者实例 accessibleBy=private（公网 444
-  # 掐连接，浏览器报 TLS 错误），个人 mac 走公网直连需要放行。模块保持
-  # 与作者一致，仅在主机层覆盖为 public（私有元搜索、无账号体系）。
-  lantian.nginxVhosts."searx.tencent.zhyi.cc".accessibleBy = lib.mkForce "public";
-
   # searx 的 favicon 缓存（作者布局：/var/cache/searx）由 vassal 进程写入；
   # 实测 vassal 补充组恒为空（uwsgi immediate-uid 不做 initgroups、add-gid
   # 不生效），且 uwsgi 重启会把 CacheDirectory 属主改回 uwsgi——组/属主
