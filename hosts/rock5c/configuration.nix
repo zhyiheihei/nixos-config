@@ -2,6 +2,7 @@
   lib,
   LT,
   pkgs,
+  config,
   ...
 }:
 let
@@ -26,7 +27,6 @@ in
     # Phase 1 of the ml-home-vm split migration.  These services stay on the
     # ROCK 5C address until the edge role has been verified and cut over.
     ../../nixos/optional-apps/homepage-dashboard.nix
-    ./homepage-glass
     ../../nixos/optional-apps/metacubexd.nix
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
 
@@ -40,6 +40,13 @@ in
   # same share instead of routing media through another host.
   boot.supportedFilesystems = [ "nfs" ];
   environment.systemPackages = [ pkgs.nfs-utils ];
+
+  # 公共模块的 homepage-dashboard 不设 ALLOWED_HOSTS（默认仅 localhost）；
+  # homepage.rock5c.zhyi.cc 的 /api 请求会被 Go 服务以 400 拒绝，主机层放行。
+  systemd.services.homepage-dashboard.environment.HOMEPAGE_ALLOWED_HOSTS = lib.mkForce (
+    "homepage.localhost,homepage.${config.networking.hostName}.zhyi.cc,"
+    + "localhost:${LT.portStr.HomepageDashboard},127.0.0.1:${LT.portStr.HomepageDashboard}"
+  );
 
   fileSystems."/mnt/storage" = {
     device = "192.168.0.40:/nixos";
