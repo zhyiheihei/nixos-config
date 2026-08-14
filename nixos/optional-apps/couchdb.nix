@@ -31,7 +31,7 @@
     # ([admins] with the -pbkdf2 hash), per the nixpkgs module's recommended
     # extraConfigFiles pattern.
     sops.secrets.couchdb-admin = {
-      sopsFile = inputs.secrets + "/couchdb.yaml";
+      sopsFile = inputs.secrets + "/common/couchdb.yaml";
       key = "couchdb-admin-ini";
     };
 
