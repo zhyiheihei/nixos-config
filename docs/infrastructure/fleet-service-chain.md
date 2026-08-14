@@ -123,13 +123,12 @@ LibreChat / Metapi / n8n（greencloud）
                     |
                     `-> n8n OpenAI Bridge（greencloud）
 
-ai-api.zhyi.cc -> 独立 UniAPI（hostdare，当前未验证） -> 外部 Provider
+ai-api.zhyi.xin -> 独立 UniAPI（hostdare，2026-08-14 起唯一实例） -> 外部 Provider
 ```
 
 - `LibreChat`、`n8n`、`n8n-openai-bridge` 和 `Metapi` 已确认在 `greencloud` 运行；
-- 主 `uni-api.service` 已确认在 `rock5c` 运行；`ml-home-vm` 没有该 unit；
-- LibreChat 与 Metapi 已改为直接使用 `uni-api.rock5c.zhyi.cc`，由 greencloud
-  通过 LTNET 访问 ROCK 5C 上的主 UniAPI；
+- 主 `uni-api.service` 2026-08-14 起只运行在 `hostdare`（rock5c/tencent 实例已移除）；
+- LibreChat 与 Metapi 直接使用公开入口 `ai-api.zhyi.xin`（hostdare）；
 - `AxonHub` 模块存在，但没有被任何 host 导入，实机也没有 `axonhub.service`；它是
   未部署候选，不是当前链路的一部分；
 - `hostdare` 声明独立公开 UniAPI，但主机不可达，不能标记为已运行。
@@ -272,7 +271,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | Alertmanager | `https://alert.zhyi.xin` | Dex OAuth |
 | Bird Looking Glass | `https://lg.zhyi.cc` | 公开只读 |
 | FlapAlerted | `https://flapalerted.zhyi.xin` | 公开只读 |
-| Uni API | `https://uni-api.rock5c.zhyi.cc` | API key |
+| Uni API | `https://ai-api.zhyi.xin` | API key |
 | MetaAPI | `https://metapi.tencent.zhyi.cc` | 应用口令 / token |
 | n8n OpenAI Bridge | `https://n8n-bridge.greencloud.zhyi.cc/health` | bearer token |
 | SearxNG | `https://searx.tencent.zhyi.cc` | 私有 |
@@ -327,7 +326,7 @@ NFS 等生成卡片；WebDAV 卡片保留在 `08 · 私有 · 家庭服务` 分�
 | --- | --- | --- | --- |
 | P0 | ml-builder 运行态仍把 PVE 列为下游 builder | PVE 与 ml-builder 可再次互相等待同一 store lock | 部署 ml-builder 后复核 `/etc/nix/machines` |
 | P0 | Filebeat 指向不存在的 google Elasticsearch | 舰队日志持续无法落库 | 对照作者决定恢复 Elasticsearch 或关闭/改写日志链 |
-| P1 | LibreChat/Metapi 曾使用未解析的 `uni-api.ml-home-vm.zhyi.cc` | AI 调用依赖旧别名 | 已统一改为 `uni-api.rock5c.zhyi.cc` 并完成模型检查 |
+| P1 | LibreChat/Metapi 曾使用未解析的 `uni-api.ml-home-vm.zhyi.cc` | AI 调用依赖旧别名 | 已统一改为 `ai-api.zhyi.xin` 并完成模型检查 |
 | P1 | AxonHub 只在文档出现，未部署 | 运维人员会误判已有网关和数据库 | 保持“未部署候选”，除非明确重新导入模块 |
 | P1 | greencloud、google 的 OpenVPN gameaccel 同时失败 | 两台系统 degraded，CN 加速链不完整 | 检查证书、密钥和服务日志后修复或明确禁用 |
 | P2 | hosts 概览仍把 LubanCat-1 写成 DHCP/minimal，遗漏 OPI03 | 接入与容量判断错误 | 已随本次文档更新 |

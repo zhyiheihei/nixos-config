@@ -106,8 +106,8 @@ nix run .#colmena -- apply --on tencent
   自动跟随，无需改仪表盘代码。
 - 新主机 `tencent`（首尔，public-facing）上线：node/bird/coredns/nginx/knot/
   wireguard exporter 与 `https://tencent.zhyi.cc` 等黑盒目标自动纳入。
-- 公共 UniAPI 入口 `ai-api.zhyi.cc` 从不可达的 `hostdare` 迁至 `tencent`。
-  该入口受 API key 保护（未认证返回 401/403），新增 `https_ok_403` 探测
+- 公共 UniAPI 入口 `ai-api.zhyi.xin` 2026-08-14 起由 `hostdare` 承担（此前短暂在
+  `tencent`）。该入口受 API key 保护（未认证返回 401/403），新增 `https_ok_403` 探测
   （`blackbox-exporter.nix`），403 视为存活；`服务与网络健康` 的
   「公网服务可用」面板计入该 job。
 - `SearXNG` 从 `opi5p` 迁至 `tencent`（`searx.tencent.zhyi.cc`，私有 vhost，
