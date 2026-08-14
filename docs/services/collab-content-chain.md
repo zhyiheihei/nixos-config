@@ -72,13 +72,28 @@ greencloud（新加坡 SG，`hosts/greencloud`，原 colocrossing 改名）上�
 - 补丁生效：被抑制错误 0 次
 - 公网对大陆出口 403（`blockMainlandChina` 预期）；海外可访问
 
-## 已知问题 / 待办
+## 设计说明
 
-1. **Lemmy actor_id 陈旧**：site 行 `actor_id = https://lemmy.lantian.pub/`
-   （2026-07-12 建库时的上游域名），与配置 `lemmy.zhyi.xin` 不一致——联邦外发
-   身份仍是旧域名，可能与真实该域实例冲突。需更新 site 表 actor_id（或重建站点）
-   后复验联邦。⚠️ 改前先确认对端。
-2. **lemmy-ui 禁用**：无 Web 界面（设计如此），用 API 或 Lemmy 客户端。
-3. **主机名未同步**：greencloud 机器 `hostname` 仍是 `colocrossing`
-   （rename 未带 hostname 变更），journal 前缀显示旧名，可后续对齐。
-4. **大陆访问被拦**：两链入口均 `blockMainlandChina`（预期行为）。
+- **lemmy-ui 禁用**：无 Web 界面（`systemd.services.lemmy-ui.enable = mkForce false`，
+  与上游一致），用 API 或 Lemmy 客户端访问。
+- **大陆访问被拦**：两链入口均 `blockMainlandChina`（预期行为，内容不进国内访问面）。
+
+## 已处理问题（2026-08-14）
+
+1. **Lemmy actor_id 陈旧**：site 行原为 `https://lemmy.lantian.pub/`（建库时的上游
+   域名），与配置 `lemmy.zhyi.xin` 不一致。已更新 DB（备份
+   `/tmp/lemmy-backup-20260814-101058.sql`）：site 的 `actor_id`/`inbox_url` 改为
+   `https://lemmy.zhyi.xin/`（本地 community/person/post 无旧域名引用），重启后
+   API 返回新 actor_id，联邦正常（1/1 对端、0 滞后），密钥对保留。
+2. **主机名未同步**：配置侧已正确（闭包 `/etc/hostname` = `greencloud`），
+   2026-08-14 重启后运行时 hostname 已为 `greencloud`。
+
+## 基础设施注意（非本链路问题）
+
+- **greencloud 内存压力**：7.7 GiB 内存跑 20+ 服务（n8n/plausible/netbox/atticd/
+  grafana/prometheus/clickhouse/synapse 等），swap 常驻 2 GiB。2026-08-14 曾因
+  内存耗尽导致 sshd 无法握手（机器 ping 通但 SSH banner 超时），触发点是
+  matrix-synapse 的 `sync_partial_state_room`（hackint.org 部分状态同步，内存大户）。
+  建议：关注 Synapse 状态压缩（`synapse-compress-state` 模块）、评估服务迁移或
+  扩容 RAM；监控应覆盖内存水位告警。
+
