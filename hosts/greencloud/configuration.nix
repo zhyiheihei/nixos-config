@@ -54,7 +54,7 @@
 
   # UniAPI consolidated to hostdare (2026-08-14): LibreChat's upstream moves
   # from the retired rock5c UniAPI to the public ai-api.zhyi.xin entry.
-  services.librechat.config.endpoints.custom = lib.mkForce [
+  services.librechat.settings.endpoints.custom = lib.mkForce [
     {
       name = "UniAPI";
       apiKey = "\${UNI_API_KEY}";
