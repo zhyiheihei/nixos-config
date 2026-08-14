@@ -77,5 +77,38 @@
 
 每项迁移 = vhost 域名改 zhyi.xin + DNS 记录（zhyi.xin internalServices）+
 证书（zhyi.xin 通配已存在）+ 客户端引用更新（监控探针、Homepage、attic 等）。
-建议分批：先 P0（qnap/couchdb 设 private），再 P1 按服务迁移，每次验证
-blackbox/监控指标后再继续。
+建议分批：P0 已完成（qnap/couchdb 迁 zhyi.xin，2026-08-14），P1 按服务
+迁移，每次验证 blackbox/监控指标后再继续。
+
+## 六、与作者上游原版对照（2026-08-14）
+
+对照 `../nixos-config-exam/`（作者原版）逐项核实 P1 与待决策项的来源：
+
+### 作者原版的域名体系
+
+作者（Lan Tian）把公开服务统一放在其公网域 `*.xuyh0120.win`（主域）与
+`*.lantian.pub`，**没有「公开/内网分域」概念**；主机入口为
+`<host>.xuyh0120.win`。
+
+### 对照结论
+
+| 项 | 作者原版 | 我方 | 判定 |
+| --- | --- | --- | --- |
+| prometheus/alert/dashboard/netbox | `*.xuyh0120.win` | `*.zhyi.cc` | **无意识替换**：复刻时把 xuyh0120.win 机械替换成 zhyi.cc，非有意设计 → 按新规则迁 zhyi.xin 合理 |
+| es/dav `<host>` | `*.xuyh0120.win` | `*.zhyi.cc` | 同上 → 迁 zhyi.xin |
+| flapalerted/hydra | `*.lantian.pub` | `*.zhyi.cc` | 同上 → 迁 zhyi.xin |
+| vaults3 | （作者无此文件） | `zhyi.cc` 有意公网 | 复刻特有（Attic 8443 端点），有意公网 → 迁 zhyi.xin 需同步 attic 客户端 |
+| rsshub/n8n/bitwarden/asf | `*.xuyh0120.win` 公开 | `*.zhyi.xin`（n8n/bitwarden/asf 另加 localhost） | **有意偏离且已符合新规则** ✓；localhost 访问属自用收紧，域名虚挂可保留或清理 |
+| `<host>.zhyi.cc` 主机入口 | `<host>.xuyh0120.win` | `<host>.zhyi.cc` | 照抄模式（复刻的主机域）→ 保持，写入规范例外 |
+| um | `um.xuyh0120.win` 公开 | `um.zhyi.cc` private | 有意偏离（静态资源自用收紧）✓ |
+| actual.xuyh0120.win / sip.lantian.pub | 作者原样 | **原样照抄未改域** | 无意识遗留（且未启用）→ 清理或改域 |
+| halo `zhyi.xin` 裸域 | （作者无 halo.nix） | 复刻新增，private+OAUTH 挂裸域 | 用法异常（未启用则忽略） |
+
+### 结论
+
+- P1 的 9 项均为**复刻时机械替换域名的遗留**（非有意设计），按「公开统一
+  zhyi.xin」迁移是回归正确语义，可执行。
+- 主机入口 vhost（`<host>.zhyi.cc`）与作者模式一致，作为规范例外保留。
+- `actual`/`sip` 是作者域名原样照抄的遗留模块（未启用），建议清理。
+- zhyi.xin 上的 localhost 访问项（n8n/bitwarden/asf）是有意收紧，保留。
+
