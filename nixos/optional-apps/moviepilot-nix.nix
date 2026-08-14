@@ -61,6 +61,9 @@ in
   config = lib.mkIf cfg.enable {
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0750 zhyi users"
+      # BindPaths mounts happen before ExecStartPre, so the source dir must
+      # already exist (tmpfiles runs earlier); ExecStartPre only seeds it.
+      "d ${cfg.dataDir}/plugins-store 0750 zhyi users"
       # v3 hardcodes /config for the plugin/package repo (package.py);
       # alias it to the persistent data dir on (tmpfs) roots.
       "L /config - - - - ${cfg.dataDir}"
