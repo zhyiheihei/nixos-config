@@ -63,6 +63,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "couchdb";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
       name = "element";
       target = "greencloud.zhyi.cc.";
       ttl = "1h";
@@ -204,6 +210,12 @@ let
       name = "posts";
       target = "greencloud.zhyi.cc.";
       ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "qnap";
+      target = homeDdnsTarget;
+      ttl = "2m";
     }
     {
       recordType = "CNAME";

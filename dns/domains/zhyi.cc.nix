@@ -87,19 +87,7 @@ let
 
     {
       recordType = "CNAME";
-      name = "couchdb";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
-    {
-      recordType = "CNAME";
       name = "ha";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
-    {
-      recordType = "CNAME";
-      name = "qnap";
       target = homeDdnsTarget;
       ttl = "2m";
     }
