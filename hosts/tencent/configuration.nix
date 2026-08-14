@@ -14,10 +14,11 @@
   lantian.hubproxy.enable = true;
 
   # searx 的 favicon 缓存（作者布局：/var/cache/searx，uwsgi 服务
-  # CacheDirectory 属主）由 vassal 进程写入；vassal 以 searx:searx 运行
-  # 且 uwsgi immediate-gid 不继承补充组 → sqlite 打不开，HTML 搜索 500。
-  # 保持作者模块不动：主机层给 vassal 加 uwsgi 补充组 + 缓存目录组可写。
-  services.uwsgi.instance.vassals.searx.add-gid = "uwsgi";
+  # CacheDirectory 属主 uwsgi）由 vassal 进程写入；vassal 以 searx 用户
+  # 运行且 uwsgi 掉权限时按 /etc/group 做 initgroups。保持作者模块不动：
+  # 主机层把 searx 加进 uwsgi 组 + 缓存目录组可写（实测 add-gid 不生效，
+  # extraGroups 才能进入进程补充组）。
+  users.users.searx.extraGroups = [ "uwsgi" ];
   systemd.services.uwsgi.serviceConfig.CacheDirectoryMode = "0775";
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
