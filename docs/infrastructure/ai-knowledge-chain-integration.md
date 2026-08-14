@@ -50,7 +50,7 @@ flowchart LR
 | LibreChat | `greencloud` | 运行 | Web/客户端 REST `/api/*`；自定义 endpoint 指向 UniAPI | Dex OIDC + 会话/JWT | `https://www.librechat.ai/docs` |
 | n8n | `greencloud` | 运行 | REST `/api/v1`（workflows/executions/credentials）、webhooks | API key / Dex OAuth | `https://docs.n8n.io/api/` |
 | n8n OpenAI Bridge | `greencloud` | 运行 | OpenAI 兼容 `/v1/*`、`/health` | Bearer token | `https://github.com/xddxdd/n8n-openai-bridge` |
-| Metapi | `greencloud` | 运行 | OpenAI 兼容 `/v1` + 管理 API | UI 口令 + `PROXY_TOKEN` | `https://github.com/cita-777/metapi` |
+| Metapi | `tencent` | 运行（2026-08-14 自 greencloud 迁移）| OpenAI 兼容 `/v1` + 管理 API | UI 口令 + `PROXY_TOKEN` | `https://github.com/cita-777/metapi` |
 | AxonHub | 未部署 | 未部署 | 未部署；模块保留 | 未部署 | `https://github.com/looplj/axonhub` |
 | Qdrant | 未部署 | 未部署 | REST 6333 / gRPC 6334（`/collections`、`/points`、`/search`） | 可选 API Key | `https://api.qdrant.tech/api-reference/` |
 | Gitea | `greencloud` | 运行 | REST `/api/v1`（`/repos/{owner}/{repo}/...`）、Git/SSH 2222、webhook | API Token / OAuth2 / Basic | `https://docs.gitea.com/development/api-usage` |

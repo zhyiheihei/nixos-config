@@ -267,7 +267,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | Bird Looking Glass | `https://lg.zhyi.cc` | 公开只读 |
 | FlapAlerted | `https://flapalerted.zhyi.cc` | 公开只读 |
 | Uni API | `https://uni-api.rock5c.zhyi.cc` | API key |
-| MetaAPI | `https://metapi.greencloud.zhyi.cc` | 应用口令 / token |
+| MetaAPI | `https://metapi.tencent.zhyi.cc` | 应用口令 / token |
 | n8n OpenAI Bridge | `https://n8n-bridge.greencloud.zhyi.cc/health` | bearer token |
 | SearxNG | `https://searx.tencent.zhyi.cc` | 私有 |
 | FastAPI DLS | `https://fastapi-dls.rock5c.zhyi.cc` | 租约 token |
