@@ -14,8 +14,11 @@ let
   # slow/emulated boards (RK3566 cold start exceeds it), so the frontend
   # never gets spawned there.  systemd manages both processes natively.
   backendWrapper = pkgs.writeShellScript "moviepilot-backend" ''
-    export PATH="${lib.makeBinPath [ pkgs.nodejs ]}:$PATH"
-    export PYTHONPATH="${pkgs.python3Packages.makePythonPath mp.propagatedBuildInputs}"
+    # Reuse the runtime environment (node PATH + full PYTHONPATH) from the
+    # package's own bin/moviepilot wrapper instead of rebuilding it here:
+    # makePythonPath over the flake-exposed propagatedBuildInputs picks the
+    # wrong outputs (e.g. pyopenssl-dev) and breaks imports.
+    eval "$(sed -n '/^export \(PATH\|PYTHONPATH\)=/p' ${mp}/bin/moviepilot)"
     export PYTHONUNBUFFERED=1
     export MOVIEPILOT_AUTO_UPDATE=false
     export CONFIG_DIR="${cfg.dataDir}"
