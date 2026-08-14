@@ -31,6 +31,7 @@ _: [
   # Has own authentication system
   # keep-sorted start
   "ai-api.zhyi.cc"
+  "ai-api.zhyi.xin"
   "ai.zhyi.xin"
   "alert.zhyi.xin"
   "attic.zhyi.xin"
