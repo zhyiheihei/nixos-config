@@ -15,7 +15,7 @@
 
 - 域名：`zhyi.xin` / `zhyi.cc` / `moliy.site` 代替 `lantian.pub` 等。
 - 用户：`zhyi` 代替 `lantian`。
-- 自有主机：`router`、`cnvm`、`hostdare`、`opi5p`、`rock5c`、
+- 自有主机：`router`、`volcengine`、`hostdare`、`opi5p`、`rock5c`、
   `lubancat1`、`h28k`、`ml-builder` 等。
 - 自有服务：`sublinkpro`、`filecodebox`、`memos`、`metacubexd`、
   `home-assistant`、`moviepilot`、`sun-panel`、`vertex` 等，上游无对应模块。

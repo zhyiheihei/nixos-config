@@ -69,7 +69,7 @@ SMTP、SFTP、Samba、NFS 等协议服务按“没有 Web UI 的协议、后端�
    `https://homepage.rock5c.zhyi.cc`，仅从家庭 LAN、LTNET 或 ZeroTier
    访问。卡片链接按服务实际公开边界分组：公开服务使用正式公开域，私有服务
    使用 `服务.承载主机.zhyi.cc`；Attic 仍是例外，固定使用
-   `https://attic.zhyi.xin/lantian`，实际入口位于 cnvm。
+   `https://attic.zhyi.xin/lantian`，实际入口位于 volcengine。
 4. 由 `ml-builder` 构建并部署 `rock5c`，然后在 ROCK 5C 检查生成结果。只修改
    Homepage 卡片时仍需确认对应后端主机没有迁移。
 

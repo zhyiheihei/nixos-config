@@ -46,12 +46,12 @@
 ### 1. 主机清单与主机身份
 
 不恢复作者已删除或本地不存在的主机，也不把本地主机改回作者的名称、地址和
-硬件。当前继续使用 `cnvm`、`hostdare`、`ml-home-vm`、`google`、`router`、
+硬件。当前继续使用 `volcengine`、`hostdare`、`ml-home-vm`、`google`、`router`、
 `ml-builder`、`opi5p` 等本地主机。
 
 本次把 5 个本地 `host.nix` 的 DN42 region 从裸数字改成作者的新命名常量：
 
-- `cnvm`、`hostdare`、`ml-home-vm`、`google`：`Asia-E`
+- `volcengine`、`hostdare`、`ml-home-vm`、`google`：`Asia-E`
 - `greencloud`：`Asia-SE`
 
 这属于接口对齐；主机本身及其实际地域仍是 fork 差异。
@@ -128,7 +128,7 @@ WebUI，但保留显式 `nginx-api.nix` 导入。原因是旧 Open WebUI 模块�
 
 ## 验证结果
 
-- `cnvm` 配置 dry-run 求值成功，Vaultwarden 为 `1.37.0`，Web Vault 为
+- `volcengine` 配置 dry-run 求值成功，Vaultwarden 为 `1.37.0`，Web Vault 为
   `2026.6.4+0`。
 - `greencloud` 配置 dry-run 求值成功，LibreChat 已启用。
 - 两次远程检查均以退出码 0 完成。

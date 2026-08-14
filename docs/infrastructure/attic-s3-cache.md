@@ -95,7 +95,7 @@ journalctl -u atticd.service --since '30 minutes ago' --no-pager
 
 必须严格按以下顺序操作，避免所有主机同时失去 substituter：
 
-1. 在 `cnvm` 生成长期只读 token，仅授予 `--pull lantian`。
+1. 在 `volcengine` 生成长期只读 token，仅授予 `--pull lantian`。
 2. 将其以上述 netrc 格式写入 secrets 仓库的 `common/nix.yaml` 中
    `nix-netrc` 字段；不要把 JWT 输出到终端日志或 Shell history。
 3. 更新主仓库的 `secrets` flake input，先部署全部受管主机。

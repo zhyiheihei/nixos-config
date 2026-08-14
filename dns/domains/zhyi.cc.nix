@@ -50,8 +50,8 @@ let
 
     {
       recordType = "CNAME";
-      name = "halo.cnvm";
-      target = "cnvm.ltnet.zhyi.cc.";
+      name = "halo.volcengine";
+      target = "volcengine.ltnet.zhyi.cc.";
       ttl = "1h";
     }
   ];

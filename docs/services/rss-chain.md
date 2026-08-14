@@ -48,10 +48,10 @@ ArchiveBox 保留“实在不行”的源归档。退役服务的数据是否删
 ### 其他核对
 
 - DNS：无 `freshrss.*` / `linkwarden.*` 残留记录。
-- `zhyi.xin` 由 cnvm 的 Halo 提供；项目不再自动生成大规模 `/etc/hosts` 映射，
-  统一走自建 DNS/公共 DNS（apex A 记录指向 cnvm），避免 Miniflux 抓到
+- `zhyi.xin` 由 volcengine 的 Halo 提供；项目不再自动生成大规模 `/etc/hosts` 映射，
+  统一走自建 DNS/公共 DNS（apex A 记录指向 volcengine），避免 Miniflux 抓到
   greencloud 上的空静态目录（403/404）。
-- Dex（cnvm）：`freshrss`、`linkwarden` 两个 OAuth client 已移除并部署生效。
+- Dex（volcengine）：`freshrss`、`linkwarden` 两个 OAuth client 已移除并部署生效。
 - `freshrss.nix`、`linkwarden.nix` 与对应端口常量保留为公共模块文件，只是不再
   import；Dex 两个 client 已移除。
 
@@ -61,7 +61,7 @@ ArchiveBox 保留“实在不行”的源归档。退役服务的数据是否删
       公共模块文件与端口常量保留，不 import。
 - [x] Miniflux：修正 2 个 URL；不补旧订阅；删除 3 个不可订阅源与误补的 9 条旧订阅。
 - [x] ArchiveBox：保留并还原 7 个旧源快照（重新归档完成）。
-- [x] 部署 `cnvm`、`opi5p`、`rock5c` 并实机验证；Linkwarden/FreshRSS 单元与容器
+- [x] 部署 `volcengine`、`opi5p`、`rock5c` 并实机验证；Linkwarden/FreshRSS 单元与容器
       已无残留，ArchiveBox 保留 7 个快照，homepage 已更新。
 - [ ] 确认是否删除 FreshRSS/Linkwarden 数据目录与数据库（默认保留）。
 - [x] 更新 `fleet-service-chain.md` 知识链章节（2026-08-12）。
@@ -134,6 +134,6 @@ curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:13248/zhihu/hot
 systemctl is-active podman-linkwarden podman-archivebox
 podman ps -a --format '{{.Names}} {{.Status}}' | rg -i 'archive|linkwarden|fresh'
 
-# Dex 客户端确认（cnvm）
+# Dex 客户端确认（volcengine）
 curl -sS https://login.zhyi.xin/.well-known/openid-configuration | jq -r '.issuer'
 ```

@@ -42,7 +42,7 @@ ZeroTier 控制器必须迁移旧 VM 的
 - `qnap.zhyi.cc` -> `192.168.2.93:8080`
 - `couchdb.zhyi.cc` -> `192.168.2.93:5984`
 
-Attic、Dex、GLAuth、Pocket ID、Halo 和 Vaultwarden 已由 `cnvm` 承载，
+Attic、Dex、GLAuth、Pocket ID、Halo 和 Vaultwarden 已由 `volcengine` 承载，
 不从旧 greencloud 的历史数据目录重复迁移。
 
 ## 数据迁移规则
@@ -96,7 +96,7 @@ Attic、Dex、GLAuth、Pocket ID、Halo 和 Vaultwarden 已由 `cnvm` 承载，
   `ml-home-vm`，其三个 NAS 后端均可达。
 - 新 `greencloud` 使用 index 120、LTNET 地址 `198.18.0.120` 和原
   `sgvm` 的主机密钥及 ZeroTier 身份。
-- `cnvm`、`hostdare`、`ml-home-vm` 和 `google` 到新
+- `volcengine`、`hostdare`、`ml-home-vm` 和 `google` 到新
   `greencloud` 的 WireGuard 与 BGP 会话均已恢复，rsync 主服务器统一为
   `198.18.120.1`。
 - PVE VM 200、`virtiofs-nixos-greencloud` 映射、旧 VirtioFS 数据和对应

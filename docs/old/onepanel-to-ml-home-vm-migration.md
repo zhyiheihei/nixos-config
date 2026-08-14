@@ -2,7 +2,7 @@
 
 2026-07-18 将旧 `1panel.zhyi.xin:55555` 上的以下服务迁移到
 `ml-home-vm`。迁移快照已保留在 `ml-home-vm`；旧 1Panel 虚拟机已于
-2026-07-18 重装为 NixOS `cnvm`，不再承载或保留 1Panel 服务数据。
+2026-07-18 重装为 NixOS `volcengine`，不再承载或保留 1Panel 服务数据。
 
 ## 已迁移服务
 
@@ -21,10 +21,10 @@
 
 ## 公网路径
 
-四个域名由 DNSControl 声明为静态 `CNAME -> cnvm.zhyi.cc.`。TLS 流量路径为：
+四个域名由 DNSControl 声明为静态 `CNAME -> volcengine.zhyi.cc.`。TLS 流量路径为：
 
 ```text
-客户端 -> cnvm:443 -> greencloud LTNET:443 -> ml-home-vm:8443
+客户端 -> volcengine:443 -> greencloud LTNET:443 -> ml-home-vm:8443
 ```
 
 `hosts/greencloud/configuration.nix` 按 TLS SNI 将这些域名转发到
@@ -68,7 +68,7 @@ done
 1. 在 `dns/domains/zhyi.xin.nix` 的 `publicVpsServices` 移除对应服务名。
 2. 在 `ml-builder` 运行 `nix run .#dnscontrol -- preview`，确认仅撤销对应 CNAME。
 3. 在 `ml-builder` 运行 `nix run .#dnscontrol -- push`。
-4. 等待 DNS TTL（当前为 10 分钟）并确认对应服务停止走 CNVM 入口。
+4. 等待 DNS TTL（当前为 10 分钟）并确认对应服务停止走 VOLCENGINE 入口。
 
 SNI 分发规则可暂时保留；回滚的关键是 DNS CNAME。1Panel 源机已经改作
-CNVM，不能作为应用回滚目标；不要删除 `ml-home-vm` 的迁移快照。
+VOLCENGINE，不能作为应用回滚目标；不要删除 `ml-home-vm` 的迁移快照。

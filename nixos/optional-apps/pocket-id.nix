@@ -31,7 +31,7 @@
       UNIX_SOCKET_MODE = "0660";
       UI_CONFIG_DISABLED = true;
       ANALYTICS_DISABLED = true;
-      # cnvm 在国内无法访问 api.github.com：禁用版本检查，
+      # volcengine 在国内无法访问 api.github.com：禁用版本检查，
       # 否则登录后 /api/version/latest 500 且前端误报"发生未知错误"
       VERSION_CHECK_DISABLED = true;
 

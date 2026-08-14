@@ -6,7 +6,7 @@
 
 | 自有域名 | 对应作者职责 | 适用内容 | 公网入口 |
 | --- | --- | --- | --- |
-| `zhyi.xin` | `lantian.pub` 与作者公开应用 | 主公开域：面向用户的应用、身份与协作服务 | greencloud:443；身份服务由 cnvm 直接承载 |
+| `zhyi.xin` | `lantian.pub` 与作者公开应用 | 主公开域：面向用户的应用、身份与协作服务 | greencloud:443；身份服务由 volcengine 直接承载 |
 | `zhyi.cc` | 主机与互联命名职责 | 基础设施、主机名、私有服务 | 按实际承载主机或基础设施入口解析 |
 | `moliy.site` | `ltn.pw` | 个人/附属站点 | 保持现有用途 |
 
@@ -23,15 +23,15 @@
 客户端 -> greencloud:443 -> rock5c LTNET:443 -> 家庭服务
 ```
 
-CNVM 本机承载 Dex、Pocket ID、Vaultwarden 与 Attic，它们的 DNS 直接指向
-`cnvm.zhyi.cc`。greencloud 承载 Gitea、Matrix、RSS、AI 和监控等服务。
+VOLCENGINE 本机承载 Dex、Pocket ID、Vaultwarden 与 Attic，它们的 DNS 直接指向
+`volcengine.zhyi.cc`。greencloud 承载 Gitea、Matrix、RSS、AI 和监控等服务。
 `asf`、`books`、`filebox`、`immich`、`index` 与 `index-helper` 保持作者的独立
 公开域名形态，并通过 `home-ddns.zhyi.cc` 进入家庭服务。`jellyfin` 与 `tachidesk`
 同样指向家庭 DDNS；它们的应用、状态与 TLS 入口均位于 `opi5p`
 （Tachidesk 同时执行 Basic Auth）。家庭入站 443 被运营商封锁，因此这两个服务的
 外部入口统一使用 8443，再由 Router 转换到 OPI5P Nginx 的标准 443。
 
-`attic.zhyi.xin` 是例外：它 CNAME 到 `cnvm.zhyi.cc`，由 cnvm 本机 Nginx
+`attic.zhyi.xin` 是例外：它 CNAME 到 `volcengine.zhyi.cc`，由 volcengine 本机 Nginx
 直接服务。Attic 与其 `vaults3.zhyi.xin` S3 后端分离：VaultS3 位于家庭网络
 （`home-ddns.zhyi.cc`），Attic 服务端也通过公网 8443 访问它，再由 Router 转换到
 OPI5P 的标准 443。客户端统一使用
