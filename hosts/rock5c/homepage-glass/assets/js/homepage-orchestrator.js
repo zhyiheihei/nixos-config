@@ -49,11 +49,28 @@
       document.head.appendChild(script);
     });
 
+  // 分组标题会被清洗掉“01 · 公开 · ”这类前缀；原始标题存进 dataset，
+  // tab 分类始终读原始值。
   const groupName = (group) => {
     const title =
       group.querySelector(".service-group-name") ||
       group.querySelector(".bookmark-group-name");
-    return (title && title.textContent.trim()) || "";
+    if (!title) return "";
+    return (title.dataset.homepageTitle || title.textContent || "").trim();
+  };
+
+  const cleanGroupTitle = (group) => {
+    const title =
+      group.querySelector(".service-group-name") ||
+      group.querySelector(".bookmark-group-name");
+    if (!title) return;
+    const raw = (title.dataset.homepageTitle || title.textContent || "").trim();
+    if (!raw) return;
+    if (!title.dataset.homepageTitle) title.dataset.homepageTitle = raw;
+    const cleaned = raw
+      .replace(/^\s*\d+\s*·\s*/, "")
+      .replace(/^\s*(?:公开|私有)\s*·\s*/, "");
+    if (title.textContent !== cleaned) title.textContent = cleaned;
   };
 
   const findContainer = () =>
@@ -90,11 +107,31 @@
       }
     }
     container.setAttribute("data-glass-container", "");
+    // 玻璃形状打在分组面板上（整块一块玻璃），瓦片本体保持透明。
+    // 标题清洗 + tab 分类必须在同一趟完成：分类读原始标题。
     container
-      .querySelectorAll(
-        ".service-card, .bookmark > a"
-      )
-      .forEach((element) => element.setAttribute("data-glass", ""));
+      .querySelectorAll(":scope > .services-group, :scope > .bookmark-group")
+      .forEach((group) => {
+        group.dataset.tabGroup = tabFromName(groupName(group));
+        cleanGroupTitle(group);
+        group.setAttribute("data-glass", "");
+      });
+    // 瓦片网格：给卡片/书签的直接父层打标记（嵌套层级因角色而异）。
+    container
+      .querySelectorAll(".service-card, .bookmark")
+      .forEach((element) => element.parentElement.classList.add("homepage-tile-grid"));
+    // glyph 图标（mdi / svg / 缩写）需要渐变底与内边距，位图图标全出血。
+    container
+      .querySelectorAll(".service-icon, .bookmark-icon")
+      .forEach((icon) => {
+        const img = icon.querySelector("img");
+        const label = (icon.closest("[aria-label]") || {}).ariaLabel || "";
+        const glyph =
+          !img ||
+          /\.svg($|\?)/i.test(img.currentSrc || img.src || "") ||
+          /^mdi/i.test(label);
+        icon.classList.toggle("homepage-glyph", glyph);
+      });
     document
       .querySelectorAll(
         "#information-widgets .widget-container, #homepage-search-section, .homepage-tabbar"
@@ -102,6 +139,7 @@
       .forEach((element) => element.setAttribute("data-glass", ""));
     buildTabs(container);
     moveSearch();
+    buildDock(container);
     return container;
   };
 
@@ -239,6 +277,58 @@
       button.setAttribute("aria-selected", name === activeTab ? "true" : "false");
       button.setAttribute("tabindex", name === activeTab ? "0" : "-1");
     });
+  };
+
+  // Dock：把“常用”书签组复制成底部常驻玻璃条（iOS Dock）。原分组仍
+  // 完整保留在“快捷”标签页里；dock 只放图标，靠 title 提示。
+  const buildDock = (container) => {
+    const parent = container.parentElement;
+    if (!parent) return;
+    const source = Array.from(
+      container.querySelectorAll(":scope > .bookmark-group")
+    ).find((group) => {
+      const name = groupName(group);
+      return name.indexOf("常用") !== -1 && name.indexOf("工具") === -1;
+    });
+    let dock = document.getElementById("homepage-dock");
+    if (!source) {
+      if (dock) dock.remove();
+      const spacer = document.getElementById("homepage-dock-spacer");
+      if (spacer) spacer.remove();
+      return;
+    }
+    if (!dock) {
+      dock = document.createElement("nav");
+      dock.id = "homepage-dock";
+      dock.setAttribute("aria-label", "常用快捷访问");
+      dock.setAttribute("data-glass", "");
+    }
+    const links = Array.from(source.querySelectorAll(".bookmark > a"));
+    if (dock.dataset.srcCount !== String(links.length)) {
+      dock.dataset.srcCount = String(links.length);
+      dock.textContent = "";
+      links.forEach((link) => {
+        const item = document.createElement("a");
+        item.className = "homepage-dock-item";
+        item.href = link.href;
+        const nameNode = link.querySelector(".bookmark-name");
+        item.title = link.title || (nameNode && nameNode.textContent) || "";
+        item.target = link.target || "_blank";
+        item.rel = "noreferrer";
+        const icon = link.querySelector(".bookmark-icon");
+        if (icon) item.appendChild(icon.cloneNode(true));
+        dock.appendChild(item);
+      });
+    }
+    let spacer = document.getElementById("homepage-dock-spacer");
+    if (!spacer) {
+      spacer = document.createElement("div");
+      spacer.id = "homepage-dock-spacer";
+    }
+    if (dock.parentElement !== parent) parent.appendChild(dock);
+    if (spacer.parentElement !== parent || spacer.nextElementSibling !== dock) {
+      parent.insertBefore(spacer, dock);
+    }
   };
 
   const dailyQuote = async () => {

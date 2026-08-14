@@ -4,10 +4,12 @@
   --homepage-content-z: 10;
   --homepage-widgets-z: 20;
   --homepage-statusbar-z: 30;
+  --homepage-dock-z: 12;
   --homepage-ink: rgba(246, 248, 252, 0.96);
   --homepage-muted: rgba(246, 248, 252, 0.55);
   --homepage-row-radius: 12px;
-  --homepage-panel-radius: 20px;
+  --homepage-panel-radius: 26px;
+  --homepage-tile-size: 62px;
 }
 
 html,
@@ -39,8 +41,9 @@ body,
 #inner_wrapper {
   width: min(100%, 1440px);
   margin: 0 auto;
-  padding-bottom: 36px;
-  /* Homepage renders content inside this scroll container; keep it stable. */
+  padding-bottom: 12px;
+  /* Homepage renders content inside this scroll container; keep it stable.
+     滚动仍发生在这里：玻璃纹理 / 形状坐标全部以该容器为锚，勿改。 */
   overflow-y: auto;
   /* 背景第一层为随机图片（https://t.alcy.cc/ysz/）；studio-glass.js 预加载
      同一张图并注入 blob URL（--homepage-bg-image），保证页面背景与玻璃纹理
@@ -146,10 +149,14 @@ body,
   background: rgba(255, 255, 255, 0.85);
 }
 
+/* ------------------------------------------------------------------ */
+/* 头部：iOS 锁屏式居中栈（时钟 → 每日一句 → 天气/资源胶囊）。          */
+/* ------------------------------------------------------------------ */
+
 #information-widgets {
   position: relative;
   z-index: var(--homepage-widgets-z);
-  margin: 26px 28px 10px !important;
+  margin: 16px auto 4px !important;
   padding: 0 !important;
   border: 0 !important;
   border-radius: 0 !important;
@@ -160,19 +167,28 @@ body,
 }
 
 #widgets-wrap {
-  align-items: center;
-  gap: 8px;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+/* Homepage 把 widget 分成 left/right 两个子栏；拍平中间层（但保留
+   .widget-container 自身的盒子）后，所有胶囊成为 #widgets-wrap 的直接
+   子项，才能按 order 排成居中竖栈。 */
+#widgets-wrap > div:not(.widget-container) {
+  display: contents !important;
 }
 
 .widget-container {
   display: flex !important;
+  flex-direction: row !important;
   align-items: center !important;
   justify-content: center !important;
-  min-height: 46px !important;
-  margin: 4px 4px !important;
-  padding: 8px 14px !important;
+  min-height: 40px !important;
+  margin: 2px 4px !important;
+  padding: 6px 16px !important;
   border: 0 !important;
-  border-radius: 16px !important;
+  border-radius: 18px !important;
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -180,21 +196,43 @@ body,
 }
 
 #information-widgets .information-widget-datetime {
-  flex: 1 1 auto;
-  min-width: 260px;
-  min-height: 64px !important;
-  padding: 0 16px !important;
-  border: 0 !important;
-  background: transparent !important;
-  box-shadow: none !important;
+  order: 1;
+  flex-direction: column !important;
+  min-width: 0;
+  min-height: 0 !important;
+  padding: 0 24px !important;
 }
 
 #information-widgets .information-widget-datetime span {
-  font-size: clamp(2rem, 6vw, 3rem) !important;
+  font-size: clamp(2.6rem, 5vw, 3.4rem) !important;
   font-weight: 200 !important;
   letter-spacing: 0;
   color: rgba(255, 255, 255, 0.98);
   white-space: nowrap;
+  text-align: center;
+}
+
+#information-widgets .information-widget-greeting {
+  order: 2;
+  flex-direction: column !important;
+  max-width: min(680px, 90vw);
+  min-height: 0 !important;
+  padding: 0 12px !important;
+  text-align: center;
+}
+
+#information-widgets .information-widget-greeting span {
+  margin: 0 !important;
+  font-size: 0.98rem !important;
+  font-weight: 400 !important;
+  line-height: 1.5;
+  color: rgba(246, 248, 252, 0.78);
+  white-space: normal;
+}
+
+/* 天气与资源监控胶囊排在引用下方。 */
+#widgets-wrap .widget-container:not(.information-widget-datetime):not(.information-widget-greeting) {
+  order: 3;
 }
 
 .primary-text,
@@ -205,21 +243,13 @@ body,
   color: var(--homepage-ink) !important;
 }
 
-.information-widget-greeting {
-  max-width: 520px;
-  font-size: 1.05rem !important;
-  font-weight: 600 !important;
-  line-height: 1.4;
-  white-space: normal;
-}
-
 #homepage-search-section {
   position: relative;
   z-index: var(--homepage-content-z);
-  width: min(100%, 640px);
-  margin: 4px auto 20px !important;
+  width: min(100%, 560px);
+  margin: 6px auto 12px !important;
   padding: 0 20px;
-  border-radius: 16px;
+  border-radius: 18px;
 }
 
 .information-widget-search {
@@ -228,10 +258,10 @@ body,
 }
 
 .information-widget-search input {
-  height: 3.25rem !important;
+  height: 3rem !important;
   padding: 0 3.5rem 0 1.25rem !important;
   border: 1px solid transparent !important;
-  border-radius: 16px !important;
+  border-radius: 18px !important;
   background: transparent !important;
   box-shadow: none !important;
   color: var(--homepage-ink) !important;
@@ -265,15 +295,19 @@ body,
   background: transparent !important;
 }
 
+/* ------------------------------------------------------------------ */
+/* 分段控件（iOS segmented control）：整个条是单一玻璃形状。            */
+/* ------------------------------------------------------------------ */
+
 /* 单一容器真相：运行时会选中 #layout-groups / #services / #bookmarks
    中实际存在的一个并打上 data-glass-container。 */
 [data-glass-container] {
   position: relative;
   z-index: var(--homepage-content-z);
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin: 8px 28px 0 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0 28px 8px !important;
   align-items: stretch;
 }
 
@@ -281,12 +315,11 @@ body,
   display: flex;
   justify-content: center;
   gap: 4px;
-  grid-column: 1 / -1;
-  max-width: 520px;
-  margin: 0 auto 18px;
+  width: min(100%, 380px);
+  margin: 0 auto 4px;
   padding: 4px;
   border: 0;
-  border-radius: 14px;
+  border-radius: 16px;
   background: transparent;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -295,13 +328,12 @@ body,
 
 .homepage-tab {
   flex: 1;
-  max-width: 160px;
-  padding: 9px 18px;
+  padding: 7px 0;
   border: 0;
-  border-radius: 10px;
+  border-radius: 12px;
   background: transparent;
-  color: rgba(246, 248, 252, 0.62);
-  font-size: 0.88rem;
+  color: rgba(246, 248, 252, 0.58);
+  font-size: 0.9rem;
   font-weight: 590;
   letter-spacing: 0;
   cursor: pointer;
@@ -309,13 +341,14 @@ body,
 }
 
 .homepage-tab:hover {
-  color: rgba(246, 248, 252, 0.92);
-  background: transparent;
+  color: rgba(246, 248, 252, 0.9);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .homepage-tab.active {
   color: #ffffff;
-  background: transparent;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.16);
   box-shadow: none;
 }
 
@@ -328,28 +361,22 @@ body,
   display: none;
 }
 
-.homepage-single-group > [data-tab-group] {
-  grid-column: 1 / -1;
-}
-
-.homepage-single-group .services-list,
-.homepage-single-group .bookmark-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-}
-
 html[data-homepage-tab="公开"] [data-glass-container] > [data-tab-group="公开"],
 html[data-homepage-tab="私有"] [data-glass-container] > [data-tab-group="私有"],
 html[data-homepage-tab="快捷"] [data-glass-container] > [data-tab-group="快捷"] {
   display: block;
 }
 
+/* ------------------------------------------------------------------ */
+/* 分组面板：整块是一个玻璃形状（data-glass 打在 group 上），内部是     */
+/* iOS 主屏幕式图标瓦片网格。                                           */
+/* ------------------------------------------------------------------ */
+
 [data-glass-container] > .services-group,
 [data-glass-container] > .bookmark-group {
   flex: none;
   width: 100%;
-  padding: 8px !important;
+  padding: 16px 20px 18px !important;
   overflow: hidden;
   border: 0;
   border-radius: var(--homepage-panel-radius);
@@ -359,92 +386,141 @@ html[data-homepage-tab="快捷"] [data-glass-container] > [data-tab-group="快�
   box-shadow: none;
 }
 
-[data-glass-container] .services-list,
-[data-glass-container] .bookmark-list,
-[data-glass-container] .bookmark-group ul {
-  display: block;
-}
-
 .service-group-name,
 .bookmark-group-name {
-  min-height: 26px;
+  min-height: 24px;
   align-items: center;
-  color: var(--homepage-muted) !important;
-  font-size: 0.78rem !important;
+  color: rgba(246, 248, 252, 0.64) !important;
+  font-size: 0.82rem !important;
   font-weight: 600 !important;
-  letter-spacing: 0 !important;
+  letter-spacing: 0.04em !important;
 }
 
 .service-group-name::before {
   display: none;
 }
 
+/* orchestrator 给卡片/书签的直接父层打上 homepage-tile-grid。 */
+.homepage-tile-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 12px 6px;
+  margin-top: 6px;
+}
+
+.homepage-tile-grid > li.bookmark {
+  margin: 0 !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* 瓦片：squircle 图标 + 单行标签，本体透明（材质由所在面板提供）。     */
+/* ------------------------------------------------------------------ */
+
 [data-glass-container] .service-card,
 [data-glass-container] .bookmark > a {
   position: relative;
   display: block;
-  min-height: 64px;
+  min-height: 0;
   margin-bottom: 0 !important;
-  padding: 8px 6px !important;
-  overflow: hidden;
+  padding: 6px 2px 2px !important;
+  overflow: visible;
   border: 0 !important;
-  border-radius: var(--homepage-row-radius) !important;
+  border-radius: 16px !important;
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   box-shadow: none !important;
-  transition: transform 180ms cubic-bezier(0.2, 0.8, 0.2, 1) !important;
 }
 
-[data-glass-container] .service-card:hover,
-[data-glass-container] .bookmark > a:hover {
-  transform: translateY(-1px);
-  background: transparent !important;
+[data-glass-container] .service-title,
+[data-glass-container] .bookmark > a > div {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
 }
 
-[data-glass-container] .service-card:active,
-[data-glass-container] .bookmark > a:active {
-  transform: scale(0.985);
+[data-glass-container] .service-title-text,
+[data-glass-container] .bookmark-text {
+  flex: none !important;
+  width: 100%;
+  justify-content: center !important;
 }
 
 [data-glass-container] .service-icon,
 [data-glass-container] .bookmark-icon {
-  width: 42px;
-  height: 42px;
-  margin-right: 8px;
+  width: var(--homepage-tile-size) !important;
+  height: var(--homepage-tile-size) !important;
+  margin-right: 0 !important;
   border: 0;
-  border-radius: 12px;
-  background: transparent;
-  box-shadow: none;
+  border-radius: calc(var(--homepage-tile-size) * 0.24);
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.07);
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 [data-glass-container] .service-icon img,
-[data-glass-container] .service-icon svg,
-[data-glass-container] .bookmark-icon img,
-[data-glass-container] .bookmark-icon svg {
-  width: 24px;
-  height: 24px;
+[data-glass-container] .bookmark-icon img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: cover !important;
+}
+
+/* glyph 类图标（mdi / 自定义 svg / 无图标配缩写）：内边距 + 渐变底，
+   与位图全出血 squircle 区分；homepage-glyph 由 orchestrator 标注。 */
+[data-glass-container] .homepage-glyph,
+#homepage-dock .homepage-glyph {
+  padding: 13px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.24), rgba(255, 255, 255, 0.08));
+}
+
+[data-glass-container] .homepage-glyph div,
+#homepage-dock .homepage-glyph div,
+[data-glass-container] .homepage-glyph img,
+#homepage-dock .homepage-glyph img {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+[data-glass-container] .service-card:hover .service-icon,
+[data-glass-container] .bookmark > a:hover .bookmark-icon {
+  transform: translateY(-2px) scale(1.05);
+}
+
+[data-glass-container] .service-card:active .service-icon,
+[data-glass-container] .bookmark > a:active .bookmark-icon {
+  transform: scale(0.94);
 }
 
 [data-glass-container] .service-name,
 [data-glass-container] .bookmark-name {
-  font-size: 0.92rem !important;
-  font-weight: 600 !important;
+  width: 100%;
+  padding: 0 !important;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
   color: var(--homepage-ink) !important;
   letter-spacing: 0 !important;
+  text-align: center !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 [data-glass-container] .service-description,
-[data-glass-container] .bookmark-description {
-  margin-top: 3px;
-  color: var(--homepage-muted) !important;
-  font-size: 0.74rem !important;
-  font-weight: 400 !important;
+[data-glass-container] .bookmark-description,
+[data-glass-container] .service-container {
+  display: none !important;
 }
 
+/* 状态点：贴在图标右上角，带深色描边保证任意背景下可读。 */
 .service-tags {
-  top: 10px !important;
-  right: 10px !important;
+  top: 6px !important;
+  right: calc(50% - 34px) !important;
 }
 
 .service-tag {
@@ -454,68 +530,137 @@ html[data-homepage-tab="快捷"] [data-glass-container] > [data-tab-group="快�
   box-shadow: none;
 }
 
+.service-tags .site-monitor-status {
+  padding: 0 !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.service-tags .rounded-full {
+  width: 9px !important;
+  height: 9px !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dock：常用书签常驻底部（sticky + 弹性占位），玻璃形状 + 轻纱底色。   */
+/* ------------------------------------------------------------------ */
+
+#inner_wrapper > .container,
+#inner_wrapper .container {
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: calc(100vh - 72px);
+}
+
+/* Homepage 自带的移动端回顶按钮与 dock 冲突，隐藏。 */
+.container [class~="fixed"][class~="bottom-4"] {
+  display: none !important;
+}
+
+#homepage-dock-spacer {
+  flex: 1 1 auto;
+  min-height: 34px;
+}
+
+#homepage-dock {
+  position: sticky;
+  bottom: 16px;
+  z-index: var(--homepage-dock-z);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: fit-content;
+  margin: 0 auto 6px;
+  padding: 10px 14px;
+  border-radius: 24px;
+  /* 轻纱：让滚过 dock 的内容以半透明形式透出，配合画布玻璃边缘。 */
+  background: rgba(10, 14, 22, 0.42);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
+}
+
+#homepage-dock .homepage-dock-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#homepage-dock .bookmark-icon {
+  width: 50px !important;
+  height: 50px !important;
+  margin: 0 !important;
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.07);
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+#homepage-dock .homepage-dock-item:hover .bookmark-icon {
+  transform: translateY(-2px) scale(1.06);
+}
+
+#homepage-dock .homepage-dock-item:active .bookmark-icon {
+  transform: scale(0.94);
+}
+
 #footer {
   display: none !important;
 }
 
 @media (max-width: 768px) {
   #information-widgets {
-    margin: 14px 12px 6px !important;
-    padding: 0 !important;
-  }
-
-  .widget-container {
-    min-height: 42px !important;
-    padding: 6px 10px !important;
-  }
-
-  #information-widgets .information-widget-datetime {
-    min-width: 0;
-    flex-basis: 100%;
-    text-align: center;
+    margin: 8px auto 2px !important;
   }
 
   #information-widgets .information-widget-datetime span {
-    font-size: 2.1rem !important;
+    font-size: 2.3rem !important;
+  }
+
+  .widget-container {
+    min-height: 36px !important;
+    padding: 5px 12px !important;
   }
 
   #homepage-search-section {
-    margin: 0 auto 14px !important;
+    margin: 2px auto 8px !important;
     padding: 0 12px;
   }
 
   [data-glass-container] {
-    margin: 4px 12px 0 !important;
-    grid-template-columns: 1fr;
+    margin: 0 12px 8px !important;
     gap: 12px;
   }
 
-  .homepage-tabbar {
-    margin: 0 auto 12px;
+  .homepage-tile-grid {
+    grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+    gap: 10px 4px;
   }
 
-  [data-glass-container] .service-card,
-  [data-glass-container] .bookmark > a {
-    min-height: 74px;
-    padding: 10px 12px !important;
+  #homepage-dock {
+    bottom: 10px;
+    gap: 7px;
+    max-width: calc(100vw - 20px);
+    padding: 8px 10px;
+    border-radius: 20px;
   }
 
-  [data-glass-container] .service-icon,
-  [data-glass-container] .bookmark-icon {
-    width: 42px;
-    height: 42px;
+  #homepage-dock .bookmark-icon {
+    width: 44px !important;
+    height: 44px !important;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  [data-glass-container] .service-card,
-  [data-glass-container] .bookmark > a,
+  [data-glass-container] .service-icon,
+  [data-glass-container] .bookmark-icon,
+  #homepage-dock .bookmark-icon,
   .information-widget-search input {
     transition: none !important;
   }
 
-  [data-glass-container] .service-card:hover,
-  [data-glass-container] .bookmark > a:hover {
+  [data-glass-container] .service-card:hover .service-icon,
+  [data-glass-container] .bookmark > a:hover .bookmark-icon,
+  #homepage-dock .homepage-dock-item:hover .bookmark-icon {
     transform: none;
   }
 }
