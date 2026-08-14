@@ -84,9 +84,12 @@ AI 链与知识链通过各服务官方 API 连接，禁止用“共享数据库
 
 - LibreChat 只读知识源：只能通过官方 REST/MCP 接 Gitea、Memos、Miniflux；
   新增 MCP 用主机级编排或独立模块注入，不修改公共 `mcp-servers.nix`。
-- n8n 自动化：工作流只调 `ai-api.zhyi.xin`；Gitea/Memos/Miniflux/
-  Syncthing 均走官方 API。n8n OpenAI Bridge 的方向是“工作流作为模型被 UniAPI
-  调用”，不能反过来让 n8n 把 Metapi/AxonHub 当 Provider 上游。
+- n8n 自动化：工作流的 AI 调用走 **Metapi**（`https://metapi.tencent.zhyi.cc/v1`，
+  private vhost，greencloud 经 LTNET 访问；2026-08-15 起由用户指定，此前直连
+  UniAPI）。Gitea/Memos/Miniflux/Syncthing 均走官方 API。n8n OpenAI Bridge 的
+  方向是“工作流作为模型被 UniAPI 调用”；n8n 通过 Metapi 调用普通 Provider 模型
+  没问题，但**禁止调用会绕回自己 Bridge 的模型**（Metapi → UniAPI → Bridge → n8n
+  即成回环）。
 - Memos AI：保持 Metapi → UniAPI 的既有路径；Memos 读写集成走
   `/api/v1/memos` 与 `/memos.api.v1.*`，PAT 进 SOPS。
 - Syncthing：事件/状态查询走 `/rest/events`、`/rest/db/status`，API key 进

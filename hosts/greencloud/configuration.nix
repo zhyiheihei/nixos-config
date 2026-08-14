@@ -52,6 +52,12 @@
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
   ];
 
+  # n8n workflows call Metapi (private vhost on tencent); reach it over
+  # LTNET like rock5c does for greencloud's private services.
+  networking.hosts."${LT.hosts.tencent.ltnet.IPv4}" = [
+    "metapi.tencent.zhyi.cc"
+  ];
+
   # UniAPI consolidated to hostdare (2026-08-14): LibreChat's upstream moves
   # from the retired rock5c UniAPI to the public ai-api.zhyi.xin entry.
   services.librechat.settings.endpoints.custom = lib.mkForce [
