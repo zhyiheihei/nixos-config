@@ -81,7 +81,6 @@
 迁移，每次验证 blackbox/监控指标后再继续。
 
 ## 六、与作者上游原版对照（2026-08-14）
-
 对照 `../nixos-config-exam/`（作者原版）逐项核实 P1 与待决策项的来源：
 
 ### 作者原版的域名体系
@@ -118,3 +117,30 @@
 - zhyi.xin 上的 localhost 附加 vhost（asf/n8n/bitwarden 的 `.localhost`）
   是作者同款本机访问入口，保留。
 
+
+## 七、P1 迁移前核对表（2026-08-14，逐项精读作者原版）
+
+迁移前逐项核对作者原版完整定义与我方现状、连带改动：
+
+| 服务 | 作者原版（域名/acc） | 我方现状 | 迁移目标 | 连带改动 | 结论 |
+| --- | --- | --- | --- | --- | --- |
+| prometheus | `prometheus.xuyh0120.win` public+OAuth | `prometheus.zhyi.cc` public+OAuth | `prometheus.zhyi.xin` | blackbox 探针；dex oauth-proxy 回调为通配符无需改 | 可迁 |
+| alert | `alert.xuyh0120.win` public+OAuth | `alert.zhyi.cc` public+OAuth | `alert.zhyi.xin` | blackbox 探针 | 可迁 |
+| dashboard | `dashboard.xuyh0120.win` public（grafana 自带登录） | `dashboard.zhyi.cc` public | `dashboard.zhyi.xin` | blackbox 探针；**dex grafana 客户端 redirectURIs 显式域名需同步改** | 可迁（连带 dex） |
+| netbox | `netbox.xuyh0120.win` public+OAuth | `netbox.zhyi.cc` public+OAuth | `netbox.zhyi.xin` | blackbox 探针 | 可迁 |
+| hydra | `hydra.lantian.pub` public（limit_req 限流） | `hydra.zhyi.cc` public | `hydra.zhyi.xin` | blackbox 探针；**hydraURL（hydra/default.nix）**；greencloud 反代 override；public-sites 白名单 | 可迁（连带 hydra 配置） |
+| flapalerted | `flapalerted.lantian.pub` public | `flapalerted.zhyi.cc` public | `flapalerted.zhyi.xin` | blackbox 探针；**stayrtr `--cache`（RPKI 数据源）**；prometheus scrape-configs；public-sites 白名单 | 可迁（连带 RPKI 链，谨慎） |
+| dav | `dav.<host>.xuyh0120.win` public+BasicAuth（作者用 `<host>` 格式） | `dav.<host>.zhyi.cc` public+BasicAuth | 待定：`dav.<host>.zhyi.xin`（跟作者格式，DNS 需逐主机记录）或 `dav.zhyi.xin` | BasicAuth 保护，per-host 服务 | 建议保留现状或跟作者格式 |
+| vaults3 | （作者无此文件） | `vaults3.zhyi.cc` public（我方刻意：Attic 8443 兼容端点，router DNAT） | — | attic/gitea/memos S3 端点引用 + home-ddns + 文档 | **建议不迁**，列为例外 |
+
+### 核对要点
+
+- 8 项访问控制与作者**全部一致**（public/private 判定零偏离），迁移只动域名。
+- dex 的 oauth-proxy 客户端回调为通配符（`*.zhyi.cc` / `*.zhyi.xin` / 两级通配），
+  OAuth 类服务迁移**无需改 dex**；唯独 grafana 是应用内 OAuth（显式回调），需同步。
+- zhyi.xin 无 `<host>` 通配记录，迁移需在 zhyi.xin internalServices 显式加
+  CNAME（目标为服务所在主机）。
+- flapalerted 同时是 **stayrtr 的 RPKI ROA 缓存数据源**（BGP 路由安全链），
+  迁移需同步 `stayrtr-flapalerted` 的 `--cache` 与 prometheus scrape 目标。
+- vaults3 为我方刻意设计（S3 兼容端点、公网 8443、家庭 DDNS），列为
+  「基础设施端点」例外，不随 P1 迁移。
