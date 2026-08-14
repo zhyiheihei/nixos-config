@@ -47,6 +47,7 @@
 
 - [网络参照](./network/reference.md)
 - [家庭局域网 IP 规划](./network/home-lan-ip-plan.md)
+- [内网服务域名规范](./network/service-domain-norms.md)
 - [LTNET 家庭中继与缓存链路](./network/ltnet-home-relay.md)
 - [分地区 DNS 方案](./network/regional-dns.md)
 - [DN42 当前拓扑](./network/dn42.md)
