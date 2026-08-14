@@ -23,8 +23,15 @@ let
       );
     };
     time = {
-      command = "uvx";
+      command = "uv";
       args = [
+        # mcp SDK 2.x renamed McpError / moved fastmcp; the python MCP tools
+        # in this file still target the 1.x API, so constrain mcp<2 via uv run.
+        "run"
+        "--with"
+        "mcp<2"
+        "--with"
+        "mcp-server-time"
         "mcp-server-time"
         "--local-timezone=${config.time.timeZone}"
       ];
@@ -117,8 +124,16 @@ in
         url = "https://mcp.mdn.mozilla.net/";
       };
       nixos = {
-        command = "uvx";
-        args = [ "mcp-nixos" ];
+        command = "uv";
+        args = [
+          # mcp SDK 2.x broke the 1.x API these tools target; see `time`.
+          "run"
+          "--with"
+          "mcp<2"
+          "--with"
+          "mcp-nixos"
+          "mcp-nixos"
+        ];
       };
       # keep-sorted end
     };
@@ -126,9 +141,15 @@ in
     lantian.mcp.toolMcpServers = common // {
       # keep-sorted start block=yes
       adsb-lol = {
-        command = "uvx";
+        command = "uv";
         args = [
+          # mcp SDK 2.x broke the 1.x API these tools target; see `time`.
+          "run"
+          "--with"
+          "mcp<2"
+          "--with"
           "awslabs.openapi-mcp-server@latest"
+          "awslabs.openapi-mcp-server"
           "--api-name=adsb.lol"
           "--api-url=https://api.adsb.lol"
           "--spec-url=https://api.adsb.lol/api/openapi.json"
@@ -168,7 +189,8 @@ in
           pkgs.writeShellScript "mcp-flightaware" ''
             export AEROAPI_KEY=$(cat "${config.sops.secrets.mcp-flightaware-api-key.path}")
             export HISHEL_CACHE_PATH=/tmp/mcp-flightaware-cache.db
-            exec ${pkgs.uv}/bin/uvx flightaware-mcp
+            # mcp SDK 2.x broke the 1.x API these tools target; see `time`.
+            exec ${pkgs.uv}/bin/uv run --with "mcp<2" --with "flightaware-mcp" flightaware-mcp
           ''
         );
       };
