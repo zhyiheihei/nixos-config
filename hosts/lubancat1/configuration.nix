@@ -6,6 +6,7 @@
 {
   imports = [
     ../../nixos/server.nix
+    ../../nixos/optional-apps/moviepilot-nix.nix
     ./hardware-configuration.nix
   ];
 
