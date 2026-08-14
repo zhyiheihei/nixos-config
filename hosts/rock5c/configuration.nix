@@ -37,6 +37,14 @@ in
   boot.supportedFilesystems = [ "nfs" ];
   environment.systemPackages = [ pkgs.nfs-utils ];
 
+  # 公共模块的 homepage-dashboard 不设 ALLOWED_HOSTS（默认仅 localhost）；
+  # 原 homepage-glass 模块用它把域名放行。移除玻璃后这里补上，否则
+  # homepage.rock5c.zhyi.cc 的所有 /api 请求会被 Go 服务以 400 拒绝。
+  systemd.services.homepage-dashboard.environment.HOMEPAGE_ALLOWED_HOSTS = lib.mkForce (
+    "homepage.localhost,homepage.${config.networking.hostName}.zhyi.cc,"
+    + "localhost:${LT.portStr.HomepageDashboard},127.0.0.1:${LT.portStr.HomepageDashboard}"
+  );
+
   fileSystems."/mnt/storage" = {
     device = "192.168.0.40:/nixos";
     fsType = "nfs";
