@@ -87,12 +87,28 @@
 
 ## 验证状态与后续
 
-- 本地：全部改动文件 `nix-instantiate --parse` 通过；两个新选项经
+- 本地（macOS）：全部改动文件 `nix-instantiate --parse` 通过；两个新选项经
   `lib.evalModules` 桩验证可正常声明/加载。
-- DNS 求值、`nix flake check`、受影响主机构建需在 **ml-builder** 完成
-  （本机 macOS 无法构建 x86_64-linux 的 patched nixpkgs）。
-- 提交已推送 origin 并在 ml-builder 拉取验证（见批次 3 验证记录）。
+- **ml-builder 验证（2026-08-15）**：
+  - 关键主机 `toplevel.drvPath` 求值全部成功：greencloud（attic + coredns +
+    routeConfig + SSHFP）、hostdare、ml-builder（hydraJobs + llama-cpp）、
+    volcengine（pocket-id/netbox）、router，以及无公钥主机 opi03/taishanpi
+    （不触发指纹缺失 throw）。
+  - 新选项默认值正确：greencloud 上 `lantian.attic.hostVhost = false`、
+    `lantian.coredns.cnSplit = true`。
+  - `dnscontrol-config` 成功构建，输出 26 条 SSHFP 记录（13 台有公钥主机 ×
+    SHA1/SHA256），指纹与仓库内公钥重算值一致，DNS 输出无变化。
+  - **`nix flake check` 仍失败，但为既有缺口**：在原始 master
+    （`12391e85`，本轮改动前）上复现同样失败——`pkgs-patched` 的
+    import-from-derivation 在 flake check 求值期间被禁用（Nix 限制），这是
+    nixpkgs 打补丁机制的固有 IFD，与 DNS SSHFP 无关。本轮 SSHFP 改动已移除
+    DNS 路径上的 IFD（`runCommandLocal` 处理器），但 flake check 仍需
+    pkgs-patched 先存在于 store 才能完整通过。该缺口延续 08-03/08-06 审计
+    记录，单列跟踪。
+- 提交已推送 origin（`9f9dbe3a`..`11e65f77`）并在 ml-builder 拉取验证。
 - SSHFP 指纹由仓库内公钥重算，DNS 输出值不变，无需发布 DNS。
+- **fix-xstatic.patch 已回退**（`f1d8d81b`）：本仓库 nixpkgs 已含该修复，
+  补丁会导致 pkgs-patched 构建失败，详见审计结论。
 
 ## 后续同步守则（沿用）
 
