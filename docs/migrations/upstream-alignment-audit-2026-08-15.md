@@ -7,11 +7,16 @@
 
 - **刷新了上游基线**：`git fetch upstream` 后 `upstream/master` 为
   `11da4247`（2026-08-14，作者最新），此前本地远端停留在 `0a9340d0`
-  （2026-07-27），落后 99 个提交。两仓库 nixpkgs input 同为
-  `c0b0e0fddf73`，对照可信。
+  （2026-07-27），落后 99 个提交。注意：两仓库的 nixpkgs input 实际**不同**
+  （本仓库 `b7c2ada94fe9`，作者 `624af665418d`，本仓库新约 10 天），对照时以
+  文件级语义为准。
 - **真实缺口很少**：99 个新提交里大部分是作者私有内容（radicle、ATproto
   PDS、包版本 bump、作者主机配置）。逐项核验后，真正需要跟随的缺口只有
-  补丁、弃用修复和少量清理（见下文批次 1）。
+  弃用修复和少量清理（见下文批次 1）。
+- **fix-xstatic.patch 未采纳**：作者因旧 nixpkgs rev（`624af665418d`）缺少
+  setuptools 兼容修复而加的补丁，在本仓库的 nixpkgs（`b7c2ada94fe9`）里
+  **已包含**该修复，补丁重复会导致 pkgs-patched 构建失败（Reversed patch）。
+  已 revert（`f1d8d81b`）；将来若 nixpkgs 回退到旧 rev 再按需引入。
 - **此前差异地图的误报已澄清**：早期对过期远端的 diff 曾把 nix-cache-proxy、
   `low-disk` 门控、`icmp_msgs_per_sec`/`nf_conntrack_max`、speedtest-go、
   NixCacheProxy 端口等列为「上游有我们没有」，用新鲜基线（exam
@@ -23,11 +28,11 @@
 
 | 项目 | 值 |
 | --- | --- |
-| 本仓库提交 | `b0cd1284`（批次 2 提交后） |
+| 本仓库提交 | `f1d8d81b`（fix-xstatic revert 后） |
 | 上游远端 | `upstream/master = 11da4247`（fetch 后） |
 | 作者 checkout | `../nixos-config-exam`，HEAD `11da4247` |
 | 上游基线差距 | `0a9340d0..11da4247` 共 99 提交 |
-| nixpkgs input | 两边同 rev `c0b0e0fddf73` |
+| nixpkgs input | 本仓库 `b7c2ada94fe9`；作者 `624af665418d`（不同，本仓库更新） |
 | 审计时间 | 2026-08-15 |
 
 ## 批次 1：已知缺口 backport（全部已提交）
@@ -38,7 +43,7 @@
 | `5790991b` | hydraJobs 去掉 `apps`（hydra-eval-jobs 拒收含字符串元数据的 jobset）。 | align `4008a7c2` |
 | `7d1b107a` | 求值弃用修复：netbox `apiTokenPeppersFile`→`apiTokenPepperFiles."1"`；pocket-id 删 `DB_PROVIDER`/`KEYS_STORAGE`；`hardware/lvm.nix` 补 `boot.swraid.mdadmConf`；llama-cpp-qwen3_6 `host/port/hf-repo` 移入 `settings`；readsb `getExe`→`getExe'`；dev-tools flat-flake 按宿主平台解析；stylix cursor 主题改名 `STMCS_601`→`STMC_6_1`；greencloud systemd-networkd `routeConfig` 拍平。 | 上游 `93b300f0` + align `f0c71020` |
 | `f6f302b1` | 清理：ai-coding 删 `"npm:pi-lens"`；`dns/common/records.nix` 删无引用 `GeoStorDNSTarget`；删除无主机导入的 `optional-apps/mmrelay.nix`；stylix 显式 `home.pointerCursor.enable` + 禁用过时 opencode target。 | 上游 `3bd34270`/`61aea568`/`93b300f0` + align `7b6c86f1` |
-| `f0e104e0` | `patches/nixpkgs/fix-xstatic.patch`：复制自 exam（上游 `30b12e3b`）。setuptools≥83 移除 `pkg_resources.declare_namespace`，9 个 xstatic 包改 `setuptools_80`。经 `nixpkgs-options.nix` 目录全量补丁机制自动应用，惰性不触发不构建。 | 上游 `30b12e3b` |
+| `f0e104e0` | ~~`patches/nixpkgs/fix-xstatic.patch`~~ —— **已 revert**（`f1d8d81b`）：本仓库 nixpkgs（`b7c2ada94fe9`）已含该修复，补丁重复导致 pkgs-patched 构建失败。 | 上游 `30b12e3b`（不适用） |
 
 ## 批次 2：C 类最小参数化（默认值=现状，零行为变化）
 
