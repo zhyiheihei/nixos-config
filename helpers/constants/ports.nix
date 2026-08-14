@@ -19,7 +19,6 @@ rec {
     KMS = 1688;
     Gemini = 1965;
     Bitmagnet = 3333;
-    CouchDB = 5984;
     NFS.StatD = 4000;
     NFS.LockD = 4001;
     NFS.MountD = 4002;

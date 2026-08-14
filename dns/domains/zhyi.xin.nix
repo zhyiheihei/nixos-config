@@ -68,12 +68,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "couchdb";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
-    {
-      recordType = "CNAME";
       name = "dashboard";
       target = "tencent.zhyi.cc.";
       ttl = "1h";
