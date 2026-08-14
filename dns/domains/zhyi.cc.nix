@@ -22,14 +22,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "hydra";
-      # hydra runs on greencloud; the home-DDNS target was left from the
-      # pre-migration layout and made rock5c's siteMonitor fail.
-      target = "greencloud";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "um";
       # ml-home-vm retired; private static assets now resolve via the home edge.
       target = "rock5c.ltnet.zhyi.cc.";
@@ -38,38 +30,8 @@ let
 
     {
       recordType = "CNAME";
-      name = "alert";
-      target = "tencent";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
-      name = "dashboard";
-      target = "tencent";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
-      name = "flapalerted";
-      target = "greencloud";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "lg";
       target = "greencloud";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
-      name = "netbox";
-      target = "greencloud";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
-      name = "prometheus";
-      target = "tencent";
       ttl = "1h";
     }
     {
@@ -88,12 +50,6 @@ let
     {
       recordType = "CNAME";
       name = "ha";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
-    {
-      recordType = "CNAME";
-      name = "vaults3";
       target = homeDdnsTarget;
       ttl = "2m";
     }

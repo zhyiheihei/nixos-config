@@ -70,7 +70,7 @@ in
     package = pkgs.hydra.overrideAttrs (old: {
       doCheck = false;
     });
-    hydraURL = "https://hydra.zhyi.cc";
+    hydraURL = "https://hydra.zhyi.xin";
     listenHost = LT.this.ltnet.IPv4;
     notificationSender = "postmaster@zhyi.cc";
     port = LT.port.Hydra;

@@ -42,15 +42,15 @@ let
     "https://www.zhyi.xin"
 
     # Services under zhyi.cc
-    "https://alert.zhyi.cc"
-    "https://dashboard.zhyi.cc"
-    "https://flapalerted.zhyi.cc"
-    "https://hydra.zhyi.cc"
+    "https://alert.zhyi.xin"
+    "https://dashboard.zhyi.xin"
+    "https://flapalerted.zhyi.xin"
+    "https://hydra.zhyi.xin"
     "https://lg.zhyi.cc"
-    "https://netbox.zhyi.cc"
-    "https://prometheus.zhyi.cc"
-    "https://qnap.zhyi.cc:8443"
-    "https://vaults3.zhyi.cc:8443/health"
+    "https://netbox.zhyi.xin"
+    "https://prometheus.zhyi.xin"
+    "https://qnap.zhyi.xin:8443"
+    "https://vaults3.zhyi.xin:8443/health"
   ];
 
   monitoredHosts = lib.filterAttrs (

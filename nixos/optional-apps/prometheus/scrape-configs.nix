@@ -281,7 +281,7 @@ in
       metrics_path = "/flaps/metrics/prometheus";
       fallback_scrape_protocol = "PrometheusText1.0.0";
       static_configs = [
-        { targets = [ "flapalerted.zhyi.cc" ]; }
+        { targets = [ "flapalerted.zhyi.xin" ]; }
       ];
     }
   ];

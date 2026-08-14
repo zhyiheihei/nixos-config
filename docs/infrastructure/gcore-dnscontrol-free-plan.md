@@ -58,7 +58,7 @@ nix run .#dnscontrol -- push
 
 ```bash
 dig +short ha.zhyi.cc @1.1.1.1
-dig +short hydra.zhyi.cc @1.1.1.1
+dig +short hydra.zhyi.xin @1.1.1.1
 ```
 
 若主机网络拦截 UDP/53，`dig @1.1.1.1` 仍可能命中本地缓存。此时用 DoH 交叉验证，

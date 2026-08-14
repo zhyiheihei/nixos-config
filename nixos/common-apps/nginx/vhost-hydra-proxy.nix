@@ -1,7 +1,7 @@
 { lib, LT, ... }:
 lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
   lantian.nginxVhosts = {
-    "hydra.zhyi.cc" = {
+    "hydra.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://${LT.hosts.pve-5700u.ltnet.IPv4}:${LT.portStr.Hydra}";
@@ -16,7 +16,7 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
 
       blockDotfiles = false;
       enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-zhyi.cc";
+      sslCertificate = "zerossl-zhyi.xin";
       noIndex.enable = true;
     };
   };

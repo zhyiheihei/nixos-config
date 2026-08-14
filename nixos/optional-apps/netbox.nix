@@ -26,7 +26,7 @@
     apiTokenPeppersFile = config.sops.secrets.netbox-pepper.path;
     secretKeyFile = config.sops.secrets.netbox-secret.path;
     settings = {
-      CSRF_TRUSTED_ORIGINS = [ "https://netbox.zhyi.cc" ];
+      CSRF_TRUSTED_ORIGINS = [ "https://netbox.zhyi.xin" ];
       REMOTE_AUTH_AUTO_CREATE_GROUPS = true;
       REMOTE_AUTH_AUTO_CREATE_USER = true;
       REMOTE_AUTH_BACKEND = "netbox.authentication.RemoteUserBackend";
@@ -40,7 +40,7 @@
     };
   };
 
-  lantian.nginxVhosts."netbox.zhyi.cc" = {
+  lantian.nginxVhosts."netbox.zhyi.xin" = {
     locations = {
       "/" = {
         enableOAuth = true;
@@ -51,7 +51,7 @@
       "/static/".alias = config.services.netbox.settings.STATIC_ROOT + "/";
     };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 
