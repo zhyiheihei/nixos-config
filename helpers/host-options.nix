@@ -77,6 +77,18 @@
       type = lib.types.nullOr lib.types.str;
       default = null;
     };
+    # Precomputed SSHFP fingerprints for the ed25519 key above. Computed
+    # offline to avoid import-from-derivation in the DNS evaluation path.
+    ssh.ed25519Fingerprints = {
+      sha1 = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+      };
+      sha256 = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+      };
+    };
 
     # LTNET Networking
     zerotier = lib.mkOption {

@@ -32,6 +32,10 @@
   # SSH host public key。重装后从固定局域网地址重新读取：
   #   ssh-keyscan -p 2222 192.168.0.50 2>/dev/null | grep ssh-ed25519
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEL+VnRYwULTdXkJtOCqoKY4COzWxHNz9glsndnSbZxl";
+  ssh.ed25519Fingerprints = {
+    sha1 = "cdaaa53164085c10d69a10b03bacb1f10a3e62dd";
+    sha256 = "96dd6fa63e183e3cc08c9097824a204bcf258d3faa4998057da59bde91cfcb76";
+  };
 
   zerotier = "2c86750714";
   manualDeploy = true;

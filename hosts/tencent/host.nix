@@ -18,6 +18,10 @@
   # Generated during the 2026-08-13 reinstall at /nix/persistent/etc/ssh;
   # fingerprint SHA256:mQsADD14m6vckwHEmIan3gOcixlPtRos7eaNQQNiCEo.
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMKKFpoUJp+JQE4eKn47qIpeBo9y7eclUqoO0zaUIVY8 root@localhost";
+  ssh.ed25519Fingerprints = {
+    sha1 = "74005212e11d2b4612c28c413d9a13dbd6af0f44";
+    sha256 = "990b000c3d789babdc9301c49886a7de039c8b194fb51a2cede68d410362084a";
+  };
   # Collected on first boot via zerotier-cli info (2026-08-13).
   zerotier = "7edc5323e0";
 
