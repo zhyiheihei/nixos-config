@@ -144,11 +144,12 @@ in
         command = "uv";
         args = [
           # mcp SDK 2.x broke the 1.x API these tools target; see `time`.
+          # Pin the tool version too: uv's --with rejects bare @latest.
           "run"
           "--with"
           "mcp<2"
           "--with"
-          "awslabs.openapi-mcp-server@latest"
+          "awslabs.openapi-mcp-server==1.1.3"
           "awslabs.openapi-mcp-server"
           "--api-name=adsb.lol"
           "--api-url=https://api.adsb.lol"
