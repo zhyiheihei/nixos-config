@@ -42,24 +42,24 @@
     location = "ghcr.io"
 
     [[registry.mirror]]
-    location = "hub.ltnet.zhyi.cc/ghcr.io"
+    location = "hub.ltnet.zhyi.cc/v2/ghcr.io"
 
     [[registry]]
     location = "gcr.io"
 
     [[registry.mirror]]
-    location = "hub.ltnet.zhyi.cc/gcr.io"
+    location = "hub.ltnet.zhyi.cc/v2/gcr.io"
 
     [[registry]]
     location = "quay.io"
 
     [[registry.mirror]]
-    location = "hub.ltnet.zhyi.cc/quay.io"
+    location = "hub.ltnet.zhyi.cc/v2/quay.io"
 
     [[registry]]
     location = "registry.k8s.io"
 
     [[registry.mirror]]
-    location = "hub.ltnet.zhyi.cc/registry.k8s.io"
+    location = "hub.ltnet.zhyi.cc/v2/registry.k8s.io"
   '';
 }
