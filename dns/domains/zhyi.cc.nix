@@ -23,7 +23,9 @@ let
     {
       recordType = "CNAME";
       name = "hub";
-      target = "tencent";
+      # Resolve to the ZeroTier/LTNET address, not the public IP: the hubproxy
+      # vhost is private-only, so this must never route through the internet.
+      target = "tencent.ltnet.zhyi.cc.";
       ttl = "1h";
     }
     {
