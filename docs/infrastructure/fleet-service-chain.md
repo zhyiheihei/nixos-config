@@ -290,6 +290,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | WebDAV（webdev） | `https://dav.opi5p.zhyi.cc` | Basic Auth |
 | QNAP NAS | `https://qnap.zhyi.cc` | 应用管理 |
 | Memos | `https://memos.opi5p.zhyi.cc` | Dex OIDC / 应用登录 |
+| Ignis | `https://ignis.opi5p.zhyi.cc` | Dex SSO（nginx oauth2-proxy） |
 | 主机资源 / NAS 存储 | 见 Homepage `12 · 私有 · 监控` | Prometheus 只读 |
 
 ### 协议与无 Web UI 服务
