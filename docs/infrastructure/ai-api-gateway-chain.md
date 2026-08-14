@@ -36,10 +36,12 @@ ai-api.zhyi.cc ───────────────────> hostda
 `ai-api.zhyi.cc` 是 tencent 上的独立公开 UniAPI 入口；它也从同一份 secrets Provider
 注册表导入配置，但不依赖 greencloud 的 AxonHub 或 Metapi。
 
-LibreChat、Metapi、n8n 和 n8n OpenAI Bridge 运行在 `greencloud`。主 UniAPI
-实际运行在 `rock5c`；LibreChat 与 Metapi 直接使用
-`https://uni-api.rock5c.zhyi.cc/v1`。UniAPI 通过 LTNET 回调 greencloud 上的 n8n Bridge
-（`https://n8n-bridge.greencloud.zhyi.cc/v1`）。
+LibreChat、n8n 和 n8n OpenAI Bridge 运行在 `greencloud`；Metapi 自 2026-08-14
+起运行在 `tencent`（SQLite 状态从 greencloud 迁移）。主 UniAPI 实际运行在
+`rock5c`；LibreChat 与 Metapi 直接使用 `https://uni-api.rock5c.zhyi.cc/v1`。
+Metapi 在 tencent 上还链接了本机 UniAPI（`https://uni-api.tencent.zhyi.cc`，
+84 模型双通道路由）与 hostdare UniAPI（恢复连通后刷新模型）。UniAPI 通过 LTNET
+回调 greencloud 上的 n8n Bridge（`https://n8n-bridge.greencloud.zhyi.cc/v1`）。
 
 `AxonHub` 模块仍保留在仓库，但当前没有被任何 host 导入，实机也没有
 `axonhub.service`。它是未部署候选，不属于当前运行链路。
@@ -57,11 +59,11 @@ AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模
 
 | 服务 | 主机 | 作用 | 上游或依赖 |
 | --- | --- | --- | --- |
-| UniAPI | `rock5c`、`hostdare` | Provider 注册表、模型别名与 OpenAI 兼容 API；hostdare 当前不可达、运行态未验证 | 私有 `uni-api/` secrets |
+| UniAPI | `rock5c`、`hostdare`、`tencent`（公开 `ai-api.zhyi.cc`） | Provider 注册表、模型别名与 OpenAI 兼容 API；hostdare 当前不可达、运行态未验证 | 私有 `uni-api/` secrets |
 | LibreChat | `greencloud` | 交互式 AI 前端，使用 Dex OIDC 登录 | `uni-api.rock5c.zhyi.cc` |
 | n8n | `greencloud` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
 | n8n OpenAI Bridge | `greencloud` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
-| Metapi | `greencloud` | 可选元聚合网关、站点/账户/模型路由管理 | LTNET UniAPI；SQLite 状态目录 |
+| Metapi | `tencent` | 可选元聚合网关、站点/账户/模型路由管理；链接 rock5c/tencent/hostdare 三处 UniAPI | LTNET UniAPI；SQLite 状态目录（自 greencloud 迁移） |
 | AxonHub | 未部署 | 仓库保留可选模块，但当前没有 host import 或运行 unit | 部署前需重新确认 PostgreSQL、Redis 与上游契约 |
 | Qdrant | 未部署 | 仓库保留模块，无 host import、无实机 unit | 若启用需先规范为独立 options 模块并核验 embeddings |
 
@@ -131,7 +133,8 @@ AI 链与知识链通过各服务官方 API 连接，禁止用“共享数据库
   `uni-api-admin-api-key`。这是当前模块的作者式全局 secrets 约定。
 
 不要删除可能保留的 AxonHub PostgreSQL/Redis 历史数据或 `/var/lib/metapi`（位于
-greencloud），除非明确要废弃相应网关；否则会丢失运行态初始化和应用内管理数据。
+greencloud，Metapi 迁移后作为备份保留；tencent 上的 `/var/lib/metapi` 是 2026-08-14
+从 greencloud 拷贝的运行态），除非明确要废弃相应网关；否则会丢失运行态初始化和应用内管理数据。
 
 ## Secrets 与密钥边界
 
@@ -166,18 +169,19 @@ greencloud），除非明确要废弃相应网关；否则会丢失运行态初�
 - **不重复保存外部 Provider 凭据。** Metapi 当前只保存对本机 UniAPI 的凭据；
   AxonHub 若重新部署也只能这样配置。新增外部 Provider 时优先更新 `uni-api/`
   secrets，而不是分别塞入多个网关。
-- **保留私有访问边界。** `metapi.greencloud.zhyi.cc` 是 private vhost；未来重新
-  部署的 `axonhub.greencloud.zhyi.cc` 也必须保持 private。公开 API 入口由
-  `ai-api.zhyi.cc` 的 tencent UniAPI 承担。
+- **保留私有访问边界。** `metapi.tencent.zhyi.cc` 是 private vhost（迁移前为
+  `metapi.greencloud.zhyi.cc`）；未来重新部署的 `axonhub.*` 也必须保持 private。
+  公开 API 入口由 `ai-api.zhyi.cc` 的 tencent UniAPI 承担。
 - **不把运行态当 Nix 声明。** Nix 负责服务存在和 secret 文件挂载；应用内 channel、
   account、route、管理员、工作流等数据由各自数据库持久化和备份。
 
 ## 健康检查
 
-以下命令在 `greencloud` 以 root 执行；只验证，不打印密钥：
+以下命令在 `tencent` 以 root 执行；只验证，不打印密钥：
 
 ```bash
-systemctl is-active librechat metapi n8n n8n-openai-bridge
+# metapi 在 tencent；librechat/n8n/n8n-openai-bridge 仍在 greencloud
+systemctl is-active metapi
 
 curl -fsS \
   -H "Authorization: Bearer $(cat /run/secrets/uni-api-admin-api-key)" \
