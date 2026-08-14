@@ -21,6 +21,19 @@
 
   lantian.nginxVhosts."hostdare.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
+  # Public UniAPI entry (UniAPI consolidated to hostdare, 2026-08-14);
+  # mirrors the author's ai-api.<domain> fully-public vhost. Key-authed
+  # via uni-api-admin-api-key, so public exposure is intentional.
+  lantian.nginxVhosts."ai-api.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
+      proxyNoTimeout = true;
+      proxyOverrideHost = "localhost";
+    };
+    sslCertificate = "lets-encrypt-zhyi.xin";
+    noIndex.enable = true;
+  };
+
   # cn-accel is used for the v2ray exit; skip mihomo to save memory.
   lantian.mihomo.enable = false;
 }

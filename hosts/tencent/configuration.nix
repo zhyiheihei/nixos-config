@@ -9,7 +9,6 @@
     ../../nixos/optional-apps/metapi.nix
     ../../nixos/optional-apps/prometheus
     ../../nixos/optional-apps/searxng.nix
-    ../../nixos/optional-apps/uni-api.nix
   ];
 
   lantian.hubproxy.enable = true;
