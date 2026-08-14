@@ -13,6 +13,13 @@
 
   lantian.hubproxy.enable = true;
 
+  # searx 的 favicon 缓存目录由 uwsgi 服务 CacheDirectory 创建（uwsgi:uwsgi
+  # 755），但实际搜索进程以 searx 用户跑 vassal，sqlite 打不开缓存库 →
+  # HTML 搜索 500（JSON/RSS 不受影响）。让 searx 加入 uwsgi 组并把目录
+  # 改为组可写。
+  users.users.searx.extraGroups = [ "uwsgi" ];
+  systemd.tmpfiles.rules = [ "d /var/cache/searx 0775 uwsgi uwsgi -" ];
+
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
   # from greencloud 2026-08-14 with the monitoring stack). Private only: Homepage
   # resolves prometheus.tencent.zhyi.cc to tencent's LTNET address (198.18.0.128).
