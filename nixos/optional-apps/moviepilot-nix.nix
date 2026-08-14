@@ -61,6 +61,9 @@ in
   config = lib.mkIf cfg.enable {
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0750 zhyi users"
+      # v3 hardcodes /config for the plugin/package repo (package.py);
+      # alias it to the persistent data dir on (tmpfs) roots.
+      "L /config - - - - ${cfg.dataDir}"
     ];
 
     systemd.services.moviepilot-backend = {
@@ -75,6 +78,16 @@ in
         Restart = "on-failure";
         RestartSec = "10";
         ExecStart = backendWrapper;
+        # v3 installs every plugin into ROOT_PATH/app/plugins (read-only nix
+        # store). Bind a writable persistent copy over it so plugin installs
+        # and updates survive; seed the copy from the store on first start.
+        BindPaths = [
+          "${cfg.dataDir}/plugins-store:${mp}/share/moviepilot/app/plugins"
+        ];
+        ExecStartPre = [
+          "${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir}/plugins-store"
+          "${pkgs.coreutils}/bin/cp -rn ${mp}/share/moviepilot/app/plugins/. ${cfg.dataDir}/plugins-store/"
+        ];
         Environment = [
           "HOST=${cfg.host}"
           "PORT=${toString cfg.port}"
