@@ -227,7 +227,10 @@
         ) self.allSystems;
 
         hydraJobs = {
-          inherit (self) apps packages devShells;
+          # Hydra jobs must recursively contain derivations. Flake apps contain
+          # string metadata (type/program), which makes hydra-eval-jobs reject
+          # the whole jobset even though the apps themselves are valid.
+          inherit (self) packages devShells;
           nixosConfigurations = lib.mapAttrs (n: v: v.config.system.build.toplevel) self.nixosConfigurations;
         };
       };
