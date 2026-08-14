@@ -128,6 +128,7 @@ rec {
     Syncthing = 13834;
     MoviePilot.Frontend = 13890;
     MoviePilot.Backend = 13891;
+    ChineseSubFinder = 19035;
     Usque = 13840;
     WGMesh.WebSocket = 13841;
     Ncps = 13851;

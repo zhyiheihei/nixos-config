@@ -195,6 +195,9 @@ Nix clients -> Attic（cnvm） -> VaultS3（OPI5P -> QNAP）
 - 下载链路（router）：qBittorrent 单实例；
 - 下载消费方（opi5p）：Bitmagnet、PeerBanHelper、Tachidesk；
 - 媒体应用（rock5c）：MoviePilot、Jellyfin、HandBrake；
+- 字幕链路（rock5c）：ChineseSubFinder 直扫媒体目录
+  （`/media/media-radarr`、`/media/media-sonarr`）下载简中字幕，
+  MoviePilot SubtitleAssistant 插件负责事件触发式字幕补充；
 - 文件与设备（opi5p）：NCPS、Syncthing、SFTP、WebDAV、Samba、NFS/QNAP mount、
   VaultS3 代理、CUPS、Avahi、ClamAV。
 

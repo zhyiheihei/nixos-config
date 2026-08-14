@@ -42,9 +42,11 @@ in
     ../../nixos/optional-apps/jellyfin-rockchip.nix
     ../../nixos/optional-apps/handbrake-rockchip.nix
     ../../nixos/optional-apps/moviepilot.nix
+    ../../nixos/optional-apps/chinesesubfinder.nix
   ];
 
   lantian.moviepilot.enable = true;
+  lantian.chinesesubfinder.enable = true;
 
   # MoviePilot v3 (upgraded 2026-08-13): per the official wiki, v3 reuses the
   # v2 /config directory and SQLite DB, so volume/env mappings stay identical
