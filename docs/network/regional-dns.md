@@ -59,16 +59,16 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `.` 的�
   均返回 NOERROR 且无 RRSIG/AD，而 recursor 报 EDE 6（DNSSEC Bogus），因此按
   `m-team.cc` 模式为 `zhyi.cc`、`zhyi.xin` 加 NTA，待 cnvm 部署后复测。
 - 2026-08-10（NTA 验证）：`031fb238` 在 ml-builder 上求值与 cnvm toplevel
-  构建通过；ml-builder 侧 `dig @198.19.0.253 vaults3.zhyi.cc` 与 `zhyi.cc`
+  构建通过；ml-builder 侧 `dig @198.19.0.253 vaults3.zhyi.xin` 与 `zhyi.cc`
   均已恢复 NOERROR，无 EDE 6。
 - 2026-08-10（cnvm 部署）：统一 SSH 端口为 `2222` 后，cnvm 已通过
   `colmena apply --on cnvm` 部署成功；cnvm 与 ml-builder 两侧
-  `dig @198.19.0.253 vaults3.zhyi.cc` / `zhyi.cc` 均为 NOERROR，无 EDE 6。
+  `dig @198.19.0.253 vaults3.zhyi.xin` / `zhyi.cc` 均为 NOERROR，无 EDE 6。
 - 2026-08-10（根域 Bogus 修复）：AliDNS/DNSPod 对根域 `.` 的 NS 不返回 RRSIG，
   导致 CN recursor 校验根域时报 `Got Bogus validation result for .|NS` 并整体
   SERVFAIL；CN recursor 改为 `process-no-validate`，国外保持 `validate`。
 - 2026-08-10（Attic 验证）：CN recursor 修复部署到 cnvm 与 ml-builder 后，
-  `attic.zhyi.xin`、`vaults3.zhyi.cc` 等解析均为 NOERROR，热缓存 0-1 ms；
+  `attic.zhyi.xin`、`vaults3.zhyi.xin` 等解析均为 NOERROR，热缓存 0-1 ms；
   据此撤销 `attic-s3-connect-timeout.patch`，无补丁部署后 atticd active、
   Attic 443 与 VaultS3 8443 探测均 200。
 - 2026-08-10（Attic 迁移）：按作者布局把 Attic 迁回 `greencloud` 公网 VPS，

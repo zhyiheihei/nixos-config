@@ -16,7 +16,7 @@
     enableReload = true;
     port = LT.port.Prometheus.Daemon;
     listenAddress = "127.0.0.1";
-    webExternalUrl = "https://prometheus.zhyi.cc";
+    webExternalUrl = "https://prometheus.zhyi.xin";
     stateDir = "prometheus";
     checkConfig = "syntax-only";
     retentionTime = "365d";
@@ -28,7 +28,7 @@
 
   systemd.services.prometheus.serviceConfig = LT.serviceHarden;
 
-  lantian.nginxVhosts."prometheus.zhyi.cc" = {
+  lantian.nginxVhosts."prometheus.zhyi.xin" = {
     locations = {
       "/" = {
         enableOAuth = true;
@@ -36,7 +36,7 @@
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

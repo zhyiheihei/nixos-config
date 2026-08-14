@@ -18,7 +18,7 @@ tencent
   ├─ Prometheus：拉取所有 exporter，并保存 365 天或最多 10 GiB 数据
   ├─ Blackbox exporter：每分钟探测已声明的 HTTPS、DNS、Gopher、WHOIS 入口
   ├─ Alertmanager：向 Telegram 发送告警和恢复通知
-  └─ Grafana：通过 Dex 登录，公开入口为 dashboard.zhyi.cc
+  └─ Grafana：通过 Dex 登录，公开入口为 dashboard.zhyi.xin
 ```
 
 Prometheus、Alertmanager 和 Grafana 只监听本机，由 `tencent` 的 Nginx
@@ -64,10 +64,10 @@ curl -fsS http://127.0.0.1:9090/api/v1/alerts \
 
 入口：
 
-- `https://dashboard.zhyi.cc`
-- `https://prometheus.zhyi.cc`
+- `https://dashboard.zhyi.xin`
+- `https://prometheus.zhyi.xin`
 - `https://prometheus.tencent.zhyi.cc`（仅私网可达，供 Homepage 资源卡片做只读查询，不叠加 OAuth；rock5c 通过 `hosts/rock5c/home-lan-edge.nix` 固定解析到 tencent LTNET 地址）
-- `https://alert.zhyi.cc`
+- `https://alert.zhyi.xin`
 
 三者均使用 Dex 身份认证。Homepage 只链接这些入口，不链接 exporter 或本地监听
 地址。

@@ -34,7 +34,7 @@ Settings → Linked Identities 里完成绑定，之后即可用 Dex 登录。
 - 容器数据：`/var/lib/memos:/var/opt/memos`，数据库仍在本机 NVMe 持久盘。
 - 应用内附件：走私有 VaultS3，`storage_type=S3`，bucket `memos`，
   模板 `assets/{timestamp}_{filename}`，单文件上限 64 MiB。
-- S3 endpoint：`https://vaults3.zhyi.cc`（opi5p 本机 TLS 前端），
+- S3 endpoint：`https://vaults3.zhyi.xin`（opi5p 本机 TLS 前端），
   `usePathStyle=true`。
 - 凭据：VaultS3 IAM 用户 `memos` 的专用 access key/secret，策略只允许
   `arn:aws:s3:::memos` 与 `arn:aws:s3:::memos/*`，明文只存在于 secrets 仓库的

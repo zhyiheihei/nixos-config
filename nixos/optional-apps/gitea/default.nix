@@ -121,7 +121,7 @@ in
       };
       storage = {
         STORAGE_TYPE = "minio";
-        MINIO_ENDPOINT = "vaults3.zhyi.cc:8443";
+        MINIO_ENDPOINT = "vaults3.zhyi.xin:8443";
         MINIO_BUCKET = "gitea";
         MINIO_LOCATION = "east-1";
         MINIO_USE_SSL = true;

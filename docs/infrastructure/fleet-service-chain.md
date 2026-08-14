@@ -260,15 +260,15 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | Immich | `https://immich.zhyi.xin` | 应用登录 |
 | Tachidesk | `https://tachidesk.zhyi.xin` | Basic Auth |
 | Jellyfin | `https://jellyfin.zhyi.xin` | 应用登录 |
-| Hydra | `https://hydra.zhyi.cc` | 应用登录 |
+| Hydra | `https://hydra.zhyi.xin` | 应用登录 |
 | Attic | `https://attic.zhyi.xin` | 上传 token |
 | Gitea | `https://git.zhyi.xin` | 应用登录 / SSH |
-| NetBox | `https://netbox.zhyi.cc` | Dex OAuth |
-| Grafana | `https://dashboard.zhyi.cc` | Dex OAuth |
-| Prometheus | `https://prometheus.zhyi.cc` | Dex OAuth |
-| Alertmanager | `https://alert.zhyi.cc` | Dex OAuth |
+| NetBox | `https://netbox.zhyi.xin` | Dex OAuth |
+| Grafana | `https://dashboard.zhyi.xin` | Dex OAuth |
+| Prometheus | `https://prometheus.zhyi.xin` | Dex OAuth |
+| Alertmanager | `https://alert.zhyi.xin` | Dex OAuth |
 | Bird Looking Glass | `https://lg.zhyi.cc` | 公开只读 |
-| FlapAlerted | `https://flapalerted.zhyi.cc` | 公开只读 |
+| FlapAlerted | `https://flapalerted.zhyi.xin` | 公开只读 |
 | Uni API | `https://uni-api.rock5c.zhyi.cc` | API key |
 | MetaAPI | `https://metapi.tencent.zhyi.cc` | 应用口令 / token |
 | n8n OpenAI Bridge | `https://n8n-bridge.greencloud.zhyi.cc/health` | bearer token |
@@ -278,7 +278,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | PVE | `https://pve-5700u.zhyi.cc:8006` | 应用登录 |
 | CouchDB | `https://couchdb.zhyi.cc/_utils/` | 应用管理 |
 | Attic NCPS fallback | `https://attic.zhyi.xin` | 无登录 |
-| VaultS3 | `https://vaults3.zhyi.cc:8443/dashboard/` | S3 凭据 |
+| VaultS3 | `https://vaults3.zhyi.xin:8443/dashboard/` | S3 凭据 |
 | MetaCubeXD | `https://metacubexd.rock5c.zhyi.cc` | 控制 token |
 | 代理订阅 | `https://sub.zhyi.xin` | 应用登录 / 订阅 token |
 | OpenSpeedTest | `https://openspeedtest.rock5c.zhyi.cc` | 私有 |
@@ -310,7 +310,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | Matrix 联邦 | `https://matrix.zhyi.xin` | LDAP |
 | Git SSH | `git.zhyi.xin:2222` | SSH 公钥 |
 | rsync CI | 由 `ssh/rsync-ci.nix` 公钥限制 | SSH 公钥 |
-| VaultS3 S3 API | `vaults3.zhyi.cc:8443` | S3 凭据 |
+| VaultS3 S3 API | `vaults3.zhyi.xin:8443` | S3 凭据 |
 | Attic 上传 API | `https://attic.zhyi.xin` | token |
 | NCPS | `opi5p:13851` | 无登录 |
 | restic/rustic 备份 | `ssh://opi5p.zhyi.cc:2222` | SSH 公钥 + 仓库口令 |

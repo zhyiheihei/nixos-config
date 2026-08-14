@@ -64,8 +64,8 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 | --- | --- | --- |
 | `主机.zhyi.cc`、`*.主机.zhyi.cc` | `host-recs.nix` 按主机公网或 LTNET 地址生成 | 作者式主机与私有服务命名；不经过统一公网入口 |
 | `*.ml-home-vm.zhyi.cc` | 历史 CNAME | `ml-home-vm` 已退役；服务由 `rock5c`/`opi5p` 承载，入口以 vhost/DNS 为准 |
-| `ha.zhyi.cc`、`vaults3.zhyi.cc` | CNAME 到 `home-ddns.zhyi.cc` | 家庭动态公网入口 |
-| `hydra.zhyi.cc` | CNAME 到 `greencloud.zhyi.cc` | greencloud Nginx 反代到 `ml-builder` 的 Hydra 端口（LTNET `198.18.0.114`） |
+| `ha.zhyi.cc`、`vaults3.zhyi.xin` | CNAME 到 `home-ddns.zhyi.cc` | 家庭动态公网入口 |
+| `hydra.zhyi.xin` | CNAME 到 `greencloud.zhyi.cc` | greencloud Nginx 反代到 `ml-builder` 的 Hydra 端口（LTNET `198.18.0.114`） |
 | `attic.zhyi.xin` | CNAME 到 `greencloud.zhyi.cc` | greencloud 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
 | `greencloud.zhyi.cc` | A `203.55.176.158` | SSH、Colmena、ZeroTier controller 与公共服务入口 |
 | `zhyi.xin` | A `101.96.199.157` | CNVM 上的公开根站入口 |
@@ -88,7 +88,7 @@ Hydra 已于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统�
 | 生效主机 | 覆盖关系 | 用途 |
 | --- | --- | --- |
 | `pve-5700u` | `ml-builder.zhyi.cc -> 192.168.0.50` | LAN 内主机互访 |
-| `opi5p` | `vaults3.zhyi.cc ->` 本机 interconnect 地址 | VaultS3 本机访问不绕公网 |
+| `opi5p` | `vaults3.zhyi.xin ->` 本机 interconnect 地址 | VaultS3 本机访问不绕公网 |
 
 MetaCubeXD 运行于 `rock5c`（`192.168.0.64:7892`）；控制界面和 Clash API 仅绑定回环地址，并经 `metacubexd.rock5c.zhyi.cc` 的私有 Nginx vhost 访问。Halo 与根域 `zhyi.xin` 由 CNVM 承载。
 

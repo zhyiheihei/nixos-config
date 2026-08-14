@@ -66,7 +66,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-grafana-secret.path;
         };
-        redirectURIs = [ "https://dashboard.zhyi.cc/login/generic_oauth" ];
+        redirectURIs = [ "https://dashboard.zhyi.xin/login/generic_oauth" ];
       }
       {
         id = "immich";

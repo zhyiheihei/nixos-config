@@ -32,7 +32,7 @@ CNVM 本机承载 Dex、Pocket ID、Vaultwarden 与 Attic，它们的 DNS 直接
 外部入口统一使用 8443，再由 Router 转换到 OPI5P Nginx 的标准 443。
 
 `attic.zhyi.xin` 是例外：它 CNAME 到 `cnvm.zhyi.cc`，由 cnvm 本机 Nginx
-直接服务。Attic 与其 `vaults3.zhyi.cc` S3 后端分离：VaultS3 位于家庭网络
+直接服务。Attic 与其 `vaults3.zhyi.xin` S3 后端分离：VaultS3 位于家庭网络
 （`home-ddns.zhyi.cc`），Attic 服务端也通过公网 8443 访问它，再由 Router 转换到
 OPI5P 的标准 443。客户端统一使用
 `https://attic.zhyi.xin/lantian` 作为 substituter URL（标准 443 端口）。
@@ -48,8 +48,8 @@ OPI5P 的标准 443。客户端统一使用
 `uni-api.rock5c.zhyi.cc`。这些名字不应为了公网可达而另建同名的
 `服务.zhyi.xin` 入口。
 
-基础设施的独立正式域名保持作者原有形态，例如 `dashboard.zhyi.cc`、
-`prometheus.zhyi.cc` 和 `ai-api.zhyi.cc`。`vaults3.zhyi.cc` 指向家庭 DDNS，
+基础设施的独立正式域名保持作者原有形态，例如 `dashboard.zhyi.xin`、
+`prometheus.zhyi.xin` 和 `ai-api.zhyi.cc`。`vaults3.zhyi.xin` 指向家庭 DDNS，
 专用于 S3 存储后端；`greencloud.zhyi.cc` 保持主机直连记录。
 
 ### `moliy.site`

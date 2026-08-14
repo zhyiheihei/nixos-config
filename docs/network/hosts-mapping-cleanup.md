@@ -33,7 +33,7 @@
 | `ml-2700` | 本机 hostname → 本机 LAN IP | 保留：为桌面机提供稳定的本机 LAN 自解析 |
 | `pve-5700u` | 本机 hostname、`ml-builder.zhyi.cc` → LAN IP | 保留：`ml-builder.zhyi.cc` 没有 DNS 记录，删除会导致 builder 地址不可解析 |
 | `rock5c` | greencloud 私有服务（axonhub/metapi/n8n-bridge/n8n/rsshub/openai-edge-tts）→ LTNET IP | 保留：部分无公网 DNS，且 `rsshub.zhyi.xin` 为 private vhost，必须从 LTNET 源地址访问 |
-| `opi5p` | `vaults3.zhyi.cc` → 本机 LAN IP | 保留：DNS 指向 home-ddns（公网入口），LAN 直连可避免 NAT hairpin 依赖 |
+| `opi5p` | `vaults3.zhyi.xin` → 本机 LAN IP | 保留：DNS 指向 home-ddns（公网入口），LAN 直连可避免 NAT hairpin 依赖 |
 | `open5gs` | 3GPP 内部测试域名 → 127.0.0.x | 保留：服务内部测试网络，不应走 DNS |
 | `bird-lg-go` | `*.ltnet.zhyi.cc` → LTNET IP | 保留：BGP 路由查询的内部名称映射 |
 | `gcp` | `metadata.google.internal` → 169.254.169.254 | 保留：云元数据固定地址 |

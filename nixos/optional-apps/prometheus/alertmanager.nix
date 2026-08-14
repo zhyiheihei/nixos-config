@@ -210,7 +210,7 @@
     enable = true;
     port = LT.port.Prometheus.AlertManager;
     listenAddress = "127.0.0.1";
-    webExternalUrl = "https://alert.zhyi.cc";
+    webExternalUrl = "https://alert.zhyi.xin";
     configuration = {
       global = {
         smtp_from = config.programs.msmtp.accounts.default.from;
@@ -256,7 +256,7 @@
     };
   };
 
-  lantian.nginxVhosts."alert.zhyi.cc" = {
+  lantian.nginxVhosts."alert.zhyi.xin" = {
     locations = {
       "/" = {
         enableOAuth = true;
@@ -264,7 +264,7 @@
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

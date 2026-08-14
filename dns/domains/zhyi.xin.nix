@@ -6,11 +6,16 @@
 let
   homeDdnsTarget = "home-ddns.zhyi.cc.";
 
-  internalServices = [
-    {
+  internalServices = [    {
       recordType = "CNAME";
       name = "ai";
       target = "greencloud.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "alert";
+      target = "tencent.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -69,6 +74,18 @@ let
     }
     {
       recordType = "CNAME";
+      name = "dashboard";
+      target = "tencent.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "dav.opi5p";
+      target = "opi5p.ltnet.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "element";
       target = "greencloud.zhyi.cc.";
       ttl = "1h";
@@ -78,6 +95,12 @@ let
       name = "filebox";
       target = homeDdnsTarget;
       ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
+      name = "flapalerted";
+      target = "greencloud.zhyi.cc.";
+      ttl = "1h";
     }
     {
       recordType = "CNAME";
@@ -112,6 +135,12 @@ let
     {
       recordType = "CNAME";
       name = "hidden";
+      target = "greencloud.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "hydra";
       target = "greencloud.zhyi.cc.";
       ttl = "1h";
     }
@@ -201,6 +230,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "netbox";
+      target = "greencloud.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "pb";
       target = "greencloud.zhyi.cc.";
       ttl = "1h";
@@ -209,6 +244,12 @@ let
       recordType = "CNAME";
       name = "posts";
       target = "greencloud.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "prometheus";
+      target = "tencent.zhyi.cc.";
       ttl = "1h";
     }
     {
@@ -252,6 +293,12 @@ let
       name = "tools";
       target = "greencloud.zhyi.cc.";
       ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "vaults3";
+      target = homeDdnsTarget;
+      ttl = "2m";
     }
     {
       recordType = "CNAME";

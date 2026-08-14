@@ -114,9 +114,16 @@
 
   lantian.nginxVhosts."greencloud.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
 
+  # Certificate for dav.<host>.zhyi.xin (WebDAV on opi5p): *.zhyi.xin wildcard
+  # does not cover two-level names, so issue a single-domain cert via the
+  # existing gcore DNS-01 pipeline and sync through /nix/sync-servers.
+  security.acme.certs =
+    (pkgs.callPackage ../../nixos/optional-apps/acme/common.nix { inherit config; })
+    .mkLetsEncryptCert "opi5p.zhyi.xin";
+
   # Hydra moved from pve-5700u to ml-builder on 2026-08-12. The common vhost
   # module keeps the upstream pve-epyc target; override only the backend here.
-  lantian.nginxVhosts."hydra.zhyi.cc".locations."/".proxyPass = lib.mkForce (
+  lantian.nginxVhosts."hydra.zhyi.xin".locations."/".proxyPass = lib.mkForce (
     "http://${LT.hosts.ml-builder.ltnet.IPv4}:${LT.portStr.Hydra}"
   );
 

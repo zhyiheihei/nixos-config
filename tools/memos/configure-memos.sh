@@ -36,7 +36,7 @@ METAPI_API_KEY="$(read_secret METAPI_API_KEY "${METAPI_API_KEY_FILE:-/run/secret
 SMTP_PASSWORD="$(read_secret SMTP_PASSWORD "${SMTP_PASSWORD_FILE:-/run/secrets/smtp-pass}")"
 VAULTS3_ACCESS_KEY="$(read_secret VAULTS3_ACCESS_KEY "${VAULTS3_ACCESS_KEY_FILE:-/run/secrets/memos-s3-access-key}")"
 VAULTS3_SECRET_KEY="$(read_secret VAULTS3_SECRET_KEY "${VAULTS3_SECRET_KEY_FILE:-/run/secrets/memos-s3-secret-key}")"
-VAULTS3_ENDPOINT="${VAULTS3_ENDPOINT:-https://vaults3.zhyi.cc}"
+VAULTS3_ENDPOINT="${VAULTS3_ENDPOINT:-https://vaults3.zhyi.xin}"
 VAULTS3_REGION="${VAULTS3_REGION:-us-east-1}"
 VAULTS3_BUCKET="${VAULTS3_BUCKET:-memos}"
 

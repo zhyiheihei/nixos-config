@@ -81,8 +81,8 @@ in
       };
       server = {
         protocol = "socket";
-        domain = "dashboard.zhyi.cc";
-        root_url = "https://dashboard.zhyi.cc/";
+        domain = "dashboard.zhyi.xin";
+        root_url = "https://dashboard.zhyi.xin/";
         socket = "/run/grafana/grafana.sock";
         socket_mode = "0777";
       };
@@ -159,7 +159,7 @@ in
     ];
   };
 
-  lantian.nginxVhosts."dashboard.zhyi.cc" = {
+  lantian.nginxVhosts."dashboard.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:${config.services.grafana.settings.server.socket}";
@@ -170,7 +170,7 @@ in
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }
