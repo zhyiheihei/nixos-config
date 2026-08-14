@@ -10,12 +10,6 @@ let
   internalServices = [
     {
       recordType = "CNAME";
-      name = "ai-api";
-      target = "tencent";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "autoconfig";
       target = "hostdare";
       ttl = "1h";

@@ -52,6 +52,23 @@
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
   ];
 
+  # UniAPI consolidated to hostdare (2026-08-14): LibreChat's upstream moves
+  # from the retired rock5c UniAPI to the public ai-api.zhyi.xin entry.
+  services.librechat.config.endpoints.custom = lib.mkForce [
+    {
+      name = "UniAPI";
+      apiKey = "\${UNI_API_KEY}";
+      baseURL = "https://ai-api.zhyi.xin/v1";
+      models = {
+        default = lib.unique (
+          lib.concatMap (provider: builtins.map (v: v.value) provider._models)
+            config.lantian.llm-providers
+        );
+        fetch = false;
+      };
+    }
+  ];
+
   # Attic talks to the home VaultS3 through the public 8443 entry, whose
   # connect latency is above the AWS SDK's 3.1s default. Keep the public
   # endpoint and only widen the client connect timeout on the Attic host.
