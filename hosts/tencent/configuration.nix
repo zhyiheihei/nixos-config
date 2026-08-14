@@ -18,7 +18,7 @@
   # uwsgi 的 immediate-gid 不继承补充组，永远写不进去 → HTML 搜索 500
   # （JSON/RSS 正常）。把缓存库改到 searx 自己拥有的 /run/searx
   # （tmpfs，favicon 缓存重启丢失可接受）。
-  services.searx.faviconsSettings.favicons.cache.db_url = "/run/searx/faviconcache.db";
+  services.searx.faviconsSettings.favicons.cache.db_url = lib.mkForce "/run/searx/faviconcache.db";
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
   # from greencloud 2026-08-14 with the monitoring stack). Private only: Homepage
