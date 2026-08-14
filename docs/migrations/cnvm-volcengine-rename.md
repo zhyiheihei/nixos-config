@@ -103,9 +103,9 @@
 
 ## 遗留 / 后续
 
-- 本次核查发现 secrets `.sops.yaml` 存在历史改名残留（非本次引入）：
-  `&sgvm` 锚点装着 greencloud 机器的实际 age key（锚点名未随
-  colocrossing->greencloud 迁移更新），`&greencloud` 锚点值是已不存在的
-  旧机器 key，`&logvm` 锚点是孤儿 key（无对应主机、无文档）。
-  功能无碍（greencloud 靠 `&sgvm` 值解密），建议后续在 ml-builder 上
-  对齐锚点名并清理陈旧/孤儿锚点。
+- 本次核查发现并清理了 secrets `.sops.yaml` 的历史改名残留（非本次引入）：
+  `&sgvm` 锚点装着 greencloud 机器的实际 key（colocrossing->greencloud
+  迁移时未对齐）、`&greencloud` 锚点是陈旧值、`&logvm` 是孤儿锚点。
+  已按 `sops-manual.md` §12 在 ml-builder 上对齐锚点名（`&greencloud`
+  改为真实 key）并对全库 yaml 执行 `sops updatekeys` 剥离陈旧/退役
+  recipient（nixos-secrets commit `c876ea8`）。
