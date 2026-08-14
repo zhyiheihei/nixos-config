@@ -10,7 +10,7 @@ let
   # for opi5p and can be re-imported for a rollback if ever needed.
   gatedServices = [
     "jellyfin"
-    "handbrake"
+    # handbrake is exposed as podman-handbrake (handbrake-rockchip module)
     "podman-handbrake"
   ];
 in
