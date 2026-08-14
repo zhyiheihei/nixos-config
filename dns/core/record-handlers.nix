@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ lib, ... }:
 let
   formatArg =
     let
@@ -118,62 +118,5 @@ in
         args.certificate
       ];
     TXT = args: record "TXT" args [ args.contents ];
-
-    SSHFP_RSA_SHA1 =
-      { pubkey, ... }@args:
-      SSHFP (
-        args
-        // {
-          algorithm = 1;
-          type = 1;
-          value = builtins.readFile (
-            pkgs.runCommandLocal "sshfp-rsa-sha1.txt" { } ''
-              echo ${formatArg pubkey} | cut -d' ' -f2 | base64 --decode | sha1sum | cut -d' ' -f1 | tr -d '\n' > $out
-            ''
-          );
-        }
-      );
-    SSHFP_RSA_SHA256 =
-      { pubkey, ... }@args:
-      SSHFP (
-        args
-        // {
-          algorithm = 1;
-          type = 2;
-          value = builtins.readFile (
-            pkgs.runCommandLocal "sshfp-rsa-sha256.txt" { } ''
-              echo ${formatArg pubkey} | cut -d' ' -f2 | base64 --decode | sha256sum | cut -d' ' -f1 | tr -d '\n' > $out
-            ''
-          );
-        }
-      );
-    SSHFP_ED25519_SHA1 =
-      { pubkey, ... }@args:
-      SSHFP (
-        args
-        // {
-          algorithm = 4;
-          type = 1;
-          value = builtins.readFile (
-            pkgs.runCommandLocal "sshfp-ed25519-sha1.txt" { } ''
-              echo ${formatArg pubkey} | cut -d' ' -f2 | base64 --decode | sha1sum | cut -d' ' -f1 | tr -d '\n' > $out
-            ''
-          );
-        }
-      );
-    SSHFP_ED25519_SHA256 =
-      { pubkey, ... }@args:
-      SSHFP (
-        args
-        // {
-          algorithm = 4;
-          type = 2;
-          value = builtins.readFile (
-            pkgs.runCommandLocal "sshfp-ed25519-sha256.txt" { } ''
-              echo ${formatArg pubkey} | cut -d' ' -f2 | base64 --decode | sha256sum | cut -d' ' -f1 | tr -d '\n' > $out
-            ''
-          );
-        }
-      );
   };
 }

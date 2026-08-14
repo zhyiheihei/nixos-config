@@ -269,18 +269,27 @@ in
       domain:
       forEachActiveHost (
         n: v:
-        lib.optionals (v.ssh.ed25519 != null) [
-          {
-            recordType = "SSHFP_ED25519_SHA1";
-            name = concatDomain n domain;
-            pubkey = v.ssh.ed25519;
-          }
-          {
-            recordType = "SSHFP_ED25519_SHA256";
-            name = concatDomain n domain;
-            pubkey = v.ssh.ed25519;
-          }
-        ]
+        lib.optionals (v.ssh.ed25519 != null) (
+          if v.ssh.ed25519Fingerprints.sha1 == null || v.ssh.ed25519Fingerprints.sha256 == null then
+            throw "Missing precomputed SSHFP values for host ${n}"
+          else
+            [
+              {
+                recordType = "SSHFP";
+                name = concatDomain n domain;
+                algorithm = 4;
+                type = 1;
+                value = v.ssh.ed25519Fingerprints.sha1;
+              }
+              {
+                recordType = "SSHFP";
+                name = concatDomain n domain;
+                algorithm = 4;
+                type = 2;
+                value = v.ssh.ed25519Fingerprints.sha256;
+              }
+            ]
+        )
       );
 
     LTNet =

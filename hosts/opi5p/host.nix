@@ -24,6 +24,10 @@
   nixBuilder.supportedFeatures = [ ];
   city = geo.cities."CN Ningbo";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIITTMAnkcLtBaK31sz6e7aGEvSkqKZuEeeJETBmK33Ef root@opi5p";
+  ssh.ed25519Fingerprints = {
+    sha1 = "b2b745aaafa7e560cee061588849116bc50bef42";
+    sha256 = "9a5a029a8773bb532b767654c7045f46831058e445f712a04b551c723c08ac1c";
+  };
   interconnect = {
     name = "home-lan";
     IPv4 = "192.168.0.62";
