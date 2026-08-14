@@ -288,7 +288,7 @@
       const dh = ih * s;
       ctx.drawImage(bgCanvas, (width - dw) / 2, (height - dh) / 2, dw, dh);
       // 暗化层与 CSS 的 rgba(8,12,22,0.42) 层一致，保证卡片可读。
-      ctx.fillStyle = "rgba(8, 12, 22, 0.42)";
+      ctx.fillStyle = "rgba(8, 12, 22, 0.30)";
       ctx.fillRect(0, 0, width, height);
       paintGlowAndGrid(ctx, width, height, scale);
       return;
@@ -368,6 +368,13 @@
           inner.style.height = "auto";
           inner.style.maxHeight = "none";
           inner.style.overflow = "visible";
+          // html2canvas must not rasterize the photo background: a multi-MB
+          // webp drawn into the snapshot wedges the capture on the SBC (and
+          // starves the rest of the page). The glass texture paints the
+          // background from bgCanvas instead, so the snapshot only needs the
+          // foreground content.
+          inner.style.backgroundImage = "none";
+          inner.style.backgroundColor = "transparent";
         }
       },
       useCORS: true,
