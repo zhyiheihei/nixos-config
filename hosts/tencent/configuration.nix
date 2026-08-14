@@ -13,15 +13,12 @@
 
   lantian.hubproxy.enable = true;
 
-  # searx 的 favicon 缓存目录由 uwsgi 服务 CacheDirectory 创建（uwsgi:uwsgi
-  # 755），但实际搜索进程以 searx 用户跑 vassal，sqlite 打不开缓存库 →
-  # HTML 搜索 500（JSON/RSS 不受影响）。让 searx 加入 uwsgi 组并把目录
-  # 改为组可写。
-  users.users.searx.extraGroups = [ "uwsgi" ];
-  # uwsgi 服务重启时 CacheDirectory 会把目录重置回 0755（覆盖 tmpfiles
-  # 的 0775），必须直接设置 CacheDirectoryMode。
-  systemd.services.uwsgi.serviceConfig.CacheDirectoryMode = "0775";
-  systemd.tmpfiles.rules = [ "z /var/cache/searx 0775 uwsgi uwsgi -" ];
+  # searx 的 favicon 缓存库默认放 /var/cache/searx（uwsgi 服务的
+  # CacheDirectory，属主 uwsgi）；而搜索进程以 searx 用户跑 vassal 且
+  # uwsgi 的 immediate-gid 不继承补充组，永远写不进去 → HTML 搜索 500
+  # （JSON/RSS 正常）。把缓存库改到 searx 自己拥有的 /run/searx
+  # （tmpfs，favicon 缓存重启丢失可接受）。
+  services.searx.faviconsSettings.favicons.cache.db_url = "/run/searx/faviconcache.db";
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
   # from greencloud 2026-08-14 with the monitoring stack). Private only: Homepage
