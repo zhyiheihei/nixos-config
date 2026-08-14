@@ -78,7 +78,7 @@ flowchart LR
 
 ## 红线
 
-- UniAPI 是唯一 Provider 汇聚点；禁止把 `metapi.*`、`axonhub.*`、`ai-api.zhyi.cc`
+- UniAPI 是唯一 Provider 汇聚点；禁止把 `metapi.*`、`axonhub.*`、`ai-api.zhyi.xin`
   反向配置为 UniAPI Provider；禁止 Metapi/AxonHub 互指或指向自身。
 - 不修改公共模块：`flake-modules/`、公共 `nixos/` 模块（含 `nixos/optional-apps/*.nix`
   与 `nixos/client-apps/mcp-servers.nix`）不擅自修改；新能力用主机级编排或新建独立
@@ -87,7 +87,7 @@ flowchart LR
   Memos/Metapi SQLite 均为运行态；配置走官方 API/UI/CLI，新服务用独立数据文件。
 - 凭据只进 SOPS secrets，不写进仓库正文、Notes 或文档。
 - Notes 与 nixos-config 是两个独立 git 仓库，不混用、不放符号链接或 `.git` 指向。
-- Waline 若恢复公开天线，其 LLM 审核必须指向 `uni-api.rock5c.zhyi.cc`，不得直连
+- Waline 若恢复公开天线，其 LLM 审核必须指向 `ai-api.zhyi.xin`，不得直连
   OpenRouter。
 - Qdrant 未启用；若启用必须先规范为 options 门闩模块、核验 `hsnw_index` 疑点、
   登记端口 6333/6334，并确认 UniAPI 暴露 embedding 模型。
@@ -106,7 +106,7 @@ flowchart LR
 1. `Gitea API 拉 Notes -> UniAPI 摘要 -> Memos 官方 API 写回/整理`；工具脚本见
    [`tools/knowledge-chain/notes-digest.sh`](../../tools/knowledge-chain/notes-digest.sh)。
 2. n8n 定时工作流：Miniflux 未读摘要 + Memos 收件箱整理，全部走
-   `uni-api.rock5c.zhyi.cc`。
+   `ai-api.zhyi.xin`。
 3. LibreChat 只读知识源：独立模块注入 Gitea/Memos 官方 REST，不改公共 MCP 模块。
 4. Syncthing REST 事件驱动重索引：先验证 API key 通道，再接入 n8n。
 
@@ -135,7 +135,7 @@ curl -fsS \
 # UniAPI 模型列表（rock5c / greencloud）
 curl -fsS \
   -H "Authorization: Bearer $(cat /run/secrets/uni-api-admin-api-key)" \
-  https://uni-api.rock5c.zhyi.cc/v1/models | jq '(.data // []) | length'
+  https://ai-api.zhyi.xin/v1/models | jq '(.data // []) | length'
 
 # n8n OpenAI Bridge 健康检查（greencloud）
 curl -fsS http://127.0.0.1:13333/health

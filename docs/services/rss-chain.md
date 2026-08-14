@@ -112,7 +112,7 @@ podman exec --user=archivebox archivebox archivebox add <url>
   `/v1/entries`。vhost 在 Dex OAuth 后，API key 是否可穿透需实机验证；必要时
   自动化走 greencloud 本机 `127.0.0.1` 通道。
 - RSSHub：路由支持 `?format=json`，可直接作为 n8n HTTP 节点输入，内容经
-  `uni-api.rock5c.zhyi.cc` 摘要后写入 Memos 或 Notes。
+  `ai-api.zhyi.xin` 摘要后写入 Memos 或 Notes。
 - ArchiveBox：自动化入口优先官方 CLI/Web UI；新版 JSON API 端点实施期核验后再
   接入 n8n，不要直接操作其数据库。
 - AI 摘要默认模型为 OpenCode Go 的 DeepSeek V4 Flash（UniAPI 别名
