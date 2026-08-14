@@ -66,10 +66,9 @@ in
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0750 zhyi users"
       # BindPaths mounts happen before ExecStartPre, so the source dir must
-      # exist beforehand; seed the writable plugin copy from the store here
-      # (C skips existing files, keeping user-installed plugins).
+      # exist beforehand; seeding itself runs in ExecStartPre with a '+'
+      # prefix (host namespace, outside the BindPaths mount).
       "d ${cfg.dataDir}/plugins-store 0750 zhyi users"
-      "C ${cfg.dataDir}/plugins-store - - - - ${mp}/share/moviepilot/app/plugins"
       # v3 hardcodes /config for the plugin/package repo (package.py);
       # alias it to the persistent data dir on (tmpfs) roots.
       "L /config - - - - ${cfg.dataDir}"
@@ -89,9 +88,14 @@ in
         ExecStart = backendWrapper;
         # v3 installs every plugin into ROOT_PATH/app/plugins (read-only nix
         # store). Bind a writable persistent copy over it so plugin installs
-        # and updates survive; the copy is seeded by tmpfiles above.
+        # and updates survive. The '+' prefix runs the seed copy in the host
+        # namespace (outside this BindPaths mount), so the store's real
+        # __init__.py and layout are copied, not the empty bind source.
         BindPaths = [
           "${cfg.dataDir}/plugins-store:${mp}/share/moviepilot/app/plugins"
+        ];
+        ExecStartPre = [
+          "+${pkgs.coreutils}/bin/cp -rn ${mp}/share/moviepilot/app/plugins/. ${cfg.dataDir}/plugins-store/"
         ];
         Environment = [
           "HOST=${cfg.host}"
