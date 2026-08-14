@@ -231,6 +231,19 @@ fn smin(a: f32, b: f32, k: f32) -> f32 {
   return mix(b, a, h) - k * h * (1.0 - h);
 }
 
+fn ballSdf(p: vec2f) -> f32 {
+  let ballCenter = u.mouseSpring / u.resolution.y * u.dpr;
+  let pulse = 1.0 + 0.02 * sin(u.time * 1.4);
+  let stretch = clamp(length(u.mouseVelocity) * u.springSizeFactor * 0.00002, 0.0, 0.5);
+  let radius = u.ballRadius * u.dpr / u.resolution.y * pulse;
+  let rel = p - ballCenter;
+  let dir = select(vec2f(1.0, 0.0), normalize(u.mouseVelocity), length(u.mouseVelocity) > 1e-3);
+  let along = dot(rel, dir);
+  let perp = dot(rel, vec2f(-dir.y, dir.x));
+  let scaled = vec2f(along / (1.0 + stretch), perp * (1.0 + stretch * 0.35));
+  return length(scaled) - radius;
+}
+
 fn mergedAt(pageCss: vec2f) -> f32 {
   let p = pageCss / u.resolution.y * u.dpr;
   var d: f32 = 1e20;
@@ -253,17 +266,7 @@ fn mergedAt(pageCss: vec2f) -> f32 {
     );
     d = smin(d, sd, u.cardMergeRate);
   }
-  let ballCenter = u.mouseSpring / u.resolution.y * u.dpr;
-  let pulse = 1.0 + 0.02 * sin(u.time * 1.4);
-  let stretch = clamp(length(u.mouseVelocity) * u.springSizeFactor * 0.00002, 0.0, 0.5);
-  var radius = u.ballRadius * u.dpr / u.resolution.y * pulse;
-  let rel = p - ballCenter;
-  let dir = select(vec2f(1.0, 0.0), normalize(u.mouseVelocity), length(u.mouseVelocity) > 1e-3);
-  let along = dot(rel, dir);
-  let perp = dot(rel, vec2f(-dir.y, dir.x));
-  let scaled = vec2f(along / (1.0 + stretch), perp * (1.0 + stretch * 0.35));
-  let ball = length(scaled) - radius;
-  return smin(d, ball, u.mergeRate);
+  return smin(d, ballSdf(p), u.mergeRate);
 }
 
 fn getNormal(pageCss: vec2f) -> vec2f {
@@ -424,7 +427,11 @@ fn fs_main(@builtin(position) frag_coord: vec4f, @location(0) v_uv: vec2f) -> @l
   );
   let distCss = -merged * (u.resolution.y / u.dpr);
   let interiorFade = smoothstep(0.0, 6.0, distCss);
-  let alpha = mix(1.0, 0.12, interiorFade);
+  // The mouse ball keeps a higher interior opacity so it stays readable on
+  // photo backgrounds; cards keep the 0.12 "transparent glass" requirement.
+  let inBall = ballSdf(pageCss / u.resolution.y * u.dpr) < 0.0;
+  let innerAlpha = select(0.12, 0.45, inBall);
+  let alpha = mix(1.0, innerAlpha, interiorFade);
 
   var result: vec4f;
   if (merged > 0.0) {
