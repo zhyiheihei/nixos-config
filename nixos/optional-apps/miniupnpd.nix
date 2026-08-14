@@ -1,4 +1,7 @@
-{ ... }:
+{
+  pkgs,
+  ...
+}:
 {
   services.miniupnpd = {
     enable = true;
@@ -7,13 +10,17 @@
   };
 
   # The nixpkgs module picks the nftables backend automatically when
-  # networking.nftables is enabled (the router's case). The old iptables
-  # ExecStartPre/ExecStopPost overrides referenced the plain build's
-  # iptables_init.sh, which fails on an nftables-only system and would
-  # break the service on any restart; the module's own nftables setup
-  # (table inet miniupnpd, hooked nat chains) handles rule insertion.
-  systemd.services.miniupnpd.serviceConfig = {
-    Restart = "always";
-    RestartSec = "3";
+  # networking.nftables is enabled (the router's case), but does not put
+  # `nft` on the daemon's PATH: every mapping add fails with "Failed to
+  # add NAT-PMP ..." even though the table/chains are correctly hooked.
+  # The old iptables ExecStartPre/ExecStopPost overrides were removed
+  # because they reference the plain build's scripts and cannot work on
+  # an nftables-only system.
+  systemd.services.miniupnpd = {
+    path = [ pkgs.nftables ];
+    serviceConfig = {
+      Restart = "always";
+      RestartSec = "3";
+    };
   };
 }
