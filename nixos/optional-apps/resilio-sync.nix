@@ -30,9 +30,12 @@
     users.users.resilio-sync = {
       description = "Resilio Sync user";
       isSystemUser = true;
+      # Fixed id so migrated data can be chowned before deployment; 1002 is
+      # free on the fleet (zhyi=1000, nix-builder=1001, nscd=998, etc.).
+      uid = 1002;
       group = "resilio-sync";
     };
-    users.groups.resilio-sync = { };
+    users.groups.resilio-sync.gid = 1002;
 
     # Folder paths inside the Resilio Sync database are hardcoded to /sync
     # and /downloads; bind those paths to the configured directories so a
