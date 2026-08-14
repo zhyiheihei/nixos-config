@@ -79,7 +79,24 @@
         Type = "simple";
         User = "resilio-sync";
         Group = "resilio-sync";
-        ExecStart = "${lib.getExe pkgs.resilio-sync} --config ${config.lantian.resilioSync.configDir} --nodaemon";
+        # rslsync takes the config FILE path (a directory fails with "Error
+        # while reading config file"); the identity/database files live next
+        # to sync.conf per storage_path inside it.
+        ExecStart = "${lib.getExe pkgs.resilio-sync} --config ${config.lantian.resilioSync.configDir}/sync.conf --nodaemon";
+        # Fresh deployments have no sync.conf yet; rslsync would exit without
+        # writing one, so seed a minimal default matching the module layout.
+        ExecStartPre =
+          let
+            defaultConf = pkgs.writeText "resilio-default-sync.conf" (
+              builtins.toJSON {
+                storage_path = config.lantian.resilioSync.configDir;
+                directory_root = "/sync/";
+                files_default_path = "/downloads";
+                webui.listen = "0.0.0.0:8888";
+              }
+            );
+          in
+          "${pkgs.coreutils}/bin/test -f ${config.lantian.resilioSync.configDir}/sync.conf || ${pkgs.coreutils}/bin/install -m 0600 -o resilio-sync -g resilio-sync ${defaultConf} ${config.lantian.resilioSync.configDir}/sync.conf";
         StateDirectory = "resilio-sync";
         ReadWritePaths = [ "/sync" "/downloads" ];
         Environment = "HOME=${config.lantian.resilioSync.configDir}";
