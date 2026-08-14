@@ -17,6 +17,7 @@ in
     "hub.tencent.zhyi.cc"
     "metapi.tencent.zhyi.cc"
     "prometheus.tencent.zhyi.cc"
+    "searx.tencent.zhyi.cc"
   ];
 
   lantian.nginxVhosts = {
