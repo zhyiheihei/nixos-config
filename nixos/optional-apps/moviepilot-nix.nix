@@ -22,6 +22,10 @@ let
     # v3 agent capabilities probe shutil.which("ffmpeg"); the docker image
     # ships it, the nix package does not.
     export PATH="${lib.makeBinPath [ pkgs.ffmpeg ]}:$PATH"
+    # The package wrapper sets AUTO_UPDATE_RESOURCE=false too, but only
+    # PATH/PYTHONPATH are extracted from it above; without this v3's
+    # resource check tries to write the read-only store (app/application).
+    export AUTO_UPDATE_RESOURCE=false
     export PYTHONUNBUFFERED=1
     export MOVIEPILOT_AUTO_UPDATE=false
     export CONFIG_DIR="${cfg.dataDir}"
@@ -62,8 +66,10 @@ in
     systemd.tmpfiles.rules = [
       "d ${cfg.dataDir} 0750 zhyi users"
       # BindPaths mounts happen before ExecStartPre, so the source dir must
-      # already exist (tmpfiles runs earlier); ExecStartPre only seeds it.
+      # exist beforehand; seed the writable plugin copy from the store here
+      # (C skips existing files, keeping user-installed plugins).
       "d ${cfg.dataDir}/plugins-store 0750 zhyi users"
+      "C ${cfg.dataDir}/plugins-store - - - - ${mp}/share/moviepilot/app/plugins"
       # v3 hardcodes /config for the plugin/package repo (package.py);
       # alias it to the persistent data dir on (tmpfs) roots.
       "L /config - - - - ${cfg.dataDir}"
@@ -83,13 +89,9 @@ in
         ExecStart = backendWrapper;
         # v3 installs every plugin into ROOT_PATH/app/plugins (read-only nix
         # store). Bind a writable persistent copy over it so plugin installs
-        # and updates survive; seed the copy from the store on first start.
+        # and updates survive; the copy is seeded by tmpfiles above.
         BindPaths = [
           "${cfg.dataDir}/plugins-store:${mp}/share/moviepilot/app/plugins"
-        ];
-        ExecStartPre = [
-          "${pkgs.coreutils}/bin/mkdir -p ${cfg.dataDir}/plugins-store"
-          "${pkgs.coreutils}/bin/cp -rn ${mp}/share/moviepilot/app/plugins/. ${cfg.dataDir}/plugins-store/"
         ];
         Environment = [
           "HOST=${cfg.host}"
