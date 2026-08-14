@@ -106,9 +106,15 @@
 
 ### 结论
 
-- P1 的 9 项均为**复刻时机械替换域名的遗留**（非有意设计），按「公开统一
-  zhyi.xin」迁移是回归正确语义，可执行。
+- **访问控制（public/private/localhost）与作者原版全部一致（0 偏离）**，
+  无需回归。作者体系即「公开服务放主域直接子域、私有服务放
+  `<svc>.<host>.<主域>`」，与我方「公开统一 zhyi.xin、私有
+  `<svc>.<host>.zhyi.cc`」同构，逐项核实一致。
+- P1 的 8 项（hydra/flapalerted/dashboard/netbox/alert/prometheus/dav +
+  我方特有 vaults3）为**复刻时机械替换域名的遗留**（作者公开域 →
+  我方 zhyi.cc），按「公开统一 zhyi.xin」迁移是回归正确语义。
 - 主机入口 vhost（`<host>.zhyi.cc`）与作者模式一致，作为规范例外保留。
 - `actual`/`sip` 是作者域名原样照抄的遗留模块（未启用），建议清理。
-- zhyi.xin 上的 localhost 访问项（n8n/bitwarden/asf）是有意收紧，保留。
+- zhyi.xin 上的 localhost 附加 vhost（asf/n8n/bitwarden 的 `.localhost`）
+  是作者同款本机访问入口，保留。
 
