@@ -27,7 +27,7 @@
 
     cursor = {
       package = pkgs.nur-xddxdd.sam-toki-mouse-cursors;
-      name = "STMCS_601_Genshin_Furina";
+      name = "STMC_6_1_Genshin_Furina";
       size = 32;
     };
 
