@@ -31,16 +31,45 @@ couchdb-obsidian-livesync 曾计划一并迁移，因迁移操作事故数据丢
 
 ## 数据迁移步骤（已完成）
 
-1. 停容器：`docker stop couchdb-obsidian-livesync resilio-sync`
+1. 停容器：`docker stop couchdb-obsidian-livesync resilio-sync`（restart 策略已改 `no`）
 2. 数据移动：单挂载点 docker 容器内 `mv`（`/share/CACHEDEV1_DATA:/vol`，
    `mv /vol/Container/resilio /vol/nixos/resilio`）——同卷原子 rename
    （注：双挂载点时 busybox mv 会误判跨设备走 copy+delete，勿再用）
-3. opi5p：`/var/lib/resilio-sync` 就位（config 目录从 NFS 拷入，`sync.conf`
-   的 `storage_path` 改为 `/var/lib/resilio-sync`）、数据目录 chown 1002:1002
+3. 属主：在 NAS 本地用 docker 容器 `chown -R 1002:1002`（不要在 opi5p 上经 NFS
+   做大规模 chown——元数据风暴曾导致 opi5p 内核卡死，见事故记录）
+4. opi5p：`/var/lib/resilio-sync` 就位（config 目录从 NFS 拷入，`sync.conf`
+   的 `storage_path` 改为 `/var/lib/resilio-sync`）
+
+## 服务部署（已完成）
+
+- opi5p `colmena apply`：resilio.service 运行中，监听 `:8888`（WebUI）与
+  `:55555`（同步，双栈）；`/sync`、`/downloads` bind 到 NFS
+- rock5c `colmena apply`：couchdb.zhyi.xin vhost 移除（DNS 记录已从配置删除，
+  尚未跑 `dnscontrol push` 生效）
+
+## 外部直连：UPnP 自动端口映射（已完成）
+
+router 本就运行 miniupnpd（`optional-apps/miniupnpd.nix`），resilio 通过
+NAT-PMP 自动申请 `WAN:55555 → opi5p:55555`，无需手动 DNAT。修复过程中发现
+并解决两个问题：
+
+1. 仓库模块里 xddxdd 时代的 `ExecStartPre=iptables_init.sh` 覆盖在纯 nftables
+   路由器上无法工作（且会让任何重启失败）——已删除；
+2. nixpkgs miniupnpd 模块的 nftables 后端调用 `nft`，但 NixOS systemd 服务
+   PATH 不含 `/run/current-system/sw/bin`，导致所有映射添加失败
+   （"Failed to add NAT-PMP ..."，Syncthing 22000 同样中招）——已加
+   `systemd.services.miniupnpd.path = [ pkgs.nftables ]`。
+
+验证：nftables `prerouting_miniupnpd` 链出现 `ppp0 tcp/udp dport 55555 →
+192.168.0.62:55555` 自动规则；从公网 VPS（greencloud）`nc -zv 115.215.8.194
+55555` 成功。注：LAN 内访问 WAN IP 的 hairpin 会被 lantian 防火墙的 catch-all
+规则接管（LAN 客户端应直接用 LAN IP）。
 
 ## 验证
 
-- resilio：webui `:8888` 登录、`systemctl status resilio`、同步文件夹状态
+- resilio：webui `http://192.168.0.62:8888`（沿用迁移账号）、
+  `systemctl status resilio` active、同步文件夹正常索引
+- 外部直连：`nc -zv <WAN-IP> 55555` 成功（见上）
 
 ## 回滚
 
