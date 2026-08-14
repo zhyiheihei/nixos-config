@@ -18,7 +18,7 @@
   # HTML 搜索 500（JSON/RSS 不受影响）。让 searx 加入 uwsgi 组并把目录
   # 改为组可写。
   users.users.searx.extraGroups = [ "uwsgi" ];
-  systemd.tmpfiles.rules = [ "d /var/cache/searx 0775 uwsgi uwsgi -" ];
+  systemd.tmpfiles.rules = [ "z /var/cache/searx 0775 uwsgi uwsgi -" ];
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
   # from greencloud 2026-08-14 with the monitoring stack). Private only: Homepage
