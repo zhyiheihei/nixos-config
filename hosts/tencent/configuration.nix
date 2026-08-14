@@ -12,7 +12,9 @@
 
   lantian.hubproxy.enable = true;
 
-  # Docker/GitHub/HuggingFace acceleration for LAN devices (via public DNS).
+  # Docker/GitHub/HuggingFace acceleration for LAN devices. Private only:
+  # reachable via ZeroTier/LTNET (198.18.0.128), not from the public
+  # internet, to avoid being used as a free public mirror.
   lantian.nginxVhosts."hub.zhyi.cc" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.HubProxy}";
@@ -20,6 +22,7 @@
     };
 
     sslCertificate = "lets-encrypt-zhyi.cc";
+    accessibleBy = "private";
     noIndex.enable = true;
   };
 
