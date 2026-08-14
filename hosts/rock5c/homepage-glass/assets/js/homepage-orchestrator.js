@@ -107,16 +107,18 @@
       }
     }
     container.setAttribute("data-glass-container", "");
-    // 玻璃形状打在分组面板上（整块一块玻璃），瓦片本体保持透明。
+    // 玻璃形状打在每张卡片上（单层：卡片即玻璃），分组容器本身透明。
     // 标题清洗 + tab 分类必须在同一趟完成：分类读原始标题。
     container
       .querySelectorAll(":scope > .services-group, :scope > .bookmark-group")
       .forEach((group) => {
         group.dataset.tabGroup = tabFromName(groupName(group));
         cleanGroupTitle(group);
-        group.setAttribute("data-glass", "");
       });
-    // 瓦片网格：给卡片/书签的直接父层打标记（嵌套层级因角色而异）。
+    container
+      .querySelectorAll(".service-card, .bookmark > a")
+      .forEach((element) => element.setAttribute("data-glass", ""));
+    // 卡片网格：给卡片/书签的直接父层打标记（嵌套层级因角色而异）。
     container
       .querySelectorAll(".service-card, .bookmark")
       .forEach((element) => element.parentElement.classList.add("homepage-tile-grid"));
