@@ -18,17 +18,7 @@ log = logging.getLogger(__name__)
 
 
 def fetch_json(url: str) -> dict:
-    # The hydra vhost blocks untrusted user agents (python-requests is on the
-    # list), which upstream's watchdog trips over and gets 403 forever; send a
-    # recognizable UA so the queue check actually works.
-    resp = requests.get(
-        url,
-        headers={
-            "Accept": "application/json",
-            "User-Agent": "hydra-watchdog/1.0",
-        },
-        timeout=30,
-    )
+    resp = requests.get(url, headers={"Accept": "application/json"}, timeout=30)
     resp.raise_for_status()
     return resp.json()
 
