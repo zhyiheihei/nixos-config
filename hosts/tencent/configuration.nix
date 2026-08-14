@@ -13,13 +13,11 @@
 
   lantian.hubproxy.enable = true;
 
-  # searx 的 favicon 缓存（作者布局：/var/cache/searx，uwsgi 服务
-  # CacheDirectory 属主 uwsgi）由 vassal 进程写入；vassal 以 searx 用户
-  # 运行且 uwsgi 掉权限时按 /etc/group 做 initgroups。保持作者模块不动：
-  # 主机层把 searx 加进 uwsgi 组 + 缓存目录组可写（实测 add-gid 不生效，
-  # extraGroups 才能进入进程补充组）。
-  users.users.searx.extraGroups = [ "uwsgi" ];
-  systemd.services.uwsgi.serviceConfig.CacheDirectoryMode = "0775";
+  # searx 的 favicon 缓存（作者布局：/var/cache/searx）由 vassal 进程写入；
+  # 实测 vassal 补充组恒为空（uwsgi immediate-uid 不做 initgroups、add-gid
+  # 不生效），且 uwsgi 重启会把 CacheDirectory 属主改回 uwsgi——组/属主
+  # 方案都会被覆盖。目录只放 favicon 缓存库，私有实例，直接 0777。
+  systemd.services.uwsgi.serviceConfig.CacheDirectoryMode = "0777";
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
   # from greencloud 2026-08-14 with the monitoring stack). Private only: Homepage
