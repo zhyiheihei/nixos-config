@@ -96,7 +96,11 @@
               }
             );
           in
-          "${pkgs.coreutils}/bin/test -f ${config.lantian.resilioSync.configDir}/sync.conf || ${pkgs.coreutils}/bin/install -m 0600 -o resilio-sync -g resilio-sync ${defaultConf} ${config.lantian.resilioSync.configDir}/sync.conf";
+          pkgs.writeShellScript "resilio-prepare-config" ''
+            test -f ${config.lantian.resilioSync.configDir}/sync.conf \
+              || ${pkgs.coreutils}/bin/install -m 0600 -o resilio-sync -g resilio-sync \
+                 ${defaultConf} ${config.lantian.resilioSync.configDir}/sync.conf
+          '';
         StateDirectory = "resilio-sync";
         ReadWritePaths = [ "/sync" "/downloads" ];
         Environment = "HOME=${config.lantian.resilioSync.configDir}";
