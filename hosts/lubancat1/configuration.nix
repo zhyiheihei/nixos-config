@@ -9,6 +9,11 @@
     ./hardware-configuration.nix
   ];
 
+  # MoviePilot as a Nix package (not the docker variant): backend + node
+  # frontend managed directly by systemd.  Test deployment on this low-ram
+  # board; data persists under /nix/persistent.
+  lantian.moviepilotNix.enable = true;
+
   # The first-boot DHCP inventory is complete. Keep the board outside the
   # router's dynamic .100-.249 pool and use the same static LAN layout as the
   # other physical infrastructure hosts.
