@@ -1,13 +1,27 @@
-{ ... }:
+{ lib, LT, ... }:
 {
   imports = [
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
+    ../../nixos/optional-apps/hubproxy.nix
     ../../nixos/optional-apps/metapi.nix
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/uni-api.nix
   ];
+
+  lantian.hubproxy.enable = true;
+
+  # Docker/GitHub/HuggingFace acceleration for LAN devices (via public DNS).
+  lantian.nginxVhosts."hub.zhyi.cc" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.HubProxy}";
+      proxyNoTimeout = true;
+    };
+
+    sslCertificate = "lets-encrypt-zhyi.cc";
+    noIndex.enable = true;
+  };
 
   boot.kernelParams = [ "console=ttyS0,115200" ];
 

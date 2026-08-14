@@ -22,6 +22,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "hub";
+      target = "tencent";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "hydra";
       # hydra runs on greencloud; the home-DDNS target was left from the
       # pre-migration layout and made rock5c's siteMonitor fail.
