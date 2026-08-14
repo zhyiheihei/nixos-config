@@ -18,6 +18,9 @@
   # HTML 搜索 500（JSON/RSS 不受影响）。让 searx 加入 uwsgi 组并把目录
   # 改为组可写。
   users.users.searx.extraGroups = [ "uwsgi" ];
+  # uwsgi 服务重启时 CacheDirectory 会把目录重置回 0755（覆盖 tmpfiles
+  # 的 0775），必须直接设置 CacheDirectoryMode。
+  systemd.services.uwsgi.serviceConfig.CacheDirectoryMode = "0775";
   systemd.tmpfiles.rules = [ "z /var/cache/searx 0775 uwsgi uwsgi -" ];
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
