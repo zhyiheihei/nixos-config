@@ -41,11 +41,9 @@
     address = [ "240d:c000:f05f:8900:4678:c7be:842a:0/128" ];
     routes = [
       {
-        routeConfig = {
-          Destination = "::/0";
-          Gateway = "fe80::fcee:6cff:fe22:4ade";
-          GatewayOnLink = true;
-        };
+        Destination = "::/0";
+        Gateway = "fe80::fcee:6cff:fe22:4ade";
+        GatewayOnLink = true;
       }
     ];
     networkConfig = {
