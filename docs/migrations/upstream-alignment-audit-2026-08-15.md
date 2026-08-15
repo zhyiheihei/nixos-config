@@ -42,6 +42,7 @@
 | `9f9dbe3a` | **SSHFP 预计算指纹**：`helpers/host-options.nix` 新增 `ssh.ed25519Fingerprints.{sha1,sha256}`；`dns/common/host-recs.nix` 改用预计算值并对缺失主机 throw；`dns/core/record-handlers.nix` 删除 4 个 `runCommandLocal`（import-from-derivation）处理器；全部 13 台有公钥的 `hosts/*/host.nix` 补指纹。指纹由仓库内公钥离线重算，与 align 分支 2026-08-03 已知值 4/4 吻合，tencent 值与主机注释 SHA256 一致。**顺带消除全局 `nix flake check` 的 IFD 验证缺口**。 | align `4008a7c2` |
 | `5790991b` | hydraJobs 去掉 `apps`（hydra-eval-jobs 拒收含字符串元数据的 jobset）。 | align `4008a7c2` |
 | `7d1b107a` | 求值弃用修复：netbox `apiTokenPeppersFile`→`apiTokenPepperFiles."1"`；pocket-id 删 `DB_PROVIDER`/`KEYS_STORAGE`；`hardware/lvm.nix` 补 `boot.swraid.mdadmConf`；llama-cpp-qwen3_6 `host/port/hf-repo` 移入 `settings`；readsb `getExe`→`getExe'`；dev-tools flat-flake 按宿主平台解析；stylix cursor 主题改名 `STMCS_601`→`STMC_6_1`；greencloud systemd-networkd `routeConfig` 拍平。 | 上游 `93b300f0` + align `f0c71020` |
+| `07a46e23` | tencent systemd-networkd `routeConfig` 拍平（补漏：tencent 08-13 新加，align 时代不存在；同一弃用形式）。 | 对齐 `7d1b107a` 同项 |
 | `f6f302b1` | 清理：ai-coding 删 `"npm:pi-lens"`；`dns/common/records.nix` 删无引用 `GeoStorDNSTarget`；删除无主机导入的 `optional-apps/mmrelay.nix`；stylix 显式 `home.pointerCursor.enable` + 禁用过时 opencode target。 | 上游 `3bd34270`/`61aea568`/`93b300f0` + align `7b6c86f1` |
 | `f0e104e0` | ~~`patches/nixpkgs/fix-xstatic.patch`~~ —— **已 revert**（`f1d8d81b`）：本仓库 nixpkgs（`b7c2ada94fe9`）已含该修复，补丁重复导致 pkgs-patched 构建失败。 | 上游 `30b12e3b`（不适用） |
 
