@@ -18,6 +18,12 @@ buildHomeAssistantComponent rec {
     hash = "sha256-r/FZxHJPW5VUT63UR/nHWsHIpwc90Ven8nChW4O1Mkc=";
   };
 
+  # manifest 精确锁版本（==2.4.1）与 nixpkgs 的 titlecase 版本不一致；
+  # 去掉版本号只校验存在（hass-web-proxy-lib 已由 extraPackages 注入）。
+  prePatch = ''
+    sed -i 's/titlecase==2.4.1/titlecase/' custom_components/frigate/manifest.json
+  '';
+
   meta = {
     description = "Frigate integration for Home Assistant (camera views + object detection sensors)";
     homepage = "https://github.com/blakeblackshear/frigate-hass-integration";
