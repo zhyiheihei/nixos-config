@@ -26,7 +26,7 @@ in
   imports = [
     ../../nixos/server.nix
     ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/frigate.nix
+    ../../nixos/optional-apps/frigate-rockchip.nix
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
 
     ./hardware-configuration.nix
@@ -62,6 +62,23 @@ in
     proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
     proxyUnit = null;
     storageUnit = "nix.mount";
+  };
+
+  # 两台乐橙摄像头 NVR（Frigate stable-rk 容器，RKNN NPU 检测）。
+  # 摄像头本地密码在 secrets/frigate.yaml（key: bedroom-pw / livingroom-pw），
+  # RTSP URL 里的 {FRIGATE_*_PW} 占位符由 sops 渲染时替换。
+  lantian.frigate = {
+    enable = true;
+    cameras = {
+      bedroom = {
+        rtspUrl = "rtsp://admin:{FRIGATE_BEDROOM_PW}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        onvifHost = "192.168.0.104";
+      };
+      livingroom = {
+        rtspUrl = "rtsp://admin:{FRIGATE_LIVINGROOM_PW}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        onvifHost = "192.168.0.115";
+      };
+    };
   };
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.

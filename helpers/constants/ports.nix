@@ -89,7 +89,7 @@ rec {
     ResilioSync.UI = 8888;
     ResilioSync.Sync = 55555;
     Tachidesk = 13567;
-    Frigate = 13568;
+    Frigate = 8971;
     N8N = 13678;
     Vaultwarden = 13772;
     Tika = 13787;
