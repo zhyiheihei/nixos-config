@@ -68,15 +68,13 @@ in
       preStart = ''
         mkdir -p '${cfg.dataDir}'
         if ! test -f '${cfg.dataDir}/options.json'; then
-          cat > '${cfg.dataDir}/options.json' <<'EOF'
-          ${builtins.toJSON {
+          printf '%s\n' '${builtins.toJSON {
             go2rtc = {
               rtsp_port = cfg.rtspPort;
               api_port = cfg.apiPort;
               webrtc_port = cfg.webrtcPort;
             };
-          }}
-          EOF
+          }}' > '${cfg.dataDir}/options.json'
         fi
       '';
 
