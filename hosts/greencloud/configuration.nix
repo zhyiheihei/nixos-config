@@ -68,6 +68,83 @@
     }
   ];
 
+  # Preset agents shown in the LibreChat model selector (modelSpecs). MCP
+  # server names must match the configured lantian.mcp.toolMcpServers keys.
+  services.librechat.settings.modelSpecs = {
+    list = [
+      {
+        name = "general";
+        label = "通用助手";
+        default = true;
+        description = "全能助手：联网搜索、天气、航班、地图、日程、时间。";
+        greeting = "你好，我是通用助手。可以帮你查天气、航班、地图、日程，也能联网搜索。";
+        conversation_starters = [
+          "帮我查一下今天的天气"
+          "搜索一下最新的科技新闻"
+          "查看我的日历安排"
+          "明天从上海到东京有哪些航班"
+        ];
+        mcpServers = [
+          "grok-search-rs"
+          "weather"
+          "time"
+          "caldav"
+          "google-maps"
+          "adsb-lol"
+          "airplanes-live"
+        ];
+        preset = {
+          endpoint = "UniAPI";
+          model = "deepseek-v4-flash:opencode-go";
+          modelLabel = "DeepSeek V4 Flash";
+          temperature = 0.3;
+        };
+      }
+      {
+        name = "research";
+        label = "搜索研究";
+        description = "专注联网搜索与资料研究（grok-search-rs）。";
+        greeting = "我可以帮你深度搜索和整理资料。";
+        conversation_starters = [
+          "帮我调研 NixOS 的 impermanence 方案"
+          "搜索最近发布的 AI 论文"
+        ];
+        mcpServers = [
+          "grok-search-rs"
+          "time"
+        ];
+        preset = {
+          endpoint = "UniAPI";
+          model = "deepseek-v4-flash:opencode-go";
+          temperature = 0.2;
+        };
+      }
+      {
+        name = "travel";
+        label = "出行航班";
+        description = "航班追踪、机场信息、地图与天气。";
+        greeting = "查航班、看地图、问天气，出行相关找我。";
+        conversation_starters = [
+          "现在天上有没有经过的航班"
+          "查一下某个机场的天气"
+        ];
+        mcpServers = [
+          "adsb-lol"
+          "airplanes-live"
+          "flightaware"
+          "google-maps"
+          "weather"
+          "time"
+        ];
+        preset = {
+          endpoint = "UniAPI";
+          model = "deepseek-v4-flash:opencode-go";
+          temperature = 0.3;
+        };
+      }
+    ];
+  };
+
   # Attic talks to the home VaultS3 through the public 8443 entry, whose
   # connect latency is above the AWS SDK's 3.1s default. Keep the public
   # endpoint and only widen the client connect timeout on the Attic host.
