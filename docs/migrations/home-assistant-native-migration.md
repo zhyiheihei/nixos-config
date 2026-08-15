@@ -67,5 +67,30 @@ nixpkgs `services.home-assistant` 原生服务（HA 2026.7.4）。
 - 重登步骤：HA UI → 设备与服务 → 删除 `闪光丿皮皮: 2327129156 [中国大陆]`
   条目 → 添加集成 Xiaomi Home → 区域中国大陆、语言 zh-Hans、回调保持
   `http://homeassistant.local:8123/...` → 米家 App 扫码/账号登录 → 选家庭
-  `闪光丿皮皮的家`。回调依赖局域网 mDNS，需在家里网络完成。
+  `闪光丿皮皮的家`。回调依赖局域网 mDNS（已由 `services.avahi.hostName =
+  "homeassistant"` 保证），需在家里网络完成。
 - 若 roborock 等旧条目提示重连，按 HA 提示重新登录对应账号即可。
+
+## 后续更新方式
+
+- **HA 核心 / 米家 xiaomi_home / 其它 nixpkgs 集成**：随 nixpkgs 更新。
+  `make update`（`nix flake update` + nvfetcher）后在 ml-builder 上
+  `make build` 验证，再 `nix run .#colmena -- apply --on opi5p` 部署。
+  版本锁在 flake.lock，可回滚；不再有容器时代的镜像静默自动更新。
+- **dreame-vacuum**：仓库内自行打包并固定 tag（`pkgs/dreame-vacuum` +
+  `overlays/57-dreame-vacuum.nix`），`make update` 不覆盖它。升级流程：
+  改 `pkgs/dreame-vacuum/default.nix` 的 `rev`，在 ml-builder 上
+  `nix-prefetch-url --unpack --type sha256 <archive-url>` 取 base32 后
+  `nix hash to-sri --type sha256` 转换填入 `hash`。注意 mini-racer
+  可选化补丁（`prePatch` 中的三处 sed）需随上游代码变化同步核对。
+  （曾尝试接入 nvfetcher，该版本对 git+tag 固定支持不稳定，放弃。）
+- **met（挪威天气）集成**：nixpkgs 该版本未收录其依赖 `metno`，setup 失败
+  属已知限制，不影响其它组件；不需要可自行在 HA UI 删除该条目。
+- **hacs 残留**：`.storage/core.config_entries` 中的 hacs 条目不影响运行，
+  可在 HA UI 手动删除。
+
+## 迁移备份
+
+容器时代的 `custom_components/{hacs,xiaomi_home,dreame_vacuum}` 原目录保留在
+`/var/lib/home-assistant/custom_components_legacy-20260815/`，确认稳定后可删除。
+
