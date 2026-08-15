@@ -120,6 +120,134 @@ LDAP bind（`cn=serviceuser,dc=zhyi,dc=xin`），凭据即用户目录里的密�
 > 痕迹：Dex 从"直连 LDAP"迁移到"经 Pocket ID"，但 connector id 保持不变，避免
 > 已接入应用刷新缓存后失配。我们复刻时原样保留。
 
+## 服务接入审计（2026-08-15 全量）
+
+口径：以当前部署的服务为准（对照 `fleet-service-chain.md` 服务表与各主机模块导入），
+逐个核对 vhost 的 `enableOAuth` / `enableBasicAuth` / `accessibleBy`、Dex
+staticClients 与 LDAP 消费者。模块存在但**没有被任何主机导入**的，不纳入账本。
+
+### 在体系内
+
+**A. oauth2-proxy 网关接入（nginx `auth_request` → Dex，浏览器统一跳 `login.zhyi.xin`）**
+
+| 服务 | 入口 | 承载主机 |
+| --- | --- | --- |
+| Prometheus | `prometheus.zhyi.xin` | tencent |
+| Alertmanager | `alert.zhyi.xin` | tencent |
+| NetBox | `netbox.zhyi.xin` | greencloud |
+| Miniflux | `rss.zhyi.xin` | greencloud |
+| n8n | `n8n.zhyi.xin` | greencloud |
+| Sun Panel | `index.zhyi.xin` | rock5c 边缘 → opi5p |
+| Sun Panel Helper | `index-helper.zhyi.xin` | rock5c 边缘 → opi5p |
+| ArchiSteamFarm | `asf.zhyi.xin` | rock5c 边缘 → opi5p |
+| 代理订阅（登录部分） | `sub.zhyi.xin` | greencloud |
+| Syncthing | `syncthing.opi5p.zhyi.cc` / `syncthing.greencloud.zhyi.cc` | opi5p / greencloud |
+| ArchiveBox | `archivebox.opi5p.zhyi.cc` | opi5p |
+| Home Assistant | `ha.opi5p.zhyi.cc` | opi5p |
+| Ignis | `ignis.opi5p.zhyi.cc` | opi5p |
+| Halo 管理后台 | `halo.volcengine.zhyi.cc` | volcengine |
+| Vertex | `vertex.opi5p.zhyi.cc` | opi5p |
+
+**B. 应用内 OIDC（应用自己实现 OIDC，client 注册在 Dex）**
+
+| 服务 | 入口 | Dex client |
+| --- | --- | --- |
+| LibreChat | `ai.zhyi.xin` | `librechat` |
+| Gitea（登录页强制跳 Dex） | `git.zhyi.xin` | `gitea` |
+| Grafana | `dashboard.zhyi.xin` | `grafana` |
+| Memos | `memos.opi5p.zhyi.cc` | `memos` |
+| MoviePilot | `moviepilot.rock5c.zhyi.cc` | `moviepilot` |
+| Vaultwarden（SSO 可跳 Dex，主密码仍自身） | `bitwarden.zhyi.xin` | `vaultwarden` |
+
+**C. LDAP 直连（glauth `dc=zhyi,dc=xin`）**
+
+| 服务 | 入口 | 说明 |
+| --- | --- | --- |
+| Radicale（CalDAV/CardDAV） | `cal.zhyi.xin` | LDAP bind 认证 |
+| Quassel（IRC） | greencloud | `AUTH_LDAP` |
+| Matrix Synapse | `matrix-client.zhyi.xin` | `ldap_auth_provider`（Element 账号即目录账号） |
+| Pocket ID | `id.zhyi.xin` | 用户后端（体系组件自身） |
+
+**D. BasicAuth（htpasswd 由 glauth 的 `zhyi` 用户生成）**
+
+| 服务 | 入口 | 承载主机 |
+| --- | --- | --- |
+| WebDAV | `dav.zhyi.xin` | rock5c 边缘 → opi5p |
+| Calibre COPS | `books.zhyi.xin` | rock5c 边缘 → opi5p |
+| Tachidesk | `tachidesk.zhyi.xin` | rock5c 边缘 → opi5p |
+
+### 体系外
+
+**E. 自带账号体系（未接身份链）**
+
+| 服务 | 入口 | 认证 |
+| --- | --- | --- |
+| Immich | `immich.zhyi.xin` | 应用登录（Dex 有 `immich` client 但**未接线**，见审计结论） |
+| Jellyfin | `jellyfin.zhyi.xin` | 应用登录 |
+| qBittorrent | `bt.router.zhyi.cc` | WebUI 登录 |
+| PVE | `pve-5700u.zhyi.cc:8006` | 应用登录 |
+| Plausible | `stats.zhyi.xin` | 应用管理员 |
+| FileCodeBox | `filebox.zhyi.xin` | 应用管理 |
+| Bepasty | `pb.zhyi.xin` | 分享链接 / 无账号 |
+| QNAP NAS | `qnap.zhyi.xin` | 应用管理 |
+| Hydra | `hydra.zhyi.xin` | 应用登录 |
+| Element / Matrix | `element.zhyi.xin` | Matrix 账号（目录在 LDAP，但认证是 Matrix 自身） |
+| Sonarr / IYUU / llama-cpp / step-ca | 私有 vhost | 应用自身 |
+
+**F. Token / API 密钥**
+
+| 服务 | 入口 | 认证 |
+| --- | --- | --- |
+| UniAPI | `ai-api.zhyi.xin` | API key（`uni-api-admin-api-key`） |
+| Attic | `attic.zhyi.xin` | 上传 token |
+| MetaAPI | `metapi.tencent.zhyi.cc` | 应用口令 / token |
+| n8n OpenAI Bridge | `n8n-bridge.greencloud.zhyi.cc` | bearer token |
+| FastAPI-DLS | `fastapi-dls.rock5c.zhyi.cc` | 租约 token |
+| MetaCubeXD | `metacubexd.rock5c.zhyi.cc` | 控制 token |
+| PeerBanHelper | `peerbanhelper.opi5p.zhyi.cc` | API token |
+| VaultS3 | `vaults3.zhyi.xin:8443` | S3 凭据 |
+
+**G. 私有无认证（仅网络层保护）**
+
+| 服务 | 入口 | 说明 |
+| --- | --- | --- |
+| SearXNG | `searx.tencent.zhyi.cc` | LTNET 私有 |
+| RSSHub | `rsshub.zhyi.xin` | LTNET 私有 |
+| OpenSpeedTest | `openspeedtest.rock5c.zhyi.cc` | 内网 |
+| BitMagnet | `bitmagnet.opi5p.zhyi.cc` | 内网 |
+
+**H. 公开无认证（有意的公开面）**
+
+| 服务 | 入口 |
+| --- | --- |
+| 公开站点（Halo 前台） | `zhyi.xin` |
+| Lemmy ActivityPub API | `lemmy.zhyi.xin` |
+| IT Tools | `tools.zhyi.xin` |
+| 网络信息 API | `api.zhyi.xin` |
+| Avatar API | `avatar.zhyi.xin` |
+| Bird Looking Glass | `lg.zhyi.cc` |
+| FlapAlerted | `flapalerted.zhyi.xin` |
+
+**I. 协议 / 无 Web UI（认证各自独立，不入身份链）**
+
+SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）、NFS（IP
+白名单）、Git SSH（公钥）、rsync CI（公钥）、NCPS（无登录）、restic/rustic
+备份（SSH + 仓库口令）。
+
+### 审计结论
+
+1. **已接入 27 项**（A 15 + B 6 + C 4 + D 3，其中 Pocket ID 为体系自身），
+   **未接入 30 项左右**（E/F/G/H/I 各类）。核心 Web 管理面基本都接入了身份链；
+   未接入的多为三类：自带账号的应用（Immich/Jellyfin/PVE/qBittorrent）、
+   机器对机器的 token/密钥（AI 网关/构建链/备份链）、有意公开的只读面。
+2. **唯一"预留未接线"**：Dex 已注册 `immich` client，但 `immich.nix` 没有 OIDC
+   配置——当前用自带账号。如要接入，补 Immich OIDC 配置即可（issuer
+   `https://login.zhyi.xin`，client_id `immich`）。
+3. **与作者原版一致**：自带账号类（Jellyfin/Immich/PVE/qBittorrent 等）作者同样
+   未接身份链，复刻不偏离；不需要为"体系完整"而强行接入。
+4. **协议服务刻意不接**：无 Web UI 的服务按"不添加虚假卡片"规则也不进身份链，
+   认证各自负责（SSH/SMTP/IP 白名单）。
+
 ## 运维要点
 
 1. 新增 OIDC 应用：按 [OIDC 应用接入规范](./oidc-app-integration.md) 四步走
