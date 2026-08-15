@@ -126,10 +126,9 @@ in
       nixos = {
         command = "uv";
         args = [
-          # mcp SDK 2.x broke the 1.x API these tools target; see `time`.
+          # Latest mcp-nixos works with mcp SDK 2.x (verified handshake
+          # 2026-08-15); no constraint needed (author's original style).
           "run"
-          "--with"
-          "mcp<2"
           "--with"
           "mcp-nixos"
           "mcp-nixos"
@@ -143,13 +142,13 @@ in
       adsb-lol = {
         command = "uv";
         args = [
-          # mcp SDK 2.x broke the 1.x API these tools target; see `time`.
-          # Pin the tool version too: uv's --with rejects bare @latest.
+          # Latest awslabs.openapi-mcp-server works with mcp SDK 2.x
+          # (verified 2026-08-15); author's original style, no pins.
+          # Note: uv's --with rejects the bare @latest form, so omit the
+          # version spec and let uv resolve the latest release.
           "run"
           "--with"
-          "mcp<2"
-          "--with"
-          "awslabs.openapi-mcp-server==1.1.3"
+          "awslabs.openapi-mcp-server"
           "awslabs.openapi-mcp-server"
           "--api-name=adsb.lol"
           "--api-url=https://api.adsb.lol"
