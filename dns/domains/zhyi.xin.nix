@@ -336,6 +336,14 @@ in
           ttl = "10m";
         }
 
+        # site.zhyi.xin is the H28K remote-site router's dynamic WAN, updated
+        # by hosts/h28k/ddns_gcore.py; keep dnscontrol from touching it.
+        {
+          recordType = "IGNORE";
+          name = "site";
+          type = "A,AAAA";
+        }
+
         internalServices
       ];
     }

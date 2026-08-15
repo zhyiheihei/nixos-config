@@ -9,7 +9,8 @@ API_BASE = "https://api.gcore.com/dns/v2"
 # site hostname at the current public IPv4 (IPv4-only; the R5C router's
 # home-ddns.zhyi.cc script additionally manages a WG IPv6 record).
 ZONE_NAME = "zhyi.xin"
-RRSET_NAME = "site"
+# Gcore requires the RRSet name to end with the parent zone name.
+RRSET_NAME = "site.zhyi.xin"
 IP_LOOKUP_URLS = [
     "https://ip.3322.net",
     "http://members.3322.org/dyndns/getip",
