@@ -14,7 +14,7 @@
 | 4 | netbox | netbox.zhyi.cc | netbox.zhyi.xin | greencloud | 探针 |
 | 5 | hydra | hydra.zhyi.cc | hydra.zhyi.xin | greencloud→ml-builder | 探针 + hydraURL + watchdog + 反代 override + 白名单 |
 | 6 | flapalerted | flapalerted.zhyi.cc | flapalerted.zhyi.xin | greencloud | 探针 + stayrtr RPKI + scrape + 白名单 |
-| 7 | dav | dav.<host>.zhyi.cc | dav.<host>.zhyi.xin（跟作者 `<host>` 格式） | opi5p | 探针 + **新证书**（见四） |
+| 7 | dav | dav.<host>.zhyi.cc | dav.zhyi.xin（公开 BasicAuth；2026-08-15 定案，不用 `<host>` 格式） | opi5p | rock5c 边缘反代；无需新证书 |
 | 8 | vaults3 | vaults3.zhyi.cc | vaults3.zhyi.xin | opi5p（家庭） | 探针 + attic S3 + gitea S3 + memos 脚本 + hosts + 白名单 |
 
 访问控制（public/private/auth）8 项全部保持现状，与作者一致，仅域名变更。
@@ -30,7 +30,7 @@
 | `nixos/optional-apps/netbox.nix` | 同上 |
 | `nixos/common-apps/nginx/vhost-hydra-proxy.nix` | 域名 → `hydra.zhyi.xin`；ssl → `zerossl-zhyi.xin` |
 | `nixos/optional-apps/flapalerted.nix` | 域名 + ssl → `lets-encrypt-zhyi.xin` |
-| `nixos/optional-apps/webdav.nix` | 域名 → `dav.${host}.zhyi.xin`；ssl → `lets-encrypt-opi5p.zhyi.xin`（新证书） |
+| `nixos/optional-apps/webdav.nix` | 域名 → `dav.zhyi.xin`；ssl → `lets-encrypt-zhyi.xin`（现有通配，无需新证书） |
 | `hosts/opi5p/edge-vhosts.nix` | vhost 域名 → `vaults3.zhyi.xin` + `networking.hosts` 条目同步 |
 
 ### 连带引用（8 个文件）
@@ -59,7 +59,8 @@ zhyi.xin。netbox 不在白名单（OAuth 满足断言），dav 不在白名单�
   - prometheus/alert/dashboard → `tencent.zhyi.cc.`
   - netbox/flapalerted/hydra → `greencloud.zhyi.cc.`
   - vaults3 → `home-ddns.zhyi.cc.`（与 qnap 同模式）
-  - `dav.opi5p` → `opi5p.ltnet.zhyi.cc.`（隧道可达，同 searx 语义）
+  - `dav` → `home-ddns.zhyi.cc.`（公开入口，复刻作者 dav.<domain> 暴露；经家庭边缘
+    反代到 OPI5P，2026-08-15 定案）
 
 ### 当前状态文档（8 个文件，机械替换域名）
 `docs/infrastructure/monitoring.md`、`domain-service-layout.md`、
@@ -83,7 +84,7 @@ zhyi.xin。netbox 不在白名单（OAuth 满足断言），dav 不在白名单�
 | --- | --- | --- |
 | prometheus/alert/dashboard/netbox/flapalerted/vaults3 | `lets-encrypt-zhyi.xin`（`*.zhyi.xin` 通配） | 已有 ✓ |
 | hydra | `zerossl-zhyi.xin`（`*.zhyi.xin` zerossl 通配） | 已有 ✓ |
-| dav | `lets-encrypt-opi5p.zhyi.xin` | **需新签**：`*.zhyi.xin` 通配不覆盖 `dav.opi5p.zhyi.xin`（两级）；在 greencloud 主机级 `mkLetsEncryptCert "opi5p.zhyi.xin"`（DNS-01 gcore），与 hub.ltnet 证书同法 |
+| dav | `lets-encrypt-zhyi.xin`（`*.zhyi.xin` 通配） | 已有 ✓（`dav.zhyi.xin` 单级，通配直接覆盖，无需新签） |
 
 ## 五、风险与回滚
 
@@ -93,8 +94,8 @@ zhyi.xin。netbox 不在白名单（OAuth 满足断言），dav 不在白名单�
   S3 访问，改后立即验证 attic push/pull。
 - flapalerted 迁移同步改 stayrtr `--cache`，改后验证 RPKI 缓存刷新
   （stayrtr 日志无报错）。
-- 若 dav 新证书签发失败：回退方案为 dav 保留 `<host>.zhyi.cc`（现有
-  `*.opi5p.zhyi.cc` 通配覆盖），域名格式仍与作者 `<host>` 一致。
+- dav 走 `dav.zhyi.xin`（复用 `*.zhyi.xin` 通配证书），无新证书依赖；若边缘反代
+  异常，回退为 opi5p 直连（`dav` CNAME 改回 LTNET）。
 
 ## 六、验收清单
 

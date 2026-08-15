@@ -57,7 +57,7 @@ nix run .#dnscontrol -- push
 发布后用公共递归 DNS 检查，而不是只看本地缓存：
 
 ```bash
-dig +short ha.zhyi.cc @1.1.1.1
+dig +short ha.opi5p.zhyi.cc @1.1.1.1
 dig +short hydra.zhyi.xin @1.1.1.1
 ```
 

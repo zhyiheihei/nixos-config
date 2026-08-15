@@ -285,12 +285,12 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | PeerBanHelper | `https://peerbanhelper.opi5p.zhyi.cc` | API token |
 | BitMagnet | `https://bitmagnet.opi5p.zhyi.cc/webui/` | 私有 |
 | MoviePilot | `https://moviepilot.rock5c.zhyi.cc` | 应用登录 |
-| Home Assistant | `https://ha.zhyi.cc` | Dex OAuth |
+| Home Assistant | `https://ha.opi5p.zhyi.cc` | Dex OAuth |
 | Syncthing | `https://syncthing.opi5p.zhyi.cc` | Dex OAuth |
 | Syncthing (GreenCloud) | `https://syncthing.greencloud.zhyi.cc` | Dex OAuth |
 | ArchiveBox | `https://archivebox.opi5p.zhyi.cc` | Dex OAuth |
-| WebDAV（webdev） | `https://dav.opi5p.zhyi.cc` | Basic Auth |
-| QNAP NAS | `https://qnap.zhyi.cc` | 应用管理 |
+| WebDAV（webdev） | `https://dav.zhyi.xin` | Basic Auth |
+| QNAP NAS | `https://qnap.zhyi.xin` | 应用管理 |
 | Memos | `https://memos.opi5p.zhyi.cc` | Dex OIDC / 应用登录 |
 | Ignis | `https://ignis.opi5p.zhyi.cc` | Dex SSO（nginx oauth2-proxy） |
 | 主机资源 / NAS 存储 | 见 Homepage `12 · 私有 · 监控` | Prometheus 只读 |

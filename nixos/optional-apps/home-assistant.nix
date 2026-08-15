@@ -28,14 +28,14 @@
   };
 
   lantian.nginxVhosts = {
-    "ha.zhyi.cc" = {
+    "ha.${config.networking.hostName}.zhyi.cc" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:8123";
         proxyNoTimeout = true;
         proxyWebsockets = true;
         enableOAuth = true;
       };
-      sslCertificate = "lets-encrypt-zhyi.cc";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
       noIndex.enable = true;
     };
   };

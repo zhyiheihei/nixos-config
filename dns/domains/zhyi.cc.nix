@@ -41,12 +41,9 @@ let
       ttl = "2m";
     }
 
-    {
-      recordType = "CNAME";
-      name = "ha";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
+    # Home Assistant renamed to the private naming norm (ha.opi5p.zhyi.cc);
+    # it resolves via the *.opi5p.zhyi.cc wildcard over LTNET, so the old
+    # bare ha record is dropped instead of being carried forward.
 
     {
       recordType = "CNAME";

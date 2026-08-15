@@ -37,7 +37,7 @@ Homepage 的 `prometheusmetric` widget 展示 node exporter 的 CPU、内存与�
 
 | 服务 | Homepage 卡片 | 认证方式 |
 | --- | --- | --- |
-| WebDAV（webdev） | `08 · 私有 · 家庭服务` 分组有 `WebDAV` 卡片，链接 `https://dav.opi5p.zhyi.cc`，描述为 Basic Auth；协议端点无 `siteMonitor` | Basic Auth |
+| WebDAV（webdev） | `08 · 私有 · 家庭服务` 分组有 `WebDAV` 卡片，链接 `https://dav.zhyi.xin`，描述为 Basic Auth；协议端点无 `siteMonitor` | Basic Auth |
 | SMTP | 无卡片（出站邮件服务，无 Web UI） | SMTP AUTH |
 | SFTP | 无卡片（无 Web UI，只允许公钥登录） | SSH 公钥 |
 
@@ -48,7 +48,7 @@ SMTP、SFTP、Samba、NFS 等协议服务按“没有 Web UI 的协议、后端�
 `docs/service-login-audit.md`。
 
 实机复核（2026-08-11）：`https://homepage.rock5c.zhyi.cc/` 返回 HTTP 200；
-`https://dav.opi5p.zhyi.cc/` 未带凭据返回 401，符合卡片描述的 Basic Auth。
+`https://dav.zhyi.xin/` 未带凭据返回 401，符合卡片描述的 Basic Auth。
 
 ## 保持与作者一致的结构
 

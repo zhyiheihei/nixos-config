@@ -18,8 +18,8 @@ let
   fixedFrontends = {
     "asf.zhyi.xin" = "asf.zhyi.xin";
     "books.zhyi.xin" = "books.zhyi.xin";
+    "dav.zhyi.xin" = "dav.zhyi.xin";
     "filebox.zhyi.xin" = "filebox.zhyi.xin";
-    "ha.zhyi.cc" = "ha.zhyi.cc";
     "immich.zhyi.xin" = "immich.zhyi.xin";
     "index.zhyi.xin" = "index.zhyi.xin";
     "index-helper.zhyi.xin" = "index-helper.zhyi.xin";
@@ -31,7 +31,6 @@ let
       // lib.optionalAttrs (
         builtins.elem frontend [
           "asf.zhyi.xin"
-          "ha.zhyi.cc"
           "index.zhyi.xin"
           "index-helper.zhyi.xin"
         ]

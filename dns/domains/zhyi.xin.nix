@@ -80,8 +80,10 @@ let
     }
     {
       recordType = "CNAME";
-      name = "dav.opi5p";
-      target = "opi5p.ltnet.zhyi.cc.";
+      name = "dav";
+      # WebDAV on the home OPI5P; public entry follows the author's dav.<domain>
+      # exposure (BasicAuth-protected), reached through the home edge.
+      target = homeDdnsTarget;
       ttl = "1h";
     }
     {
