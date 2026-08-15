@@ -97,4 +97,6 @@
   nix run .#colmena -- apply --on opi5p
   ```
 
-- 已知限制：RTSP 本地流需要在乐橙 App 中开启后生效（ONVIF 已确认可用）。
+- 已知限制：乐橙 App 中默认开启 **RTSP 加密（TLS）**，frigate 直连会拉流失败；
+  需在 App 设备设置里关闭 RTSP 加密后，本地 RTSP 才能被 frigate 消费
+  （两台均已关闭，2026-08-16 验证正常）。

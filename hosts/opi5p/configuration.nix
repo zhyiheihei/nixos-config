@@ -27,7 +27,6 @@ in
     ../../nixos/server.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
-    ../../nixos/optional-apps/imou-bridge.nix
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
 
     ./hardware-configuration.nix
@@ -68,6 +67,7 @@ in
   # 两台乐橙摄像头 NVR（Frigate stable-rk 容器，RKNN NPU 检测）。
   # 摄像头本地密码在 secrets/frigate.yaml（key: bedroom-pw / livingroom-pw），
   # rtspUrl 里的 sops 占位符由 sops 模板渲染时替换为真实密码。
+  # 注意：乐橙 App 里需关闭 RTSP 加密（TLS），否则 frigate 拉流失败。
   lantian.frigate = {
     enable = true;
     cameras = {
@@ -81,9 +81,6 @@ in
       };
     };
   };
-
-  # 乐橙摄像头本地 RTSP 被锁死，走 Imou P2P 桥接（云中继 → 局域网 RTSP）。
-  lantian.imouBridge.enable = true;
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.
   # Match ml-builder so a healthy private cache is not disabled prematurely.
