@@ -36,8 +36,6 @@ let
       // lib.optionalAttrs (
         builtins.elem frontend [
           "asf.zhyi.xin"
-          "index.zhyi.xin"
-          "index-helper.zhyi.xin"
         ]
       ) { enableOAuth = true; };
     sslCertificate =

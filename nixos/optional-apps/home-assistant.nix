@@ -33,8 +33,9 @@
         proxyPass = "http://127.0.0.1:8123";
         proxyNoTimeout = true;
         proxyWebsockets = true;
-        enableOAuth = true;
       };
+      # 内网私有服务，使用 HA 自有账号（zhyi / default-pw），不挂 oauth2-proxy。
+      accessibleBy = "private";
       sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
       noIndex.enable = true;
     };
