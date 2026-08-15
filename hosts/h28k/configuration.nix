@@ -4,13 +4,23 @@
     ../../nixos/minimal.nix
 
     ./dhcp.nix
+    ./ddns.nix
     ./firewall.nix
     ./hardware-configuration.nix
     ./networking.nix
     ./performance.nix
 
     ../../nixos/common-apps/coredns.nix
+    ../../nixos/client-components/multicast-dns.nix
+    ../../nixos/optional-apps/miniupnpd.nix
   ];
+
+  # Author's router recipe: LAN clients may open their own port mappings
+  # through the DHCP WAN.
+  services.miniupnpd = {
+    externalInterface = "eth1";
+    internalIPs = [ "eth0" ];
+  };
 
   networking.networkmanager.enable = lib.mkForce false;
 

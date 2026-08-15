@@ -84,6 +84,9 @@ in
       # Block Avahi Multicast DNS on ZeroTier
       oifname "zt*" udp sport 5353 reject
       oifname "zt*" udp dport 5353 reject
+
+      # Never leak the firewalled ports out the WAN (author's recipe)
+      oifname "eth1" jump PUBLIC_OUTPUT
     }
 
     chain NAT_PREROUTING {
@@ -125,6 +128,12 @@ in
     chain PUBLIC_INPUT {
       tcp dport { ${lib.concatMapStringsSep "," builtins.toString publicFirewalledPorts} } reject with tcp reset
       udp dport { ${lib.concatMapStringsSep "," builtins.toString publicFirewalledPorts} } reject with icmpx type port-unreachable
+      return
+    }
+
+    chain PUBLIC_OUTPUT {
+      tcp sport { ${lib.concatMapStringsSep "," builtins.toString publicFirewalledPorts} } drop
+      udp sport { ${lib.concatMapStringsSep "," builtins.toString publicFirewalledPorts} } drop
       return
     }
 
