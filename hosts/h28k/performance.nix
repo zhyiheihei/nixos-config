@@ -29,26 +29,22 @@ let
       cpu=$2
       irq=$(awk -v dev="$dev" '$NF == dev { sub(":", "", $1); print $1; exit }' /proc/interrupts)
       if [ -n "$irq" ]; then
-        echo "$cpu" > "/proc/irq/$irq/smp_affinity_list"
+        echo "$cpu" > "/proc/irq/$irq/smp_affinity_list" 2>/dev/null || true
       fi
     done
 
     # Spread the single RX queue across all four cores with RPS and pin XPS
-    # the same way. r8169 does not expose xps_cpus; guard with if so the
-    # missing file does not abort the script under set -e.
+    # the same way. r8169 exposes some of these attributes late or rejects
+    # writes (eth1 xps_cpus appeared only after the interface re-setup), so
+    # every write is best-effort; the core items (RPS, fq_codel, EEE, IRQ
+    # affinity) are the ones verified to matter.
     for dev in eth0 eth1; do
       for q in /sys/class/net/$dev/queues/rx-*; do
-        if [ -e "$q/rps_cpus" ]; then
-          echo f > "$q/rps_cpus"
-        fi
-        if [ -e "$q/rps_flow_cnt" ]; then
-          echo ${toString flowEntriesPerQueue} > "$q/rps_flow_cnt"
-        fi
+        echo f > "$q/rps_cpus" 2>/dev/null || true
+        echo ${toString flowEntriesPerQueue} > "$q/rps_flow_cnt" 2>/dev/null || true
       done
       for q in /sys/class/net/$dev/queues/tx-*; do
-        if [ -e "$q/xps_cpus" ]; then
-          echo f > "$q/xps_cpus"
-        fi
+        echo f > "$q/xps_cpus" 2>/dev/null || true
       done
     done
 
