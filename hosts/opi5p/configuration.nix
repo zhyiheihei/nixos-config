@@ -66,16 +66,16 @@ in
 
   # 两台乐橙摄像头 NVR（Frigate stable-rk 容器，RKNN NPU 检测）。
   # 摄像头本地密码在 secrets/frigate.yaml（key: bedroom-pw / livingroom-pw），
-  # RTSP URL 里的 {FRIGATE_*_PW} 占位符由 sops 渲染时替换。
+  # rtspUrl 里的 sops 占位符由 sops 模板渲染时替换为真实密码。
   lantian.frigate = {
     enable = true;
     cameras = {
       bedroom = {
-        rtspUrl = "rtsp://admin:{FRIGATE_BEDROOM_PW}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-bedroom-pw"}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
         onvifHost = "192.168.0.104";
       };
       livingroom = {
-        rtspUrl = "rtsp://admin:{FRIGATE_LIVINGROOM_PW}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-livingroom-pw"}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
         onvifHost = "192.168.0.115";
       };
     };
