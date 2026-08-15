@@ -58,8 +58,8 @@ in
     };
     modelHash = lib.mkOption {
       type = lib.types.str;
-      default = "sha256-cad1bfb571fb24957672ff0f8dfb403a96601b2631dbef3b3ee73bff2d11b7b8";
-      description = "sha256 of the preset model (rk3588 deci-fp16-yolonas_s); update when changing model/soc";
+      default = "sha256-ytG/tXH7JJV2cv8PjftAOpZgGyYx2+87Puc7/y0Rt7g=";
+      description = "SRI sha256 of the preset model (rk3588 deci-fp16-yolonas_s); update when changing model/soc";
     };
     modelType = lib.mkOption {
       type = lib.types.str;
