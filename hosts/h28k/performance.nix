@@ -34,14 +34,21 @@ let
     done
 
     # Spread the single RX queue across all four cores with RPS and pin XPS
-    # the same way. r8169 does not expose xps_cpus; tolerate that.
+    # the same way. r8169 does not expose xps_cpus; guard with if so the
+    # missing file does not abort the script under set -e.
     for dev in eth0 eth1; do
       for q in /sys/class/net/$dev/queues/rx-*; do
-        [ -e "$q/rps_cpus" ] && echo f > "$q/rps_cpus"
-        [ -e "$q/rps_flow_cnt" ] && echo ${toString flowEntriesPerQueue} > "$q/rps_flow_cnt"
+        if [ -e "$q/rps_cpus" ]; then
+          echo f > "$q/rps_cpus"
+        fi
+        if [ -e "$q/rps_flow_cnt" ]; then
+          echo ${toString flowEntriesPerQueue} > "$q/rps_flow_cnt"
+        fi
       done
       for q in /sys/class/net/$dev/queues/tx-*; do
-        [ -e "$q/xps_cpus" ] && echo f > "$q/xps_cpus"
+        if [ -e "$q/xps_cpus" ]; then
+          echo f > "$q/xps_cpus"
+        fi
       done
     done
 
