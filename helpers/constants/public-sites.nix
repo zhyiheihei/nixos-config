@@ -40,6 +40,7 @@ _: [
   "dashboard.zhyi.xin"
   "filebox.zhyi.xin"
   "git.zhyi.xin"
+  "ha.zhyi.xin"
   "hydra.zhyi.xin"
   "id.zhyi.xin"
   "immich.zhyi.xin"
