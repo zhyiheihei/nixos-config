@@ -113,8 +113,10 @@
         if [ ! -f "$certDir/fullchain.pem" ] || [ ! -f "$certDir/key.pem" ]; then
           exit 0
         fi
-        ${pkgs.coreutils}/bin/install -Dm644 "$certDir/fullchain.pem" /etc/pve/local/pveproxy-ssl.pem
-        ${pkgs.coreutils}/bin/install -Dm600 "$certDir/key.pem" /etc/pve/local/pveproxy-ssl.key
+        # /etc/pve is pmxcfs (FUSE): chmod is not allowed there, so install
+        # the certificate through the PVE CLI which writes pveproxy-ssl with
+        # the correct modes.
+        ${pkgs.pve-manager}/bin/pvenode cert set "$certDir/fullchain.pem" "$certDir/key.pem"
         ${pkgs.systemd}/bin/systemctl try-restart pveproxy.service
       '';
     };
