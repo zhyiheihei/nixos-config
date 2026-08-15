@@ -335,11 +335,14 @@ Mbit/s），没有吞吐缺口。因此只套用 R5C 配方里适用单队列的
 实测（调优后）：eth0 P4 反向重传 166 → 0，吞吐维持 938-951 Mbit/s 线速；
 部署到系统后 `h28k-rps.service` active，状态经重启可自动恢复。
 
-## 已知待办（2026-08-16）
+## SOPS / attic（2026-08-16 已解决）
 
-- **SOPS rekey 未完成**：`sops-install-secrets` 从首启起就失败（h28k 的 age key
-  `age1d634874…` 不在 secrets 仓库 `.sops.yaml` 的 recipient 列表），因此
-  `/run/secrets/` 为空，attic 私有缓存（2026-07-30 起匿名 401）的 netrc 读取 token
-  缺失。完成 `nixos-secrets` 的 rekey 并重新部署后，attic 拉取与其余 secrets 自动恢复。
-- 本机部署绕开了 daemon 签名校验（`NIX_REMOTE=local nix-store --import`），
-  待 SOPS 就绪后应改回正规 `nix copy` / colmena 流程。
+- 根因：`.sops.yaml` 的 `&h28k` recipient 是用重刷前的旧 host key 生成的
+  （`age1vgsmd…`），现场密钥（`age1d634874…`）不在 recipient 列表，
+  `sops-install-secrets` 自首启失败，`/run/secrets/` 为空，attic 私有缓存的
+  netrc 读取 token 缺失。
+- 处理：`nixos-secrets` 修正 h28k recipient 并对全部 67 个 yaml rekey
+  （`sops updatekeys`，注意需要管道喂 `y` 确认），推送 `main`；主仓库 bump
+  secrets flake 输入；h28k 重新部署后 `sops-install-secrets` 成功，
+  `/run/secrets/` 填充，attic `nix-cache-info` 从 401 → 200。
+- 后续部署应改回正规 `nix copy` / colmena 流程（无需再绕 daemon 签名校验）。
