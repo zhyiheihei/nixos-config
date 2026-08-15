@@ -253,11 +253,17 @@ in
     };
 
     # 私有入口：仅内网可达（accessibleBy = private），HTTP-only。
+    # frigate 0.17 的 Web 是 HTTPS-only（容器内自签证书），反代走 https
+    # 并关闭证书校验。
     lantian.nginxVhosts."frigate.${config.networking.hostName}.zhyi.cc" = {
       listenHTTP.enable = true;
       listenHTTPS.enable = false;
       locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.Frigate}";
+        proxyPass = "https://127.0.0.1:${LT.portStr.Frigate}";
+        extraConfig = ''
+          proxy_ssl_verify off;
+          proxy_ssl_server_name off;
+        '';
         proxyWebsockets = true;
         proxyNoTimeout = true;
       };
