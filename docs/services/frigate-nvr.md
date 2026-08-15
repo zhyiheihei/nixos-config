@@ -58,13 +58,19 @@
 
 ## 日常使用
 
-1. 浏览器打开 `http://frigate.opi5p.zhyi.cc`，用 Frigate 自带账号登录
-   （首次部署后需要在 UI 里创建用户）。
+1. 浏览器打开 `http://frigate.opi5p.zhyi.cc`（仅内网）。**首次登录**：Frigate
+   首次启动会自动创建默认用户 `admin`，初始密码在启动日志里：
+   `journalctl -u podman-frigate | grep "Password:"`（本机记录为
+   `d3d1c25bda503540a74fe4c2318c0de2`），登录后请立即修改。
 2. 实时预览：Live 页签；历史回放：Recordings 页签按时间线回放。
 3. 检测：RKNN NPU 检测人/车等对象（YOLO-NAS），Events 页签筛选告警片段。
 4. Home Assistant（同机 opi5p）：添加集成 → Frigate，URL 填
    `http://127.0.0.1:5000`（容器 api 端口），按 HA 提示提供 Frigate 用户/
    API key。不依赖 MQTT。
+
+> 反代说明：frigate 0.17 的 Web 是 HTTPS-only（容器自签证书），内网 vhost
+> 以 `https://127.0.0.1:8971` + `proxy_ssl_verify off` 反代，对外仍是
+> `http://frigate.opi5p.zhyi.cc`。
 
 ## 故障排查
 
