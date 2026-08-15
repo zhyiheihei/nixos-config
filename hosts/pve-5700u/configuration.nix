@@ -2,6 +2,7 @@
   config,
   LT,
   lib,
+  pkgs,
   ...
 }:
 {
@@ -9,6 +10,11 @@
     ../../nixos/hardware/lvm.nix
     ../../nixos/hardware/smart.nix
     ../../nixos/pve.nix
+
+    # Pull /nix/sync-servers (ACME certs + ltnet-scripts data) from the
+    # greencloud primary so pveproxy can serve the fleet-synced Let's Encrypt
+    # certificate. pve.nix alone does not include minimal-apps.
+    ../../nixos/minimal-apps/rsync-server.nix
 
     ../../nixos/optional-apps/ncps-client.nix
 
@@ -86,6 +92,40 @@
       gateway = [ "192.168.0.1" ];
       matchConfig.Name = "br-lan";
       networkConfig.IPv6AcceptRA = "yes";
+    };
+  };
+
+  # pveproxy serves its own UI certificate.  The fleet ACME pipeline already
+  # issues lets-encrypt-pve-5700u.zhyi.cc (base + wildcard) on greencloud and
+  # syncs it through /nix/sync-servers; install it as pveproxy-ssl so the
+  # homepage entry https://pve-5700u.zhyi.cc:8006 presents a trusted cert
+  # instead of the stale self-signed CN=pve-5700u.lantian.pub fallback.
+  systemd.services.pve-proxy-cert-install = {
+    description = "Install synced Let's Encrypt cert into pveproxy";
+    after = [ "rsync-nix-sync-servers.service" ];
+    wants = [ "rsync-nix-sync-servers.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "pve-proxy-cert-install" ''
+        set -euo pipefail
+        certDir=/nix/sync-servers/acme/lets-encrypt-pve-5700u.zhyi.cc-ecc
+        if [ ! -f "$certDir/fullchain.pem" ] || [ ! -f "$certDir/key.pem" ]; then
+          exit 0
+        fi
+        ${pkgs.coreutils}/bin/install -Dm644 "$certDir/fullchain.pem" /etc/pve/local/pveproxy-ssl.pem
+        ${pkgs.coreutils}/bin/install -Dm600 "$certDir/key.pem" /etc/pve/local/pveproxy-ssl.key
+        ${pkgs.systemd}/bin/systemctl try-restart pveproxy.service
+      '';
+    };
+  };
+
+  # Re-run the installer whenever the synced cert changes (ACME renewal).
+  systemd.paths.pve-proxy-cert-install = {
+    wantedBy = [ "multi-user.target" ];
+    pathConfig = {
+      Unit = "pve-proxy-cert-install.service";
+      PathChanged = "/nix/sync-servers/acme/lets-encrypt-pve-5700u.zhyi.cc-ecc";
     };
   };
 }
