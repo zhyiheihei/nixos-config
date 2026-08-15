@@ -248,6 +248,30 @@ SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）�
 4. **协议服务刻意不接**：无 Web UI 的服务按"不添加虚假卡片"规则也不进身份链，
    认证各自负责（SSH/SMTP/IP 白名单）。
 
+### 体系外：作者对照与接入建议
+
+规则：作者原版也有且未接入的服务 → **保持不接入**（复刻不偏离）；本仓库新增且
+**可接入**的 → 下表列出，是否接入由用户决定。
+
+| 服务 | 作者原版 | 当前状态 | 接入建议 |
+| --- | --- | --- | --- |
+| Immich | 有（未接） | 自带账号；Dex `immich` client 已注册未接线 | **不接**（作者未接）；若想接只需补 OIDC 配置 |
+| Jellyfin | 有（未接） | 自带账号 | 不接 |
+| qBittorrent | 有（未接） | WebUI 登录 | 不接 |
+| PVE | 有（未接） | 应用登录 | 不接 |
+| Plausible / Bepasty / Hydra / Element / Sonarr / IYUU / llama-cpp / step-ca / SearXNG / RSSHub / BitMagnet / Metapi / n8n-bridge / Attic / UniAPI / FastAPI-DLS / PeerBanHelper | 有（未接） | 各自认证 | 不接 |
+| **FileCodeBox** | **无（新增）** | 自带管理登录 | **可接**：加 oauth2-proxy（同 Halo 后台模式，`enableOAuth`） |
+| **MetaCubeXD** | **无（新增）** | 私有 + 控制 token | **可接**：加 oauth2-proxy；或保持控制 token |
+| **OpenSpeedTest** | **无（新增）** | 私有无认证 | 不建议接（LAN 测速需免登录直连） |
+| **VaultS3** | **无（新增）** | S3 凭据 | 不建议接（S3 凭据模型与 OIDC 冲突） |
+| **QNAP NAS** | **无（新增）** | NAS 自有账号 | 无法接（非本仓库软件） |
+| **Halo** | **无（新增）** | 前台公开、后台已走 oauth2-proxy | 已部分接入，无需动作 |
+| **Vertex / Sun Panel** | **无（新增）** | 已走 oauth2-proxy | 已接入 |
+
+> 说明：Halo 前台（`zhyi.xin`）公开是博客设计，不接；管理后台
+> `halo.volcengine.zhyi.cc` 已接入。Avatar API 作者有（common-apps/libravatar），
+> 属公开只读 API，不接。
+
 ## 运维要点
 
 1. 新增 OIDC 应用：按 [OIDC 应用接入规范](./oidc-app-integration.md) 四步走
