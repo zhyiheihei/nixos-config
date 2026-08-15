@@ -142,13 +142,14 @@ in
       adsb-lol = {
         command = "uv";
         args = [
-          # Latest awslabs.openapi-mcp-server works with mcp SDK 2.x
-          # (verified 2026-08-15); author's original style, no pins.
-          # Note: uv's --with rejects the bare @latest form, so omit the
-          # version spec and let uv resolve the latest release.
+          # Latest awslabs.openapi-mcp-server still fails in LibreChat
+          # (handshake does not complete -> Connection closed, verified
+          # 2026-08-15); keep the pinned 1.1.3 + mcp<2 combo that works.
           "run"
           "--with"
-          "awslabs.openapi-mcp-server"
+          "mcp<2"
+          "--with"
+          "awslabs.openapi-mcp-server==1.1.3"
           "awslabs.openapi-mcp-server"
           "--api-name=adsb.lol"
           "--api-url=https://api.adsb.lol"
