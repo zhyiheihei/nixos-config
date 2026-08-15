@@ -90,6 +90,10 @@ in
       user = "root";
       group = "root";
     };
+    # supervisor 把 app_ui.py 等硬编码在 /opt/imou-p2p-bridge/，指到 nix store。
+    systemd.tmpfiles.settings.imou-bridge."/opt/imou-p2p-bridge"."L" = {
+      argument = "${bridge}/opt/imou-p2p-bridge";
+    };
 
     # 管理 UI：仅内网（账号登录含 Geetest 滑块，需浏览器操作）。
     lantian.nginxVhosts."imou-bridge.${config.networking.hostName}.zhyi.cc" = {
