@@ -54,6 +54,39 @@ let
       target = "volcengine.ltnet.zhyi.cc.";
       ttl = "1h";
     }
+    # Private tencent vhosts are served on LTNET only (upstream pattern:
+    # private services CNAME to *.ltnet.<domain> so LAN clients reach them
+    # via the router instead of the 444-blocked public entry).
+    {
+      recordType = "CNAME";
+      name = "searx.tencent";
+      target = "tencent.ltnet.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "metapi.tencent";
+      target = "tencent.ltnet.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "hub.tencent";
+      target = "tencent.ltnet.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "prometheus.tencent";
+      target = "tencent.ltnet.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "n8n-bridge.greencloud";
+      target = "greencloud.ltnet.zhyi.cc.";
+      ttl = "1h";
+    }
   ];
 in
 {
