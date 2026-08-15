@@ -27,6 +27,7 @@ in
     ../../nixos/server.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
+    ../../nixos/optional-apps/imou-bridge.nix
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
 
     ./hardware-configuration.nix
@@ -80,6 +81,9 @@ in
       };
     };
   };
+
+  # 乐橙摄像头本地 RTSP 被锁死，走 Imou P2P 桥接（云中继 → 局域网 RTSP）。
+  lantian.imouBridge.enable = true;
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.
   # Match ml-builder so a healthy private cache is not disabled prematurely.
