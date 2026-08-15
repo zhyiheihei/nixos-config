@@ -15,7 +15,7 @@ buildHomeAssistantComponent rec {
     owner = "blakeblackshear";
     repo = "frigate-hass-integration";
     rev = "0f89fa657fff1e8a1f4782bf66abd54eec54dff7";
-    hash = "sha256-HUncbnkbHUFuQNJ7/DFBVilLOjfMsJPmMf1q8Y3GRJc=";
+    hash = "sha256-r/FZxHJPW5VUT63UR/nHWsHIpwc90Ven8nChW4O1Mkc=";
   };
 
   meta = {
