@@ -116,7 +116,7 @@
         # /etc/pve is pmxcfs (FUSE): chmod is not allowed there, so install
         # the certificate through the PVE CLI which writes pveproxy-ssl with
         # the correct modes.
-        ${pkgs.pve-manager}/bin/pvenode cert set "$certDir/fullchain.pem" "$certDir/key.pem"
+        ${pkgs.pve-manager}/bin/pvenode cert set "$certDir/fullchain.pem" "$certDir/key.pem" --force
         ${pkgs.systemd}/bin/systemctl try-restart pveproxy.service
       '';
     };
