@@ -13,12 +13,12 @@ let
   rpsScript = pkgs.writeShellScript "h28k-rps" ''
     set -eu
 
-    # Single-queue NICs: replace the default mq/pfifo_fast root with fq_codel
-    # directly (the R5C A/B in docs/research/10 showed fq_codel halves
-    # retransmits at equal or better throughput).
-    for dev in eth0 eth1; do
-      ${tc} qdisc replace dev "$dev" root fq_codel 2>/dev/null || true
-    done
+    # eth0 (LAN): replace the default mq/pfifo_fast root with fq_codel (the
+    # R5C A/B in docs/research/10 showed fq_codel halves retransmits at equal
+    # or better throughput). eth1 (WAN) is shaped by CAKE via
+    # systemd.network cakeConfig (author's router recipe) and must not be
+    # touched here.
+    ${tc} qdisc replace dev eth0 root fq_codel 2>/dev/null || true
 
     # Pin each port's IRQ to its own CPU: eth0 is the MAC IRQ (the stmmac
     # "sfty" IRQ is unused), eth1 is the PCIe MSI-X vector. irqbalance is
