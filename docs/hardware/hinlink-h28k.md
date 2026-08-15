@@ -372,3 +372,28 @@ Mbit/s），没有吞吐缺口。因此只套用 R5C 配方里适用单队列的
 在 eth0 后接一台设备：应拿到 `192.168.30.x` 租约、经 `192.168.30.1` 解析 DNS、
 经 WAN 上网；期间 h28k 仍可通过 eth1 的 home-LAN 租约或 ZeroTier
 （198.18.0.125）SSH。
+
+## 作者 router 全量复刻（2026-08-16 第二轮）
+
+在首轮（CAKE/Kea/防火墙）基础上补齐其余可复刻项，完成 lt-home-router 的
+"能复刻都复刻"：
+
+- **DDNS**：`hosts/h28k/ddns.nix` + `ddns_gcore.py`，每小时把
+  `site.zhyi.xin` A 记录更新为 WAN 公网 IP（Gcore API，token 复用 lego.yaml
+  的 `GCORE_PERMANENT_API_TOKEN`；IPv4-only，R5C 脚本的 IPv6 WG 记录不适用）。
+  注意：Gcore API 的 RRSet 名必须带完整域名（`site.zhyi.xin` 而非 `site`）。
+  记录本体已创建（当前指向家宽 IP），dns/domains/zhyi.xin.nix 加了 IGNORE
+  防 dnscontrol push 误删；迁站后记录会自动跟随新 WAN IP。
+- **multicast-dns**（avahi reflector）与 **miniupnpd**（nftables 后端，
+  externalInterface eth1 / internalIPs eth0）随 configuration.nix 导入。
+- **Kea reservations**：`dhcp-reservations.nix`（secrets 仓库，`site` 键，
+  目前为空占位，站点设备确定后填充）。
+- **防火墙**：补 `PUBLIC_OUTPUT` 链（本机服务端口不向 WAN 泄漏）。
+
+**明确不复刻**（硬件/用途/规划限制，需要时再议）：
+- lancache / ncps：SD 卡存储太小，无缓存盘；
+- nmea-static-gps-server：无 GPS 硬件；
+- IPv6 栈（SEND RA / DHCP6 / tayga / HE 隧道）：站点无 IPv6 分配；
+- VLAN 分段：站点规划为单网段 192.168.30.0/24；
+- ONT WebUI netns：站点上游设备未知；
+- ddns-bunny：DNS 不在 Bunny（在 Gcore）。
