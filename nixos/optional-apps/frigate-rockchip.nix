@@ -130,8 +130,12 @@ in
     sops.templates."frigate-config" = {
       content = builtins.toJSON (
         {
-          # frigate 0.17 起 mqtt 为必填字段（不开 MQTT，HA 集成走 HTTP API）。
-          mqtt.enabled = false;
+          # 事件走本机 mosquitto（HA Frigate 集成的传感器靠它；回环匿名）。
+          mqtt = {
+            enabled = true;
+            host = "127.0.0.1";
+            port = 1883;
+          };
           database.path = "/config/frigate.db";
           detectors.rknn = {
             type = "rknn";
