@@ -181,9 +181,14 @@ in
             export CALDAV_BASE_URL=https://cal.zhyi.xin
             export CALDAV_USERNAME=zhyi
             export CALDAV_PASSWORD=$(cat "${config.sops.secrets.default-pw.path}")
-            exec ${pkgs.nodejs}/bin/npx -y caldav-mcp
+            exec ${pkgs.nodejs}/bin/npx -y caldav-mcp@0.10.0
           ''
         );
+        # Deviation from upstream: npx cold start (registry resolve + install)
+        # measured 15-28s, close to LibreChat's 30s default MCP init timeout;
+        # the first connect attempt at 2026-08-15 failed exactly this way.
+        # Pin the tool version and raise the timeout so startup is deterministic.
+        initTimeout = 60000;
       };
       flightaware = {
         command = toString (
