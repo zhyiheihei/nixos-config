@@ -37,16 +37,17 @@
     extraPackages = ps: [ ps.hass-web-proxy-lib ];
   };
 
-  # Frigate 集成的事件传感器走 MQTT；broker 只监听回环，HA 与 frigate 同机。
+  # Frigate 集成的事件传感器走 MQTT；broker 只监听回环，
+  # omitPasswordAuth 允许本机 frigate/HA 匿名连接。
   services.mosquitto = {
     enable = true;
     listeners = [
       {
         address = "127.0.0.1";
         port = 1883;
+        omitPasswordAuth = true;
       }
     ];
-    settings.allow_anonymous = true;
   };
 
   # Xiaomi Home's OAuth redirect URL is hardcoded to http://homeassistant.local:8123
