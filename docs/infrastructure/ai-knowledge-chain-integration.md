@@ -9,7 +9,7 @@
 - **AI 链是推理与编排面**：UniAPI 是唯一 Provider 汇聚点，LibreChat、Metapi、n8n
   都从 UniAPI 取模型；Memos 的 AI Provider 经 Metapi 再代理 UniAPI。
 - **知识链是记忆与输入面**：`Notes -> Gitea` 是私有权威，Syncthing 负责三机分发；
-  Blog/pyison 是公开索引；RSS、ArchiveBox、Memos 是持续输入源。
+  Blog/pyison 公开索引已于 2026-08-15 退役；RSS、ArchiveBox、Memos 是持续输入源。
 - **两条链通过官方 API 连接**：知识服务用 Gitea/Memos/Miniflux/Syncthing 官方 API
   暴露读写，AI 链用 UniAPI 的 OpenAI 兼容 `/v1` 提供推理，n8n 充当自动化中枢，
   LibreChat 与本地 AI 客户端通过 MCP/官方 REST 消费知识。
@@ -68,7 +68,7 @@ flowchart LR
 | C1 | n8n 知识检索工作流 | Gitea REST + UniAPI `/v1` | 拉取 `zhyi/notes`，让 UniAPI 客户端问答私有笔记 | 工作流超时；PAT 权限需最小化 | P1 |
 | C2 | LibreChat 知识源 | Gitea REST / 官方 MCP | 聊天界面内搜索/读取笔记 | 社区 MCP 无官方保证；需独立模块注入，不改公共 `mcp-servers.nix` | P1 |
 | C3 | Syncthing 事件驱动 | Syncthing `/rest/events`、`/rest/db/status` | Notes 变更触发重索引或 AI 摘要 | 事件轮询延迟；API key 管理 | P1 |
-| C4 | pyison 全文检索 | pyison HTTP 搜索（待核验） | 轻量检索 Blog/docs | API 未文档化；索引新鲜度依赖重建 | P2 |
+| C4 | Blog/docs 全文检索 | 重建方案待定（pyison 已退役，2026-08-15） | 轻量检索 Blog/docs | API 未文档化；索引新鲜度依赖重建 | P2 |
 | C5 | Memos 读写集成 | Memos `/api/v1/memos` + Connect API | 检索/创建/归档 memo，知识闭环 | PAT 范围；greencloud→opi5p 走 LTNET | P2 |
 | C6 | Qdrant 向量 RAG | Qdrant REST + UniAPI embeddings | Notes/Memos 语义检索 | 未部署；端口未登记；需先核验 embeddings | P2 |
 | C7 | Gitea Actions 索引 | Gitea webhook / Actions | push 即触发重索引 | runner 资源；凭据写入 Notes 仓库需谨慎 | P2 |
@@ -87,8 +87,6 @@ flowchart LR
   Memos/Metapi SQLite 均为运行态；配置走官方 API/UI/CLI，新服务用独立数据文件。
 - 凭据只进 SOPS secrets，不写进仓库正文、Notes 或文档。
 - Notes 与 nixos-config 是两个独立 git 仓库，不混用、不放符号链接或 `.git` 指向。
-- Waline 若恢复公开天线，其 LLM 审核必须指向 `ai-api.zhyi.xin`，不得直连
-  OpenRouter。
 - Qdrant 未启用；若启用必须先规范为 options 门闩模块、核验 `hsnw_index` 疑点、
   登记端口 6333/6334，并确认 UniAPI 暴露 embedding 模型。
 
@@ -99,7 +97,7 @@ flowchart LR
 - 本文件作为 AI 链 ↔ 知识链整合的权威入口。
 - 同步更新 `ai-api-gateway-chain.md`、`fleet-service-chain.md`、知识链文档、
   `memos.md`、`rss-chain.md`、`inspection-playbook.md`。
-- 明确 Qdrant/AxonHub/Waline 的“未部署/暂停”状态与 OpenRouter 红线。
+- 明确 Qdrant/AxonHub 的“未部署/暂停”状态与 OpenRouter 红线。
 
 ### P1 最小闭环（优先）
 
@@ -119,8 +117,8 @@ P1 运行态前置：`/run/secrets/gitea-ai-token`、`/run/secrets/memos-ai-toke
 ### P2 条件项
 
 - Qdrant 向量 RAG：先核验 UniAPI embeddings 与端口登记，以独立规范模块试点。
-- pyison 检索复用、ArchiveBox 自动化、Gitea Actions 索引。
-- 公开天线恢复时：Waline LLM 审核改指 UniAPI；pyison 内容源与索引重建机制实机核验。
+- ArchiveBox 自动化、Gitea Actions 索引。
+- 公开天线恢复时：需重新评估 pyison/Waline 部署方式（已于 2026-08-15 退役）。
 
 ## 验收命令
 
@@ -158,8 +156,8 @@ curl -fsS \
 
 ## 未验证点
 
-- 官方文档 URL 已在本文件核对；部分端点（ArchiveBox JSON API、pyison 搜索接口、
-  Miniflux/Syncthing API key 穿透 OAuth vhost 的能力）需实施期实机验证。
+- 官方文档 URL 已在本文件核对；部分端点（ArchiveBox JSON API、pyison 搜索接口
+  已随退役移除、Miniflux/Syncthing API key 穿透 OAuth vhost 的能力）需实施期实机验证。
 - hostdare 与 ml-2700 当前不可达，公开 UniAPI 与本地 AI 客户端运行态未验证。
 - UniAPI 的 `deepseek-v4-flash:opencode-go` 模型别名已于 2026-08-12 在
   `greencloud` 通过 `/v1/models` 实机核验存在。

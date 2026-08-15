@@ -94,8 +94,6 @@ AI 链与知识链通过各服务官方 API 连接，禁止用“共享数据库
 - Syncthing：事件/状态查询走 `/rest/events`、`/rest/db/status`，API key 进
   SOPS；公网 vhost 前的 OAuth 是否放行 API key 需实机验证，必要时走
   `127.0.0.1` 通道。
-- Waline（未启用）：若恢复公开路线，其 LLM 审核插件必须改指
-  `ai-api.zhyi.xin`，不得直连 OpenRouter。
 
 ## 官方 API 出处
 

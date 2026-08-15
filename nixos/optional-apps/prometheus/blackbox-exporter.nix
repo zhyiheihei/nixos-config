@@ -35,7 +35,6 @@ let
     "https://matrix.zhyi.xin/_matrix/client/versions"
     "https://n8n.zhyi.xin"
     "https://pb.zhyi.xin"
-    "https://posts.zhyi.xin"
     "https://stats.zhyi.xin"
     "https://tools.zhyi.xin"
     "https://whois.zhyi.xin"
