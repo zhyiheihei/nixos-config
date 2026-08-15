@@ -346,3 +346,29 @@ Mbit/s），没有吞吐缺口。因此只套用 R5C 配方里适用单队列的
   secrets flake 输入；h28k 重新部署后 `sops-install-secrets` 成功，
   `/run/secrets/` 填充，attic `nix-cache-info` 从 401 → 200。
 - 后续部署应改回正规 `nix copy` / colmena 流程（无需再绕 daemon 签名校验）。
+
+## 路由器形态落地（2026-08-16，复刻作者 lt-home-router）
+
+设备已从"双口 DHCP staging"切换为正式路由器形态，结构参照
+`nixos-config-exam/hosts/lt-home-router/`（1:1 尽量复刻，偏差均已注释）：
+
+- **WAN（eth1）**：IPv4 DHCP 上行 + **CAKE** qdisc（`bandwidth 1G`、
+  `dual-srchost`、`NAT`、`diffserv8`，networkd `cakeConfig`），忽略上游 DNS。
+- **LAN（eth0）**：静态 `192.168.30.1/24`，Kea DHCP4 下发 `192.168.30.100-249`，
+  网关/DNS `192.168.30.1`（staging 期间 kea 因地址缺失重启循环，现正常绑定）。
+- **防火墙**（作者结构 + 两处文档化偏差）：ICMP timestamp drop、ZeroTier 上
+  禁 mDNS、`PUBLIC_INPUT` 链封禁 WAN 侧 samba/CUPS/rsync/NMEA/mDNS 端口、
+  hairpin NAT + `NAT_PORT_FORWARD` 骨架、`RESERVED_IPV4` 集；NAT 仅
+  `oifname eth1` masquerade（保留 LTNET 源地址，非作者的 `!=eth0*`）；
+  INPUT 保持 policy drop（远端 WAN 不可信，非作者的 policy accept）。
+- **DNS**：LAN 53 → DNAT → coredns client netns（198.18.125.56），已实测解析。
+- **QoS 分工**：eth1 归 CAKE（networkd 管理），eth0 归 fq_codel（h28k-rps 只管
+  eth0，避免每分钟覆盖 CAKE）。
+- **暂未复刻**（站点迁移后再议）：VLAN 分段、IPv6（SEND RA/DHCP6/tayga/HE）、
+  DDNS（本仓 router 有 `ddns-gcore.nix` 可参考）、miniupnpd、lancache/ncps、
+  Kea reservations（secrets 尚无 `dhcp-reservations.nix`）。
+
+真机验收：设备侧全链路已验（地址/路由/Kea/NAT/DNS/CAKE/防火墙链）。最终验收需
+在 eth0 后接一台设备：应拿到 `192.168.30.x` 租约、经 `192.168.30.1` 解析 DNS、
+经 WAN 上网；期间 h28k 仍可通过 eth1 的 home-LAN 租约或 ZeroTier
+（198.18.0.125）SSH。
