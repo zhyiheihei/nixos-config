@@ -31,6 +31,16 @@
               hw-address = "bc:24:11:a4:51:4e";
               ip-address = "192.168.0.41";
             }
+            {
+              hostname = "cam-bedroom";
+              hw-address = "1c:4d:89:e1:2a:b5";
+              ip-address = "192.168.0.104";
+            }
+            {
+              hostname = "cam-livingroom";
+              hw-address = "1c:4d:89:e3:4e:3a";
+              ip-address = "192.168.0.115";
+            }
           ];
           option-data = [
             {
