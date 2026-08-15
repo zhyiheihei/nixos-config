@@ -130,7 +130,7 @@
 | netbox | `netbox.xuyh0120.win` public+OAuth | `netbox.zhyi.cc` public+OAuth | `netbox.zhyi.xin` | blackbox 探针 | 可迁 |
 | hydra | `hydra.lantian.pub` public（limit_req 限流） | `hydra.zhyi.cc` public | `hydra.zhyi.xin` | blackbox 探针；**hydraURL（hydra/default.nix）**；greencloud 反代 override；public-sites 白名单 | 可迁（连带 hydra 配置） |
 | flapalerted | `flapalerted.lantian.pub` public | `flapalerted.zhyi.cc` public | `flapalerted.zhyi.xin` | blackbox 探针；**stayrtr `--cache`（RPKI 数据源）**；prometheus scrape-configs；public-sites 白名单 | 可迁（连带 RPKI 链，谨慎） |
-| dav | `dav.<host>.xuyh0120.win` public+BasicAuth（作者用 `<host>` 格式） | `dav.<host>.zhyi.cc` public+BasicAuth | 待定：`dav.<host>.zhyi.xin`（跟作者格式，DNS 需逐主机记录）或 `dav.zhyi.xin` | BasicAuth 保护，per-host 服务 | 建议保留现状或跟作者格式 |
+| dav | `dav.<host>.xuyh0120.win` public+BasicAuth（作者用 `<host>` 格式） | `dav.zhyi.xin` public+BasicAuth | `dav.zhyi.xin`（2026-08-15 定案：公开 BasicAuth，单级域名复用 `*.zhyi.xin` 通配证书） | BasicAuth 保护；rock5c 边缘反代；DNS `dav` → home-ddns | 已迁（证书无需新签） |
 | vaults3 | （作者无此文件） | `vaults3.zhyi.cc` public（我方刻意：Attic 8443 兼容端点，router DNAT） | — | attic/gitea/memos S3 端点引用 + home-ddns + 文档 | **建议不迁**，列为例外 |
 
 ### 核对要点
