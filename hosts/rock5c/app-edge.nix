@@ -27,7 +27,12 @@ let
   mkFixedFrontend = frontend: backend: {
     locations."/" =
       (mkBackend backend)
-      // lib.optionalAttrs (frontend == "books.zhyi.xin") { enableBasicAuth = true; }
+      // lib.optionalAttrs (
+        builtins.elem frontend [
+          "books.zhyi.xin"
+          "dav.zhyi.xin"
+        ]
+      ) { enableBasicAuth = true; }
       // lib.optionalAttrs (
         builtins.elem frontend [
           "asf.zhyi.xin"
