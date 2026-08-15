@@ -281,6 +281,43 @@ SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）�
 > `halo.volcengine.zhyi.cc` 已接入。Avatar API 作者有（common-apps/libravatar），
 > 属公开只读 API，不接。
 
+## 凭据管理与改密清单
+
+统一凭据：用户名 **zhyi**、口令 **default-pw**。明文存 secrets
+`common/default-pw.yaml`；LDAP/BasicAuth 用的是同一口令的 bcrypt，存
+`glauth-users.nix` 的 `zhyi.passBcrypt`（注释即 "Password = default-pw"）。
+
+### 自动联动（改 secrets 即改密，需 bump + 部署对应主机）
+
+| 凭据源 | 服务 | 生效方式 |
+| --- | --- | --- |
+| `common/default-pw.yaml`（明文） | Resilio Sync webui（zhyi/default-pw）、Metapi（AUTH_TOKEN）、MCP CalDAV 密码、Hydra cancel-old-builds 定时任务、ClawEmail（ADMIN_PASSWORD）、SublinkPro（admin 口令 + 订阅 token） | 运行时 `cat $(path)` 或构建时 placeholder 嵌入；改后部署对应主机即生效 |
+| `glauth-users.nix`（`zhyi.passBcrypt`） | glauth LDAP 密码 → Radicale（cal）、Quassel、Matrix Synapse（Element 登录）；nginx BasicAuth → dav / books / tachidesk | LDAP bind 运行时读；htpasswd 构建时重新生成 |
+
+> ⚠️ **改密必须两处同步**：`default-pw.yaml` 写新明文，`glauth-users.nix` 写同一
+> 密码的 bcrypt。只改一处会导致 LDAP/BasicAuth（旧密码）与 webui/token 类
+> （新密码）不一致。
+
+### 手动改密（应用自有账号，需在各自界面/数据库改）
+
+| 服务 | 说明 |
+| --- | --- |
+| Home Assistant | HA 界面 → 用户资料（已改自有账号登录，不再挂 oauth2-proxy） |
+| Sun Panel（+Helper） | 面板设置页 |
+| Vaultwarden | 主密码用户自设（SSO 走 Dex 是另一套，不影响主密码） |
+| Jellyfin / Immich / qBittorrent / PVE / Plausible / FileCodeBox / Bepasty / QNAP / Hydra(admin) / Sonarr / IYUU | 各自账号体系，改密在应用内 |
+
+### 改密操作步骤
+
+1. 生成新密码 P 及其 bcrypt（成本 05、`$2b$` 前缀，与现有
+   `zhyi.passBcrypt` 格式一致；工具若输出 `$2y$` 前缀，替换为 `$2b$`）。
+2. secrets 仓库：`sops edit common/default-pw.yaml` 写入 P；编辑
+   `glauth-users.nix` 把 `zhyi.passBcrypt` 换成新哈希。提交 + push。
+3. 主仓库：`nix flake update secrets` 并提交 flake.lock。
+4. ml-builder 同步后部署：glauth 主机（volcengine、rock5c）、BasicAuth 与
+   default-pw 消费方所在主机（opi5p、rock5c、greencloud、tencent、ml-builder 等）。
+5. 手动项：在 HA、Sun Panel 及自带账号应用内分别改密。
+
 ## 运维要点
 
 1. 新增 OIDC 应用：按 [OIDC 应用接入规范](./oidc-app-integration.md) 四步走
