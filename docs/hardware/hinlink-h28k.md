@@ -1,8 +1,8 @@
 # HINLINK H28K（RK3528）NixOS 路由器适配
 
-本文记录 `h28k` 主机的首启镜像、双网口路由和正式入网门禁。当前配置已经通过
-`sdImage.drvPath` 求值，但尚未完成整镜像构建与真机串口验收；因此本文会明确区分
-“已由源码确认”和“待上电确认”，不把可求值等同于可启动。
+本文记录 `h28k` 主机的首启镜像、双网口路由和正式入网门禁。2026-08-15 起设备已在线
+运行（ZeroTier/LTNET 接入，`zerotier = "368d3cf42b"`），本文历史结论按"已由源码确认 /
+已由真机验证"区分，不再以"可求值"当作验收标准。
 
 ## 当前目标
 
@@ -113,6 +113,18 @@ Assisted-by: Codex:gpt-5
 并在 changelog 说明 AI 参与根因分析与方案、真机验证由人完成。当前状态：v2
 已上线 lore（linux-rockchip 归档），等待维护者反馈。
 
+**U-Boot 侧收敛（2026-08-15 已验证）**：mainline 的 dwc_eth_qos 只在执行网络命令时才
+走 PHY 路径，且 `DWC_ETH_QOS_ROCKCHIP` 会 `select DM_ETH_PHY`，把 `phy_gpio_reset()`
+编译成空 stub —— 即使 U-Boot 板级补丁在 DTS 里声明了 `reset-gpios`，开机流程也从来
+不会释放 RTL8211F 复位（GPIO4 RK_PC2 上电默认拉低），Linux 首次 MDIO 扫描读不到 PHY，
+eth0 呈 `MDIO device at address 1 is missing` / `cannot attach to PHY (-ENODEV)`。
+仓库本地增量 `0002-h28k-release-phy-reset-gpio-hog.patch` 在 U-Boot DTS 加 gpio-hog
+（GPIO bank probe 时把 RK_PC2 拉高，早于以太网初始化和 Linux 启动，与 CONFIG_NET 无关），
+defconfig 加 `CONFIG_GPIO_HOG=y`。已真机验证：`PHY [stmmac-0:01] driver
+[RTL8211F Gigabit Ethernet]`，eth0 千兆 link 正常，内核随后自行接管复位 GPIO
+（debugfs 显示 `PHY reset` out hi）。U-Boot 侧改动以独立本地补丁叠加在 Chukun Pan
+原版之上，原版补丁保持 verbatim。
+
 - v2：https://lore.kernel.org/linux-rockchip/178577533421.26919.15449256732994709630.h28k-rfc-v2@163.com/
 - supersede 说明：https://lore.kernel.org/linux-rockchip/178577533421.26919.15228893238527652331.h28k-rfc-v2-supersedes@163.com/
 
@@ -140,9 +152,12 @@ runtime
 └── /nix   neededForBoot = true
 ```
 
-这是 H28K 首次真机测试中风险最高的一层：mainline U-Boot 目前使用通用 RK3528
-早期设备树，而不是 H28K 专用 defconfig。配置和 SD 控制器已从锁定源码确认，仍必须
-以串口证明 BootROM、DDR、SD 和 extlinux 全部工作，不能在此之前写入板载 SPI/eMMC。
+这是 H28K 早期首次真机测试中风险最高的一层（历史记录）：当时 mainline U-Boot 使用
+通用 RK3528 早期设备树。2026-08-04 起已切换为板级 `hinlink-h28k-rk3528_defconfig`
+（Chukun Pan 补丁），BootROM、DDR、SD、extlinux 与双网口均已在真机验证
+（2026-08-15），可正常在线运行；仍不建议写入板载 SPI/eMMC，除非有明确需求。
+U-Boot 只更新 SD 卡 sector 64 处的 `u-boot-rockchip.bin` 区域（约 9 MiB），
+不需要整卡重写；写前先备份旧区域（如 `dd if=/dev/mmcblk0 bs=512 skip=64 count=18323`）。
 
 ## 构建
 
