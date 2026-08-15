@@ -152,6 +152,20 @@ in
             alerts.retain.days = cfg.retentionDays;
             detections.retain.days = cfg.retentionDays;
           };
+          # 只跟踪猫（COCO labelmap 自带 cat 类）；min_score 过滤低置信度，
+          # threshold 用于事件判定。要同时跟踪人/车再加进 track 列表。
+          objects = {
+            track = [ "cat" ];
+            filters.cat = {
+              threshold = 0.7;
+              min_score = 0.5;
+            };
+          };
+          # 事件快照（HA 摄像头实体缩略图 + 事件时间线用）。
+          snapshots = {
+            enabled = true;
+            retain.default = cfg.retentionDays;
+          };
           cameras = lib.mapAttrs (
             name: cam:
             let
