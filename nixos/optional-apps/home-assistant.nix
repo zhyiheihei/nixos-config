@@ -1,31 +1,35 @@
-{ config, ... }:
+{ config, pkgs, ... }:
 {
-  virtualisation.oci-containers.containers.home-assistant = {
-    image = "ghcr.io/home-assistant/home-assistant:2026.3.1";
-    labels."io.containers.autoupdate" = "registry";
-    extraOptions = [
-      "--network=host"
-      "--privileged"
+  services.home-assistant = {
+    enable = true;
+    # Reuse the config directory from the retired podman deployment so the
+    # entity registry, dashboards, automations and database history survive.
+    configDir = "/var/lib/home-assistant";
+
+    # Components with actual entities on this instance (roborock, upnp, sun,
+    # androidtv, google_translate, shopping_list) plus the deps xiaomi_home
+    # needs (ffmpeg, zeroconf). met/backup come from the module defaults.
+    extraComponents = [
+      "androidtv"
+      "ffmpeg"
+      "google_translate"
+      "roborock"
+      "shopping_list"
+      "sun"
+      "upnp"
+      "zeroconf"
     ];
-    environment.TZ = config.time.timeZone;
-    volumes = [
-      "/var/lib/home-assistant:/config"
-      "/dev:/dev"
-      "/etc/localtime:/etc/localtime:ro"
-      "/var/run/docker.sock:/var/run/docker.sock"
+
+    customComponents = [
+      pkgs.home-assistant-custom-components.xiaomi_home
+      pkgs.dreame-vacuum
     ];
   };
 
-  systemd.services.podman-home-assistant = {
-    after = [ "podman.socket" ];
-    requires = [ "podman.socket" ];
-  };
-
-  systemd.tmpfiles.settings.home-assistant."/var/lib/home-assistant"."d" = {
-    mode = "0700";
-    user = "root";
-    group = "root";
-  };
+  # Xiaomi Home's OAuth redirect URL is hardcoded to http://homeassistant.local:8123
+  # (nixpkgs example for this integration); announce that name over mDNS so the
+  # 米家 re-login flow works from LAN devices.
+  services.avahi.hostName = "homeassistant";
 
   lantian.nginxVhosts = {
     "ha.${config.networking.hostName}.zhyi.cc" = {

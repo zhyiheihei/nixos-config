@@ -82,6 +82,7 @@
 
 ## 迁移与验收记录
 
+- [Home Assistant 迁移到 Nix 原生服务](./migrations/home-assistant-native-migration.md)
 - [2026-08-15 上游对齐审计（分批 backport）](./migrations/upstream-alignment-audit-2026-08-15.md)
 - [主机改名 cnvm -> volcengine](./migrations/cnvm-volcengine-rename.md)
 - [2026-08-03 作者配置复刻偏移审计](./migrations/upstream-replica-audit-2026-08-03.md)
