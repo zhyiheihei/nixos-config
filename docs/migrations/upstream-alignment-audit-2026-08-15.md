@@ -126,7 +126,7 @@
 | `auto-update-data.yml` | 与上游**完全一致**（`diff` 空）：补上 `nix flake update` + push 到 `auto-update` 分支两步，提交步骤改名对齐 |
 | `dnscontrol.yml` | 保留 fork 定制：`actions/checkout@v5`（上游 v4）、`install-nix-action@v31`（上游 v26）、rsync 目标 `ci@rsync-ci.zhyi.cc`（上游 `xuyh0120.win`）——动作版本更新与自有 CI 主机，不回退 |
 | 定时触发 | 仓库是 **public fork**，GitHub 默认不跑 fork 的 schedule；2026-08-15 已有一次 `schedule` 触发的 dnscontrol 成功 run，说明已可定时触发，后续观察即可 |
-| 验证 | `workflow_dispatch` 触发 auto-update-data：两次都因运行期间用户并发推送 master 导致 `non-fast-forward` 失败（竞态，非工作流问题）。git-auto-commit-action 官方明确不做 `git pull`/rebase（README "No git pull when the repository is out of date"），上游同样承受该竞态。dnscontrol 工作流在 push 触发下持续全绿（含一次 `schedule` 触发成功 run）。auto-update 按 23:32 UTC 定时（安静时段）预期可通过，验证 run 待安静窗口复核 |
+| 验证 | `workflow_dispatch` 触发 auto-update-data：**三次均在同一步骤失败**——"Commit updated packages" 推送 master 时 `non-fast-forward`。根因确凿：运行期间（~10–13 分钟）用户对 master 有并发推送，其中一次为 **force push**（`a1ba6bc...9fa4769 forced update`，历史被重写），runner 检出的旧 master 与 origin 分叉。git-auto-commit-action 官方明确不做 `git pull`/rebase（README "No git pull when the repository is out of date"），上游同样承受该竞态，只是作者 master 安静。dnscontrol 工作流在 push 触发下持续全绿（含一次 `schedule` 触发成功 run），不受影响。auto-update 在无并发推送的时段（如 23:32 UTC 定时）预期可通过；是否加 rebase 健壮化（偏离上游）待用户确认 |
 
 > `codex/upstream-align` 分支内容已被批次 1 以不同 hash 适配到 master（审计正文多处引用该分支 hash），保留不删以免引用悬空。
 
