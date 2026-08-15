@@ -313,3 +313,33 @@ zerotier-cli info
 不会进入无限等待；node exporter 暂时只绑定 `127.0.0.1`。填入真实 ID 后，两者自动
 恢复仓库的标准 LTNET 行为。SOPS 在完成 rekey 前失败属于预期首启门禁，不能用复制
 其他主机私钥来消除。
+
+## 网络调优（2026-08-16，参考 R5C 配方）
+
+两个网口都是单队列（`dwmac-rockchip` 的 eth0、`r8169` 的 eth1），iperf3 基线
+（rock5c ↔ h28k，家庭千兆交换）显示两个口本就贴千兆线速（P1 938-941 / P4 950-951
+Mbit/s），没有吞吐缺口。因此只套用 R5C 配方里适用单队列的部分（
+`docs/research/10-router-rx-queue-4.md`）：
+
+- `hosts/h28k/performance.nix`：`netdev_budget 1200/30000`、`netdev_max_backlog
+  5000`、`rps_sock_flow_entries 16384`（双口 × 单队列 × 8192 流深）、
+  `flow_limit_table_len 16384`、16 MiB socket buffer；关闭 irqbalance；
+  `h28k-rps` 服务（每分钟自愈定时器）每口单 RX 队列 RPS 铺满 4 核、XPS 同铺、
+  eth0 IRQ→CPU0 / eth1 IRQ→CPU1、根 qdisc 换 `fq_codel`、双口 EEE off。
+- eth1（r8169）的 `xps_cpus` 在接口重建后才出现且部分写入被内核拒绝（stat 通过、
+  open 报 ENOENT），脚本对 sysfs 写入全部 best-effort（`|| true`），核心项
+  （RPS/fq_codel/EEE/IRQ 亲和）不受影响。
+- flowtable 未启用：7.1.5 内核缺 `CONFIG_NFT_FLOW_OFFLOAD`（与 R5C 的 6.18 内核
+  配置有漂移），且当前负载下转发不缺卸载。
+
+实测（调优后）：eth0 P4 反向重传 166 → 0，吞吐维持 938-951 Mbit/s 线速；
+部署到系统后 `h28k-rps.service` active，状态经重启可自动恢复。
+
+## 已知待办（2026-08-16）
+
+- **SOPS rekey 未完成**：`sops-install-secrets` 从首启起就失败（h28k 的 age key
+  `age1d634874…` 不在 secrets 仓库 `.sops.yaml` 的 recipient 列表），因此
+  `/run/secrets/` 为空，attic 私有缓存（2026-07-30 起匿名 401）的 netrc 读取 token
+  缺失。完成 `nixos-secrets` 的 rekey 并重新部署后，attic 拉取与其余 secrets 自动恢复。
+- 本机部署绕开了 daemon 签名校验（`NIX_REMOTE=local nix-store --import`），
+  待 SOPS 就绪后应改回正规 `nix copy` / colmena 流程。
