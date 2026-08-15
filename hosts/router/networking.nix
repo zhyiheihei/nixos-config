@@ -121,7 +121,9 @@
     };
 
     # PPPoE WAN. IPv4 is negotiated by pppd; networkd requests the ISP's
-    # delegated IPv6 prefix and redistributes one /64 to br-lan.
+    # delegated IPv6 prefix and redistributes one /64 to br-lan. CAKE shapes
+    # the uplink (author's lt-home-router recipe: dual-src-host, NAT,
+    # diffserv8) at the ~1G line rate measured in docs/research/11.
     ppp0 = {
       matchConfig.Name = "ppp0";
       networkConfig = {
@@ -141,6 +143,12 @@
         WithoutRA = "solicit";
       };
       linkConfig.RequiredForOnline = "routable";
+      cakeConfig = {
+        Bandwidth = "1G";
+        FlowIsolationMode = "dual-src-host";
+        NAT = true;
+        PriorityQueueingPreset = "diffserv8";
+      };
     };
 
     # LAN bridge: local PVE VMs and physical clients.

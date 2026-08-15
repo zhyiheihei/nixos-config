@@ -1,4 +1,9 @@
-{ lib, ... }:
+{ lib, inputs, ... }:
+let
+  # MAC -> IP reservations live in the secrets repo, like the author's
+  # lt-home-router/dhcp.nix.
+  reservations = import (inputs.secrets + "/dhcp-reservations.nix");
+in
 {
   # Follow the home-router Kea layout.  Infrastructure addresses stay static;
   # ordinary home devices receive addresses only from the .100-.249 pool.
@@ -25,23 +30,7 @@
           subnet = "192.168.0.0/24";
           interface = "br-lan";
           pools = [ { pool = "192.168.0.100 - 192.168.0.249"; } ];
-          reservations = [
-            {
-              hostname = "fn-os";
-              hw-address = "bc:24:11:a4:51:4e";
-              ip-address = "192.168.0.41";
-            }
-            {
-              hostname = "cam-bedroom";
-              hw-address = "1c:4d:89:e1:2a:b5";
-              ip-address = "192.168.0.104";
-            }
-            {
-              hostname = "cam-livingroom";
-              hw-address = "1c:4d:89:e3:4e:3a";
-              ip-address = "192.168.0.115";
-            }
-          ];
+          reservations = reservations.home;
           option-data = [
             {
               name = "routers";
