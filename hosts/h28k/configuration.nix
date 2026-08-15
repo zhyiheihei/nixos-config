@@ -7,6 +7,7 @@
     ./firewall.nix
     ./hardware-configuration.nix
     ./networking.nix
+    ./performance.nix
 
     ../../nixos/common-apps/coredns.nix
   ];
