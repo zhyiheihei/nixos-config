@@ -72,8 +72,9 @@
     systemd.services.resilio = {
       description = "Resilio Sync";
       wantedBy = [ "multi-user.target" ];
-      after = [ "network-online.target" ];
+      after = [ "network-online.target" "sops-install-secrets.service" ];
       wants = [ "network-online.target" ];
+      requires = [ "sops-install-secrets.service" ];
       unitConfig.RequiresMountsFor = [ "/sync" "/downloads" ];
       serviceConfig = LT.networkToolHarden // {
         Type = "simple";
@@ -85,6 +86,8 @@
         ExecStart = "${lib.getExe pkgs.resilio-sync} --config ${config.lantian.resilioSync.configDir}/sync.conf --nodaemon";
         # Fresh deployments have no sync.conf yet; rslsync would exit without
         # writing one, so seed a minimal default matching the module layout.
+        # The web UI uses the unified identity credentials (zhyi + default-pw),
+        # enforced on every start so the migrated QNAP account is replaced too.
         ExecStartPre =
           let
             defaultConf = pkgs.writeText "resilio-default-sync.conf" (
@@ -92,14 +95,27 @@
                 storage_path = config.lantian.resilioSync.configDir;
                 directory_root = "/sync/";
                 files_default_path = "/downloads";
-                webui.listen = "0.0.0.0:8888";
+                webui = {
+                  listen = "0.0.0.0:8888";
+                  login = "zhyi";
+                };
               }
             );
           in
           pkgs.writeShellScript "resilio-prepare-config" ''
-            test -f ${config.lantian.resilioSync.configDir}/sync.conf \
-              || ${pkgs.coreutils}/bin/install -m 0600 -o resilio-sync -g resilio-sync \
-                 ${defaultConf} ${config.lantian.resilioSync.configDir}/sync.conf
+            set -euo pipefail
+            CONF=${config.lantian.resilioSync.configDir}/sync.conf
+            PW=$(cat ${config.sops.secrets.default-pw.path})
+            if [ ! -f "$CONF" ]; then
+              ${pkgs.coreutils}/bin/install -m 0600 -o resilio-sync -g resilio-sync \
+                ${defaultConf} "$CONF"
+            fi
+            ${pkgs.jq}/bin/jq --arg pw "$PW" \
+              '.webui.login = "zhyi" | .webui.password = $pw | del(.webui.password_hash)' "$CONF" \
+              > "$CONF.tmp" \
+              && ${pkgs.coreutils}/bin/mv "$CONF.tmp" "$CONF" \
+              && ${pkgs.coreutils}/bin/chown resilio-sync:resilio-sync "$CONF" \
+              && ${pkgs.coreutils}/bin/chmod 0600 "$CONF"
           '';
         StateDirectory = "resilio-sync";
         ReadWritePaths = [ "/sync" "/downloads" ];

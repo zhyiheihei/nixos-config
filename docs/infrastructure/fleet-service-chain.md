@@ -249,8 +249,8 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | Plausible | `https://stats.zhyi.xin` | 应用管理员 |
 | Bepasty | `https://pb.zhyi.xin` | 分享链接 / 无账号 |
 | IT Tools | `https://tools.zhyi.xin` | 公开 |
-| Sun Panel | `https://index.zhyi.xin` | Dex OAuth |
-| Sun Panel Helper | `https://index-helper.zhyi.xin` | Dex OAuth |
+| Sun Panel | `https://index.zhyi.xin` | 自带认证（zhyi / default-pw） |
+| Sun Panel Helper | `https://index-helper.zhyi.xin` | 自带认证（zhyi / default-pw） |
 | FileCodeBox | `https://filebox.zhyi.xin` | 应用管理 |
 | 网络信息 API | `https://api.zhyi.xin/geoip` | 公开 |
 | Avatar API | `https://avatar.zhyi.xin` | 公开 |
@@ -285,9 +285,10 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | PeerBanHelper | `https://peerbanhelper.opi5p.zhyi.cc` | API token |
 | BitMagnet | `https://bitmagnet.opi5p.zhyi.cc/webui/` | 私有 |
 | MoviePilot | `https://moviepilot.rock5c.zhyi.cc` | 应用登录 |
-| Home Assistant | `https://ha.opi5p.zhyi.cc` | Dex OAuth |
+| Home Assistant | `https://ha.opi5p.zhyi.cc` | 自带账号（zhyi / default-pw） |
 | Syncthing | `https://syncthing.opi5p.zhyi.cc` | Dex OAuth |
 | Syncthing (GreenCloud) | `https://syncthing.greencloud.zhyi.cc` | Dex OAuth |
+| Resilio Sync | `https://resilio.opi5p.zhyi.cc/gui/` | 自带账号（zhyi / default-pw） |
 | ArchiveBox | `https://archivebox.opi5p.zhyi.cc` | Dex OAuth |
 | WebDAV（webdev） | `https://dav.zhyi.xin` | Basic Auth |
 | QNAP NAS | `https://qnap.zhyi.xin` | 应用管理 |

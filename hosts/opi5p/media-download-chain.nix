@@ -23,7 +23,6 @@ in
     ../../nixos/optional-apps/qbittorrent-seedbox.nix
     ../../nixos/optional-apps/sonarr/jproxy.nix
     ../../nixos/optional-apps/tachidesk.nix
-    ../../nixos/optional-apps/vertex.nix
 
     ../../nixos/optional-cron-jobs/flexget
     ../../nixos/optional-cron-jobs/qbittorrent-pt-cleanup

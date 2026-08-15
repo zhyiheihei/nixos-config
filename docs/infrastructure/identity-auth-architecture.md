@@ -137,16 +137,12 @@ staticClients 与 LDAP 消费者。模块存在但**没有被任何主机导入*
 | NetBox | `netbox.zhyi.xin` | greencloud |
 | Miniflux | `rss.zhyi.xin` | greencloud |
 | n8n | `n8n.zhyi.xin` | greencloud |
-| Sun Panel | `index.zhyi.xin` | rock5c 边缘 → opi5p |
-| Sun Panel Helper | `index-helper.zhyi.xin` | rock5c 边缘 → opi5p |
 | ArchiSteamFarm | `asf.zhyi.xin` | rock5c 边缘 → opi5p |
 | 代理订阅（登录部分） | `sub.zhyi.xin` | greencloud |
 | Syncthing | `syncthing.opi5p.zhyi.cc` / `syncthing.greencloud.zhyi.cc` | opi5p / greencloud |
 | ArchiveBox | `archivebox.opi5p.zhyi.cc` | opi5p |
-| Home Assistant | `ha.opi5p.zhyi.cc` | opi5p |
 | Ignis | `ignis.opi5p.zhyi.cc` | opi5p |
 | Halo 管理后台 | `halo.volcengine.zhyi.cc` | volcengine |
-| Vertex | `vertex.opi5p.zhyi.cc` | opi5p |
 
 **B. 应用内 OIDC（应用自己实现 OIDC，client 注册在 Dex）**
 
@@ -175,6 +171,16 @@ staticClients 与 LDAP 消费者。模块存在但**没有被任何主机导入*
 | WebDAV | `dav.zhyi.xin` | rock5c 边缘 → opi5p |
 | Calibre COPS | `books.zhyi.xin` | rock5c 边缘 → opi5p |
 | Tachidesk | `tachidesk.zhyi.xin` | rock5c 边缘 → opi5p |
+
+**J. 自带认证 + 统一凭据（应用自有登录，账号统一 `zhyi` / `default-pw`，不挂
+oauth2-proxy）**
+
+| 服务 | 入口 | 承载主机 | 说明 |
+| --- | --- | --- | --- |
+| Home Assistant | `ha.opi5p.zhyi.cc` | opi5p | 内网私有，HA 自有账号 |
+| Sun Panel | `index.zhyi.xin` | opi5p | Sun Panel 自有账号 |
+| Sun Panel Helper | `index-helper.zhyi.xin` | opi5p | 资源后端随面板 |
+| Resilio Sync | `resilio.opi5p.zhyi.cc/gui/` | opi5p | webui 凭据由模块强制为 zhyi/default-pw |
 
 ### 体系外
 
@@ -236,8 +242,8 @@ SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）�
 
 ### 审计结论
 
-1. **已接入 27 项**（A 15 + B 6 + C 4 + D 3，其中 Pocket ID 为体系自身），
-   **未接入 30 项左右**（E/F/G/H/I 各类）。核心 Web 管理面基本都接入了身份链；
+1. **已接入 27 项**（A 11 + B 6 + C 4 + D 3 + J 4，其中 Pocket ID 为体系自身），
+   **未接入约 28 项**（E/F/G/H/I 各类）。核心 Web 管理面基本都接入了身份链；
    未接入的多为三类：自带账号的应用（Immich/Jellyfin/PVE/qBittorrent）、
    机器对机器的 token/密钥（AI 网关/构建链/备份链）、有意公开的只读面。
 2. **唯一"预留未接线"**：Dex 已注册 `immich` client，但 `immich.nix` 没有 OIDC
@@ -266,7 +272,10 @@ SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）�
 | **VaultS3** | **无（新增）** | S3 凭据 | 不建议接（S3 凭据模型与 OIDC 冲突） |
 | **QNAP NAS** | **无（新增）** | NAS 自有账号 | 无法接（非本仓库软件） |
 | **Halo** | **无（新增）** | 前台公开、后台已走 oauth2-proxy | 已部分接入，无需动作 |
-| **Vertex / Sun Panel** | **无（新增）** | 已走 oauth2-proxy | 已接入 |
+| **Home Assistant** | **无（新增）** | 内网私有，HA 自有账号 | 已接统一凭据（J：zhyi/default-pw，不挂 oauth2-proxy） |
+| **Sun Panel（+Helper）** | **无（新增）** | 自有认证 | 已接统一凭据（J：zhyi/default-pw，不挂 oauth2-proxy） |
+| **Resilio Sync** | **无（新增）** | webui 自有登录 | 已接统一凭据（J：webui 强制 zhyi/default-pw） |
+| ~~Vertex~~ | **无（新增）** | 已退役 | **已移除**（2026-08-15） |
 
 > 说明：Halo 前台（`zhyi.xin`）公开是博客设计，不接；管理后台
 > `halo.volcengine.zhyi.cc` 已接入。Avatar API 作者有（common-apps/libravatar），
