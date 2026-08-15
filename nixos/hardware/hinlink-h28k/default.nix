@@ -37,18 +37,23 @@ let
     cp -L "$source/rtl_nic/rtl8168h-2.fw" "$out/lib/firmware/rtl_nic/"
   '';
 
-  # Mainline U-Boot carries a board-specific HINLINK H28K target that
-  # resets the RTL8211F PHY before Linux starts (the generic RK3528 defconfig
-  # left the PHY reset line unconfigured). The current rkbin package contains
-  # the matching RK3528 DDR TPL and BL31 even though Nixpkgs does not yet
-  # expose them as passthru attributes.
-  # U-Boot must probe ethernet (CONFIG_NET) during startup: probing the
-  # DWC GMAC driver asserts/releases the PHY reset-gpios, so the RTL8211F
-  # is out of reset when Linux starts. Without CONFIG_NET, U-Boot never
-  # touches the PHY and Linux hits the chicken-and-egg probe deadlock.
+  # Mainline U-Boot carries a board-specific HINLINK H28K target (Chukun Pan's
+  # pending patch, 0001-...). The current rkbin package contains the matching
+  # RK3528 DDR TPL and BL31 even though Nixpkgs does not yet expose them as
+  # passthru attributes.
+  #
+  # The 0001 patch alone does not release the RTL8211F reset: dwc_eth_qos's
+  # PHY path only runs on a network command, and DWC_ETH_QOS_ROCKCHIP selects
+  # DM_ETH_PHY, which compiles phy_gpio_reset() into a no-op stub. The reset
+  # line (gpio4 RK_PC2) is pulled low at power-on, so Linux's first MDIO scan
+  # cannot read the PHY ID (chicken-and-egg). 0002-... adds a gpio-hog that
+  # drives the line high as soon as the GPIO bank probes, before Linux starts.
   ubootH28K = crossPkgs.buildUBoot {
     defconfig = "hinlink-h28k-rk3528_defconfig";
-    extraPatches = [ ./0001-board-rockchip-add-hinlink-h28k.patch ];
+    extraPatches = [
+      ./0001-board-rockchip-add-hinlink-h28k.patch
+      ./0002-h28k-release-phy-reset-gpio-hog.patch
+    ];
     extraMeta.platforms = [ "aarch64-linux" ];
     requiredSystemFeatures = [ "aarch64-cross" ];
     env = {

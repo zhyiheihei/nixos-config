@@ -7,10 +7,12 @@
   manualDeploy = true;
   city = geo.cities."CN Ningbo";
 
-  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEYeIr9Ar579oiuIYyPR7WplMRy9V5QbBufUD9PqItN7 root@h28k";
+  # SSH host keys regenerated after the board was reflashed on 2026-08-15;
+  # the previous record belonged to the earlier image and no longer matches.
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAnVvpIL8PvnULm0/zMZv1AEU29M8AQkvkVLZXUnclK9 root@h28k";
   ssh.ed25519Fingerprints = {
-    sha1 = "f0e522d6e93f11c6c9ec831c6d514f3a24defe36";
-    sha256 = "8ebc2ac67fa95ac4f405a524c35e61206cd8c5a3c8f1d9e2cdcad388ae907d1d";
+    sha1 = "6b0bf7f990d510f2a7de813361e3a3ef7c93c7a7";
+    sha256 = "4db3218fb849083903a633786b0a698f6c0507eff74eedbe285fbf73be4593b4";
   };
   # Must match the node's live identity; the previous value (d58553ad47)
   # was a different node, so the controller denied it (ACCESS_DENIED).

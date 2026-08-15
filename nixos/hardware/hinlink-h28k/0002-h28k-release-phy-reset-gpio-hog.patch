@@ -1,0 +1,42 @@
+From: Zhyi <molishanguang@outlook.com>
+Subject: [PATCH] H28K: release RTL8211F reset with a U-Boot gpio-hog
+
+The board-specific U-Boot never releases the RTL8211F reset: dwc_eth_qos's
+PHY path only runs on a network command, and DWC_ETH_QOS_ROCKCHIP selects
+DM_ETH_PHY, which compiles phy_gpio_reset() into a no-op stub. The reset
+line (gpio4 RK_PC2) is pulled low at power-on, so Linux's first MDIO scan
+cannot read the PHY ID and eth0 stays down ("MDIO device at address 1 is
+missing", "cannot attach to PHY (-ENODEV)").
+
+Drive the line high with a gpio-hog: the GPIO bank driver applies it at
+probe time, before ethernet init and long before Linux starts, independent
+of CONFIG_NET. The kernel DTS keeps the upstream phy-node reset-gpios; once
+the PHY answers MDIO, Linux performs its own reset cycle.
+
+---
+ arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi |    9 +++++++++
+ configs/hinlink-h28k-rk3528_defconfig        |    1 +
+ 2 files changed, 10 insertions(+)
+
+--- a/arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi
++++ b/arch/arm/dts/rk3528-hinlink-h28k-u-boot.dtsi
+@@ -9,3 +9,12 @@
+ &vdd_logic {
+ 	regulator-init-microvolt = <900000>;
+ };
++
++&gpio4 {
++	gmac1-rstn-hog {
++		gpio-hog;
++		gpios = <RK_PC2 GPIO_ACTIVE_LOW>;
++		output-low;
++		line-name = "gmac1-rstn";
++	};
++};
+--- a/configs/hinlink-h28k-rk3528_defconfig
++++ b/configs/hinlink-h28k-rk3528_defconfig
+@@ -34,3 +34,4 @@
+ CONFIG_ROCKCHIP_GPIO=y
++CONFIG_GPIO_HOG=y
+ CONFIG_LED=y
+ CONFIG_LED_GPIO=y
