@@ -2,6 +2,7 @@
   lib,
   buildPythonPackage,
   fetchurl,
+  poetry-core,
 }:
 # Frigate HA 集成的依赖（camera 实体的 Web 代理库）。纯 Python、无依赖。
 buildPythonPackage rec {
@@ -13,8 +14,9 @@ buildPythonPackage rec {
     sha256 = "sha256-H9C8jwJeR6skvCVn8jeaWqmIL0fmcab+/BQ5SzUIt00=";
   };
 
-  # sdist 用 hatchling（pyproject 构建）。
+  # sdist 用 poetry 构建后端。
   pyproject = true;
+  nativeBuildInputs = [ poetry-core ];
 
   meta = {
     description = "Web proxy library used by the Frigate Home Assistant integration";
