@@ -100,3 +100,25 @@
 - 已知限制：乐橙 App 中默认开启 **RTSP 加密（TLS）**，frigate 直连会拉流失败；
   需在 App 设备设置里关闭 RTSP 加密后，本地 RTSP 才能被 frigate 消费
   （两台均已关闭，2026-08-16 验证正常）。
+
+## Home Assistant 集成
+
+Frigate 集成组件（frigate-hass 5.15.4，声明式打包）+ 本机 mosquitto（127.0.0.1:1883）
+已部署；frigate 事件走 MQTT 推送。在 HA UI 中添加两个集成：
+
+1. **MQTT**：设置 → 设备与服务 → 添加集成 → MQTT → broker `127.0.0.1:1883`，无认证
+2. **Frigate**：设置 → 设备与服务 → 添加集成 → Frigate →
+   URL `http://127.0.0.1:5000`，用户名 `admin`，密码见 `journalctl -u podman-frigate | grep "Password:"`
+   （首次部署生成，登录后可改）
+
+添加后 HA 会获得：
+- **摄像头实体**（`camera.bedroom` / `camera.livingroom`，实时画面经 hass-web-proxy-lib 反代）
+- **猫检测传感器**（`binary_sensor.bedroom_cat` 等，走 MQTT 实时更新）
+- Frigate 事件/媒体浏览器集成
+
+## 猫识别与跟踪
+
+- `objects.track = ["cat"]`（COCO labelmap 自带 cat 类），`filters.cat`：
+  `threshold 0.7`、`min_score 0.5`
+- 事件快照已开启（`snapshots.enabled`，保留 7 天），frigate Events 页签可按 cat 筛选
+- RKNN NPU 检测（yolonas_s，rk3588 上约 25ms/帧）
