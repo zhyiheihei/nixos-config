@@ -1,4 +1,9 @@
-{ lib, ... }:
+{ lib, inputs, ... }:
+let
+  # MAC -> IP reservations for the site LAN live in the secrets repo, like
+  # the author's lt-home-router/dhcp.nix (reservations.vlan0/vlan5).
+  reservations = import (inputs.secrets + "/dhcp-reservations.nix");
+in
 {
   services.kea.dhcp4 = {
     enable = true;
@@ -23,6 +28,7 @@
           subnet = "192.168.30.0/24";
           interface = "eth0";
           pools = [ { pool = "192.168.30.100 - 192.168.30.249"; } ];
+          reservations = reservations.site;
           option-data = [
             {
               name = "routers";
