@@ -8,15 +8,22 @@
 
     # Components with actual entities on this instance (roborock, upnp, sun,
     # androidtv, google_translate, shopping_list) plus the deps xiaomi_home
-    # needs (ffmpeg, zeroconf). met/backup come from the module defaults.
+    # needs (ffmpeg, zeroconf) and the default_config dependency chain
+    # (bluetooth, dhcp, go2rtc, stream, usb). met/backup come from the module
+    # defaults.
     extraComponents = [
       "androidtv"
+      "bluetooth"
+      "dhcp"
       "ffmpeg"
+      "go2rtc"
       "google_translate"
       "roborock"
       "shopping_list"
+      "stream"
       "sun"
       "upnp"
+      "usb"
       "zeroconf"
     ];
 
