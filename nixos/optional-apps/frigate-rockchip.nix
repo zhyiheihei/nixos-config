@@ -130,6 +130,8 @@ in
     sops.templates."frigate-config" = {
       content = builtins.toJSON (
         {
+          # frigate 0.17 起 mqtt 为必填字段（不开 MQTT，HA 集成走 HTTP API）。
+          mqtt.enabled = false;
           database.path = "/config/frigate.db";
           detectors.rknn = {
             type = "rknn";
