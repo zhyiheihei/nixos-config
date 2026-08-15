@@ -57,11 +57,12 @@ in
         IMOU_GO2RTC_BIN = "${bridge}/bin/go2rtc";
         IMOU_BRIDGE_STATUS = "${cfg.dataDir}/status.json";
         PYTHONPATH = "${bridge}/opt/imou-p2p-bridge";
-        PATH = lib.makeBinPath [
-          bridge.pythonEnv
-          pkgs.ffmpeg-headless
-        ];
       };
+      # 用 path 选项扩展 PATH（自动保留 systemd 默认路径）。
+      path = [
+        bridge.pythonEnv
+        pkgs.ffmpeg-headless
+      ];
 
       # 首次启动写入带 go2rtc 端口配置的 options.json（UI 会继续往里写账号/摄像头）。
       preStart = ''
