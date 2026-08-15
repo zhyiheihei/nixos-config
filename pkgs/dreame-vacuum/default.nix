@@ -13,7 +13,7 @@ buildHomeAssistantComponent rec {
     owner = "Tasshack";
     repo = "dreame-vacuum";
     rev = "v2.0.0b23";
-    hash = "sha256-00600mnd81h74hy2aqjrm8dmwj7df8lq0km5jp9vnw7x2mrdzhhv";
+    hash = "sha256-G8LfchX9cLvTlaVOgCly7UheG6pZYiU8JAcG1GwFwAA=";
   };
 
   # Upstream ships CRLF line endings; normalize the files we touch. The map
