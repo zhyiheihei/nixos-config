@@ -8,8 +8,20 @@
 }:
 let
   cfg = config.lantian.frigate;
-  # 摄像头密码的 FRIGATE_* 环境变量名（占位符与 env 文件都以此命名）。
-  pwVar = name: "FRIGATE_" + lib.toUpper (lib.replaceStrings [ "-" ] [ "_" ] name) + "_PW";
+  # 模型文件名（fr-frigate 预设模型的固定命名）：
+  # <model>-<soc>-v2.3.2-2.rknn，frigate 的 rknn 插件按该名字在
+  # model_cache/rknn_cache 下查找，不存在才去 GitHub 下载。
+  modelFileName = "${cfg.model}-${cfg.soc}-v2.3.2-2.rknn";
+  # 预设模型由 nix 预取（确定性、无运行时网络依赖）；自定义路径模型
+  # （含 "/"）不预取，运行时需自行就位。
+  modelFetch =
+    if builtins.match "^[^/]+$" cfg.model != null then
+      pkgs.fetchurl {
+        url = "https://github.com/MarcA711/rknn-models/releases/download/v2.3.2-2/${modelFileName}";
+        sha256 = cfg.modelHash;
+      }
+    else
+      null;
 in
 {
   # 通用 Rockchip 专版 Frigate（官方 stable-rk 镜像，RKNN NPU 检测）。
@@ -34,10 +46,20 @@ in
       default = 3;
       description = "NPU cores for RKNN detection; 0 = auto, 3 on RK3588";
     };
+    soc = lib.mkOption {
+      type = lib.types.str;
+      default = "rk3588";
+      description = "Rockchip SoC for the RKNN model filename (rk3566/rk3568/rk3588/...)";
+    };
     model = lib.mkOption {
       type = lib.types.str;
       default = "deci-fp16-yolonas_s";
-      description = "RKNN model preset (auto-downloaded) or path to a .rknn file";
+      description = "RKNN model preset (auto-downloaded by nix) or path to a .rknn file";
+    };
+    modelHash = lib.mkOption {
+      type = lib.types.str;
+      default = "sha256-cad1bfb571fb24957672ff0f8dfb403a96601b2631dbef3b3ee73bff2d11b7b8";
+      description = "sha256 of the preset model (rk3588 deci-fp16-yolonas_s); update when changing model/soc";
     };
     modelType = lib.mkOption {
       type = lib.types.str;
@@ -61,7 +83,11 @@ in
           options = {
             rtspUrl = lib.mkOption {
               type = lib.types.str;
-              description = "RTSP URL; use the {FRIGATE_<NAME>_PW} placeholder for the local password";
+              description = ''
+                RTSP URL。密码用 sops 占位符：
+                rtsp://admin:''${config.sops.placeholder."<camera>-pw"}@host/...
+                （该占位符由 sops 模板渲染时替换为真实密码）
+              '';
             };
             onvifHost = lib.mkOption {
               type = lib.types.str;
@@ -151,6 +177,9 @@ in
           ) cfg.cameras;
         }
       );
+      # sops 渲染后这里是一个指向 /run/secrets/rendered/frigate-config 的
+      # 符号链接；容器内 /run 是容器自己的，链接会断，所以 podman-frigate
+      # 的 ExecStartPre 会把它复制成真实文件。
       path = "${cfg.configDir}/config.yml";
       owner = "root";
       group = "root";
@@ -163,11 +192,8 @@ in
       labels."io.containers.autoupdate" = "registry";
       environment = {
         TZ = config.time.timeZone;
-        # 模型与镜像首次拉取/下载走 router SOCKS5 代理（与其它 opi5p
-        # 工作负载一致）；内网地址与自有域直连。
-        HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-        HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-        NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin";
+        # 模型由 nix 预取，RTSP/ONVIF 走内网——容器内不需要代理。
+        # （不给 frigate 配 socks5：其 urllib 模型下载不认 socks5。）
       };
       volumes = [
         "${cfg.configDir}:/config"
@@ -189,13 +215,27 @@ in
         # 否则容器内 /sys、/proc 探测被拒绝。
         "--security-opt=systempaths=unconfined"
         "--security-opt=apparmor=unconfined"
+        # frigate 建议 /dev/shm ≥ 114MB（默认 62.5MB 会告警）。
+        "--shm-size=256m"
       ];
     };
 
     systemd.services.podman-frigate = {
-      # sops 渲染的 config.yml 必须先于容器启动存在。
-      after = [ "sops-nix.service" ];
-      wants = [ "sops-nix.service" ];
+      # sops 渲染的 config.yml 必须先于容器启动存在（sops 服务名是
+      # sops-install-secrets.service，不是 sops-nix.service）。
+      after = [ "sops-install-secrets.service" ];
+      wants = [ "sops-install-secrets.service" ];
+      serviceConfig.ExecStartPre = lib.mkBefore [
+        (pkgs.writeShellScript "frigate-prepare" ''
+          # sops 模板渲染结果 → 真实 config.yml（容器内 /run 不同，符号链接会断）。
+          install -Dm644 /run/secrets/rendered/frigate-config '${cfg.configDir}/config.yml'
+          # 预取的 RKNN 模型 → 模型缓存（frigate 按名查找，存在则跳过下载）。
+          mkdir -p '${cfg.configDir}/model_cache/rknn_cache'
+          if ! test -f '${cfg.configDir}/model_cache/rknn_cache/${modelFileName}'; then
+            install -Dm644 '${modelFetch}' '${cfg.configDir}/model_cache/rknn_cache/${modelFileName}'
+          fi
+        '')
+      ];
       # 镜像拉取走 router 代理（与其它 opi5p 容器一致）。
       environment = {
         HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
