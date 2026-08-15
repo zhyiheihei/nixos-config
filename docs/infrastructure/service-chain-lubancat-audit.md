@@ -19,9 +19,9 @@ LubanCat-1 可以承担一组低写入、ARM64 原生、可由现有入口反向
 2. FastAPI-DLS：从 ROCK 5C 迁入，预计释放约 122 MiB，迁移前必须备份 SQLite 和
    RSA key；
 3. vlmcsd：从 ROCK 5C 迁入，资源占用很小，但服务地址可由 BIRD 保持透明；
-4. Pyison：从 greencloud 迁入，先确认容器镜像具有 ARM64 manifest，公网 TLS
-   入口仍留在 greencloud；
-5. tg-bot-cleaner：从 greencloud 迁入，复制 Telethon session 等状态后再切换。
+4. tg-bot-cleaner：从 greencloud 迁入，复制 Telethon session 等状态后再切换。
+
+> Pyison（posts.zhyi.xin）原列在此处，已于 2026-08-15 退役，不再迁移。
 
 这一批预计让 LubanCat-1 从约 478 MiB 基线增长到约 0.9 GiB，仍保留约 1 GiB
 物理内存和 zram 作为峰值余量。ROCK 5C 可释放约 346 MiB，greencloud 只能释放
@@ -115,7 +115,6 @@ LubanCat-1 的常驻基线主要是 Nginx、Yggdrasil、CoreDNS、ZeroTier、BIR
 | Homepage Dashboard | ROCK 5C | 约 224 MiB cgroup | 声明式配置与 secrets，低写入 | 建议；迁入后保留原域名和入口反代 |
 | FastAPI-DLS | ROCK 5C | 约 122 MiB | SQLite、RSA keys、既有租约 URL | 建议；停写、校验数据后单实例切换 |
 | vlmcsd | ROCK 5C | 很小 | netns、BIRD 服务地址 | 建议；位置可由路由透明化 |
-| Pyison | greencloud | 约 13 MiB | 容器，近似无状态 | 建议；先验证 ARM64 镜像，公网入口不动 |
 | tg-bot-cleaner | greencloud | 预计数十 MiB | Telegram secrets、session 状态 | 建议；复制 session，禁止双实例运行 |
 
 预计目标拓扑：
@@ -130,7 +129,7 @@ flowchart LR
   Rock --> OPI["OPI5P\n数据库 / 媒体 / NCPS / 大状态"]
   OPI --> QNAP["QNAP"]
 
-  Colo -->|"保留原 Host/SNI"| Luban["LubanCat-1\nHomepage / FastAPI-DLS / vlmcsd\nPyison / tg-bot-cleaner"]
+  Colo -->|"保留原 Host/SNI"| Luban["LubanCat-1\nHomepage / FastAPI-DLS / vlmcsd\ntg-bot-cleaner"]
   Rock -->|"原家庭域名反代"| Luban
 ```
 
@@ -210,10 +209,11 @@ birdc show protocols
 
 ## 与作者原版的偏差边界
 
-作者原版仍把 Pyison、imapfilter、Radicale、RSSHub、tg-bot-cleaner 和
+作者原版仍把 imapfilter、Radicale、RSSHub、tg-bot-cleaner 和
 Yggdrasil ALFIS 放在 greencloud，把 FastAPI-DLS、UniAPI、vlmcsd 放在家庭 VM。
 本方案把其中少量轻服务放到 LubanCat-1，是为了利用新增硬件的主机级调整，不应演变
-成公共模块分叉。
+成公共模块分叉。Pyison 原属作者 greencloud 服务，已于 2026-08-15 随 posts.zhyi.xin
+一并退役，不参与迁移。
 
 允许的偏差只有：LubanCat-1 的 imports、服务 activation marker、资源限制和入口
 主机的反代目标。服务模块、端口常量、域名职责、AI 链路和身份链继续沿用作者结构。

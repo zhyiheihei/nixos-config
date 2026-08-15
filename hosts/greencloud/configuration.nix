@@ -30,7 +30,6 @@
     ../../nixos/optional-apps/netbox.nix
     ../../nixos/optional-apps/nginx-api.nix
     ../../nixos/optional-apps/plausible.nix
-    ../../nixos/optional-apps/pyison
     ../../nixos/optional-apps/quassel.nix
     ../../nixos/optional-apps/radicale.nix
     ../../nixos/optional-apps/rsshub.nix
