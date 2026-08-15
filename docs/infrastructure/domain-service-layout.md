@@ -25,6 +25,9 @@
 
 VOLCENGINE 本机承载 Dex、Pocket ID、Vaultwarden 与 Attic，它们的 DNS 直接指向
 `volcengine.zhyi.cc`。greencloud 承载 Gitea、Matrix、RSS、AI 和监控等服务。
+`ha.zhyi.xin`（Home Assistant，2026-08-15 起公网化，供手机 App 使用）由
+greencloud 终止 TLS 并反代到 opi5p 的 HA 实例（LTNET:8123）；LAN 入口
+`ha.opi5p.zhyi.cc` 保留（accessibleBy=private）。
 `asf`、`books`、`filebox`、`immich`、`index` 与 `index-helper` 保持作者的独立
 公开域名形态，并通过 `home-ddns.zhyi.cc` 进入家庭服务。`jellyfin` 与 `tachidesk`
 同样指向家庭 DDNS；它们的应用、状态与 TLS 入口均位于 `opi5p`

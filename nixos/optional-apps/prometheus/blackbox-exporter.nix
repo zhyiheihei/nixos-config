@@ -29,6 +29,7 @@ let
     # keeps listening on 443 inside the LAN).
     "https://filebox.zhyi.xin:8443"
     "https://git.zhyi.xin"
+    "https://ha.zhyi.xin"
     "https://id.zhyi.xin"
     "https://lemmy.zhyi.xin"
     "https://login.zhyi.xin"

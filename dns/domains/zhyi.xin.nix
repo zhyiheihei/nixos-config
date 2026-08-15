@@ -136,6 +136,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "ha";
+      target = "greencloud.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "hidden";
       target = "greencloud.zhyi.cc.";
       ttl = "1h";

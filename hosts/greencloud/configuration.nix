@@ -133,6 +133,18 @@
     "http://${LT.hosts.ml-builder.ltnet.IPv4}:${LT.portStr.Hydra}"
   );
 
+  # Home Assistant is a public app for the mobile companion; greencloud
+  # terminates TLS and proxies straight to the HA instance on opi5p over LTNET.
+  lantian.nginxVhosts."ha.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "http://${LT.hosts.opi5p.ltnet.IPv4}:8123";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
+    sslCertificate = "lets-encrypt-zhyi.xin";
+    noIndex.enable = true;
+  };
+
   virtualisation.oci-containers.containers.byparr.ports = [
     "${LT.this.ltnet.IPv4}:${LT.portStr.FlareSolverr}:8191"
   ];
