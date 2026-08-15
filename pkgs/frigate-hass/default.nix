@@ -2,6 +2,7 @@
   lib,
   fetchFromGitHub,
   buildHomeAssistantComponent,
+  python3Packages,
 }:
 # Frigate 的 Home Assistant 集成（HACS 同源，改为 Nix 声明式打包）。
 # 提供摄像头实体（经 hass-web-proxy-lib 反代 frigate 画面）与
@@ -10,6 +11,13 @@ buildHomeAssistantComponent rec {
   owner = "blakeblackshear";
   domain = "frigate";
   version = "5.15.4";
+
+  # manifest 检查要求依赖在组件构建环境里；titlecase 来自 nixpkgs，
+  # hass-web-proxy-lib 来自本仓库 overlay（经 extraPackages 注入 HA 运行时）。
+  propagatedBuildInputs = with python3Packages; [
+    titlecase
+    hass-web-proxy-lib
+  ];
 
   src = fetchFromGitHub {
     owner = "blakeblackshear";
