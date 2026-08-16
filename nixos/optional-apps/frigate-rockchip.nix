@@ -130,6 +130,8 @@ in
     sops.templates."frigate-config" = {
       content = builtins.toJSON (
         {
+          # 声明当前镜像的配置版本，避免 frigate 误认为 0.13 旧配置而每次启动都迁移。
+          version = "0.17-0";
           # 事件走本机 mosquitto（HA Frigate 集成的传感器靠它；回环匿名）。
           mqtt = {
             enabled = true;
@@ -163,6 +165,17 @@ in
             filters.cat = {
               threshold = 0.7;
               min_score = 0.5;
+            };
+          };
+          # 用户为自家猫"毛豆"配置的自定义分类：子标签方式，置信度 ≥0.8 的
+          # cat 检测会被打上毛豆子标签（HA 里可按子标签过滤）。
+          classification.custom."毛豆" = {
+            enabled = true;
+            name = "毛豆";
+            threshold = 0.8;
+            object_config = {
+              objects = [ "cat" ];
+              classification_type = "sub_label";
             };
           };
           # 事件快照（HA 摄像头实体缩略图 + 事件时间线用）。
@@ -235,8 +248,8 @@ in
         # 否则容器内 /sys、/proc 探测被拒绝。
         "--security-opt=systempaths=unconfined"
         "--security-opt=apparmor=unconfined"
-        # frigate 建议 /dev/shm ≥ 114MB（默认 62.5MB 会告警）。
-        "--shm-size=256m"
+        # 4K 主码流检测时 frigate 实测建议 /dev/shm ≥ 446MB（256MB 会告警）。
+        "--shm-size=512m"
       ];
     };
 
@@ -248,6 +261,10 @@ in
       serviceConfig.ExecStartPre = lib.mkBefore [
         (pkgs.writeShellScript "frigate-prepare" ''
           # sops 模板渲染结果 → 真实 config.yml（容器内 /run 不同，符号链接会断）。
+          # sops 模板的 path 生成的是指向 /run/secrets/rendered/frigate-config 的
+          # 符号链接；install 默认"跟随链接写入"而不替换链接，会留下断链让 frigate
+          # 回退到向导 config.yaml，所以必须先删掉旧链接再装成真实文件。
+          rm -f '${cfg.configDir}/config.yml'
           install -Dm644 /run/secrets/rendered/frigate-config '${cfg.configDir}/config.yml'
           # 预取的 RKNN 模型 → 模型缓存（frigate 按名查找，存在则跳过下载）。
           mkdir -p '${cfg.configDir}/model_cache/rknn_cache'

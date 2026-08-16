@@ -46,6 +46,9 @@
         address = "127.0.0.1";
         port = 1883;
         omitPasswordAuth = true;
+        # 空 ACL 会把匿名连接全部拒掉（frigate 报 Not authorized）；
+        # 回环专用 broker，放开全部主题给本机客户端。
+        acl = [ "pattern readwrite #" ];
       }
     ];
   };
