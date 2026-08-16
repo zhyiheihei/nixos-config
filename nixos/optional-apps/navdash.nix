@@ -81,10 +81,12 @@ let
     (builtins.filter (e: !lib.hasInfix "*" e.name))
     (builtins.filter (e: !lib.hasPrefix "www." e.name))
     (
-      e:
-      lib.hasSuffix ".zhyi.xin" e.name
-      || lib.hasSuffix ".moliy.site" e.name
-      || lib.hasSuffix ".localhost" e.name
+      builtins.filter (
+        e:
+        lib.hasSuffix ".zhyi.xin" e.name
+        || lib.hasSuffix ".moliy.site" e.name
+        || lib.hasSuffix ".localhost" e.name
+      )
     )
     (builtins.filter (e: !lib.hasSuffix ".localhost" e.name || e.src == thisHost))
     (builtins.filter (e: !(e.name == "${e.src}.zhyi.xin" || e.name == "${e.src}.moliy.site")))
