@@ -36,21 +36,21 @@
   };
   auto-novel-addon = {
     pname = "auto-novel-addon";
-    version = "1.8.1";
+    version = "1.9.3";
     src = fetchurl {
-      url = "https://github.com/auto-novel/addon/releases/download/v1.8.1/addon-1.8.1-firefox.xpi";
-      sha256 = "sha256-ntCyjpGVxLcjssxmgSY9j0SRL3RW6Wdz5hWrYTepXww=";
+      url = "https://github.com/auto-novel/addon/releases/download/v1.9.3/addon-1.9.3-firefox.xpi";
+      sha256 = "sha256-KgCa4bQ+i6Omb0XZMb+1zjKpQDEHS4SNpdxRv0cpneo=";
     };
   };
   bosl2 = {
     pname = "bosl2";
-    version = "v2.0.747";
+    version = "v2.0.750";
     src = fetchFromGitHub {
       owner = "BelfrySCAD";
       repo = "BOSL2";
-      rev = "v2.0.747";
+      rev = "v2.0.750";
       fetchSubmodules = false;
-      sha256 = "sha256-3MGHTzMRJkhh/R83fD1PJwnR+RGgcFLyuEY3aTPx9jE=";
+      sha256 = "sha256-ErSJxw1hLlnyUQCXBChwBrN9kS6+l4KXYvu9bBO1m6w=";
     };
   };
   delegacy-rpz = {
@@ -81,15 +81,15 @@
   };
   dnscontrol-xddxdd = {
     pname = "dnscontrol-xddxdd";
-    version = "8dd76ec7fdc2c8e4db6c30001d3abf344dc5f627";
+    version = "913a94772c1ba09f3e5b623cd50d572951b9ea79";
     src = fetchFromGitHub {
       owner = "xddxdd";
       repo = "dnscontrol";
-      rev = "8dd76ec7fdc2c8e4db6c30001d3abf344dc5f627";
+      rev = "913a94772c1ba09f3e5b623cd50d572951b9ea79";
       fetchSubmodules = false;
-      sha256 = "sha256-h3wdV7tkPIFnRAjbDBxMPspeV9rl6kqWWY6gpgIJHx4=";
+      sha256 = "sha256-wHMKwgEPSAw0GlS7euhvl/QQxIyPTd+fw+JcMqR6QlQ=";
     };
-    date = "2026-07-14";
+    date = "2026-08-08";
   };
   grafana-falconlogscale-datasource = {
     pname = "grafana-falconlogscale-datasource";
@@ -101,25 +101,25 @@
   };
   grafana-yesoreyeram-infinity-datasource = {
     pname = "grafana-yesoreyeram-infinity-datasource";
-    version = "3.11.2";
+    version = "4.0.0";
     src = fetchurl {
-      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v3.11.2/yesoreyeram-infinity-datasource-3.11.2.zip";
-      sha256 = "sha256-tjx2E0pKbF2I0UPBIWZ0H5ejKHsuYbuW8tDB1hy3vpo=";
+      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.0.0/yesoreyeram-infinity-datasource-4.0.0.zip";
+      sha256 = "sha256-CqM422CPS/8v1cE1kwYh7L1qCnL42Om8aLtYY2ly78k=";
     };
   };
   lobe-icons = {
     pname = "lobe-icons";
-    version = "f07e9be35aef452ce735f95ea8204a14ecc513f7";
+    version = "4aaf4ee1fb2678a7f989ea570f0f6ce14a9abf75";
     src = fetchgit {
       url = "https://github.com/lobehub/lobe-icons.git";
-      rev = "f07e9be35aef452ce735f95ea8204a14ecc513f7";
+      rev = "4aaf4ee1fb2678a7f989ea570f0f6ce14a9abf75";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-fpzHJ/OdvhVcRWfG6skxdrleXPfbuMF+D4PdAoUzH/U=";
+      sha256 = "sha256-8zzLFY4wcPMzc99DaugHOpJqmbYx1zfnOp6Rl/kBpdE=";
     };
-    date = "2026-07-24";
+    date = "2026-08-16";
   };
   lyrica-customized = {
     pname = "lyrica-customized";
@@ -185,15 +185,15 @@
   };
   nvidia-patch = {
     pname = "nvidia-patch";
-    version = "2c3adf1ed8c89e40748ecc2681d2a1c1ae90494f";
+    version = "e7a28468a9ed1c105b141fc046ca14e05b6e1d46";
     src = fetchFromGitHub {
       owner = "keylase";
       repo = "nvidia-patch";
-      rev = "2c3adf1ed8c89e40748ecc2681d2a1c1ae90494f";
+      rev = "e7a28468a9ed1c105b141fc046ca14e05b6e1d46";
       fetchSubmodules = false;
-      sha256 = "sha256-doHm+3nttIY3H7S6K0Ucl0W9zzgdOT41CpmKgwy6FQQ=";
+      sha256 = "sha256-biL3A3MiLjuOIwPcrKPgz5p6dvx7BuK3LbKxzHR5Wqo=";
     };
-    date = "2026-08-06";
+    date = "2026-08-14";
   };
   open5gs = {
     pname = "open5gs";
@@ -256,15 +256,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "39e51141e669cf7d4db8c927c3f44ff9f487eb58";
+    version = "6c295185f80803e1516fbb88acbb6271946f61c8";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "39e51141e669cf7d4db8c927c3f44ff9f487eb58";
+      rev = "6c295185f80803e1516fbb88acbb6271946f61c8";
       fetchSubmodules = false;
-      sha256 = "sha256-BMlVQC889inBymyXjeBzVBfwmybSMwQqQkxKIDqz6Go=";
+      sha256 = "sha256-l5GNkv+3kgSJQ6ijtSRyCLH4OsbmHAIrNQq8ZBJwZWg=";
     };
-    date = "2026-08-03";
+    date = "2026-08-10";
   };
   ulauncher-albert-calculate-anything = {
     pname = "ulauncher-albert-calculate-anything";
