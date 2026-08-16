@@ -1,6 +1,6 @@
 # 下载与媒体链路使用指南
 
-最后整理：2026-08-09
+最后整理：2026-08-16
 
 导航页入口：<https://homepage.rock5c.zhyi.cc>（"下载链路"与"媒体链路"分组）
 
@@ -31,7 +31,7 @@
 | 主机 | 服务 |
 | --- | --- |
 | router | qBittorrent 单实例（WebUI：<https://bt.router.zhyi.cc>） |
-| rock5c | MoviePilot、Jellyfin、HandBrake、Homepage |
+| rock5c | MoviePilot（v3）、Jellyfin、HandBrake、ChineseSubFinder、Homepage |
 | opi5p | PeerBanHelper、BitMagnet、Tachidesk |
 | NAS | NFS 导出 `/mnt/storage` |
 
@@ -46,7 +46,8 @@ Byparr、Vertex、qbittorrent-pt、qbittorrent-seedbox）已由 MoviePilot 与
 3. MoviePilot 从馒头 / PT时间索引搜索，推送到 qBittorrent，保存到
    `/mnt/storage/downloads`。
 4. 下载完成后 hardlink 到 `media-radarr` / `media-sonarr`，自动中文刮削。
-5. SubtitleAssistant 自动补齐简/繁中文字幕（ASSRT 与站点字幕源）。
+5. 字幕双通道自动补齐：SubtitleAssistant 事件触发 + ChineseSubFinder 周期
+   扫库（详见[字幕链路](#字幕链路)）。
 6. Jellyfin 刷新后即可观看。
 
 ## 场景二：刷流
@@ -72,6 +73,24 @@ BrushFlow 的 M-Team 与 PTTime 任务都只下载免费种子，使用独立标
 | PeerBanHelper | <https://peerbanhelper.opi5p.zhyi.cc> | 反吸血保护 |
 | Tachidesk | <https://tachidesk.zhyi.xin:8443> | 漫画 |
 | HandBrake | rock5c 本机 `http://127.0.0.1:13814` | 硬件转码 |
+| ChineseSubFinder | rock5c 本机 `http://127.0.0.1:19035` | 周期扫描媒体库补齐中文字幕 |
+
+## 字幕链路
+
+字幕由两个服务互补（双通道），均已接入媒体库目录：
+
+| 服务 | 机制 | 源 |
+| --- | --- | --- |
+| MoviePilot SubtitleAssistant（插件） | 事件触发，入库/订阅完成时补充 | moviepilot（站点字幕）、assrt、opensubtitles（待启用） |
+| ChineseSubFinder（容器） | 每 6 小时扫描 media-radarr / media-sonarr | assrt、xunlei、shooter、a4k（已死） |
+
+已知状态（2026-08-16 实测）：
+
+- assrt 免费 API 每日配额约 5 次，只能作兜底源；
+- a4k.net、字幕库（zimuku）站点已下线；
+- ChineseSubFinder 镜像停在 v0.55.3（2023-12），项目停止维护；
+- opensubtitles 源支持已就绪但未启用（见
+  [字幕源扩展调研](../research/subtitle-sources-expansion.md)）。
 
 ## 存储路径
 
@@ -109,8 +128,11 @@ MP 会把另一半集数判为缺失。2026-08-09 已对齐：
 
 ### 字幕没有下载？
 
-1. 检查 SubtitleAssistant 的 ASSRT 凭据和源状态。
-2. 对已入库文件可在字幕助手页面手动搜索并下载。
+1. 先确认字幕链路整体状态（见[字幕链路](#字幕链路)）：assrt 每日配额约 5 次，
+   耗尽后当天不再搜索，属正常限制而非故障。
+2. 检查 SubtitleAssistant 插件源状态（moviepilot / assrt / opensubtitles）。
+3. 对已入库文件可在字幕助手页面手动搜索并下载。
+4. 也可在 ChineseSubFinder 管理页（rock5c 本机 19035）手动触发补全。
 
 ### 刷流种子会不会进媒体库？
 

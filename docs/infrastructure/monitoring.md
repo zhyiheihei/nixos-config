@@ -24,6 +24,15 @@ tencent
 Prometheus、Alertmanager 和 Grafana 只监听本机，由 `tencent` 的 Nginx
 虚拟主机提供入口。不要为了监控直接向公网开放 exporter 端口。
 
+## 媒体链路监控边界
+
+媒体链路（MoviePilot / Jellyfin / ChineseSubFinder / qBittorrent）当前未接入
+Prometheus：exportarr 随 2026-08-09 Decluttarr 迁移一并停用，Jellyfin 与
+MoviePilot 无指标采集；qBittorrent、ChineseSubFinder 亦无 exporter。媒体链路
+的健康核查以巡检与日志为准（见
+[巡检手册](../operations/inspection-playbook.md)）。如需恢复指标采集（例如
+exportarr 或 textfile collector），先立项评估再接入，不得以删探针掩盖。
+
 Elasticsearch 日志链路与监控栈彼此独立。Filebeat 当前仍被声明为把日志发送到
 `es-ingest.google.zhyi.cc`，但 2026-08-03 审计确认 `hosts/google/configuration.nix`
 没有导入 Elasticsearch 模块，实机也没有 Elasticsearch unit 或容器。因此这条日志
