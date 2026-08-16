@@ -46,6 +46,9 @@
         address = "127.0.0.1";
         port = 1883;
         omitPasswordAuth = true;
+        # 挂载安全插件（acl_file）后 mosquitto 默认拒绝匿名连接，
+        # frigate 无凭据连接时直接 CONNACK Not authorized；回环专用显式放行。
+        settings.allow_anonymous = true;
         # 空 ACL 会把匿名连接全部拒掉（frigate 报 Not authorized）；
         # 回环专用 broker，放开全部主题给本机客户端。
         acl = [ "pattern readwrite #" ];
