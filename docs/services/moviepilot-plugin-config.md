@@ -56,7 +56,7 @@
 | MediaServerRefresh | 启用 | Jellyfin 入库刷新 |
 | IYUUAutoSeed | 停用 | 单下载器 qBittorrent；辅种按用户要求暂停，后续需要时再启用 |
 | CleanInvalidSeed | 启用 | 仅标记，不删除 |
-| SubtitleAssistant | 启用 | moviepilot 站点字幕 + ASSRT（每日配额约 5 次，兜底）+ opensubtitles（2026-08-16 未启用，待配凭据）；源优先级 `[assrt, moviepilot, opensubtitles]` |
+| SubtitleAssistant | 启用 | moviepilot 站点字幕 + ASSRT（每日配额约 5 次，兜底）+ opensubtitles（2026-08-16 启用，凭据已配，healthy）；源优先级 `[moviepilot, opensubtitles, assrt]` |
 | TorrentRemover | 启用 | 每 6 小时；仅 `刷流` 标签，ratio>3、做种>2h、低速且停滞/错误才删除种子及文件；`brush` 仅作 qB 分类归组 |
 | RssSubscribe | 停用 | 旧 FlexGet 替代，暂无 RSS 源 |
 | AutoClean | 停用 | 未使用 |

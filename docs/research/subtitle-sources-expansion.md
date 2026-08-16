@@ -1,6 +1,7 @@
 # 字幕源扩展调研（2026-08-16）
 
-状态：调研完成，方案待用户决策后实施。本文只调研不改动配置。
+状态：调研完成；方案 A 已于 2026-08-16 实施并验证（opensubtitles 源 healthy，
+`session_active: true`）。方案 B/C 未实施。
 
 ## 背景
 
@@ -22,7 +23,7 @@
 | --- | --- | --- |
 | `moviepilot` | 启用 | 通过 MP 站点索引搜索 M-Team / PTTime 字幕区；当前两个站均返回 0 结果（2026-08-09 风险登记在案），属上游站点适配器限制 |
 | `assrt` | 启用 | API Token 已配置；**免费 API 每日配额极小**（见下） |
-| `opensubtitles` | **未启用** | 原生支持 api.opensubtitles.com（api_key + username + password），凭据未配置 |
+| `opensubtitles` | **已启用（2026-08-16）** | 原生支持 api.opensubtitles.com（api_key + username + password），凭据已配置，源状态 healthy |
 
 当前配置（插件 API 实测）：`enabled=true, moviepilot_enabled=true,
 opensubtitles_enabled=false, assrt_enabled=true`，源优先级
@@ -81,7 +82,7 @@ assrt CheckAlive UserInfo.Status: 0 UserInfo.Quota: 5
 
 ## 推荐方案
 
-### 方案 A（推荐，立即可做，零 Nix 改动）：启用 SubtitleAssistant 的 opensubtitles 源
+### 方案 A（推荐，已于 2026-08-16 实施）：启用 SubtitleAssistant 的 opensubtitles 源
 
 opensubtitles.com 是仍在维护的国际大源（英文/多语字幕覆盖最全），
 SubtitleAssistant 已原生支持，只需注册与填凭据。
@@ -100,6 +101,11 @@ SubtitleAssistant 已原生支持，只需注册与填凭据。
 注意：免费额度有限（社区通识约 20 次下载/天，搜索另有次数限制），具体以注册页
 说明为准；中文资源覆盖一般，主要补充英文/多语字幕缺口。
 
+实施结果（2026-08-16）：凭据（api_key + username + password）经插件
+`PUT /api/v1/plugin/SubtitleAssistant/credentials/opensubtitles` 写入；源优先级
+调整为 `[moviepilot, opensubtitles, assrt]`；`/sources/refresh` 实测三源均
+healthy，opensubtitles 返回 `session_active: true`（真实登录成功）。
+
 ### 方案 B（可选，需 Nix 改动）：给 CSF 容器加代理，解锁被墙源
 
 - 在 rock5c 主机配置（如 `hosts/rock5c/media-apps.nix`）为
@@ -117,7 +123,7 @@ Bazarr 源丰富，但 2026-08-09 迁移已决定由 SubtitleAssistant 替代并
 
 ## 决策点（待用户确认）
 
-1. 是否注册 opensubtitles.com 并启用方案 A（纯 UI 操作，可立即执行）。
+1. ~~是否注册 opensubtitles.com 并启用方案 A~~ **已完成（2026-08-16）**。
 2. 是否实施方案 B（给 CSF 加代理，属配置改动，需部署验证）。
 3. a4k / zimuku 已死源：CSF 无法从配置关闭内置 a4k（v0.55.3 无按源开关），
    每小时 CheckAlive 报错为已知噪音，暂接受。
