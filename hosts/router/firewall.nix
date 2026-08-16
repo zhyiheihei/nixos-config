@@ -41,7 +41,11 @@ in
 {
   networking.nftables.tables.lantian.content = lib.mkForce ''
     chain FILTER_INPUT {
-      type filter hook input priority 5; policy accept;
+      type filter hook input priority 5; policy drop;
+
+      # Drop invalid, accept established/related.
+      ct state invalid drop
+      ct state { established, related } accept
 
       # Drop timestamp ICMP pkts
       meta l4proto icmp icmp type timestamp-reply drop
@@ -51,7 +55,26 @@ in
       iifname "zt*" udp sport 5353 reject
       iifname "zt*" udp dport 5353 reject
 
+      # Trusted local paths: loopback, LAN bridge (wlan0 is enslaved to it),
+      # network namespaces (coredns-client), ZeroTier (management plane).
+      iifname "lo" accept
+      iifname { "br-lan", "eth0" } accept
+      iifname "ns-*" accept
+      iifname "zt*" accept
+
+      # WAN input is drop-by-default (routing-layer-security-audit-2026-08-16
+      # §3.1; deviation from the author's policy-accept recipe, same model as
+      # hosts/h28k/firewall.nix).  Public service ports are DNATed in
+      # PREROUTING to rock5c/opi5p and never reach this chain; the only
+      # router-local listeners reachable from ppp0 are ICMP, the IPv6
+      # link-local control plane (NDP/RA/DHCPv6) and the qBittorrent peer
+      # port 31220 (the torrentingPort override in qbittorrent.nix).
       iifname "ppp0" jump PUBLIC_INPUT
+      iifname "ppp0" meta l4proto icmp accept
+      iifname "ppp0" meta l4proto ipv6-icmp accept
+      iifname "ppp0" ip6 saddr fe80::/10 accept
+      iifname "ppp0" tcp dport 31220 accept
+      iifname "ppp0" udp dport 31220 accept
     }
 
     chain FILTER_FORWARD {
@@ -62,6 +85,13 @@ in
 
       # Allow existing connections
       ct state { established, related } accept
+
+      # Anti-spoofing (audit §3.2): reserved/internal source addresses must
+      # never be forwarded from the WAN, even when DNATed into LAN services.
+      # Legit WAN peers carry public source addresses; established flows were
+      # validated by conntrack above.
+      iifname "ppp0" ip saddr @RESERVED_IPV4 drop
+      iifname "ppp0" ip6 saddr @RESERVED_IPV6 drop
 
       # Allow DNATed connections
       ct status dnat accept
@@ -141,6 +171,12 @@ in
     }
 
     chain PUBLIC_INPUT {
+      # Anti-spoofing (audit §3.2): reserved/internal sources must never
+      # arrive on the WAN.  fe80::/10 is not part of @RESERVED_IPV6, so the
+      # link-local accept in FILTER_INPUT still passes NDP/RA/DHCPv6.
+      ip saddr @RESERVED_IPV4 drop
+      ip6 saddr @RESERVED_IPV6 drop
+
       tcp dport @PUBLIC_FIREWALLED_PORTS reject with tcp reset
       udp dport @PUBLIC_FIREWALLED_PORTS reject with icmpx type port-unreachable
       return

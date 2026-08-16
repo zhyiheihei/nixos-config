@@ -61,6 +61,7 @@
 | `minimal-components/networking.nix` | backupDNSServers CN 感知（AliDNS） | 大陆网络优化 |
 | `minimal-components/environment.nix` | `timeZone = Asia/Shanghai` | 本地时区 |
 | `minimal-components/firewall.nix` | 压平为单文件 + `wanARPSubnets` 选项（作者为 `firewall/` 目录） | 结构重构、功能等价；后续作者改防火墙目录时注意手工合并 |
+| `hosts/router/firewall.nix` | WAN input drop-by-default + 保留源拒绝（作者 lt-home-router 为 policy accept） | 路由层安全审计 2026-08-16 §3.1/3.2 加固；样板 `hosts/h28k/firewall.nix` |
 | `common-apps/nginx/proxy.nix` 及 vhost 系列 | 启用门控 `server && public-facing`（作者同用 `public-facing`，08-13 已核对） | 公开站点边界由 `public-facing` 标签控制 |
 | `server-components/logging.nix` | Axiom（filebeat7）替代作者 Humio（filebeat8） | 自建日志链路，见 service-providers.md |
 | `optional-apps/ncps.nix` | 整文件重写（缓存路径/代理/上游过滤/LRU），含 `cache.upstream.urls` | 私有缓存基础设施；`cache.upstream` 结构与上游一致 |
