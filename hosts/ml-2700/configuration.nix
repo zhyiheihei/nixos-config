@@ -9,6 +9,7 @@
     ../../nixos/client.nix
 
     ./hardware-configuration.nix
+    ../../nixos/optional-apps/homepage.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/pipewire-combined-sink-alsa.nix
     ../../nixos/optional-apps/pipewire-roc-source.nix
