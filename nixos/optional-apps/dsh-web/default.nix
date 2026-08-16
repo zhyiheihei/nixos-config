@@ -55,10 +55,13 @@ in
 
     serviceConfig = LT.serviceHarden // {
       ExecStart = "${dsh}/bin/dsh --profile web --host 127.0.0.1 --port ${LT.portStr.DSH} --trusted-host dsh.zhyi.xin";
-      # sops 落盘在 /run/secrets/dsh-credentials（属主已是 dsh-web），复制为
-      # DSH_HOME 下的凭据文件；不能加 -o/-g——ExecStartPre 以 dsh-web 用户运行，
-      # 普通用户无权 chown（即使目标是自己的文件）
-      ExecStartPre = "${pkgs.coreutils}/bin/install -m 0600 ${config.sops.secrets.dsh-credentials.path} /var/lib/dsh/.credentials.yaml";
+      # sops 落盘 /run/secrets/dsh-credentials 是单键值（key 提取），而 dsh 的
+      # credentials 文件要求完整映射；这里包装成 UNIAPI_API_KEY: <value> 写入
+      # DSH_HOME（dsh-web 写自己属主的目录，无需 chown；umask 077 → 0600）
+      ExecStartPre = pkgs.writeShellScript "dsh-credentials-setup" ''
+        umask 077
+        printf 'UNIAPI_API_KEY: %s\n' "$(cat ${config.sops.secrets.dsh-credentials.path})" > /var/lib/dsh/.credentials.yaml
+      '';
       Restart = "always";
       RestartSec = "3";
 
