@@ -19,6 +19,7 @@ rec {
     KMS = 1688;
     Gemini = 1965;
     Bitmagnet = 3333;
+    DSH = 3080; # DeepSeek Harness web profile（dsh --profile web 默认端口）
     NFS.StatD = 4000;
     NFS.LockD = 4001;
     NFS.MountD = 4002;
