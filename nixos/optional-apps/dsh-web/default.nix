@@ -15,11 +15,16 @@ let
   cordisPatch = pkgs.writeText "cordis.patch.yml" (builtins.readFile ./cordis.patch.yml);
 in
 {
-  users.users.dsh-web = {
-    group = "dsh-web";
-    isSystemUser = true;
+  options.lantian.dsh-web = {
+    enable = lib.mkEnableOption "DSH web UI（DeepSeek Harness web profile，dsh.zhyi.xin）";
   };
-  users.groups.dsh-web = { };
+
+  config = lib.mkIf config.lantian.dsh-web.enable {
+    users.users.dsh-web = {
+      group = "dsh-web";
+      isSystemUser = true;
+    };
+    users.groups.dsh-web = { };
 
   # 预建 DSH_HOME 布局；patch 文件用 C: 指令从 store 复制（每次 boot 幂等）
   systemd.tmpfiles.rules = [
@@ -31,6 +36,7 @@ in
 
   sops.secrets.dsh-credentials = {
     sopsFile = inputs.secrets + "/common/dsh-web.yaml";
+    key = "UNIAPI_API_KEY";
     owner = "dsh-web";
     group = "dsh-web";
     mode = "0600";
@@ -80,5 +86,6 @@ in
 
     sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
+  };
   };
 }

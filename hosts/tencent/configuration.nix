@@ -14,6 +14,9 @@
 
   lantian.hubproxy.enable = true;
 
+  # DSH web UI（dsh.zhyi.xin，Dex OIDC 登录，模型走 UniAPI）
+  lantian.dsh-web.enable = true;
+
   # searx 的 favicon 缓存（作者布局：/var/cache/searx）由 vassal 进程写入；
   # 实测 vassal 补充组恒为空（uwsgi immediate-uid 不做 initgroups、add-gid
   # 不生效），且 uwsgi 重启会把 CacheDirectory 属主改回 uwsgi——组/属主
