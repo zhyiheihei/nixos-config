@@ -11,8 +11,8 @@ secrets repository, hardware, and daily desktop workflow.
 ## Documentation
 
 - [Documentation index](docs/README.md)
-- [Adapt this project to your own NixOS device](docs/getting-started/adapt-own-device.md)
-- [NanoPi R5C NixOS image build and installation](docs/hardware/nanopi-r5c.md)
+- [Adapt this project to your own NixOS device](docs/human/getting-started/adapt-own-device.md)
+- [NanoPi R5C NixOS image build and installation](docs/human/hardware/nanopi-r5c.md)
 
 ## License
 
@@ -32,7 +32,7 @@ different license is added by this fork.
   - [NVIDIA driver patching](nixos/minimal-components/kernel.nix)
 - [Post-Quantum Cryptography](https://github.com/xddxdd/nur-packages/blob/master/modules/openssl-oqs-provider.nix) and [GOST](https://github.com/xddxdd/nur-packages/blob/master/modules/openssl-gost-engine.nix) support for OpenSSL
 - [Custom Helper Library](helpers/default.nix) (`LT`) that provides a wide range of functions and constants for managing the configuration.
-- [DNS Management](dns/) using a custom Nix-to-DNSControl converter.
+- [DNS Management](dns) using a custom Nix-to-DNSControl converter.
 
 ## Host Types
 

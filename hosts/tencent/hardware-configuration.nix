@@ -6,7 +6,7 @@
 # - 2 MiB bios_grub (unmounted) + 1 GiB ext4 /boot + btrfs /nix
 # - boot.loader.grub.device = "/dev/vda"
 # Device paths were confirmed in the live install environment; UUIDs may be
-# swapped in per docs/operations/nixos-reinstallation-guide.md §3.3.
+# swapped in per docs/agent/nixos-reinstallation-guide.md §3.3.
 _: {
   imports = [
     ../../nixos/hardware/qemu.nix

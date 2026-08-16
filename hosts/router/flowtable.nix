@@ -82,7 +82,7 @@ in
   # up; its failure is non-critical.  Requires the new kernel with
   # NF_FLOW_TABLE support after a staged boot.  Only WAN (ppp0) flows are
   # offloaded; hairpin flows stay on the normal netfilter path because the
-  # measured retransmit benefit is documented in docs/research/10.  Note that
+  # measured retransmit benefit is documented in docs/human/research/10-router-rx-queue-4.md.  Note that
   # offloaded flows bypass the rest of FILTER_FORWARD, so policy that can
   # change after the first packet must live in pre-forward hooks.
   environment.etc."nftables/flowtable.nft".text = ''
