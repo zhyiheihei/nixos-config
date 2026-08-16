@@ -6,6 +6,10 @@
 - 本仓库是 [xddxdd/nixos-config](https://github.com/xddxdd/nixos-config)（Lan Tian）的复刻；作者原版
   独立 checkout 位于 `../nixos-config-exam`，仅用于 diff 对照，不参与本仓库的求值、构建或部署；
   **每次查看上游前必须先 `git pull`**。
+- 仓库结构、模块系统、操作指南等结构性说明：本仓库自身的见
+  `docs/human/reference/repository-structure.md`；作者原版视角（目录职责、模块目录、
+  标签系统、新增 flake 输入/模块/overlay 流程）见 `../nixos-config-exam/AGENTS.md`
+  （同样先 pull 再看，仅作对照参考，规范以本仓库 `docs/agent/` 为准）。
 - 主要构建和部署命令见 `Makefile`；首选命令包括 `make build`、`make all`、`make update`、
   `nix flake check`、`nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel`。
 - `hosts/` 子目录包含每个主机的 `host.nix`、`configuration.nix` 和 `hardware-configuration.nix`。
