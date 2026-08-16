@@ -1,15 +1,21 @@
 # MoviePilot 媒体链路迁移
 
-状态：2026-08-09，主链路已切换并验证。
+状态：主链路已切换并验证。
+
+后续更新：2026-08-13 MoviePilot 升级至 v3（镜像 `moviepilot-v3:latest`，
+`AUTO_UPDATE_RESOURCE=false`）；2026-08-14 接入 ChineseSubFinder 双通道字幕；
+2026-08-16 字幕源扩展调研见 [docs/research/subtitle-sources-expansion.md](../research/subtitle-sources-expansion.md)。
 
 ## 当前链路
 
-- MoviePilot v2.15.5 运行在 rock5c，登录用户 `zhyi`，M-Team 用户认证通过。
+- MoviePilot v3（`moviepilot-v3:latest`，2026-08-13 升级）运行在 rock5c，
+  登录用户 `zhyi`，M-Team 用户认证通过。
 - 站点：馒头（API Key）、PT时间（Cookie），均使用单一 qBittorrent。
 - 下载器：router 单一 qBittorrent，`/mnt/storage/downloads` 统一保存路径。
 - 媒体库：`/mnt/storage/media-radarr`、`/mnt/storage/media-sonarr`，
   MoviePilot 整块挂载 `/mnt/storage` 后使用 hardlink 入库并中文刮削，不复制占空间。
-- 字幕：SubtitleAssistant（ASSRT + MoviePilot 站点字幕源），不依赖新服务。
+- 字幕：双通道 —— SubtitleAssistant 插件（moviepilot / assrt / opensubtitles
+  待启用）+ ChineseSubFinder 周期扫库（assrt / xunlei / shooter）。
 - Jellyfin 已接入 MoviePilot，订阅完成自动刷新媒体库。
 
 ## 已迁移/停止的服务
@@ -58,6 +64,10 @@
   `星际穿越 (2014) - 1080p.chi.zh-cn.srt`。
 - MoviePilot 站点字幕搜索（M-Team / PTTime 字幕区）当前返回 0，仍以 ASSRT
   为主字幕源；站点字幕解析待站点索引配置完善。
+- 2026-08-14 接入 ChineseSubFinder（rock5c 容器，镜像 v0.55.3）周期扫库，
+  实测 xunlei / shooter / assrt 源可用；a4k 源站点故障。
+- 2026-08-16 实测：assrt 免费 API 每日配额仅约 5 次，不宜作主力源；
+  opensubtitles 源已就绪待启用（见[字幕源扩展调研](../research/subtitle-sources-expansion.md)）。
 
 ## 风险登记
 
@@ -65,6 +75,7 @@
 | --- | --- | --- |
 | IYUU 辅种 | 暂停 | 用户暂不启用辅种；IYUUPlus 保持停止，后续需要时再绑定推荐站点并启用 |
 | M-Team 站点字幕搜索 0 结果 | 待观察 | 使用 ASSRT 主源，继续跟进索引字幕配置 |
+| assrt 每日配额约 5 次 | 已确认 | 2026-08-16 起作为兜底源；推进 opensubtitles 源（方案见[字幕源扩展调研](../research/subtitle-sources-expansion.md)） |
 | 大体积种子 qB 首次检查耗时 | 进行中 | 122 个种子在 `checkingDL`，完成后自动做种 |
 
 ## 验证记录
