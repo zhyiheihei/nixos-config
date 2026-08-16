@@ -82,3 +82,6 @@ cookies.txt
 
 # Local reference checkout used by homepage audits; never commit.
 reference/
+# 但 docs/human/reference/ 是文档目录，需要重新包含
+!docs/human/reference/
+!docs/human/reference/*

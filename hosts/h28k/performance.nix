@@ -14,7 +14,7 @@ let
     set -eu
 
     # eth0 (LAN): replace the default mq/pfifo_fast root with fq_codel (the
-    # R5C A/B in docs/research/10 showed fq_codel halves retransmits at equal
+    # R5C A/B in docs/human/research/10-router-rx-queue-4.md showed fq_codel halves retransmits at equal
     # or better throughput). eth1 (WAN) is shaped by CAKE via
     # systemd.network cakeConfig (author's router recipe) and must not be
     # touched here.
@@ -56,7 +56,7 @@ let
   '';
 in
 {
-  # R5C router high-throughput recipe (docs/research/10-router-rx-queue-4.md):
+  # R5C router high-throughput recipe (docs/human/research/10-router-rx-queue-4.md):
   # raise device/socket buffers and spread RX processing across all cores.
   # BBR is already enabled globally by nixos/minimal-components/networking.nix.
   boot.kernel.sysctl = {

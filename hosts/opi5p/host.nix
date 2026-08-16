@@ -9,7 +9,7 @@
   system = "aarch64-linux";
   # Native ARM fallback builder: this RK3588 handles aarch64 derivations
   # whose build scripts must execute target code; the dedicated build path
-  # remains ml-builder (see docs/reference/hosts-overview.md).
+  # remains ml-builder (see docs/agent/hosts-overview.md).
   tags = with tags; [
     lan-access
     nix-builder

@@ -123,7 +123,7 @@
     # PPPoE WAN. IPv4 is negotiated by pppd; networkd requests the ISP's
     # delegated IPv6 prefix and redistributes one /64 to br-lan. CAKE shapes
     # the uplink (author's lt-home-router recipe: dual-src-host, NAT,
-    # diffserv8) at the ~1G line rate measured in docs/research/11.
+    # diffserv8) at the ~1G line rate measured in docs/human/research/11-network-acceptance-2026-08-12.md.
     ppp0 = {
       matchConfig.Name = "ppp0";
       networkConfig = {

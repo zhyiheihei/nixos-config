@@ -162,7 +162,7 @@ in
     }
     {
       assertion = lib.hasInfix "mirror.sjtu.edu.cn" config.systemd.services.ncps.environment.NO_PROXY;
-      message = "opi5p NCPS must bypass the proxy for mirror.sjtu.edu.cn; update ncpsProxyBypass and docs/network/ltnet-home-relay.md together";
+      message = "opi5p NCPS must bypass the proxy for mirror.sjtu.edu.cn; update ncpsProxyBypass and docs/human/network/ltnet-home-relay.md together";
     }
   ];
 

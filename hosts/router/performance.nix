@@ -64,7 +64,7 @@ in
   # queue across all four RK3568 cores.  The r8125 override opens 4 RX queues;
   # the RPS flow tables are sized for both NICs.  BBR is already enabled
   # globally by nixos/minimal-components/networking.nix.  NAPI and qdisc
-  # values are backed by A/B medians in docs/research/10-router-rx-queue-4.md.
+  # values are backed by A/B medians in docs/human/research/10-router-rx-queue-4.md.
   boot.kernel.sysctl = {
     "net.core.netdev_budget" = 1200;
     "net.core.netdev_budget_usecs" = 30000;

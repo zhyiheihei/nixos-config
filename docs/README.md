@@ -1,100 +1,82 @@
 # 文档索引
 
 配置的最终来源始终是 `hosts/`、`nixos/`、`helpers/`、`dns/` 与 `Makefile`。
-本文档只记录当前操作约束、架构解释和经验证的迁移记录；历史救援过程统一放在
-[`old/`](./old/README.md)，不能直接当作当前操作步骤执行。
+本文档只记录当前操作约束、架构解释和经验证的迁移记录。
 
-## 复刻与学习
+**docs/ 按读者分为两大类，另有归档区**：
 
-- [学习索引](./learning/README.md)
+| 目录 | 读者 | 内容 |
+| --- | --- | --- |
+| [`agent/`](agent/README.md) | agent（执行规范） | 本仓库 agent 必须遵守的规范、操作手册与参照；干活前必读 |
+| [`human/`](human/README.md) | 人（指南与记录） | 入门、服务指南、硬件适配、调研、学习笔记、迁移记录；agent 需用时也读 |
+| [`archive/`](archive/README.md) | 无（历史归档） | 过时/已完成的历史记录，不作为当前操作依据 |
 
-## 调研记录
+划分规则：**agent 干活要执行/遵守的 → `agent/`；给人看的使用指南与历史记录 → `human/`；
+过时/已完成、不再作为当前依据的 → `archive/`。**
 
-- [三次调研索引](./research/README.md)
-- [OpenWrt NanoPi R5C 适配](./research/01-openwrt-nanopi-r5c.md)
-- [r5s.cooluc.com（Cooluc）方案](./research/02-r5s-cooluc.md)
-- [iStoreOS R5C 适配](./research/03-istoreos-r5c.md)
-- [R5C flowtable 成功案例与对照](./research/04-router-flowtable-success-case.md)
-- [Podman 容器转 Nix 包替代评估](./research/05-podman-to-nix-evaluation.md)
-- [Router LAN 口掉链事故](./research/06-router-lan-drop-netdev-watchdog.md)
+## 给 agent 看（docs/agent/）
 
-## 入门与主机接入
+见 [`agent/README.md`](agent/README.md)：工作规范、skill 使用、AI 网关链路、模块分层、
+主机清单、新主机接入、开发手册、部署/巡检/重装、主题规范与参照。
 
-- [适配自己的 NixOS 设备](./getting-started/adapt-own-device.md)
-- [新主机接入规范](./getting-started/new-host-standard.md)
-- [客户端设备入网指南](./getting-started/client-device-onboarding.md)
-- [非 NixOS 设备加入知识链](./getting-started/non-nixos-knowledge-chain.md)
+## 给人看（docs/human/）
 
-## 构建与运维
+### 入门
 
-- [构建与部署当前主机](./operations/deployment.md)
-- [NixOS 完整重装指南](./operations/nixos-reinstallation-guide.md)
-- [ml-builder 验收与排障](./operations/test-ml-builder.md)
-- [模块分层与参数归属规范](./operations/module-placement-norms.md)
-- [模块分层与参数归属审计](./operations/module-placement-audit-2026-08-08.md)
-- [Skill 使用规范与推荐](./operations/skills-recommendation.md)
+- [适配自己的 NixOS 设备](human/getting-started/adapt-own-device.md)
+- [客户端设备入网指南](human/getting-started/client-device-onboarding.md)
+- [非 NixOS 设备加入知识链](human/getting-started/non-nixos-knowledge-chain.md)
 
-## 硬件适配
+### 硬件适配
 
-- [ARM 开发板 NixOS 适配手册](./hardware/arm-board-bring-up.md)
-- [HINLINK H28K（RK3528）NixOS 路由器适配](./hardware/hinlink-h28k.md)
-- [NanoPi R5C NixOS 镜像适配与安装](./hardware/nanopi-r5c.md)
-- [NanoPi R5C 内核与系统闭包裁剪审计](./hardware/nanopi-r5c-size-audit.md)
-- [NanoPi R5C：从 macOS 写入 SD 卡到读取串口日志](./hardware/nanopi-r5c-flash-and-serial.md)
-- [Orange Pi Zero 3 NixOS 启动适配](./hardware/orangepi-zero3.md)
+- [ARM 开发板 NixOS 适配手册](human/hardware/arm-board-bring-up.md)
+- [HINLINK H28K（RK3528）NixOS 路由器适配](human/hardware/hinlink-h28k.md)
+- [LubanCat 1 适配](human/hardware/lubancat-1.md)
+- [NanoPi R5C NixOS 镜像适配与安装](human/hardware/nanopi-r5c.md)
+- [NanoPi R5C 内核与系统闭包裁剪审计](human/hardware/nanopi-r5c-size-audit.md)
+- [NanoPi R5C：从 macOS 写入 SD 卡到读取串口日志](human/hardware/nanopi-r5c-flash-and-serial.md)
+- [Orange Pi 5 Plus reDroid 适配](human/hardware/orangepi-5-plus-redroid.md)
+- [Radxa Rock 5C 适配](human/hardware/radxa-rock-5c.md)
+- [腾讯云 VPS 适配](human/hardware/tencent-cloud-vps.md)
 
-## 网络
+### 网络
 
-- [网络参照](./network/reference.md)
-- [家庭局域网 IP 规划](./network/home-lan-ip-plan.md)
-- [内网服务域名规范](./network/service-domain-norms.md)
-- [公开服务域名迁移计划 2026-08-14](./network/domain-migration-plan-2026-08-14.md)
-- [域名配置审计 2026-08-14](./network/domain-config-audit-2026-08-14.md)
-- [LTNET 家庭中继与缓存链路](./network/ltnet-home-relay.md)
-- [分地区 DNS 方案](./network/regional-dns.md)
-- [DN42 当前拓扑](./network/dn42.md)
+- [LTNET 家庭中继与缓存链路](human/network/ltnet-home-relay.md)
+- [分地区 DNS 方案](human/network/regional-dns.md)
+- [DN42 当前拓扑](human/network/dn42.md)
+- [Flclash 家庭拓扑与覆盖配置](human/network/flclash-home-topology.md)
+  （覆盖文件 [flclash-home-override.yaml](human/network/flclash-home-override.yaml)）
 
-## 基础设施
+### 基础设施
 
-- [域名与服务编排](./infrastructure/domain-service-layout.md)
-- [Gcore 免费套餐 DNSControl 发布规范](./infrastructure/gcore-dnscontrol-free-plan.md)
-- [自建 Attic + S3 构建缓存](./infrastructure/attic-s3-cache.md)
-- [自有 Attic 优先与完整闭包缓存](./infrastructure/attic-owned-cache-priority.md)
-- [Attic 手动补推缓存流程](./infrastructure/attic-full-store-push.md)
-- [Hydra 构建链路与并发约束](./infrastructure/hydra-build-chain.md)
-- [AI API 网关链路与初始化规范](./infrastructure/ai-api-gateway-chain.md)
-- [AI 链 ↔ 知识链整合](./infrastructure/ai-knowledge-chain-integration.md)
-- [身份认证架构](./infrastructure/identity-auth-architecture.md)
-- [OIDC 应用接入规范（Pocket ID / Dex）](./infrastructure/oidc-app-integration.md)
-- [Prometheus / Grafana 监控链路](./infrastructure/monitoring.md)
-- [全主机服务归属与链路（服务审计）](./infrastructure/fleet-service-chain.md)
+- [AI 链 ↔ 知识链整合](human/infrastructure/ai-knowledge-chain-integration.md)
 
-## 服务指南
+### 服务指南
 
-- [Homepage 卡片与健康检查](./services/homepage-link-audit.md)
-- [下载与媒体链路使用指南](./services/media-pipeline-guide.md)
-- [Memos 服务接入（SSO / 存储 / 通知 / AI）](./services/memos.md)
-- [Ignis 服务接入（Web Obsidian / vault / SSO）](./services/ignis.md)
-- [Frigate NVR 使用手册（乐橙摄像头）](./services/frigate-nvr.md)
+- [Homepage 卡片与健康检查](human/services/homepage-link-audit.md)
+- [下载与媒体链路使用指南](human/services/media-pipeline-guide.md)
+- [Memos 服务接入（SSO / 存储 / 通知 / AI）](human/services/memos.md)
+- [Ignis 服务接入（Web Obsidian / vault / SSO）](human/services/ignis.md)
+- [Frigate NVR 使用手册（乐橙摄像头）](human/services/frigate-nvr.md)
+- [飞牛 fnOS NFS 媒体库接入](human/services/fnos-nfs-media.md)
+- [RSS 链路](human/services/rss-chain.md)
+- [SublinkPro 订阅管理](human/services/sublinkpro.md)
+- [MoviePilot 插件配置](human/services/moviepilot-plugin-config.md)
+- [协作内容链](human/services/collab-content-chain.md)
 
-## 状态参考
+### 调研记录
 
-- [当前 hosts 概览](./reference/hosts-overview.md)
+- [调研索引](human/research/README.md)
 
-## 迁移与验收记录
+### 学习笔记（项目相关）
 
-- [Home Assistant 迁移到 Nix 原生服务](./migrations/home-assistant-native-migration.md)
-- [2026-08-15 上游对齐审计（分批 backport）](./migrations/upstream-alignment-audit-2026-08-15.md)
-- [主机改名 cnvm -> volcengine](./migrations/cnvm-volcengine-rename.md)
-- [2026-08-03 作者配置复刻偏移审计](./migrations/upstream-replica-audit-2026-08-03.md)
-- [2026-07-28 上游对齐偏差审计](./migrations/upstream-alignment-audit-2026-07-28.md)
-- [下载与媒体链路迁移到 OPI5P](./migrations/opi5p-media-pipeline.md)
-- [greencloud 迁移到新加坡节点](./migrations/greencloud-sg-migration.md)
-- [ml-home-vm 与 pve-5700u 复刻验收](./migrations/vm-replication-chain.md)
-- [ml-home-vm VirtioFS 与 PVE 迁移手册](./migrations/ml-home-vm-virtiofs-pve-migration.md)
-- [pve-5700u 瘦身为纯 PVE 宿主](./migrations/pve-5700u-hypervisor-only.md)
+- [学习索引](human/learning/README.md)
 
-## 历史归档
+### 迁移与对齐（进行中）
 
-历史安装日志、临时 Docker 构建方案和已经完成的救援记录见
-[`docs/old/`](./old/README.md)。
+- [2026-08-15 上游对齐审计（分批 backport）](human/migrations/upstream-alignment-audit-2026-08-15.md)
+
+## 历史归档（docs/archive/）
+
+过时/已完成的历史记录，见 [`archive/README.md`](archive/README.md)。历史救援过程统一
+放在归档区，不能直接当作当前操作步骤执行。
