@@ -67,7 +67,7 @@
 - 2026-08-14 接入 ChineseSubFinder（rock5c 容器，镜像 v0.55.3）周期扫库，
   实测 xunlei / shooter / assrt 源可用；a4k 源站点故障。
 - 2026-08-16 实测：assrt 免费 API 每日配额仅约 5 次，不宜作主力源；
-  opensubtitles 源已就绪待启用（见[字幕源扩展调研](../research/subtitle-sources-expansion.md)）。
+  opensubtitles 源同日启用并验证 healthy（见[字幕源扩展调研](../research/subtitle-sources-expansion.md)）。
 
 ## 风险登记
 
@@ -75,7 +75,7 @@
 | --- | --- | --- |
 | IYUU 辅种 | 暂停 | 用户暂不启用辅种；IYUUPlus 保持停止，后续需要时再绑定推荐站点并启用 |
 | M-Team 站点字幕搜索 0 结果 | 待观察 | 使用 ASSRT 主源，继续跟进索引字幕配置 |
-| assrt 每日配额约 5 次 | 已确认 | 2026-08-16 起作为兜底源；推进 opensubtitles 源（方案见[字幕源扩展调研](../research/subtitle-sources-expansion.md)） |
+| assrt 每日配额约 5 次 | 已确认 | 兜底源；opensubtitles 源已于 2026-08-16 启用（[字幕源扩展调研](../research/subtitle-sources-expansion.md)） |
 | 大体积种子 qB 首次检查耗时 | 进行中 | 122 个种子在 `checkingDL`，完成后自动做种 |
 
 ## 验证记录
