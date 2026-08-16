@@ -125,6 +125,7 @@ rec {
     FileCodeBox = 13827;
     SunPanel = 13828;
     SunPanelHelper = 13829;
+    Navdash = 13833;
     HubProxy = 13831;
     Ignis = 13832;
     Syncthing = 13834;

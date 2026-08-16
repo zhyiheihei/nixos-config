@@ -108,6 +108,14 @@ let
         ];
       }
       {
+        id = "navdash";
+        name = "Navdash";
+        secret = {
+          _secret = config.sops.secrets.dex-navdash-secret.path;
+        };
+        redirectURIs = [ "https://nav.zhyi.xin/auth/callback" ];
+      }
+      {
         id = "oauth-proxy";
         name = "OAuth2 Proxy";
         secret = {
@@ -179,6 +187,7 @@ in
         "librechat"
         "memos"
         "moviepilot"
+        "navdash"
         "oauth2-proxy"
         # keep-sorted end
       ]
