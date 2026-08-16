@@ -54,7 +54,7 @@ let
     let
       inherit (e) scheme name src;
       proto = "${scheme}://";
-      pattern = "(\\.${src}\\.zhyi\\.xin|\\.${src}\\.moliy\\.site|\\.zhyi\\.xin|\\.moliy\\.site|\\.localhost|zhyi\\.xin|moliy\\.site)$";
+      pattern = "(\\.${src}\\.zhyi\\.xin|\\.${src}\\.moliy\\.site|\\.${src}\\.zhyi\\.cc|\\.zhyi\\.xin|\\.moliy\\.site|\\.zhyi\\.cc|\\.localhost|zhyi\\.xin|moliy\\.site|zhyi\\.cc)$";
       parts = builtins.split pattern name;
     in
     if builtins.length parts == 1 then
@@ -80,16 +80,20 @@ let
     (builtins.filter (e: !lib.hasPrefix "_" e.name))
     (builtins.filter (e: !lib.hasInfix "*" e.name))
     (builtins.filter (e: !lib.hasPrefix "www." e.name))
-    (
-      builtins.filter (
-        e:
-        lib.hasSuffix ".zhyi.xin" e.name
-        || lib.hasSuffix ".moliy.site" e.name
-        || lib.hasSuffix ".localhost" e.name
-      )
-    )
+    # .localhost entries are only kept from the current host (they are per-host)
     (builtins.filter (e: !lib.hasSuffix ".localhost" e.name || e.src == thisHost))
-    (builtins.filter (e: !(e.name == "${e.src}.zhyi.xin" || e.name == "${e.src}.moliy.site")))
+    # Not the redundant per-host top-level alias <host>.zhyi.xin,
+    # <host>.moliy.site, or <host>.zhyi.cc (subdomains like
+    # <svc>.<host>.<domain> are kept, and the root domains zhyi.xin /
+    # moliy.site / zhyi.cc themselves are kept)
+    (builtins.filter (
+      e:
+      !(
+        e.name == "${e.src}.zhyi.xin"
+        || e.name == "${e.src}.moliy.site"
+        || e.name == "${e.src}.zhyi.cc"
+      )
+    ))
     (builtins.map splitName)
     (builtins.foldl' (acc: r: if builtins.any (x: x.url == r.url) acc then acc else acc ++ [ r ]) [ ])
     (builtins.sort (a: b: a.url < b.url))
