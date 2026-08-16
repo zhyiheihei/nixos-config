@@ -8,6 +8,7 @@
     ../../nixos/optional-apps/grafana.nix
     ../../nixos/optional-apps/hubproxy.nix
     ../../nixos/optional-apps/metapi.nix
+    ../../nixos/optional-apps/navdash.nix
     ../../nixos/optional-apps/prometheus
     ../../nixos/optional-apps/searxng.nix
   ];
@@ -16,6 +17,9 @@
 
   # DSH web UI（dsh.zhyi.xin，Dex OIDC 登录，模型走 UniAPI）
   lantian.dsh-web.enable = true;
+
+  # 个人服务门户（nav.zhyi.xin，原生 OIDC 登录，卡片由求值期生成）
+  lantian.navdash.enable = true;
 
   # searx 的 favicon 缓存（作者布局：/var/cache/searx）由 vassal 进程写入；
   # 实测 vassal 补充组恒为空（uwsgi immediate-uid 不做 initgroups、add-gid
