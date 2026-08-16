@@ -4,6 +4,7 @@
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
+    ../../nixos/optional-apps/dsh-web
     ../../nixos/optional-apps/grafana.nix
     ../../nixos/optional-apps/hubproxy.nix
     ../../nixos/optional-apps/metapi.nix

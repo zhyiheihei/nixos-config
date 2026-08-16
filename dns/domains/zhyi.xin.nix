@@ -88,6 +88,13 @@ let
     }
     {
       recordType = "CNAME";
+      name = "dsh";
+      # DSH web UI on the tencent VPS; Dex OIDC-protected (oauth2-proxy).
+      target = "tencent.zhyi.cc.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "element";
       target = "greencloud.zhyi.cc.";
       ttl = "1h";
