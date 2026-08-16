@@ -52,6 +52,7 @@ _: [
   "matrix-client.zhyi.xin"
   "matrix-federation.zhyi.xin"
   "n8n.zhyi.xin"
+  "nav.zhyi.xin"
   "pb.zhyi.xin"
   "prometheus.zhyi.xin"
   "qnap.zhyi.xin"
