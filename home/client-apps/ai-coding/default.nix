@@ -37,6 +37,7 @@ in
   home.packages = [
     (lib.hiPrio codexWrapper)
     pkgs.rtk
+    inputs.llm-agents.packages."${pkgs.stdenv.hostPlatform.system}".dsh
   ];
 
   programs.mcp = {
