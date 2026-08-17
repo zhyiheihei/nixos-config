@@ -7,8 +7,9 @@
   ...
 }:
 let
-  system = pkgs.stdenv.hostPlatform.system;
-  dsh = inputs.llm-agents.packages.${system}.dsh;
+  # nixpkgs PR #553134 官方包定义（overlays/61 预置，rc.6 与 llm-agents 旧源同版）；
+  # PR 合并 unstable 后删 overlay 即切官方包，引用无需改动。
+  dsh = pkgs.deepseek-harness;
   # 模型路由 patch：与本机 ~/.dsh/profiles/web/cordis.patch.yml 同构
   # （全模型走 UniAPI，ai-api.zhyi.xin），无 secret；API key 由
   # /var/lib/dsh/.credentials.yaml 的 UNIAPI_API_KEY 提供（sops 注入）。
@@ -47,11 +48,8 @@ in
     after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
 
-    # dsh 首次启动 web profile 需 pnpm 安装插件；agent 终端需 bash（NixOS 无 /bin/bash）
-    path = [
-      pkgs.pnpm
-      pkgs.bash
-    ];
+    # 包 wrapper 已内置 bash/pnpm_11/bubblewrap 到 PATH（含 Nix bash 终端 patch），
+    # 无需再经 systemd path 注入。
 
     serviceConfig = LT.serviceHarden // {
       ExecStart = "${dsh}/bin/dsh --profile web --host 127.0.0.1 --port ${LT.portStr.DSH} --trusted-host dsh.zhyi.xin";

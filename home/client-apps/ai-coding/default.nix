@@ -37,7 +37,8 @@ in
   home.packages = [
     (lib.hiPrio codexWrapper)
     pkgs.rtk
-    inputs.llm-agents.packages."${pkgs.stdenv.hostPlatform.system}".dsh
+    # nixpkgs PR #553134 官方包（overlays/61 预置）；合并后删 overlay 即切官方
+    pkgs.deepseek-harness
   ];
 
   programs.mcp = {
