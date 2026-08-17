@@ -7,8 +7,9 @@
 
 文件来源于 PR：
 
-- `package.nix`：buildNpmPackage 定义（`node --expose-internals` wrapper，
-  bash/pnpm_11/bubblewrap PATH 注入，use-nix-bash patch，PTY smoke test 等）
+- `default.nix`：buildNpmPackage 定义（`node --expose-internals` wrapper，
+  bash/pnpm_11/bubblewrap PATH 注入，use-nix-bash patch，PTY smoke test 等）；
+  文件名按本仓惯例由 PR 的 `package.nix` 改名为 `default.nix`（供 callPackage 目录解析）
 - `package-lock.json`：npm lockfile（npmDepsHash 与之配对）
 - `remove-dev-dependencies.patch`：剔除 npm tarball 里残留的 dev workspace 包
 - `use-nix-bash.patch`：agent 终端 shellPath 指到 Nix bash（无 /bin/bash）
