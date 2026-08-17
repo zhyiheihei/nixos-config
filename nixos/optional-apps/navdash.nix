@@ -27,9 +27,17 @@ let
         _: vhost:
         let
           scheme = if vhost.listenHTTPS.enable then "https" else "http";
+          # Non-default HTTPS ports (e.g. matrix-federation on 8448) must be
+          # carried in the URL, otherwise the probe and the card link hit the
+          # wrong port (443) and misreport the service as down.
+          port =
+            if vhost.listenHTTPS.enable && vhost.listenHTTPS.port != LT.port.HTTPS then
+              toString vhost.listenHTTPS.port
+            else
+              null;
         in
         {
-          inherit scheme;
+          inherit scheme port;
           name = vhost.serverName;
           src = hostName;
           access = vhost.accessibleBy;
@@ -54,12 +62,13 @@ let
     let
       inherit (e) scheme name src;
       proto = "${scheme}://";
+      portSuffix = if e.port == null then "" else ":${e.port}";
       pattern = "(\\.${src}\\.zhyi\\.xin|\\.${src}\\.moliy\\.site|\\.${src}\\.zhyi\\.cc|\\.zhyi\\.xin|\\.moliy\\.site|\\.zhyi\\.cc|\\.localhost|zhyi\\.xin|moliy\\.site|zhyi\\.cc)$";
       parts = builtins.split pattern name;
     in
     if builtins.length parts == 1 then
       {
-        url = "${proto}${name}";
+        url = "${proto}${name}${portSuffix}";
         inherit proto;
         highlight = name;
         suffix = "";
@@ -68,7 +77,7 @@ let
       }
     else
       {
-        url = "${proto}${name}";
+        url = "${proto}${name}${portSuffix}";
         inherit proto;
         highlight = builtins.elemAt parts 0;
         suffix = builtins.elemAt (builtins.elemAt parts 1) 0;
