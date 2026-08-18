@@ -76,9 +76,6 @@
   "poland": [
     "tls://waw01.yggdrasil.hosted-by.skhron.eu:8884?key=030602cee88a761c68f5f14e1dad430f25238a703b69dc382321a38f833035b0"
   ],
-  "romania": [
-    "tls://ygg-ro.axxa.dev:18080"
-  ],
   "russia": [
     "tls://188.225.9.167:18227",
     "tls://37.192.232.33:442",
