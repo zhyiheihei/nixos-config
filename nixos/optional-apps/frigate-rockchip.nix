@@ -22,6 +22,14 @@ let
       }
     else
       null;
+  # 乐橙(Imou)摄像头固件返回的 ONVIF GetConfigurationOptions XML 元素顺序
+  # 与 XSD sequence 定义不符，zeep 严格按 sequence 解析导致 FOV 的
+  # RelativePanTiltTranslationSpace 被丢进 _raw_elements（解析为空），
+  # frigate 据此判定"FOV relative movement not supported"而禁用自动跟踪。
+  # 补丁版 onvif.py 在 GetConfigurationOptions 后从 _raw_elements 兜底恢复
+  # 这些空间（含 FOV 的 URI/XRange/YRange），不改镜像。镜像升级若修改该文件
+  # 需同步更新这里的补丁版。
+  onvifPatch = ./frigate/ptz/onvif.py;
 in
 {
   # 通用 Rockchip 专版 Frigate（官方 stable-rk 镜像，RKNN NPU 检测）。
@@ -325,6 +333,10 @@ in
         "${cfg.mediaDir}:/media/frigate"
         # 官方 rockchip 安装要求挂载 /sys（设备树 get_soc 探测需要）。
         "/sys:/sys:ro"
+        # 补丁版 onvif.py 覆盖镜像内原版，修复乐橙固件 XML 乱序导致的
+        # FOV 空间丢失（详见 let 块 onvifPatch 注释）。镜像升级若改了该文件
+        # 需同步更新 frigate/ptz/onvif.py。
+        "${cfg.configDir}/ptz/onvif.py:/opt/frigate/frigate/ptz/onvif.py"
       ];
       devices = [
         "/dev/dri:/dev/dri"
@@ -363,6 +375,10 @@ in
           if ! test -f '${cfg.configDir}/model_cache/rknn_cache/${modelFileName}'; then
             install -Dm644 '${modelFetch}' '${cfg.configDir}/model_cache/rknn_cache/${modelFileName}'
           fi
+          # 补丁版 onvif.py → configDir/ptz/（bind-mount 覆盖容器内原版，
+          # 修复乐橙固件 XML 乱序导致 FOV 空间丢失，启用自动跟踪）。
+          mkdir -p '${cfg.configDir}/ptz'
+          install -Dm644 '${onvifPatch}' '${cfg.configDir}/ptz/onvif.py'
         '')
       ];
       # 镜像拉取走 router 代理（与其它 opi5p 容器一致）。
