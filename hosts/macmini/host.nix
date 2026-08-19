@@ -10,13 +10,12 @@
   cpuThreads = 8;
   hostname = "macmini.zhyi.cc";
   manualDeploy = true;
-  # TODO: 拿到 Mac mini 的 SSH host key 后填入（cat ~/.ssh/ssh_host_ed25519_key.pub），
-  # 并同步补上 ssh.ed25519Fingerprints（ssh-keygen -lf 计算 sha1/sha256）。
-  # 在填真实值前保持 null，避免 DNS 的 SSHFP 生成 throw 或写入错误记录。
-  ssh.ed25519 = null;
+  # Mac mini 的 macOS 自带 OpenSSH host key（/etc/ssh/ssh_host_ed25519_key）。
+  # 指纹由 ssh-keygen -lf 计算：sha1/sha256 为去掉前缀的 hex。
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAII+JNpF7l1s6JW1tymfKseBd9ILFVqxkmw1wYOrKmguZ";
   ssh.ed25519Fingerprints = {
-    sha1 = null;
-    sha256 = null;
+    sha1 = "d740d87c6b6e51da5f86155c390a65c7620515a8";
+    sha256 = "80436f5934802bd4b22c9c4d679f4add2296c7b3d05e80ef02135c9dc041cacf";
   };
   interconnect = {
     name = "home-lan";
