@@ -53,9 +53,10 @@ let
       ) otherConfigs
     );
 
-  # 卡片图标：FlatNas 图标站（https://nasicon.top/icon/<名>.png）按 vhost
-  # serverName 精确映射图标名。未映射的条目 icon 为空，前端用服务子域名
-  # 直试图标站（gemini/transmission 等名字本身就是图标名），仍无则隐藏。
+  # 卡片图标：按 vhost serverName 精确映射图标名。映射的图标自托管于
+  # secrets 仓库 navdash-icons/（经 /api/icon 下发，不依赖 nasicon.top）；
+  # 未映射的条目 icon 为空，前端用服务子域名直试图标站
+  # （gemini/transmission 等名字本身就是图标名），仍无则隐藏。
   serviceIcons = {
     "frigate.opi5p.zhyi.cc" = "Frigate_A";
     "handbrake-backend.opi5p.zhyi.cc" = "Handbrake_A";
@@ -87,7 +88,7 @@ let
     "prometheus.zhyi.xin" = "Prometheus_A";
     "qnap.zhyi.xin" = "Qnap_A";
     "radarr.rock5c.zhyi.cc" = "Radarr_A";
-    "rss.zhyi.xin" = "FreshRSS";
+    "rss.zhyi.xin" = "Miniflux_A";
     "rsshub.zhyi.xin" = "Rsshub_A";
     "searx.tencent.zhyi.cc" = "Searxng_A";
     "seedbox.opi5p.zhyi.cc" = "qBittorrent_A--BT下载器--qdnas-s";
@@ -242,6 +243,7 @@ in
         NAVDASH_OIDC_CLIENT_ID = "navdash";
         NAVDASH_ALLOWED_USERS = cfg.allowedUsers;
         NAVDASH_ENTRIES = "${entriesJson}";
+        NAVDASH_ICON_DIR = "${inputs.secrets}/navdash-icons";
       };
       serviceConfig = LT.serviceHarden // {
         User = "navdash";
