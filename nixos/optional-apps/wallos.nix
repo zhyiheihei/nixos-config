@@ -1,6 +1,7 @@
 {
   LT,
   config,
+  inputs,
   lib,
   ...
 }:
@@ -15,6 +16,16 @@
   };
 
   config = lib.mkIf config.lantian.wallos.enable {
+    sops.secrets.dex-wallos-secret = {
+      sopsFile = inputs.secrets + "/common/dex.yaml";
+      owner = "root";
+      group = "root";
+    };
+
+    sops.templates.wallos-oidc-env.content = ''
+      OIDC_CLIENT_SECRET=${config.sops.placeholder.dex-wallos-secret}
+    '';
+
     virtualisation.oci-containers.containers.wallos = {
       image = "docker.io/bellamy/wallos:latest";
       labels."io.containers.autoupdate" = "registry";
@@ -25,7 +36,19 @@
       ];
       environment = {
         TZ = config.time.timeZone;
+        # OIDC via Dex (login.zhyi.xin) -> Pocket ID. Issuer auto-discovers
+        # auth/token/userinfo endpoints from .well-known.
+        OIDC_ENABLED = "true";
+        OIDC_PROVIDER_NAME = "Dex";
+        OIDC_ISSUER = "https://login.zhyi.xin";
+        OIDC_CLIENT_ID = "wallos";
+        OIDC_REDIRECT_URL = "https://wallos.${config.networking.hostName}.zhyi.cc/includes/oidc/handle_oidc_callback.php";
+        OIDC_SCOPES = "openid profile email";
+        OIDC_USER_IDENTIFIER = "preferred_username";
+        OIDC_AUTO_CREATE_USER = "true";
+        OIDC_DISABLE_PASSWORD_LOGIN = "false";
       };
+      environmentFiles = [ config.sops.templates.wallos-oidc-env.path ];
     };
 
     # podman bind-mounts require the source dirs to already exist; create the
