@@ -1739,11 +1739,11 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1787134575,
-        "narHash": "sha256-bs1W3OvzwTOp+2h05GCRQ6DXqG14PkW8thHxoKG7WNY=",
+        "lastModified": 1787140173,
+        "narHash": "sha256-P291s5JKQC1gQxOyhaHTCpfg9QoGsSg8wy4KzYh6c2g=",
         "owner": "zhyiheihei",
         "repo": "zhyi-packages",
-        "rev": "8f3de4f9e696dc50704402c9d91fb426df7d20c1",
+        "rev": "6fe4820a8d3c28f7ddc1565c62278c14f977f204",
         "type": "github"
       },
       "original": {
