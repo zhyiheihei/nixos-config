@@ -28,7 +28,7 @@
   boot.extraModulePackages = [ ];
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/XXXX-XXXX";
+    device = "/dev/disk/by-uuid/A889-8907";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -37,7 +37,7 @@
   };
 
   fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+    device = "/dev/disk/by-uuid/6dad5c56-22d4-49c7-97f5-a225bb5f12cf";
     fsType = "btrfs";
     neededForBoot = true;
     options = [

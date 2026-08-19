@@ -9,14 +9,11 @@
   cpuThreads = 18;
   hostname = "ml-laptop.zhyi.cc";
   manualDeploy = true;
-  # TODO: 拿到正式 SSH host key 后填入（ssh-keygen -y -f
-  # /nix/persistent/etc/ssh/ssh_host_ed25519_key），并同步补上
-  # ssh.ed25519Fingerprints（ssh-keygen -lf 计算 sha1/sha256）。
-  # 填真实值前保持 null，避免 DNS 的 SSHFP 生成 throw 或写入错误记录。
-  ssh.ed25519 = null;
+  # 2026-08-19 安装时生成并持久化到 /mnt/nix/persistent/etc/ssh。
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICERfSdIV4jVRBkEfTOmdNcnzomd3g5e4s8zpqpsbevi";
   ssh.ed25519Fingerprints = {
-    sha1 = null;
-    sha256 = null;
+    sha1 = "UT9uDX/udYPQDhI3xO2ujdaUQXA";
+    sha256 = "b/ZWXPQaBbxiZZ65mHc12a6qEahg/JvQN8D2EeMJ/uY";
   };
   # ZeroTier node ID: 首启后 zerotier-cli info 采集回填。
   zerotier = null;
