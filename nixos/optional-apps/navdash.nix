@@ -132,6 +132,71 @@ let
     "zhyi.xin" = "BlogProject--博客项目";
   };
 
+  # 快捷分组：外部服务商（非本集群 nginx vhost），来源 service-providers.md
+  # 「在用」清单。这些是当前项目实际依赖的云主机商、AI、代码托管、DNS、
+  # 监控、邮件、网络与存储服务，作为卡片直接外链。
+  #
+  # icon 走 serviceIcons 同款 /api/icon 自托管机制（secrets 仓库
+  # navdash-icons/）。只有 nasicon.top 上确实存在图标的服务商才填 icon
+  # （文件名与图标站一致）；其余留空，前端按 name 直试图标站，404 则隐藏
+  # 图标、仅显示名称，卡片仍可用。
+  quickEntries = [
+    # 云主机 / VPS
+    { name = "火山引擎"; url = "https://www.volcengine.com"; icon = ""; }
+    { name = "腾讯云"; url = "https://cloud.tencent.com"; icon = "Tencent_cloud_A"; }
+    { name = "GreenCloud"; url = "https://greencloudvps.com"; icon = ""; }
+    { name = "HostDare"; url = "https://hostdare.com"; icon = ""; }
+    { name = "Google Cloud"; url = "https://cloud.google.com"; icon = "Google_cloud_A"; }
+    # AI / LLM
+    { name = "DeepSeek"; url = "https://www.deepseek.com"; icon = "DeepSeek--深度求索--deepseek.com"; }
+    { name = "OpenAI"; url = "https://api.openai.com"; icon = "Chatgpt--ChatGPT--openai.com"; }
+    { name = "Ollama Cloud"; url = "https://ollama.com"; icon = ""; }
+    { name = "火山方舟"; url = "https://console.volcengine.com"; icon = ""; }
+    { name = "Hugging Face"; url = "https://huggingface.co"; icon = ""; }
+    # 代码托管 / CI / 缓存
+    { name = "GitHub"; url = "https://github.com"; icon = "Github_A"; }
+    { name = "Cachix"; url = "https://cachix.org"; icon = ""; }
+    { name = "NUR"; url = "https://github.com/nix-community/NUR"; icon = ""; }
+    # DNS
+    { name = "Gcore"; url = "https://gcore.com"; icon = "Gcore_A"; }
+    { name = "AliDNS"; url = "https://alidns.com"; icon = ""; }
+    { name = "DNSPod"; url = "https://www.dnspod.cn"; icon = ""; }
+    { name = "Cloudflare DNS"; url = "https://www.cloudflare.com/dns"; icon = ""; }
+    # 日志 / 监控
+    { name = "Axiom"; url = "https://www.axiom.co"; icon = ""; }
+    { name = "Telegram"; url = "https://telegram.org"; icon = ""; }
+    # 邮件
+    { name = "AhaSend"; url = "https://ahasend.com"; icon = ""; }
+    { name = "MXRoute"; url = "https://mxroute.com"; icon = ""; }
+    # 网络 / 身份
+    { name = "ZeroTier"; url = "https://www.zerotier.com"; icon = "Zerotier_A"; }
+    { name = "DN42"; url = "https://dn42.dev"; icon = ""; }
+    { name = "Metered TURN"; url = "https://www.metered.ca"; icon = ""; }
+    # 存储 / 镜像
+    { name = "QNAP"; url = "https://www.qnap.com"; icon = "Qnap_A"; }
+    { name = "DaoCloud"; url = "https://www.daocloud.io"; icon = ""; }
+    { name = "jsDelivr"; url = "https://www.jsdelivr.net"; icon = ""; }
+    # TLS 证书 CA
+    { name = "Let's Encrypt"; url = "https://letsencrypt.org"; icon = ""; }
+    { name = "ZeroSSL"; url = "https://zerossl.com"; icon = ""; }
+  ];
+
+  # 快捷卡片：name 是标题，URL 行显示真实域名（highlight = 域名，suffix 空），
+  # host 显示域名（与自建条目「物理主机」语义对应，这里就是服务商域名）。
+  quickEntrySet = map (q: let
+    hostname = builtins.head (builtins.match "https?://([^/]+).*" q.url);
+  in {
+    name = q.name;
+    url = q.url;
+    proto = "https://";
+    highlight = hostname;
+    suffix = "";
+    host = hostname;
+    access = "public";
+    group = "快捷";
+    icon = q.icon;
+  }) quickEntries;
+
   # Split a hostname into the scheme/proto prefix, the subdomain label to
   # highlight, and the trailing domain suffix to dim. Longest matching suffix
   # wins; see optional-apps/homepage.nix for the POSIX regex reasoning, which
@@ -144,11 +209,18 @@ let
       portSuffix = if e.port == null then "" else ":${e.port}";
       pattern = "(\\.${src}\\.zhyi\\.xin|\\.${src}\\.moliy\\.site|\\.${src}\\.zhyi\\.cc|\\.zhyi\\.xin|\\.moliy\\.site|\\.zhyi\\.cc|\\.localhost|zhyi\\.xin|moliy\\.site|zhyi\\.cc)$";
       parts = builtins.split pattern name;
+      # 语义分组：公开 = zhyi.xin（主公开域）；私有 = zhyi.cc / moliy.site /
+      # localhost（基础设施、主机名、内网）。前端按此分组，不再按物理主机。
+      group =
+        if lib.hasSuffix ".zhyi.xin" name || name == "zhyi.xin" then
+          "公开"
+        else
+          "私有";
     in
     if builtins.length parts == 1 then
       {
         url = "${proto}${name}${portSuffix}";
-        inherit proto;
+        inherit proto group;
         highlight = name;
         suffix = "";
         host = e.src;
@@ -158,7 +230,7 @@ let
     else
       {
         url = "${proto}${name}${portSuffix}";
-        inherit proto;
+        inherit proto group;
         highlight = builtins.elemAt parts 0;
         suffix = builtins.elemAt (builtins.elemAt parts 1) 0;
         host = e.src;
@@ -187,7 +259,7 @@ let
     (builtins.map splitName)
     (builtins.foldl' (acc: r: if builtins.any (x: x.url == r.url) acc then acc else acc ++ [ r ]) [ ])
     (builtins.sort (a: b: a.url < b.url))
-  ];
+  ] ++ quickEntrySet;
 
   entriesJson = (pkgs.formats.json { }).generate "navdash-entries.json" {
     entries = entrySet;
