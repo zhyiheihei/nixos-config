@@ -37,13 +37,16 @@
     enableReleaseChecks = false;
 
     # followSystem 默认 true 会注入 copyModules，这些模块引用 osConfig；
-    # 而 home-manager 在 darwin 侧只提供 darwinConfig（不提供 osConfig），
-    # 会导致求值失败。系统侧已在此显式配置 stylix，无需 followSystem 复制。
+    # 在 darwin 侧只提供 darwinConfig（不提供 osConfig），会导致求值失败。
+    # 系统侧已在此显式配置 stylix，无需 followSystem 复制。
     homeManagerIntegration.followSystem = false;
 
-    image = ../../helpers/wallpaper/wallpaper.jpg;
-    colorGeneration.scheme = "vibrant";
-    colorGeneration.polarity = "dark";
+    # 不用 image + matugen：matugen 的 flake 只暴露 linux systems，
+    # darwin 侧无 package，求值会报 `attribute 'aarch64-darwin' missing`。
+    # 显式设 base16Scheme 后其默认值（触发 matugen 的 generated.palette）
+    # 不再被求值，generated.json 的 fileTree 条目也随之禁用。
+    # 直接引用 stylix 自带的 tinted-schemes（flake=false）里的 base16 scheme。
+    base16Scheme = "${config.stylix.inputs.tinted-schemes}/base16/catppuccin-mocha.yaml";
 
     fonts = {
       serif = {
