@@ -17,7 +17,7 @@
 
 | 项 | 值 |
 | --- | --- |
-| Web UI | `http://frigate.opi5p.zhyi.cc`（**仅内网可达**，`accessibleBy = private`，HTTP） |
+| Web UI | `https://frigate.opi5p.zhyi.cc`（**仅内网可达**，`accessibleBy = private`，HTTPS 用 `*.<hostname>.zhyi.cc` 通配证书） |
 | 容器 | `ghcr.io/blakeblackshear/frigate:stable-rk`（官方 Rockchip 专版，含 RKNN 支持） |
 | 录像存储 | QNAP NAS → opi5p NFS `/mnt/storage/surveillance/frigate` → 容器 `/media/frigate` |
 | 配置/数据库 | opi5p 本机 `/nix/persistent/var/lib/frigate` → 容器 `/config` |
@@ -58,7 +58,7 @@
 
 ## 日常使用
 
-1. 浏览器打开 `http://frigate.opi5p.zhyi.cc`（仅内网）。**首次登录**：Frigate
+1. 浏览器打开 `https://frigate.opi5p.zhyi.cc`（仅内网）。**首次登录**：Frigate
    首次启动会自动创建默认用户 `admin`，初始密码在启动日志里：
    `journalctl -u podman-frigate | grep "Password:"`（本机记录为
    `d3d1c25bda503540a74fe4c2318c0de2`），登录后请立即修改。
@@ -69,8 +69,8 @@
    API key。不依赖 MQTT。
 
 > 反代说明：frigate 0.17 的 Web 是 HTTPS-only（容器自签证书），内网 vhost
-> 以 `https://127.0.0.1:8971` + `proxy_ssl_verify off` 反代，对外仍是
-> `http://frigate.opi5p.zhyi.cc`。
+> 以 `https://127.0.0.1:8971` + `proxy_ssl_verify off` 反代，对外是
+> `https://frigate.opi5p.zhyi.cc`（`*.<hostname>.zhyi.cc` 通配证书）。
 
 ## 故障排查
 
