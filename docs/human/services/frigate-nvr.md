@@ -58,10 +58,10 @@
 
 ## 日常使用
 
-1. 浏览器打开 `https://frigate.opi5p.zhyi.cc`（仅内网）。**首次登录**：Frigate
-   首次启动会自动创建默认用户 `admin`，初始密码在启动日志里：
-   `journalctl -u podman-frigate | grep "Password:"`（本机记录为
-   `d3d1c25bda503540a74fe4c2318c0de2`），登录后请立即修改。
+1. 浏览器打开 `https://frigate.opi5p.zhyi.cc`（仅内网）。认证走统一身份链：
+   oauth2-proxy → Dex（`login.zhyi.xin`）→ Pocket ID（`id.zhyi.xin`）Passkey
+   登录；frigate 本体不设密码（`auth.enabled=false`，用户/角色由反代 header
+   透传，`default_role=admin`）。
 2. 实时预览：Live 页签；历史回放：Recordings 页签按时间线回放。
 3. 检测：RKNN NPU 检测人/车等对象（YOLO-NAS），Events 页签筛选告警片段。
 4. Home Assistant（同机 opi5p）：添加集成 → Frigate，URL 填
@@ -71,6 +71,8 @@
 > 反代说明：frigate 0.17 的 Web 是 HTTPS-only（容器自签证书），内网 vhost
 > 以 `https://127.0.0.1:8971` + `proxy_ssl_verify off` 反代，对外是
 > `https://frigate.opi5p.zhyi.cc`（`*.<hostname>.zhyi.cc` 通配证书）。
+> 认证由 oauth2-proxy 在 nginx 层强制（`enableOAuth`），frigate 本体关闭
+> 认证（`auth.enabled=false`），经 `proxy.header_map` 透传 `X-User`/`X-Groups`。
 
 ## 故障排查
 
@@ -108,8 +110,7 @@ Frigate 集成组件（frigate-hass 5.15.4，声明式打包）+ 本机 mosquitt
 
 1. **MQTT**：设置 → 设备与服务 → 添加集成 → MQTT → broker `127.0.0.1:1883`，无认证
 2. **Frigate**：设置 → 设备与服务 → 添加集成 → Frigate →
-   URL `http://127.0.0.1:5000`，用户名 `admin`，密码见 `journalctl -u podman-frigate | grep "Password:"`
-   （首次部署生成，登录后可改）
+   URL `http://127.0.0.1:5000`（内部未认证端口，无需用户名/密码）
 
 添加后 HA 会获得：
 - **摄像头实体**（`camera.bedroom` / `camera.livingroom`，实时画面经 hass-web-proxy-lib 反代）
