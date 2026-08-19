@@ -21,6 +21,7 @@
     "ipv4-only"
     "ipv6-only"
     "lan-access"
+    "macos"
 
     # Hardware
     "cuda"
