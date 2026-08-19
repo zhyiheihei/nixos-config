@@ -53,6 +53,84 @@ let
       ) otherConfigs
     );
 
+  # 卡片图标：FlatNas 图标站（https://nasicon.top/icon/<名>.png）按 vhost
+  # serverName 精确映射图标名。未映射的条目 icon 为空，前端用服务子域名
+  # 直试图标站（gemini/transmission 等名字本身就是图标名），仍无则隐藏。
+  serviceIcons = {
+    "frigate.opi5p.zhyi.cc" = "Frigate_A";
+    "handbrake-backend.opi5p.zhyi.cc" = "Handbrake_A";
+    "jellyfin-api.rock5c.zhyi.cc" = "Jellyfin_A";
+    "jellyfin-backend.opi5p.zhyi.cc" = "Jellyfin_A";
+    "searx.localhost" = "Searxng_A";
+    "tachidesk-backend.opi5p.zhyi.cc" = "Tachidesk--漫画阅读--qdnas-s";
+    "bazarr.rock5c.zhyi.cc" = "Bazarr_A";
+    "bitwarden.zhyi.xin" = "Vaultwarden--密码管理--qdnas-s";
+    "bt.opi5p.zhyi.cc" = "qBittorrent_A--BT下载器--qdnas-s";
+    "bt.router.zhyi.cc" = "qBittorrent_A--BT下载器--qdnas-s";
+    "dashboard.zhyi.xin" = "Homepage_A";
+    "dav.zhyi.xin" = "WebDav_A--WebDav服务--qdnas-s";
+    "dsh.zhyi.xin" = "DeepSeek--深度求索--deepseek.com";
+    "element.zhyi.xin" = "Element_A";
+    "git.zhyi.xin" = "Gitea_A";
+    "ha.opi5p.zhyi.cc" = "HomeAssistant_A--智能家居";
+    "ha.zhyi.xin" = "HomeAssistant_A--智能家居";
+    "halo.volcengine.zhyi.cc" = "Halo--Halo博客--qdnas-s";
+    "immich.zhyi.xin" = "Immich--照片备份--qdnas-s";
+    "jellyfin.zhyi.xin" = "Jellyfin_A";
+    "matrix-client.zhyi.xin" = "Element_A";
+    "matrix-federation.zhyi.xin" = "Element_A";
+    "metacubexd.rock5c.zhyi.cc" = "Clash_A";
+    "moviepilot.rock5c.zhyi.cc" = "Moviepilot_A";
+    "openspeedtest.rock5c.zhyi.cc" = "icon-openspeedtest-2.0.6-all";
+    "peerbanhelper.opi5p.zhyi.cc" = "icon-peerbanhelper-9.2.5-x86";
+    "prometheus.tencent.zhyi.cc" = "Prometheus_A";
+    "prometheus.zhyi.xin" = "Prometheus_A";
+    "qnap.zhyi.xin" = "Qnap_A";
+    "radarr.rock5c.zhyi.cc" = "Radarr_A";
+    "rss.zhyi.xin" = "FreshRSS";
+    "rsshub.zhyi.xin" = "Rsshub_A";
+    "searx.tencent.zhyi.cc" = "Searxng_A";
+    "seedbox.opi5p.zhyi.cc" = "qBittorrent_A--BT下载器--qdnas-s";
+    "sonarr.rock5c.zhyi.cc" = "Sonarr_A";
+    "tachidesk.zhyi.xin" = "Tachidesk--漫画阅读--qdnas-s";
+    "ai-api.zhyi.xin" = "Chatgpt--ChatGPT--openai.com";
+    "ai.zhyi.xin" = "ChatGPT_A--ChatGPT";
+    "alert.zhyi.xin" = "Prometheus_B";
+    "api.zhyi.xin" = "Nginx_A";
+    "asf.zhyi.xin" = "Steam_A";
+    "books.zhyi.xin" = "Calibre--电子书管理--qdnas-s";
+    "fastapi-dls.rock5c.zhyi.cc" = "Python--Python--python.org";
+    "filebox.zhyi.xin" = "Filecodebox--文件快递柜--qdnas-s";
+    "google-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
+    "google-test-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
+    "hub.tencent.zhyi.cc" = "Docker_A";
+    "id.zhyi.xin" = "2Fauth_A";
+    "ignis.opi5p.zhyi.cc" = "mcp_obsidian";
+    "index-helper.zhyi.xin" = "SunPanel_A--面板";
+    "index.zhyi.xin" = "SunPanel_A--面板";
+    "jproxy.opi5p.zhyi.cc" = "JProxy_A--代理服务";
+    "lab.google.zhyi.cc" = "Nginx_B";
+    "lab.greencloud.zhyi.cc" = "Nginx_B";
+    "lab.hostdare.zhyi.cc" = "Nginx_B";
+    "lab.lubancat1.zhyi.cc" = "Nginx_B";
+    "lab.ml-2700.zhyi.cc" = "Nginx_B";
+    "lab.ml-builder.zhyi.cc" = "Nginx_B";
+    "lab.opi5p.zhyi.cc" = "Nginx_B";
+    "lab.rock5c.zhyi.cc" = "Nginx_B";
+    "lab.tencent.zhyi.cc" = "Nginx_B";
+    "lab.volcengine.zhyi.cc" = "Nginx_B";
+    "letsencrypt-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
+    "letsencrypt-test-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
+    "login.zhyi.xin" = "Authelia_A";
+    "metapi.tencent.zhyi.cc" = "ChatGPT_B--ChatGPT";
+    "nav.zhyi.xin" = "Homepage_C";
+    "pt.opi5p.zhyi.cc" = "qBittorrent_A--BT下载器--qdnas-s";
+    "tools.zhyi.xin" = "Ittools_A";
+    "uni-api.hostdare.zhyi.cc" = "Chatgpt--ChatGPT--openai.com";
+    "zerossl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
+    "zhyi.xin" = "BlogProject--博客项目";
+  };
+
   # Split a hostname into the scheme/proto prefix, the subdomain label to
   # highlight, and the trailing domain suffix to dim. Longest matching suffix
   # wins; see optional-apps/homepage.nix for the POSIX regex reasoning, which
@@ -74,6 +152,7 @@ let
         suffix = "";
         host = e.src;
         access = e.access;
+        icon = serviceIcons.${name} or "";
       }
     else
       {
@@ -83,6 +162,7 @@ let
         suffix = builtins.elemAt (builtins.elemAt parts 1) 0;
         host = e.src;
         access = e.access;
+        icon = serviceIcons.${name} or "";
       };
 
   entrySet = lib.pipe allEntries [
