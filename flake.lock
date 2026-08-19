@@ -812,6 +812,26 @@
         "type": "github"
       }
     },
+    "nix-darwin_2": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786845137,
+        "narHash": "sha256-oQFip+v0luP8NIxJzmiW4Wu8bILsbFWom5l0zonl8hQ=",
+        "owner": "LnL7",
+        "repo": "nix-darwin",
+        "rev": "4cff07de74b50e64bdd68cd4e722ab5b6b35ee48",
+        "type": "github"
+      },
+      "original": {
+        "owner": "LnL7",
+        "repo": "nix-darwin",
+        "type": "github"
+      }
+    },
     "nix-gaming": {
       "inputs": {
         "flake-compat": "flake-compat_2",
@@ -1381,6 +1401,7 @@
         "never-gonna-rust": "never-gonna-rust",
         "nix-alien": "nix-alien",
         "nix-cachyos-kernel": "nix-cachyos-kernel",
+        "nix-darwin": "nix-darwin_2",
         "nix-gaming": "nix-gaming",
         "nix-index-database": "nix-index-database",
         "nix-math": "nix-math",
@@ -1458,11 +1479,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1787139764,
-        "narHash": "sha256-+zIvgW3xiHENq0s0SiiuHBEFV1J6FxHi8KVxV9LmKtk=",
+        "lastModified": 1787155419,
+        "narHash": "sha256-uyNFg6FkQvjV9dVTa3H3bNFmmtWrMrSIwEWw9VQGVFs=",
         "owner": "zhyiheihei",
         "repo": "nixos-secrets",
-        "rev": "3dcdf1e24afb39085ae40acadd66f0b4670d5c78",
+        "rev": "240d6f900a4b3df456142df551530a6d66c34389",
         "type": "github"
       },
       "original": {
