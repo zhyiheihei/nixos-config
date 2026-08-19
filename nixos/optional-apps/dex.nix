@@ -145,9 +145,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-wallos-secret.path;
         };
-        redirectURIs = [
-          "https://wallos.opi5p.zhyi.cc/includes/oidc/handle_oidc_callback.php"
-        ];
+        redirectURIs = [ "https://wallos.opi5p.zhyi.cc/index.php" ];
       }
       # keep-sorted end
     ];

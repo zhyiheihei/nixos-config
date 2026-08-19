@@ -42,7 +42,7 @@
         OIDC_PROVIDER_NAME = "Dex";
         OIDC_ISSUER = "https://login.zhyi.xin";
         OIDC_CLIENT_ID = "wallos";
-        OIDC_REDIRECT_URL = "https://wallos.${config.networking.hostName}.zhyi.cc/includes/oidc/handle_oidc_callback.php";
+        OIDC_REDIRECT_URL = "https://wallos.${config.networking.hostName}.zhyi.cc/index.php";
         OIDC_SCOPES = "openid profile email";
         OIDC_USER_IDENTIFIER = "preferred_username";
         OIDC_AUTO_CREATE_USER = "true";
