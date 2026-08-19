@@ -139,6 +139,16 @@ let
           "bitwarden://sso-callback"
         ];
       }
+      {
+        id = "wallos";
+        name = "Wallos";
+        secret = {
+          _secret = config.sops.secrets.dex-wallos-secret.path;
+        };
+        redirectURIs = [
+          "https://wallos.opi5p.zhyi.cc/includes/oidc/handle_oidc_callback.php"
+        ];
+      }
       # keep-sorted end
     ];
   };
@@ -189,6 +199,7 @@ in
         "moviepilot"
         "navdash"
         "oauth2-proxy"
+        "wallos"
         # keep-sorted end
       ]
   );
