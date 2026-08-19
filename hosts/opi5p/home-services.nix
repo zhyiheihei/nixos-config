@@ -16,6 +16,7 @@
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/sun-panel-nix.nix
     ../../nixos/optional-apps/syncthing
+    ../../nixos/optional-apps/wallos.nix
     ../../nixos/optional-apps/webdav.nix
     ../../nixos/client-components/cups.nix
     ../../nixos/client-components/multicast-dns.nix
@@ -44,6 +45,10 @@
   # Ignis vault is the knowledge-chain Notes folder (Syncthing home copy on the
   # NFS share); the module defaults already point at it, just enable it here.
   lantian.ignis.enable = true;
+
+  # Wallos subscription tracker: private home service, SQLite state on the local
+  # NVMe-backed persistent storage alongside the other container workloads.
+  lantian.wallos.enable = true;
 
   # The hourly timer can fire before sops-install-secrets writes the calendar
   # sync script on a fresh boot; make the run wait for the secret explicitly.

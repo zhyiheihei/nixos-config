@@ -139,6 +139,7 @@ rec {
     LlamaCpp.Qwen3Reranker = 13880;
     LlamaCpp.Qwen3_6 = 13881;
     Actual = 13882;
+    Wallos = 13883;
     ElasticSearch = 13892;
     DN42Peerfinder = 13900;
     ADSB.RawInput = 13901;
