@@ -101,6 +101,72 @@ in
               type = lib.types.str;
               default = "admin";
             };
+            # autotracking 触发区：多边形顶点坐标（"0.123,0.456 ..."，归一化
+            # 0~1，相对 detect 帧尺寸）。空 attrs 表示不定义 zone；定义后供
+            # requiredZones 引用。官方不推荐 autotracking 用全帧 zone。
+            zones = lib.mkOption {
+              type = lib.types.attrsOf (
+                lib.types.submodule {
+                  options = {
+                    coordinates = lib.mkOption {
+                      type = lib.types.str;
+                      description = "Polygon vertices: \"x,y x,y ...\" (normalized 0~1 relative to detect frame)";
+                    };
+                    inertia = lib.mkOption {
+                      type = lib.types.int;
+                      default = 3;
+                    };
+                  };
+                }
+              );
+              default = { };
+            };
+            # PTZ 自动跟踪：靠 ONVIF 相对移动（RelativePanTiltTranslationSpace
+            # 含 TranslationSpaceFov）实现，前提是摄像头云台支持该能力。
+            # 本仓库两台乐橙（TA3R/DK2）都已实测支持。
+            autotracking = lib.mkOption {
+              type = lib.types.nullOr (
+                lib.types.submodule {
+                  options = {
+                    enabled = lib.mkEnableOption "PTZ autotracking for this camera";
+                    returnPreset = lib.mkOption {
+                      type = lib.types.str;
+                      default = "home";
+                      description = "ONVIF preset name to return to when tracking ends";
+                    };
+                    calibrateOnStartup = lib.mkOption {
+                      type = lib.types.bool;
+                      default = false;
+                      description = "Calibrate PTZ motor speed on startup (moves camera ~2min)";
+                    };
+                    zooming = lib.mkOption {
+                      type = lib.types.enum [ "disabled" "absolute" "relative" ];
+                      default = "disabled";
+                    };
+                    zoomFactor = lib.mkOption {
+                      type = lib.types.number;
+                      default = 0.3;
+                    };
+                    timeout = lib.mkOption {
+                      type = lib.types.int;
+                      default = 10;
+                      description = "Seconds to delay before returning to preset";
+                    };
+                    track = lib.mkOption {
+                      type = lib.types.listOf lib.types.str;
+                      default = [ "cat" ];
+                      description = "Object types to autotrack (must also be in global objects.track)";
+                    };
+                    requiredZones = lib.mkOption {
+                      type = lib.types.listOf lib.types.str;
+                      default = [ ];
+                      description = "Zones an object must enter to begin autotracking";
+                    };
+                  };
+                }
+              );
+              default = null;
+            };
           };
         }
       );
@@ -215,7 +281,21 @@ in
                 port = cam.onvifPort;
                 user = cam.onvifUser;
                 password = pw;
+              }
+              // lib.optionalAttrs (cam.autotracking != null) {
+                autotracking = {
+                  enabled = cam.autotracking.enabled;
+                  return_preset = cam.autotracking.returnPreset;
+                  calibrate_on_startup = cam.autotracking.calibrateOnStartup;
+                  zooming = cam.autotracking.zooming;
+                  zoom_factor = cam.autotracking.zoomFactor;
+                  timeout = cam.autotracking.timeout;
+                  track = cam.autotracking.track;
+                  required_zones = cam.autotracking.requiredZones;
+                };
               };
+              # 只用定义过的 zone（自动跟踪 requiredZones 引用的区域）。
+              zones = cam.zones;
               detect.enabled = true;
               record.enabled = true;
             }
