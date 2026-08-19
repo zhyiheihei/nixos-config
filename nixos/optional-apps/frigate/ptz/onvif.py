@@ -145,6 +145,10 @@ class OnvifController:
             if tag != tag_suffix:
                 continue
             d = {}
+            if len(el) == 0 and el.text:
+                # 简单类型元素（如 DefaultRelativePanTiltTranslationSpace）：
+                # 元素自身文本就是 URI，没有 <URI> 子元素。
+                d["URI"] = el.text
             for ch in el:
                 n = ch.tag.split("}")[-1] if "}" in ch.tag else ch.tag
                 if n == "URI":
