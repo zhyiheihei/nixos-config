@@ -140,45 +140,50 @@ let
   # navdash-icons/）。只有 nasicon.top 上确实存在图标的服务商才填 icon
   # （文件名与图标站一致）；其余留空，前端按 name 直试图标站，404 则隐藏
   # 图标、仅显示名称，卡片仍可用。
+  #
+  # brand 是 Simple Icons 的 slug（CC0 矢量品牌图标，自托管于 navdash
+  # web/assets/js/icons.js）。有品牌标的服务商填 brand，前端内联渲染成
+  # 主题感知的 SVG（暗色品牌色在暗色主题下自动换成可见的中性色），不依赖
+  # 任何外部图标 CDN；无品牌标的留空。
   quickEntries = [
     # 云主机 / VPS
-    { name = "火山引擎"; url = "https://www.volcengine.com"; icon = ""; }
-    { name = "腾讯云"; url = "https://cloud.tencent.com"; icon = "Tencent_cloud_A"; }
-    { name = "GreenCloud"; url = "https://greencloudvps.com"; icon = ""; }
-    { name = "HostDare"; url = "https://hostdare.com"; icon = ""; }
-    { name = "Google Cloud"; url = "https://cloud.google.com"; icon = "Google_cloud_A"; }
+    { name = "火山引擎"; url = "https://www.volcengine.com"; icon = ""; brand = ""; }
+    { name = "腾讯云"; url = "https://cloud.tencent.com"; icon = "Tencent_cloud_A"; brand = ""; }
+    { name = "GreenCloud"; url = "https://greencloudvps.com"; icon = ""; brand = ""; }
+    { name = "HostDare"; url = "https://hostdare.com"; icon = ""; brand = ""; }
+    { name = "Google Cloud"; url = "https://cloud.google.com"; icon = "Google_cloud_A"; brand = "googlecloud"; }
     # AI / LLM
-    { name = "DeepSeek"; url = "https://www.deepseek.com"; icon = "DeepSeek--深度求索--deepseek.com"; }
-    { name = "OpenAI"; url = "https://api.openai.com"; icon = "Chatgpt--ChatGPT--openai.com"; }
-    { name = "Ollama Cloud"; url = "https://ollama.com"; icon = ""; }
-    { name = "火山方舟"; url = "https://console.volcengine.com"; icon = ""; }
-    { name = "Hugging Face"; url = "https://huggingface.co"; icon = ""; }
+    { name = "DeepSeek"; url = "https://www.deepseek.com"; icon = "DeepSeek--深度求索--deepseek.com"; brand = "deepseek"; }
+    { name = "OpenAI"; url = "https://api.openai.com"; icon = "Chatgpt--ChatGPT--openai.com"; brand = ""; }
+    { name = "Ollama Cloud"; url = "https://ollama.com"; icon = ""; brand = "ollama"; }
+    { name = "火山方舟"; url = "https://console.volcengine.com"; icon = ""; brand = ""; }
+    { name = "Hugging Face"; url = "https://huggingface.co"; icon = ""; brand = "huggingface"; }
     # 代码托管 / CI / 缓存
-    { name = "GitHub"; url = "https://github.com"; icon = "Github_A"; }
-    { name = "Cachix"; url = "https://cachix.org"; icon = ""; }
-    { name = "NUR"; url = "https://github.com/nix-community/NUR"; icon = ""; }
+    { name = "GitHub"; url = "https://github.com"; icon = "Github_A"; brand = "github"; }
+    { name = "Cachix"; url = "https://cachix.org"; icon = ""; brand = ""; }
+    { name = "NUR"; url = "https://github.com/nix-community/NUR"; icon = ""; brand = ""; }
     # DNS
-    { name = "Gcore"; url = "https://gcore.com"; icon = "Gcore_A"; }
-    { name = "AliDNS"; url = "https://alidns.com"; icon = ""; }
-    { name = "DNSPod"; url = "https://www.dnspod.cn"; icon = ""; }
-    { name = "Cloudflare DNS"; url = "https://www.cloudflare.com/dns"; icon = ""; }
+    { name = "Gcore"; url = "https://gcore.com"; icon = "Gcore_A"; brand = "gcore"; }
+    { name = "AliDNS"; url = "https://alidns.com"; icon = ""; brand = ""; }
+    { name = "DNSPod"; url = "https://www.dnspod.cn"; icon = ""; brand = ""; }
+    { name = "Cloudflare DNS"; url = "https://www.cloudflare.com/dns"; icon = ""; brand = "cloudflare"; }
     # 日志 / 监控
-    { name = "Axiom"; url = "https://www.axiom.co"; icon = ""; }
-    { name = "Telegram"; url = "https://telegram.org"; icon = ""; }
+    { name = "Axiom"; url = "https://www.axiom.co"; icon = ""; brand = ""; }
+    { name = "Telegram"; url = "https://telegram.org"; icon = ""; brand = "telegram"; }
     # 邮件
-    { name = "AhaSend"; url = "https://ahasend.com"; icon = ""; }
-    { name = "MXRoute"; url = "https://mxroute.com"; icon = ""; }
+    { name = "AhaSend"; url = "https://ahasend.com"; icon = ""; brand = ""; }
+    { name = "MXRoute"; url = "https://mxroute.com"; icon = ""; brand = ""; }
     # 网络 / 身份
-    { name = "ZeroTier"; url = "https://www.zerotier.com"; icon = "Zerotier_A"; }
-    { name = "DN42"; url = "https://dn42.dev"; icon = ""; }
-    { name = "Metered TURN"; url = "https://www.metered.ca"; icon = ""; }
+    { name = "ZeroTier"; url = "https://www.zerotier.com"; icon = "Zerotier_A"; brand = "zerotier"; }
+    { name = "DN42"; url = "https://dn42.dev"; icon = ""; brand = ""; }
+    { name = "Metered TURN"; url = "https://www.metered.ca"; icon = ""; brand = ""; }
     # 存储 / 镜像
-    { name = "QNAP"; url = "https://www.qnap.com"; icon = "Qnap_A"; }
-    { name = "DaoCloud"; url = "https://www.daocloud.io"; icon = ""; }
-    { name = "jsDelivr"; url = "https://www.jsdelivr.net"; icon = ""; }
+    { name = "QNAP"; url = "https://www.qnap.com"; icon = "Qnap_A"; brand = "qnap"; }
+    { name = "DaoCloud"; url = "https://www.daocloud.io"; icon = ""; brand = ""; }
+    { name = "jsDelivr"; url = "https://www.jsdelivr.net"; icon = ""; brand = "jsdelivr"; }
     # TLS 证书 CA
-    { name = "Let's Encrypt"; url = "https://letsencrypt.org"; icon = ""; }
-    { name = "ZeroSSL"; url = "https://zerossl.com"; icon = ""; }
+    { name = "Let's Encrypt"; url = "https://letsencrypt.org"; icon = ""; brand = "letsencrypt"; }
+    { name = "ZeroSSL"; url = "https://zerossl.com"; icon = ""; brand = ""; }
   ];
 
   # 快捷卡片：name 是标题，URL 行显示真实域名（highlight = 域名，suffix 空）。
@@ -196,6 +201,7 @@ let
     access = "public";
     group = "快捷";
     icon = q.icon;
+    brand = q.brand;
   }) quickEntries;
 
   # Split a hostname into the scheme/proto prefix, the subdomain label to
@@ -227,6 +233,7 @@ let
         host = e.src;
         access = e.access;
         icon = serviceIcons.${name} or "";
+        brand = "";
       }
     else
       {
@@ -237,6 +244,7 @@ let
         host = e.src;
         access = e.access;
         icon = serviceIcons.${name} or "";
+        brand = "";
       };
 
   entrySet = lib.pipe allEntries [
