@@ -621,6 +621,8 @@ class OnvifController:
             }
             move_request.Translation.Zoom.x = zoom
 
+        import time as _tdbg
+        print(f"ZZZ_MOVE_REL {camera_name} pan={pan} tilt={tilt} speed={speed} {_tdbg.time():.3f}", flush=True)
         await self.cams[camera_name]["ptz"].RelativeMove(move_request)
 
         # reset after the move request
@@ -957,6 +959,8 @@ class OnvifController:
                 f"{camera_name}: Pan/tilt status: {pan_tilt_status}, Zoom status: {zoom_status}"
             )
 
+            import time as _tdbg
+            print(f"ZZZ_STATUS {camera_name} {pan_tilt_status} {zoom_status} {_tdbg.time():.3f}", flush=True)
             if pan_tilt_status == "IDLE" and (
                 zoom_status is None or zoom_status == "IDLE"
             ):
