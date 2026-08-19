@@ -22,7 +22,14 @@ in
       n: _:
       let
         system = LT.hosts."${n}".system;
-        pkgs = import inputs.nixpkgs { inherit system; };
+        # clean nixpkgs：不开 allowUnfree 时，home/client-apps/zsh.nix 引用
+        # pkgs.vscode（unfree）会在 darwin 求值时报 `unfree license` 拒绝。
+        # NixOS 侧是靠用户级 ~/.config/nixpkgs/config.nix 放行，但 darwin 用
+        # useGlobalPkgs 全局 pkgs 不读用户级配置，需在 import 时显式开启。
+        pkgs = import inputs.nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
       in
       inputs.nix-darwin.lib.darwinSystem {
         inherit system pkgs;
