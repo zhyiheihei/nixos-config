@@ -279,7 +279,7 @@ let
       brand = "";
       category = "基础设施与运维";
       widget = "prometheusmetric";
-      metricHost = hostname;
+      metric_host = hostname;
     }
   ) monitoredHosts;
 
@@ -388,7 +388,7 @@ let
         brand = "";
         category = serviceCategories.${name} or "";
         widget = serviceWidgets.${name} or "";
-        metricHost = "";
+        metric_host = "";
       }
     else
       {
@@ -402,7 +402,7 @@ let
         brand = "";
         category = serviceCategories.${name} or "";
         widget = serviceWidgets.${name} or "";
-        metricHost = "";
+        metric_host = "";
       };
 
   entrySet = lib.pipe allEntries [
