@@ -181,8 +181,9 @@ let
     { name = "ZeroSSL"; url = "https://zerossl.com"; icon = ""; }
   ];
 
-  # 快捷卡片：name 是标题，URL 行显示真实域名（highlight = 域名，suffix 空），
-  # host 显示域名（与自建条目「物理主机」语义对应，这里就是服务商域名）。
+  # 快捷卡片：name 是标题，URL 行显示真实域名（highlight = 域名，suffix 空）。
+  # host 留空——外部服务商没有「物理主机」概念，域名已在 URL 行展示，meta 行
+  # 只保留状态点，避免重复。
   quickEntrySet = map (q: let
     hostname = builtins.head (builtins.match "https?://([^/]+).*" q.url);
   in {
@@ -191,7 +192,7 @@ let
     proto = "https://";
     highlight = hostname;
     suffix = "";
-    host = hostname;
+    host = "";
     access = "public";
     group = "快捷";
     icon = q.icon;
