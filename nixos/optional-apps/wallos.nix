@@ -28,7 +28,19 @@
       };
     };
 
+    # podman bind-mounts require the source dirs to already exist; create the
+    # per-volume subdirs (db, logos) that Wallos mounts explicitly.
     systemd.tmpfiles.settings.wallos."${config.lantian.wallos.storage}"."d" = {
+      mode = "0750";
+      user = "root";
+      group = "root";
+    };
+    systemd.tmpfiles.settings.wallos-db."${config.lantian.wallos.storage}/db"."d" = {
+      mode = "0750";
+      user = "root";
+      group = "root";
+    };
+    systemd.tmpfiles.settings.wallos-logos."${config.lantian.wallos.storage}/logos"."d" = {
       mode = "0750";
       user = "root";
       group = "root";
