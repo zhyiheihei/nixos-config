@@ -101,16 +101,16 @@ in
               type = lib.types.str;
               default = "admin";
             };
-            # autotracking 触发区：多边形顶点坐标（"0.123,0.456 ..."，归一化
-            # 0~1，相对 detect 帧尺寸）。空 attrs 表示不定义 zone；定义后供
-            # requiredZones 引用。官方不推荐 autotracking 用全帧 zone。
+            # autotracking 触发区：多边形顶点坐标（"0.123,0.456,0.789,..."，
+            # 归一化 0~1 平铺序列，相对 detect 帧尺寸）。空 attrs 表示不定义
+            # zone；定义后供 requiredZones 引用。官方不推荐 autotracking 用全帧 zone。
             zones = lib.mkOption {
               type = lib.types.attrsOf (
                 lib.types.submodule {
                   options = {
                     coordinates = lib.mkOption {
                       type = lib.types.str;
-                      description = "Polygon vertices: \"x,y x,y ...\" (normalized 0~1 relative to detect frame)";
+                      description = "Polygon vertices: \"x1,y1,x2,y2,...\" (normalized 0~1 flat comma-separated sequence relative to detect frame)";
                     };
                     inertia = lib.mkOption {
                       type = lib.types.int;

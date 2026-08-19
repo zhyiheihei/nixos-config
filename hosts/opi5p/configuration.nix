@@ -82,9 +82,9 @@ in
           calibrateOnStartup = true;
           requiredZones = [ "cat-area" ];
         };
-        # 猫活动区：卧室画面中央主体区域（归一化 0~1，相对 detect 帧），
+        # 猫活动区：卧室画面中央主体区域（归一化 0~1 平铺坐标，相对 detect 帧），
         # 覆盖约中央 75%；可在 UI 里按实际视野微调顶点。
-        zones.cat-area.coordinates = "0.13,0.18 0.87,0.18 0.87,0.83 0.13,0.83";
+        zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
       };
       livingroom = {
         rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-livingroom-pw"}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
@@ -94,8 +94,8 @@ in
           calibrateOnStartup = true;
           requiredZones = [ "cat-area" ];
         };
-        # 客厅猫活动区（归一化坐标，覆盖约中央 75%）。
-        zones.cat-area.coordinates = "0.13,0.18 0.87,0.18 0.87,0.83 0.13,0.83";
+        # 客厅猫活动区（归一化平铺坐标，覆盖约中央 75%）。
+        zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
       };
     };
   };
