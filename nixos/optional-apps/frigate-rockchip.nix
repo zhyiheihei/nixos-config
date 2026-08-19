@@ -138,6 +138,18 @@ in
             host = "127.0.0.1";
             port = 1883;
           };
+          # 认证交给上游 oauth2-proxy（Dex/Pocket ID），本体不设密码：
+          # 关闭 frigate 自带认证，用 header_map 从反代透传用户/角色。
+          # oauth2-proxy 的 enableOAuth 会注入 X-User（preferred_username）
+          # 与 X-Groups；单用户 zhyi 无组，default_role 兜底为 admin。
+          auth.enabled = false;
+          proxy = {
+            header_map = {
+              user = "x-user";
+              role = "x-groups";
+            };
+            default_role = "admin";
+          };
           database.path = "/config/frigate.db";
           detectors.rknn = {
             type = "rknn";
@@ -299,6 +311,7 @@ in
         '';
         proxyWebsockets = true;
         proxyNoTimeout = true;
+        enableOAuth = true;
       };
       accessibleBy = "private";
       sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";

@@ -142,6 +142,7 @@ staticClients 与 LDAP 消费者。模块存在但**没有被任何主机导入*
 | Syncthing | `syncthing.opi5p.zhyi.cc` / `syncthing.greencloud.zhyi.cc` | opi5p / greencloud |
 | ArchiveBox | `archivebox.opi5p.zhyi.cc` | opi5p |
 | Ignis | `ignis.opi5p.zhyi.cc` | opi5p |
+| Frigate | `frigate.opi5p.zhyi.cc` | opi5p |
 | Halo 管理后台 | `halo.volcengine.zhyi.cc` | volcengine |
 
 **B. 应用内 OIDC（应用自己实现 OIDC，client 注册在 Dex）**
@@ -242,7 +243,7 @@ SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）�
 
 ### 审计结论
 
-1. **已接入 27 项**（A 11 + B 6 + C 4 + D 3 + J 4，其中 Pocket ID 为体系自身），
+1. **已接入 28 项**（A 12 + B 6 + C 4 + D 3 + J 4，其中 Pocket ID 为体系自身），
    **未接入约 28 项**（E/F/G/H/I 各类）。核心 Web 管理面基本都接入了身份链；
    未接入的多为三类：自带账号的应用（Immich/Jellyfin/PVE/qBittorrent）、
    机器对机器的 token/密钥（AI 网关/构建链/备份链）、有意公开的只读面。
