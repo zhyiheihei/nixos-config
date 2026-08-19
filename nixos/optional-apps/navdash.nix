@@ -133,6 +133,156 @@ let
     "zhyi.xin" = "BlogProject--博客项目";
   };
 
+  # 卡片功能域分类：按「这张卡片与什么相关」划分，而不是按物理主机或
+  # 服务商类型。公开/私有 vhost 的 serverName 精确映射到功能域，恢复自
+  # 已删除的 homepage-dashboard 语义分组（01-12）；快捷条目在
+  # quickEntries 里按 provider 语义打 category（21-31）。前端在语义分组
+  # （公开/私有/快捷）内部再按本值分子节；未命中的条目回退到物理主机名
+  # （保持旧行为），避免卡片丢失。
+  #
+  # 主机根域（<host>.zhyi.cc / lab.<host>.zhyi.cc）是主机可达性/测试页，
+  # 统一归到「基础设施与运维」，下面用 genAttrs 生成，避免手写重复。
+  serviceCategories =
+    {
+      # 公开（zhyi.xin）· 内容与通讯
+      "zhyi.xin" = "内容与通讯";
+      "lemmy.zhyi.xin" = "内容与通讯";
+      "rss.zhyi.xin" = "内容与通讯";
+      "cal.zhyi.xin" = "内容与通讯";
+      "element.zhyi.xin" = "内容与通讯";
+      "matrix.zhyi.xin" = "内容与通讯";
+      "matrix-client.zhyi.xin" = "内容与通讯";
+      "matrix-federation.zhyi.xin" = "内容与通讯";
+      "stats.zhyi.xin" = "内容与通讯";
+      "pb.zhyi.xin" = "内容与通讯";
+      "posts.zhyi.xin" = "内容与通讯";
+      "comments.zhyi.xin" = "内容与通讯";
+      "mail.zhyi.xin" = "内容与通讯";
+      "halo.volcengine.zhyi.cc" = "内容与通讯";
+      # 公开 · 身份链路
+      "login.zhyi.xin" = "身份链路";
+      "id.zhyi.xin" = "身份链路";
+      "bitwarden.zhyi.xin" = "身份链路";
+      # 公开 · AI 链路
+      "ai.zhyi.xin" = "AI 链路";
+      "ai-api.zhyi.xin" = "AI 链路";
+      "n8n.zhyi.xin" = "AI 链路";
+      "metapi.tencent.zhyi.cc" = "AI 链路";
+      "uni-api.hostdare.zhyi.cc" = "AI 链路";
+      # 公开 · 媒体链路
+      "books.zhyi.xin" = "媒体链路";
+      "immich.zhyi.xin" = "媒体链路";
+      "tachidesk.zhyi.xin" = "媒体链路";
+      "jellyfin.zhyi.xin" = "媒体链路";
+      "rk-jellyfin.zhyi.xin" = "媒体链路";
+      # 公开 · 效率工具
+      "tools.zhyi.xin" = "效率工具";
+      "index.zhyi.xin" = "效率工具";
+      "index-helper.zhyi.xin" = "效率工具";
+      "filebox.zhyi.xin" = "效率工具";
+      "api.zhyi.xin" = "效率工具";
+      "asf.zhyi.xin" = "效率工具";
+      "dsh.zhyi.xin" = "效率工具";
+      # 公开 · 基础设施与运维
+      "hydra.zhyi.xin" = "基础设施与运维";
+      "attic.zhyi.xin" = "基础设施与运维";
+      "git.zhyi.xin" = "基础设施与运维";
+      "netbox.zhyi.xin" = "基础设施与运维";
+      "dashboard.zhyi.xin" = "基础设施与运维";
+      "prometheus.zhyi.xin" = "基础设施与运维";
+      "alert.zhyi.xin" = "基础设施与运维";
+      "flapalerted.zhyi.xin" = "基础设施与运维";
+      "nav.zhyi.xin" = "基础设施与运维";
+      # 公开 · 存储与证书
+      "qnap.zhyi.xin" = "存储与证书";
+      "dav.zhyi.xin" = "存储与证书";
+      "ca.zhyi.xin" = "存储与证书";
+      "vaults3.zhyi.xin" = "存储与证书";
+      "google-ssl.zhyi.xin" = "存储与证书";
+      "google-test-ssl.zhyi.xin" = "存储与证书";
+      "letsencrypt-ssl.zhyi.xin" = "存储与证书";
+      "letsencrypt-test-ssl.zhyi.xin" = "存储与证书";
+      "zerossl.zhyi.xin" = "存储与证书";
+      # 私有 · 家庭服务
+      "ha.zhyi.xin" = "家庭服务";
+      "ha.opi5p.zhyi.cc" = "家庭服务";
+      "frigate.opi5p.zhyi.cc" = "家庭服务";
+      "syncthing.localhost" = "家庭服务";
+      # 私有 · 媒体与下载
+      "bt.router.zhyi.cc" = "媒体与下载";
+      "bt.opi5p.zhyi.cc" = "媒体与下载";
+      "pt.opi5p.zhyi.cc" = "媒体与下载";
+      "seedbox.opi5p.zhyi.cc" = "媒体与下载";
+      "peerbanhelper.opi5p.zhyi.cc" = "媒体与下载";
+      "bitmagnet.opi5p.zhyi.cc" = "媒体与下载";
+      "moviepilot.rock5c.zhyi.cc" = "媒体与下载";
+      "radarr.rock5c.zhyi.cc" = "媒体与下载";
+      "sonarr.rock5c.zhyi.cc" = "媒体与下载";
+      "bazarr.rock5c.zhyi.cc" = "媒体与下载";
+      "jellyfin-backend.opi5p.zhyi.cc" = "媒体与下载";
+      "tachidesk-backend.opi5p.zhyi.cc" = "媒体与下载";
+      "handbrake-backend.opi5p.zhyi.cc" = "媒体与下载";
+      # 私有 · 效率工具与内容
+      "searx.tencent.zhyi.cc" = "效率工具与内容";
+      "searx.localhost" = "效率工具与内容";
+      "fastapi-dls.rock5c.zhyi.cc" = "效率工具与内容";
+      "rsshub.zhyi.xin" = "效率工具与内容";
+      "ignis.opi5p.zhyi.cc" = "效率工具与内容";
+      # 私有 · 基础设施与网络
+      "prometheus.tencent.zhyi.cc" = "基础设施与网络";
+      "pve-5700u.zhyi.cc" = "基础设施与网络";
+      "metacubexd.rock5c.zhyi.cc" = "基础设施与网络";
+      "openspeedtest.rock5c.zhyi.cc" = "基础设施与网络";
+      "hub.tencent.zhyi.cc" = "基础设施与网络";
+      "jproxy.opi5p.zhyi.cc" = "基础设施与网络";
+      "lg.zhyi.cc" = "基础设施与网络";
+      "ltnet.zhyi.cc" = "基础设施与网络";
+    }
+    // lib.genAttrs
+      (lib.flatten (lib.mapAttrsToList (h: _: [ "lab.${h}.zhyi.cc" "${h}.zhyi.cc" ]) LT.hosts))
+      (_: "基础设施与运维");
+
+  # 卡片上的「实时服务数据」widget。仅公开域可达、且有自管 API 的卡片挂
+  # widget：前端把这些 vhost 卡片渲染成服务内部数据（immich 照片数、
+  # jellyfin 媒体库、gitea 仓库数），数据由 navdash 后端经 /api/metrics 从
+  # 各服务自己的公开 API 拉取（密钥来自 secrets 仓库 navdash-widgets.yaml）。
+  # 未命中的卡片 widget 留空，只显示健康探测与静态信息。
+  serviceWidgets = {
+    "immich.zhyi.xin" = "immich";
+    "jellyfin.zhyi.xin" = "jellyfin";
+    "git.zhyi.xin" = "gitea";
+  };
+
+  # 监控卡片：为每个受监控主机生成一张 prometheusmetric 卡片（node
+  # exporter CPU/内存/磁盘利用率），数据经 /api/metrics 从本机 Prometheus
+  # （tencent 上 127.0.0.1:9090）拉取。仅登录可见（私有），挂在「基础设施
+  # 与运维」功能域下；URL 指向 Grafana 监控大盘（与原 homepage 监控卡一致）。
+  # 排除带 client 标签的主机（它们不开 node exporter，无数据可显示）。
+  monitoredHosts = lib.filterAttrs (n: v: !v.hasTag LT.tags.client) LT.hosts;
+
+  monitorEntries = lib.mapAttrsToList (
+    hostname: h:
+    let
+      # 点卡片跳到 Grafana 该 host 的资源面板；没有独立主机入口。
+      url = "https://dashboard.zhyi.xin";
+    in
+    {
+      inherit hostname url;
+      name = hostname;
+      proto = "https://";
+      highlight = hostname;
+      suffix = "";
+      host = hostname;
+      access = "private";
+      group = "私有";
+      icon = "";
+      brand = "";
+      category = "基础设施与运维";
+      widget = "prometheusmetric";
+      metricHost = hostname;
+    }
+  ) monitoredHosts;
+
   # 快捷分组：外部服务商（非本集群 nginx vhost），来源 service-providers.md
   # 「在用」清单。这些是当前项目实际依赖的云主机商、AI、代码托管、DNS、
   # 监控、邮件、网络与存储服务，作为卡片直接外链。
@@ -147,44 +297,44 @@ let
   # 主题感知的 SVG（暗色品牌色在暗色主题下自动换成可见的中性色），不依赖
   # 任何外部图标 CDN；无品牌标的留空。
   quickEntries = [
-    # 云主机 / VPS
-    { name = "火山引擎"; url = "https://www.volcengine.com"; icon = ""; brand = ""; category = "云主机"; }
-    { name = "腾讯云"; url = "https://cloud.tencent.com"; icon = "Tencent_cloud_A"; brand = ""; category = "云主机"; }
-    { name = "GreenCloud"; url = "https://greencloudvps.com"; icon = ""; brand = ""; category = "云主机"; }
-    { name = "HostDare"; url = "https://hostdare.com"; icon = ""; brand = ""; category = "云主机"; }
-    { name = "Google Cloud"; url = "https://cloud.google.com"; icon = "Google_cloud_A"; brand = "googlecloud"; category = "云主机"; }
-    # AI / LLM
-    { name = "DeepSeek"; url = "https://www.deepseek.com"; icon = "DeepSeek--深度求索--deepseek.com"; brand = "deepseek"; category = "AI"; }
-    { name = "OpenAI"; url = "https://api.openai.com"; icon = "Chatgpt--ChatGPT--openai.com"; brand = ""; category = "AI"; }
-    { name = "Ollama Cloud"; url = "https://ollama.com"; icon = ""; brand = "ollama"; category = "AI"; }
-    { name = "火山方舟"; url = "https://console.volcengine.com"; icon = ""; brand = ""; category = "AI"; }
-    { name = "Hugging Face"; url = "https://huggingface.co"; icon = ""; brand = "huggingface"; category = "AI"; }
-    # 代码托管 / CI / 缓存
-    { name = "GitHub"; url = "https://github.com"; icon = "Github_A"; brand = "github"; category = "代码托管"; }
-    { name = "Cachix"; url = "https://cachix.org"; icon = ""; brand = ""; category = "代码托管"; }
-    { name = "NUR"; url = "https://github.com/nix-community/NUR"; icon = ""; brand = ""; category = "代码托管"; }
-    # DNS
-    { name = "Gcore"; url = "https://gcore.com"; icon = "Gcore_A"; brand = "gcore"; category = "DNS"; }
-    { name = "AliDNS"; url = "https://alidns.com"; icon = ""; brand = ""; category = "DNS"; }
-    { name = "DNSPod"; url = "https://www.dnspod.cn"; icon = ""; brand = ""; category = "DNS"; }
-    { name = "Cloudflare DNS"; url = "https://www.cloudflare.com/dns"; icon = ""; brand = "cloudflare"; category = "DNS"; }
-    # 日志 / 监控
-    { name = "Axiom"; url = "https://www.axiom.co"; icon = ""; brand = ""; category = "监控"; }
-    { name = "Telegram"; url = "https://telegram.org"; icon = ""; brand = "telegram"; category = "监控"; }
+    # VPS 供应商
+    { name = "火山引擎"; url = "https://www.volcengine.com"; icon = ""; brand = ""; category = "VPS 供应商"; }
+    { name = "腾讯云"; url = "https://cloud.tencent.com"; icon = "Tencent_cloud_A"; brand = ""; category = "VPS 供应商"; }
+    { name = "GreenCloud"; url = "https://greencloudvps.com"; icon = ""; brand = ""; category = "VPS 供应商"; }
+    { name = "HostDare"; url = "https://hostdare.com"; icon = ""; brand = ""; category = "VPS 供应商"; }
+    { name = "Google Cloud"; url = "https://cloud.google.com"; icon = "Google_cloud_A"; brand = "googlecloud"; category = "VPS 供应商"; }
+    # AI 与模型
+    { name = "DeepSeek"; url = "https://www.deepseek.com"; icon = "DeepSeek--深度求索--deepseek.com"; brand = "deepseek"; category = "AI 与模型"; }
+    { name = "OpenAI"; url = "https://api.openai.com"; icon = "Chatgpt--ChatGPT--openai.com"; brand = ""; category = "AI 与模型"; }
+    { name = "Ollama Cloud"; url = "https://ollama.com"; icon = ""; brand = "ollama"; category = "AI 与模型"; }
+    { name = "火山方舟"; url = "https://console.volcengine.com"; icon = ""; brand = ""; category = "AI 与模型"; }
+    { name = "Hugging Face"; url = "https://huggingface.co"; icon = ""; brand = "huggingface"; category = "AI 与模型"; }
+    # 开发与构建
+    { name = "GitHub"; url = "https://github.com"; icon = "Github_A"; brand = "github"; category = "开发与构建"; }
+    { name = "Cachix"; url = "https://cachix.org"; icon = ""; brand = ""; category = "开发与构建"; }
+    { name = "NUR"; url = "https://github.com/nix-community/NUR"; icon = ""; brand = ""; category = "开发与构建"; }
+    # 域名与网络
+    { name = "Gcore"; url = "https://gcore.com"; icon = "Gcore_A"; brand = "gcore"; category = "域名与网络"; }
+    { name = "AliDNS"; url = "https://alidns.com"; icon = ""; brand = ""; category = "域名与网络"; }
+    { name = "DNSPod"; url = "https://www.dnspod.cn"; icon = ""; brand = ""; category = "域名与网络"; }
+    { name = "Cloudflare DNS"; url = "https://www.cloudflare.com/dns"; icon = ""; brand = "cloudflare"; category = "域名与网络"; }
+    # 日志与监控
+    { name = "Axiom"; url = "https://www.axiom.co"; icon = ""; brand = ""; category = "日志与监控"; }
+    { name = "Telegram"; url = "https://telegram.org"; icon = ""; brand = "telegram"; category = "日志与监控"; }
     # 邮件
     { name = "AhaSend"; url = "https://ahasend.com"; icon = ""; brand = ""; category = "邮件"; }
     { name = "MXRoute"; url = "https://mxroute.com"; icon = ""; brand = ""; category = "邮件"; }
-    # 网络 / 身份
-    { name = "ZeroTier"; url = "https://www.zerotier.com"; icon = "Zerotier_A"; brand = "zerotier"; category = "网络"; }
-    { name = "DN42"; url = "https://dn42.dev"; icon = ""; brand = ""; category = "网络"; }
-    { name = "Metered TURN"; url = "https://www.metered.ca"; icon = ""; brand = ""; category = "网络"; }
-    # 存储 / 镜像
-    { name = "QNAP"; url = "https://www.qnap.com"; icon = "Qnap_A"; brand = "qnap"; category = "存储"; }
-    { name = "DaoCloud"; url = "https://www.daocloud.io"; icon = ""; brand = ""; category = "存储"; }
-    { name = "jsDelivr"; url = "https://www.jsdelivr.net"; icon = ""; brand = "jsdelivr"; category = "存储"; }
+    # 域名与网络（身份/隧道）
+    { name = "ZeroTier"; url = "https://www.zerotier.com"; icon = "Zerotier_A"; brand = "zerotier"; category = "域名与网络"; }
+    { name = "DN42"; url = "https://dn42.dev"; icon = ""; brand = ""; category = "域名与网络"; }
+    { name = "Metered TURN"; url = "https://www.metered.ca"; icon = ""; brand = ""; category = "域名与网络"; }
+    # 存储与镜像
+    { name = "QNAP"; url = "https://www.qnap.com"; icon = "Qnap_A"; brand = "qnap"; category = "存储与镜像"; }
+    { name = "DaoCloud"; url = "https://www.daocloud.io"; icon = ""; brand = ""; category = "存储与镜像"; }
+    { name = "jsDelivr"; url = "https://www.jsdelivr.net"; icon = ""; brand = "jsdelivr"; category = "存储与镜像"; }
     # TLS 证书 CA
-    { name = "Let's Encrypt"; url = "https://letsencrypt.org"; icon = ""; brand = "letsencrypt"; category = "证书"; }
-    { name = "ZeroSSL"; url = "https://zerossl.com"; icon = ""; brand = ""; category = "证书"; }
+    { name = "Let's Encrypt"; url = "https://letsencrypt.org"; icon = ""; brand = "letsencrypt"; category = "证书与安全"; }
+    { name = "ZeroSSL"; url = "https://zerossl.com"; icon = ""; brand = ""; category = "证书与安全"; }
   ];
 
   # 快捷卡片：name 是标题，URL 行显示真实域名（highlight = 域名，suffix 空）。
@@ -236,7 +386,9 @@ let
         access = e.access;
         icon = serviceIcons.${name} or "";
         brand = "";
-        category = "";
+        category = serviceCategories.${name} or "";
+        widget = serviceWidgets.${name} or "";
+        metricHost = "";
       }
     else
       {
@@ -248,7 +400,9 @@ let
         access = e.access;
         icon = serviceIcons.${name} or "";
         brand = "";
-        category = "";
+        category = serviceCategories.${name} or "";
+        widget = serviceWidgets.${name} or "";
+        metricHost = "";
       };
 
   entrySet = lib.pipe allEntries [
@@ -272,7 +426,7 @@ let
     (builtins.map splitName)
     (builtins.foldl' (acc: r: if builtins.any (x: x.url == r.url) acc then acc else acc ++ [ r ]) [ ])
     (builtins.sort (a: b: a.url < b.url))
-  ] ++ quickEntrySet;
+  ] ++ quickEntrySet ++ monitorEntries;
 
   entriesJson = (pkgs.formats.json { }).generate "navdash-entries.json" {
     entries = entrySet;
@@ -299,14 +453,32 @@ in
         sopsFile = inputs.secrets + "/common/personal-apps.yaml";
         key = "navdash-session-key";
       };
+      # 服务内部数据 widget 的 API 密钥（immich/jellyfin/gitea），恢复自已
+      # 删除的 homepage-dashboard.yaml 的 homepage-dashboard-env 块。仅在
+      # tencent 上部署（navdash 与这些服务的公开 API 同网可达）。
+      navdash-widget-immich = {
+        sopsFile = inputs.secrets + "/navdash-widgets.yaml";
+        key = "immich-api-key";
+      };
+      navdash-widget-jellyfin = {
+        sopsFile = inputs.secrets + "/navdash-widgets.yaml";
+        key = "jellyfin-api-key";
+      };
+      navdash-widget-gitea = {
+        sopsFile = inputs.secrets + "/navdash-widgets.yaml";
+        key = "gitea-api-key";
+      };
     };
 
-    # 两个 secret 都是单值，systemd EnvironmentFile 需要 KEY=value 格式，
-    # 用 sops 模板拼装；属主对齐专用用户（本仓 dsh-web 同款模式）。
+    # 单值 secret 拼装成 systemd EnvironmentFile；属主对齐专用用户
+    # （本仓 dsh-web 同款模式）。
     sops.templates."navdash-env" = {
       content = ''
         NAVDASH_OIDC_CLIENT_SECRET=${config.sops.placeholder.navdash-oidc-client-secret}
         NAVDASH_SESSION_KEY=${config.sops.placeholder.navdash-session-key}
+        NAVDASH_WIDGET_IMMICH_KEY=${config.sops.placeholder.navdash-widget-immich}
+        NAVDASH_WIDGET_JELLYFIN_KEY=${config.sops.placeholder.navdash-widget-jellyfin}
+        NAVDASH_WIDGET_GITEA_KEY=${config.sops.placeholder.navdash-widget-gitea}
       '';
       owner = "navdash";
       group = "navdash";
@@ -329,6 +501,9 @@ in
         NAVDASH_ALLOWED_USERS = cfg.allowedUsers;
         NAVDASH_ENTRIES = "${entriesJson}";
         NAVDASH_ICON_DIR = "${inputs.secrets}/navdash-icons";
+        # navdash 与 Prometheus 同在 tencent（nav.zhyi.xin 与监控栈同机），
+        # 直接打本机只读 Prometheus 即可，无需走 nginx vhost / 认证。
+        NAVDASH_PROMETHEUS_URL = "http://127.0.0.1:${LT.portStr.Prometheus.Daemon}";
       };
       serviceConfig = LT.serviceHarden // {
         User = "navdash";
