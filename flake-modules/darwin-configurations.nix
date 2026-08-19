@@ -40,11 +40,11 @@ in
             home-manager.extraSpecialArgs = {
               inherit inputs self;
             };
-            home-manager.users.zhyi = {
+            home-manager.users.molishanguang = {
               home.stateVersion = LT.constants.stateVersion;
               home.enableNixpkgsReleaseCheck = false;
-              home.username = "zhyi";
-              home.homeDirectory = "/Users/zhyi";
+              home.username = "molishanguang";
+              home.homeDirectory = "/Users/molishanguang";
               imports = [ (../home + "/macos.nix") ];
             };
           }

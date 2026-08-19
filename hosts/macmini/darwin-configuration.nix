@@ -21,10 +21,12 @@
   # 启用 Apple 内置 OpenSSH 服务器（远程登录）。
   services.openssh.enable = true;
 
-  # 用户 zhyi：home 目录 /Users/zhyi，shell 交给 home-manager 的 zsh 模块管理。
-  users.users.zhyi = {
-    name = "zhyi";
-    home = "/Users/zhyi";
+  # 用户 molishanguang：home 目录 /Users/molishanguang，shell 交给 home-manager 的 zsh 模块管理。
+  # 注意：这台 Mac 的实际登录用户是 molishanguang（非项目其他主机的 zhyi），
+  # 沿用现有 macOS 用户，避免重建用户与迁移家目录。
+  users.users.molishanguang = {
+    name = "molishanguang";
+    home = "/Users/molishanguang";
   };
 
   # stylix 系统级配置。darwin 侧 targets 只有 font-packages/jankyborders/neovim，
