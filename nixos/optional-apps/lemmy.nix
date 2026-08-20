@@ -40,6 +40,8 @@ in
 
   systemd.services.lemmy-ui.enable = lib.mkForce false;
 
+  systemd.services.lemmy.environment.RUST_LOG = "error";
+
   lantian.nginxVhosts."lemmy.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${toString cfg.settings.port}";

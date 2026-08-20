@@ -129,6 +129,7 @@ in
   imports = [
     inputs.betterfox-nix.homeModules.betterfox
     ./anti-fingerprinting.nix
+    ./homepage.nix
   ];
 
   programs.firefox = lib.recursiveUpdate args {
