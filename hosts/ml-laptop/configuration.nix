@@ -113,6 +113,9 @@
     PLATFORM_PROFILE_ON_AC = lib.mkForce "balanced";
   };
 
+  # 蓝牙：AX211 蓝牙硬件已识别（hci0），启用 bluetooth 服务让蓝牙可用。
+  services.bluetooth.enable = true;
+
   # 主网络走 NetworkManager（client 默认）。临时有线网卡和 WiFi 均由其接管；
   # 首次安装验收后建议在目标机用 nmcli 把 WiFi 连接配成静态 192.168.0.55，
   # 连接会被持久化到 /etc/NetworkManager/system-connections（client.nix 已
