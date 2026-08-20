@@ -20,6 +20,11 @@
 
   lantian.syncthing.storage = "/nix/persistent/media";
 
+  boot.loader.grub = {
+    efiSupport = true;
+    device = "nodev";
+  };
+
   # Host-level override (optional-apps/sunshine.nix is a public module, left
   # untouched): allow browser access to the Sunshine Web UI from LAN / LTNET,
   # otherwise CSRF protection blocks the pairing page.  Comma-separated because

@@ -11,11 +11,6 @@
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
-  boot.loader.grub = {
-    efiSupport = true;
-    device = "nodev";
-  };
-
   boot.initrd.availableKernelModules = [
     "thunderbolt"
     "nvme"
