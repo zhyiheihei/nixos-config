@@ -15,9 +15,58 @@
     ../../nixos/optional-apps/pipewire-roc-source.nix
     ../../nixos/optional-apps/pipewire-vban-recv.nix
     ../../nixos/optional-apps/pipewire-volume-control.nix
+    ../../nixos/optional-apps/samba.nix
     ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/syncthing
   ];
+
+  # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。
+  # client 默认不启用 backup（enable 默认 hasTag server），此处显式启用。
+  lantian.backup = {
+    enable = true;
+    resticRepos = [ "home" ];
+    paths = {
+      nix-persistent = lib.mkForce {
+        snapshotFrom = "/nix/persistent";
+        snapshotTo = "/nix/.snapshot-persistent";
+        backupPath = "/nix/.snapshot-persistent";
+      };
+      home = {
+        snapshotFrom = "/nix/persistent/home";
+        snapshotTo = "/nix/persistent/.snapshot-home";
+        backupPath = "/nix/persistent/.snapshot-home/zhyi";
+        ignored = ''
+          .cache
+          .cursor/extensions
+          .local/share/containers
+          .local/share/Steam/steamapps/common
+          .local/share/Xilinx
+          .vscode/extensions
+          .windsurf/extensions
+          Downloads
+        '';
+      };
+    };
+    schedule = "daily";
+    persistentTimer = true;
+  };
+
+  # 与作者 lt-hp-omen 逐字对齐的 home SMB 共享（force user/valid users 改 zhyi）。
+  services.samba.settings = {
+    "zhyi" = {
+      "path" = "/home/zhyi";
+      "browseable" = "yes";
+      "read only" = "no";
+      "guest ok" = "no";
+      "create mask" = "0644";
+      "directory mask" = "0755";
+      "force user" = "zhyi";
+      "force group" = "zhyi";
+      "valid users" = "zhyi";
+      "veto files" = "/._*/.DS_Store/Thumbs.db/";
+      "delete veto files" = "yes";
+    };
+  };
 
   # Bind mounts
   fileSystems = {
