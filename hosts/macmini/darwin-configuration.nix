@@ -1,10 +1,15 @@
 { config, pkgs, lib, LT, ... }:
 
 {
-  # 服务端模块：声明式挂载 QNAP 媒体源（/Volumes/nixos）。
+  # 服务端模块：声明式挂载 QNAP 媒体源（/Volumes/nixos）+ Jellyfin 服务端
+  # （Apple Silicon VideoToolbox 硬解）。
   imports = [
     ./darwin-services.nix
+    ../../nixos/optional-apps/jellyfin-apple.nix
   ];
+
+  # 接管媒体服务：macmini 跑 Jellyfin（VideoToolbox 硬解），减轻 rock5c 负载。
+  lantian.jellyfinApple.enable = true;
 
   # 系统级 nix-darwin 配置：nix-daemon、用户、SSH、基础工具、stylix。
   # 用户级（home-manager）配置在 flake-modules/darwin-configurations.nix 里注入。
