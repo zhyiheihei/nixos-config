@@ -74,27 +74,14 @@ in
       bedroom = {
         rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-bedroom-pw"}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
         onvifHost = "192.168.0.104";
-        # PTZ 自动跟踪：跟踪猫。home 预设位已在摄像头固件用 ONVIF SetPreset 创建。
-        # 首次部署 calibrateOnStartup=true 会移动云台约 2 分钟测电机速度，
-        # 完成后回 false（movement_weights 已固化进 config.yml）。
-        autotracking = {
-          enabled = true;
-          calibrateOnStartup = true;
-          requiredZones = [ "cat-area" ];
-        };
         # 猫活动区：卧室画面中央主体区域（归一化 0~1 平铺坐标，相对 detect 帧），
-        # 覆盖约中央 75%；可在 UI 里按实际视野微调顶点。
+        # 覆盖约中央 75%；供 HA 猫检测告警的 zone 过滤用，可在 UI 里微调顶点。
         zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
       };
       livingroom = {
         rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-livingroom-pw"}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
         onvifHost = "192.168.0.115";
-        autotracking = {
-          enabled = true;
-          calibrateOnStartup = true;
-          requiredZones = [ "cat-area" ];
-        };
-        # 客厅猫活动区（归一化平铺坐标，覆盖约中央 75%）。
+        # 猫活动区（归一化平铺坐标，覆盖约中央 75%），供告警 zone 过滤。
         zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
       };
     };
