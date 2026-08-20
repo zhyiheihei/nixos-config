@@ -41,16 +41,6 @@
   # produced blocky artifacts on this APU, and vaapi is only probed after
   # vulkan in Sunshine's encoder priority list.
   services.sunshine.settings.encoder = "vaapi";
-
-  # Notes is a bindfs view of the Syncthing-managed storage, matching the
-  # author's client Documents layout. The Notes repo stays independent from
-  # this repository.
-  fileSystems."/home/zhyi/Documents/Notes" = lib.mkForce {
-    device = "/nix/persistent/media/Notes";
-    fsType = "fuse.bindfs";
-    options = LT.constants.bindfsMountOptions;
-  };
-
   # NFS share from the fork's file server (opi5p), mirroring the author's
   # client mount of lt-home-vm:/storage. Auto-mounted, non-blocking.
   fileSystems."/mnt/share" = {
