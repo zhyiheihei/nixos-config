@@ -25,13 +25,13 @@
   # 所以 TLS 前沿必须落在 opi5p（而非原本只监听家内 443 的 rock5c）。
   # 后端沿用各服务现有 HTTP 中转 vhost，不回源公网 DNS，避免环路。
 
-  # Jellyfin 本体跑在 rock5c（unix socket）。rock5c 已暴露 HTTP-only 的
-  # jellyfin-backend.opi5p.zhyi.cc（private ACL），opi5p 转发过去即可。
-  # 认证与 rock5c 侧的 jellyfin.zhyi.xin 一致（无 basicAuth，Jellyfin 自带登录）。
+  # Jellyfin 本体迁到 macmini（192.168.0.54，VideoToolbox 硬解），直接监听
+  # HTTP 8096。mac 不装 nginx（nix-darwin 无 services.nginx/nginxVhosts），
+  # opi5p 保持公网 TLS 前沿，回源指 mac。认证为 Jellyfin 自带登录，无 basicAuth。
   lantian.nginxVhosts."jellyfin.zhyi.xin" = {
     locations."/" = {
-      proxyPass = "http://${LT.hosts.rock5c.interconnect.IPv4}";
-      proxyOverrideHost = "jellyfin-backend.opi5p.zhyi.cc";
+      proxyPass = "http://${LT.hosts.macmini.interconnect.IPv4}:8096";
+      proxyOverrideHost = "$http_host";
       proxyWebsockets = true;
       proxyNoTimeout = true;
     };

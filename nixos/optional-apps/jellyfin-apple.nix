@@ -28,6 +28,14 @@ in
       default = dataDir;
       description = "Jellyfin data directory (holds config, metadata, cache, DB).";
     };
+    # 公网 TLS 入口是 opi5p 的 jellyfin.zhyi.xin，router 把 WAN 8443 DNAT 到
+    # opi5p:443。服务端必须把这作为对外地址，否则公网客户端拿到的流媒体地址
+    # 会是内网 IP，无法连接。与 rock5c 的 jellyfin-rockchip.nix 保持一致。
+    publishedServerUrl = lib.mkOption {
+      type = lib.types.str;
+      default = "https://jellyfin.zhyi.xin:8443";
+      description = "Public URL Jellyfin advertises to clients (公网入口，含端口)。";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -43,6 +51,7 @@ in
     launchd.daemons.jellyfin = {
       script = ''
         mkdir -p "${cfg.dataDir}"
+        export JELLYFIN_PublishedServerUrl="${cfg.publishedServerUrl}"
         exec ${pkgs.jellyfin}/bin/jellyfin \
           --datadir "${cfg.dataDir}"
       '';
