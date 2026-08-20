@@ -22,6 +22,16 @@ let
         ''
       );
     };
+    exa = {
+      command = toString (
+        pkgs.writeShellScript "mcp-exa" ''
+          exec ${pkgs.uv}/bin/uvx '--with=mcp<2' mcp-proxy \
+            -H Authorization "Bearer $(cat ${config.sops.secrets.mcp-exa-api-key.path})" \
+            --transport streamablehttp \
+            "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
+        ''
+      );
+    };
     time = {
       command = "uv";
       args = [
@@ -85,6 +95,10 @@ in
       mode = "0444";
     };
     sops.secrets.mcp-grok-api-key = {
+      sopsFile = inputs.secrets + "/common/mcp.yaml";
+      mode = "0444";
+    };
+    sops.secrets.mcp-exa-api-key = {
       sopsFile = inputs.secrets + "/common/mcp.yaml";
       mode = "0444";
     };
