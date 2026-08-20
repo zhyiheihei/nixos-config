@@ -31,6 +31,16 @@
   # the settings option only accepts atom values.
   services.sunshine.settings.csrf_allowed_origins = "https://192.168.0.55:47990,https://198.18.0.118:47990,https://ml-laptop.zhyi.cc:47990";
 
+  # 笔记本解热能力有限：覆盖公共 client-components/tlp.nix 的 AC 策略。
+  # 原版 AC 用 performance governor 恒定最高频（负载 0.65 也飙 4.3GHz/70°C）；
+  # 这里 AC 改 schedutil 按负载动态调频（轻载自动降频、重载仍可 boost），
+  # 能效策略 balance_power、平台档 balanced。电池模式仍是 powersave，不变。
+  services.tlp.settings = {
+    CPU_SCALING_GOVERNOR_ON_AC = "schedutil";
+    CPU_ENERGY_PERF_POLICY_ON_AC = "balance_power";
+    PLATFORM_PROFILE_ON_AC = "balanced";
+  };
+
   # 主网络走 NetworkManager（client 默认）。临时有线网卡和 WiFi 均由其接管；
   # 首次安装验收后建议在目标机用 nmcli 把 WiFi 连接配成静态 192.168.0.55，
   # 连接会被持久化到 /etc/NetworkManager/system-connections（client.nix 已
