@@ -257,8 +257,14 @@ let
   # exporter CPU/内存/磁盘利用率），数据经 /api/metrics 从本机 Prometheus
   # （tencent 上 127.0.0.1:9090）拉取。仅登录可见（私有），挂在「基础设施
   # 与运维」功能域下；URL 指向 Grafana 监控大盘（与原 homepage 监控卡一致）。
-  # 排除带 client 标签的主机（它们不开 node exporter，无数据可显示）。
-  monitoredHosts = lib.filterAttrs (n: v: !v.hasTag LT.tags.client) LT.hosts;
+  # 排除带 client 标签的主机（它们不开 node exporter，无数据可显示），
+  # 以及无 node exporter 数据的主机：macmini 是 macOS 无 node exporter；
+  # h28k/opi03/taishanpi 处于 bring-up（manualDeploy）阶段，node 抓取
+  # target 为 down，实测 CPU/内存查询返回空 result，卡片会显示误导性的 0%。
+  noNodeExporterHosts = [ "h28k" "macmini" "opi03" "taishanpi" ];
+  monitoredHosts = lib.filterAttrs (
+    n: v: !v.hasTag LT.tags.client && !(builtins.elem n noNodeExporterHosts)
+  ) LT.hosts;
 
   monitorEntries = lib.mapAttrsToList (
     hostname: h:
