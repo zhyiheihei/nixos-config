@@ -80,17 +80,21 @@ in
         accessibleBy = "localhost";
         noIndex.enable = true;
       };
-      # MoviePilot container needs an HTTP-only Jellyfin API entry; the normal
-      # Jellyfin vhost only listens through the Rockchip unix socket.
+      # MoviePilot container needs an HTTP-only Jellyfin API entry; the Jellyfin
+      # server has moved to macmini (192.168.0.54:8096, VideoToolbox). This vhost
+      # stays on rock5c with its stable name so MoviePilot's --add-host continues
+      # to point at rock5c, but the backend now proxies to mac. The `/Library/
+      # SelectableMediaFolders` rewrite is still needed by MoviePilot's media
+      # library scan to present the union of media-radarr/media-sonarr folders.
       "jellyfin-api.${config.networking.hostName}.zhyi.cc" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
         locations."= /Library/SelectableMediaFolders" = {
-          proxyPass = "http://unix:/run/jellyfin/socket";
+          proxyPass = "http://${LT.hosts.macmini.interconnect.IPv4}:8096";
           extraConfig = "rewrite ^ /Library/MediaFolders break;";
         };
         locations."/" = {
-          proxyPass = "http://unix:/run/jellyfin/socket";
+          proxyPass = "http://${LT.hosts.macmini.interconnect.IPv4}:8096";
           proxyWebsockets = true;
           proxyNoTimeout = true;
         };
