@@ -22,6 +22,7 @@
       "shopping_list"
       "stream"
       "sun"
+      "telegram_bot"
       "upnp"
       "usb"
       "zeroconf"
