@@ -16,7 +16,7 @@
     sha256 = "b/ZWXPQaBbxiZZ65mHc12a6qEahg/JvQN8D2EeMJ/uY";
   };
   # ZeroTier node ID: 首启后 zerotier-cli info 采集回填。
-  zerotier = null;
+  zerotier = "08d6522fba";
   interconnect = {
     name = "home-lan";
     IPv4 = "192.168.0.55";
