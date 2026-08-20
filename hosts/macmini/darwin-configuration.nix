@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, LT, ... }:
 
 {
   # 系统级 nix-darwin 配置：nix-daemon、用户、SSH、基础工具、stylix。
@@ -12,21 +12,15 @@
   # 与 NixOS 的字符串 stateVersion 不同。
   system.stateVersion = 7;
 
-  # Determinate Nix 冲突：这台 Mac 用 Determinate Nix 安装（自带 daemon），
-  # 与 nix-darwin 原生 Nix 管理冲突。设 nix.enable = false 关闭 nix-darwin 的
-  # Nix 管理，改用 Determinate。代价是 nix.settings / nix.extraOptions 等选项
-  # 不可用，ncps/attic substituter 需写到 Determinate 会 include 的
-  # /etc/nix/nix.custom.conf（下方 environment.etc 声明式生成）。
-  # Determinate 默认已含 cache.nixos.org 官方源，此处用 extra- 追加不覆盖。
-  nix.enable = false;
-
-  # 用 extra-substituters / extra-trusted-public-keys 追加，保留 Determinate
-  # 默认官方源。ncps（opi5p:13851）是本地代理缓存，同 home-lan 直连；
-  # attic.zhyi.xin/lantian 是项目自有缓存。与 helpers/constants/nix.nix 一致。
-  environment.etc."nix/nix.custom.conf".text = ''
-    extra-substituters = http://192.168.0.62:13851 https://attic.zhyi.xin/lantian
-    extra-trusted-public-keys = lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=
-  '';
+  # nix-darwin 原生管理 Nix（nix.enable 默认 true），用统一的 nix.settings
+  # 配 substituter（与 Linux 主机 ncps-client.nix 同机制，LT.nix 常量同源）。
+  # 前提是 Mac 上卸载 Determinate Nix，否则 Determinate 占 /etc/nix/nix.conf 冲突。
+  # 顺序：ncps（opi5p 本地代理，缓存官方 cache.nixos.org）优先，attic 自有缓存兜底。
+  nix.settings.substituters = [
+    "http://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.Ncps}"
+    LT.nix.attic.url
+  ];
+  nix.settings.trusted-public-keys = [ LT.nix.attic.publicKey ];
 
   # 基础系统工具。
   environment.systemPackages = [
