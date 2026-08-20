@@ -12,26 +12,12 @@
   # 与 NixOS 的字符串 stateVersion 不同。
   system.stateVersion = 7;
 
-  # Nix binary cache：darwin 架构的二进制主要由 cache.nixos.org 提供。
-  # - cache.nixos.org 官方直连（默认，Determinate Nix 自带）
-  # - ncps（opi5p:13851）：本地代理缓存，缓存官方 cache.nixos.org 内容，
-  #   同 home-lan 直连，内网拉包快。
-  # - attic（attic.zhyi.xin/lantian）：自有缓存。
-  # - 国内镜像（SJTU/USTC/TUNA）作 fallback。
-  nix.settings = {
-    substituters = [
-      "https://cache.nixos.org"
-      "http://192.168.0.62:13851"
-      "https://attic.zhyi.xin/lantian"
-      "https://mirror.sjtu.edu.cn/nix-channels/store"
-      "https://mirrors.ustc.edu.cn/nix-channels/store"
-      "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
-    ];
-    trusted-public-keys = [
-      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
-      "lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U="
-    ];
-  };
+  # Determinate Nix 冲突：这台 Mac 用 Determinate Nix 安装（自带 daemon），
+  # 与 nix-darwin 原生 Nix 管理冲突。设 nix.enable = false 关闭 nix-darwin 的
+  # Nix 管理，改用 Determinate。代价是 nix.settings / nix.extraOptions 等选项
+  # 不可用（Determinate 用 /etc/nix/nix.conf，可手动配 ncps/attic substituter）。
+  # cache.nixos.org 官方源 Determinate 默认自带，darwin 二进制够用。
+  nix.enable = false;
 
   # 基础系统工具。
   environment.systemPackages = [
