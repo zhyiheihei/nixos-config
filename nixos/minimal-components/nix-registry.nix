@@ -20,7 +20,12 @@ in
   nix = {
     nixPath = [ "/etc/nix/inputs" ];
     registry = lib.mkForce (
-      lib.mapAttrs (n: v: { flake = lib.mkForce { outPath = v; }; }) registeredInputs
+      lib.mapAttrs (n: v: {
+        to = lib.mkForce {
+          type = "path";
+          path = v;
+        };
+      }) registeredInputs
     );
   };
 
