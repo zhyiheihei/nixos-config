@@ -11,12 +11,30 @@
     enableReleaseChecks = false;
 
     image = ../../helpers/wallpaper/wallpaper.jpg;
-    colorGeneration.scheme = "vibrant";
-    colorGeneration.polarity = "dark";
+    polarity = "dark";
+    palette = {
+      generators.semantic = config.stylix.lib.generators.semantic.matugen {
+        scheme = "vibrant";
+        filter = "lanczos3";
+      };
+      mappingFunction = lib.flip lib.pipe [
+        config.stylix.lib.mappings.semantic2base16
+        (
+          { polarity, palette }:
+          {
+            inherit polarity;
+            palette = palette // {
+              base16 = palette.base16 // {
+                base01 = palette.base16.base00;
+              };
+            };
+          }
+        )
+        config.stylix.lib.mappings.base162base24
+      ];
+    };
 
-    # Set by the client role directly. Reading LT.this here causes a cycle with
-    # target defaults in newer Stylix releases.
-    autoEnable = lib.mkDefault false;
+    autoEnable = LT.this.hasTag LT.tags.client;
     targets = {
       console.enable = true;
       # FIXME: workaround stylix bug
@@ -25,11 +43,15 @@
       kmscon.enable = false;
     };
 
-    cursor = {
-      package = pkgs.nur-xddxdd.sam-toki-mouse-cursors;
-      name = "STMC_6_1_Genshin_Furina";
-      size = 32;
-    };
+    cursor =
+      if LT.this.hasTag LT.tags.client then
+        {
+          package = pkgs.nur-xddxdd.sam-toki-mouse-cursors;
+          name = "STMC_6_1_Genshin_Furina";
+          size = 32;
+        }
+      else
+        null;
 
     fonts = {
       serif = {
@@ -59,13 +81,5 @@
         terminal = 12;
       };
     };
-
-    override =
-      let
-        prev = config.stylix.base16.mkSchemeAttrs config.stylix.base16Scheme;
-      in
-      {
-        base01 = prev.base00;
-      };
   };
 }
