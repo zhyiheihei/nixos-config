@@ -51,7 +51,10 @@
     persistentTimer = true;
   };
 
-  # 与作者 lt-hp-omen 逐字对齐的 home SMB 共享（force user/valid users 改 zhyi）。
+  # 与作者 lt-hp-omen 逐字对齐的 HiDPI（grub/console 字体缩放）。
+  lantian.hidpi = 1.5;
+
+  # 与作者 lt-hp-omen 逐字对齐的 home SMB 共享（force user/valid 改 zhyi）。
   services.samba.settings = {
     "zhyi" = {
       "path" = "/home/zhyi";
