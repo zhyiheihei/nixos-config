@@ -4,6 +4,7 @@ result*
 zones/
 .gcroots
 .vscode
+.trae
 .direnv
 nix-function-calls.*
 .pre-commit-config.yaml
