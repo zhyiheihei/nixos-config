@@ -47,14 +47,14 @@ in
             home-manager.extraSpecialArgs = {
               inherit inputs self;
             };
+            # macOS 首次接管已有点文件时自动备份而非中断激活（如 .gitconfig 等，
+            # 防止 `would be clobbered` abort）。模块级选项（非 per-user）。
+            home-manager.backupFileExtension = "hm-bak";
             home-manager.users.molishanguang = {
               home.stateVersion = LT.constants.stateVersion;
               home.enableNixpkgsReleaseCheck = false;
               home.username = "molishanguang";
               home.homeDirectory = "/Users/molishanguang";
-              # macOS 首次接管已有点文件时自动备份而非中断激活（如 .gitconfig 等，
-              # 防止 `would be clobbered` abort）。
-              home.backupFileExtension = "hm-bak";
               # hosts/<n>/home.nix 又 import ../../home/macos.nix（跨平台集）。
               # 在主机级补 macOS 特有私有配置（zshrc/git 代理）。
               imports = [ (../hosts + "/${n}/home.nix") ];
