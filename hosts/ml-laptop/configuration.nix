@@ -1,5 +1,6 @@
 {
   config,
+  lib,
   LT,
   ...
 }:
@@ -36,9 +37,9 @@
   # 这里 AC 改 schedutil 按负载动态调频（轻载自动降频、重载仍可 boost），
   # 能效策略 balance_power、平台档 balanced。电池模式仍是 powersave，不变。
   services.tlp.settings = {
-    CPU_SCALING_GOVERNOR_ON_AC = "schedutil";
-    CPU_ENERGY_PERF_POLICY_ON_AC = "balance_power";
-    PLATFORM_PROFILE_ON_AC = "balanced";
+    CPU_SCALING_GOVERNOR_ON_AC = lib.mkForce "schedutil";
+    CPU_ENERGY_PERF_POLICY_ON_AC = lib.mkForce "balance_power";
+    PLATFORM_PROFILE_ON_AC = lib.mkForce "balanced";
   };
 
   # 主网络走 NetworkManager（client 默认）。临时有线网卡和 WiFi 均由其接管；
