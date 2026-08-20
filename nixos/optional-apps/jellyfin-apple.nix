@@ -11,6 +11,12 @@
 #
 # 只监听内网：消费端（opi5p 公网入口、rock5c MoviePilot）回源指 mac 的内网 IP，
 # 不在此建 nginx/TLS（零重复）。
+#
+# darwin 编译坑：nixpkgs 的 jellyfin-ffmpeg = ffmpeg_7-full.override {...}，而
+# ffmpeg_7-full 的 withFrei0r=true（无 darwin 保护）→ frei0r-plugins → gavl →
+# libdrm，libdrm 在 darwin 上编不过（"unsupported OS: darwin"）。这里 override
+# 关掉 withFrei0r 绕开 libdrm，同时保留 VideoToolbox 硬解（h264/hevc/mjpeg/
+# prores_videotoolbox + videotoolbox hwaccel，已在 macmini 实测编译通过）。
 { config, lib, pkgs, ... }:
 
 let
@@ -19,6 +25,12 @@ let
   # macOS 根分区只读，不能像 Linux 用 /var/lib/jellyfin；NFS /Volumes/nixos
   # 只读对普通用户，写入需 root，且不该把服务数据放挂载点。
   dataDir = "/Library/Application Support/Jellyfin";
+  # darwin 可用的 jellyfin：jellyfin-ffmpeg 用关掉 frei0r 的 ffmpeg_7-full 重编。
+  jellyfin = pkgs.jellyfin.override {
+    jellyfin-ffmpeg = pkgs.jellyfin-ffmpeg.override {
+      ffmpeg_7-full = pkgs.ffmpeg_7-full.override { withFrei0r = false; };
+    };
+  };
 in
 {
   options.lantian.jellyfinApple = {
@@ -52,7 +64,7 @@ in
       script = ''
         mkdir -p "${cfg.dataDir}"
         export JELLYFIN_PublishedServerUrl="${cfg.publishedServerUrl}"
-        exec ${pkgs.jellyfin}/bin/jellyfin \
+        exec ${jellyfin}/bin/jellyfin \
           --datadir "${cfg.dataDir}"
       '';
       serviceConfig = {
