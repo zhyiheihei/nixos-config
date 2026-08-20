@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   LT,
   ...
 }:
@@ -31,14 +30,6 @@
   # 首次安装验收后建议在目标机用 nmcli 把 WiFi 连接配成静态 192.168.0.55，
   # 连接会被持久化到 /etc/NetworkManager/system-connections（client.nix 已
   # 把该目录加入 preservation），无需把密码写进本仓库。
-
-  # Notes 是 bindfs 视图的 Syncthing 管理存储，与作者 client 的 Documents
-  # 布局一致；Notes 仓库独立于本仓库。
-  fileSystems."/home/zhyi/Documents/Notes" = lib.mkForce {
-    device = "/nix/persistent/media/Notes";
-    fsType = "fuse.bindfs";
-    options = LT.constants.bindfsMountOptions;
-  };
 
   # NFS share from the fork's file server (opi5p), mirroring the author's
   # client mount of lt-home-vm:/storage. Auto-mounted, non-blocking.
