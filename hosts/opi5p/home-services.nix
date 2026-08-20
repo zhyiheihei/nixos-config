@@ -42,9 +42,11 @@
     downloadsDir = "/mnt/storage/resilio/downloads";
   };
 
-  # Ignis vault is the knowledge-chain Notes folder (Syncthing home copy on the
-  # NFS share); the module defaults already point at it, just enable it here.
+  # Ignis vault is the knowledge-chain folder (Syncthing home copy on the
+  # NFS share). Notes was merged into Documents (2026-08-20), so point the
+  # vault at media/Documents; the module default still names media/Notes.
   lantian.ignis.enable = true;
+  lantian.ignis.vaultDir = "/mnt/storage/media/Documents";
 
   # Wallos subscription tracker: private home service, SQLite state on the local
   # NVMe-backed persistent storage alongside the other container workloads.

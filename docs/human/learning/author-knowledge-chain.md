@@ -30,21 +30,24 @@ Git/Markdown 天线：
 
 ## ml-2700 复刻
 
-本仓库在 `hosts/ml-2700/configuration.nix` 中为 `zhyi` 配置：
+四台 `zhyi` 客户端（`ml-2700`、`ml-laptop`、`opi5p`、`greencloud`）统一复刻作者
+客户端 Documents 布局：`~/Documents` 整体 bind 到 `/nix/persistent/media/Documents`
+（媒体根 `media/` 下共 13 个目录：Backups/Books/Calibre Library/CloudMusic/
+CloudMusicArchive/Documents/LegacyOS/ManosabaMod/Pictures/Secrets/Software/
+VideoArchive/Yuzu）。`~/Documents` 即私有天线，含原来的 Notes 仓库（已并入
+Documents，不再有独立 Notes 目录）：
 
-- `~/Documents/Notes`：私有天线，含 `inbox/`、`private/`、`archive/`、
-  `shared/` 子目录。
-- `~/Documents/Blog`：公开天线，含 `content/` 目录。
-- `~/Documents/Notes` 是 `/nix/persistent/media/Notes` 的 bindfs 视图，
-  与作者客户端 Documents 同款；Syncthing 同步该持久目录到 `opi5p` /
-  `greencloud`。
-- Notes 仓库与本仓库相互独立，不共享 `.git` 或绑定目录。
-- Git 远端在运行时配置，不额外提供脚本：
-  - 私有：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`
-  - 公开：`git@github.com:zhyiheihei/blog.git`
+- 私有天线：`~/Documents`（含 `getting-started/`、`hardware/`、
+  `infrastructure/`、`learning/`、`migrations/`、`network/`、`operations/`、
+  `reference/`、`services/` 及原 Notes 内容）。
+- Notes 仓库在 `media/Documents` 内独立成子目录、独立 `.git`，不与本仓库共享
+  仓库或绑定目录；Syncthing 的 `media` 文件夹把 `media/` 整体同步到四台。
+- 公开天线 `Blog` 已于 2026-08-20 删除（远端 `zhyiheihei/blog` 在 GitHub 上
+  不存在，本地 3 commit 是唯一副本，删除即永久丢失）。
+- Git 远端在运行时配置，不额外提供脚本：私有
+  `ssh://git@git.zhyi.xin:2222/zhyi/notes.git`。
 
-Gitea 已开启 push-create，私有仓库可以在首次 `push` 时自动创建；GitHub 公开
-博客仓库需要先在 `zhyiheihei/blog` 创建后再 push。
+Gitea 已开启 push-create，私有仓库可以在首次 `push` 时自动创建。
 
 实机验证：`git.zhyi.xin` 的 OpenSSH 监听在 2222，Gitea 的 `SSH_PORT` 与上游
 一致为 2222，网页克隆地址与实际连接端口相同。
