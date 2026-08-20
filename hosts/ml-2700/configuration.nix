@@ -21,14 +21,6 @@
 
   lantian.syncthing.storage = "/nix/persistent/media";
 
-  # Host-level override of the nixpkgs syncthing hardening (public module /
-  # services.syncthing untouched). The local Notes tree carries setgid(2775)
-  # bits (bindfs view of ~/Documents/Notes), and RestrictSUIDSGID=yes in the
-  # unit makes syncthing fail with "chmod: operation not permitted" when it
-  # aligns directory permissions. Relax it just for this host so the media
-  # folder reaches errors=0.
-  systemd.services.syncthing.serviceConfig.RestrictSUIDSGID = lib.mkForce false;
-
   # Host-level override (optional-apps/sunshine.nix is a public module, left
   # untouched): allow browser access to the Sunshine Web UI from LAN / LTNET,
   # otherwise CSRF protection blocks the pairing page. Comma-separated because
