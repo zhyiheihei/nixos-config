@@ -19,8 +19,6 @@
     ../../nixos/optional-apps/syncthing
   ];
 
-  lantian.syncthing.storage = "/nix/persistent/media";
-
   # Bind mounts
   fileSystems = {
     # keep-sorted start block=yes
