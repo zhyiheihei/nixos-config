@@ -5,7 +5,8 @@
 
 - `~/Documents/Notes` 是 Markdown 笔记目录，同时也是独立 git 仓库
 - Gitea 提供私有 Git 权威：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`
-- Syncthing 在 ml-2700 / opi5p / greencloud 之间同步 Notes，新设备加入后成为第四个节点
+- Syncthing 在四台 NixOS 主机之间同步**整个 media 根目录**（含 Notes 与 Secrets，
+  完全对齐作者），新设备加入后成为第五个节点
 
 ## 1. 当前节点与设备 ID
 
@@ -14,13 +15,18 @@
 | ml-2700 | NixOS 客户端 | `OFHULYP-EHZTYED-ZJKMBJ6-YNC3SSO-GHQD33A-IF4B6QI-IGLCDTF-VZFHJAH` |
 | opi5p | 服务器 | `6OVUWPX-LFALVDJ-BMNP24B-LAQQSTJ-BJWPIN4-3TA6GFC-NGAD22X-BRK5HQZ` |
 | greencloud | 服务器 | `N5O6F67-DQRWGKH-LMAOLVW-VJN53EP-MGLEXJ2-AMXHLWE-KHO4XW6-4NR64QP` |
+| ml-laptop | 物理笔记本 | `7LYGWIN-NBYO45E-RXJ4M53-BEDOXRC-3UK5NSF-TFCV3ZL-ZBFKEYS-NXMFSAS` |
 | Mac（本机） | 待加入 | 安装 Syncthing 后在 GUI 中查看 |
+
+四台 NixOS 主机已建好 media 根 mesh，均为 `state=idle`、`errors=0`。media 根语义
+（对齐作者）：同步整个 media storage 根（Notes / Secrets / CloudMusic 等）。
 
 现有节点的 Syncthing Web GUI：
 
 - `https://syncthing.ml-2700.zhyi.cc`
 - `https://syncthing.opi5p.zhyi.cc`
 - `https://syncthing.greencloud.zhyi.cc`
+- `https://syncthing.ml-laptop.zhyi.cc`
 
 ## 2. 安装 Syncthing（macOS）
 
@@ -50,14 +56,14 @@ brew services start syncthing
 1. 在 Mac 控制台右上角菜单打开“显示 ID”，复制本机 Device ID。
 2. 登录任一现有节点控制台，例如 `https://syncthing.ml-2700.zhyi.cc`。
 3. 在“操作 → 添加远程设备”里粘贴 Mac 的 Device ID，名称填 `mac`。
-4. 编辑 `notes` 文件夹，在“共享”页勾选 `mac`。ml-2700 已开启自动接受文件夹；
-   为了让三台现有节点都直接与 Mac 互通，建议在每台节点都把 `notes` 共享给
+4. 编辑 `media` 文件夹，在“共享”页勾选 `mac`。ml-2700 已开启自动接受文件夹；
+   为了让现有节点都与 Mac 直接互通，建议在每台节点都把 `media` 共享给
    `mac`，保证完整 mesh。
-5. 回到 Mac 控制台，添加三个现有节点，粘贴上表三个 Device ID。
-6. 如果 Mac 收到 `notes` 文件夹共享请求，选择接受，路径填 `~/Documents/Notes`，
-   文件夹类型选择“发送和接收”。
+5. 回到 Mac 控制台，添加三个现有节点，粘贴上表 Device ID。
+6. 如果 Mac 收到 `media` 文件夹共享请求，选择接受，路径填
+   `~/Documents/Notes`（Mac 只关心 Notes 子树），文件夹类型选择“发送和接收”。
 
-验证：控制台“设备”页三台远程设备显示已连接；`notes` 文件夹状态变为
+验证：控制台“设备”页远程设备显示已连接；`media` 文件夹状态变为
 `Up to Date` / `idle`。
 
 ## 4. 让 Syncthing 拉取 Notes
@@ -142,7 +148,8 @@ git reset --hard origin/master
   该命令会丢弃本地未提交改动，执行前先确认。
 - Notes 仓库与 nixos-config 仓库保持独立，不要在 Notes 目录里放 nixos-config
   的目录、符号链接或 `.git` 指向。
-- 当前三节点明文同步 Notes，不要在笔记里放未加密的长期凭据。
+- 当前四节点同步整个 media 根（含 Secrets），因此 Secrets 内容会被明文分发到
+  全部节点；新增设备加入时务必确保其可信，不要在笔记/媒体里放未加密的长期凭据。
 - macOS 默认会由 Time Machine 备份 `~/Documents`，覆盖 Notes 目录。
 
 ## 7. Linux / Windows 差异

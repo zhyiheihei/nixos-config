@@ -1,9 +1,9 @@
-# 知识链简化测试规划
+# 知识链同步（Syncthing media 根）规划
 
-状态：私有路线已完成；公开路线按用户要求不实施。
+状态：四机 mesh 已建成，全绿（errors=0）。
 
-用户确认：开工；先把项目 `docs/` 下的现有文件复制进 `Notes` 作为测试笔记，
-走 git -> Gitea 私有仓库链路。
+用户确认：完全对齐作者，同步**整个 media 根目录**（含 Secrets），而非 notes 子目录。
+用 Syncthing 官方 REST API 做运行时配置，不引入自定义 bindfs / 不手改 config.xml。
 
 ## 角色映射
 
@@ -12,54 +12,62 @@
 | 主力客户端 | `lt-hp-omen` | `ml-2700` |
 | 家庭数据服务器 | `lt-home-vm` | `opi5p` |
 | 公网异地节点 | `greencloud` | `greencloud` |
+| 物理笔记本 | `lt-dell-wyse` | `ml-laptop` |
 
-角色映射保留。Syncthing 使用官方模块和 REST API 做三机文件夹同步，不引入自定义
-bindfs 挂载。
+作者同步整个 media storage 根（Documents/Books/CloudMusic/Pictures/Secrets/
+VideoArchive 全部 bind 到 media 根），storage 默认 `/nix/persistent/media`
+（lt-home-vm 为 `/mnt/storage/media`）。我们 1:1 复刻：各机 syncthing.storage 为
+- ml-2700 / greencloud / ml-laptop：`/nix/persistent/media`
+- opi5p：`/mnt/storage/media`
 
 ## 目标
 
 ```text
-ml-2700
-  /home/zhyi/Documents/Notes    <- 普通目录，不做挂载
-     内容 = 项目 docs/ 的现有笔记
-  git commit -> push Gitea zhyi/notes
-
-opi5p
-  /mnt/storage/media/Notes      <- Syncthing 家庭副本
-
-greencloud
-  /nix/persistent/media/Notes   <- Syncthing 异地副本
+ml-2700   /nix/persistent/media  <-- Syncthing media folder -> /run/syncthing-files (bind)
+opi5p     /mnt/storage/media     <-- Syncthing media folder -> /run/syncthing-files (bind, NFS)
+greencloud /nix/persistent/media
+ml-laptop  /nix/persistent/media
 ```
 
-## 实施内容
+## 实施方式
 
-- 保持 `~/Documents/Notes` 为普通目录。
-- 把 `/nix/src/nixos-config/docs/` 下的文件复制进 `Notes`。
-- 在 `Notes` 仓库提交并 push 到 `ssh://git@git.zhyi.xin:2222/zhyi/notes.git`。
-- 启用 `nixos/optional-apps/syncthing`，`syncthing` 用户加入 `zhyi` 组并开放
-  Notes 写权限；Syncthing 文件夹直接指向 `~/Documents/Notes`，不使用 bindfs。
-- 用 Syncthing 官方 GUI/REST 在 ml-2700 / opi5p / greencloud 三台机器上完成
-  配对，不引入仓库内脚本（作者原版没有该脚本）。
-- 保留 GPG、SSH 权限。
+- 各机启用 `nixos/optional-apps/syncthing`（模块 1:1 复刻作者，storage 走
+  bind 视图 `/run/syncthing-files`，`overrideFolders=false`、
+  `overrideDevices=false`、`autoAcceptFolders=true`）。
+- 用 Syncthing 官方 REST API 在四台机器上完成 device 配对与 media folder 关联：
+  - device 列表 = 其他三台全连，device name 对齐为 hostname。
+  - media folder 指向各自 `/run/syncthing-files`，devices 含全部四台。
+  - 删除旧的 `notes` folder 与脏 device 名（`colocrossing`/`ml-builder-cache`）。
+- 不引入仓库内脚本；不手改 config.xml 内容结构。
 
-不新增自定义 bindfs 挂载、不做 `.git` 符号链接。
+## 权限关键点（排障结论）
+
+- syncthing 以 uid 237（syncthing:syncthing）运行，需对 media 根目录有属主权限
+  才能对其 chmod 对齐权限位。
+- **ml-2700**：media 根本来属主就是 `syncthing:syncthing`，无此问题。
+- **opi5p**：media 根落在 qnap NFS（`192.168.0.40:/nixos`），根下 Notes 属主原为
+  `zhyi:zhyi`，syncthing 无法 chmod → errors=373。`chown syncthing:syncthing`
+  media 根后重启 syncthing，errors 归零。（NFS 上 root 可 chown，qnap 未 squash
+  root 写；rsgain 服务以 root 运行，chown 不影响其写 CloudMusic。）
+- 触发错误后需 `systemctl restart syncthing` 才能清掉历史缓存错误，
+  仅 REST rescan 不刷新 status 的 errors 计数。
 
 ## 验收标准
 
-- ml-2700：`~/Documents/Notes` 包含项目 docs 的测试笔记，git 可提交并 push Gitea。
-- Gitea `zhyi/notes` 能 `git ls-remote` 看到新提交。
-- ml-2700 / opi5p / greencloud 的 `notes` 文件夹状态为 `idle`、`needBytes=0`、
-  `errors=0`。
+- ml-2700 / opi5p / greencloud / ml-laptop 的 `media` folder 状态为 `idle`、
+  `needBytes=0`、`errors=0`。
+- 四台 media folder 的 devices 均为四台 ID 全连。
+- 每台仅保留 `media` 一个 folder（无残留 `notes` / 脏 device）。
 - 文档与本文件同步更新。
 
-## 完成记录
+## 完成记录（2026-08-20）
 
-- Notes 测试笔记已推送：`ssh://git@git.zhyi.xin:2222/zhyi/notes.git`，远端
-  `git ls-remote` 可见。
-- Syncthing 三机同步已启用并通过官方 REST 配置，三机均为
-  `state=idle`、`needBytes=0`、`errors=0`。
-- 未引入自定义 bindfs 挂载；Notes 与 nixos-config 是两个独立 git 仓库。
-- 公开路线（GitHub Pages / Waline / DNS）未实施。
+- 四台 mesh 已建成：ml-2700 / opi5p / greencloud / ml-laptop 均为
+  `media` folder（指向各自 `/run/syncthing-files`）、errors=0、inSync=343、
+  needBytes=0。
+- device 名已对齐：greencloud / ml-2700 / opi5p / ml-laptop。
+- 已清理测试残留 `.testdir`/`.testperm` 与 opi5p 上多余的 `notes` folder。
+- 未引入自定义 bindfs 挂载；media 与 nixos-config 是两个独立 git 仓库。
 
 ## 回滚
 
