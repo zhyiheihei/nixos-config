@@ -62,7 +62,7 @@ in
           }
         ];
         specialArgs = {
-          inherit inputs self;
+          inherit inputs self LT;
         };
       }
     ) darwinHosts;
