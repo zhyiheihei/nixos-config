@@ -1,6 +1,11 @@
 { config, pkgs, lib, LT, ... }:
 
 {
+  # 服务端模块：声明式挂载 QNAP 媒体源（/Volumes/nixos）。
+  imports = [
+    ./darwin-services.nix
+  ];
+
   # 系统级 nix-darwin 配置：nix-daemon、用户、SSH、基础工具、stylix。
   # 用户级（home-manager）配置在 flake-modules/darwin-configurations.nix 里注入。
 
