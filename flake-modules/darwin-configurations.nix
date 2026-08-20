@@ -52,6 +52,9 @@ in
               home.enableNixpkgsReleaseCheck = false;
               home.username = "molishanguang";
               home.homeDirectory = "/Users/molishanguang";
+              # macOS 上首次接管已有点文件时自动备份而非中断激活（如 .gitconfig、
+              # .bash_profile 等，防止 `would be clobbered` abort）。
+              home-manager.backupFileExtension = "hm-bak";
               # hosts/<n>/home.nix 又 import ../../home/macos.nix（跨平台集）。
               # 在主机级补 macOS 特有私有配置（zshrc/git 代理）。
               imports = [ (../hosts + "/${n}/home.nix") ];
