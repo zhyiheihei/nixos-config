@@ -15,6 +15,7 @@
 - **作者原版是基准**；复刻允许的必要偏离只有：域名（zhyi.xin/zhyi.cc vs xuyh0120.win）、用户（zhyi vs lantian）、复刻特有主机/服务
 - 偏离作者的地方必须在提交信息/注释里说明原因
 - 复刻新增的能力（如 rss 链路自动化、immich-rockchip）要独立成模块，不污染作者原版文件
+- **磁盘/子卷布局同样要与作者对齐**，不止配置文件。主机级配置逐字对齐但底层磁盘结构不对齐，会导致依赖该结构的服务（如 `lantian.backup` 的 btrfs `subvolume snapshot`）配置通过、运行必失败。物理 client 的子卷布局基准见 `new-host-standard.md`；新主机接入或迁移前先核对子卷，再谈配置对齐
 
 ## 3. 不动公共模块
 

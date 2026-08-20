@@ -64,6 +64,15 @@ test -f /boot/grub/i386-pc/btrfs.mod
 直接切换到该布局。这里的独立 `/nix` 同样必须设置 `neededForBoot = true`，确保
 initrd 挂载它以后再寻找 system closure。
 
+**子卷布局必须与作者物理 client 对齐**（基准：
+`../nixos-config-exam/hosts/lt-hp-omen/hardware-configuration.nix`）。作者把
+`/nix/persistent` 和 `/nix/persistent/home` 都做成独立 btrfs 子卷（`subvol=nix`、
+`subvol=persistent`、`subvol=home`），这不是可选项：`lantian.backup` 的
+`nix-persistent`/`home` 快照用 `btrfs subvolume snapshot -r`，源必须是子卷，否则
+备份服务配置通过但运行必报 `Not a Btrfs subvolume`。新装机应直接从安装环境按该
+子卷结构创建；存量机器若 `/nix/persistent` 只是顶层子卷里的普通目录，需要做
+停机 btrfs 迁移，不能只在配置文件里逐字对齐。
+
 ## 4. SSH host key 和 SOPS
 
 作者原版使用两类密钥，禁止混用：
