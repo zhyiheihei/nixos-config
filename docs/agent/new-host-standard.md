@@ -110,16 +110,39 @@ Server host 还必须完成：
 4. 重新构建并切换 ZeroTier controller 所在的 `greencloud`。
 5. 显式 peer 拓扑要检查两端都生成对应 `wgmesh<index>`。
 
-验收命令：
+### 5.1 ZeroTier controller 授权是声明式自动完成的
+
+ZeroTier controller 是 greencloud 上**独立实例**
+`zerotierone-controller.service`（端口 `9994`，数据目录
+`/var/lib/zerotier-one-controller/`，与普通成员实例的 `9993` 不同）。
+网络 `466270de75000001` 的授权成员**完全来自声明式配置**，不需要手动
+`curl` controller API：
+
+- `helpers/fn/zerotier.nix` 从 `hosts/*/host.nix` 中 `zerotier != null` 的主机
+  生成 `LT.zerotier.hosts`（每个成员分配 `198.18.0.<index>` 与
+  `fdd8:1938:4e88::<index>`）。
+- `nixos/optional-apps/zerotierone-controller.nix` 把 `members = LT.zerotier.hosts`
+  交给 `zerotierone-controller-setup.service`，该 oneshot 服务在重构切换
+  greencloud 时把每个成员 `authorized=true` 并分配 IP。
+
+因此步骤 4 的「重构并切换 greencloud」会**自动完成授权**。物理 client（tmpfs
+根）没有 WireGuard/BIRD，只需验证 ZeroTier：
 
 ```bash
-zerotier-cli listnetworks
-wg show
-birdc show protocols
+zerotier-cli listnetworks   # 状态应为 OK，看到 ZT 分配的 198.18.0.<index>
 ```
 
-必须同时满足：ZeroTier 为 `OK`、WireGuard 有近期 handshake、BIRD peer 为
-`Established`。只有 ZeroTier `OK` 并不代表 LTNET 已经完整连通。
+### 5.2 新增证书的注意点
+
+`<host>.zhyi.cc` 证书由 greencloud 上的 acme 服务签发。首次接入多台主机并发
+签发时，ecc/rsa 两个 order 服务会竞争同一 `_acme-challenge.<host>.zhyi.cc`
+TXT 记录，可能互相覆盖导致其中一个失败（报 `Incorrect TXT record`）。若某台
+主机只有 ecc 进 sync-servers 而 rsa 缺失：
+
+```bash
+# 在 greencloud 上，等 dnscontrol 重新发布 DNS 后手动重签即可（无需改配置）
+systemctl restart acme-order-renew-lets-encrypt-<host>.zhyi.cc-rsa.service
+```
 
 ## 6. 构建和安装
 
