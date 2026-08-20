@@ -139,20 +139,20 @@ UniAPI 仍是唯一外部 Provider 汇聚点。不得把 Metapi、AxonHub 或 n8
 ### 知识链
 
 ```text
-ml-2700 Notes（bindfs 持久目录）
+ml-2700 Documents（bindfs 持久目录）
   -> git push Gitea（git.zhyi.xin，私有权威）
-  -> Syncthing 三机（ml-2700 / opi5p / greencloud）
-Ignis（web Obsidian，opi5p）直接读写 opi5p 上的 Notes 副本
+  -> Syncthing 四机（ml-2700 / ml-laptop / opi5p / greencloud）
+Ignis（web Obsidian，opi5p）直接读写 opi5p 上的 Documents 副本
 ```
 
-- 私有天线：`~/Documents/Notes` 是独立 git 仓库，Gitea 为权威源，Syncthing 负责
-  三机分发；Notes 与 nixos-config 不共用 `.git`。
+- 私有天线：`~/Documents` 整体 bind 到 `media/Documents`，内嵌独立 git 仓库，
+  Gitea 为权威源，Syncthing 负责四机分发；Documents 与 nixos-config 不共用 `.git`。
 - Web 版 Obsidian：Ignis（`ignis.opi5p.zhyi.cc`）把 opi5p 的
-  `/mnt/storage/media/Notes` 挂为 vault，浏览器里编辑的内容仍在 Syncthing/Gitea
+  `/mnt/storage/media/Documents` 挂为 vault，浏览器里编辑的内容仍在 Syncthing/Gitea
   分发内；nginx 层走 oauth2-proxy（Dex SSO）。详见
   [`../human/services/ignis.md`](../human/services/ignis.md)。
-- 公开天线：`~/Documents/Blog` 为 Astro 骨架，公开路线暂停；
-  `zhyiheihei/blog` 待创建后推送。pyison（posts.zhyi.xin）与 Waline
+- 公开天线：`~/Documents/Blog` 已于 2026-08-20 删除（远端仓库不存在，唯一副本
+  永久丢失）；公开路线暂停。pyison（posts.zhyi.xin）与 Waline
   评论（comments.zhyi.xin）已于 2026-08-15 退役，不再部署。
 - 知识输入：RSSHub/Miniflux（greencloud）、ArchiveBox/Memos（opi5p）。
 - AI 关联：详见

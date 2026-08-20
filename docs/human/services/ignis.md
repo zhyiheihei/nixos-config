@@ -7,13 +7,14 @@ Ignis 是 Obsidian 的浏览器兼容层（Electron API shim）：把官方 Obsi
 
 ## 与知识链的关系
 
-Ignis 的 vault 直接挂载 opi5p 上 Syncthing 的 Notes 家庭副本
-（`/mnt/storage/media/Notes`，容器内 `/vaults/Notes`）。浏览器里编辑的每一份
-Markdown 就是知识链私有权威的同一份文件：
+Ignis 的 vault 直接挂载 opi5p 上 Syncthing 的 Documents 家庭副本
+（`/mnt/storage/media/Documents`，容器内 `/vaults/Notes`；2026-08-20 Notes 并入
+Documents 后 vault 指向改为此路径）。浏览器里编辑的每一份 Markdown 就是知识链
+私有权威的同一份文件：
 
-- 写回后经 Syncthing 三机分发（ml-2700 / opi5p / greencloud），
+- 写回后经 Syncthing 四机分发（ml-2700 / ml-laptop / opi5p / greencloud），
 - git 权威仍是 Gitea（`git.zhyi.xin`，`zhyi/notes`），
-- Notes 与 nixos-config 依旧是两个独立 git 仓库，互不混用。
+- Documents 与 nixos-config 依旧是两个独立 git 仓库，互不混用。
 
 Obsidian 会在 vault 根目录生成 `.obsidian/` 配置目录，随 Syncthing 同步到其它
 机器，这是多端 Obsidian 的固有行为（单用户可接受）。
@@ -25,7 +26,7 @@ Obsidian 会在 vault 根目录生成 `.obsidian/` 配置目录，随 Syncthing 
 | 镜像 | `docker.io/nobbe/ignis:0.8.9`（pin，自动更新 `registry`） |
 | 容器端口 | `8080`，宿主只绑 `127.0.0.1:13832`（`LT.port.Ignis`） |
 | 运行 UID/GID | `PUID=1000` / `PGID=1000`（= `zhyi`，vault 属主） |
-| vault | `/mnt/storage/media/Notes` → `/vaults/Notes`（NFS 盘，挂载排序依赖 `mnt-storage.mount`） |
+| vault | `/mnt/storage/media/Documents` → `/vaults/Notes`（NFS 盘，挂载排序依赖 `mnt-storage.mount`） |
 | 服务数据 | `/nix/persistent/var/lib/ignis/data` → `/app/data` |
 | Obsidian 应用 | `/nix/persistent/var/lib/ignis/obsidian-app` → `/app/obsidian-app`（持久卷，避免每次重建容器重下） |
 | 写合并 | `WRITE_COALESCE_MS=500`（vault 在 NFS 上，按官方建议开启） |
@@ -51,11 +52,13 @@ Ignis 无内置认证，vault 挂在共享的 oauth2-proxy 之后：
   `apply --on opi5p`。
 - 模块：`nixos/optional-apps/ignis.nix`，选项 `options.lantian.ignis`
   （`enable` / `dataDir` / `vaultDir` / `uid` / `gid`）；opi5p 在
-  `hosts/opi5p/home-services.nix` 中 `lantian.ignis.enable = true`。
+  `hosts/opi5p/home-services.nix` 中 `lantian.ignis.enable = true`，并覆盖
+  `vaultDir = /mnt/storage/media/Documents`（模块默认仍为 `media/Notes`，
+  随 Notes→Documents 迁移由主机级覆盖修正）。
 - 验证：`systemctl status podman-ignis`、`journalctl -u podman-ignis`；
   `curl -fsS http://127.0.0.1:13832/` 应返回 Ignis UI；
   `curl -fsS https://ignis.opi5p.zhyi.cc` 应先 302 到 `/oauth2/start`。
-- 备份：Notes 本体已被 Syncthing/Gitea 覆盖；`/nix/persistent/var/lib/ignis`
+- 备份：Documents 本体已被 Syncthing/Gitea 覆盖；`/nix/persistent/var/lib/ignis`
   是运行态数据（Obsidian 应用副本 + 服务索引），重建即恢复，不单独进 restic 清单。
 - 升级 Obsidian 版本由镜像的 `OBSIDIAN_VER` 控制（未 pin 时随镜像默认），升级
   Ignis 本体 = 改镜像 tag 后 `podman-auto-update`/重建容器。
