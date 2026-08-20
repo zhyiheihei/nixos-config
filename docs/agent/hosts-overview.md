@@ -15,7 +15,8 @@
 | `router` | 112 | 家庭路由器 | `192.168.0.1` | PPPoE、LAN 网关、DHCP、DNS、DDNS 与 qBittorrent 单实例。 |
 | `ml-2700` | 113 | `client` | `ml-2700.zhyi.cc` | 家庭客户端，LAN 地址 `192.168.0.53`。 |
 | `ml-builder` | 114 | `nix-builder` | `ml-builder.zhyi.cc` | 强构建机，28 vCPU；Hydra 与 x86-only 容器（ArchiveTeam/ClawEmail/Epic Awesome Gamer）自 2026-08-12 起运行于此。 |
-| `ml-home-vm` | 115 | x86_64 / 家庭服务 VM | ~~`192.168.0.51`~~ | 已退役（2026-08-03）：应用迁至 ROCK5C/OPI5P/PVE，主机定义已从 flake 移除；`*.ml-home-vm.zhyi.cc` 服务别名由 ROCK 5C 继续承载。 |
+| `macmini` | 115 | aarch64-darwin / macOS | `macmini.zhyi.cc` | 家庭 Mac mini，nix-darwin 管理；`manualDeploy`，不参与 Colmena，用 `darwin-rebuild` 本机部署；接入与维护见 [Mac mini](../human/hardware/macmini.md)。 |
+| `ml-home-vm` | ~~115~~ | x86_64 / 家庭服务 VM | ~~`192.168.0.51`~~ | 已退役（2026-08-03）：应用迁至 ROCK5C/OPI5P/PVE，主机定义已从 flake 移除；`*.ml-home-vm.zhyi.cc` 服务别名由 ROCK 5C 继续承载。index 115 已由 macmini 复用。 |
 | `pve-5700u` | 116 | PVE | `pve-5700u.zhyi.cc` | PVE 宿主（仅虚拟化）；Hydra 与本机构建能力已迁至 ml-builder。 |
 | `hostdare` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.cc` 通配符公网入口。 |
 | `volcengine` | 119 | `server` / 公网入口 | `volcengine.zhyi.cc` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |

@@ -60,6 +60,24 @@ nix run .#colmena -- build --on pve-2700
 nix run .#colmena -- apply --on pve-2700
 ```
 
+## macOS / nix-darwin 主机
+
+`macmini`（`aarch64-darwin`）不参与 Colmena，而是由 `flake-modules/
+darwin-configurations.nix` 单独求值成 `darwinConfigurations`，在本机用
+`darwin-rebuild` 部署。需 SSH 到 macmini（走 **22 端口**，非 2222）后在
+macOS 本机执行：
+
+```bash
+# 在 macmini 本机
+cd ~/nixos-config
+sudo darwin-rebuild switch --flake /Users/molishanguang/nixos-config#macmini --impure
+```
+
+新版 `darwin-rebuild` 要求 system activation 以 root 运行，必须加 `sudo`。
+接入、网络、stylix 边界与常见踩坑见 [Mac mini](../human/hardware/macmini.md)；
+预拉闭包导入本机 store 的加速方案见
+[darwin 闭包导入加速](../human/migrations/macmini-darwin-import.md)。
+
 不要使用 `git reset --hard` 或 `git clean -fd` 来“同步”部署机；正常情况只需
 `git pull --ff-only`。遇到并发提交冲突时先检查 `git status`，保留本地未提交改动。
 
