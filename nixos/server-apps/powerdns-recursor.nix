@@ -123,7 +123,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
         );
       in
       ''
-        rpzFile("${LT.sources.delegacy-rpz.src}/rpz.delegacy.monostack.org.zone")
+        rpzFile("${LT.sources.delegacy-rpz.src}")
 
         ${ntaRecords}
         dofile("/nix/sync-servers/ltnet-scripts/pdns-recursor-conf/fwd-dn42-interconnect.lua")
@@ -158,6 +158,8 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
           config.lantian.netns.powerdns-recursor.ipv6
         ];
       };
+
+      logging.loglevel = 4;
 
       # # Only enable when debugging!
       # dnssec.log_bogus = true;

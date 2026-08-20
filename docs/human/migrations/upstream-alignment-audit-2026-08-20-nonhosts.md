@@ -113,6 +113,20 @@
 | `overlays/50-general.nix` | bazarr 中文化 + pve-container | 保留 |
 | `nixos/optional-apps/` 大量服务 | 域/证书/主机硬换（见 C 类） | 保留 |
 
+### B 类最终结论（2026-08-20 复核，用户决策「对齐架构，保留硬性值」）
+
+经 5 组并行 subagent 逐文件 diff 复核，B 类 35 个文件绝大多数为**硬性值替换或复刻核心功能**，对齐会破坏复刻（rsync-server 对齐 eval 必挂、ai-coding 删核心、host-options 断 SSHFP、darwin 过滤泄漏、zerotier 断 LTNET 等）。按用户决策「对齐架构、保留硬性值」，**全部保留**，仅两处纯逻辑差异实际对齐：
+
+| 文件 | 对齐项 | 说明 |
+|---|---|---|
+| `nixos/server-apps/powerdns-recursor.nix` | 恢复 `logging.loglevel = 4` | 纯日志详细度，非硬性值，上游有 fork 删 |
+| `nixos/server-apps/powerdns-recursor.nix` | `rpzFile("${src}")` 去掉多余 `/rpz.delegacy.monostack.org.zone` | src 本身即单个 zone 文件，fork 写法是 `文件/文件` 潜在 bug，对齐上游 |
+
+**复核中排除的误判项**（subagent 曾标 ALIGN/UNKNOWN，实际为复刻核心）：
+- `common-apps/coredns.nix` 顶部 `let netns`：fork 实为 `options.lantian.coredns.cnSplit`（CN 适配抽象成 option），非纯结构重构 → 保留
+- `common-apps/coredns.nix` zone 列表：fork 显式展开 `(DN42 ++ ... ++ Others)` 刻意排除 NeoNetwork/OpenNIC，对齐 `zones.all` 会引入 fork 不存在的 zone → 保留
+- `powerdns-recursor.nix` rpzFile 路径：核实 fork 与上游 delegacy-rpz 源完全相同（同一 URL 指向单个 zone 文件），fork 写法冗余 → 已对齐
+
 ---
 
 ## C类「硬性值」—— 必须保留，不在对齐范围
