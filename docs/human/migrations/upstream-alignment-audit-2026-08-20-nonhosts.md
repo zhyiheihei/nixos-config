@@ -193,3 +193,51 @@
 1. `nix flake check` / `make build`
 2. `nix flake lock --update-input stylix`（flake.nix stylix 分支已改）
 3. 提交 push（A 类对齐 + 清理 + 补齐）
+
+---
+
+## 附：stylix 对齐引入的无限递归回归（2026-08-20 排查记录）
+
+### 现象
+`make build` / `nix flake check` 报 `error: infinite recursion encountered`，
+栈顶在 `helpers/default.nix:13:48`（`call = path: builtins.removeAttrs (lib.callPackageWith (pkgs // helpers) path { })`），
+经 `_module.args.pkgs` → `config` → 回到 stylix。
+
+### 根因
+`nixos/minimal-components/stylix.nix` 第 37 行 `autoEnable = LT.this.hasTag LT.tags.client`
+（以及第 47 行 cursor 的 `if LT.this.hasTag ...`）在 fork 环境触发循环：
+读取 `LT.this` → `helpers` → `_module.args.pkgs` → `config` → 回到 stylix。
+
+对齐前 fork 刻意用 `autoEnable = lib.mkDefault false` + 在 `nixos/client.nix` 里设
+`stylix.autoEnable = true`，并留注释说明「Reading LT.this here causes a cycle with target
+defaults in newer Stylix releases」。对齐到上游 `LT.this.hasTag` 写法后，该循环在 fork 复现。
+
+### 二分定位
+| commit | 结果 |
+|---|---|
+| `99b3add6`（stylix 对齐前） | ✅ `All done!` |
+| `9591a458`（stylix 对齐前） | ✅ `All done!` |
+| `38473a3d`（stylix 对齐） | ❌ 无限递归 |
+| 之后所有 | ❌ 无限递归 |
+
+**回归由 `38473a3d`（stylix 对齐）引入。**
+
+### 关键事实
+- 上游 `xddxdd/nixos-config` 用完全相同的 `autoEnable = LT.this.hasTag LT.tags.client` 写法，
+  `lt-hp-omen` 求值 `stylix.autoEnable` 返回 `true`，**上游构建正常**。
+- `helpers/default.nix`、`flake.nix` 的 stylix input、`flake-modules/nixpkgs-options.nix`
+  均已逐字核对与上游一致。
+- 因此 fork 里必有一个**上游没有的差异**（fork 特有模块/主机配置）让 `_module.args.pkgs`
+  在 stylix target default 解析期间被强制求值，从而触发循环。该差异尚未定位。
+
+### 用户决策（2026-08-20）
+1. **对齐架构，保留硬性值** —— 架构/写法对齐上游，fork 硬性值（域名/用户名/主机/IP/网络 ID）保留。
+2. **不怀疑上游** —— 作者原版是权威，必须能构建；问题一定出在 fork 对齐不足。
+3. **还原 fork 特有 hack 注释** —— 为绕开问题而改公共模块加的注释/写法要还原，提高对齐度。
+4. **ml-builder 可用作者缓存**（attic.xuyh0120.win/lantian）加速构建。
+
+### 下一步
+定位 fork 特有差异（候选：某 fork 特有模块或主机配置强制 `_module.args.pkgs` 求值）。
+若循环是 fork 结构固有，则按「对齐架构、保留硬性值」还原对齐前 workaround
+（`autoEnable = lib.mkDefault false` + client.nix 设 autoEnable），并作为 fork 偏离登记。
+验证：ml-builder `make build`（用作者 attic 缓存加速）。
