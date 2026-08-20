@@ -2,6 +2,14 @@
 {
   imports = [ ../../home/macos.nix ];
 
+  # ===== Homebrew CLI 收编到 nix：ripgrep / uv 由 nix 提供，替代 brew formula =====
+  # pcre2 是 ripgrep 的依赖自动带上；这三个 formula 收编后从 brew 卸载（GUI cask
+  # bitwarden/codex/siyuan nix 管不了，保留在 brew）。
+  home.packages = with pkgs; [
+    ripgrep
+    uv
+  ];
+
   # ===== macOS 特有：把原 ~/.zshrc 私有配置并进声明式 =====
   # home-manager 接管后 ~/.zshrc 由 programs.zsh 生成，原文件里的
   # Homebrew 镜像、Hermes PATH、Edge debug alias 用 initExtra 追回。
