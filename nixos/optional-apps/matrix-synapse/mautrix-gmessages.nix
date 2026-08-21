@@ -16,7 +16,7 @@
         uri = "postgresql:///mautrix-gmessages?host=/run/postgresql";
       };
       bridge.permissions = {
-        "@lantian:zhyi.xin" = "admin";
+        "@zhyi:zhyi.xin" = "admin";
       };
       network.aggressive_reconnect = true;
       backfill.enabled = true;

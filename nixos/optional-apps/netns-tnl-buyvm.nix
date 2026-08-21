@@ -10,6 +10,6 @@
 
   lantian.netns.tnl-buyvm = {
     ipSuffix = "192";
-    overrideRoutingTable = 10000 + LT.hosts.buyvm.index;
+    overrideRoutingTable = 10000 + LT.hosts.google.index;
   };
 }

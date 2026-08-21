@@ -42,6 +42,15 @@ let
           extraConfig = enableCompression;
         };
 
+        # Waline
+        "= /api/comment" = {
+          proxyPass = "http://${LT.hosts."greencloud".ltnet.IPv4}:${LT.portStr.Waline}";
+          extraConfig = ''
+            proxy_set_header REMOTE-HOST $remote_addr;
+            ${enableCompression}
+          '';
+        };
+
         # Matrix Federation
         "= /.well-known/matrix/server" = {
           allowCORS = true;
@@ -61,6 +70,11 @@ let
         };
         "= /.well-known/webfinger".return =
           "302 'https://mastodon.social/.well-known/webfinger?resource=acct:molishanguang@mastodon.social'";
+
+        # ATproto
+        "= /.well-known/atproto-did".return = "200 'did:plc:bojfoltwtzihrpbrkpkj3ijm'";
+
+        # DN42
         "= /dn42-geofeed.csv" = {
           root = builtins.toString self.packages.${pkgs.stdenv.hostPlatform.system}.dn42-geofeed;
         };
@@ -137,28 +151,31 @@ in
     };
 
     "zhyi.xin" = addConfLantianPub {
+      serverAliases = [ "${config.networking.hostName}.zhyi.xin" ];
       sslCertificate = "zerossl-zhyi.xin";
     };
     "zhyi.dn42" = addConfLantianPub {
       listenHTTP.enable = true;
       serverAliases = [ "${config.networking.hostName}.zhyi.dn42" ];
-      sslCertificate = "zerossl-zhyi.xin";
+      sslCertificate = "dn42-zhyi.dn42";
     };
-
     # Don't use globalRedirect, it adds http:// prefix
     "www.zhyi.xin" = {
       locations."/".return = "307 https://zhyi.xin$request_uri";
       enableCommonLocationOptions = false;
       sslCertificate = "zerossl-zhyi.xin";
     };
-
-    "zhyi.cc" = {
-      serverAliases = [ "www.zhyi.cc" ];
+    "xn--gmqs02au1c935d.pub" = {
+      serverAliases = [ "www.xn--gmqs02au1c935d.pub" ];
       locations."/".return = "307 https://zhyi.xin$request_uri";
       enableCommonLocationOptions = false;
-      sslCertificate = "lets-encrypt-zhyi.cc";
+      sslCertificate = "zerossl-xn--gmqs02au1c935d.pub";
     };
-
+    "lab.zhyi.xin" = {
+      locations."/".return = "307 https://lab.zhyi.xin$request_uri";
+      enableCommonLocationOptions = false;
+      sslCertificate = "zerossl-zhyi.xin";
+    };
   }
   // lib.optionalAttrs (LT.this.hasTag LT.tags.public-facing) {
     "gopher.zhyi.xin" = {

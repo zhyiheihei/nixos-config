@@ -113,7 +113,7 @@ in
       };
       # The public edge on ml-home-vm reaches this HTTP-only LAN vhost. Its
       # private ACL keeps the application socket unreachable from the WAN.
-      "jellyfin-backend.opi5p.zhyi.cc" = {
+      "jellyfin-backend.opi5p.zhyi.xin" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
         locations."/" = {

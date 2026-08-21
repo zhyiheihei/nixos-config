@@ -70,7 +70,7 @@ in
     };
 
     lantian.nginxVhosts = {
-      "moviepilot.${config.networking.hostName}.zhyi.cc" = {
+      "moviepilot.${config.networking.hostName}.zhyi.xin" = {
         locations = {
           "/" = {
             proxyPass = "http://127.0.0.1:${LT.portStr.MoviePilot.Frontend}";
@@ -78,7 +78,7 @@ in
             proxyNoTimeout = true;
           };
         };
-        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
+        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
         noIndex.enable = true;
         accessibleBy = "private";
       };

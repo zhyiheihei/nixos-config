@@ -3,6 +3,7 @@
   lib,
   LT,
   config,
+  utils,
   inputs,
   ...
 }:
@@ -32,17 +33,6 @@
             {
               name = "node_exporter";
               rules = [
-                {
-                  alert = "node_exporter_down";
-                  expr = ''up{job="node"} == 0'';
-                  for = "15m";
-                  labels.severity = "warning";
-                  annotations = {
-                    summary = "⚠️ Node exporter on {{$labels.instance}} is unreachable.";
-                    description = "Prometheus has not been able to scrape node metrics from {{$labels.instance}} for 15 minutes.";
-                  };
-                }
-
                 # # SystemD service
                 # {
                 #   alert = "node_systemd_service_failed";
@@ -58,22 +48,22 @@
                 # Filesystem
                 {
                   alert = "node_filesystem_full_90percent";
-                  expr = ''sort(node_filesystem_avail_bytes{mountpoint="/nix",fstype!~"tmpfs|overlay"} < node_filesystem_size_bytes{mountpoint="/nix",fstype!~"tmpfs|overlay"} * 0.1)'';
+                  expr = ''sort(node_filesystem_free_bytes{mountpoint="/nix"} < node_filesystem_size_bytes{mountpoint="/nix"} * 0.1)'';
                   for = "10m";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ {{$labels.instance}}: Filesystem is running out of space soon.";
-                    description = "{{$labels.instance}} device {{$labels.device}} on {{$labels.mountpoint}} has less than 10% available space.";
+                    summary = "⚠️ {{$labels.alias}}: Filesystem is running out of space soon.";
+                    description = "{{$labels.alias}} device {{$labels.device}} on {{$labels.mountpoint}} got less than 10% space left on its filesystem.";
                   };
                 }
                 {
                   alert = "node_filesystem_readonly";
-                  expr = ''node_filesystem_readonly{mountpoint="/nix",fstype!~"tmpfs|overlay"} == 1'';
+                  expr = ''node_filesystem_readonly{mountpoint="/nix"} == 1'';
                   for = "1m";
                   labels.severity = "critical";
                   annotations = {
-                    summary = "⚠️ {{$labels.instance}}: Filesystem is readonly.";
-                    description = "{{$labels.instance}} device {{$labels.device}} on {{$labels.mountpoint}} is readonly.";
+                    summary = "⚠️ {{$labels.alias}}: Filesystem is readonly.";
+                    description = "{{$labels.alias}} device {{$labels.device}} on {{$labels.mountpoint}} is readonly.";
                   };
                 }
 
@@ -97,8 +87,8 @@
                   for = "10m";
                   labels.severity = "critical";
                   annotations = {
-                    summary = "⚠️ {{$labels.instance}}: MySQL down.";
-                    description = "{{$labels.instance}} MySQL exporter reports the database as unavailable.";
+                    summary = "⚠️ {{$labels.alias}}: MySQL down.";
+                    description = "{{$labels.alias}} MySQL instance is down.";
                   };
                 }
 
@@ -109,8 +99,8 @@
                   for = "10m";
                   labels.severity = "critical";
                   annotations = {
-                    summary = "⚠️ {{$labels.instance}}: PostgreSQL down.";
-                    description = "{{$labels.instance}} PostgreSQL exporter reports the database as unavailable.";
+                    summary = "⚠️ {{$labels.alias}}: PostgreSQL down.";
+                    description = "{{$labels.alias}} PostgreSQL instance is down.";
                   };
                 }
 
@@ -121,8 +111,8 @@
                   for = "1h";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ {{$labels.instance}}: High CPU utilization.";
-                    description = "{{$labels.instance}} has total CPU utilization over 95% for ${for}.";
+                    summary = "⚠️ {{$labels.alias}}: High CPU utilization.";
+                    description = "{{$labels.alias}} has total CPU utilization over 95% for ${for}.";
                   };
                 }
 
@@ -133,8 +123,8 @@
                   for = "30m";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ {{$labels.instance}}: Using lots of RAM.";
-                    description = "{{$labels.instance}} is using at least 90% of its RAM for ${for}.";
+                    summary = "⚠️ {{$labels.alias}}: Using lots of RAM.";
+                    description = "{{$labels.alias}} is using at least 90% of its RAM for ${for}.";
                   };
                 }
 
@@ -145,8 +135,8 @@
                   for = "10m";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ {{$labels.instance}}: Netfilter conntrack table almost full.";
-                    description = "{{$labels.instance}} is using over 90% of its netfilter conntrack table for ${for}.";
+                    summary = "⚠️ {{$labels.alias}}: Netfilter conntrack table almost full.";
+                    description = "{{$labels.alias}} is using over 90% of its netfilter conntrack table for ${for}.";
                   };
                 }
 
@@ -157,7 +147,7 @@
                   for = "30m";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ {{$labels.name}} on {{$labels.instance}} is frequently reconnecting.";
+                    summary = "⚠️ {{$labels.alias}}: {{$labels.name}} on {{$labels.instance}} is frequently reconnecting.";
                     description = "{{$labels.name}} on {{$labels.instance}} is frequently reconnecting.";
                   };
                 }
@@ -169,7 +159,7 @@
                   for = "30m";
                   labels.severity = "warning";
                   annotations = {
-                    summary = "⚠️ Storage box {{$labels.name}} has <100G free space.";
+                    summary = "⚠️ {{$labels.alias}}: Storage box {{$labels.name}} has <100G free space.";
                     description = "Storage box {{$labels.name}} has <100G free space.";
                   };
                 }
@@ -219,7 +209,9 @@
           + ":"
           + builtins.toString config.programs.msmtp.accounts.default.port;
         smtp_auth_username = config.programs.msmtp.accounts.default.user;
-        smtp_auth_password_file = config.sops.secrets.smtp-pass.path;
+        smtp_auth_password = {
+          _secret = config.sops.secrets.smtp-pass.path;
+        };
         smtp_require_tls = config.programs.msmtp.accounts.default.tls_starttls;
       };
       route = {
@@ -256,6 +248,12 @@
     };
   };
 
+  systemd.services.alertmanager = {
+    preStart = lib.mkForce ''
+      ${utils.genJqSecretsReplacementSnippet config.services.prometheus.alertmanager.configuration "/tmp/alert-manager-substituted.yaml"}
+    '';
+  };
+
   lantian.nginxVhosts."alert.zhyi.xin" = {
     locations = {
       "/" = {
@@ -264,7 +262,7 @@
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 }

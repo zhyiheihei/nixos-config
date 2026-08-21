@@ -29,7 +29,7 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
     locations = {
       "/".tryFiles = "/avatar-$arg_s.jpg /avatar-80.jpg =404";
     };
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 }

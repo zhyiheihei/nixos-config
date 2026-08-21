@@ -37,12 +37,6 @@ in
       default = "eth0";
       description = "Network interface to attach the tunnel to";
     };
-
-    localAddress = lib.mkOption {
-      type = lib.types.nullOr lib.types.str;
-      default = null;
-      description = "Local IPv4 address for tunnel endpoint. Defaults to public.IPv4. Override when behind NAT.";
-    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -53,7 +47,7 @@ in
         MTUBytes = cfg.mtu;
       };
       tunnelConfig = {
-        Local = if cfg.localAddress != null then cfg.localAddress else LT.this.public.IPv4;
+        Local = LT.this.public.IPv4;
         Remote = cfg.remote;
         TTL = 255;
       };

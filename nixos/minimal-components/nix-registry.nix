@@ -9,7 +9,6 @@ let
     nixpkgs = LT.patchedNixpkgs;
     nur = inputs.nur.outPath;
     nur-xddxdd = inputs.nur-xddxdd.outPath;
-    home-manager = inputs.home-manager.outPath;
   };
 in
 {

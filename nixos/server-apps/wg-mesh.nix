@@ -9,9 +9,7 @@ let
   wg-pubkey = import (inputs.secrets + "/wg-pubkey.nix");
   wgEndpointFor =
     name: host:
-    if builtins.hasAttr name LT.this.ltnet.tcpTransportPeers then
-      "127.0.0.1"
-    else if !(LT.this.hasTag "ipv6-only") && LT.publicIPv4For name != null then
+    if !(LT.this.hasTag "ipv6-only") && LT.publicIPv4For name != null then
       LT.publicIPv4For name
     else if LT.this.public.IPv6 != null && LT.publicIPv6For name != null then
       LT.publicIPv6For name
@@ -25,12 +23,6 @@ in
     group = "systemd-network";
     mode = "0660";
   };
-
-  # WireGuard netdevs read their private key while networkd creates them.
-  # Both networkd and sops-nix start during sysinit, so order them explicitly
-  # instead of relying on scheduler timing.  Do not make networkd require SOPS:
-  # the host must retain ordinary networking if secret installation fails.
-  systemd.services.systemd-networkd.after = [ "sops-install-secrets.service" ];
 
   systemd.network.netdevs = lib.mapAttrs' (
     n: v:
@@ -57,11 +49,7 @@ in
             PersistentKeepalive = 15;
           }
           // lib.optionalAttrs (wgEndpoint != null) {
-            Endpoint = "${wgEndpoint}:${builtins.toString (
-              if builtins.hasAttr n LT.this.ltnet.tcpTransportPeers
-              then LT.port.WGMesh.Start + 256 + v.index
-              else LT.port.WGMesh.Start + LT.this.index
-            )}";
+            Endpoint = "${wgEndpoint}:${builtins.toString (LT.port.WGMesh.Start + LT.this.index)}";
           }
         )
       ];
@@ -82,8 +70,7 @@ in
       ++ lib.optionals (LT.this.ltnet.IPv4 != null) [ (LT.this.ltnet.IPv4 + "/32") ]
       ++ lib.optionals (LT.this.ltnet.IPv6 != null) [ (LT.this.ltnet.IPv6 + "/128") ];
 
-      linkConfig.MTUBytes =
-        if builtins.hasAttr n LT.this.ltnet.tcpTransportPeers then 1280 else 1400;
+      linkConfig.MTUBytes = 1400;
       networkConfig = {
         LinkLocalAddressing = "no";
       };

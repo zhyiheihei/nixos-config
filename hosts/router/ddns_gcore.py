@@ -6,9 +6,9 @@ from ipaddress import IPv4Address, IPv6Address
 import requests
 
 API_BASE = "https://api.gcore.com/dns/v2"
-ZONE_NAME = "zhyi.cc"
-RRSET_NAME = "home-ddns.zhyi.cc"
-WG_RRSET_NAME = "wg-home.zhyi.cc"
+ZONE_NAME = "zhyi.xin"
+RRSET_NAME = "home-ddns.zhyi.xin"
+WG_RRSET_NAME = "wg-home.zhyi.xin"
 IP_LOOKUP_URLS = [
     "https://ip.3322.net",
     "http://members.3322.org/dyndns/getip",

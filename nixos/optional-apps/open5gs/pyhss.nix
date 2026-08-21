@@ -83,7 +83,7 @@ in
   users.groups.pyhss = { };
 
   lantian.nginxVhosts = {
-    "pyhss.${config.networking.hostName}.zhyi.cc" = {
+    "pyhss.${config.networking.hostName}.zhyi.xin" = {
       locations = {
         "/".proxyPass = "http://127.0.0.8:8080";
         "/swaggerui/".alias =
@@ -91,7 +91,7 @@ in
         "= /".return = "302 /docs/";
       };
 
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
       accessibleBy = "private";
     };

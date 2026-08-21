@@ -105,14 +105,14 @@ in
 
     # Private-only: reachable via ZeroTier/LTNET (resolved through the home
     # edge's hosts override), not from the public internet.
-    lantian.nginxVhosts."hub.${config.networking.hostName}.zhyi.cc" = {
+    lantian.nginxVhosts."hub.${config.networking.hostName}.zhyi.xin" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.HubProxy}";
         proxyNoTimeout = true;
       };
 
       accessibleBy = "private";
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
   };

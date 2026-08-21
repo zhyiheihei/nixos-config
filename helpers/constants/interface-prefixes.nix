@@ -5,7 +5,6 @@ _: {
       "en"
       "eth"
       "henet"
-      "ppp"
       "usb"
       "usque"
       "venet"

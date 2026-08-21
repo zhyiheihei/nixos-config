@@ -31,10 +31,7 @@ let
   '';
 
   anime4KInputs =
-    if osConfig.networking.hostName != "high_end_not_used_for_now" then
-      anime4K_LowEnd
-    else
-      anime4K_HighEnd;
+    if osConfig.networking.hostName != "ml-laptop" then anime4K_LowEnd else anime4K_HighEnd;
 
   mpvSockets =
     pkgs.runCommand "mpv-sockets"
@@ -48,24 +45,22 @@ in
 {
   programs.mpv = {
     enable = true;
-    package = pkgs.nur-xddxdd.svp-mpv.override {
-      # Workaround wrapper override of svp-mpv
-      mpv-unwrapped = pkgs.mpv-unwrapped // {
-        wrapper =
-          args:
-          pkgs.mpv-unwrapped.wrapper (
-            args
-            // {
-              scripts = [
-                mpvSockets
-                pkgs.mpvScripts.dynamic-crop
-                pkgs.mpvScripts.modernz
-                pkgs.mpvScripts.mpris
-                pkgs.mpvScripts.thumbfast
-              ];
-            }
-          );
-      };
+    package = pkgs.mpv.override {
+      mpv-unwrapped = pkgs.mpv-unwrapped.override { vapoursynthSupport = true; };
+      extraMakeWrapperArgs = [
+        # Add paths to required libraries
+        "--prefix"
+        "LD_LIBRARY_PATH"
+        ":"
+        "/run/opengl-driver/lib:${lib.makeLibraryPath [ pkgs.ocl-icd ]}"
+      ];
+      scripts = [
+        mpvSockets
+        pkgs.mpvScripts.dynamic-crop
+        pkgs.mpvScripts.modernz
+        pkgs.mpvScripts.mpris
+        pkgs.mpvScripts.thumbfast
+      ];
     };
     config = {
       # HDR on supported displays
@@ -87,7 +82,7 @@ in
       alang = "chi,zho,cmn,zh,eng,en";
       slang = "chi,zho,cmn,zh,eng,en";
     }
-    // (lib.optionalAttrs (osConfig.networking.hostName == "ml-builder") {
+    // (lib.optionalAttrs (osConfig.networking.hostName == "ml-2700") {
       hwdec = "vaapi";
       scale = "lanczos";
       dither = false;

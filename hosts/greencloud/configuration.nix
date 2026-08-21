@@ -125,7 +125,7 @@
     };
   };
 
-  lantian.nginxVhosts."greencloud.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  lantian.nginxVhosts."greencloud.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
   # Hydra moved from pve-5700u to ml-builder on 2026-08-12. The common vhost
   # module keeps the upstream pve-epyc target; override only the backend here.
@@ -188,5 +188,5 @@
 
   # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
   # author's backup semantics by pointing the endpoint at the migrated host.
-  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.xin";
 }

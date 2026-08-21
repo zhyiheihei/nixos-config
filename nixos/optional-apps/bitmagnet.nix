@@ -74,7 +74,7 @@ in
   };
 
   lantian.nginxVhosts = {
-    "bitmagnet.${config.networking.hostName}.zhyi.cc" = {
+    "bitmagnet.${config.networking.hostName}.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.Bitmagnet}";
@@ -82,7 +82,7 @@ in
       };
 
       accessibleBy = "private";
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
     "bitmagnet.localhost" = {

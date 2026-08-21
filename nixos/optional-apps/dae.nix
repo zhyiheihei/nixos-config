@@ -11,13 +11,17 @@ in
   imports = [ ../client-apps/v2ray.nix ];
 
   options.lantian.dae = {
+    wanInterface = lib.mkOption {
+      type = lib.types.str;
+      default = "auto";
+    };
     lanInterfaces = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = [ ];
     };
-    proxyDomains = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = [ ];
+    cnAction = lib.mkOption {
+      type = lib.types.str;
+      default = "must_direct";
     };
     intlAction = lib.mkOption {
       type = lib.types.str;
@@ -32,7 +36,7 @@ in
         global {
           tproxy_port: 1
           tproxy_port_protect: true
-          wan_interface: auto
+          wan_interface: ${cfg.wanInterface}
           ${lib.optionalString (
             cfg.lanInterfaces != [ ]
           ) "lan_interface: ${builtins.concatStringsSep "," cfg.lanInterfaces}"}
@@ -52,12 +56,12 @@ in
           tls_implementation: utls
           utls_imitate: firefox_auto
 
-          mptcp: false
+          mptcp: true
         }
 
         node {
           v2ray: "socks5://localhost:${LT.portStr.V2Ray.SocksClient}"
-          google: "socks5://${LT.hosts.google.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
+          zgocloud: "socks5://${LT.hosts.volcengine.ltnet.IPv4}:${LT.portStr.V2Ray.SocksClient}"
         }
 
         dns {
@@ -80,8 +84,12 @@ in
 
         group {
           proxy {
-            filter: name(v2ray, google)
-            policy: min_moving_avg
+            filter: name(v2ray)
+            policy: fixed(0)
+          }
+          zgocloud {
+            filter: name(zgocloud)
+            policy: fixed(0)
           }
         }
 
@@ -92,11 +100,15 @@ in
           pname(zerotier-one) -> must_direct
           dip(224.0.0.0/3, 'ff00::/8') -> must_direct
 
+          # Unblock CN
+          pname(qqmusic) -> ${cfg.cnAction}
+          domain(geosite:cn) && dport(80) -> ${cfg.cnAction}
+          domain(geosite:cn) && dport(443) -> ${cfg.cnAction}
+          dip(geoip:cn) && dport(80) -> ${cfg.cnAction}
+          dip(geoip:cn) && dport(443) -> ${cfg.cnAction}
+
           domain(geosite:category-ads) -> block
           domain(geosite:category-ads-all) -> block
-          ${lib.optionalString (
-            cfg.proxyDomains != [ ]
-          ) "domain(${lib.concatMapStringsSep ", " (domain: "suffix: ${domain}") cfg.proxyDomains}) -> proxy"}
           domain(geosite:private) -> must_direct
           domain(geosite:cn) -> must_direct
           domain(geosite:category-games@cn) -> must_direct

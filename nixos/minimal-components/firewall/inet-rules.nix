@@ -5,6 +5,8 @@
   ...
 }:
 let
+  inherit (import ./common.nix { inherit lib LT; }) ipv4Set ipv6Set interfaceSets;
+
   serverPortForwards =
     lib.optionalString (config.lantian.netns.coredns-authoritative.enable or false)
       ''
@@ -15,83 +17,24 @@ let
         fib daddr type local udp dport ${LT.portStr.DNS} dnat ip6 to [${config.lantian.netns.coredns-authoritative.ipv6}]:${LT.portStr.DNS}
       '';
 
-  ipv4Set = name: value: ''
-    set ${name} {
-      type ipv4_addr
-      flags constant, interval
-      elements = { ${builtins.concatStringsSep ", " value} }
-    }
-  '';
-
-  ipv6Set = name: value: ''
-    set ${name} {
-      type ipv6_addr
-      flags constant, interval
-      elements = { ${builtins.concatStringsSep ", " value} }
-    }
-  '';
-
-  interfaceSets = lib.concatMapAttrsStringSep "\n" (k: v: ''
-    set INTERFACE_${k} {
-      type ifname
-      flags constant, interval
-      elements = { ${lib.concatMapStringsSep ", " (v: v + "*") v} }
-    }
-  '') LT.constants.interfacePrefixes;
-
-  interfaceSet = name: prefixes: ''
-    set INTERFACE_${name} {
-      type ifname
-      flags constant, interval
-      elements = { ${lib.concatMapStringsSep ", " (v: v + "*") prefixes} }
-    }
-  '';
-
-  # Restored from upstream firewall/arp.nix (lost when the firewall was
-  # flattened into this file). WAN ARP anti-spoofing: disabled by default
-  # (null), hosts opt in via lantian.firewall.wanARPSubnets.
-  wanARPSubnets = config.lantian.firewall.wanARPSubnets;
-
-  # An empty wanARPSubnets would make an empty set (invalid nft syntax), so a
-  # dummy 0.0.0.0/32 matching no real traffic is used in block-all mode.
-  arpTable = lib.optionalAttrs (wanARPSubnets != null) {
-    lantian_arp = {
-      family = "arp";
-      content = ''
-        ${interfaceSet "WAN" LT.constants.interfacePrefixes.WAN}
-        ${ipv4Set "WAN_ARP_SUBNETS" (if wanARPSubnets == [ ] then [ "0.0.0.0/32" ] else wanARPSubnets)}
-
-        chain INPUT {
-          type filter hook input priority 0; policy accept;
-          iifname @INTERFACE_WAN arp saddr ip != @WAN_ARP_SUBNETS drop
-        }
-
-        chain OUTPUT {
-          type filter hook output priority 0; policy accept;
-          oifname @INTERFACE_WAN arp daddr ip != @WAN_ARP_SUBNETS drop
-        }
-      '';
-    };
-  };
-
-  tnl-buyvm = lib.optionalString (config.networking.hostName == "buyvm") (
+  tnl-buyvm = lib.optionalString (config.networking.hostName == "google") (
     (lib.optionalString (LT.this.public.IPv4 != null) (
       lib.concatMapAttrsStringSep "" (
         n:
-        { wg-zhyi, index, ... }:
+        { wg-lantian, index, ... }:
         ''
-          ip daddr ${LT.this.public.IPv4} tcp dport { ${builtins.toString wg-zhyi.forwardStart}-${builtins.toString wg-zhyi.forwardStop} } dnat to 198.18.${builtins.toString index}.192
-          ip daddr ${LT.this.public.IPv4} udp dport { ${builtins.toString wg-zhyi.forwardStart}-${builtins.toString wg-zhyi.forwardStop} } dnat to 198.18.${builtins.toString index}.192
+          ip daddr ${LT.this.public.IPv4} tcp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to 198.18.${builtins.toString index}.192
+          ip daddr ${LT.this.public.IPv4} udp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to 198.18.${builtins.toString index}.192
         ''
       ) LT.hosts
     ))
     + (lib.optionalString (LT.this.public.IPv6 != null) (
       lib.concatMapAttrsStringSep "" (
         n:
-        { wg-zhyi, index, ... }:
+        { wg-lantian, index, ... }:
         ''
-          ip6 daddr ${LT.this.public.IPv6} tcp dport { ${builtins.toString wg-zhyi.forwardStart}-${builtins.toString wg-zhyi.forwardStop} } dnat to fdd8:1938:4e88:${builtins.toString index}::192
-          ip6 daddr ${LT.this.public.IPv6} udp dport { ${builtins.toString wg-zhyi.forwardStart}-${builtins.toString wg-zhyi.forwardStop} } dnat to fdd8:1938:4e88:${builtins.toString index}::192
+          ip6 daddr ${LT.this.public.IPv6} tcp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to fdd8:1938:4e88:${builtins.toString index}::192
+          ip6 daddr ${LT.this.public.IPv6} udp dport { ${builtins.toString wg-lantian.forwardStart}-${builtins.toString wg-lantian.forwardStop} } dnat to fdd8:1938:4e88:${builtins.toString index}::192
         ''
       ) LT.hosts
     ))
@@ -111,7 +54,7 @@ let
     LT.port.CUPS
     LT.port.Rsync
   ]
-  ++ lib.optionals (config.networking.hostName != "pve-epyc") [
+  ++ lib.optionals (config.networking.hostName != "pve-5700u") [
     111
     2049
     4000
@@ -183,7 +126,7 @@ let
       oifname "zt*" udp sport 5353 reject
       oifname "zt*" udp dport 5353 reject
 
-      # Pipewire DSCP to ml-builder
+      # Pipewire DSCP to lt-dell-wyse
   ''
   + (lib.concatMapStrings (ip: ''
     oifname @INTERFACE_WAN ip daddr ${ip} udp dport 10001-10003 ip dscp set ef
@@ -354,25 +297,11 @@ let
   '';
 in
 {
-  options.lantian.firewall.wanARPSubnets = lib.mkOption {
-    type = lib.types.nullOr (lib.types.listOf lib.types.str);
-    default = null;
-    description = ''
-      IPv4 subnet CIDRs whose ARP traffic is allowed on WAN interfaces.
-      - null (default): ARP filter disabled, no table is created.
-      - empty list [ ]: block all ARP request/reply on WAN interfaces.
-      - non-empty list: only allow ARP whose source or destination
-        protocol address is within one of the listed subnets.
-    '';
-  };
-
-  config.networking.nftables = {
+  networking.nftables = {
     enable = true;
-    tables = {
-      lantian = {
-        family = "inet";
-        content = nftRules;
-      };
-    } // arpTable;
+    tables.lantian = {
+      family = "inet";
+      content = nftRules;
+    };
   };
 }

@@ -6,8 +6,6 @@
 let
   domains = [
     "zhyi.xin"
-    "zhyi.cc"
-    "moliy.site"
   ];
 
   emailConfigFor = domain: {

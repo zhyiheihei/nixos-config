@@ -9,19 +9,6 @@
 let
   common = {
     # keep-sorted start block=yes
-    grok-search-rs = {
-      command = toString (
-        pkgs.writeShellScript "mcp-grok-search-rs" ''
-          export GROK_SEARCH_API_KEY=$(cat "${config.sops.secrets.mcp-grok-api-key.path}")
-          export GROK_SEARCH_MODEL=grok-4.3-fast-reasoning
-          export GROK_SEARCH_WEB_SEARCH=true
-          export GROK_SEARCH_X_SEARCH=true
-          export FIRECRAWL_API_KEY=$(cat "${config.sops.secrets.mcp-firecrawl-api-key.path}")
-          export TAVILY_API_KEY=$(cat "${config.sops.secrets.mcp-tavily-api-key.path}")
-          exec ${lib.getExe pkgs.nur-xddxdd.grok-search-rs}
-        ''
-      );
-    };
     exa = {
       command = toString (
         pkgs.writeShellScript "mcp-exa" ''
@@ -32,16 +19,23 @@ let
         ''
       );
     };
+    grok-search-rs = {
+      command = toString (
+        pkgs.writeShellScript "mcp-grok-search-rs" ''
+          export GROK_SEARCH_API_KEY=$(cat "${config.sops.secrets.mcp-grok-api-key.path}")
+          export GROK_SEARCH_MODEL=grok-4.3
+          export GROK_SEARCH_WEB_SEARCH=true
+          export GROK_SEARCH_X_SEARCH=true
+          export FIRECRAWL_API_KEY=$(cat "${config.sops.secrets.mcp-firecrawl-api-key.path}")
+          export TAVILY_API_KEY=$(cat "${config.sops.secrets.mcp-tavily-api-key.path}")
+          exec ${lib.getExe pkgs.nur-xddxdd.grok-search-rs}
+        ''
+      );
+    };
     time = {
-      command = "uv";
+      command = "uvx";
       args = [
-        # mcp SDK 2.x renamed McpError / moved fastmcp; the python MCP tools
-        # in this file still target the 1.x API, so constrain mcp<2 via uv run.
-        "run"
-        "--with"
-        "mcp<2"
-        "--with"
-        "mcp-server-time"
+        "--with=mcp<2"
         "mcp-server-time"
         "--local-timezone=${config.time.timeZone}"
       ];
@@ -82,6 +76,10 @@ in
       sopsFile = inputs.secrets + "/common/mcp.yaml";
       mode = "0444";
     };
+    sops.secrets.mcp-exa-api-key = {
+      sopsFile = inputs.secrets + "/common/mcp.yaml";
+      mode = "0444";
+    };
     sops.secrets.mcp-flightaware-api-key = {
       sopsFile = inputs.secrets + "/common/mcp.yaml";
       mode = "0444";
@@ -95,10 +93,6 @@ in
       mode = "0444";
     };
     sops.secrets.mcp-grok-api-key = {
-      sopsFile = inputs.secrets + "/common/mcp.yaml";
-      mode = "0444";
-    };
-    sops.secrets.mcp-exa-api-key = {
       sopsFile = inputs.secrets + "/common/mcp.yaml";
       mode = "0444";
     };
@@ -138,15 +132,8 @@ in
         url = "https://mcp.mdn.mozilla.net/";
       };
       nixos = {
-        command = "uv";
-        args = [
-          # Latest mcp-nixos works with mcp SDK 2.x (verified handshake
-          # 2026-08-15); no constraint needed (author's original style).
-          "run"
-          "--with"
-          "mcp-nixos"
-          "mcp-nixos"
-        ];
+        command = "uvx";
+        args = [ "mcp-nixos" ];
       };
       # keep-sorted end
     };
@@ -154,17 +141,9 @@ in
     lantian.mcp.toolMcpServers = common // {
       # keep-sorted start block=yes
       adsb-lol = {
-        command = "uv";
+        command = "uvx";
         args = [
-          # Latest awslabs.openapi-mcp-server works (handshake verified
-          # 2026-08-15 after fixing root-owned uv cache entries; the earlier
-          # "latest fails" was cache pollution, not the version).
-          # Note: uv's --with rejects the bare @latest form, so omit the
-          # version spec and let uv resolve the latest release.
-          "run"
-          "--with"
-          "awslabs.openapi-mcp-server"
-          "awslabs.openapi-mcp-server"
+          "awslabs.openapi-mcp-server@latest"
           "--api-name=adsb.lol"
           "--api-url=https://api.adsb.lol"
           "--spec-url=https://api.adsb.lol/api/openapi.json"
@@ -195,22 +174,16 @@ in
             export CALDAV_BASE_URL=https://cal.zhyi.xin
             export CALDAV_USERNAME=zhyi
             export CALDAV_PASSWORD=$(cat "${config.sops.secrets.default-pw.path}")
-            exec ${pkgs.nodejs}/bin/npx -y caldav-mcp@0.10.0
+            exec ${pkgs.nodejs}/bin/npx -y caldav-mcp
           ''
         );
-        # Deviation from upstream: npx cold start (registry resolve + install)
-        # measured 15-28s, close to LibreChat's 30s default MCP init timeout;
-        # the first connect attempt at 2026-08-15 failed exactly this way.
-        # Pin the tool version and raise the timeout so startup is deterministic.
-        initTimeout = 60000;
       };
       flightaware = {
         command = toString (
           pkgs.writeShellScript "mcp-flightaware" ''
             export AEROAPI_KEY=$(cat "${config.sops.secrets.mcp-flightaware-api-key.path}")
             export HISHEL_CACHE_PATH=/tmp/mcp-flightaware-cache.db
-            # mcp SDK 2.x broke the 1.x API these tools target; see `time`.
-            exec ${pkgs.uv}/bin/uv run --with "mcp<2" --with "flightaware-mcp" flightaware-mcp
+            exec ${pkgs.uv}/bin/uvx flightaware-mcp
           ''
         );
       };

@@ -91,7 +91,7 @@
     };
 
     lantian.nginxVhosts = {
-      "syncthing.${config.networking.hostName}.zhyi.cc" = {
+      "syncthing.${config.networking.hostName}.zhyi.xin" = {
         locations = {
           "/" = {
             enableOAuth = true;
@@ -99,7 +99,7 @@
           };
         };
 
-        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
         noIndex.enable = true;
       };
       "syncthing.localhost" = {

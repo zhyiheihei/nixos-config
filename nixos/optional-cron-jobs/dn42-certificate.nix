@@ -20,8 +20,8 @@ let
     stateOrProvinceName_default = Undisclosed
     localityName = Undisclosed
     localityName_default = Undisclosed
-    organizationName = Zhyi
-    organizationName_default = Zhyi
+    organizationName = Magic Flash
+    organizationName_default = Magic Flash
     commonName = zhyi.dn42
     commonName_max = 64
     commonName_default = zhyi.dn42

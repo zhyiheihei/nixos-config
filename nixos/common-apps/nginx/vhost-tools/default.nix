@@ -1,6 +1,6 @@
 {
-  pkgs,
   lib,
+  pkgs,
   LT,
   ...
 }:
@@ -40,7 +40,7 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
         tryFiles = "$uri $uri/ =404";
       };
     };
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
     disableLiveCompression = true;
   };

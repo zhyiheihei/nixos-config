@@ -38,8 +38,7 @@ let
           "asf.zhyi.xin"
         ]
       ) { enableOAuth = true; };
-    sslCertificate =
-      if lib.hasSuffix ".zhyi.xin" frontend then "lets-encrypt-zhyi.xin" else "lets-encrypt-zhyi.cc";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 in

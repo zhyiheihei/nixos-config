@@ -371,7 +371,7 @@ in
       environment = {
         HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
         HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-        NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
+        NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.xin";
       };
     };
 
@@ -382,9 +382,9 @@ in
     };
 
     # 私有入口：仅内网可达（accessibleBy = private），HTTPS 用现成
-    # *.<hostname>.zhyi.cc 通配证书。frigate 0.17 的 Web 是 HTTPS-only
+    # *.<hostname>.zhyi.xin 通配证书。frigate 0.17 的 Web 是 HTTPS-only
     # （容器内自签证书），反代走 https 并关闭证书校验。
-    lantian.nginxVhosts."frigate.${config.networking.hostName}.zhyi.cc" = {
+    lantian.nginxVhosts."frigate.${config.networking.hostName}.zhyi.xin" = {
       locations."/" = {
         proxyPass = "https://127.0.0.1:${LT.portStr.Frigate}";
         extraConfig = ''
@@ -396,7 +396,7 @@ in
         enableOAuth = true;
       };
       accessibleBy = "private";
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
   };

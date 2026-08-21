@@ -15,7 +15,7 @@ in
   imports = [
     ../client-apps/mcp-servers.nix
     ./mongodb.nix
-    (inputs.secrets + "/uni-api")
+    ./uni-api.nix
   ];
 
   sops.secrets.librechat-creds-key.sopsFile = inputs.secrets + "/librechat.yaml";
@@ -80,7 +80,7 @@ in
           {
             name = "UniAPI";
             apiKey = "\${UNI_API_KEY}";
-            baseURL = "https://uni-api.rock5c.zhyi.cc/v1";
+            baseURL = "http://uni-api.localhost/v1";
             models = {
               default = models;
               fetch = false;
@@ -117,7 +117,7 @@ in
         };
       };
 
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "zerossl-zhyi.xin";
       noIndex.enable = true;
     };
   };

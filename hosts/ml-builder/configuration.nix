@@ -16,7 +16,7 @@ let
   # with 0600 permissions for agent-backed second-hop deployments.
   macBookIdentity = "/root/.ssh/mac-book-ssh-identity.pub";
   outboundProxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.cc,.zhyi.xin,.xuyh0120.win";
+  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.xin";
   proxyEnvironment = {
     GOPROXY = "https://goproxy.cn,direct";
     HTTP_PROXY = outboundProxy;
@@ -59,14 +59,6 @@ in
     key = "github-netrc";
     path = "/root/.netrc";
     mode = "0600";
-  };
-  lantian.nix-distributed = {
-    # Keep the builder graph directed: Hydra/PVE may dispatch to ml-builder,
-    # but an incoming build on ml-builder must never be sent back to PVE while
-    # PVE is still holding the same output lock.  OPI5P stays available as the
-    # native ARM downstream; QEMU is only the fallback when remote builds are
-    # disabled.
-    excludeHosts = [ "pve-5700u" ];
   };
 
   # Only this machine advertises the native x86_64 toolchain used for
@@ -122,18 +114,7 @@ in
     # Five seconds is too short for GitHub archive redirects from this network,
     # even when the proxy is healthy.
     connect-timeout = lib.mkForce 15;
-    # 28 concurrent full-core builds exhausted RAM on 2026-08-06 (cc1plus OOM,
-    # swap near full). Build one derivation at a time and let it use all
-    # cores; keep the local daemon in lockstep with nixBuilder.maxJobs.
-    max-jobs = lib.mkForce 1;
   };
-
-  assertions = [
-    {
-      assertion = LT.this.nixBuilder.maxJobs == config.nix.settings.max-jobs;
-      message = "ml-builder declared builder concurrency must match local nix.settings.max-jobs";
-    }
-  ];
 
   # Flake lock updates fetch some inputs in the invoking client, while
   # fixed-output derivations fetch through the multi-user Nix daemon. Give
@@ -165,7 +146,7 @@ in
   # second hop from this builder.  Point internal deployment targets at the
   # matching public identity; the private key remains in the forwarded agent.
   programs.ssh.extraConfig = lib.mkBefore ''
-    Host *.zhyi.cc 192.168.0.* 198.18.* 198.19.* fdd8:1938:4e88::*
+    Host *.zhyi.xin 192.168.0.* 198.18.* 198.19.* fdd8:1938:4e88::*
       IdentityFile ${macBookIdentity}
       IdentitiesOnly yes
   '';
@@ -182,5 +163,5 @@ in
 
   # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
   # author's backup semantics by pointing the endpoint at the migrated host.
-  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.xin";
 }

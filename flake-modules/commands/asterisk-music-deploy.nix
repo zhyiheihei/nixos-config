@@ -23,6 +23,6 @@ in
     --include-from=${files} \
     --exclude=* \
     --delete-excluded \
-    /home/molishanguang/Music/CloudMusic/常听/ \
-    ''${TARGET_HOST}.zhyi.cc:/var/lib/asterisk-music/
+    /home/zhyi/Music/CloudMusic/常听/ \
+    ''${TARGET_HOST}.zhyi.xin:/var/lib/asterisk-music/
 ''

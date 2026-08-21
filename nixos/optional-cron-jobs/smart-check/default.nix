@@ -8,7 +8,7 @@
   systemd.services.smart-check = {
     description = "Check SMART status of storage devices";
     path = [ pkgs.smartmontools ];
-    environment = lib.optionalAttrs (config.networking.hostName == "pve-c3758") {
+    environment = lib.optionalAttrs (config.networking.hostName == "taishanpi") {
       SKIPPED_DEVICES = "/dev/sda";
     };
     serviceConfig = {

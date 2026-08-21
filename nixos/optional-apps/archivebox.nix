@@ -36,7 +36,7 @@
     };
 
     lantian.nginxVhosts = {
-      "archivebox.${config.networking.hostName}.zhyi.cc" = {
+      "archivebox.${config.networking.hostName}.zhyi.xin" = {
         locations = {
           "/" = {
             enableOAuth = true;
@@ -45,7 +45,7 @@
         };
 
         accessibleBy = "private";
-        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
         noIndex.enable = true;
       };
       "archivebox.localhost" = {

@@ -98,7 +98,7 @@ in
   users.groups.iyuu.members = [ "nginx" ];
 
   lantian.nginxVhosts = {
-    "iyuu.${config.networking.hostName}.zhyi.cc" = {
+    "iyuu.${config.networking.hostName}.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.IyuuPlus}";
@@ -111,7 +111,7 @@ in
       };
 
       accessibleBy = "private";
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
     "iyuu.localhost" = {

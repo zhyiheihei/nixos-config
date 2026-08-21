@@ -136,7 +136,7 @@ in
 
   # Public TLS remains on rock5c with the rest of the home edge. Expose a
   # private HTTP-only backend here so the edge never loops through public DNS.
-  lantian.nginxVhosts."tachidesk-backend.opi5p.zhyi.cc" = {
+  lantian.nginxVhosts."tachidesk-backend.opi5p.zhyi.xin" = {
     listenHTTP.enable = true;
     listenHTTPS.enable = false;
     locations."/" = {

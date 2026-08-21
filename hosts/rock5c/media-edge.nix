@@ -27,8 +27,8 @@ let
       proxyNoTimeout = true;
       allowCORS = true;
     } else {
-      proxyPass = "https://${service}.opi5p.zhyi.cc";
-      proxyOverrideHost = "${service}.opi5p.zhyi.cc";
+      proxyPass = "https://${service}.opi5p.zhyi.xin";
+      proxyOverrideHost = "${service}.opi5p.zhyi.xin";
       proxyWebsockets = true;
       proxyNoTimeout = true;
     };
@@ -56,7 +56,7 @@ in
     builtins.listToAttrs (builtins.concatLists (map mkEdgeVhosts edgeServices))
     // {
       "tachidesk.zhyi.xin" = {
-        locations."/" = (backendLocation "tachidesk-backend.opi5p.zhyi.cc") // {
+        locations."/" = (backendLocation "tachidesk-backend.opi5p.zhyi.xin") // {
           enableBasicAuth = true;
         };
         sslCertificate = "lets-encrypt-zhyi.xin";
@@ -65,7 +65,7 @@ in
       "tachidesk.localhost" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
-        locations."/" = backendLocation "tachidesk-backend.opi5p.zhyi.cc";
+        locations."/" = backendLocation "tachidesk-backend.opi5p.zhyi.xin";
         accessibleBy = "localhost";
         noIndex.enable = true;
       };
@@ -86,7 +86,7 @@ in
       # to point at rock5c, but the backend now proxies to mac. The `/Library/
       # SelectableMediaFolders` rewrite is still needed by MoviePilot's media
       # library scan to present the union of media-radarr/media-sonarr folders.
-      "jellyfin-api.${config.networking.hostName}.zhyi.cc" = {
+      "jellyfin-api.${config.networking.hostName}.zhyi.xin" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
         locations."= /Library/SelectableMediaFolders" = {

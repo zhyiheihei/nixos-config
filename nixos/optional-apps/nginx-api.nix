@@ -1,4 +1,6 @@
 _: {
+  lantian.geoip.enable = true;
+
   lantian.nginxVhosts."api.zhyi.xin" = {
     root = "/var/empty";
     locations = {
@@ -80,7 +82,7 @@ _: {
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 }

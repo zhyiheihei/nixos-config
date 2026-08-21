@@ -70,8 +70,8 @@
         --configdir=/run/quassel \
         --config-from-environment \
         --require-ssl \
-        --ssl-cert=${LT.nginx.getSSLCert "lets-encrypt-zhyi.xin-ecc"} \
-        --ssl-key=${LT.nginx.getSSLKey "lets-encrypt-zhyi.xin-ecc"} \
+        --ssl-cert=${LT.nginx.getSSLCert "zerossl-zhyi.xin-ecc"} \
+        --ssl-key=${LT.nginx.getSSLKey "zerossl-zhyi.xin-ecc"} \
         --ident-daemon \
         --ident-listen=0.0.0.0,:: \
         --ident-port=${LT.portStr.Quassel.Ident}

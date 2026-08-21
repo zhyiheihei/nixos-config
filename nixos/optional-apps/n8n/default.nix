@@ -16,6 +16,11 @@
     owner = "n8n";
     group = "n8n";
   };
+  sops.secrets.n8n-encryption-key = {
+    sopsFile = inputs.secrets + "/n8n.yaml";
+    owner = "n8n";
+    group = "n8n";
+  };
 
   services.n8n = {
     enable = true;
@@ -24,6 +29,7 @@
       N8N_LISTEN_ADDRESS = "127.0.0.1";
       N8N_PORT = LT.port.N8N;
       N8N_RUNNERS_AUTH_TOKEN_FILE = config.sops.secrets.n8n-secret.path;
+      N8N_ENCRYPTION_KEY_FILE = config.sops.secrets.n8n-encryption-key.path;
       N8N_METRICS = true;
       N8N_RESTRICT_FILE_ACCESS_TO = "/var/cache/n8n";
 
@@ -90,9 +96,7 @@
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";
       proxyWebsockets = true;
-      enableOAuth = true;
     };
-    locations."/healthz".proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";
     locations."/webhook/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";
       proxyWebsockets = true;
@@ -103,20 +107,7 @@
       '';
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
-  };
-
-  lantian.nginxVhosts."n8n.localhost" = {
-    listenHTTP.enable = true;
-    listenHTTPS.enable = false;
-
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.N8N}";
-      proxyWebsockets = true;
-    };
-
-    noIndex.enable = true;
-    accessibleBy = "localhost";
   };
 }

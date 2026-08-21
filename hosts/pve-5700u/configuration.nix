@@ -35,7 +35,7 @@
   lantian.backup.enable = true;
   # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; the VirtioFS
   # backup of the former home VM goes to the migrated backup server too.
-  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.xin";
   # The active Btrfs swapfile prevents snapshotting the whole /nix filesystem.
   # Back up only the dedicated VirtioFS data volume on this host.
   lantian.backup.paths = lib.mkForce {
@@ -51,7 +51,7 @@
 
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
-    "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.cc" ];
+    "${LT.hosts.ml-builder.interconnect.IPv4}" = [ "ml-builder.zhyi.xin" ];
   };
   networking.nameservers = lib.mkForce [
     "198.19.0.253"
@@ -96,10 +96,10 @@
   };
 
   # pveproxy serves its own UI certificate.  The fleet ACME pipeline already
-  # issues lets-encrypt-pve-5700u.zhyi.cc (base + wildcard) on greencloud and
+  # issues lets-encrypt-pve-5700u.zhyi.xin (base + wildcard) on greencloud and
   # syncs it through /nix/sync-servers; install it as pveproxy-ssl so the
-  # homepage entry https://pve-5700u.zhyi.cc:8006 presents a trusted cert
-  # instead of the stale self-signed CN=pve-5700u.lantian.pub fallback.
+  # homepage entry https://pve-5700u.zhyi.xin:8006 presents a trusted cert
+  # instead of the stale self-signed CN=pve-5700u.zhyi.xin fallback.
   systemd.services.pve-proxy-cert-install = {
     description = "Install synced Let's Encrypt cert into pveproxy";
     after = [ "rsync-nix-sync-servers.service" ];
@@ -109,7 +109,7 @@
       Type = "oneshot";
       ExecStart = pkgs.writeShellScript "pve-proxy-cert-install" ''
         set -euo pipefail
-        certDir=/nix/sync-servers/acme/lets-encrypt-pve-5700u.zhyi.cc-ecc
+        certDir=/nix/sync-servers/acme/lets-encrypt-pve-5700u.zhyi.xin-ecc
         if [ ! -f "$certDir/fullchain.pem" ] || [ ! -f "$certDir/key.pem" ]; then
           exit 0
         fi
@@ -127,7 +127,7 @@
     wantedBy = [ "multi-user.target" ];
     pathConfig = {
       Unit = "pve-proxy-cert-install.service";
-      PathChanged = "/nix/sync-servers/acme/lets-encrypt-pve-5700u.zhyi.cc-ecc";
+      PathChanged = "/nix/sync-servers/acme/lets-encrypt-pve-5700u.zhyi.xin-ecc";
     };
   };
 }

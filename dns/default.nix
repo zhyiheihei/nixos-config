@@ -4,8 +4,6 @@
     ./common
     ./core
 
-    ./domains/moliy.site.nix
-    ./domains/zhyi.cc.nix
     ./domains/zhyi.xin.nix
     ./domains/zhyi.dn42.nix
     ./domains/dn42-reverse.nix

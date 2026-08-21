@@ -14,9 +14,11 @@
 
   services.maddy = {
     enable = true;
-    hostname = "mail.zhyi.xin";
-    primaryDomain = "zhyi.xin";
-    localDomains = [ "zhyi.xin" ];
+    hostname = "${config.networking.hostName}.zhyi.dn42";
+    primaryDomain = "zhyi.dn42";
+    localDomains = [
+      "zhyi.dn42"
+    ];
 
     tls = {
       loader = "file";
@@ -27,8 +29,9 @@
             keyPath = LT.nginx.getSSLKey v;
           })
           [
-            "lets-encrypt-zhyi.xin-ecc"
-            "lets-encrypt-zhyi.cc-ecc"
+            "zerossl-zhyi.xin-ecc"
+            "zerossl-zhyi.xin-ecc"
+            "dn42-zhyi.dn42-ecc"
           ];
     };
 

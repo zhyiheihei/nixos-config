@@ -11,6 +11,25 @@ let
       "31.172.in-addr.arpa"
       "d.f.ip6.arpa"
     ];
+    OpenNIC = [
+      "bbs"
+      "chan"
+      "cyb"
+      "dns.opennic.glue"
+      "dyn"
+      "epic"
+      "geek"
+      "gopher"
+      "indy"
+      "libre"
+      "null"
+      "o"
+      "opennic.glue"
+      "oss"
+      "oz"
+      "parody"
+      "pirate"
+    ];
     Emercoin = [
       "bazar"
       "coin"

@@ -7,7 +7,7 @@ import requests
 API_BASE = "https://api.gcore.com/dns/v2"
 # The H28K is the remote-site router: its DHCP WAN is dynamic, so point the
 # site hostname at the current public IPv4 (IPv4-only; the R5C router's
-# home-ddns.zhyi.cc script additionally manages a WG IPv6 record).
+# home-ddns.zhyi.xin script additionally manages a WG IPv6 record).
 ZONE_NAME = "zhyi.xin"
 # Gcore requires the RRSet name to end with the parent zone name.
 RRSET_NAME = "site.zhyi.xin"

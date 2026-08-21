@@ -109,9 +109,7 @@ in
       # max-jobs = "auto";
       # lazy-trees = true;
 
-      # Prefer the self-hosted Attic cache and configured mirrors. Keeping the
-      # official cache last avoids slow direct downloads on mainland hosts.
-      substituters = config.nix.settings.trusted-substituters ++ [ "https://cache.nixos.org" ];
+      substituters = [ "https://cache.nixos.org" ] ++ config.nix.settings.trusted-substituters;
       trusted-substituters = LT.constants.nix.substituters;
       inherit (LT.constants.nix) trusted-public-keys;
     };

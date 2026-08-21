@@ -12,7 +12,7 @@
     group = "users";
     profileDir = "/var/lib/qbittorrent";
     webuiPort = LT.port.qBitTorrent.WebUI;
-    torrentingPort = LT.this.wg-zhyi.forwardStart;
+    torrentingPort = LT.this.wg-lantian.forwardStart;
     extraArgs = [
       "--confirm-legal-notice"
     ];
@@ -28,7 +28,7 @@
   };
 
   lantian.nginxVhosts = {
-    "bt.${config.networking.hostName}.zhyi.cc" = {
+    "bt.${config.networking.hostName}.zhyi.xin" = {
       locations = {
         "/" = {
           allowCORS = true;
@@ -37,7 +37,7 @@
       };
 
       accessibleBy = "private";
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
     "bt.localhost" = {

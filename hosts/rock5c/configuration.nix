@@ -7,7 +7,7 @@
 }:
 let
   proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   proxyEnvironment = {
     HTTP_PROXY = proxy;
     HTTPS_PROXY = proxy;
@@ -82,7 +82,7 @@ in
   };
 
   virtualisation.oci-containers.containers.moviepilot.extraOptions = [
-    "--add-host=jellyfin-api.rock5c.zhyi.cc:${LT.this.interconnect.IPv4}"
+    "--add-host=jellyfin-api.rock5c.zhyi.xin:${LT.this.interconnect.IPv4}"
   ];
 
   # Handbrake image pulls and the distributed RKNN worker's model/image
@@ -117,7 +117,7 @@ in
 
   # The SFTP/data chain moved to OPI5P.  Override only this migrated host;
   # other machines retain the author's established backup endpoint.
-  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.xin";
 
   # ROCK 5C has no reliable RTC. A calendar timer is armed while the clock is
   # still months behind, then fires immediately when time synchronization
@@ -130,17 +130,17 @@ in
   boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
 
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
-    # Self-hosted acceleration via hubproxy on tencent (hub.tencent.zhyi.cc,
+    # Self-hosted acceleration via hubproxy on tencent (hub.tencent.zhyi.xin,
     # reached over the ZeroTier/LTNET tunnel). daocloud kept as fallback when
     # the tunnel is unreachable. Other registries (gcr/quay/k8s) are pulled
-    # explicitly as hub.tencent.zhyi.cc/<registry>/<image>; podman mirrors
+    # explicitly as hub.tencent.zhyi.xin/<registry>/<image>; podman mirrors
     # cannot express hubproxy's /v2/<registry>/ prefix routing, and GHCR
     # rejects anonymous pulls from datacenter IPs.
     [[registry]]
     location = "docker.io"
 
     [[registry.mirror]]
-    location = "hub.tencent.zhyi.cc"
+    location = "hub.tencent.zhyi.xin"
 
     [[registry.mirror]]
     location = "docker.m.daocloud.io"

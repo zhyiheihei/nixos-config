@@ -143,7 +143,7 @@
   # untouched): allow browser access to the Sunshine Web UI from LAN / LTNET,
   # otherwise CSRF protection blocks the pairing page. Comma-separated because
   # the settings option only accepts atom values.
-  services.sunshine.settings.csrf_allowed_origins = "https://192.168.0.53:47990,https://198.18.0.113:47990,https://ml-2700.zhyi.cc:47990";
+  services.sunshine.settings.csrf_allowed_origins = "https://192.168.0.53:47990,https://198.18.0.113:47990,https://ml-2700.zhyi.xin:47990";
 
   # AMD APU (Vega 3): client-components/xorg.nix sets the Intel default
   # LIBVA_DRIVER_NAME=iHD, which breaks VA-API on this GPU. Override to

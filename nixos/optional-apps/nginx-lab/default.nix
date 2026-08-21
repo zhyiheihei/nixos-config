@@ -16,6 +16,8 @@ in
     group = "nginx";
   };
 
+  lantian.geoip.enable = true;
+
   lantian.nginxVhosts."lab.zhyi.xin" = {
     listenHTTP.enable = true;
     root = labRoot;
@@ -44,7 +46,7 @@ in
     };
 
     phpfpmSocket = config.services.phpfpm.pools.lab.socket;
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 

@@ -58,41 +58,41 @@ let
   # 未映射的条目 icon 为空，前端用服务子域名直试图标站
   # （gemini/transmission 等名字本身就是图标名），仍无则隐藏。
   serviceIcons = {
-    "frigate.opi5p.zhyi.cc" = "Frigate_A";
-    "handbrake-backend.opi5p.zhyi.cc" = "Handbrake_A";
-    "jellyfin-api.rock5c.zhyi.cc" = "Jellyfin_A";
-    "jellyfin-backend.opi5p.zhyi.cc" = "Jellyfin_A";
+    "frigate.opi5p.zhyi.xin" = "Frigate_A";
+    "handbrake-backend.opi5p.zhyi.xin" = "Handbrake_A";
+    "jellyfin-api.rock5c.zhyi.xin" = "Jellyfin_A";
+    "jellyfin-backend.opi5p.zhyi.xin" = "Jellyfin_A";
     "searx.localhost" = "Searxng_A";
-    "tachidesk-backend.opi5p.zhyi.cc" = "Tachidesk--漫画阅读--qdnas-s";
-    "bazarr.rock5c.zhyi.cc" = "Bazarr_A";
+    "tachidesk-backend.opi5p.zhyi.xin" = "Tachidesk--漫画阅读--qdnas-s";
+    "bazarr.rock5c.zhyi.xin" = "Bazarr_A";
     "bitwarden.zhyi.xin" = "Vaultwarden--密码管理--qdnas-s";
-    "bt.opi5p.zhyi.cc" = "qBittorrent_A--BT下载器--qdnas-s";
-    "bt.router.zhyi.cc" = "qBittorrent_A--BT下载器--qdnas-s";
+    "bt.opi5p.zhyi.xin" = "qBittorrent_A--BT下载器--qdnas-s";
+    "bt.router.zhyi.xin" = "qBittorrent_A--BT下载器--qdnas-s";
     "dashboard.zhyi.xin" = "Homepage_A";
     "dav.zhyi.xin" = "WebDav_A--WebDav服务--qdnas-s";
     "dsh.zhyi.xin" = "DeepSeek--深度求索--deepseek.com";
     "element.zhyi.xin" = "Element_A";
     "git.zhyi.xin" = "Gitea_A";
-    "ha.opi5p.zhyi.cc" = "HomeAssistant_A--智能家居";
+    "ha.opi5p.zhyi.xin" = "HomeAssistant_A--智能家居";
     "ha.zhyi.xin" = "HomeAssistant_A--智能家居";
-    "halo.volcengine.zhyi.cc" = "Halo--Halo博客--qdnas-s";
+    "halo.volcengine.zhyi.xin" = "Halo--Halo博客--qdnas-s";
     "immich.zhyi.xin" = "Immich--照片备份--qdnas-s";
     "jellyfin.zhyi.xin" = "Jellyfin_A";
     "matrix-client.zhyi.xin" = "Element_A";
     "matrix-federation.zhyi.xin" = "Element_A";
-    "metacubexd.rock5c.zhyi.cc" = "Clash_A";
-    "moviepilot.rock5c.zhyi.cc" = "Moviepilot_A";
-    "openspeedtest.rock5c.zhyi.cc" = "icon-openspeedtest-2.0.6-all";
-    "peerbanhelper.opi5p.zhyi.cc" = "icon-peerbanhelper-9.2.5-x86";
-    "prometheus.tencent.zhyi.cc" = "Prometheus_A";
+    "metacubexd.rock5c.zhyi.xin" = "Clash_A";
+    "moviepilot.rock5c.zhyi.xin" = "Moviepilot_A";
+    "openspeedtest.rock5c.zhyi.xin" = "icon-openspeedtest-2.0.6-all";
+    "peerbanhelper.opi5p.zhyi.xin" = "icon-peerbanhelper-9.2.5-x86";
+    "prometheus.tencent.zhyi.xin" = "Prometheus_A";
     "prometheus.zhyi.xin" = "Prometheus_A";
     "qnap.zhyi.xin" = "Qnap_A";
-    "radarr.rock5c.zhyi.cc" = "Radarr_A";
+    "radarr.rock5c.zhyi.xin" = "Radarr_A";
     "rss.zhyi.xin" = "Miniflux_A";
     "rsshub.zhyi.xin" = "Rsshub_A";
-    "searx.tencent.zhyi.cc" = "Searxng_A";
-    "seedbox.opi5p.zhyi.cc" = "qBittorrent_A--BT下载器--qdnas-s";
-    "sonarr.rock5c.zhyi.cc" = "Sonarr_A";
+    "searx.tencent.zhyi.xin" = "Searxng_A";
+    "seedbox.opi5p.zhyi.xin" = "qBittorrent_A--BT下载器--qdnas-s";
+    "sonarr.rock5c.zhyi.xin" = "Sonarr_A";
     "tachidesk.zhyi.xin" = "Tachidesk--漫画阅读--qdnas-s";
     "ai-api.zhyi.xin" = "Chatgpt--ChatGPT--openai.com";
     "ai.zhyi.xin" = "ChatGPT_A--ChatGPT";
@@ -101,34 +101,34 @@ let
     "asf.zhyi.xin" = "Steam_A";
     "attic.zhyi.xin" = "Attic_A";
     "books.zhyi.xin" = "Calibre--电子书管理--qdnas-s";
-    "fastapi-dls.rock5c.zhyi.cc" = "Python--Python--python.org";
+    "fastapi-dls.rock5c.zhyi.xin" = "Python--Python--python.org";
     "filebox.zhyi.xin" = "Filecodebox--文件快递柜--qdnas-s";
     "google-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "google-test-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
-    "hub.tencent.zhyi.cc" = "Docker_A";
+    "hub.tencent.zhyi.xin" = "Docker_A";
     "id.zhyi.xin" = "2Fauth_A";
-    "ignis.opi5p.zhyi.cc" = "mcp_obsidian";
+    "ignis.opi5p.zhyi.xin" = "mcp_obsidian";
     "index-helper.zhyi.xin" = "SunPanel_A--面板";
     "index.zhyi.xin" = "SunPanel_A--面板";
-    "jproxy.opi5p.zhyi.cc" = "JProxy_A--代理服务";
-    "lab.google.zhyi.cc" = "Nginx_B";
-    "lab.greencloud.zhyi.cc" = "Nginx_B";
-    "lab.hostdare.zhyi.cc" = "Nginx_B";
-    "lab.lubancat1.zhyi.cc" = "Nginx_B";
-    "lab.ml-2700.zhyi.cc" = "Nginx_B";
-    "lab.ml-builder.zhyi.cc" = "Nginx_B";
-    "lab.opi5p.zhyi.cc" = "Nginx_B";
-    "lab.rock5c.zhyi.cc" = "Nginx_B";
-    "lab.tencent.zhyi.cc" = "Nginx_B";
-    "lab.volcengine.zhyi.cc" = "Nginx_B";
+    "jproxy.opi5p.zhyi.xin" = "JProxy_A--代理服务";
+    "lab.google.zhyi.xin" = "Nginx_B";
+    "lab.greencloud.zhyi.xin" = "Nginx_B";
+    "lab.hostdare.zhyi.xin" = "Nginx_B";
+    "lab.lubancat1.zhyi.xin" = "Nginx_B";
+    "lab.ml-2700.zhyi.xin" = "Nginx_B";
+    "lab.ml-builder.zhyi.xin" = "Nginx_B";
+    "lab.opi5p.zhyi.xin" = "Nginx_B";
+    "lab.rock5c.zhyi.xin" = "Nginx_B";
+    "lab.tencent.zhyi.xin" = "Nginx_B";
+    "lab.volcengine.zhyi.xin" = "Nginx_B";
     "letsencrypt-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "letsencrypt-test-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "login.zhyi.xin" = "Authelia_A";
-    "metapi.tencent.zhyi.cc" = "ChatGPT_B--ChatGPT";
+    "metapi.tencent.zhyi.xin" = "ChatGPT_B--ChatGPT";
     "nav.zhyi.xin" = "Homepage_C";
-    "pt.opi5p.zhyi.cc" = "qBittorrent_A--BT下载器--qdnas-s";
+    "pt.opi5p.zhyi.xin" = "qBittorrent_A--BT下载器--qdnas-s";
     "tools.zhyi.xin" = "Ittools_A";
-    "uni-api.hostdare.zhyi.cc" = "Chatgpt--ChatGPT--openai.com";
+    "uni-api.hostdare.zhyi.xin" = "Chatgpt--ChatGPT--openai.com";
     "zerossl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "zhyi.xin" = "BlogProject--博客项目";
   };
@@ -140,7 +140,7 @@ let
   # （公开/私有/快捷）内部再按本值分子节；未命中的条目回退到物理主机名
   # （保持旧行为），避免卡片丢失。
   #
-  # 主机根域（<host>.zhyi.cc / lab.<host>.zhyi.cc）是主机可达性/测试页，
+  # 主机根域（<host>.zhyi.xin / lab.<host>.zhyi.xin）是主机可达性/测试页，
   # 统一归到「基础设施与运维」，下面用 genAttrs 生成，避免手写重复。
   serviceCategories =
     {
@@ -158,7 +158,7 @@ let
       "posts.zhyi.xin" = "内容与通讯";
       "comments.zhyi.xin" = "内容与通讯";
       "mail.zhyi.xin" = "内容与通讯";
-      "halo.volcengine.zhyi.cc" = "内容与通讯";
+      "halo.volcengine.zhyi.xin" = "内容与通讯";
       # 公开 · 身份链路
       "login.zhyi.xin" = "身份链路";
       "id.zhyi.xin" = "身份链路";
@@ -167,8 +167,8 @@ let
       "ai.zhyi.xin" = "AI 链路";
       "ai-api.zhyi.xin" = "AI 链路";
       "n8n.zhyi.xin" = "AI 链路";
-      "metapi.tencent.zhyi.cc" = "AI 链路";
-      "uni-api.hostdare.zhyi.cc" = "AI 链路";
+      "metapi.tencent.zhyi.xin" = "AI 链路";
+      "uni-api.hostdare.zhyi.xin" = "AI 链路";
       # 公开 · 媒体链路
       "books.zhyi.xin" = "媒体链路";
       "immich.zhyi.xin" = "媒体链路";
@@ -205,41 +205,41 @@ let
       "zerossl.zhyi.xin" = "存储与证书";
       # 私有 · 家庭服务
       "ha.zhyi.xin" = "家庭服务";
-      "ha.opi5p.zhyi.cc" = "家庭服务";
-      "frigate.opi5p.zhyi.cc" = "家庭服务";
+      "ha.opi5p.zhyi.xin" = "家庭服务";
+      "frigate.opi5p.zhyi.xin" = "家庭服务";
       "syncthing.localhost" = "家庭服务";
       # 私有 · 媒体与下载
-      "bt.router.zhyi.cc" = "媒体与下载";
-      "bt.opi5p.zhyi.cc" = "媒体与下载";
-      "pt.opi5p.zhyi.cc" = "媒体与下载";
-      "seedbox.opi5p.zhyi.cc" = "媒体与下载";
-      "peerbanhelper.opi5p.zhyi.cc" = "媒体与下载";
-      "bitmagnet.opi5p.zhyi.cc" = "媒体与下载";
-      "moviepilot.rock5c.zhyi.cc" = "媒体与下载";
-      "radarr.rock5c.zhyi.cc" = "媒体与下载";
-      "sonarr.rock5c.zhyi.cc" = "媒体与下载";
-      "bazarr.rock5c.zhyi.cc" = "媒体与下载";
-      "jellyfin-backend.opi5p.zhyi.cc" = "媒体与下载";
-      "tachidesk-backend.opi5p.zhyi.cc" = "媒体与下载";
-      "handbrake-backend.opi5p.zhyi.cc" = "媒体与下载";
+      "bt.router.zhyi.xin" = "媒体与下载";
+      "bt.opi5p.zhyi.xin" = "媒体与下载";
+      "pt.opi5p.zhyi.xin" = "媒体与下载";
+      "seedbox.opi5p.zhyi.xin" = "媒体与下载";
+      "peerbanhelper.opi5p.zhyi.xin" = "媒体与下载";
+      "bitmagnet.opi5p.zhyi.xin" = "媒体与下载";
+      "moviepilot.rock5c.zhyi.xin" = "媒体与下载";
+      "radarr.rock5c.zhyi.xin" = "媒体与下载";
+      "sonarr.rock5c.zhyi.xin" = "媒体与下载";
+      "bazarr.rock5c.zhyi.xin" = "媒体与下载";
+      "jellyfin-backend.opi5p.zhyi.xin" = "媒体与下载";
+      "tachidesk-backend.opi5p.zhyi.xin" = "媒体与下载";
+      "handbrake-backend.opi5p.zhyi.xin" = "媒体与下载";
       # 私有 · 效率工具与内容
-      "searx.tencent.zhyi.cc" = "效率工具与内容";
+      "searx.tencent.zhyi.xin" = "效率工具与内容";
       "searx.localhost" = "效率工具与内容";
-      "fastapi-dls.rock5c.zhyi.cc" = "效率工具与内容";
+      "fastapi-dls.rock5c.zhyi.xin" = "效率工具与内容";
       "rsshub.zhyi.xin" = "效率工具与内容";
-      "ignis.opi5p.zhyi.cc" = "效率工具与内容";
+      "ignis.opi5p.zhyi.xin" = "效率工具与内容";
       # 私有 · 基础设施与网络
-      "prometheus.tencent.zhyi.cc" = "基础设施与网络";
-      "pve-5700u.zhyi.cc" = "基础设施与网络";
-      "metacubexd.rock5c.zhyi.cc" = "基础设施与网络";
-      "openspeedtest.rock5c.zhyi.cc" = "基础设施与网络";
-      "hub.tencent.zhyi.cc" = "基础设施与网络";
-      "jproxy.opi5p.zhyi.cc" = "基础设施与网络";
-      "lg.zhyi.cc" = "基础设施与网络";
-      "ltnet.zhyi.cc" = "基础设施与网络";
+      "prometheus.tencent.zhyi.xin" = "基础设施与网络";
+      "pve-5700u.zhyi.xin" = "基础设施与网络";
+      "metacubexd.rock5c.zhyi.xin" = "基础设施与网络";
+      "openspeedtest.rock5c.zhyi.xin" = "基础设施与网络";
+      "hub.tencent.zhyi.xin" = "基础设施与网络";
+      "jproxy.opi5p.zhyi.xin" = "基础设施与网络";
+      "lg.zhyi.xin" = "基础设施与网络";
+      "ltnet.zhyi.xin" = "基础设施与网络";
     }
     // lib.genAttrs
-      (lib.flatten (lib.mapAttrsToList (h: _: [ "lab.${h}.zhyi.cc" "${h}.zhyi.cc" ]) LT.hosts))
+      (lib.flatten (lib.mapAttrsToList (h: _: [ "lab.${h}.zhyi.xin" "${h}.zhyi.xin" ]) LT.hosts))
       (_: "基础设施与运维");
 
   # 卡片上的「实时服务数据」widget。仅公开域可达、且有自管 API 的卡片挂
@@ -372,9 +372,9 @@ let
       inherit (e) scheme name src;
       proto = "${scheme}://";
       portSuffix = if e.port == null then "" else ":${e.port}";
-      pattern = "(\\.${src}\\.zhyi\\.xin|\\.${src}\\.moliy\\.site|\\.${src}\\.zhyi\\.cc|\\.zhyi\\.xin|\\.moliy\\.site|\\.zhyi\\.cc|\\.localhost|zhyi\\.xin|moliy\\.site|zhyi\\.cc)$";
+      pattern = "(\\.${src}\\.zhyi\\.xin|\\.${src}\\.zhyi\\.cc|\\.zhyi\\.xin|\\.zhyi\\.cc|\\.localhost|zhyi\\.xin|zhyi\\.cc)$";
       parts = builtins.split pattern name;
-      # 语义分组：公开 = zhyi.xin（主公开域）；私有 = zhyi.cc / moliy.site /
+      # 语义分组：公开 = zhyi.xin（主公开域）；私有 = zhyi.xin / 
       # localhost（基础设施、主机名、内网）。前端按此分组，不再按物理主机。
       group =
         if lib.hasSuffix ".zhyi.xin" name || name == "zhyi.xin" then
@@ -417,16 +417,14 @@ let
     (builtins.filter (e: !lib.hasPrefix "www." e.name))
     # .localhost entries are only kept from the current host (they are per-host)
     (builtins.filter (e: !lib.hasSuffix ".localhost" e.name || e.src == thisHost))
-    # Not the redundant per-host top-level alias <host>.zhyi.xin,
-    # <host>.moliy.site, or <host>.zhyi.cc (subdomains like
-    # <svc>.<host>.<domain> are kept, and the root domains zhyi.xin /
-    # moliy.site / zhyi.cc themselves are kept)
+    # Not the redundant per-host top-level alias <host>.zhyi.xin
+    # (subdomains like <svc>.<host>.<domain> are kept, and the root domain
+    # zhyi.xin itself is kept)
     (builtins.filter (
       e:
       !(
         e.name == "${e.src}.zhyi.xin"
-        || e.name == "${e.src}.moliy.site"
-        || e.name == "${e.src}.zhyi.cc"
+        || e.name == "${e.src}.zhyi.xin"
       )
     ))
     (builtins.map splitName)

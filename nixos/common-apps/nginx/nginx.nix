@@ -220,13 +220,6 @@ in
     '';
   };
 
-  # nginx -t can create these as its compile-time default user when it runs
-  # before the service. Enforce the runtime account so buffered uploads work.
-  systemd.tmpfiles.rules = map (
-    directory:
-    "d /var/cache/nginx/${directory} 0700 ${config.services.nginx.user} ${config.services.nginx.group} -"
-  ) [ "client_body" "fastcgi" "proxy" "scgi" "uwsgi" ];
-
   systemd.services.nginx = {
     environment = {
       inherit (config.environment.variables) OPENSSL_CONF;

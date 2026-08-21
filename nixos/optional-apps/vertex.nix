@@ -22,13 +22,13 @@
     };
 
     lantian.nginxVhosts = {
-      "vertex.${config.networking.hostName}.zhyi.cc" = {
+      "vertex.${config.networking.hostName}.zhyi.xin" = {
         locations."/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.Vertex}";
           enableOAuth = true;
         };
         accessibleBy = "private";
-        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
         noIndex.enable = true;
       };
       "vertex.localhost" = {

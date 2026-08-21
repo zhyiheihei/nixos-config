@@ -32,15 +32,15 @@ in
       type = lib.types.bool;
       default = LT.this.hasTag LT.tags.server;
     };
-    resticRepos = lib.mkOption {
-      type = lib.types.listOf lib.types.str;
-      default = builtins.attrNames resticRepos;
-    };
     sftpEndpoint = lib.mkOption {
       type = lib.types.str;
       # ml-home-vm retired 2026-08-03; OPI5P is the backup server.
-      default = "opi5p.zhyi.cc";
+      default = "opi5p.zhyi.xin";
       description = "SFTP host that stores the home backup repositories.";
+    };
+    resticRepos = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = builtins.attrNames resticRepos;
     };
     schedule = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
@@ -91,8 +91,6 @@ in
       systemd.services = lib.mapAttrs' (
         n: v:
         lib.nameValuePair "backup-${n}" {
-          after = [ "sops-install-secrets.service" ];
-          requires = [ "sops-install-secrets.service" ];
           serviceConfig = {
             Type = "oneshot";
             CPUQuota = "40%";

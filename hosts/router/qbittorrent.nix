@@ -58,7 +58,7 @@ in
     ./qbittorrent-directory.nix
     ../../nixos/optional-apps/qbittorrent.nix
     # Author-style layout: qBittorrent and its WebUI vhosts live on the same
-    # host, so router serves bt/pt/seedbox.router.zhyi.cc directly.
+    # host, so router serves bt/pt/seedbox.router.zhyi.xin directly.
     ../../nixos/common-apps/nginx/nginx.nix
     ../../nixos/common-apps/nginx/vhost-options/default.nix
   ];
@@ -75,7 +75,7 @@ in
   # for the WebUI auth bypass, while [::1] works. Keep the author-style vhost
   # structure and only change the host-level backend address.
   lantian.nginxVhosts = {
-    "bt.${config.networking.hostName}.zhyi.cc".locations."/".proxyPass =
+    "bt.${config.networking.hostName}.zhyi.xin".locations."/".proxyPass =
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
     "bt.localhost".locations."/".proxyPass =
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";

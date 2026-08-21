@@ -24,8 +24,8 @@
         autoSetupRemote = true;
       };
       user = {
-        name = "Zhyi";
-        email = "molishanguang@outlook.com";
+        name = "Magic Flash";
+        email = "xuyh0120@outlook.com";
       };
 
       # https://forums.whonix.org/t/git-users-enable-fsck-by-default-for-better-security/2066

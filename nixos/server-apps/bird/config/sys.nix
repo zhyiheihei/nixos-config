@@ -7,7 +7,9 @@ let
   inherit (import ./common.nix args) community DN42_AS blacklistedASNs;
 
   commonStaticRoutesIPv4 = [
-    "172.20.46.224/27"
+    "172.22.76.184/29"
+    "172.22.76.96/27"
+    "10.127.10.0/24"
   ];
 
   commonStaticRoutesIPv6 = [
@@ -124,8 +126,10 @@ in
     ];
 
     define LTNET_IPv4 = [
+      10.127.10.0/24+,
       198.18.0.0/15+,
-      172.20.46.224/27+
+      172.22.76.184/29+,
+      172.22.76.96/27+
     ];
 
     define LTNET_IPv6 = [

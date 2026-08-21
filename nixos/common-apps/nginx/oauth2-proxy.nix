@@ -37,8 +37,6 @@
       whitelist-domain = [
         "zhyi.xin"
         "*.zhyi.xin"
-        "zhyi.cc"
-        "*.zhyi.cc"
       ];
     };
   };

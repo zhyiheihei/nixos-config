@@ -38,9 +38,8 @@ in
     ];
   };
 
-  systemd.services.lemmy-ui.enable = lib.mkForce false;
-
   systemd.services.lemmy.environment.RUST_LOG = "error";
+  systemd.services.lemmy-ui.enable = lib.mkForce false;
 
   lantian.nginxVhosts."lemmy.zhyi.xin" = {
     locations."/" = {
@@ -48,7 +47,7 @@ in
       proxyWebsockets = true;
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
     blockMainlandChina = true;
   };

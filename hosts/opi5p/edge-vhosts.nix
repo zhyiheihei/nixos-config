@@ -51,12 +51,12 @@
     noIndex.enable = true;
   };
 
-  # Tachidesk 后端就在本机（tachidesk-backend.opi5p.zhyi.cc, HTTP:80），
+  # Tachidesk 后端就在本机（tachidesk-backend.opi5p.zhyi.xin, HTTP:80），
   # 与 rock5c 的公开 vhost 相同路径，认证一致。
   lantian.nginxVhosts."tachidesk.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1";
-      proxyOverrideHost = "tachidesk-backend.opi5p.zhyi.cc";
+      proxyOverrideHost = "tachidesk-backend.opi5p.zhyi.xin";
       proxyWebsockets = true;
       proxyNoTimeout = true;
       enableBasicAuth = true;
