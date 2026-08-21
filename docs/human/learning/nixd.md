@@ -52,4 +52,3 @@ Nix 的 C++ 库，因此能做真正的 Nix 语义分析，而不只是语法高
 
 - [nixd](https://github.com/nix-community/nixd)
 - [nixd 文档](https://nix-community.github.io/nixd/)
-- [vscode-nix-ide](../../archive/learning/vscode-nix-ide.md)

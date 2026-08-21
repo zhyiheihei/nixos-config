@@ -3,16 +3,15 @@
 配置的最终来源始终是 `hosts/`、`nixos/`、`helpers/`、`dns/` 与 `Makefile`。
 本文档只记录当前操作约束、架构解释和经验证的迁移记录。
 
-**docs/ 按读者分为两大类，另有归档区**：
+**docs/ 按读者分为两大类**：
 
 | 目录 | 读者 | 内容 |
 | --- | --- | --- |
 | [`agent/`](agent/README.md) | agent（执行规范） | 本仓库 agent 必须遵守的规范、操作手册与参照；干活前必读 |
 | [`human/`](human/README.md) | 人（指南与记录） | 入门、服务指南、硬件适配、调研、学习笔记、迁移记录；agent 需用时也读 |
-| [`archive/`](archive/README.md) | 无（历史归档） | 过时/已完成的历史记录，不作为当前操作依据 |
 
-划分规则：**agent 干活要执行/遵守的 → `agent/`；给人看的使用指南与历史记录 → `human/`；
-过时/已完成、不再作为当前依据的 → `archive/`。**
+划分规则：**agent 干活要执行/遵守的 → `agent/`；给人看的使用指南与历史记录 → `human/`。
+过时内容直接删除，不设归档区（旧归档已随 git 历史保留）。**
 
 ## 给 agent 看（docs/agent/）
 
@@ -78,7 +77,7 @@
 - [2026-08-15 上游对齐审计（分批 backport）](human/migrations/upstream-alignment-audit-2026-08-15.md)
 - [2026-08-20 macmini darwin 闭包导入加速](human/migrations/macmini-darwin-import.md)
 
-## 历史归档（docs/archive/）
+## 历史归档
 
-过时/已完成的历史记录，见 [`archive/README.md`](archive/README.md)。历史救援过程统一
-放在归档区，不能直接当作当前操作步骤执行。
+过时/已完成的历史记录已删除（含 2026-07~08 的过时审计报告与 nix-community 生态
+工具笔记），不再作为当前操作依据；如需追溯请用 git 历史。

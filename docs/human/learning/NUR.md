@@ -58,4 +58,3 @@ nur.url = "github:nix-community/NUR";
 - [NUR](https://github.com/nix-community/NUR)
 - [nur-chain 生态链笔记](nur-chain.md)
 - [nur-packages-template](nur-packages-template.md)
-- [nur-combined](../../archive/learning/nur-combined.md)

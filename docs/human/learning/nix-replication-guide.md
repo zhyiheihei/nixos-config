@@ -59,12 +59,7 @@ repos.json                   # nur-check 使用的自注册表
 ### xddxdd/nixos-config
 
 本仓库已经做过多次审计，结论是“公共模块默认行为跟作者，本地拓扑通过参数和
-主机配置表达”。关键审计：
-
-- [2026-08-03 作者配置复刻偏移审计](../../archive/audits/upstream-replica-audit-2026-08-03.md)
-- [2026-07-28 上游对齐偏差审计](../../archive/audits/upstream-alignment-audit-2026-07-28.md)
-- [2026-08-06 上游公开模块对齐](../../archive/audits/upstream-public-module-alignment-2026-08-06.md)
-- [2026-08-06 上游服务链对齐](../../archive/audits/upstream-server-chain-alignment-2026-08-06.md)
+主机配置表达”。
 
 必须跟随作者的部分：
 
@@ -196,5 +191,4 @@ repos.json                   # nur-check 使用的自注册表
 - [构建与部署](../../agent/deployment.md)
 - [新主机接入规范](../../agent/new-host-standard.md)
 - [模块分层与参数归属规范](../../agent/module-placement-norms.md)
-- [2026-08-03 作者配置复刻偏移审计](../../archive/audits/upstream-replica-audit-2026-08-03.md)
 - [zhyi-packages 复刻指南](zhyi-packages-guide.md)

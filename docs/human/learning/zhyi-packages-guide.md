@@ -169,7 +169,6 @@ failed to evaluate zhyiheihei
 - `nurl`：生成 fetcher 和 hash；
 - `nixpkgs-update`：理解 nixpkgs 的自动更新与 PR 流程；
 - `nix-index`：排查“哪个包提供这个文件”；
-- 语言生态打包：见 [language-packaging.md](../../archive/learning/language-packaging.md)；
 - `nixos-anywhere`/`disko`/`colmena`：学会系统安装与部署；
 - `nix-community/infra`：理解别人怎么管理一组 NixOS 机器。
 

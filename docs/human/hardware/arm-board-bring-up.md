@@ -134,8 +134,7 @@ test -f arch/arm64/boot/dts/vendor/board.dts
 `boot.initrd.kernelModules` 整体强制清空：如果持久化 `/nix` 使用模块形式的
 Btrfs，这会生成一个能求值、却无法在冷启动 stage 1 挂载 `/nix` 的镜像。应先检查
 目标 kernel config，再只禁用明确无用的模块，并求值确认最终的 available/forced
-列表。Orange Pi Zero 3 的实例见
-[`../../archive/hardware/orangepi-zero3.md`](../../archive/hardware/orangepi-zero3.md)。
+列表。Orange Pi Zero 3（opi03）的实例见 [`opi03` 主机配置](../../../hosts/opi03/configuration.nix)。
 
 ## 5. U-Boot 和写盘布局
 

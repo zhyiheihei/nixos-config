@@ -757,8 +757,6 @@ systemctl reboot
 
 两阶段安装也必须执行第 6 节中等价的 store、profile 和 bootloader 一致性检查。
 
-完整实操参考 [`old/ml-2700u/reinstall-log.md`](../archive/old/ml-2700u/reinstall-log.md)。
-
 ## 9. 常见故障判断
 
 | 现象 | 优先检查 | 处理原则 |

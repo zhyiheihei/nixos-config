@@ -26,7 +26,7 @@ Fetchers：
 
 - `fetchFromGitHub` / `fetchFromGitLab` / `fetchFromGitea`；
 - `fetchCrate` / `fetchPypi`；
-- 以及 [nurl](../../archive/learning/nurl.md) 支持的其他 fetcher。
+- 以及 `nurl` 支持的其他 fetcher。
 
 ## 3. 配置
 
@@ -58,4 +58,3 @@ github.com = "ghp_..."
 ## 5. 参考
 
 - [nix-init](https://github.com/nix-community/nix-init)
-- [nurl](../../archive/learning/nurl.md)
