@@ -29,6 +29,7 @@ let
     "DE" = [ "germany" ];
     "JP" = [ "japan" ];
     "NO" = [ "sweden" ];
+    "SG" = [ "singapore" ];
   };
 in
 {
