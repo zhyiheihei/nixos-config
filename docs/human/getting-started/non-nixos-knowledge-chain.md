@@ -182,5 +182,4 @@ Windows：
 
 ## 9. 相关文档
 
-- [作者知识链调研](../learning/author-knowledge-chain.md)
-- [知识链完整链路与上游对齐审计](../learning/knowledge-chain-upstream-alignment.md)
+- [知识链完整链路与上游对齐（含 Syncthing 实施）](../learning/knowledge-chain-upstream-alignment.md)

@@ -1,7 +1,22 @@
 # 知识链完整链路（上游对齐与 Syncthing 实施）
 
 目标：把作者（xddxdd）的私有 + 公开两条知识天线完整跑通，并逐项对照作者原版
-确认链路一致。
+确认链路一致。作者不用 Obsidian：知识链是两条 Git/Markdown 天线（公开 =
+Astro 博客；私有 = Markdown/Documents + Gitea + Syncthing；Radicle 与
+OpenWebUI-KB-Manager 是可选扩展）。
+
+## 作者原版证据
+
+- `home/common-apps/editorconfig.nix`：`*.md`/`*.mdx`/`*.astro` 统一 2 空格。
+- `home/client-apps/packages.nix`：`markdown-apa7th-docx`（Markdown → APA7 DOCX）。
+- `nixos/optional-apps/gitea/default.nix`：`git.lantian.pub`，`DEFAULT_PRIVATE =
+  "private"`，禁用注册，push-create。
+- `nixos/optional-apps/radicle.nix`：去中心化 Git 节点。
+- `nixos/optional-apps/syncthing` + `hosts/lt-hp-omen`：Documents 由 Syncthing
+  同步的持久化媒体目录 bind 挂载。
+- `nixos/optional-apps/waline` / `pyison`：博客评论 / 内容索引。
+- 博客源码 `xddxdd/blog`：Astro + MDX，workflow 把 `dist/` rsync 到服务器并推送
+  `lantian1998.github.io`。
 
 ## 上游作者链路 vs 复刻
 
@@ -16,6 +31,21 @@
 | 公开发布 | GitHub Actions 构建并推送 `lantian1998.github.io` + rsync 服务器 | 公开路线暂停，无远端仓库 |
 | 博客评论 | Waline `comments.lantian.pub` | 已退役（2026-08-15） |
 | 内容索引 | pyison `posts.lantian.pub` | 已退役（2026-08-15） |
+
+## 客户端布局（ml-2700 / ml-laptop / opi5p / greencloud 统一）
+
+四台 `zhyi` 客户端统一复刻作者客户端 Documents 布局：`~/Documents` 整体 bind 到
+`/nix/persistent/media/Documents`（媒体根 `media/` 下共 13 个目录：Backups/Books/
+Calibre Library/CloudMusic/CloudMusicArchive/Documents/LegacyOS/ManosabaMod/
+Pictures/Secrets/Software/VideoArchive/Yuzu）。`~/Documents` 即私有天线，含
+原 Notes 内容：
+
+- Notes 仓库在 `media/Documents` 内独立成子目录、独立 `.git`，不与本仓库共享
+  仓库或绑定目录；Syncthing 的 `media` 文件夹把 `media/` 整体同步到四台。
+- 公开天线 `Blog` 已于 2026-08-20 删除（远端 `zhyiheihei/blog` 不存在，本地
+  3 commit 是唯一副本，删除即永久丢失）。
+- Git 远端在运行时配置：私有 `ssh://git@git.zhyi.xin:2222/zhyi/notes.git`；
+  Gitea 已开启 push-create。实机验证：Gitea 的 `SSH_PORT` 与上游一致为 2222。
 
 ## 实施方式（已建成）
 
