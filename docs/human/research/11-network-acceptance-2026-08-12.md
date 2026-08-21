@@ -24,10 +24,10 @@
 
 ## DNS 与 HTTP
 
-- 本地 CoreDNS：`router.zhyi.cc`/`opi5p.zhyi.cc` 解析正常，首次查询约 19ms。
+- 本地 CoreDNS：`router.zhyi.xin`/`opi5p.zhyi.xin` 解析正常，首次查询约 19ms。
 - 外部递归：223.5.5.5 约 7ms，119.29.29.29 约 15ms。
-- `bt.router.zhyi.cc`：200，TTFB 267ms。
-- `vaults3.zhyi.cc:8443/health` hairpin：200，TLS 41ms，TTFB 45ms。
+- `bt.router.zhyi.xin`：200，TTFB 267ms。
+- `vaults3.zhyi.xin:8443/health` hairpin：200，TLS 41ms，TTFB 45ms。
 - 公网 HTTP：baidu TTFB 324ms，USTC TTFB 476ms。
 
 ## 外网与 IPv6

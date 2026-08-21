@@ -1,6 +1,6 @@
 # Gcore 免费套餐 DNSControl 发布规范
 
-本仓库的 `zhyi.cc`、`zhyi.xin` 目前使用 Gcore DNS 免费套餐。Gcore 的 API
+本仓库的 `zhyi.xin` 目前使用 Gcore DNS 免费套餐。Gcore 的 API
 限制与 DNSControl 的 `preview` 不完全一致；发布含健康检查或加权记录前，必须按
 本规范执行。
 
@@ -19,16 +19,16 @@
 
 ## 当前约定
 
-- 公开服务使用逐项声明的静态 CNAME：按实际入口指向 `hostdare.zhyi.cc.`、
-  `volcengine.zhyi.cc.`、`greencloud.zhyi.cc.` 或 `home-ddns.zhyi.cc.`。
-- `home-ddns.zhyi.cc` 是当前唯一由 Gcore DDNS 维护的动态 RRSet；DNSControl
+- 公开服务使用逐项声明的静态 CNAME：按实际入口指向 `hostdare.zhyi.xin.`、
+  `volcengine.zhyi.xin.`、`greencloud.zhyi.xin.` 或 `home-ddns.zhyi.xin.`。
+- `home-ddns.zhyi.xin` 是当前唯一由 Gcore DDNS 维护的动态 RRSet；DNSControl
   使用 `IGNORE` 保留它。
-- `home-ddns.zhyi.cc` 的 A 记录 TTL 固定为 `120s`；router 在 `ppp0` 进入
+- `home-ddns.zhyi.xin` 的 A 记录 TTL 固定为 `120s`；router 在 `ppp0` 进入
   routable 时立即触发 DDNS 更新，另有 hourly timer 兜底。
-- 指向 `home-ddns.zhyi.cc` 的静态 CNAME 统一使用 `120s` TTL，使 WAN IP 变更后
+- 指向 `home-ddns.zhyi.xin` 的静态 CNAME 统一使用 `120s` TTL，使 WAN IP 变更后
   旧 CNAME 缓存也能在 2 分钟内失效；此修改不新增动态 RRSet 或健康检查。
 - `twvm` 已退出生产拓扑。当前公网 VPS 为 `hostdare`、`volcengine`、`greencloud`、`google`；
-  根域 `zhyi.cc` 指向 `hostdare`，根域 `zhyi.xin` 指向 `volcengine`。
+  根域 `zhyi.xin` 指向 `volcengine`。
 - 目前不实施公网自动故障转移。未来若恢复该需求，应先升级 Gcore 套餐或迁移到
   支持多条健康检查记录的 DNS 提供商；不要在免费套餐上重新批量改 GEO。
 
@@ -57,7 +57,7 @@ nix run .#dnscontrol -- push
 发布后用公共递归 DNS 检查，而不是只看本地缓存：
 
 ```bash
-dig +short ha.opi5p.zhyi.cc @1.1.1.1
+dig +short ha.opi5p.zhyi.xin @1.1.1.1
 dig +short hydra.zhyi.xin @1.1.1.1
 ```
 
@@ -66,7 +66,7 @@ dig +short hydra.zhyi.xin @1.1.1.1
 
 ```bash
 curl -fsS -H 'accept: application/dns-json' \
-  'https://cloudflare-dns.com/dns-query?name=volcengine.zhyi.cc&type=A'
+  'https://cloudflare-dns.com/dns-query?name=volcengine.zhyi.xin&type=A'
 ```
 
 ## 失败恢复

@@ -42,7 +42,7 @@ DNSSEC 校验、RPZ、Lua `addNTA`、`forward-zones-recurse` 和按 zone 分流�
 
 ### 私有域
 
-DN42、LTNET、CRXN、Meshname、Yggdrasil/Alfis、Emercoin、`ad.zhyi.cc` 和反解
+DN42、LTNET、CRXN、Meshname、Yggdrasil/Alfis、Emercoin、`ad.zhyi.xin` 和反解
 zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `../../network` 的公共上游，
 不动 `forwardZones` 与 zone 列表。
 

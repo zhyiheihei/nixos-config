@@ -63,7 +63,7 @@ TVDB 编号、旧 Sonarr `.nfo` 都会让订阅显示缺集或让 Jellyfin 出�
 
 ```bash
 # 1) Jellyfin 每部剧的季/集号，出现 unknown/None 即视为不合格
-curl -sS "http://jellyfin-api.rock5c.zhyi.cc/Shows/<seriesId>/Episodes?api_key=<key>&isMissing=false&Fields=Path" \
+curl -sS "http://jellyfin-api.rock5c.zhyi.xin/Shows/<seriesId>/Episodes?api_key=<key>&isMissing=false&Fields=Path" \
   | python3 -c "import json,sys; d=json.load(sys.stdin); print(len([i for i in d['Items'] if i.get('IndexNumber') is None]), 'items without episode number')"
 
 # 2) 每个订阅都必须带默认站点/下载器/保存路径/IMDb 搜索，null 即不合格
@@ -100,7 +100,7 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
 ### 5. 备份链路（7 台 → opi5p）
 - **入口**：backup 服务/timer 状态
 - **日志**：restic/rustic backup 的 error（sftp 连接、索引读取、上传失败）
-- **数据流转**：`backup-nix-persistent` 手动触发一次，确认 sftp 连通 + 索引 + 上传（参考：ml-home-vm 退役后 sftpEndpoint 已统一为 opi5p.zhyi.cc）
+- **数据流转**：`backup-nix-persistent` 手动触发一次，确认 sftp 连通 + 索引 + 上传（参考：ml-home-vm 退役后 sftpEndpoint 已统一为 opi5p.zhyi.xin）
 - **验证**：目标机索引份数增长（`restic snapshots` / rustic 索引）
 
 ### 6. DNS 链路

@@ -34,7 +34,7 @@ MoviePilot 无指标采集；qBittorrent、ChineseSubFinder 亦无 exporter。�
 exportarr 或 textfile collector），先立项评估再接入，不得以删探针掩盖。
 
 Elasticsearch 日志链路与监控栈彼此独立。Filebeat 当前仍被声明为把日志发送到
-`es-ingest.google.zhyi.cc`，但 2026-08-03 审计确认 `hosts/google/configuration.nix`
+`es-ingest.google.zhyi.xin`，但 2026-08-03 审计确认 `hosts/google/configuration.nix`
 没有导入 Elasticsearch 模块，实机也没有 Elasticsearch unit 或容器。因此这条日志
 链目前不完整，不能把 Filebeat 的 `active` 当作日志已经成功落库。后续必须对照作者
 结构决定恢复 google Elasticsearch，或明确关闭/改写舰队 Filebeat 输出；不要在没有
@@ -46,8 +46,8 @@ Elasticsearch 日志链路与监控栈彼此独立。Filebeat 当前仍被声明
 - `scrape-configs.nix` 通过 NixOS option 自动发现已启用的 exporter。新服务应在
   自己的模块中声明 exporter，不要把 IP 手写进 Prometheus。
 - Blackbox 只保留实际入口。受 Dex 或应用认证保护的入口可以返回正常重定向。
-- Blackbox 自动生成 `<hostname>.zhyi.cc` 目标只对拥有该入口的主机有效；volcengine
-  属于 `zhyi.xin` 体系（无 `volcengine.zhyi.cc` 实际服务），其入口在
+- Blackbox 自动生成 `<hostname>.zhyi.xin` 目标只对拥有该入口的主机有效；volcengine
+  属于 `zhyi.xin` 体系（无 `volcengine.zhyi.xin` 实际服务），其入口在
   `httpMonitorTargets` 中显式声明。
 - 没有在任一 host 启用的静态抓取目标必须删除，不能留下永久 `down`。
 - node exporter 连续 15 分钟不可抓取会触发告警。应修复网络或正式移除主机，
@@ -75,7 +75,7 @@ curl -fsS http://127.0.0.1:9090/api/v1/alerts \
 
 - `https://dashboard.zhyi.xin`
 - `https://prometheus.zhyi.xin`
-- `https://prometheus.tencent.zhyi.cc`（仅私网可达，供 Homepage 资源卡片做只读查询，不叠加 OAuth；rock5c 通过 `hosts/rock5c/home-lan-edge.nix` 固定解析到 tencent LTNET 地址）
+- `https://prometheus.tencent.zhyi.xin`（仅私网可达，供 Homepage 资源卡片做只读查询，不叠加 OAuth；rock5c 通过 `hosts/rock5c/home-lan-edge.nix` 固定解析到 tencent LTNET 地址）
 - `https://alert.zhyi.xin`
 
 三者均使用 Dex 身份认证。Homepage 只链接这些入口，不链接 exporter 或本地监听
@@ -88,7 +88,7 @@ curl -fsS http://127.0.0.1:9090/api/v1/alerts \
 只部署 `tencent`：
 
 ```bash
-ssh -A -p 2222 root@ml-builder.zhyi.cc
+ssh -A -p 2222 root@ml-builder.zhyi.xin
 cd /nix/src/nixos-config
 nix run .#colmena -- build --on tencent
 nix run .#colmena -- apply --on tencent
@@ -101,7 +101,7 @@ nix run .#colmena -- apply --on tencent
 
 - 监控栈（Prometheus/Alertmanager/Blackbox/Grafana + MariaDB）从 `greencloud`
   迁至 `tencent`（全新开始，未迁移历史数据）。`alert`/`dashboard`/`prometheus`
-  CNAME 与 Homepage 只读入口（`prometheus.tencent.zhyi.cc`）随之切换；
+  CNAME 与 Homepage 只读入口（`prometheus.tencent.zhyi.xin`）随之切换；
   `flapalerted` 留在 greencloud（属 DN42 链路，非监控栈）。迁移动机：greencloud
   内存压力（7.7 GiB / 20+ 服务），SSH 曾因内存耗尽无法握手。
 - tencent 为 4 GiB 无 swap 的 VPS：监控栈常驻内存偏高（grafana+MariaDB 较吃
@@ -114,12 +114,12 @@ nix run .#colmena -- apply --on tencent
   仪表盘查询全部基于动态 label（`{{instance}}`、`job=`），改名后实例与目标
   自动跟随，无需改仪表盘代码。
 - 新主机 `tencent`（首尔，public-facing）上线：node/bird/coredns/nginx/knot/
-  wireguard exporter 与 `https://tencent.zhyi.cc` 等黑盒目标自动纳入。
+  wireguard exporter 与 `https://tencent.zhyi.xin` 等黑盒目标自动纳入。
 - 公共 UniAPI 入口 `ai-api.zhyi.xin` 2026-08-14 起由 `hostdare` 承担（此前短暂在
   `tencent`）。该入口受 API key 保护（未认证返回 401/403），新增 `https_ok_403` 探测
   （`blackbox-exporter.nix`），403 视为存活；`服务与网络健康` 的
   「公网服务可用」面板计入该 job。
-- `SearXNG` 从 `opi5p` 迁至 `tencent`（`searx.tencent.zhyi.cc`，私有 vhost，
+- `SearXNG` 从 `opi5p` 迁至 `tencent`（`searx.tencent.zhyi.xin`，私有 vhost，
   不探测）。
 - 家庭路由器 v2ray 代理出口从 `greencloud` 切至 `tencent`
   （`hosts/router/v2ray.nix`）。路由器仪表盘监控 WAN/接口，不感知出口切换；

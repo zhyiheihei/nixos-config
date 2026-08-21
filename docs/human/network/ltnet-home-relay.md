@@ -23,7 +23,7 @@ joining the live mesh. A null list preserves the author's full-mesh behavior.
 `greencloud` and `volcengine` initiate WireGuard sessions to hostdare's fixed public
 IPv4 address. hostdare learns the roaming home endpoint from authenticated
 WireGuard traffic. These two cross-provider WireGuard sessions are carried by
-wstunnel over `hostdare.zhyi.cc:443` because the direct UDP path is asymmetric. The
+wstunnel over `hostdare.zhyi.xin:443` because the direct UDP path is asymmetric. The
 upper WireGuard and BIRD topology remains unchanged, and the wstunnel server is
 restricted to hostdare's two local WireGuard ports.
 

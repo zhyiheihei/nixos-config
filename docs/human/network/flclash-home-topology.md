@@ -4,11 +4,11 @@
 
 ## 背景
 
-`bt.router.zhyi.cc` 在 FlClash 开启时出现 404。服务端排查结论：
+`bt.router.zhyi.xin` 在 FlClash 开启时出现 404。服务端排查结论：
 
 - router 上 nginx vhost 与 qBittorrent WebUI 均正常，LAN、LTNET 路径都返回 200。
 - DNSControl preview 为 0 corrections，公网权威 DNS 与仓库配置一致。
-- 根因在 FlClash：TUN fake-ip 模式把 `*.zhyi.cc` 也 fake-ip 化，系统 DNS 返回
+- 根因在 FlClash：TUN fake-ip 模式把 `*.zhyi.xin` 也 fake-ip 化，系统 DNS 返回
   `100.127.0.79`（fake-ip），部分应用/浏览器按该 IP 走了错误路径。
 
 当前 FlClash 活跃配置的关键值：
@@ -33,7 +33,7 @@ rules:
 ## 官方依据
 
 - Mihomo 官方 DNS 文档：<https://wiki.metacubex.one/config/dns/>
-  - `fake-ip-filter`：命中列表的域名不会下发 fake-ip 映射，支持 `*.zhyi.cc`
+  - `fake-ip-filter`：命中列表的域名不会下发 fake-ip 映射，支持 `*.zhyi.xin`
     这类域名通配。
   - `nameserver-policy`：指定域名的解析服务器，优先于 nameserver/fallback。
   - `respect-rules`：DNS 连接遵守路由规则。
@@ -48,12 +48,12 @@ rules:
 
 1. FlClash → 设置 → DNS（必要时先打开 “Override DNS / 覆写 DNS”）。
 2. `fake-ip-filter` 增加：
-   - `*.zhyi.cc`
+   - `*.zhyi.xin`
    - `*.zhyi.xin`
    - `*.zhyi.dn42`
    - `*.local`
 3. `nameserver-policy` 增加：
-   - `*.zhyi.cc` → `https://dns.alidns.com/dns-query`
+   - `*.zhyi.xin` → `https://dns.alidns.com/dns-query`
    - `*.zhyi.xin` → `https://dns.alidns.com/dns-query`
 4. 打开 `respect-rules`。
 5. 把 `fake-ip-range` 从默认的 `198.18.0.1/16` 改为不与内网重叠的网段，例如
@@ -70,12 +70,12 @@ dns:
   fake-ip-filter:
     - "*.lan"
     - "*.local"
-    - "*.zhyi.cc"
+    - "*.zhyi.xin"
     - "*.zhyi.xin"
     - "*.zhyi.dn42"
     - "localhost.ptlogin2.qq.com"
   nameserver-policy:
-    "*.zhyi.cc":
+    "*.zhyi.xin":
       - "https://dns.alidns.com/dns-query"
       - "https://doh.pub/dns-query"
     "*.zhyi.xin":
@@ -108,11 +108,11 @@ rules:
 
 ```bash
 # 不再返回 100.127.x fake-ip
-dig +short bt.router.zhyi.cc
+dig +short bt.router.zhyi.xin
 # 期望：198.18.0.112
 
 # 页面恢复 200
-curl -k -sS -o /dev/null -w '%{http_code}\n' https://bt.router.zhyi.cc/
+curl -k -sS -o /dev/null -w '%{http_code}\n' https://bt.router.zhyi.xin/
 ```
 
 若 FlClash UI 每次重启都会覆盖全局 DNS 设置，优先把上述内容写进 profile

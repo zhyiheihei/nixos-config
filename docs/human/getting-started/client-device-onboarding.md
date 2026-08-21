@@ -166,16 +166,16 @@ ping 198.18.0.123           # rock5c 可达
 
 在浏览器中访问任意 private 服务：
 ```
-https://bt.router.zhyi.cc      # qBittorrent
+https://bt.router.zhyi.xin      # qBittorrent
 https://jellyfin.zhyi.xin:8443 # Jellyfin
-https://sonarr.rock5c.zhyi.cc   # Sonarr
+https://sonarr.rock5c.zhyi.xin   # Sonarr
 ```
 
 ## 访问路径
 
 ```text
 设备 (ZeroTier 198.18.0.x)
-  → DNS: *.rock5c.zhyi.cc → 家庭入口
+  → DNS: *.rock5c.zhyi.xin → 家庭入口
   → rock5c (LTNET 198.18.0.123，实际家庭边缘)
     → 各应用主机（opi5p / pve 等）
 ```
@@ -186,7 +186,7 @@ https://sonarr.rock5c.zhyi.cc   # Sonarr
 |------|-----------|
 | 状态一直是 `REQUESTING_CONFIGURATION` | 控制器未授权；检查 additional-hosts 是否已部署 |
 | 状态 `OK` 但无法 ping 198.18.0.123 | 检查设备是否拿到了 198.18.0.x 地址；路由是否生效 |
-| 能 ping 但浏览器打不开 | DNS 解析问题；确认设备能解析 `*.zhyi.cc`（走公网 DNS 即可） |
+| 能 ping 但浏览器打不开 | DNS 解析问题；确认设备能解析 `*.zhyi.xin`（走公网 DNS 即可） |
 | 入网后所有流量变慢 | 默认路由被推送；关闭设备的 Allow Default Route |
 | 手机锁屏后断连 | ZeroTier 后台被系统杀死；Android 需关闭电池优化，iOS 需保持 VPN 开启 |
 

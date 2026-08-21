@@ -1,6 +1,6 @@
 # Memos 服务接入（SSO / 存储 / 通知 / AI）
 
-Memos 运行在 `opi5p`，入口为 `https://memos.opi5p.zhyi.cc`，容器固定
+Memos 运行在 `opi5p`，入口为 `https://memos.opi5p.zhyi.xin`，容器固定
 `neosmemo/memos:0.29.1`，数据目录挂载宿主机的 `/var/lib/memos`（NVMe 持久盘）。
 应用内的 SSO、AI Provider、通知和附件存储都通过 Memos 官方 HTTP API 配置，
 不直接修改 Memos 数据库。
@@ -14,7 +14,7 @@ Memos 运行在 `opi5p`，入口为 `https://memos.opi5p.zhyi.cc`，容器固定
 | --- | --- |
 | Dex client id | `memos` |
 | Dex client secret | `common/dex.yaml` 的 `dex-memos-secret` |
-| 回调 | `https://memos.opi5p.zhyi.cc/auth/callback` |
+| 回调 | `https://memos.opi5p.zhyi.xin/auth/callback` |
 | authorization endpoint | `https://login.zhyi.xin/auth` |
 | token endpoint | `https://login.zhyi.xin/token` |
 | userinfo endpoint | `https://login.zhyi.xin/userinfo` |
@@ -68,10 +68,10 @@ Memos 的 AI Provider 指向 Metapi，而不是直接指向 UniAPI：
 | 项 | 值 |
 | --- | --- |
 | Provider type | `OPENAI` |
-| endpoint | `https://metapi.tencent.zhyi.cc/v1` |
+| endpoint | `https://metapi.tencent.zhyi.xin/v1` |
 | API key | `uni-api/keys.yaml` 的 `uni-api-admin-api-key` |
 
-`metapi.tencent.zhyi.cc` 是 private vhost（2026-08-14 自 greencloud 迁移）。opi5p 已声明
+`metapi.tencent.zhyi.xin` 是 private vhost（2026-08-14 自 greencloud 迁移）。opi5p 已声明
 hosts 映射 `198.18.0.120`，容器同时使用 `--add-host` 指向同一地址，保证 Memos
 和运维脚本都能走 LTNET 直连。不要把这个 endpoint 改成公网入口或 UniAPI
 之外的网关，也不要让 Metapi 反向成为 UniAPI Provider。

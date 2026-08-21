@@ -143,14 +143,14 @@ zerotier-cli listnetworks   # 状态应为 OK，看到 ZT 分配的 198.18.0.<in
 
 ### 5.2 新增证书的注意点
 
-`<host>.zhyi.cc` 证书由 greencloud 上的 acme 服务签发。首次接入多台主机并发
-签发时，ecc/rsa 两个 order 服务会竞争同一 `_acme-challenge.<host>.zhyi.cc`
+`<host>.zhyi.xin` 证书由 greencloud 上的 acme 服务签发。首次接入多台主机并发
+签发时，ecc/rsa 两个 order 服务会竞争同一 `_acme-challenge.<host>.zhyi.xin`
 TXT 记录，可能互相覆盖导致其中一个失败（报 `Incorrect TXT record`）。若某台
 主机只有 ecc 进 sync-servers 而 rsa 缺失：
 
 ```bash
 # 在 greencloud 上，等 dnscontrol 重新发布 DNS 后手动重签即可（无需改配置）
-systemctl restart acme-order-renew-lets-encrypt-<host>.zhyi.cc-rsa.service
+systemctl restart acme-order-renew-lets-encrypt-<host>.zhyi.xin-rsa.service
 ```
 
 ## 6. 构建和安装

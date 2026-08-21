@@ -3,7 +3,7 @@
 Ignis 是 Obsidian 的浏览器兼容层（Electron API shim）：把官方 Obsidian 跑在标准
 浏览器里，vault 留在服务器上。镜像固定 `nobbe/ignis:0.8.9`（自托管容器，Obsidian
 本体不打包，首次启动时由容器从官方源下载）。运行在 `opi5p`，入口
-`https://ignis.opi5p.zhyi.cc`（私有 LTNET 域名，`accessibleBy = private`）。
+`https://ignis.opi5p.zhyi.xin`（私有 LTNET 域名，`accessibleBy = private`）。
 
 ## 与知识链的关系
 
@@ -39,7 +39,7 @@ Obsidian 会在 vault 根目录生成 `.obsidian/` 配置目录，随 Syncthing 
 
 Ignis 无内置认证，vault 挂在共享的 oauth2-proxy 之后：
 
-- 主 vhost `ignis.opi5p.zhyi.cc` 的 location `/` 开启 `enableOAuth = true`，
+- 主 vhost `ignis.opi5p.zhyi.xin` 的 location `/` 开启 `enableOAuth = true`，
   复用已有的 oauth2-proxy → Dex（`login.zhyi.xin`）链路；
 - 无需新增 Dex client/secret（oauth2-proxy 已是单一 client `oauth-proxy`），
   也不在应用层做 OIDC；
@@ -57,7 +57,7 @@ Ignis 无内置认证，vault 挂在共享的 oauth2-proxy 之后：
   随 Notes→Documents 迁移由主机级覆盖修正）。
 - 验证：`systemctl status podman-ignis`、`journalctl -u podman-ignis`；
   `curl -fsS http://127.0.0.1:13832/` 应返回 Ignis UI；
-  `curl -fsS https://ignis.opi5p.zhyi.cc` 应先 302 到 `/oauth2/start`。
+  `curl -fsS https://ignis.opi5p.zhyi.xin` 应先 302 到 `/oauth2/start`。
 - 备份：Documents 本体已被 Syncthing/Gitea 覆盖；`/nix/persistent/var/lib/ignis`
   是运行态数据（Obsidian 应用副本 + 服务索引），重建即恢复，不单独进 restic 清单。
 - 升级 Obsidian 版本由镜像的 `OBSIDIAN_VER` 控制（未 pin 时随镜像默认），升级

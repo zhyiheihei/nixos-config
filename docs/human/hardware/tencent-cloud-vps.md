@@ -9,7 +9,7 @@
 
 | 项 | 值 |
 | --- | --- |
-| 主机名 | `tencent`，`tencent.zhyi.cc` |
+| 主机名 | `tencent`，`tencent.zhyi.xin` |
 | index | 128 |
 | 角色 | `server` + `public-facing` + `cn-accel` + `dn42` |
 | 地域 | 首尔，KR（Tencent Cloud，AS132203） |
@@ -95,7 +95,7 @@ eth0 的 `accept_ra` 为 0，RA 不提供默认路由；实机验证后采用：
   `via fe80::fcee:6cff:fe22:4ade`（网关 link-local，由路由器 MAC
   `fe:ee:6c:22:4a:de` 推导，`GatewayOnLink`），`IPv6AcceptRA = "no"`。
 
-融入链路：DNS AAAA（`tencent.zhyi.cc` / `v6.tencent.zhyi.cc`，hostRecs 自动）、
+融入链路：DNS AAAA（`tencent.zhyi.xin` / `v6.tencent.zhyi.xin`，hostRecs 自动）、
 ZeroTier v6/9993 endpoint、nginx `[::]` 监听（vhost 默认双栈）。Overlay 路由层
 （bird/babel）的 IPv6 一直随 LTNET（`fdd8:1938:4e88::128`）工作，与本机公网 v6
 无关。防火墙的 wg-zhyi v6 DNAT 仅作用于作者 buyvm 特例，不适用于本机。
