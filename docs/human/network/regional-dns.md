@@ -69,8 +69,9 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `../../ne
   SERVFAIL；CN recursor 改为 `process-no-validate`，国外保持 `validate`。
 - 2026-08-10（Attic 验证）：CN recursor 修复部署到 volcengine 与 ml-builder 后，
   `attic.zhyi.xin`、`vaults3.zhyi.xin` 等解析均为 NOERROR，热缓存 0-1 ms；
-  据此撤销 `attic-s3-connect-timeout.patch`，无补丁部署后 atticd active、
-  Attic 443 与 VaultS3 8443 探测均 200。
+  据此撤销 `attic-s3-connect-timeout.patch`（2026-08-22 随对齐清理实际删除：
+  移除 `patches/attic-s3-connect-timeout.patch` 与 greencloud 引用），
+  无补丁部署后 atticd active、Attic 443 与 VaultS3 8443 探测均 200。
 - 2026-08-10（Attic 迁移）：按作者布局把 Attic 迁回 `greencloud` 公网 VPS，
   S3 后端保持现有 VaultS3；`attic.zhyi.xin` 公网 DNS 指向 greencloud。
 - 2026-08-10（Attic 迁移执行）：greencloud 已部署 atticd 并恢复元数据，
