@@ -2,7 +2,7 @@
 
 > 本目录是「给 agent 看的」执行规范与参照：本仓库 agent 干活前必读，改动时必须遵守。
 > 目录划分规则见 [`../README.md`](../README.md)。给人看的指南与记录在 `../human`，
-> 过时归档在 `../archive`。
+> 过时/已合并内容直接删除，不设归档区（追溯用 git 历史）。
 
 ## 必读（每次任务开始前）
 
@@ -25,9 +25,9 @@
 
 | 主题 | 文档 |
 | --- | --- |
-| 域名与服务编排 | [`domain-service-layout.md`](domain-service-layout.md)、[`service-domain-norms.md`](service-domain-norms.md) |
+| 域名与服务编排 | [`domain-service-layout.md`](domain-service-layout.md) |
 | 网络参照 | [`reference.md`](reference.md)、[`home-lan-ip-plan.md`](home-lan-ip-plan.md) |
-| 构建缓存 | [`attic-s3-cache.md`](attic-s3-cache.md)、[`attic-owned-cache-priority.md`](attic-owned-cache-priority.md)、[`attic-full-store-push.md`](attic-full-store-push.md)、[`hydra-build-chain.md`](hydra-build-chain.md) |
+| 构建缓存 | [`attic-s3-cache.md`](attic-s3-cache.md)、[`hydra-build-chain.md`](hydra-build-chain.md) |
 | 身份与认证 | [`identity-auth-architecture.md`](identity-auth-architecture.md)、[`oidc-app-integration.md`](oidc-app-integration.md) |
 | DNS 发布 | [`gcore-dnscontrol-free-plan.md`](gcore-dnscontrol-free-plan.md) |
 | 监控 | [`monitoring.md`](monitoring.md) |

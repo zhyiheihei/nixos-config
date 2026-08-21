@@ -36,8 +36,8 @@ curl -sS "http://127.0.0.1:9090/api/v1/query" --data-urlencode 'query=<指标>' 
 
 ## 各链路巡检清单
 
-### 1. 监控链（greencloud）
-- **入口**：prometheus / alertmanager / grafana 服务 active
+### 1. 监控链（tencent）
+- **入口**：prometheus / alertmanager / grafana 服务 active（监控栈 2026-08-14 自 greencloud 迁至 tencent）
 - **日志**：各服务 journalctl 的 error/warn（如 Grafana datasource 报错、Prometheus 抓取失败）
 - **监控指标**：
   - `up{job!="blackbox"}` 的 down 目标（排除已知离线机：hostdare 流量耗尽、opi03/h28k 未部署）
@@ -85,8 +85,8 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
 - **数据流转**：`nix-sync-servers` 定时任务 Finished（router → greencloud 经 rock5c 网关）
 
 ### 4. AI 链路（greencloud / UniAPI 网关）
-- 参考 `docs/infrastructure/ai-api-gateway-chain.md`（UniAPI 是唯一 Provider 汇聚点，禁止反向配置网关）
-- 参考 `docs/infrastructure/ai-knowledge-chain-integration.md`（AI 链 ↔ 知识链关系与官方 API）
+- 参考 [`ai-api-gateway-chain.md`](ai-api-gateway-chain.md)（UniAPI 是唯一 Provider 汇聚点，禁止反向配置网关）
+- 参考 [`ai-knowledge-chain-integration.md`](../human/infrastructure/ai-knowledge-chain-integration.md)（AI 链 ↔ 知识链关系与官方 API）
 - **日志**：UniAPI / LibreChat / n8n 的 error/warn；OAuth token 刷新失败
 - **监控指标**：请求量、错误率（若有 exporter）
 - **数据流转（知识链）**：
