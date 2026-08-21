@@ -147,7 +147,4 @@ in
     accessibleBy = "private";
     noIndex.enable = true;
   };
-
-  # The public name is served only by the rock5c edge.
-  lantian.tachidesk.publicFrontend = false;
 }
