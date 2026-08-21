@@ -319,7 +319,7 @@ zerotier-cli info
 两个网口都是单队列（`dwmac-rockchip` 的 eth0、`r8169` 的 eth1），iperf3 基线
 （rock5c ↔ h28k，家庭千兆交换）显示两个口本就贴千兆线速（P1 938-941 / P4 950-951
 Mbit/s），没有吞吐缺口。因此只套用 R5C 配方里适用单队列的部分（
-`docs/research/10-router-rx-queue-4.md`）：
+`docs/research/router-r5c-tuning.md`）：
 
 - `hosts/h28k/performance.nix`：`netdev_budget 1200/30000`、`netdev_max_backlog
   5000`、`rps_sock_flow_entries 16384`（双口 × 单队列 × 8192 流深）、

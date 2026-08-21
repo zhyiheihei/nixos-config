@@ -39,8 +39,7 @@
   不含当前容器里的 mihomo 服务端；因此保留 podman。
 - `moviepilot`：原生包已在 lubancat 完成启动/API 验证，但 `moviepilot
   start` 只有后台 daemon 语义，systemd 无法直接获得稳定重启语义；生产
-  `rock5c` 保留 podman，详见
-  [06-moviepilot-nix-replacement-impact.md](06-moviepilot-nix-replacement-impact.md)。
+  `rock5c` 保留 podman，详见下文「MoviePilot 专项」。
 - `home-assistant`：当前容器 `--privileged`、host 网络并挂载 `/dev` 与
   `docker.sock`；nixpkgs `services.home-assistant` 默认不提供等价能力，
   未做生产切换前保留 podman。
@@ -105,6 +104,37 @@
 | `adsb-plane-watch` / `adsb-flightaware` | plane-watch / piaware | 家庭 | 无 nixpkgs/NUR | 保留容器：硬件 + 固件封装 |
 | `lancache-dns` / `lancache-monolithic` | lancachenet | 家庭 | 无 nixpkgs/NUR | 保留容器：整体缓存栈 |
 | `bilibili-tool-pro` | ghcr.io/raywangqvq | 定时任务 | 无 nixpkgs/NUR | 有源码，待打包（.NET） |
+
+## MoviePilot 专项：podman → Nix 包影响评估（2026-08-12）
+
+上游 `nixos-config-exam` 没有 MoviePilot 模块，不受"上游 podman 则不切换"约束，但生产切换仍需逐项验证。
+
+### 当前 podman 形态（rock5c）
+
+- 镜像 `docker.io/jxxghp/moviepilot-v2:latest`；数据目录 `/nix/persistent/var/lib/moviepilot`（容器内 `/config`）。
+- 宿主只暴露前端 `LT.portStr.MoviePilot.Frontend` → 容器 `3000`；后端容器内 `3001`。
+- 环境：`TZ`、`PORT=3001`、`NGINX_PORT=3000`、`MOVIEPILOT_AUTO_UPDATE=false`、`DB_TYPE=sqlite`、`CACHE_BACKEND_TYPE=cachetools`。
+- 卷：数据目录、`.cloakbrowser`、整个 `/mnt/storage`（避免 NFS 子目录破坏 hardlink 导入）。
+- 额外：SOCKS5 代理环境走家庭路由器出口；`--add-host=jellyfin-api.rock5c.zhyi.cc:LAN-IP`；`moviepilot-plugin-health` 定时服务恢复 BrushFlow/SubtitleAssistant 路由。
+
+### Nix 包形态
+
+- 包 `zhyi-packages#moviepilot`（v2.15.5），wrapper 启动 `python -m app.cli`，`CONFIG_DIR` 默认 `$XDG_CONFIG_HOME/moviepilot` 可显式设置；包内集成前端 dist、runtime 与 `resources.v2`。
+
+### 需要验证/有风险的差异
+
+1. `CONFIG_DIR` 必须指向现有数据目录，否则 SQLite 与配置是空库。
+2. 前端 3000 / 后端 3001 需与原生服务一致并只绑定回环。
+3. `.cloakbrowser` 目录权限与挂载语义原样保留。
+4. NFS `/mnt/storage` 整根挂载不能拆子目录，否则 hardlink 导入失效。
+5. rock5c 的 SOCKS5 代理、`--add-host`、插件健康恢复 timer 需迁移到原生 systemd service。
+6. Dex OIDC 回调 `https://moviepilot.rock5c.zhyi.xin/api/v1/plugin/OidcAuth/callback` 必须回归。
+
+### 结论（暂不切生产）
+
+已在 lubancat 用临时 `CONFIG_DIR` 完成首轮验证：修复 aarch64 wrapper 指向错误 bash 后，`moviepilot start` 前后端 running，前端 200、`/api/v1/auth/providers` 200、access-token 返回结构化 422；`fastapi~=0.96.0`/`starlette~=0.27.0` 依赖已通过过滤无 `path` 路由兼容。
+
+**进程管理差异决定暂不切生产**：`moviepilot start` 只有后台 daemon 语义（`Type=forking`），无前台模式，systemd `Restart=always` 无法覆盖其子进程，需额外健康巡检才能保证崩溃自动拉起；当前 podman 单元由 systemd 直接管理容器，重启语义更可靠。补齐"forking + 健康巡检"验证前，rock5c 保留 podman，原生包只作为 lubancat 验证结论保留。
 
 ## 方法
 
