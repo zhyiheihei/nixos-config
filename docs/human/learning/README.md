@@ -15,9 +15,7 @@
 ## 项目仓库相关
 
 - [zhyi-packages 维护指南](zhyi-packages-guide.md)
-- [NUR 生态链（zhyi-packages 的生态位置）](nur-chain.md)
-- [NUR 用户包注册表](NUR.md)
-- [nur-packages-template（zhyi-packages 的模板参照）](nur-packages-template.md)
+- [NUR 生态与注册（zhyi-packages 的生态位置）](NUR.md)
 
 ## 项目实际使用的工具
 
