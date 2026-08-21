@@ -72,7 +72,7 @@ repos.json                   # nur-check 使用的自注册表
 必须保留的本地差异：
 
 - `hosts/` 主机名称、IP、SSH host key、城市和标签；
-- `dns/` 中的 `zhyi.xin`、`zhyi.cc`、`moliy.site` 域名；
+- `dns/` 中的 `zhyi.xin` 域名；
 - SOPS recipient 与私有 secrets；
 - ARM 开发板、Rockchip 内核、设备树、reDroid 和存储适配；
 - 私有 Attic、NCPS、VaultS3、家庭网络和跨主机服务拓扑；

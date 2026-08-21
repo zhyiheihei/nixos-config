@@ -55,7 +55,7 @@ Settings → Linked Identities 里完成绑定，之后即可用 Dex 登录。
 | SMTP port | `587` |
 | 用户名 | `EjG9ROGAei` |
 | 密码 | `common/smtp.yaml` 的 `smtp-pass` |
-| 发件人 | `postmaster@zhyi.cc` |
+| 发件人 | `postmaster@zhyi.xin` |
 | 加密 | STARTTLS |
 
 Memos 0.29.1 的实例通知只提供 SMTP；用户级 Webhook 可用于其他通道，
