@@ -57,6 +57,11 @@ rec {
   };
   n8n = prev.n8n.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/n8n-17954-openai-compatible-reranker.patch ];
+    # nixpkgs pin 的 n8n 2.31.4 tarball hash 与 GitHub 现网不符（hash mismatch）。
+    # 局部覆盖为现网递归 hash，避免升级整个 nixpkgs 破坏缓存命中。
+    src = old.src.overrideAttrs (oldSrc: {
+      outputHash = "sha256-lmkCT1o5LSC1ORd+Jozr9hkJu2znMpFO97jTWYOnga0=";
+    });
   });
   netavark = prev.netavark.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/netavark-disable-conntrack.patch ];
