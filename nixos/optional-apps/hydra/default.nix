@@ -98,6 +98,9 @@ in
   systemd.services.hydra-notify = {
     preStart = atticLogin;
   };
+  systemd.services.hydra-queue-runner.serviceConfig = {
+    OOMScoreAdjust = "1000";
+  };
   systemd.services.hydra-evaluator.environment.GIT_SSH_COMMAND =
     "${lib.getExe pkgs.openssh} -i ${config.sops.secrets.hydra-ssh-privkey.path} -o IdentitiesOnly=yes";
   systemd.services.hydra-attic-repush = {
