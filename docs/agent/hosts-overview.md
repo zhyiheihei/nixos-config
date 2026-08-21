@@ -19,6 +19,7 @@
 | `ml-home-vm` | ~~115~~ | x86_64 / 家庭服务 VM | ~~`192.168.0.51`~~ | 已退役（2026-08-03）：应用迁至 ROCK5C/OPI5P/PVE，主机定义已从 flake 移除；`*.ml-home-vm.zhyi.xin` 服务别名由 ROCK 5C 继续承载。index 115 已由 macmini 复用。 |
 | `pve-5700u` | 116 | PVE | `pve-5700u.zhyi.xin` | PVE 宿主（仅虚拟化）；Hydra 与本机构建能力已迁至 ml-builder。 |
 | `hostdare` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.xin` 通配符公网入口。 |
+| `ml-laptop` | 118 | `client` | `ml-laptop.zhyi.xin` | 物理笔记本（对齐作者 lt-hp-omen）；LAN 地址 `192.168.0.55`；`manualDeploy`。 |
 | `volcengine` | 119 | `server` / 公网入口 | `volcengine.zhyi.xin` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
 | `greencloud` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、协作内容链路与 ZeroTier controller（监控栈 2026-08-14 迁至 tencent）。 |
 | `google` | 121 | `server` / 公网入口 / 日志目标 | `35.212.152.140` | US VPS（GCP）；Filebeat 目标仍指向此机，但当前未部署 Elasticsearch，日志链待修复。 |
