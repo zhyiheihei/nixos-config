@@ -152,18 +152,6 @@
                   };
                 }
 
-                # StorageBox remaining space <100G
-                {
-                  alert = "storagebox_remaining_space";
-                  expr = "storagebox_disk_quota - storagebox_disk_usage < 100*1024*1024*1024";
-                  for = "30m";
-                  labels.severity = "warning";
-                  annotations = {
-                    summary = "⚠️ {{$labels.alias}}: Storage box {{$labels.name}} has <100G free space.";
-                    description = "Storage box {{$labels.name}} has <100G free space.";
-                  };
-                }
-
                 # Asterisk outbound registration rejected
                 {
                   alert = "asterisk_pjsip_outbound_registration";
