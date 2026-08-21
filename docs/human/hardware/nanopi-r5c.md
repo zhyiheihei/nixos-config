@@ -8,11 +8,8 @@
 - Btrfs `/nix`，卷标 `NIXOS_NIX`
 - 持久化目录 `/nix/persistent`
 
-真机刷卡、USB-TTL 接线和完整串口日志采集步骤见
-[`nanopi-r5c-flash-and-serial.md`](nanopi-r5c-flash-and-serial.md)。
-内核、固件和系统闭包的体积审计及后续裁剪边界见
-[`nanopi-r5c-size-audit.md`](nanopi-r5c-size-audit.md)。
-其他 ARM64 开发板应从
+真机刷卡、USB-TTL 接线和完整串口日志采集步骤见第 8 节；内核、固件和系统闭包
+的体积审计及后续裁剪边界见第 9 节。其他 ARM64 开发板应从
 [`arm-board-bring-up.md`](arm-board-bring-up.md) 的通用流程开始，不要直接复制
 本板的串口地址、U-Boot 偏移或 DTB 名称。
 
@@ -577,3 +574,248 @@ systemd-analyze blame | head -30
 
 当前已经作为正式 `router` 运行。后续升级应继续检查 PPPoE、DHCP、DNS、NAT、
 DDNS、监控和无线服务；涉及静态 `kernel-config` 的变更必须经过一次冷启动验证。
+
+## 8. 从 macOS 写卡与串口日志
+
+### 8.1 确认构建产物
+
+构建机为 `root@192.168.0.50:2222`，仓库和结果链接分别位于
+`/nix/src/nixos-config` 与 `/nix/src/nixos-config/result-router-r5c`。
+
+```bash
+cd /nix/src/nixos-config
+nix build .#nixosConfigurations.router.config.system.build.sdImage \
+  --out-link result-router-r5c --print-build-logs
+
+IMAGE=/nix/src/nixos-config/result-router-r5c/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst
+test -f "$IMAGE"
+zstd --test "$IMAGE"
+sha256sum "$IMAGE"
+```
+
+构建日志中较早显示的分区表可能仍把第 2 分区标为 bootable；最终
+`postBuildCommands` 应显示 `The bootable flag on partition 1 is enabled now.`
+
+### 8.2 在 macOS 识别 SD 卡
+
+```bash
+diskutil list external physical
+```
+
+按容量、介质类型和分区确认整盘设备（例如 `/dev/disk4`），下文仅以此为示例；
+设备编号不同就必须替换。先让 `sudo` 完成认证，避免 SSH 已开始传输后才停在
+密码提示：
+
+```bash
+sudo -v
+diskutil unmountDisk /dev/disk4
+```
+
+### 8.3 从构建机流式写入 SD 卡
+
+无需先把压缩镜像复制到 Mac。通过 SSH 解压，并直接写入 macOS raw disk：
+
+```bash
+diskutil list external physical
+diskutil unmountDisk /dev/disk5
+
+set -o pipefail
+ssh -A -p 2222 root@192.168.0.50 \
+  'zstd -dc /nix/src/nixos-config/result-rock5c/sd-image/nixos-image-sd-card-26.11pre-git-aarch64-linux.img.zst' |
+  sudo dd of=/dev/rdisk5 bs=8m
+```
+
+`/dev/rdisk4` 是 `/dev/disk4` 对应的 raw device。macOS 自带 `dd` 未必支持
+`status=progress`；刷写时可在运行 `dd` 的终端按 `Ctrl-T`，或从另一终端执行
+`sudo pkill -INFO -x dd`。如果构建机上的 `zstd` 几乎不占 CPU 且 SSH 发送队列
+持续积压，通常是 Mac 端停在 `sudo` 认证或 `dd` 没有成功打开目标设备，按
+`Ctrl-C` 停止整条管道，先完成 `sudo -v` 和 `diskutil unmountDisk`，再重新写入。
+写完后：
+
+```bash
+sync
+diskutil eject /dev/disk5
+```
+
+### 8.4 连接 R5C 调试串口
+
+R5C 调试口为 3 针、3.3 V TTL，参数为 1500000 baud、8N1、无流控。接线必须交叉：
+
+```text
+R5C GND → USB-TTL GND
+R5C TX  → USB-TTL RX
+R5C RX  → USB-TTL TX
+```
+
+不要连接 USB-TTL 的 `VCC`/`3.3V`/`5V`；R5C 使用自己的 USB-C 电源。不要使用
+RS-232 电平转换器。将 CH340/CH341 或其他 USB-TTL 转接器插入 Mac，查看实际
+设备名：
+
+```bash
+ls -l /dev/cu.* /dev/tty.*
+```
+
+设备名可能是 `/dev/cu.wchusbserial*`、`/dev/cu.usbserial*` 或
+`/dev/cu.usbmodem*`，由转接器固件和 macOS 驱动决定；即使使用 CH340 也不保证
+名称包含 `wch`。
+
+### 8.5 使用 tio 读取并保存日志
+
+```bash
+brew install tio
+tio --list
+tio -b 1500000 -d 8 -s 1 -p none -f none /dev/cu.usbmodem57920206431
+```
+
+需要同时保存日志时追加 `--timestamp --log --log-file nanopi-r5c-boot.log
+--log-strip`。先启动 `tio`，再让 R5C 完全断电并重新上电，才能保留 DDR training、
+SPL、BL31、U-Boot、extlinux 和 Linux 内核的完整输出。退出 `tio`：`Ctrl-T` 然后
+按 `Q`。串口设备一次只能被一个程序占用。
+
+### 8.6 识别启动阶段
+
+正常的 SD bootloader 应出现：
+
+```text
+U-Boot SPL 2026.04
+U-Boot 2026.04
+Model: FriendlyElec NanoPi R5C
+```
+
+随后应从 SD 卡第 1 分区读取 `/extlinux/extlinux.conf`、`linux Image`、`initrd`
+和 `rockchip/rk3568-nanopi-r5c.dtb`。内核命令行应包含：
+
+```text
+earlycon=uart8250,mmio32,0xfe660000
+console=ttyS2,1500000n8
+console=tty0
+```
+
+不要把波特率追加到 `earlycon` 的 MMIO 地址后。错误写成
+`earlycon=uart8250,mmio32,0xfe660000,1500000` 时，内核可能已经正常运行，但串口
+会停留在 U-Boot 的 `Starting kernel ...`。
+
+如果系统已进入 NixOS、网卡也已建立链路，却在约 20 秒后无日志复位，检查目标
+主机是否导入了 `nixos/hardware/disable-watchdog.nix`。U-Boot 2026.04、DDR
+v1.23/1056 MHz 和 BL31 v1.45 是仓库当前 Nixpkgs 启动链的正常版本组合；若日志
+在约 3 秒停止，先检查最终 extlinux 命令行是否仍混入多个串口 console、
+`keep_bootcon` 或 `ignore_loglevel`，不要仅凭停止位置判定 U-Boot 有问题。最终
+命令行不应同时出现 `console=ttyS0`/`ttyAMA0`/`ttyS2`，也不应长期保留
+`keep_bootcon`；R5C 只使用 `console=ttyS2,1500000n8`。
+
+如果显示 `U-Boot 2024.10-OpenWrt` / `Model: Easepi RK3568 Board`，则设备仍由
+eMMC 中的旧 bootloader 接管。如果 `Starting kernel ...` 后立即重新出现 DDR
+training，表示设备硬复位。U-Boot 的 `Net: No ethernet found.` 只表示 U-Boot
+未初始化板载 PCIe 网卡，不能据此判断 Linux 网卡状态。
+
+### 8.7 进入 U-Boot 命令行
+
+在倒计时出现前连续按空格，成功后显示 `=>`；若已看到 extlinux 的
+`Enter choice:` 说明按键太晚。只读检查 eMMC 和 SD：
+
+```text
+mmc list
+mmc dev 0
+mmc info
+mmc part
+mmc dev 1
+mmc info
+mmc part
+```
+
+本机已确认：`mmc 0` = 28.9 GiB eMMC（`mmc@fe310000`），`mmc 1` = SD 卡
+（`mmc@fe2b0000`）。擦除命令具有破坏性，每次写入或擦除前必须重新用
+`mmc info` 核对容量和设备控制器。
+
+## 9. 内核与系统闭包裁剪
+
+正式 `router` 真机系统闭包约 **2.0 GiB**（约 964 个 requisites，2026-07-29）。
+对 NixOS 路由器偏大，但当前没有证据表明会造成运行故障。最值得继续优化的是
+R5C 静态内核配置，而不是删除作者的 nixpkgs 补丁或随意移除路由服务。
+
+当前 `kernel-config` 约 236 KiB：内建 `=y` 2094、模块 `=m` 712、明确禁用 4198。
+它源自通用 Rockchip/ARM64 基线，仍启用了大量非 R5C 硬件族，不能视为最小内核。
+
+### 补丁不是主要问题
+
+`patches/nixpkgs/` 的 10 个补丁与作者仓库逐文件一致。R5C 硬件目录没有维护
+额外的 Linux 板级 `.patch` 堆栈；主要差异是静态 `kernel-config`、R5C U-Boot
+defconfig、目标 DTB 筛选、精简固件 derivation、SD image 分区与 Rockchip
+引导载荷。删除 nixpkgs 补丁既不能显著减小闭包，也会制造不必要的上游偏离。
+
+### 已实施且应保留的裁剪
+
+- **精简固件**：只保留 MT7921/MT7961 Wi-Fi、MT7921 蓝牙和 RTL8125 所需固件，
+  不引入完整约 800 MiB 的 `linux-firmware`。收益最大、风险可控。
+- **单板 DTB**：`hardware.deviceTree.filter` 只复制 `rk3568-nanopi-r5c.dtb`。
+- **精简 initrd**：`boot.initrd.availableKernelModules` 强制为空，不继承通用
+  SD image 的 NVMe、USB 存储和虚拟机模块。
+- **限制启动代数**：256 MiB FAT `/boot` 只保留两个 extlinux generation，
+  仍保留一个可回退版本。
+- **真实交叉编译**：x86_64 `ml-builder` 上用 `pkgsCross.aarch64-multiplatform`
+  编译，编译器原生运行输出 AArch64 对象，不通过 QEMU 执行 ARM64 GCC。
+
+### 不能裁掉的内核能力
+
+| 能力 | 原因 |
+| --- | --- |
+| MMC、Btrfs、VFAT、ext4 | 启动介质、`/nix` 与 `/boot` |
+| RK3568 pinctrl、clock、regulator、PCIe | 板级启动和外设枚举 |
+| r8169、RTL8125 firmware | 双 2.5 GbE 和 PPPoE WAN |
+| MT7921e、MediaTek Wi-Fi firmware | hostapd AP |
+| Bluetooth、btusb、BT_MTK | MT7921 蓝牙 |
+| nftables、bridge、VLAN、PPPoE、conntrack | 路由器数据面 |
+| MPTCP | 公共 `mptcpd` 服务 |
+| ZRAM、Zstd | 公共 `zramSwap`，缺失会产生 90 秒启动超时 |
+| BPF、BTF、debug info BTF | DAE |
+| NETDEV LED trigger | LAN、WAN、WLAN 状态灯 |
+| RTC RK808/HYM8563、I²C | 断网启动时钟恢复 |
+| USB serial CP210x、FTDI、WWAN/option | GPS 和可能的外接串口设备 |
+
+蓝牙 BNEP 是例外：当前只需要 BLE/GATT、配对及 central/peripheral 角色，
+不使用蓝牙 PAN。缺少 BNEP 会产生一条 BlueZ 警告，不应仅为消除日志而启用。
+
+### 仍有裁剪潜力的区域
+
+静态配置仍包含约 274 个宽泛的网络、无线、显示、媒体和声音相关选项。优先
+审计：除 Realtek 之外的大量 PCI/服务器网卡厂商；除 MediaTek 之外的无线网卡
+厂商；Nouveau 和与无头路由器无关的 DRM 驱动；摄像头/视频采集和完整媒体
+子系统；SoundWire 及无实际设备对应的音频驱动；与 RK3568/R5C 不相关的 SoC、
+开发板和存储控制器。不能根据一次 `lsmod` 直接删除：内建驱动不会出现在
+`lsmod`，部分驱动只在冷启动、插入 USB 设备、建立 PPPoE 或加载 eBPF 时使用。
+
+### 用户空间闭包
+
+`minimal.nix` 会导入 Home Manager，并为 `root` 和 `zhyi` 生成非客户端环境
+（git、htop、jq 等）。这在闭包中较显眼，但与作者结构一致；不应只为 router
+创建特殊删除规则。router 相比作者 `lt-home-router` 增加了 DAE、Wi-Fi 和
+Prometheus 指标，同时没有引入作者的 lancache 与 ncps 服务端，应用层没有证据
+表明本 fork 比作者配置显著更重。
+
+### 后续裁剪方法
+
+每轮只处理一个驱动族，并保留上一个可启动 generation：冷启动后保存 `lsmod`、
+`lspci -k`、`lsusb -t`、`dmesg` 和 `/sys/kernel/debug/devices_deferred`；
+对照 R5C DTS、PCI/USB modalias 和当前服务的内核需求；修改一组 Kconfig 并交叉
+重新构建；验证冷启动、双网卡、PPPoE、Wi-Fi、蓝牙、DAE、MPTCP、ZRAM、LED 和
+RTC；比较 kernel、modules、initrd、`/boot` 与系统 closure 的实际尺寸；确认
+稳定后才开始下一组。记录命令：
+
+```bash
+systemd-analyze
+systemd-analyze critical-chain
+systemctl --failed --no-pager
+
+lsmod
+lspci -nnk
+lsusb -t
+zramctl
+bluetoothctl show
+
+du -sh /boot
+nix path-info -Sh /run/current-system
+nix path-info -s $(nix-store -qR /run/current-system) | sort -k2 -n | tail -50
+```
+
+目标是减少无关模块和构建时间，不是追求最小数字；任何导致冷启动、路由数据面
+或回退能力下降的裁剪，都不应进入正式 `router`。

@@ -220,7 +220,7 @@ SSH 登录成功
 ```
 
 同一串口不要同时由多个程序打开。macOS 写卡和串口操作见
-[`nanopi-r5c-flash-and-serial.md`](nanopi-r5c-flash-and-serial.md)，其中的设备名
+[`nanopi-r5c.md`](nanopi-r5c.md) 第 8 节，其中的设备名
 和波特率需要替换为目标板实际值。
 
 ## 8. 构建和验证
