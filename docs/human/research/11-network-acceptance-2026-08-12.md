@@ -53,4 +53,4 @@
 
 - `hosts/router/quality-monitoring.nix`
 - `hosts/router/prometheus.nix`
-- `docs/research/10-router-rx-queue-4.md`
+- `docs/research/router-r5c-tuning.md`
