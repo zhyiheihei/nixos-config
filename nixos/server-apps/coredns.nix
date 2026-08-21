@@ -68,7 +68,7 @@ let
       ${forwardZone "ad.zhyi.xin" null}
 
       # LTNET Public Facing Addressing
-      ${forwardZone "asn.zhyi.xin" "Kasn.zhyi.xin.+013+54715"}
+      ${forwardZone "asn.zhyi.cc" "Kasn.zhyi.cc.+013+54715"}
 
       # LTNET Authoritative
       ${forwardZone "18.198.in-addr.arpa" null}
@@ -331,8 +331,8 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
               path = "ltnet-scripts/zones/tel.dn42";
             }
             {
-              domain = "asn.zhyi.xin";
-              path = "ltnet-scripts/zones/asn.zhyi.xin";
+              domain = "asn.zhyi.cc";
+              path = "ltnet-scripts/zones/asn.zhyi.cc";
             }
             {
               domain = "18.198.in-addr.arpa";
