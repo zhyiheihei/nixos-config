@@ -6,7 +6,7 @@
 
 ## 必读（每次任务开始前）
 
-1. [`work-norms.md`](work-norms.md) —— 工作规范十条（提交+对齐、对照上游、不动公共模块、查证不猜、巡检看指标、聚焦任务、构建只用 ml-builder、大任务先出方案）
+1. [`work-norms.md`](work-norms.md) —— 工作规范十一条（提交+对齐、文档对账、对照上游、不动公共模块、查证不猜、巡检看指标、聚焦任务、构建只用 ml-builder、大任务先出方案、代理维护、模块分层）
 2. [`skills-recommendation.md`](skills-recommendation.md) —— 任务分级（S/M/L/Debug）与 skill 使用；冲突时以工作规范为准
 3. [`ai-api-gateway-chain.md`](ai-api-gateway-chain.md) —— AI 网关链路硬约束（UniAPI 唯一汇聚点）
 4. [`module-placement-norms.md`](module-placement-norms.md) —— 模块分层与参数归属
