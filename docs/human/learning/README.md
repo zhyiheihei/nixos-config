@@ -29,8 +29,7 @@
 
 ### 磁盘与系统
 
-- [impermanence 易失根持久化](impermanence.md)
-- [preservation 非易失状态管理](preservation.md)
+- [impermanence 易失根持久化（含 preservation 对照）](impermanence.md)
 
 ### 开发工具
 
