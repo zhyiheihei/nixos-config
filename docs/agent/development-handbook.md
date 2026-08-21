@@ -197,3 +197,32 @@ port = {
 ```nix
 portStr.MyService  # 返回 "13xxx" 而非 13xxx
 ```
+
+## 常用命令
+
+```bash
+# 检查配置
+nix flake check
+
+# 构建主机配置
+nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel
+
+# 部署到远程主机（使用 Colmena）
+nix run .#colmena apply
+
+# 更新 DNS 配置
+nix run .#dnscontrol
+
+# 更新 Flake 输入
+nix run .#update-flake
+```
+
+## 添加新主机
+
+1. 在 `hosts/` 目录下创建新目录
+2. 创建 `host.nix` 定义主机元数据
+3. 创建 `configuration.nix` 导入所需模块
+4. 运行 `nixos-generate-config` 生成 `hardware-configuration.nix`
+
+完整接入约束（index 唯一、磁盘布局、SSH host key、SOPS、WireGuard/ZeroTier）
+见 [`new-host-standard.md`](new-host-standard.md)。
