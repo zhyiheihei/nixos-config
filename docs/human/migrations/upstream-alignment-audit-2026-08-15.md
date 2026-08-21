@@ -130,9 +130,3 @@
 | 验证 | `workflow_dispatch` 触发 auto-update-data：**三次均在同一步骤失败**——"Commit updated packages" 推送 master 时 `non-fast-forward`。根因确凿：运行期间（~10–13 分钟）用户对 master 有并发推送，其中一次为 **force push**（`a1ba6bc...9fa4769 forced update`，历史被重写），runner 检出的旧 master 与 origin 分叉。git-auto-commit-action 官方明确不做 `git pull`/rebase（README "No git pull when the repository is out of date"），上游同样承受该竞态，只是作者 master 安静。dnscontrol 工作流在 push 触发下持续全绿（含一次 `schedule` 触发成功 run），不受影响。**决策（用户确认，2026-08-15）：保持与上游逐字节一致，不做 rebase 健壮化**——23:32 UTC 定时（北京 07:32）通常安静预期可通过；工作时段手动触发失败无危害（改动可再生、不碰服务），后续观察定时 run 即可 |
 
 > `codex/upstream-align` 分支内容已被批次 1 以不同 hash 适配到 master（审计正文多处引用该分支 hash），保留不删以免引用悬空。
-
-## 相关文档
-
-- [2026-08-03 作者配置复刻偏移审计](../../archive/audits/upstream-replica-audit-2026-08-03.md)
-- [2026-07-28 上游对齐偏差审计](../../archive/audits/upstream-alignment-audit-2026-07-28.md)
-- [2026-08-13 全量 diff 审计](../../archive/audits/alignment-audit-2026-08-13.md)

@@ -81,4 +81,3 @@ NixOS。
 
 - [impermanence](https://github.com/nix-community/impermanence)
 - [preservation](preservation.md)
-- [disko-templates 的 zfs-impermanence](../../archive/learning/disko-templates.md)

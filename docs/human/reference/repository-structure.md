@@ -13,7 +13,7 @@
 ├── Makefile               # 构建命令
 ├── nvfetcher.toml         # 包版本管理配置
 ├── dns/                   # DNS 配置
-├── docs/                  # 文档（agent/ human/ archive/ 三类）
+├── docs/                  # 文档（agent/ human/ 两类）
 ├── flake-modules/         # Flake 模块
 ├── helpers/               # 辅助函数和常量
 ├── home/                  # Home Manager 配置

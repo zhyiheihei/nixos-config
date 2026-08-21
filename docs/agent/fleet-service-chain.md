@@ -331,7 +331,7 @@ NFS 等生成卡片；WebDAV 卡片保留在 `08 · 私有 · 家庭服务` 分�
 | P2 | ROCK 5C/OPI5P 部分迁移注释仍称入口在 ml-home-vm | 后续维护可能把代理改回旧 VM | 当前链路文档已改为 ROCK 5C；历史迁移注释保留为记录 |
 
 在 P0 链路修复前，不继续扩大 LubanCat-1 的服务迁移范围。LubanCat-1 的候选服务和
-资源预算见[服务链路与 LubanCat-1 迁移审计](../archive/audits/service-chain-lubancat-audit.md)。
+资源预算按 [LubanCat-1 适配文档](../human/hardware/lubancat-1.md) 的 server 基线执行。
 
 ## 维护规则
 

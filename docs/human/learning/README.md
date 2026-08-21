@@ -2,8 +2,7 @@
 
 本目录只保留**与本项目（NixOS 复刻）相关**的学习笔记：项目实际使用的工具
 （flake inputs / home 模块命中）与复刻学习专属文档。其余 nix-community 生态
-工具笔记已归档至 [`../../archive/learning`](../../archive/learning)，不作为
-当前学习依据（追溯历史生态笔记时去那边查）。
+工具笔记已删除归档，不作为当前学习依据。
 
 ## 复刻学习总纲
 
@@ -47,7 +46,3 @@
 
 - [plasma-manager KDE Plasma 的 Home Manager 模块](plasma-manager.md)
 - [stylix 统一主题框架](stylix.md)
-
-> 归档区 [`../../archive/learning`](../../archive/learning) 收录 205 篇纯
-> nix-community 生态工具笔记（dream2nix、nixops、nixpkgs-* 系列等），
-> 与本项目无直接使用关系。

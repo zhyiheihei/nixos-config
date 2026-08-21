@@ -68,4 +68,3 @@ nix-direnv 语义：
 ## 6. 参考
 
 - [nix-direnv](https://github.com/nix-community/nix-direnv)
-- [lorri](../../archive/learning/lorri.md)

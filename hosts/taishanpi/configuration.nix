@@ -17,7 +17,7 @@
   # hardening.nix empties /etc/securetty and adds pam_securetty to login, so
   # root cannot log in on any tty (including ttyS2) by default.  This board has
   # no wired NIC and first bring-up goes through the serial console, so
-  # explicitly allow ttyS2 (documented in docs/archive/hardware/taishanpi.md).
+  # explicitly allow ttyS2.
   environment.etc.securetty.text = lib.mkForce ''
     ttyS2
   '';
