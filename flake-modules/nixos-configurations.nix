@@ -75,6 +75,6 @@ in
         modules = modulesFor n;
         specialArgs = specialArgsFor n;
       }
-    ) (builtins.readDir ../hosts);
+    ) (lib.filterAttrs (n: _: !(lib.hasInfix "darwin" LT.hosts."${n}".system)) (builtins.readDir ../hosts));
   };
 }
