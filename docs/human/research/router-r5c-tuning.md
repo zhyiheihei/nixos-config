@@ -107,6 +107,25 @@ br-lan: port 1(eth0) entered disabled state
 - fq_codel A/B：`mq`+`pfifo_fast` 2.293/51041 → `mq`+每队列 `fq_codel`（已落地）2.326/23269（重传 -54%）。
 - `ethtool -l eth0/eth1`：RX 4 / TX 2。
 
+### 网络整体验收（2026-08-12）
+
+| 项目 | 结果 |
+| --- | --- |
+| LAN ping | 100/100，0% 丢包，avg 0.305ms |
+| 直连 P1 / P16 | 2.35 / 2.38-2.39 Gbit/s，重传 0-60 |
+| Hairpin P1 / P16 | 1.90 / 2.31 Gbit/s（P16 重传约 38k，多队列乱序） |
+| UDP 直连 / hairpin | 100M，抖动 <0.1ms，0% 丢包 |
+| WAN 下载 | 单流 724 Mbps，四流聚合 981 Mbps（接近家宽上限） |
+| WAN 上行 | qBittorrent 真实采样 18 Mbps |
+| DNS | 本地 CoreDNS 首次 19ms；223.5.5.5 7ms；119.29.29.29 15ms |
+| HTTP | `bt.router` TTFB 267ms；`vaults3:8443/health` hairpin TTFB 45ms |
+| 公网丢包 | 223.5.5.5 / 119.29.29.29 0%；baidu 5%（ICMP 限速） |
+
+持续监控：`router-quality-check` 每分钟导出 `router_quality_netdev_*`、
+`router_quality_ping_*` 与 `router_quality_dns_query_ms`（Prometheus 可查）；
+NAPI `1200/30000` 的 DNS/ICMP 延迟对照持续观察。WAN 上行上限未测（无稳定
+公网 iperf 端点）。
+
 ### 官方参考与剩余未落地项
 
 - 官方：Kernel nf_flowtable 文档、nftables wiki Flowtable；Linux 6.18 flowtable 元组按双向输入接口记录（`iifidx`），hairpin 双向从 br-lan 进入，机制上支持跳过 hairpin 的结论。
