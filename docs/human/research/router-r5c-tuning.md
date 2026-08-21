@@ -116,4 +116,4 @@ br-lan: port 1(eth0) entered disabled state
 
 - `nixos/hardware/nanopi-r5c/default.nix`、`nixos/hardware/nanopi-r5c/kernel-config`
 - `hosts/router/{flowtable,performance,qbittorrent,networking,host}.nix`
-- 选型背景：`research/01-openwrt-nanopi-r5c.md`、`02-r5s-cooluc.md`、`03-istoreos-r5c.md`
+- 选型背景：[router-firmware-selection.md](router-firmware-selection.md)
