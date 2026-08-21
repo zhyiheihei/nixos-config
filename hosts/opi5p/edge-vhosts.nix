@@ -51,17 +51,6 @@
     noIndex.enable = true;
   };
 
-  # Tachidesk 后端就在本机（tachidesk-backend.opi5p.zhyi.xin, HTTP:80），
-  # 与 rock5c 的公开 vhost 相同路径，认证一致。
-  lantian.nginxVhosts."tachidesk.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "http://127.0.0.1";
-      proxyOverrideHost = "tachidesk-backend.opi5p.zhyi.xin";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-      enableBasicAuth = true;
-    };
-    sslCertificate = "lets-encrypt-zhyi.xin";
-    noIndex.enable = true;
-  };
+  # Tachidesk 公开 vhost 由 tachidesk.nix（media-download-chain import）提供，
+  # 本文件不重复定义，避免 proxyPass 冲突。
 }
