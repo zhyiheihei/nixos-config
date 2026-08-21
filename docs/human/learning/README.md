@@ -9,8 +9,7 @@
 - [Nix 复刻学习总纲](nix-replication-guide.md) —— 以复刻 xddxdd 两套仓库为路径的总纲
 - [Star 排序学习清单](star-ranked-curriculum.md) —— 按 star 排序的学习路线图（状态随进度更新）
 - [作者知识链：私有 + 公开两天线](author-knowledge-chain.md)
-- [知识链完整链路与上游对齐审计](knowledge-chain-upstream-alignment.md)
-- [知识链 Syncthing 三节点实施规划](knowledge-chain-rollout-plan.md)
+- [知识链完整链路与上游对齐（含 Syncthing 实施）](knowledge-chain-upstream-alignment.md)
 
 ## 项目仓库相关
 
