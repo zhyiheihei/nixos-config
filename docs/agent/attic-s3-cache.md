@@ -135,6 +135,44 @@ git pull --ff-only
 make all
 ```
 
+## 缓存优先级与容量判断
+
+自有 Attic 优先、是否完整镜像上游缓存、以及 S3 占用大小是三件不同的事。
+
+### 优先级
+
+Nix 依据 binary cache 的 `Priority` 选择下载源，数值越小优先级越高。配置
+`substituters` 的排列顺序不能替代服务端优先级。
+
+```bash
+attic cache info lantian
+curl -fsS https://attic.zhyi.xin/lantian/nix-cache-info
+```
+
+只有持有 `configure_cache` 权限的管理员才可以修改 priority。修改前后都必须记录
+`attic cache info` 的输出；不要绕过 Attic CLI 直接写 PostgreSQL。
+
+### 上游缓存与独立性
+
+若 Attic cache 配置了 `upstream-cache-key-names`，`attic push` 可能显示
+`in upstream`，表示已被信任的上游签名覆盖而跳过上传。这能节约自身 S3 空间，但不
+代表自有 S3 保存了完整闭包。
+
+若目标是离线/独立可恢复的闭包缓存，应由管理员将 upstream key 列表设为空，并在
+目标系统闭包上重跑补推；不能扫描或盲推整块 `/nix/store` 来代替闭包验收。
+
+### 容量判断
+
+`nix path-info -Sh` 给出的 NAR 大小是未压缩值。Attic 当前使用 zstd 压缩，并会共享
+重复对象，因此 S3 bucket 的实际占用通常明显更小。完整性应以以下证据判断：
+
+1. 目标系统 root 的闭包路径都可由 Attic 下载。
+2. 第二次 `attic push` 不再有待上传路径。
+3. 新机器只启用 Attic 时可以复制该闭包或完成安装。
+
+出现 502 或网络中断后，可以重复相同的定向 `attic push`；已完成对象会去重。先检查
+Attic 与反代日志，不要因单个错误就清空数据库或 S3。
+
 ## 上传
 
 `ml-builder` 的 Hydra 会自动登录并上传，同一主机也保留手动上传凭据，不启用
@@ -151,6 +189,60 @@ attic push lantian ./result
 `create-cache`、`configure-cache`、`destroy-cache` 或 `delete` 权限。完成私有化后，
 管理员 token 不应保留在构建机上。
 
+### 手动补推流程
+
+日常构建由 Hydra 的 post-build hook 上传。只有新增系统、补齐明确缺失的闭包，或
+确认缓存写入中断时才手动补推。不要把“全量推送”理解为扫描并上传整块
+`/nix/store`：这会包含无关历史路径，也会放大并发上传问题。
+
+1. **构建并固定目标闭包**（在 `ml-builder` 上，用 out-link 保留系统根）：
+
+   ```bash
+   cd /nix/src/nixos-config
+   HOST=rock5c
+   nix build ".#nixosConfigurations.$HOST.config.system.build.toplevel" \
+     --out-link "/root/cache-roots/$HOST"
+   ```
+
+   需要构建 `hosts/` 中的完整自有 Hive 时用 `make build`（不会切换任何机器）。
+
+2. **定向上传**（token 由 SOPS 提供，不能打印或写入 shell 历史）：
+
+   ```bash
+   ROOT=/root/cache-roots/rock5c
+   TOKEN=$(cat /run/secrets/attic-upload-key)
+   nix shell nixpkgs#attic-client -c attic login --set-default lantian \
+     https://attic.zhyi.xin "$TOKEN"
+   nix shell nixpkgs#attic-client -c attic push lantian "$ROOT"
+   ```
+
+   需要补推 `.gcroots` 中的多个已验证根时用 `make push-cache`。不要启用
+   `attic-watch-store` 来替代这一步；当前 `ml-builder` 明确没有启用该服务。
+
+3. **验收与重试**：
+
+   ```bash
+   P=$(readlink -f "$ROOT")
+   nix copy --from https://attic.zhyi.xin/lantian \
+     --to file:///tmp/attic-copy-test "$P"
+   rm -rf /tmp/attic-copy-test
+   ```
+
+   网络错误或 HTTP 502 后先检查服务端：
+
+   ```bash
+   ssh -A -p 2222 root@greencloud.zhyi.xin \
+     'systemctl status atticd.service --no-pager -l; journalctl -u atticd.service -n 100 --no-pager'
+   ```
+
+   确认服务正常后重新执行完全相同的定向上传。已成功对象会显示为已缓存，不会因中断
+   整体损坏。
+
+4. **不要直接清库**：删除 S3 对象、截断 Attic 表、重建 cache 或轮换 cache key
+   都是事故恢复操作，必须先备份 PostgreSQL、确认所有客户端的公钥迁移方案，并单独
+   记录变更。客户端出现旧 narinfo 或本地 store 损坏时，先分别验证目标路径、Attic
+   narinfo 和服务端日志，不要把问题扩大成整库清理。
+
 ## S3 与流量边界
 
 Attic 负责 narinfo、鉴权与对象索引；已发布 NAR 由 S3 后端提供。S3 bucket 不向
@@ -158,5 +250,5 @@ Attic 负责 narinfo、鉴权与对象索引；已发布 NAR 由 S3 后端提供
 默认保留期为 3 个月；不要在 S3 侧另设会删除仍被 Attic 引用对象的生命周期规则。
 
 缓存损坏、旧 narinfo 或需要补推闭包时，先按
-[补推流程](attic-full-store-push.md) 核对服务端、目标闭包和客户端的
+[补推流程](#手动补推流程) 核对服务端、目标闭包和客户端的
 `nix-cache-info`，不要直接删除对象或数据库记录。
