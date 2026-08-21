@@ -37,8 +37,7 @@
 - [nixd Nix language server](nixd.md)
 - [nix-init 从 URL 生成包](nix-init.md)
 - [nix-direnv direnv 的 use_flake](nix-direnv.md)
-- [nix-index nix 文件定位](nix-index.md)
-- [nix-index-database nix-index 预生成数据库](nix-index-database.md)
+- [nix-index nix 文件定位（含预生成数据库）](nix-index.md)
 
 ### 桌面与主题
 
