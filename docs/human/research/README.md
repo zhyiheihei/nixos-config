@@ -4,9 +4,8 @@
 
 | 文档 | 参考对象 |
 | --- | --- |
-| [01-openwrt-nanopi-r5c.md](01-openwrt-nanopi-r5c.md) | OpenWrt NanoPi R5C |
-| [02-r5s-cooluc.md](02-r5s-cooluc.md) | r5s.cooluc.com（Cooluc / sbwml/builder） |
-| [03-istoreos-r5c.md](03-istoreos-r5c.md) | iStoreOS（istoreos-24.10）R5C |
+| [router-firmware-selection.md](router-firmware-selection.md) | R5C 路由器固件选型（OpenWrt / Cooluc / iStoreOS，已合并 01-03） |
 | [05-podman-to-nix-evaluation.md](05-podman-to-nix-evaluation.md) | Podman 容器转 Nix 包替代评估（含 MoviePilot 专项） |
 | [11-network-acceptance-2026-08-12.md](11-network-acceptance-2026-08-12.md) | 内网/外网/DNS/HTTP/丢包全方位验收 |
 | [router-r5c-tuning.md](router-r5c-tuning.md) | R5C 路由器调优（flowtable/RSS/RX 队列，已合并 04/09/10） |
+| [subtitle-sources-expansion.md](subtitle-sources-expansion.md) | 字幕源扩展调研 |
