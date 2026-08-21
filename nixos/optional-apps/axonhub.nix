@@ -61,7 +61,7 @@
   };
   users.groups.axonhub = { };
 
-  lantian.nginxVhosts."axonhub.${config.networking.hostName}.zhyi.cc" = {
+  lantian.nginxVhosts."axonhub.${config.networking.hostName}.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.AxonHub.Web}";
@@ -71,7 +71,7 @@
     };
 
     accessibleBy = "private";
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+    sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
     noIndex.enable = true;
   };
 }

@@ -52,11 +52,11 @@ let
             network = "xhttp";
             security = "tls";
             tlsSettings = {
-              serverName = "tencent.zhyi.cc";
+              serverName = "tencent.zhyi.xin";
               fingerprint = "firefox";
             };
             xhttpSettings = {
-              host = "tencent.zhyi.cc";
+              host = "tencent.zhyi.xin";
               path = "/ray";
               xmux = {
                 maxConcurrency = 128;

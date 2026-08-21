@@ -55,7 +55,7 @@ let
     let
       inherit (e) scheme name src;
       proto = "${scheme}://";
-      pattern = "(\\.${src}\\.zhyi\\.xin|\\.${src}\\.moliy\\.site|\\.zhyi\\.xin|\\.moliy\\.site|\\.localhost|zhyi\\.xin|moliy\\.site)$";
+      pattern = "(\\.${src}\\.zhyi\\.xin|\\.zhyi\\.xin|\\.localhost|zhyi\\.xin)$";
       parts = builtins.split pattern name;
     in
     if builtins.length parts == 1 then
@@ -79,18 +79,17 @@ let
     # Not a wildcard vhost (name containing "*")
     (builtins.filter (e: !lib.hasInfix "*" e.name))
     (builtins.filter (e: !lib.hasPrefix "www." e.name))
-    # Ends with .zhyi.xin, .moliy.site, or .localhost
+    # Ends with .zhyi.xin, or .localhost
     (builtins.filter (
       e:
       lib.hasSuffix ".zhyi.xin" e.name
-      || lib.hasSuffix ".moliy.site" e.name
       || lib.hasSuffix ".localhost" e.name
     ))
     # .localhost entries are only kept from the current host (they are per-host)
     (builtins.filter (e: !lib.hasSuffix ".localhost" e.name || e.src == thisHost))
-    # Not the redundant per-host top-level alias <host>.zhyi.xin or
-    # <host>.moliy.site (subdomains like <svc>.<host>.<domain> are kept)
-    (builtins.filter (e: !(e.name == "${e.src}.zhyi.xin" || e.name == "${e.src}.moliy.site")))
+    # Not the redundant per-host top-level alias <host>.zhyi.xin
+    # (subdomains like <svc>.<host>.<domain> are kept)
+    (builtins.filter (e: !(e.name == "${e.src}.zhyi.xin")))
     (builtins.map splitName)
     (builtins.foldl' (acc: r: if builtins.any (x: x.url == r.url) acc then acc else acc ++ [ r ]) [ ])
     (builtins.sort (a: b: a.url < b.url))

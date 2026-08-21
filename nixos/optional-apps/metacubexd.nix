@@ -43,7 +43,7 @@
         CLASH_API_PORT = "9092";
         CONTROL_PORT = "8082";
         DATA_DIR = "/data";
-        DEFAULT_BACKEND_URL = "https://metacubexd.${config.networking.hostName}.zhyi.cc/clash-api";
+        DEFAULT_BACKEND_URL = "https://metacubexd.${config.networking.hostName}.zhyi.xin/clash-api";
         MIHOMO_BIN = "/usr/local/bin/mihomo";
         MIXED_PORT = "7892";
         TZ = config.time.timeZone;
@@ -83,7 +83,7 @@
     '';
 
     lantian.nginxVhosts = {
-      "metacubexd.${config.networking.hostName}.zhyi.cc" = {
+      "metacubexd.${config.networking.hostName}.zhyi.xin" = {
         locations = {
           "/" = {
             proxyPass = "http://127.0.0.1:${LT.portStr.MetaCubeXD.Control}";
@@ -95,7 +95,7 @@
           };
         };
         accessibleBy = "private";
-        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
         noIndex.enable = true;
       };
       "metacubexd.localhost" = {

@@ -7,7 +7,7 @@
 }:
 let
   outboundProxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.cc,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   proxyEnvironment = {
     GOPROXY = "https://goproxy.cn,direct";
     HTTP_PROXY = outboundProxy;
@@ -156,15 +156,7 @@ in
   # capacity available to the remaining services; revisit when reDroid returns.
   zramSwap.memoryPercent = lib.mkForce 100;
 
-  # This is a production media/database/reDroid node first and an ARM builder
-  # only as a compatibility fallback. One derivation at a time; let it use all
-  # cores, but never run multiple memory-heavy derivations concurrently.
-  nix.settings.max-jobs = lib.mkForce 1;
   assertions = [
-    {
-      assertion = LT.this.nixBuilder.maxJobs == 1 && config.nix.settings.max-jobs == 1;
-      message = "opi5p must remain a single-job native ARM fallback builder; use ml-builder cross builds when possible";
-    }
     {
       assertion = lib.hasInfix "mirror.sjtu.edu.cn" config.systemd.services.ncps.environment.NO_PROXY;
       message = "opi5p NCPS must bypass the proxy for mirror.sjtu.edu.cn; update ncpsProxyBypass and docs/human/network/ltnet-home-relay.md together";
@@ -201,14 +193,14 @@ in
   # CSF/Bifrost driver. Keep the image outside the immutable system closure;
   # Podman pulls it at runtime and stores Android state on persistent /nix.
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
-    # Self-hosted acceleration via hubproxy on tencent (hub.tencent.zhyi.cc,
+    # Self-hosted acceleration via hubproxy on tencent (hub.tencent.zhyi.xin,
     # reached over the ZeroTier/LTNET tunnel). daocloud kept as fallback when
     # the tunnel is unreachable.
     [[registry]]
     location = "docker.io"
 
     [[registry.mirror]]
-    location = "hub.tencent.zhyi.cc"
+    location = "hub.tencent.zhyi.xin"
 
     [[registry.mirror]]
     location = "docker.m.daocloud.io"
@@ -265,7 +257,7 @@ in
     environment = {
       HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
       HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-      NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.cc,.zhyi.xin";
+      NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.xin";
     };
     preStart = lib.mkBefore ''
       for attempt in $(${pkgs.coreutils}/bin/seq 1 60); do
@@ -351,5 +343,5 @@ in
 
   # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; this host is
   # both the backup server and a backup client, so point it at itself.
-  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.xin";
 }

@@ -97,7 +97,6 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
     ];
     announcedIPv6 = [
       "fdd8:1938:4e88:3712::53"
-      "fd10:127:10:2547::53"
     ];
     birdBindTo = [ "pdns-recursor.service" ];
   };
@@ -119,7 +118,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
           (DN42 ++ Emercoin ++ CRXN ++ Meshname ++ YggdrasilAlfis ++ Ltnet ++ Others)
           # Recursive forwarders can omit RRSIGs from these Cloudflare/Gcore-backed
           # responses, so validating them again would return SERVFAIL.
-          ++ [ "m-team.cc" "zhyi.cc" "zhyi.xin" ]
+          ++ [ "m-team.cc" "zhyi.xin" ]
         );
       in
       ''
@@ -146,7 +145,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
       recursor = {
         any_to_tcp = true;
         qname_minimization = false;
-        server_id = "${config.networking.hostName}.zhyi.cc";
+        server_id = "${config.networking.hostName}.zhyi.xin";
         forward_zones_file = "/nix/sync-servers/ltnet-scripts/pdns-recursor-conf/fwd-dn42-interconnect.yml";
         forward_zones = forwardZones;
         forward_zones_recurse = forwardZonesRecurse;

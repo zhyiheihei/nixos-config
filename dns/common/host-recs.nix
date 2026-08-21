@@ -23,8 +23,8 @@ let
     virmach-ny3ip = LT.hosts.hostdare;
     # keep-sorted end
   }
-  // lib.optionalAttrs (LT.hosts ? buyvm) {
-    virtono = LT.hosts."buyvm";
+  // lib.optionalAttrs (LT.hosts ? google) {
+    virtono = LT.hosts."google";
   };
 
   forEachActiveHost = mapFunc: (lib.mapAttrsToList mapFunc LT.hosts);
@@ -170,7 +170,7 @@ in
             gcore_failover_tls = "true";
             gcore_failover_host = args.healthcheck;
           })
-          // (lib.optionalAttrs (k == "zgocloud") {
+          // (lib.optionalAttrs (k == "volcengine") {
             gcore_countries = "cn";
           });
       in
@@ -269,27 +269,18 @@ in
       domain:
       forEachActiveHost (
         n: v:
-        lib.optionals (v.ssh.ed25519 != null) (
-          if v.ssh.ed25519Fingerprints.sha1 == null || v.ssh.ed25519Fingerprints.sha256 == null then
-            throw "Missing precomputed SSHFP values for host ${n}"
-          else
-            [
-              {
-                recordType = "SSHFP";
-                name = concatDomain n domain;
-                algorithm = 4;
-                type = 1;
-                value = v.ssh.ed25519Fingerprints.sha1;
-              }
-              {
-                recordType = "SSHFP";
-                name = concatDomain n domain;
-                algorithm = 4;
-                type = 2;
-                value = v.ssh.ed25519Fingerprints.sha256;
-              }
-            ]
-        )
+        lib.optionals (v.ssh.ed25519 != null) [
+          {
+            recordType = "SSHFP_ED25519_SHA1";
+            name = concatDomain n domain;
+            pubkey = v.ssh.ed25519;
+          }
+          {
+            recordType = "SSHFP_ED25519_SHA256";
+            name = concatDomain n domain;
+            pubkey = v.ssh.ed25519;
+          }
+        ]
       );
 
     LTNet =

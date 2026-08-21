@@ -70,7 +70,6 @@
       };
       Homepage = {
         URL = "about:home";
-        # URL = "https://homepage.lt-home-vm.xuyh0120.win";
         Locked = true;
         StartPage = "homepage";
       };
@@ -94,7 +93,7 @@
           p11-kit = "/etc/firefox/pkcs11/p11-kit-trust.so";
         };
       };
-      ShowHomeButton = false;
+      ShowHomeButton = true;
       SupportMenu = {
         Title = "Magic Flash @ Blog";
         URL = "https://zhyi.xin";

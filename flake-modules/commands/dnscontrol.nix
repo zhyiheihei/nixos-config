@@ -10,11 +10,6 @@ let
     inherit (sources.dnscontrol-xddxdd) pname version src;
     vendorHash = "sha256-MhF/ZUPj3slDD9Pn3j4Gy0WT3iGHlF7o7sMjo6DS+y8=";
 
-    # Fetch Go modules through the Qiniu-maintained China proxy so builds
-    # work reliably from mainland networks (proxy.golang.org is often slow
-    # or unreachable from China, especially over IPv6).
-    env.GOPROXY = "https://goproxy.cn,direct";
-
     ldflags = [
       "-s"
       "-w"
@@ -40,12 +35,7 @@ in
     cp -r "$CURR_DIR/zones" "$TEMP_DIR/zones"
   fi
 
-  SSH_KEY="''${DNSCONTROL_SSH_KEY:-$HOME/.ssh/id_ed25519}"
-  if [ ! -f "$SSH_KEY" ] && [ -f /nix/persistent/etc/ssh/ssh_host_ed25519_key ]; then
-    SSH_KEY=/nix/persistent/etc/ssh/ssh_host_ed25519_key
-  fi
-
-  ${lib.getExe pkgs.ssh-to-age} -private-key -i "$SSH_KEY" \
+  ${lib.getExe pkgs.ssh-to-age} -private-key -i "$HOME/.ssh/id_ed25519" \
     > "$TEMP_DIR/age_key"
   SOPS_AGE_KEY_FILE="$TEMP_DIR/age_key" \
     ${lib.getExe pkgs.sops} decrypt \

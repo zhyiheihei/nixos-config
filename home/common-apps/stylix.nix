@@ -1,6 +1,3 @@
 _: {
-  stylix = {
-    enableReleaseChecks = false;
-    targets.opencode.enable = false;
-  };
+  stylix.enableReleaseChecks = false;
 }

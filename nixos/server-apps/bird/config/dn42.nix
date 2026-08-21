@@ -141,7 +141,9 @@ in
       if ${community.NO_EXPORT} ~ bgp_community then reject;
       if ${community.NO_ADVERTISE} ~ bgp_community then reject;
 
-      if net ~ [ 172.20.46.224/27+ ] then bgp_path.prepend(${DN42_AS});
+      if net ~ [ 172.22.76.184/29+ ] then bgp_path.prepend(${DN42_AS});
+      if net ~ [ 172.22.76.96/27+ ] then bgp_path.prepend(${DN42_AS});
+      if net ~ [ 10.127.10.0/24+ ] then bgp_path.prepend(${NEO_AS});
 
       bgp_path.delete(local_asn);
       bgp_path.delete([4225470000..4225479999]);
@@ -339,15 +341,23 @@ in
         export filter { dn42_export_filter_ipv6(${DN42_AS}); };
       };
     }
-    protocol bgp dn42_grc_v4 from dnpeers_grc {
-      local ${LT.this.dn42.IPv4} as ${DN42_AS};
-      neighbor 172.20.0.179 as 4242422602;
-    }
-    protocol bgp dn42_grc_v6 from dnpeers_grc{
-      local ${LT.this.dn42.IPv6} as ${DN42_AS};
-      neighbor fd42:d42:d42:179::1 as 4242422602;
-    }
-  '';
+  ''
+  + (
+    if LT.this.city.country == "CN" then
+      ''
+        protocol bgp dn42_grc_v6 from dnpeers_grc{
+          local ${LT.this.dn42.IPv6} as ${DN42_AS};
+          neighbor fd42:4242:2189:191::1 as 4242422189;
+        }
+      ''
+    else
+      ''
+        protocol bgp dn42_grc_v6 from dnpeers_grc{
+          local ${LT.this.dn42.IPv6} as ${DN42_AS};
+          neighbor fd42:d42:d42:179::1 as 4242422602;
+        }
+      ''
+  );
 
   hasPeers = cfg != { };
 

@@ -18,22 +18,22 @@
     networkConfig.DHCP = "ipv4";
   };
 
-  # volcengine serves the *.zhyi.xin entry domain; the volcengine.zhyi.cc vhost
+  # volcengine serves the *.zhyi.xin entry domain; the volcengine.zhyi.xin vhost
   # was a leftover shell with no service and no matching certificate, so it is
   # removed (blackbox probes volcengine via its explicit zhyi.xin endpoints).
 
   # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
   # author's backup semantics by pointing the endpoint at the migrated host.
-  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.xin";
 
-  # volcengine 在国内，Docker Hub 不可达。优先走自家 hubproxy（hub.tencent.zhyi.cc，
+  # volcengine 在国内，Docker Hub 不可达。优先走自家 hubproxy（hub.tencent.zhyi.xin，
   # LTNET 隧道），daocloud 保留作隧道不可达时的兜底。
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
     [[registry]]
     location = "docker.io"
 
     [[registry.mirror]]
-    location = "hub.tencent.zhyi.cc"
+    location = "hub.tencent.zhyi.xin"
 
     [[registry.mirror]]
     location = "docker.m.daocloud.io"

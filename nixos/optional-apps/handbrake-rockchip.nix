@@ -87,7 +87,7 @@
   };
 
   # Private HTTP backend for the stable TLS frontend on ml-home-vm.
-  lantian.nginxVhosts."handbrake-backend.opi5p.zhyi.cc" = {
+  lantian.nginxVhosts."handbrake-backend.opi5p.zhyi.xin" = {
     listenHTTP.enable = true;
     listenHTTPS.enable = false;
     locations."/" = {

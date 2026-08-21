@@ -57,63 +57,63 @@ in
       proxies:
         - name: 🇯🇵 日本 HostDare
           type: vless
-          server: hostdare.zhyi.cc
+          server: hostdare.zhyi.xin
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: hostdare.zhyi.cc
+          servername: hostdare.zhyi.xin
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: hostdare.zhyi.cc
+            host: hostdare.zhyi.xin
             mode: stream-up
         - name: 🇺🇸 美国 Google
           type: vless
-          server: google.zhyi.cc
+          server: google.zhyi.xin
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: google.zhyi.cc
+          servername: google.zhyi.xin
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: google.zhyi.cc
+            host: google.zhyi.xin
             mode: stream-up
         - name: 🇸🇬 新加坡 GreenCloud
           type: vless
-          server: greencloud.zhyi.cc
+          server: greencloud.zhyi.xin
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: greencloud.zhyi.cc
+          servername: greencloud.zhyi.xin
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: greencloud.zhyi.cc
+            host: greencloud.zhyi.xin
             mode: stream-up
         - name: 🇰🇷 韩国 Tencent
           type: vless
-          server: tencent.zhyi.cc
+          server: tencent.zhyi.xin
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: tencent.zhyi.cc
+          servername: tencent.zhyi.xin
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: tencent.zhyi.cc
+            host: tencent.zhyi.xin
             mode: stream-up
 
       proxy-groups:
@@ -127,7 +127,7 @@ in
             - DIRECT
 
       rules:
-        - DOMAIN-SUFFIX,zhyi.cc,DIRECT
+        - DOMAIN-SUFFIX,zhyi.xin,DIRECT
         - IP-CIDR,198.18.0.0/15,DIRECT,no-resolve
         - IP-CIDR6,fdd8:1938:4e88::/48,DIRECT,no-resolve
         - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
@@ -156,18 +156,18 @@ in
       proxies:
         - name: 🇯🇵 日本 HostDare
           type: vless
-          server: hostdare.zhyi.cc
+          server: hostdare.zhyi.xin
           port: 443
           uuid: "${config.sops.placeholder.v2ray-key}"
           network: xhttp
           tls: true
           udp: true
-          servername: hostdare.zhyi.cc
+          servername: hostdare.zhyi.xin
           client-fingerprint: chrome
           encryption: ""
           xhttp-opts:
             path: /ray
-            host: hostdare.zhyi.cc
+            host: hostdare.zhyi.xin
             mode: stream-up
 
       proxy-groups:
@@ -178,7 +178,7 @@ in
             - DIRECT
 
       rules:
-        - DOMAIN-SUFFIX,zhyi.cc,DIRECT
+        - DOMAIN-SUFFIX,zhyi.xin,DIRECT
         - IP-CIDR,198.18.0.0/15,DIRECT,no-resolve
         - IP-CIDR6,fdd8:1938:4e88::/48,DIRECT,no-resolve
         - GEOIP,CN,DIRECT,no-resolve
@@ -310,10 +310,10 @@ in
 
       for node in hostdare google greencloud tencent; do
         case "$node" in
-          hostdare) server=hostdare.zhyi.cc; display="🇯🇵 日本 HostDare" ;;
-          google) server=google.zhyi.cc; display="🇺🇸 美国 Google" ;;
-          greencloud) server=greencloud.zhyi.cc; display="🇸🇬 新加坡 GreenCloud" ;;
-          tencent) server=tencent.zhyi.cc; display="🇰🇷 韩国 Tencent" ;;
+          hostdare) server=hostdare.zhyi.xin; display="🇯🇵 日本 HostDare" ;;
+          google) server=google.zhyi.xin; display="🇺🇸 美国 Google" ;;
+          greencloud) server=greencloud.zhyi.xin; display="🇸🇬 新加坡 GreenCloud" ;;
+          tencent) server=tencent.zhyi.xin; display="🇰🇷 韩国 Tencent" ;;
         esac
         # SublinkPro sets NameMode=link on add, so the LinkName (#fragment)
         # is what clients see; use the standardized display name there.

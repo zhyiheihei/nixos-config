@@ -45,27 +45,15 @@ in
         mkdir -p "$CONFIG_DIR"
 
         if [ ! -f "$CONFIG_FILE" ]; then
-          install -m 0600 /dev/null "$CONFIG_FILE"
           echo '{}' > "$CONFIG_FILE"
         fi
 
-        if ! jq empty "$CONFIG_FILE" >/dev/null 2>&1; then
-          echo "PicoClaw config is not valid JSON: $CONFIG_FILE" >&2
-          exit 1
-        fi
-
-        tmp_file=$(mktemp "$CONFIG_DIR/.config.json.XXXXXX")
-        trap 'rm -f "$tmp_file"' EXIT
-
-        jq --slurpfile mcp "${mcpJsonFile}" \
-          '.tools.mcp.servers = $mcp[0].mcpServers' \
-          "$CONFIG_FILE" > "$tmp_file"
-        chmod 0600 "$tmp_file"
+        tmp_file=$(mktemp)
+        jq --slurpfile mcp "${mcpJsonFile}" '.tools.mcp.servers = $mcp[0].mcpServers' "$CONFIG_FILE" > "$tmp_file"
         mv "$tmp_file" "$CONFIG_FILE"
-        trap - EXIT
 
-        export PATH=/etc/profiles/per-user/lantian/bin:/run/current-system/sw/bin:$PATH
-        exec ${lib.getExe picoclaw} gateway --allow-empty
+        export PATH=/etc/profiles/per-user/zhyi/bin:/run/current-system/sw/bin:$PATH
+        exec ${lib.getExe picoclaw} gateway
       '';
 
     serviceConfig = LT.serviceHarden // {

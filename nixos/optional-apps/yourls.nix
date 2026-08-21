@@ -6,7 +6,7 @@
   ...
 }:
 let
-  root = "/var/www/ltn.pw";
+  root = "/var/www/zhyi.xin";
 
   yourlsAddons = {
     "user/plugins/404-if-not-found" = LT.sources.yourls-404-if-not-found.src;
@@ -71,7 +71,7 @@ in
   };
 
   lantian.nginxVhosts = {
-    "ltn.pw" = {
+    "zhyi.xin" = {
       root = yourlsPackage;
       locations = {
         "= /".return = "307 https://zhyi.xin";
@@ -81,7 +81,7 @@ in
         };
       };
       phpfpmSocket = config.services.phpfpm.pools.yourls.socket;
-      sslCertificate = "lets-encrypt-moliy.site";
+      sslCertificate = "zerossl-zhyi.xin";
       noIndex.enable = true;
     };
   };

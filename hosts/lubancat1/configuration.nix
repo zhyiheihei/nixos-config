@@ -31,7 +31,7 @@
 
   # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
   # author's backup semantics by pointing the endpoint at the migrated host.
-  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.xin";
 
   # Media library + download chain live on the NAS (same direct NFS mount as
   # rock5c uses for MoviePilot); keep the mount available for future services.

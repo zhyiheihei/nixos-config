@@ -13,7 +13,7 @@
     };
     hostname = lib.mkOption {
       type = lib.types.str;
-      default = "${config.name}.zhyi.cc";
+      default = "${config.name}.zhyi.xin";
     };
     index = lib.mkOption { type = lib.types.int; };
     tags = lib.mkOption {
@@ -40,18 +40,6 @@
       type = lib.types.int;
       default = 0;
     };
-    nixBuilder = {
-      maxJobs = lib.mkOption {
-        type = lib.types.ints.positive;
-        default = lib.max 1 config.cpuThreads;
-        description = "Maximum concurrent Nix builds accepted by this host.";
-      };
-      supportedFeatures = lib.mkOption {
-        type = lib.types.listOf lib.types.str;
-        default = [ ];
-        description = "Nix build features advertised by this host when used as a remote builder.";
-      };
-    };
 
     # Geolocation
     city = {
@@ -76,18 +64,6 @@
     ssh.ed25519 = lib.mkOption {
       type = lib.types.nullOr lib.types.str;
       default = null;
-    };
-    # Precomputed SSHFP fingerprints for the ed25519 key above. Computed
-    # offline to avoid import-from-derivation in the DNS evaluation path.
-    ssh.ed25519Fingerprints = {
-      sha1 = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-      };
-      sha256 = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-      };
     };
 
     # LTNET Networking
@@ -123,16 +99,6 @@
     };
 
     ltnet = {
-      tcpTransportDomain = lib.mkOption {
-        type = lib.types.nullOr lib.types.str;
-        default = null;
-        description = "Public HTTPS hostname accepting WireGuard mesh WebSocket transport.";
-      };
-      tcpTransportPeers = lib.mkOption {
-        type = lib.types.attrsOf lib.types.str;
-        default = { };
-        description = "WireGuard mesh peers carried through a WSS endpoint instead of direct UDP.";
-      };
       IPv4 = lib.mkOption {
         type = lib.types.str;
         readOnly = true;
@@ -193,6 +159,8 @@
       region = lib.mkOption { type = lib.types.int; };
     };
 
+    # NeoNetwork is not used (user has no NeoNetwork); keep the option null so
+    # all `!= null` guards disable NeoNetwork code paths.
     neonetwork = {
       IPv4 = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
@@ -211,16 +179,16 @@
       };
     };
 
-    wg-zhyi = {
+    wg-lantian = {
       forwardStart = lib.mkOption {
         readOnly = true;
         type = lib.types.int;
-        default = constants.port.WGZhyi.ForwardStart + (config.index - 1) * 10;
+        default = constants.port.WGLanTian.ForwardStart + (config.index - 1) * 10;
       };
       forwardStop = lib.mkOption {
         readOnly = true;
         type = lib.types.int;
-        default = constants.port.WGZhyi.ForwardStart + config.index * 10 - 1;
+        default = constants.port.WGLanTian.ForwardStart + config.index * 10 - 1;
       };
     };
 

@@ -1,35 +1,26 @@
-{
-  lib,
-  pkgs,
-  ...
-}:
+{ pkgs, ... }:
 {
   services.printing = {
     enable = true;
     startWhenNeeded = false;
-    drivers =
-      (with pkgs; [
-        brlaser
-        # cnijfilter2
-        # epson-escpr
-        foomatic-db
-        foomatic-db-engine
-        foomatic-db-nonfree
-        foomatic-db-ppds-withNonfreeDb
-        foomatic-filters
-        gutenprint
-        hplip
-        hplipWithPlugin
-        samsung-unified-linux-driver
-        splix
-      ])
-      # Nixpkgs implements Brother's proprietary driver through pkgsi686Linux,
-      # and gutenprintBin is x86_64-only. Neither can be used on native aarch64.
-      ++ lib.optionals pkgs.stdenv.hostPlatform.isx86_64 (with pkgs; [
-        brgenml1cupswrapper
-        brgenml1lpr
-        gutenprintBin
-      ]);
+    drivers = with pkgs; [
+      brgenml1cupswrapper
+      brgenml1lpr
+      brlaser
+      # cnijfilter2
+      # epson-escpr
+      foomatic-db
+      foomatic-db-engine
+      foomatic-db-nonfree
+      foomatic-db-ppds-withNonfreeDb
+      foomatic-filters
+      gutenprint
+      gutenprintBin
+      hplip
+      hplipWithPlugin
+      samsung-unified-linux-driver
+      splix
+    ];
 
     cups-pdf = {
       enable = true;

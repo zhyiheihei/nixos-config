@@ -125,14 +125,14 @@
       };
     };
 
-    # LAN-only web UI (own login, no OAuth); the *.opi5p.zhyi.cc wildcard
+    # LAN-only web UI (own login, no OAuth); the *.opi5p.zhyi.xin wildcard
     # resolves over LTNET, so the admin panel never needs public exposure.
-    lantian.nginxVhosts."resilio.${config.networking.hostName}.zhyi.cc" = {
+    lantian.nginxVhosts."resilio.${config.networking.hostName}.zhyi.xin" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.ResilioSync.UI}";
         proxyWebsockets = true;
       };
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
       accessibleBy = "private";
       noIndex.enable = true;
     };

@@ -60,7 +60,7 @@ in
           (lib.getExe pkgs.qbittorrent-nox)
           "--profile=/var/lib/qbittorrent-seedbox"
           "--webui-port=${LT.portStr.qBitTorrentSeedbox.WebUI}"
-          "--torrenting-port=${builtins.toString (LT.this.wg-zhyi.forwardStart + 2)}"
+          "--torrenting-port=${builtins.toString (LT.this.wg-lantian.forwardStart + 2)}"
           "--confirm-legal-notice"
         ];
         TimeoutStopSec = 1800;
@@ -89,14 +89,14 @@ in
     };
 
     lantian.nginxVhosts = {
-      "seedbox.${config.networking.hostName}.zhyi.cc" = {
+      "seedbox.${config.networking.hostName}.zhyi.xin" = {
         locations."/" = {
           allowCORS = true;
           proxyPass = "http://127.0.0.1:${LT.portStr.qBitTorrentSeedbox.WebUI}";
         };
 
         accessibleBy = "private";
-        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
+        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
         noIndex.enable = true;
       };
       "seedbox.localhost" = {

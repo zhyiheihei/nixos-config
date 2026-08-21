@@ -30,9 +30,9 @@ in
         "--asn 4242423712"
         "--bgpListenAddress [${LT.this.ltnet.IPv6}]:${LT.portStr.FlapAlerted.BGP}"
         "--httpAPIListenAddress /run/flapalerted/flapalerted.sock"
-        "-routeChangeCounter 120"
-        "-overThresholdTarget 5"
-        "-underThresholdTarget 30"
+        "--routeChangeCounter 15"
+        "--overThresholdTarget 5"
+        "--underThresholdTarget 30"
       ];
     };
   };
@@ -46,7 +46,7 @@ in
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 }

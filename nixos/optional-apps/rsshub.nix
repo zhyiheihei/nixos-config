@@ -19,7 +19,7 @@
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
     accessibleBy = "private";
   };

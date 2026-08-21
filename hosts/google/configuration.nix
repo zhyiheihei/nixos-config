@@ -11,7 +11,7 @@
     networkConfig.DHCP = "ipv4";
   };
 
-  lantian.nginxVhosts."google.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  lantian.nginxVhosts."google.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
   # Keep enough compressed swap headroom for builds and make the
   # socket-activated Nix daemon recover after memory pressure.
@@ -26,5 +26,5 @@
 
   # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; keep the
   # author's backup semantics by pointing the endpoint at the migrated host.
-  lantian.backup.sftpEndpoint = "opi5p.zhyi.cc";
+  lantian.backup.sftpEndpoint = "opi5p.zhyi.xin";
 }

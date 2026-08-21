@@ -151,7 +151,7 @@
   # untouched): allow browser access to the Sunshine Web UI from LAN / LTNET,
   # otherwise CSRF protection blocks the pairing page.  Comma-separated because
   # the settings option only accepts atom values.
-  services.sunshine.settings.csrf_allowed_origins = "https://192.168.0.55:47990,https://198.18.0.118:47990,https://ml-laptop.zhyi.cc:47990";
+  services.sunshine.settings.csrf_allowed_origins = "https://192.168.0.55:47990,https://198.18.0.118:47990,https://ml-laptop.zhyi.xin:47990";
 
   # 笔记本解热能力有限：覆盖公共 client-components/tlp.nix 的 AC 策略。
   # 原版 AC 用 performance governor 恒定最高频（负载 0.65 也飙 4.3GHz/70°C）；

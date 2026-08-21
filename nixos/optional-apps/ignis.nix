@@ -87,7 +87,7 @@ in
     };
 
     lantian.nginxVhosts = {
-      "ignis.${config.networking.hostName}.zhyi.cc" = {
+      "ignis.${config.networking.hostName}.zhyi.xin" = {
         locations = {
           "/" = {
             proxyPass = "http://127.0.0.1:${LT.portStr.Ignis}";
@@ -98,7 +98,7 @@ in
             enableOAuth = true;
           };
         };
-        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
         noIndex.enable = true;
         accessibleBy = "private";
       };

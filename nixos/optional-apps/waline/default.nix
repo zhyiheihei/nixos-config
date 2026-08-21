@@ -38,7 +38,7 @@ in
         "= /".return = "307 /ui/";
       };
 
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "zerossl-zhyi.xin";
       noIndex.enable = true;
     };
   };
@@ -69,7 +69,7 @@ in
       PG_PORT = "5432";
       PG_HOST = "/run/postgresql";
 
-      SITE_NAME = "Zh Yi @ Blog";
+      SITE_NAME = "Magic Flash @ Blog";
       SITE_URL = "https://zhyi.xin";
       AKISMET_KEY = "false";
 
@@ -78,7 +78,7 @@ in
       SMTP_USER = config.programs.msmtp.accounts.default.user;
       SMTP_SECURE = if (!config.programs.msmtp.accounts.default.tls_starttls) then "true" else "false";
       SENDER_EMAIL = config.programs.msmtp.accounts.default.from;
-      SENDER_NAME = "Zh Yi @ Blog";
+      SENDER_NAME = "Magic Flash @ Blog";
     };
 
     serviceConfig = LT.serviceHarden // {

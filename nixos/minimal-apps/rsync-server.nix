@@ -7,7 +7,6 @@
 }:
 let
   primaryServer = "greencloud";
-  syncAddress = "${LT.hosts.${primaryServer}.ltnet.IPv4Prefix}.1";
 in
 {
   systemd.tmpfiles.settings = {
@@ -30,7 +29,7 @@ in
     socketActivated = true;
     settings = {
       globalSection = {
-        address = syncAddress;
+        address = LT.this.ltnet.IPv4;
         gid = "root";
         uid = "root";
         "use chroot" = true;
@@ -53,7 +52,7 @@ in
   };
 
   systemd.sockets.rsync = {
-    listenStreams = lib.mkForce [ "${syncAddress}:${LT.portStr.Rsync}" ];
+    listenStreams = lib.mkForce [ "${LT.this.ltnet.IPv4}:${LT.portStr.Rsync}" ];
     socketConfig = {
       FreeBind = true;
       SocketProtocol = "mptcp";
@@ -68,13 +67,6 @@ in
     serviceConfig = LT.serviceHarden // {
       Type = "oneshot";
       BindPaths = [ "/nix/sync-servers" ];
-      AmbientCapabilities = [ "CAP_CHOWN" ];
-      CapabilityBoundingSet = [ "CAP_CHOWN" ];
-      SystemCallFilter = [
-        "@system-service"
-        "~@clock @cpu-emulation @debug @module @mount @obsolete @privileged @raw-io @reboot @swap"
-        "@chown"
-      ];
       ExecStart =
         if config.networking.hostName != primaryServer then
           builtins.concatStringsSep " " [
@@ -82,7 +74,7 @@ in
             "-aczrq"
             "--delete-after"
             "--timeout=300"
-            "rsync://${syncAddress}/sync-servers/"
+            "rsync://${LT.hosts.${primaryServer}.ltnet.IPv4}/sync-servers/"
             "/nix/sync-servers/"
           ]
         else

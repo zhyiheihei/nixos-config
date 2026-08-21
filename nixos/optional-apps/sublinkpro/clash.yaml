@@ -45,7 +45,7 @@ proxy-groups:
     proxies:
       - __ALL_PROXIES__
 rules:
-  - DOMAIN-SUFFIX,zhyi.cc,DIRECT
+  - DOMAIN-SUFFIX,zhyi.xin,DIRECT
   - DOMAIN-SUFFIX,zhyi.xin,DIRECT
   - DOMAIN-SUFFIX,zhyi.dn42,DIRECT
   - IP-CIDR,198.18.0.0/15,DIRECT,no-resolve

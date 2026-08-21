@@ -72,7 +72,7 @@ in
     });
     hydraURL = "https://hydra.zhyi.xin";
     listenHost = LT.this.ltnet.IPv4;
-    notificationSender = "postmaster@zhyi.cc";
+    notificationSender = "postmaster@zhyi.xin";
     port = LT.port.Hydra;
     buildMachinesFiles = [ "/etc/nix/machines-with-localhost" ];
     useSubstitutes = true;

@@ -31,7 +31,7 @@
     };
   };
 
-  lantian.nginxVhosts."dav.zhyi.xin" = {
+  lantian.nginxVhosts."dav.${config.networking.hostName}.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:/run/webdav/webdav.sock";
@@ -40,7 +40,7 @@
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
     noIndex.enable = true;
   };
 }

@@ -9,66 +9,65 @@ let
   blackboxExporterHost = "${config.services.prometheus.exporters.blackbox.listenAddress}:${builtins.toString config.services.prometheus.exporters.blackbox.port}";
 
   httpMonitorTargets = [
+    # Doesn't include main blog as that's monitored by UptimeRobot
+
+    # 3rd party backup hostings for main blog
+    "https://github-pages.zhyi.xin"
+    "https://netlify.zhyi.xin"
+    "https://render.zhyi.xin"
+    "https://vercel.zhyi.xin"
+
     # SSL tests
-    "https://google-ssl.zhyi.xin"
-    "https://google-test-ssl.zhyi.xin"
     "https://letsencrypt-ssl.zhyi.xin"
-    "https://letsencrypt-test-ssl.zhyi.xin"
     "https://zerossl.zhyi.xin"
 
     # Services under zhyi.xin
-    "https://ai.zhyi.xin"
-    "https://api.zhyi.xin/geoip"
-    "https://attic.zhyi.xin"
-    "https://avatar.zhyi.xin"
-    "https://bitwarden.zhyi.xin"
-    "https://cal.zhyi.xin"
+    "https://comments.zhyi.xin"
     "https://element.zhyi.xin"
-    # Home broadband blocks inbound 443; these public home services use the
-    # router's established 8443 -> opi5p:443 compatibility endpoint (nginx
-    # keeps listening on 443 inside the LAN).
-    "https://filebox.zhyi.xin:8443"
+    "https://flapalerted.zhyi.xin"
     "https://git.zhyi.xin"
-    "https://ha.zhyi.xin"
-    "https://id.zhyi.xin"
+    "https://lab.zhyi.xin"
     "https://lemmy.zhyi.xin"
+    "https://lg.zhyi.xin"
     "https://login.zhyi.xin"
     "https://matrix.zhyi.xin/_matrix/client/versions"
-    "https://n8n.zhyi.xin"
-    "https://pb.zhyi.xin"
-    "https://stats.zhyi.xin"
+    "https://sip.zhyi.xin"
     "https://tools.zhyi.xin"
     "https://whois.zhyi.xin"
-    "https://www.zhyi.xin"
 
-    # Services under zhyi.cc
+    # Services under zhyi.xin
+    # "https://ai.zhyi.xin"
     "https://alert.zhyi.xin"
+    "https://asf.zhyi.xin"
+    "https://attic.zhyi.xin"
+    # "https://books.zhyi.xin"
+    "https://bitwarden.zhyi.xin"
+    "https://cal.zhyi.xin"
     "https://dashboard.zhyi.xin"
-    "https://flapalerted.zhyi.xin"
-    "https://hydra.zhyi.xin"
-    "https://lg.zhyi.cc"
+    "https://jellyfin.zhyi.xin"
+    "https://lab.zhyi.xin"
     "https://netbox.zhyi.xin"
     "https://prometheus.zhyi.xin"
-    "https://qnap.zhyi.xin:8443"
-    "https://vaults3.zhyi.xin:8443/health"
+    "https://rss.zhyi.xin"
+    "https://rsshub.zhyi.xin"
+    "https://searx.zhyi.xin"
+    "https://stats.zhyi.xin"
+    # "https://tachidesk.zhyi.xin"
   ];
 
   monitoredHosts = lib.filterAttrs (
     n: v: v.hasTag LT.tags.server && v.hasTag LT.tags.public-facing
   ) LT.hosts;
 
-  monitoredHostsExceptSelf = lib.filterAttrs (n: _: n != config.networking.hostName) monitoredHosts;
+  # Cannot monitor self due to hairpin NAT issue
+  monitoredHostsExceptSelf = lib.filterAttrs (n: v: n != config.networking.hostName) monitoredHosts;
 
-  httpPublicFacingHosts = lib.mapAttrsToList (n: _: "https://${n}.zhyi.cc") (
-    # volcengine serves the *.zhyi.xin entry domain; its <hostname>.zhyi.cc vhost
-    # carries no real service, so its public endpoints are listed explicitly.
-    lib.filterAttrs (n: _: n != "volcengine") monitoredHosts
-  );
+  httpPublicFacingHosts = lib.mapAttrsToList (n: v: "https://${n}.zhyi.xin") monitoredHosts;
 
   publicFacingHostsExceptSelf =
     port:
     lib.mapAttrsToList (
-      n: _: "${n}.zhyi.cc" + lib.optionalString (port != null) ":${builtins.toString port}"
+      n: v: "${n}.zhyi.xin" + lib.optionalString (port != null) ":${builtins.toString port}"
     ) monitoredHostsExceptSelf;
 
   relabelConfigs = [
@@ -113,30 +112,6 @@ in
               follow_redirects = false;
             };
           };
-          # ai-api.zhyi.cc (public UniAPI on tencent) is API-key protected and
-          # answers 401/403 when unauthenticated; treat those as "up" so the
-          # probe only fires on DNS/TLS/routing failure.
-          https_ok_403 = {
-            prober = "http";
-            timeout = "15s";
-            http = {
-              fail_if_not_ssl = true;
-              valid_status_codes = [
-                200
-                204
-                206
-                301
-                302
-                303
-                304
-                307
-                308
-                401
-                403
-              ];
-              follow_redirects = false;
-            };
-          };
           dns = {
             prober = "dns";
             timeout = "15s";
@@ -150,7 +125,7 @@ in
             timeout = "15s";
             tcp.query_response = [
               { send = "/\r\n"; }
-              { expect = "gopher\\.zhyi\\."; }
+              { expect = "gopher\\.lantian\\."; }
             ];
           };
           whois = {
@@ -158,7 +133,7 @@ in
             timeout = "15s";
             tcp.query_response = [
               { send = "AS4242423712\r\n"; }
-              { expect = "ZHYI-DN42"; }
+              { expect = "LANTIAN-DN42"; }
             ];
           };
         };
@@ -177,14 +152,6 @@ in
       metrics_path = "/probe";
       params.module = [ "https_2xx" ];
       static_configs = [ { targets = httpMonitorTargets ++ httpPublicFacingHosts; } ];
-      relabel_configs = relabelConfigs;
-    }
-    {
-      job_name = "https_ok_403";
-      scrape_interval = "1m";
-      metrics_path = "/probe";
-      params.module = [ "https_ok_403" ];
-      static_configs = [ { targets = [ "https://ai-api.zhyi.cc" ]; } ];
       relabel_configs = relabelConfigs;
     }
     {
@@ -226,8 +193,8 @@ in
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "⚠️ Web service {{$labels.instance}} failed.";
-                  description = "Blackbox probe for {{$labels.instance}} did not return an accepted HTTPS response.";
+                  summary = "⚠️ {{$labels.alias}}: Web service {{$labels.name}} failed.";
+                  description = "{{$labels.alias}} is not returning status code 200 for {{$labels.name}}.";
                 };
               }
               {
@@ -236,18 +203,8 @@ in
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "⚠️ DNS service {{$labels.instance}} failed.";
-                  description = "Blackbox probe for {{$labels.instance}} did not return the expected DNS response.";
-                };
-              }
-              {
-                alert = "public_uni_api_failed";
-                expr = ''probe_success{job="https_ok_403"} == 0'';
-                for = "15m";
-                labels.severity = "warning";
-                annotations = {
-                  summary = "⚠️ 公共 UniAPI {{$labels.instance}} failed.";
-                  description = "Blackbox probe for {{$labels.instance}} did not return an accepted response (401/403 counts as up).";
+                  summary = "⚠️ {{$labels.alias}}: DNS service {{$labels.name}} failed.";
+                  description = "{{$labels.alias}} is not returning DNS response for {{$labels.name}}.";
                 };
               }
               {
@@ -256,8 +213,8 @@ in
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "⚠️ Gopher service {{$labels.instance}} failed.";
-                  description = "Blackbox probe for {{$labels.instance}} did not return the expected Gopher response.";
+                  summary = "⚠️ {{$labels.alias}}: Gopher service {{$labels.name}} failed.";
+                  description = "{{$labels.alias}} is not returning Gopher response for {{$labels.name}}.";
                 };
               }
               {
@@ -266,8 +223,8 @@ in
                 for = "15m";
                 labels.severity = "warning";
                 annotations = {
-                  summary = "⚠️ WHOIS service {{$labels.instance}} failed.";
-                  description = "Blackbox probe for {{$labels.instance}} did not return the expected WHOIS response.";
+                  summary = "⚠️ {{$labels.alias}}: WHOIS service {{$labels.name}} failed.";
+                  description = "{{$labels.alias}} is not returning WHOIS response for {{$labels.name}}.";
                 };
               }
             ];

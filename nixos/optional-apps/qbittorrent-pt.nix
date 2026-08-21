@@ -31,7 +31,7 @@ in
         (lib.getExe pkgs.qbittorrent-nox)
         "--profile=/var/lib/qbittorrent-pt"
         "--webui-port=${LT.portStr.qBitTorrentPT.WebUI}"
-        "--torrenting-port=${builtins.toString (LT.this.wg-zhyi.forwardStart + 1)}"
+        "--torrenting-port=${builtins.toString (LT.this.wg-lantian.forwardStart + 1)}"
         "--confirm-legal-notice"
       ];
       TimeoutStopSec = 1800;
@@ -67,7 +67,7 @@ in
   };
 
   lantian.nginxVhosts = {
-    "pt.${config.networking.hostName}.zhyi.cc" = {
+    "pt.${config.networking.hostName}.zhyi.xin" = {
       locations = {
         "/" = {
           allowCORS = true;
@@ -76,7 +76,7 @@ in
       };
 
       accessibleBy = "private";
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
     "pt.localhost" = {

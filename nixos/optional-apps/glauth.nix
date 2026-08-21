@@ -21,8 +21,8 @@ let
     [ldaps]
       enabled = true
       listen = "[::]:${LT.portStr.LDAPS}"
-      cert = "${LT.nginx.getSSLCert "lets-encrypt-zhyi.xin-ecc"}"
-      key = "${LT.nginx.getSSLKey "lets-encrypt-zhyi.xin-ecc"}"
+      cert = "${LT.nginx.getSSLCert "zerossl-zhyi.xin-ecc"}"
+      key = "${LT.nginx.getSSLKey "zerossl-zhyi.xin-ecc"}"
 
     [[backends]]
       datastore = "config"
@@ -78,7 +78,6 @@ in
     ];
     announcedIPv6 = [
       "fdd8:1938:4e88:3712::389"
-      "fd10:127:10:2547::389"
     ];
     birdBindTo = [ "glauth.service" ];
   };

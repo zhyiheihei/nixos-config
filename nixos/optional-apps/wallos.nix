@@ -42,7 +42,7 @@
         OIDC_PROVIDER_NAME = "Dex";
         OIDC_ISSUER = "https://login.zhyi.xin";
         OIDC_CLIENT_ID = "wallos";
-        OIDC_REDIRECT_URL = "https://wallos.${config.networking.hostName}.zhyi.cc/index.php";
+        OIDC_REDIRECT_URL = "https://wallos.${config.networking.hostName}.zhyi.xin/index.php";
         OIDC_SCOPES = "openid profile email";
         OIDC_USER_IDENTIFIER = "preferred_username";
         OIDC_AUTO_CREATE_USER = "true";
@@ -69,13 +69,13 @@
       group = "root";
     };
 
-    lantian.nginxVhosts."wallos.${config.networking.hostName}.zhyi.cc" = {
+    lantian.nginxVhosts."wallos.${config.networking.hostName}.zhyi.xin" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.Wallos}";
         proxyNoTimeout = true;
       };
       accessibleBy = "private";
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
   };

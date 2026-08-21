@@ -19,7 +19,7 @@
     networkConfig.DHCP = "ipv4";
   };
 
-  lantian.nginxVhosts."hostdare.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  lantian.nginxVhosts."hostdare.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
   # Public UniAPI entry (UniAPI consolidated to hostdare, 2026-08-14);
   # mirrors the author's ai-api.<domain> fully-public vhost. Key-authed

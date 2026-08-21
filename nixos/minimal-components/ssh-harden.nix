@@ -53,8 +53,8 @@ in
               hostNames = [
                 "${n}.zhyi.xin"
                 "[${n}.zhyi.xin]:2222"
-                "${n}.zhyi.cc"
-                "[${n}.zhyi.cc]:2222"
+                "${n}.zhyi.xin"
+                "[${n}.zhyi.xin]:2222"
               ];
             in
             lib.optional (LT.hosts."${n}".ssh.ed25519 != null) {
@@ -116,8 +116,8 @@ in
       Port 22
       PubkeyAcceptedKeyTypes ssh-ed25519
 
-    Host sftp.opi5p.ltnet.zhyi.cc
-      HostName opi5p.ltnet.zhyi.cc
+    Host sftp.opi5p.ltnet.zhyi.xin
+      HostName opi5p.ltnet.zhyi.xin
       User sftp
       IdentityFile ${config.sops.secrets.sftp-privkey.path}
       ${ltnetSSHConfig}
@@ -130,7 +130,7 @@ in
       User root
       ${ltnetSSHConfig}
 
-    Host *.zhyi.cc
+    Host *.zhyi.xin
       User root
       ${ltnetSSHConfig}
 
@@ -138,7 +138,7 @@ in
       ${ltnetSSHConfig}
 
     Host vscode-remote
-      HostName ml-builder.ltnet.zhyi.cc
+      HostName ml-builder.ltnet.zhyi.xin
       User zhyi
       ${ltnetSSHConfig}
 

@@ -111,25 +111,15 @@ in
 
   users.groups.searx.members = [ "nginx" ];
 
-  lantian.nginxVhosts = {
-    "searx.${config.networking.hostName}.zhyi.cc" = {
-      locations."/".extraConfig = ''
+  lantian.nginxVhosts."searx.zhyi.xin" = {
+    locations = {
+      "/".extraConfig = ''
         uwsgi_pass unix:/run/searx/searx.sock;
       '';
-
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
-      noIndex.enable = true;
-      accessibleBy = "private";
     };
-    "searx.localhost" = {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
-      locations."/".extraConfig = ''
-        uwsgi_pass unix:/run/searx/searx.sock;
-      '';
 
-      noIndex.enable = true;
-      accessibleBy = "localhost";
-    };
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+    accessibleBy = "private";
   };
 }

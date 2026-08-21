@@ -75,20 +75,14 @@ in
 
   systemd.services.zerotierone-setup-neighbors = {
     description = "Setup neighbors entry for ZeroTier";
-    # A new physical host must boot once to generate its ZeroTier node ID.
-    # Do not hold first boot in the address wait loop before that ID has been
-    # recorded in host.nix and authorized by the controller.
-    wantedBy = lib.optional (LT.this.zerotier != null) "multi-user.target";
+    wantedBy = [ "multi-user.target" ];
     bindsTo = [ "zerotierone.service" ];
     after = [ "zerotierone.service" ];
     serviceConfig.Type = "oneshot";
-    path = [
-      pkgs.gnugrep
-      pkgs.iproute2
-    ];
+    path = [ pkgs.iproute2 ];
     script = ''
-      while ! ip -4 address show dev zttalxbxtu | grep -q '198\.18\.0\.'; do
-        echo "Waiting for ZeroTier to configure LTNET"
+      while ! ip link show zttalxbxtu; do
+        echo "Waiting for ZeroTier to setup device"
         sleep 1
       done
     ''

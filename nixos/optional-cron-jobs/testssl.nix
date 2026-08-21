@@ -6,7 +6,7 @@
 }:
 let
   targets = [
-    "lab.greencloud.zhyi.cc"
+    "lab.zhyi.xin"
 
     "google-ssl.zhyi.xin"
     "google-test-ssl.zhyi.xin"

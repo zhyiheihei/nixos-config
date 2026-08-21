@@ -16,9 +16,9 @@ let
     default_federate = true;
     default_theme = "dark";
     room_directory.servers = [
+      "matrix.org"
       "nixos.org"
       "hackint.org"
-      "matrix.org"
       "zhyi.xin"
     ];
     branding.welcome_background_url = import ./background.nix;
@@ -55,7 +55,7 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
       "= /config.json".root = elementConfigPath;
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
     disableLiveCompression = true;
   };

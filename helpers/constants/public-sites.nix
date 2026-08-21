@@ -4,8 +4,6 @@ _: [
   "_default_http"
   "_default_https"
   "api.zhyi.xin"
-  "autoconfig.moliy.site"
-  "autoconfig.zhyi.cc"
   "autoconfig.zhyi.xin"
   "avatar.zhyi.xin"
   "element.zhyi.xin"
@@ -22,14 +20,12 @@ _: [
   "whois.zhyi.xin"
   "www.zhyi.xin"
   "zerossl.zhyi.xin"
-  "zhyi.cc"
   "zhyi.dn42"
   "zhyi.xin"
   # keep-sorted end
 
   # Has own authentication system
   # keep-sorted start
-  "ai-api.zhyi.cc"
   "ai-api.zhyi.xin"
   "ai.zhyi.xin"
   "alert.zhyi.xin"
@@ -63,14 +59,14 @@ _: [
 
   # Intentionally public without authentication
   # keep-sorted start
-  "volcengine.zhyi.cc"
+  "volcengine.zhyi.xin"
   "flapalerted.zhyi.xin"
-  "hostdare.zhyi.cc"
-  "greencloud.zhyi.cc"
-  "google.zhyi.cc"
-  "tencent.zhyi.cc"
-  "lg.zhyi.cc"
+  "hostdare.zhyi.xin"
+  "greencloud.zhyi.xin"
+  "google.zhyi.xin"
+  "tencent.zhyi.xin"
   "lg.zhyi.dn42"
+  "lg.zhyi.xin"
   "sub.zhyi.xin"
   # keep-sorted end
 ]

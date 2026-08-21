@@ -60,6 +60,9 @@ in
         (LT.wrapNetns "tnl-buyvm" nur-xddxdd.amule-dlp)
         (LT.wrapNetns "tnl-buyvm" qbittorrent-enhanced)
         (hashcat.override { cudaSupport = true; })
+        # error: collision between `/nix/store/2vkk2dnf693fzhlx7v2wn2kcvflgkih9-qqmusic-1.1.5/opt/LICENSE.electron.txt' and `/nix/store/zwgihw847calnxy6ff341l1qkilmn8hm-qq-3.2.2-18394/opt/LICENSE.electron.txt'
+        (lib.hiPrio nur-xddxdd.qq)
+        _86box-with-roms
         apache-directory-studio
         attic-client
         audacious
@@ -78,7 +81,7 @@ in
         gcdemu
         gedit
         gimp
-        # gopher
+        gopher
         handbrake
         imagemagick
         immich-cli
@@ -91,13 +94,12 @@ in
         jpegoptim
         kdePackages.ark
         kdePackages.isoimagewriter
-        # kdePackages.kdenlive
+        kdePackages.kdenlive
         kdePackages.kpat
         kdePackages.neochat
         kicad
         lbzip2
         libfaketime
-        # libreoffice-qt6-fresh
         linphone
         lx-music-desktop
         macchanger
@@ -116,7 +118,7 @@ in
         nur-xddxdd.lantianCustomized.materialgram
         nur-xddxdd.ncmdump-rs
         nur-xddxdd.qqmusic
-        # nur-xddxdd.runpodctl
+        nur-xddxdd.runpodctl
         nur-xddxdd.space-cadet-pinball-full-tilt
         nur-xddxdd.wechat-uos-sandboxed
         nvfetcher
@@ -153,11 +155,7 @@ in
         zoom-us
         # keep-sorted end
       ]
-      ++ lib.optionals (osConfig.networking.hostName != "ml-builder") [
-        # error: collision between `/nix/store/2vkk2dnf693fzhlx7v2wn2kcvflgkih9-qqmusic-1.1.5/opt/LICENSE.electron.txt' and `/nix/store/zwgihw847calnxy6ff341l1qkilmn8hm-qq-3.2.2-18394/opt/LICENSE.electron.txt'
-        (lib.hiPrio nur-xddxdd.qq)
-      ]
-      ++ lib.optionals (osConfig.networking.hostName != "lt-dell-wyse") [ nur-xddxdd.svp_4_6 ]
+      ++ lib.optionals (osConfig.networking.hostName == "ml-laptop") [ nur-xddxdd.svp_4_6 ]
     );
 
   programs.nix-index.enable = true;

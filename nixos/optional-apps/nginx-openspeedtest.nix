@@ -1,7 +1,7 @@
 { config, LT, ... }:
 {
   lantian.nginxVhosts = {
-    "openspeedtest.${config.networking.hostName}.zhyi.cc" = {
+    "openspeedtest.${config.networking.hostName}.zhyi.xin" = {
       # Add layer of reverse proxy to fix abnormal upload speed
       locations."/" = {
         proxyPass = "http://127.0.0.1";
@@ -15,7 +15,7 @@
       };
 
       accessibleBy = "private";
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
     "openspeedtest.localhost" = {

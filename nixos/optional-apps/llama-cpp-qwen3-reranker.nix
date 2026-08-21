@@ -54,7 +54,7 @@ in
   users.groups.llama-cpp = { };
 
   lantian.nginxVhosts = {
-    "qwen3-reranker.${config.networking.hostName}.zhyi.cc" = {
+    "qwen3-reranker.${config.networking.hostName}.zhyi.xin" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.LlamaCpp.Qwen3Reranker}";
         proxyNoTimeout = true;
@@ -62,7 +62,7 @@ in
       };
 
       accessibleBy = "private";
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
     "qwen3-reranker.localhost" = {

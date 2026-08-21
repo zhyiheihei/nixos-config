@@ -42,11 +42,11 @@ in
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 
-  systemd.services."bepasty-server-${host}-gunicorn".serviceConfig = LT.networkToolHarden // {
+  systemd.services."bepasty-server-pb.zhyi.xin-gunicorn".serviceConfig = LT.networkToolHarden // {
     Group = "bepasty";
     StateDirectory = "bepasty";
     User = "bepasty";
@@ -55,7 +55,7 @@ in
       pkgs.writeShellScript "bepasty-start" ''
         ${lib.getExe pkgs.python3Packages.gunicorn} \
           bepasty.wsgi \
-          --name "${host}" \
+          --name "pb.zhyi.xin" \
           --workers 3 \
           --log-level=info \
           --bind=unix:/run/bepasty/bepasty.sock \

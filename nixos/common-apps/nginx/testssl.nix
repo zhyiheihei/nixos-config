@@ -9,7 +9,7 @@ let
     lib.nameValuePair "${name}.zhyi.xin" {
       root = "/nix/sync-servers/www/${name}.zhyi.xin";
       locations."/".index = "testssl.htm";
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "${prefix}-${name}.zhyi.xin";
       enableCommonLocationOptions = false;
     };
 in

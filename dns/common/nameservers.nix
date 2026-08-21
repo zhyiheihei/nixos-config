@@ -1,15 +1,15 @@
 _:
 let
   PublicServers = [
-    "greencloud.zhyi.cc."
-    "hostdare.zhyi.cc."
-    "volcengine.zhyi.cc."
+    "greencloud.zhyi.xin."
+    "hostdare.zhyi.xin."
+    "volcengine.zhyi.xin."
   ];
 
   LTNetServers = [
-    "greencloud.ltnet.zhyi.cc."
-    "hostdare.ltnet.zhyi.cc."
-    "volcengine.ltnet.zhyi.cc."
+    "greencloud.ltnet.zhyi.xin."
+    "hostdare.ltnet.zhyi.xin."
+    "volcengine.ltnet.zhyi.xin."
   ];
 
   DN42Servers = [

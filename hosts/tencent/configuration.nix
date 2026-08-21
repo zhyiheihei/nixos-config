@@ -29,12 +29,12 @@
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
   # from greencloud 2026-08-14 with the monitoring stack). Private only: Homepage
-  # resolves prometheus.tencent.zhyi.cc to tencent's LTNET address (198.18.0.128).
-  lantian.nginxVhosts."prometheus.tencent.zhyi.cc" = {
+  # resolves prometheus.tencent.zhyi.xin to tencent's LTNET address (198.18.0.128).
+  lantian.nginxVhosts."prometheus.tencent.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.Prometheus.Daemon}";
     };
-    sslCertificate = "lets-encrypt-tencent.zhyi.cc";
+    sslCertificate = "lets-encrypt-tencent.zhyi.xin";
     noIndex.enable = true;
     accessibleBy = "private";
   };
@@ -64,8 +64,8 @@
   lantian.mihomo.enable = false;
 
   # Serve /ray (v2ray xhttp) with a real certificate so cn-accel clients
-  # can verify TLS; the wg-mesh-wstunnel default vhost only carries snakeoil.
-  lantian.nginxVhosts."tencent.zhyi.cc".sslCertificate = "lets-encrypt-zhyi.cc";
+  # can verify TLS; the mesh default vhost only carries snakeoil.
+  lantian.nginxVhosts."tencent.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
   # Korea has no entry in the shared yggdrasil regionMappings
   # (nixos/common-apps/yggdrasil/default.nix); peer the closest regions

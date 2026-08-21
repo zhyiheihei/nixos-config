@@ -14,7 +14,6 @@
     ];
     announcedIPv6 = [
       "fdd8:1938:4e88:3712::1688"
-      "fd10:127:10:2547::1688"
     ];
     birdBindTo = [ "vlmcsd.service" ];
   };

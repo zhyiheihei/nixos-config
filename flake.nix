@@ -276,7 +276,6 @@
                       "172.2"
                       "10.127."
                       "fdd8:1938:4e88:"
-                      "fd10:127:10:"
                     ];
                     includedAddresses = builtins.filter (
                       a: builtins.any (p: lib.hasPrefix p a) allowedPrefixes

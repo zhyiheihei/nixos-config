@@ -37,7 +37,7 @@
     };
 
     networking.hosts."${LT.hosts.tencent.ltnet.IPv4}" = [
-      "metapi.tencent.zhyi.cc"
+      "metapi.tencent.zhyi.xin"
     ];
 
     virtualisation.oci-containers.containers.memos = {
@@ -46,12 +46,12 @@
       ports = [ "127.0.0.1:${LT.portStr.Memos}:${LT.portStr.Memos}" ];
       volumes = [ "${config.lantian.memos.storage}:/var/opt/memos" ];
       extraOptions = [
-        "--add-host=metapi.tencent.zhyi.cc:${LT.hosts.tencent.ltnet.IPv4}"
+        "--add-host=metapi.tencent.zhyi.xin:${LT.hosts.tencent.ltnet.IPv4}"
       ];
       environment = {
         MEMOS_MODE = "prod";
         MEMOS_PORT = LT.portStr.Memos;
-        MEMOS_INSTANCE_URL = "https://memos.${config.networking.hostName}.zhyi.cc";
+        MEMOS_INSTANCE_URL = "https://memos.${config.networking.hostName}.zhyi.xin";
         TZ = config.time.timeZone;
       };
     };
@@ -63,12 +63,12 @@
     };
 
     lantian.nginxVhosts = {
-      "memos.${config.networking.hostName}.zhyi.cc" = {
+      "memos.${config.networking.hostName}.zhyi.xin" = {
         locations."/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.Memos}";
         };
         accessibleBy = "private";
-        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
         noIndex.enable = true;
       };
       "memos.localhost" = {

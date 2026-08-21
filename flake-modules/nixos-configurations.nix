@@ -75,11 +75,6 @@ in
         modules = modulesFor n;
         specialArgs = specialArgsFor n;
       }
-    ) (
-      # macOS hosts are managed by nix-darwin (darwin-configurations.nix), not
-      # NixOS. Exclude them here so their aarch64-darwin system does not leak
-      # into the NixOS evaluation (allSystems only carries linux systems).
-      lib.filterAttrs (n: _: !(lib.hasInfix "darwin" (LT.hosts."${n}".system))) (builtins.readDir ../hosts)
-    );
+    ) (builtins.readDir ../hosts);
   };
 }

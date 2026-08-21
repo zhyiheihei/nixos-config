@@ -1,81 +1,57 @@
-{
-  LT,
-  config,
-  lib,
-  ...
-}:
+{ LT, config, ... }:
 {
   imports = [ ./byparr.nix ];
 
-  options.lantian.tachidesk.publicFrontend = lib.mkEnableOption "the public Tachidesk frontend" // {
-    default = true;
+  virtualisation.oci-containers.containers.tachidesk = {
+    extraOptions = [ "--net=host" ];
+    image = "ghcr.io/suwayomi/tachidesk:preview";
+    labels."io.containers.autoupdate" = "registry";
+    environment = {
+      TZ = config.time.timeZone;
+      BIND_IP = "127.0.0.1";
+      BIND_PORT = LT.portStr.Tachidesk;
+      DEBUG = "false";
+      WEB_UI_CHANNEL = "bundled";
+      AUTO_DOWNLOAD_CHAPTERS = "true";
+      AUTO_DOWNLOAD_EXCLUDE_UNREAD = "false";
+      AUTO_DOWNLOAD_NEW_CHAPTERS_LIMIT = "0";
+      AUTO_DOWNLOAD_IGNORE_REUPLOADS = "false";
+      MAX_SOURCES_IN_PARALLEL = "20";
+      UPDATE_EXCLUDE_UNREAD = "false";
+      UPDATE_EXCLUDE_STARTED = "false";
+      UPDATE_EXCLUDE_COMPLETED = "false";
+      UPDATE_INTERVAL = "6";
+      UPDATE_MANGA_INFO = "true";
+      EXTENSION_REPOS = builtins.toJSON [
+        "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json"
+      ];
+      FLARESOLVERR_ENABLED = "true";
+      FLARESOLVERR_URL = "http://127.0.0.1:${LT.portStr.FlareSolverr}";
+      SOCKS_PROXY_ENABLED = "false";
+    };
+    volumes = [ "/var/lib/tachidesk:/home/suwayomi/.local/share/Tachidesk" ];
   };
 
-  config = {
-    virtualisation.oci-containers.containers.tachidesk = {
-      extraOptions = [ "--net=host" ];
-      image = "ghcr.io/suwayomi/tachidesk:preview";
-      labels."io.containers.autoupdate" = "registry";
-      environment = {
-        TZ = config.time.timeZone;
-        BIND_IP = "127.0.0.1";
-        BIND_PORT = LT.portStr.Tachidesk;
-        DEBUG = "false";
-        WEB_UI_CHANNEL = "bundled";
-        AUTO_DOWNLOAD_CHAPTERS = "true";
-        AUTO_DOWNLOAD_EXCLUDE_UNREAD = "false";
-        AUTO_DOWNLOAD_NEW_CHAPTERS_LIMIT = "0";
-        AUTO_DOWNLOAD_IGNORE_REUPLOADS = "false";
-        MAX_SOURCES_IN_PARALLEL = "20";
-        UPDATE_EXCLUDE_UNREAD = "false";
-        UPDATE_EXCLUDE_STARTED = "false";
-        UPDATE_EXCLUDE_COMPLETED = "false";
-        UPDATE_INTERVAL = "6";
-        UPDATE_MANGA_INFO = "true";
-        EXTENSION_REPOS = builtins.toJSON [
-          "https://raw.githubusercontent.com/keiyoushi/extensions/repo/index.min.json"
-        ];
-        FLARESOLVERR_ENABLED = "true";
-        FLARESOLVERR_URL = "http://127.0.0.1:${LT.portStr.FlareSolverr}";
-        SOCKS_PROXY_ENABLED = "false";
+  systemd.tmpfiles.settings = {
+    tachidesk = {
+      "/var/lib/tachidesk"."d" = {
+        mode = "755";
+        user = "1000";
+        group = "1000";
       };
-      volumes = [ "/var/lib/tachidesk:/home/suwayomi/.local/share/Tachidesk" ];
     };
+  };
 
-    systemd.tmpfiles.settings = {
-      tachidesk = {
-        "/var/lib/tachidesk"."d" = {
-          mode = "755";
-          user = "1000";
-          group = "1000";
-        };
+  lantian.nginxVhosts."tachidesk.zhyi.xin" = {
+    locations = {
+      "/" = {
+        enableBasicAuth = true;
+        proxyPass = "http://127.0.0.1:${LT.portStr.Tachidesk}";
+        proxyWebsockets = true;
       };
     };
 
-    lantian.nginxVhosts = {
-      "tachidesk.zhyi.xin" = lib.mkIf config.lantian.tachidesk.publicFrontend {
-        locations = {
-          "/" = {
-            enableBasicAuth = true;
-            proxyPass = "http://127.0.0.1:${LT.portStr.Tachidesk}";
-            proxyWebsockets = true;
-          };
-        };
-
-        sslCertificate = "lets-encrypt-zhyi.xin";
-        noIndex.enable = true;
-      };
-      "tachidesk.localhost" = {
-        listenHTTP.enable = true;
-        listenHTTPS.enable = false;
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.Tachidesk}";
-          proxyWebsockets = true;
-        };
-
-        accessibleBy = "localhost";
-        noIndex.enable = true;
-      };
-    };
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
   };
 }

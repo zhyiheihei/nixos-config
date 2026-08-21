@@ -95,7 +95,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-memos-secret.path;
         };
-        redirectURIs = [ "https://memos.opi5p.zhyi.cc/auth/callback" ];
+        redirectURIs = [ "https://memos.opi5p.zhyi.xin/auth/callback" ];
       }
       {
         id = "moviepilot";
@@ -104,7 +104,7 @@ let
           _secret = config.sops.secrets.dex-moviepilot-secret.path;
         };
         redirectURIs = [
-          "https://moviepilot.rock5c.zhyi.cc/api/v1/plugin/OidcAuth/callback"
+          "https://moviepilot.rock5c.zhyi.xin/api/v1/plugin/OidcAuth/callback"
         ];
       }
       {
@@ -124,8 +124,8 @@ let
         redirectURIs = [
           "https://*.zhyi.xin/oauth2/callback"
           "https://*.*.zhyi.xin/oauth2/callback"
-          "https://*.zhyi.cc/oauth2/callback"
-          "https://*.*.zhyi.cc/oauth2/callback"
+          "https://*.zhyi.xin/oauth2/callback"
+          "https://*.*.zhyi.xin/oauth2/callback"
         ];
       }
       {
@@ -145,7 +145,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-wallos-secret.path;
         };
-        redirectURIs = [ "https://wallos.opi5p.zhyi.cc/index.php" ];
+        redirectURIs = [ "https://wallos.opi5p.zhyi.xin/index.php" ];
       }
       # keep-sorted end
     ];

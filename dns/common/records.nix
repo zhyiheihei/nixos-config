@@ -216,6 +216,6 @@
       }
     ];
 
-    SIPTarget = "v-ps-sea";
+    SIPTarget = "tencent";
   };
 }

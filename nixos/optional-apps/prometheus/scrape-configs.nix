@@ -24,19 +24,10 @@ let
       port,
       attrPath,
       metricsPath ? "/metrics",
-      timeout ? null,
-      interval ? null,
     }:
     {
       job_name = jobName;
       metrics_path = metricsPath;
-      # Prometheus 3.x is strict about Content-Type; fall back to text format
-      # for exporters that omit or mis-set the header.
-      fallback_scrape_protocol = "PrometheusText1.0.0";
-    }
-    // lib.optionalAttrs (timeout != null) { scrape_timeout = timeout; }
-    // lib.optionalAttrs (interval != null) { scrape_interval = interval; }
-    // {
       static_configs = builtins.map (
         n:
         let
@@ -60,7 +51,6 @@ in
   services.prometheus.scrapeConfigs = [
     {
       job_name = "prometheus";
-      fallback_scrape_protocol = "PrometheusText1.0.0";
       static_configs = [
         {
           targets = [
@@ -109,11 +99,6 @@ in
         "node"
         "enable"
       ];
-      # router (home) reaches greencloud over a lossy international ZT
-      # path; widen the interval/timeout so retransmits can finish the
-      # response (timeout must stay below interval).
-      timeout = "110s";
-      interval = "2m";
     })
     (scrapeByAttr {
       jobName = "postgres";
@@ -183,6 +168,18 @@ in
     })
     (scrapeByAttr {
       jobName = "nut";
+      port = LT.port.Prometheus.NUTExporter;
+      metricsPath = "/ups_metrics";
+      attrPath = [
+        "services"
+        "prometheus"
+        "exporters"
+        "nut"
+        "enable"
+      ];
+    })
+    (scrapeByAttr {
+      jobName = "nut-exporter";
       port = LT.port.Prometheus.NUTExporter;
       attrPath = [
         "services"
@@ -268,9 +265,15 @@ in
       ];
     })
     {
+      job_name = "sglang-sakura-llm";
+      scheme = "https";
+      static_configs = [
+        { targets = [ "sakura-llm.ml-builder.zhyi.xin" ]; }
+      ];
+    }
+    {
       job_name = "sakura-share";
       scheme = "https";
-      fallback_scrape_protocol = "PrometheusText1.0.0";
       static_configs = [
         { targets = [ "sakura-share.one" ]; }
       ];
@@ -279,7 +282,6 @@ in
       job_name = "flapalerted";
       scheme = "https";
       metrics_path = "/flaps/metrics/prometheus";
-      fallback_scrape_protocol = "PrometheusText1.0.0";
       static_configs = [
         { targets = [ "flapalerted.zhyi.xin" ]; }
       ];

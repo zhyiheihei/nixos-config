@@ -63,7 +63,7 @@
   services.avahi.hostName = "homeassistant";
 
   lantian.nginxVhosts = {
-    "ha.${config.networking.hostName}.zhyi.cc" = {
+    "ha.${config.networking.hostName}.zhyi.xin" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:8123";
         proxyNoTimeout = true;
@@ -71,7 +71,7 @@
       };
       # 内网私有服务，使用 HA 自有账号（zhyi / default-pw），不挂 oauth2-proxy。
       accessibleBy = "private";
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
   };

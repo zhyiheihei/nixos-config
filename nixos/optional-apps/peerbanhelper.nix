@@ -30,7 +30,7 @@
   };
 
   lantian.nginxVhosts = {
-    "peerbanhelper.${config.networking.hostName}.zhyi.cc" = {
+    "peerbanhelper.${config.networking.hostName}.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.PeerBanHelper}";
@@ -38,7 +38,7 @@
       };
 
       accessibleBy = "private";
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.cc";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
     "peerbanhelper.localhost" = {
@@ -46,13 +46,6 @@
       listenHTTPS.enable = false;
 
       locations = {
-        "/healthz" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.PeerBanHelper}/";
-          extraConfig = ''
-            proxy_method GET;
-            proxy_set_header User-Agent "homepage-healthcheck";
-          '';
-        };
         "/" = {
           proxyPass = "http://127.0.0.1:${LT.portStr.PeerBanHelper}";
         };

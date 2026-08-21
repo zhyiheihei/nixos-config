@@ -20,11 +20,11 @@
 
   systemd.services.actual = {
     environment = {
-      ACTUAL_OPENID_AUTHORIZATION_ENDPOINT = "https://login.lantian.pub/auth";
-      ACTUAL_OPENID_TOKEN_ENDPOINT = "https://login.lantian.pub/token";
-      ACTUAL_OPENID_USERINFO_ENDPOINT = "https://login.lantian.pub/userinfo";
+      ACTUAL_OPENID_AUTHORIZATION_ENDPOINT = "https://login.zhyi.xin/auth";
+      ACTUAL_OPENID_TOKEN_ENDPOINT = "https://login.zhyi.xin/token";
+      ACTUAL_OPENID_USERINFO_ENDPOINT = "https://login.zhyi.xin/userinfo";
       ACTUAL_OPENID_CLIENT_ID = "actual";
-      ACTUAL_OPENID_SERVER_HOSTNAME = "https://actual.xuyh0120.win";
+      ACTUAL_OPENID_SERVER_HOSTNAME = "https://actual.zhyi.xin";
       ACTUAL_OPENID_AUTH_METHOD = "oauth2";
       ACTUAL_OPENID_ENFORCE = "true";
       ACTUAL_TOKEN_EXPIRATION = "openid-provider";
@@ -35,7 +35,7 @@
     };
   };
 
-  lantian.nginxVhosts."actual.xuyh0120.win" = {
+  lantian.nginxVhosts."actual.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.Actual}";
       # Budget sync/upload can be large and long-running.
@@ -44,7 +44,7 @@
       proxyNoTimeout = true;
     };
 
-    sslCertificate = "zerossl-xuyh0120.win";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 }

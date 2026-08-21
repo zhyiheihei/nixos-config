@@ -6,7 +6,7 @@
 }:
 {
   xdg.configFile = LT.gui.autostart (
-    (lib.optionals (osConfig.networking.hostName == "ml-builder") [
+    (lib.optionals (osConfig.networking.hostName == "ml-laptop") [
       # keep-sorted start
       "discord --start-minimized"
       "materialgram -autostart"

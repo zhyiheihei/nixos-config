@@ -29,13 +29,8 @@
       UNIX_SOCKET_MODE = "0660";
       UI_CONFIG_DISABLED = true;
       ANALYTICS_DISABLED = true;
-      # volcengine 在国内无法访问 api.github.com：禁用版本检查，
-      # 否则登录后 /api/version/latest 500 且前端误报"发生未知错误"
-      VERSION_CHECK_DISABLED = true;
 
-      # AppName 不能含 @：go-kit 生成 From 头时不引号包裹 display name，
-      # 含 @ 会产出非法 From 头（AhaSend 报 421 technical difficulties）
-      APP_NAME = "Zhyi Login";
+      APP_NAME = "Magic Flash @ Login";
       EMAILS_VERIFIED = true;
       ALLOW_OWN_ACCOUNT_EDIT = false;
       DISABLE_ANIMATIONS = true;
@@ -46,9 +41,6 @@
       SMTP_USER = config.programs.msmtp.accounts.default.user;
       SMTP_TLS = if config.programs.msmtp.accounts.default.tls_starttls then "starttls" else "tls";
       EMAIL_ONE_TIME_ACCESS_AS_ADMIN_ENABLED = true;
-      # Firefox 无法完成 passkey/WebAuthn 登录时的备用路径：
-      # 登录页 "Email login" 输入邮箱接收一次性登录码。
-      EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED_ENABLED = true;
 
       LDAP_ENABLED = true;
       LDAP_URL = "ldap://[fdd8:1938:4e88:3712::389]:${LT.portStr.LDAP}";
@@ -101,7 +93,7 @@
       proxyPass = "http://unix:/run/pocket-id/pocket-id.sock";
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 }
