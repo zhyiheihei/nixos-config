@@ -30,7 +30,7 @@
 | `taishanpi` | 127 | RK3566 / 暂停维护 | 未定（Wi-Fi bring-up） | LCKFB Taishan Pi（泰山派）；无有线网卡，Wi-Fi/MIPI 适配中；2026-08 起暂停维护。 |
 | `tencent` | 128 | `server` / 公网入口 / DN42 | `tencent.zhyi.xin` | 腾讯云首尔 VPS（2C/4G，AS132203）；DN42 节点、cn-accel 出口、监控中心（Prometheus/Grafana 自 greencloud 迁入，2026-08-14）；2026-08-13 重装完成，host key/ZeroTier 已回填，LTNET mesh 已接入（hostdare 不可达期间除外）。 |
 
-家庭局域网地址、MAC 与 DHCP 边界以 [家庭局域网 IP 规划](home-lan-ip-plan.md)
+家庭局域网地址、MAC 与 DHCP 边界以 [网络参照的 LAN 分配](reference.md#家庭-lan-静态分配)
 为准；LTNET、ZeroTier、WireGuard 与 DN42 关系以
 [网络参照](reference.md) 为准。
 
