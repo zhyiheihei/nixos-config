@@ -88,9 +88,9 @@ flowchart LR
 | --- | --- | --- |
 | 家庭 WAN/LAN | `router` | PPPoE、DHCP、NAT、Wi-Fi、DDNS 与家庭 Hairpin 入口 |
 | 公网应用入口 | `greencloud` | 大部分 `zhyi.xin` 应用、OAuth 入口与到家庭 ROCK 5C 的 LTNET 反代 |
-| 监控入口 | `tencent` | `alert`/`dashboard`/`prometheus`（zhyi.cc）自 greencloud 迁入；Grafana/Prometheus 经 Dex 登录 |
+| 监控入口 | `tencent` | `alert`/`dashboard`/`prometheus`（zhyi.xin）自 greencloud 迁入；Grafana/Prometheus 经 Dex 登录 |
 | 身份与 Attic 入口 | `volcengine` | Dex、Pocket ID、Vaultwarden 与 Attic 直接在本机终止 HTTPS |
-| 家庭 Web 边缘 | `rock5c` | 原 `*.ml-home-vm.zhyi.cc` 服务别名及家庭应用入口；向 OPI5P、PVE、QNAP 反代 |
+| 家庭 Web 边缘 | `rock5c` | 原 `*.ml-home-vm.zhyi.xin` 服务别名及家庭应用入口；向 OPI5P、PVE、QNAP 反代 |
 | 家庭数据直达 | `opi5p` | 8443 家庭入站、VaultS3、媒体与文件服务，不经 ROCK 5C 中转大流量 |
 | 证书 | `greencloud` | ACME timers 集中续签各主机和域名证书 |
 | Overlay/路由 | 各 server；控制器在 `greencloud` | BIRD、WireGuard/WSS、Yggdrasil、ZeroTier；DN42/RPKI/Bird-LG 主要在 greencloud |
@@ -147,7 +147,7 @@ Ignis（web Obsidian，opi5p）直接读写 opi5p 上的 Documents 副本
 
 - 私有天线：`~/Documents` 整体 bind 到 `media/Documents`，内嵌独立 git 仓库，
   Gitea 为权威源，Syncthing 负责四机分发；Documents 与 nixos-config 不共用 `.git`。
-- Web 版 Obsidian：Ignis（`ignis.opi5p.zhyi.cc`）把 opi5p 的
+- Web 版 Obsidian：Ignis（`ignis.opi5p.zhyi.xin`）把 opi5p 的
   `/mnt/storage/media/Documents` 挂为 vault，浏览器里编辑的内容仍在 Syncthing/Gitea
   分发内；nginx 层走 oauth2-proxy（Dex SSO）。详见
   [`../human/services/ignis.md`](../human/services/ignis.md)。
@@ -203,7 +203,7 @@ Nix clients -> Attic（volcengine） -> VaultS3（OPI5P -> QNAP）
 与 NAS 大流量仍不经 ROCK 5C 中转。
 
 PVE 保留不提供 ARM64 镜像的 ArchiveTeam、ClawEmail 和 Epic Awesome Gamer。
-ml-home-vm 已退役，旧 `*.ml-home-vm.zhyi.cc` 名称不应再被当作实际后端。
+ml-home-vm 已退役，旧 `*.ml-home-vm.zhyi.xin` 名称不应再被当作实际后端。
 
 ### 协作、监控与日志链
 
@@ -221,7 +221,7 @@ ml-home-vm 已退役，旧 `*.ml-home-vm.zhyi.cc` 名称不应再被当作实际
 在凭据不完整时阻止启动，应标记为“已声明、未运行”。
 
 日志链当前不完整：非 `low-ram` server 的 Filebeat 配置为发送到
-`es-ingest.google.zhyi.cc`，但 `google` 没有导入 Elasticsearch 模块，实机也没有
+`es-ingest.google.zhyi.xin`，但 `google` 没有导入 Elasticsearch 模块，实机也没有
 Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行”。
 
 ## 服务清单与 Homepage 核对（2026-08-11 复核）
@@ -266,34 +266,34 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | Grafana | `https://dashboard.zhyi.xin` | Dex OAuth |
 | Prometheus | `https://prometheus.zhyi.xin` | Dex OAuth |
 | Alertmanager | `https://alert.zhyi.xin` | Dex OAuth |
-| Bird Looking Glass | `https://lg.zhyi.cc` | 公开只读 |
+| Bird Looking Glass | `https://lg.zhyi.xin` | 公开只读 |
 | FlapAlerted | `https://flapalerted.zhyi.xin` | 公开只读 |
 | Uni API | `https://ai-api.zhyi.xin` | API key |
-| MetaAPI | `https://metapi.tencent.zhyi.cc` | 应用口令 / token |
-| n8n OpenAI Bridge | `https://n8n-bridge.greencloud.zhyi.cc/health` | bearer token |
-| SearxNG | `https://searx.tencent.zhyi.cc` | 私有 |
-| FastAPI DLS | `https://fastapi-dls.rock5c.zhyi.cc` | 租约 token |
+| MetaAPI | `https://metapi.tencent.zhyi.xin` | 应用口令 / token |
+| n8n OpenAI Bridge | `https://n8n-bridge.greencloud.zhyi.xin/health` | bearer token |
+| SearxNG | `https://searx.tencent.zhyi.xin` | 私有 |
+| FastAPI DLS | `https://fastapi-dls.rock5c.zhyi.xin` | 租约 token |
 | RSSHub | `https://rsshub.zhyi.xin` | 私有 |
-| PVE | `https://pve-5700u.zhyi.cc:8006` | 应用登录 |
-| CouchDB | `https://couchdb.zhyi.cc/_utils/` | 应用管理 |
+| PVE | `https://pve-5700u.zhyi.xin:8006` | 应用登录 |
+| CouchDB | `https://couchdb.zhyi.xin/_utils/` | 应用管理 |
 | Attic NCPS fallback | `https://attic.zhyi.xin` | 无登录 |
 | VaultS3 | `https://vaults3.zhyi.xin:8443/dashboard/` | S3 凭据 |
-| MetaCubeXD | `https://metacubexd.rock5c.zhyi.cc` | 控制 token |
+| MetaCubeXD | `https://metacubexd.rock5c.zhyi.xin` | 控制 token |
 | 代理订阅 | `https://sub.zhyi.xin` | 应用登录 / 订阅 token |
-| OpenSpeedTest | `https://openspeedtest.rock5c.zhyi.cc` | 私有 |
-| qBittorrent | `https://bt.router.zhyi.cc` | WebUI 登录 |
-| PeerBanHelper | `https://peerbanhelper.opi5p.zhyi.cc` | API token |
-| BitMagnet | `https://bitmagnet.opi5p.zhyi.cc/webui/` | 私有 |
-| MoviePilot | `https://moviepilot.rock5c.zhyi.cc` | 应用登录 |
-| Home Assistant | `https://ha.opi5p.zhyi.cc` | 自带账号（zhyi / default-pw） |
-| Syncthing | `https://syncthing.opi5p.zhyi.cc` | Dex OAuth |
-| Syncthing (GreenCloud) | `https://syncthing.greencloud.zhyi.cc` | Dex OAuth |
-| Resilio Sync | `https://resilio.opi5p.zhyi.cc/gui/` | 自带账号（zhyi / default-pw） |
-| ArchiveBox | `https://archivebox.opi5p.zhyi.cc` | Dex OAuth |
+| OpenSpeedTest | `https://openspeedtest.rock5c.zhyi.xin` | 私有 |
+| qBittorrent | `https://bt.router.zhyi.xin` | WebUI 登录 |
+| PeerBanHelper | `https://peerbanhelper.opi5p.zhyi.xin` | API token |
+| BitMagnet | `https://bitmagnet.opi5p.zhyi.xin/webui/` | 私有 |
+| MoviePilot | `https://moviepilot.rock5c.zhyi.xin` | 应用登录 |
+| Home Assistant | `https://ha.opi5p.zhyi.xin` | 自带账号（zhyi / default-pw） |
+| Syncthing | `https://syncthing.opi5p.zhyi.xin` | Dex OAuth |
+| Syncthing (GreenCloud) | `https://syncthing.greencloud.zhyi.xin` | Dex OAuth |
+| Resilio Sync | `https://resilio.opi5p.zhyi.xin/gui/` | 自带账号（zhyi / default-pw） |
+| ArchiveBox | `https://archivebox.opi5p.zhyi.xin` | Dex OAuth |
 | WebDAV（webdev） | `https://dav.zhyi.xin` | Basic Auth |
 | QNAP NAS | `https://qnap.zhyi.xin` | 应用管理 |
-| Memos | `https://memos.opi5p.zhyi.cc` | Dex OIDC / 应用登录 |
-| Ignis | `https://ignis.opi5p.zhyi.cc` | Dex SSO（nginx oauth2-proxy） |
+| Memos | `https://memos.opi5p.zhyi.xin` | Dex OIDC / 应用登录 |
+| Ignis | `https://ignis.opi5p.zhyi.xin` | Dex SSO（nginx oauth2-proxy） |
 | 主机资源 / NAS 存储 | 见 Homepage `12 · 私有 · 监控` | Prometheus 只读 |
 
 ### 协议与无 Web UI 服务
@@ -303,7 +303,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | SMTP（出站） | `send.ahasend.com`（美加墨为 `send-us.ahasend.com`），587 STARTTLS | SMTP AUTH |
 | Maddy（邮件收发） | `mail.zhyi.xin`，25/465/587 | 本地邮箱 |
 | IMAP | `imapfilter` 定时任务（Outlook/Gmail/Lantian） | secrets 内配置 |
-| SFTP | `sftp.opi5p.ltnet.zhyi.cc`（等价 `opi5p.zhyi.cc`），端口 2222 | SSH 公钥 |
+| SFTP | `sftp.opi5p.ltnet.zhyi.xin`（等价 `opi5p.zhyi.xin`），端口 2222 | SSH 公钥 |
 | Samba | `//opi5p/storage` | 账号登录 |
 | NFS | `192.168.0.40:/nixos` | IP 白名单 |
 | CalDAV/CardDAV | `https://cal.zhyi.xin` | LDAP |
@@ -313,7 +313,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | VaultS3 S3 API | `vaults3.zhyi.xin:8443` | S3 凭据 |
 | Attic 上传 API | `https://attic.zhyi.xin` | token |
 | NCPS | `opi5p:13851` | 无登录 |
-| restic/rustic 备份 | `ssh://opi5p.zhyi.cc:2222` | SSH 公钥 + 仓库口令 |
+| restic/rustic 备份 | `ssh://opi5p.zhyi.xin:2222` | SSH 公钥 + 仓库口令 |
 
 Homepage 按“没有 Web UI 的协议不添加虚假卡片”规则不为 SMTP、SFTP、Samba、
 NFS 等生成卡片；WebDAV 卡片保留在 `08 · 私有 · 家庭服务` 分组。
@@ -324,7 +324,7 @@ NFS 等生成卡片；WebDAV 卡片保留在 `08 · 私有 · 家庭服务` 分�
 | --- | --- | --- | --- |
 | P0 | ml-builder 运行态仍把 PVE 列为下游 builder | PVE 与 ml-builder 可再次互相等待同一 store lock | 部署 ml-builder 后复核 `/etc/nix/machines` |
 | P0 | Filebeat 指向不存在的 google Elasticsearch | 舰队日志持续无法落库 | 对照作者决定恢复 Elasticsearch 或关闭/改写日志链 |
-| P1 | LibreChat/Metapi 曾使用未解析的 `uni-api.ml-home-vm.zhyi.cc` | AI 调用依赖旧别名 | 已统一改为 `ai-api.zhyi.xin` 并完成模型检查 |
+| P1 | LibreChat/Metapi 曾使用未解析的 `uni-api.ml-home-vm.zhyi.xin` | AI 调用依赖旧别名 | 已统一改为 `ai-api.zhyi.xin` 并完成模型检查 |
 | P1 | AxonHub 只在文档出现，未部署 | 运维人员会误判已有网关和数据库 | 保持“未部署候选”，除非明确重新导入模块 |
 | P1 | greencloud、google 的 OpenVPN gameaccel 同时失败 | 两台系统 degraded，CN 加速链不完整 | 检查证书、密钥和服务日志后修复或明确禁用 |
 | P2 | hosts 概览仍把 LubanCat-1 写成 DHCP/minimal，遗漏 OPI03 | 接入与容量判断错误 | 已随本次文档更新 |

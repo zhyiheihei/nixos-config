@@ -23,10 +23,10 @@
 
 现有节点的 Syncthing Web GUI：
 
-- `https://syncthing.ml-2700.zhyi.cc`
-- `https://syncthing.opi5p.zhyi.cc`
-- `https://syncthing.greencloud.zhyi.cc`
-- `https://syncthing.ml-laptop.zhyi.cc`
+- `https://syncthing.ml-2700.zhyi.xin`
+- `https://syncthing.opi5p.zhyi.xin`
+- `https://syncthing.greencloud.zhyi.xin`
+- `https://syncthing.ml-laptop.zhyi.xin`
 
 ## 2. 安装 Syncthing（macOS）
 
@@ -54,7 +54,7 @@ brew services start syncthing
 ## 3. 交换设备 ID
 
 1. 在 Mac 控制台右上角菜单打开“显示 ID”，复制本机 Device ID。
-2. 登录任一现有节点控制台，例如 `https://syncthing.ml-2700.zhyi.cc`。
+2. 登录任一现有节点控制台，例如 `https://syncthing.ml-2700.zhyi.xin`。
 3. 在“操作 → 添加远程设备”里粘贴 Mac 的 Device ID，名称填 `mac`。
 4. 编辑 `media` 文件夹，在“共享”页勾选 `mac`。ml-2700 已开启自动接受文件夹；
    为了让现有节点都与 Mac 直接互通，建议在每台节点都把 `media` 共享给

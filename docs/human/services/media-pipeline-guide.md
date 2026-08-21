@@ -2,7 +2,7 @@
 
 最后整理：2026-08-16
 
-导航页入口：<https://homepage.rock5c.zhyi.cc>（"下载链路"与"媒体链路"分组）
+导航页入口：<https://homepage.rock5c.zhyi.xin>（"下载链路"与"媒体链路"分组）
 
 ## 链路总览
 
@@ -30,7 +30,7 @@
 
 | 主机 | 服务 |
 | --- | --- |
-| router | qBittorrent 单实例（WebUI：<https://bt.router.zhyi.cc>） |
+| router | qBittorrent 单实例（WebUI：<https://bt.router.zhyi.xin>） |
 | rock5c | MoviePilot（v3）、Jellyfin、HandBrake、ChineseSubFinder、Homepage |
 | opi5p | PeerBanHelper、BitMagnet、Tachidesk |
 | NAS | NFS 导出 `/mnt/storage` |
@@ -41,7 +41,7 @@ Byparr、Vertex、qbittorrent-pt、qbittorrent-seedbox）已由 MoviePilot 与
 
 ## 场景一：找电影 / 剧集
 
-1. 打开 [MoviePilot](https://moviepilot.rock5c.zhyi.cc)，搜索电影或剧集。
+1. 打开 [MoviePilot](https://moviepilot.rock5c.zhyi.xin)，搜索电影或剧集。
 2. 添加订阅；未发布或站内暂无资源的条目会保持订阅，发布后自动搜索。
 3. MoviePilot 从馒头 / PT时间索引搜索，推送到 qBittorrent，保存到
    `/mnt/storage/downloads`。
@@ -58,7 +58,7 @@ BrushFlow 的 M-Team 与 PTTime 任务都只下载免费种子，使用独立标
 
 ## 场景三：手动传种
 
-- WebUI：<https://bt.router.zhyi.cc>
+- WebUI：<https://bt.router.zhyi.xin>
 - 个人下载打标签 `个人`；刷流下载打标签 `刷流-<任务ID>`。
 - 已入库媒体如需继续做种，把种子保存路径指向对应媒体库目录即可。
 
@@ -66,11 +66,11 @@ BrushFlow 的 M-Team 与 PTTime 任务都只下载免费种子，使用独立标
 
 | 服务 | 地址 | 作用 |
 | --- | --- | --- |
-| MoviePilot | <https://moviepilot.rock5c.zhyi.cc> | 订阅、搜索、整理、刮削、字幕 |
+| MoviePilot | <https://moviepilot.rock5c.zhyi.xin> | 订阅、搜索、整理、刮削、字幕 |
 | Jellyfin | <https://jellyfin.zhyi.xin:8443> | 媒体服务器 |
-| qBittorrent | <https://bt.router.zhyi.cc> | 统一下载器 |
-| BitMagnet | <https://bitmagnet.opi5p.zhyi.cc/webui/> | 磁力搜索 |
-| PeerBanHelper | <https://peerbanhelper.opi5p.zhyi.cc> | 反吸血保护 |
+| qBittorrent | <https://bt.router.zhyi.xin> | 统一下载器 |
+| BitMagnet | <https://bitmagnet.opi5p.zhyi.xin/webui/> | 磁力搜索 |
+| PeerBanHelper | <https://peerbanhelper.opi5p.zhyi.xin> | 反吸血保护 |
 | Tachidesk | <https://tachidesk.zhyi.xin:8443> | 漫画 |
 | HandBrake | rock5c 本机 `http://127.0.0.1:13814` | 硬件转码 |
 | ChineseSubFinder | rock5c 本机 `http://127.0.0.1:19035` | 周期扫描媒体库补齐中文字幕 |

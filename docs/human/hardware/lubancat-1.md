@@ -154,7 +154,7 @@ ssh -p 2222 root@ADDRESS
 LAN              192.168.0.65/24（eth0，静态）
 LTNET            198.18.0.124/24
 ZeroTier node ID fde3beab16
-SSH              root@lubancat1.zhyi.cc:2222
+SSH              root@lubancat1.zhyi.xin:2222
 ```
 
 持久 SSH host 公钥已写入 `hosts/lubancat1/host.nix`，并作为 SOPS age identity 的

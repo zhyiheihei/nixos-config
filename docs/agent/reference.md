@@ -58,21 +58,20 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 
 ## 域名与入口
 
-DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆盖解析，优先级高于公网 DNS。`home-ddns.zhyi.cc` 与 `wg-home.zhyi.cc` 在 DNSControl 中标记为 `IGNORE`，其中 `home-ddns.zhyi.cc` 由 router 上的 Gcore DDNS 服务维护。
+DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆盖解析，优先级高于公网 DNS。`home-ddns.zhyi.xin` 与 `wg-home.zhyi.xin` 在 DNSControl 中标记为 `IGNORE`，其中 `home-ddns.zhyi.xin` 由 router 上的 Gcore DDNS 服务维护。
 
 | 域名/模式 | DNS 声明 | 服务入口/后端 |
 | --- | --- | --- |
-| `主机.zhyi.cc`、`*.主机.zhyi.cc` | `host-recs.nix` 按主机公网或 LTNET 地址生成 | 作者式主机与私有服务命名；不经过统一公网入口 |
-| `*.ml-home-vm.zhyi.cc` | 历史 CNAME | `ml-home-vm` 已退役；服务由 `rock5c`/`opi5p` 承载，入口以 vhost/DNS 为准 |
-| `ha.opi5p.zhyi.cc` | `*.opi5p.zhyi.cc` 通配解析到 OPI5P LTNET | 私有服务规范命名（`服务.承载主机.zhyi.cc`），仅内网/LTNET 可达 |
-| `vaults3.zhyi.xin` | CNAME 到 `home-ddns.zhyi.cc` | 家庭动态公网入口 |
-| `hydra.zhyi.xin` | CNAME 到 `greencloud.zhyi.cc` | greencloud Nginx 反代到 `ml-builder` 的 Hydra 端口（LTNET `198.18.0.114`） |
-| `attic.zhyi.xin` | CNAME 到 `greencloud.zhyi.cc` | greencloud 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
-| `greencloud.zhyi.cc` | A `203.55.176.158` | SSH、Colmena、ZeroTier controller 与公共服务入口 |
+| `主机.zhyi.xin`、`*.主机.zhyi.xin` | `host-recs.nix` 按主机公网或 LTNET 地址生成 | 作者式主机与私有服务命名；不经过统一公网入口 |
+| `*.ml-home-vm.zhyi.xin` | 历史 CNAME | `ml-home-vm` 已退役；服务由 `rock5c`/`opi5p` 承载，入口以 vhost/DNS 为准 |
+| `ha.opi5p.zhyi.xin` | `*.opi5p.zhyi.xin` 通配解析到 OPI5P LTNET | 私有服务规范命名（`服务.承载主机.zhyi.xin`），仅内网/LTNET 可达 |
+| `vaults3.zhyi.xin` | CNAME 到 `home-ddns.zhyi.xin` | 家庭动态公网入口 |
+| `hydra.zhyi.xin` | CNAME 到 `greencloud.zhyi.xin` | greencloud Nginx 反代到 `ml-builder` 的 Hydra 端口（LTNET `198.18.0.114`） |
+| `attic.zhyi.xin` | CNAME 到 `volcengine.zhyi.xin` | volcengine 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
+| `greencloud.zhyi.xin` | A `203.55.176.158` | SSH、Colmena、ZeroTier controller 与公共服务入口 |
 | `zhyi.xin` | A `101.96.199.157` | VOLCENGINE 上的公开根站入口 |
 | 具名 `zhyi.xin` Web 服务 | 显式 CNAME 到 `home-ddns`、`greencloud` 或 `volcengine` | 按作者服务角色逐项声明，不使用统一通配符兜底 |
-| `hostdare.zhyi.cc` | A `36.50.85.113` | `hostdare` 自身服务 |
-| `autoconfig.moliy.site` | CNAME 到 `home-ddns.zhyi.cc` | 家庭公网入口 |
+| `hostdare.zhyi.xin` | A `36.50.85.113` | `hostdare` 自身服务 |
 
 家庭公网封锁标准 `443`。DNS、Nginx vhost、OAuth 回调和应用自身 URL 仍保持
 作者的标准 HTTPS 结构；需要从公网直接访问 `home-ddns` 承载的服务时，客户端
@@ -88,10 +87,10 @@ Hydra 已于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统�
 
 | 生效主机 | 覆盖关系 | 用途 |
 | --- | --- | --- |
-| `pve-5700u` | `ml-builder.zhyi.cc -> 192.168.0.50` | LAN 内主机互访 |
+| `pve-5700u` | `ml-builder.zhyi.xin -> 192.168.0.50` | LAN 内主机互访 |
 | `opi5p` | `vaults3.zhyi.xin ->` 本机 interconnect 地址 | VaultS3 本机访问不绕公网 |
 
-MetaCubeXD 运行于 `rock5c`（`192.168.0.64:7892`）；控制界面和 Clash API 仅绑定回环地址，并经 `metacubexd.rock5c.zhyi.cc` 的私有 Nginx vhost 访问。Halo 与根域 `zhyi.xin` 由 VOLCENGINE 承载。
+MetaCubeXD 运行于 `rock5c`（`192.168.0.64:7892`）；控制界面和 Clash API 仅绑定回环地址，并经 `metacubexd.rock5c.zhyi.xin` 的私有 Nginx vhost 访问。Halo 与根域 `zhyi.xin` 由 VOLCENGINE 承载。
 
 `zhyi.xin` 的公开入口统一静态指向 `volcengine`，不配置自动故障转移。`hostdare`
 承担原 TWVM 的公网 LTNET 中继职责，TWVM 不再属于生产拓扑。

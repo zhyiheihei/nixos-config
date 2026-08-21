@@ -15,7 +15,7 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
        _secret = config.sops.secrets.dex-moviepilot-secret.path;
      };
      redirectURIs = [
-       "https://moviepilot.rock5c.zhyi.cc/api/v1/plugin/OidcAuth/callback"
+       "https://moviepilot.rock5c.zhyi.xin/api/v1/plugin/OidcAuth/callback"
      ];
    }
    ```
@@ -40,14 +40,14 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
 - issuer：`https://login.zhyi.xin`
 - client_id：`moviepilot`
 - redirect_uri：
-  `https://moviepilot.rock5c.zhyi.cc/api/v1/plugin/OidcAuth/callback`
+  `https://moviepilot.rock5c.zhyi.xin/api/v1/plugin/OidcAuth/callback`
 - `allow_auto_bind_by_username=true`，现有 `zhyi` 账号自动绑定。
 
 ## Memos 当前配置
 
 - 接入方式：Memos 原生 OAuth2（OIDC Discovery 由 Dex 提供）。
 - Dex client：`id=memos`，回调
-  `https://memos.opi5p.zhyi.cc/auth/callback`，与 Memos 登录页的
+  `https://memos.opi5p.zhyi.xin/auth/callback`，与 Memos 登录页的
   `/auth/callback` 完全一致。
 - OAuth2 端点：`https://login.zhyi.xin/auth`、
   `https://login.zhyi.xin/token`、`https://login.zhyi.xin/userinfo`。
@@ -86,7 +86,7 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
   `issuer=https://login.zhyi.xin`、`client_id=moviepilot`、
   `scopes=openid profile email`、`username_claim=preferred_username`、
   `email_claim=email`、`allow_auto_bind_by_username=true`。
-- 回调：`https://moviepilot.rock5c.zhyi.cc/api/v1/plugin/OidcAuth/callback`，
+- 回调：`https://moviepilot.rock5c.zhyi.xin/api/v1/plugin/OidcAuth/callback`，
   与 Dex staticClient 的 `redirectURIs` 完全一致。
 - 登录完成后由前端调用 `POST /api/v1/auth/exchange` 兑换一次性票据成 Token。
 

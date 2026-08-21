@@ -6,7 +6,7 @@ flake 的 `darwinConfigurations` 单独求值，用 `darwin-rebuild` 在本机�
 
 ## 主机身份
 
-- 主机名：`macmini`（`hostname` = `macmini.zhyi.cc`，`interconnect.IPv4` = `192.168.0.54`）
+- 主机名：`macmini`（`hostname` = `macmini.zhyi.xin`，`interconnect.IPv4` = `192.168.0.54`）
 - `host.nix`：[`hosts/macmini/host.nix`](../../../hosts/macmini/host.nix)
 - `index = 115`，`system = "aarch64-darwin"`，标签 `macos` / `lan-access`
 - `manualDeploy = true`（Colmena 不默认选择，且 darwin 本就不走 Colmena）

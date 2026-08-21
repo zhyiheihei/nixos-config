@@ -33,11 +33,11 @@ hostdare UniAPI ─> n8n OpenAI Bridge (greencloud) ─> n8n 工作流
 
 自 2026-08-14 起，UniAPI 全项目收敛为**唯一一份**，运行在 `hostdare`（网络质量
 较好）；公开入口为 `ai-api.zhyi.xin`（完全公开，key 鉴权，对应作者原版的
-`ai-api.<domain>` 公开模式；原 `ai-api.zhyi.cc` 已移除）。LibreChat、n8n 和
+`ai-api.<domain>` 公开模式；原 `ai-api.zhyi.xin` 已移除）。LibreChat、n8n 和
 n8n OpenAI Bridge 运行在 `greencloud`；Metapi 运行在 `tencent`（SQLite 状态从
 greencloud 迁移）。LibreChat 与 Metapi 都使用 `https://ai-api.zhyi.xin/v1`。
 UniAPI 通过 LTNET 回调 greencloud 上的 n8n Bridge
-（`https://n8n-bridge.greencloud.zhyi.cc/v1`）。
+（`https://n8n-bridge.greencloud.zhyi.xin/v1`）。
 
 `AxonHub` 模块仍保留在仓库，但当前没有被任何 host 导入，实机也没有
 `axonhub.service`。它是未部署候选，不属于当前运行链路。
@@ -158,15 +158,15 @@ greencloud，Metapi 迁移后作为备份保留；tencent 上的 `/var/lib/metap
 
 - **不要改主调用路径。** LibreChat 的自定义 UniAPI endpoint 使用
   `https://ai-api.zhyi.xin/v1`，后端即 hostdare；n8n Bridge 作为 `lantian.llm-providers`
-  的 `n8n` Provider 被 UniAPI 通过 `https://n8n-bridge.greencloud.zhyi.cc/v1` 调用。两者都
+  的 `n8n` Provider 被 UniAPI 通过 `https://n8n-bridge.greencloud.zhyi.xin/v1` 调用。两者都
   不能改为 AxonHub 或 Metapi，除非明确迁移整个调用契约并单独验证。
 - **不要制造回环。** 禁止将 `axonhub.*`、`metapi.*` 或 `ai-api.zhyi.xin` 配成 UniAPI
   的 Provider；禁止给 Metapi/AxonHub 再添加指向自身的上游。
 - **不重复保存外部 Provider 凭据。** Metapi 当前只保存对 UniAPI 的凭据；
   AxonHub 若重新部署也只能这样配置。新增外部 Provider 时优先更新 `uni-api/`
   secrets，而不是分别塞入多个网关。
-- **保留私有访问边界。** `metapi.tencent.zhyi.cc` 是 private vhost（迁移前为
-  `metapi.greencloud.zhyi.cc`）；未来重新部署的 `axonhub.*` 也必须保持 private。
+- **保留私有访问边界。** `metapi.tencent.zhyi.xin` 是 private vhost（迁移前为
+  `metapi.greencloud.zhyi.xin`）；未来重新部署的 `axonhub.*` 也必须保持 private。
   公开 API 入口由 `ai-api.zhyi.xin` 的 hostdare UniAPI 承担。
 - **不把运行态当 Nix 声明。** Nix 负责服务存在和 secret 文件挂载；应用内 channel、
   account、route、管理员、工作流等数据由各自数据库持久化和备份。

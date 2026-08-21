@@ -90,8 +90,8 @@ LDAP bind（`cn=serviceuser,dc=zhyi,dc=xin`），凭据即用户目录里的密�
 | `grafana` | Grafana | dashboard.zhyi.xin |
 | `immich` | Immich | immich.zhyi.xin |
 | `librechat` | LibreChat | ai.zhyi.xin |
-| `memos` | Memos | memos.opi5p.zhyi.cc |
-| `moviepilot` | MoviePilot | moviepilot.rock5c.zhyi.cc |
+| `memos` | Memos | memos.opi5p.zhyi.xin |
+| `moviepilot` | MoviePilot | moviepilot.rock5c.zhyi.xin |
 | `oauth-proxy` | oauth2-proxy | 所有 `enableOAuth` vhost 共用 |
 | `vaultwarden` | Vaultwarden | bitwarden.zhyi.xin |
 
@@ -139,11 +139,11 @@ staticClients 与 LDAP 消费者。模块存在但**没有被任何主机导入*
 | n8n | `n8n.zhyi.xin` | greencloud |
 | ArchiSteamFarm | `asf.zhyi.xin` | rock5c 边缘 → opi5p |
 | 代理订阅（登录部分） | `sub.zhyi.xin` | greencloud |
-| Syncthing | `syncthing.opi5p.zhyi.cc` / `syncthing.greencloud.zhyi.cc` | opi5p / greencloud |
-| ArchiveBox | `archivebox.opi5p.zhyi.cc` | opi5p |
-| Ignis | `ignis.opi5p.zhyi.cc` | opi5p |
-| Frigate | `frigate.opi5p.zhyi.cc` | opi5p |
-| Halo 管理后台 | `halo.volcengine.zhyi.cc` | volcengine |
+| Syncthing | `syncthing.opi5p.zhyi.xin` / `syncthing.greencloud.zhyi.xin` | opi5p / greencloud |
+| ArchiveBox | `archivebox.opi5p.zhyi.xin` | opi5p |
+| Ignis | `ignis.opi5p.zhyi.xin` | opi5p |
+| Frigate | `frigate.opi5p.zhyi.xin` | opi5p |
+| Halo 管理后台 | `halo.volcengine.zhyi.xin` | volcengine |
 
 **B. 应用内 OIDC（应用自己实现 OIDC，client 注册在 Dex）**
 
@@ -152,8 +152,8 @@ staticClients 与 LDAP 消费者。模块存在但**没有被任何主机导入*
 | LibreChat | `ai.zhyi.xin` | `librechat` |
 | Gitea（登录页强制跳 Dex） | `git.zhyi.xin` | `gitea` |
 | Grafana | `dashboard.zhyi.xin` | `grafana` |
-| Memos | `memos.opi5p.zhyi.cc` | `memos` |
-| MoviePilot | `moviepilot.rock5c.zhyi.cc` | `moviepilot` |
+| Memos | `memos.opi5p.zhyi.xin` | `memos` |
+| MoviePilot | `moviepilot.rock5c.zhyi.xin` | `moviepilot` |
 | Vaultwarden（SSO 可跳 Dex，主密码仍自身） | `bitwarden.zhyi.xin` | `vaultwarden` |
 
 **C. LDAP 直连（glauth `dc=zhyi,dc=xin`）**
@@ -178,10 +178,10 @@ oauth2-proxy）**
 
 | 服务 | 入口 | 承载主机 | 说明 |
 | --- | --- | --- | --- |
-| Home Assistant | `ha.opi5p.zhyi.cc` | opi5p | 内网私有，HA 自有账号 |
+| Home Assistant | `ha.opi5p.zhyi.xin` | opi5p | 内网私有，HA 自有账号 |
 | Sun Panel | `index.zhyi.xin` | opi5p | Sun Panel 自有账号 |
 | Sun Panel Helper | `index-helper.zhyi.xin` | opi5p | 资源后端随面板 |
-| Resilio Sync | `resilio.opi5p.zhyi.cc/gui/` | opi5p | webui 凭据由模块强制为 zhyi/default-pw |
+| Resilio Sync | `resilio.opi5p.zhyi.xin/gui/` | opi5p | webui 凭据由模块强制为 zhyi/default-pw |
 
 ### 体系外
 
@@ -191,8 +191,8 @@ oauth2-proxy）**
 | --- | --- | --- |
 | Immich | `immich.zhyi.xin` | 应用登录（Dex 有 `immich` client 但**未接线**，见审计结论） |
 | Jellyfin | `jellyfin.zhyi.xin` | 应用登录 |
-| qBittorrent | `bt.router.zhyi.cc` | WebUI 登录 |
-| PVE | `pve-5700u.zhyi.cc:8006` | 应用登录 |
+| qBittorrent | `bt.router.zhyi.xin` | WebUI 登录 |
+| PVE | `pve-5700u.zhyi.xin:8006` | 应用登录 |
 | Plausible | `stats.zhyi.xin` | 应用管理员 |
 | FileCodeBox | `filebox.zhyi.xin` | 应用管理 |
 | Bepasty | `pb.zhyi.xin` | 分享链接 / 无账号 |
@@ -207,21 +207,21 @@ oauth2-proxy）**
 | --- | --- | --- |
 | UniAPI | `ai-api.zhyi.xin` | API key（`uni-api-admin-api-key`） |
 | Attic | `attic.zhyi.xin` | 上传 token |
-| MetaAPI | `metapi.tencent.zhyi.cc` | 应用口令 / token |
-| n8n OpenAI Bridge | `n8n-bridge.greencloud.zhyi.cc` | bearer token |
-| FastAPI-DLS | `fastapi-dls.rock5c.zhyi.cc` | 租约 token |
-| MetaCubeXD | `metacubexd.rock5c.zhyi.cc` | 控制 token |
-| PeerBanHelper | `peerbanhelper.opi5p.zhyi.cc` | API token |
+| MetaAPI | `metapi.tencent.zhyi.xin` | 应用口令 / token |
+| n8n OpenAI Bridge | `n8n-bridge.greencloud.zhyi.xin` | bearer token |
+| FastAPI-DLS | `fastapi-dls.rock5c.zhyi.xin` | 租约 token |
+| MetaCubeXD | `metacubexd.rock5c.zhyi.xin` | 控制 token |
+| PeerBanHelper | `peerbanhelper.opi5p.zhyi.xin` | API token |
 | VaultS3 | `vaults3.zhyi.xin:8443` | S3 凭据 |
 
 **G. 私有无认证（仅网络层保护）**
 
 | 服务 | 入口 | 说明 |
 | --- | --- | --- |
-| SearXNG | `searx.tencent.zhyi.cc` | LTNET 私有 |
+| SearXNG | `searx.tencent.zhyi.xin` | LTNET 私有 |
 | RSSHub | `rsshub.zhyi.xin` | LTNET 私有 |
-| OpenSpeedTest | `openspeedtest.rock5c.zhyi.cc` | 内网 |
-| BitMagnet | `bitmagnet.opi5p.zhyi.cc` | 内网 |
+| OpenSpeedTest | `openspeedtest.rock5c.zhyi.xin` | 内网 |
+| BitMagnet | `bitmagnet.opi5p.zhyi.xin` | 内网 |
 
 **H. 公开无认证（有意的公开面）**
 
@@ -232,7 +232,7 @@ oauth2-proxy）**
 | IT Tools | `tools.zhyi.xin` |
 | 网络信息 API | `api.zhyi.xin` |
 | Avatar API | `avatar.zhyi.xin` |
-| Bird Looking Glass | `lg.zhyi.cc` |
+| Bird Looking Glass | `lg.zhyi.xin` |
 | FlapAlerted | `flapalerted.zhyi.xin` |
 
 **I. 协议 / 无 Web UI（认证各自独立，不入身份链）**
@@ -279,7 +279,7 @@ SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）�
 | ~~Vertex~~ | **无（新增）** | 已退役 | **已移除**（2026-08-15） |
 
 > 说明：Halo 前台（`zhyi.xin`）公开是博客设计，不接；管理后台
-> `halo.volcengine.zhyi.cc` 已接入。Avatar API 作者有（common-apps/libravatar），
+> `halo.volcengine.zhyi.xin` 已接入。Avatar API 作者有（common-apps/libravatar），
 > 属公开只读 API，不接。
 
 ## 凭据管理与改密清单

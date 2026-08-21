@@ -8,7 +8,7 @@
 运行 Nix：
 
 ```bash
-ssh -A -p 2222 root@ml-builder.zhyi.cc
+ssh -A -p 2222 root@ml-builder.zhyi.xin
 cd /nix/src/nixos-config
 git pull --ff-only
 ```

@@ -1,7 +1,7 @@
 # Homepage 卡片与健康检查
 
 Homepage 运行在 `rock5c`，正式入口为
-`https://homepage.rock5c.zhyi.cc`。它的服务卡片属于私有配置，实际 YAML 由
+`https://homepage.rock5c.zhyi.xin`。它的服务卡片属于私有配置，实际 YAML 由
 `nixos-secrets` 提供；主仓库只负责导入模块、Nginx vhost 与服务本身。因此卡片
 内容、认证方式和健康检查 URL 的最终来源不是本文，而是已生成的
 `/etc/homepage-dashboard/services.yaml`。
@@ -17,7 +17,7 @@ Homepage 同时作为个人导航页使用。Bing 搜索栏、Quick Launch、常
 `17 · 私有 · 监控 · 主机资源` 分组为每台非 `client` 主机生成一张卡片，通过
 Homepage 的 `prometheusmetric` widget 展示 node exporter 的 CPU、内存与磁盘
 占用。数据源是 greencloud 上仅供私网访问的只读 Prometheus API
-`https://prometheus.greencloud.zhyi.cc`，vhost 在
+`https://prometheus.greencloud.zhyi.xin`，vhost 在
 `hosts/greencloud/configuration.nix` 中声明为 `accessibleBy = "private"`，
 不叠加 OAuth，不暴露到公网。rock5c 在
 `hosts/rock5c/home-lan-edge.nix` 中把该域名固定解析到 greencloud 的 LTNET
@@ -47,7 +47,7 @@ SMTP、SFTP、Samba、NFS 等协议服务按“没有 Web UI 的协议、后端�
 账号与口令线索不写入本仓库，完整速查在私有 `nixos-secrets` 仓库的
 `docs/service-login-audit.md`。
 
-实机复核（2026-08-11）：`https://homepage.rock5c.zhyi.cc/` 返回 HTTP 200；
+实机复核（2026-08-11）：`https://homepage.rock5c.zhyi.xin/` 返回 HTTP 200；
 `https://dav.zhyi.xin/` 未带凭据返回 401，符合卡片描述的 Basic Auth。
 
 ## 保持与作者一致的结构
@@ -66,9 +66,9 @@ SMTP、SFTP、Samba、NFS 等协议服务按“没有 Web UI 的协议、后端�
 2. 在 `nixos-secrets` 的 Homepage 配置中添加或修改卡片。不要把 token、Basic
    Auth 密码或私有管理地址写入本仓库。
 3. Homepage 按作者结构使用承载主机域名，正式入口为
-   `https://homepage.rock5c.zhyi.cc`，仅从家庭 LAN、LTNET 或 ZeroTier
+   `https://homepage.rock5c.zhyi.xin`，仅从家庭 LAN、LTNET 或 ZeroTier
    访问。卡片链接按服务实际公开边界分组：公开服务使用正式公开域，私有服务
-   使用 `服务.承载主机.zhyi.cc`；Attic 仍是例外，固定使用
+   使用 `服务.承载主机.zhyi.xin`；Attic 仍是例外，固定使用
    `https://attic.zhyi.xin/lantian`，实际入口位于 volcengine。
 4. 由 `ml-builder` 构建并部署 `rock5c`，然后在 ROCK 5C 检查生成结果。只修改
    Homepage 卡片时仍需确认对应后端主机没有迁移。

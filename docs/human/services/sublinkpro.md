@@ -18,10 +18,10 @@
 
 - 自建节点（group=overseas，VLESS xhttp 节点，443 端口，`/ray`，`stream-up`，
   UUID 来自 SOPS `v2ray-key`；命名与机场风格统一为「地区 + 厂商」）：
-  - `🇯🇵 日本 HostDare`（hostdare.zhyi.cc）
-  - `🇺🇸 美国 Google`（google.zhyi.cc）
-  - `🇸🇬 新加坡 GreenCloud`（greencloud.zhyi.cc）
-  - `🇰🇷 韩国 Tencent`（tencent.zhyi.cc）
+  - `🇯🇵 日本 HostDare`（hostdare.zhyi.xin）
+  - `🇺🇸 美国 Google`（google.zhyi.xin）
+  - `🇸🇬 新加坡 GreenCloud`（greencloud.zhyi.xin）
+  - `🇰🇷 韩国 Tencent`（tencent.zhyi.xin）
   - seed 服务会清理旧主机名遗留节点（`jpvm`/`usvm`/`colocrossing`）。SublinkPro
     添加节点时 `NameMode=link`，客户端看到的是链接 `#fragment`（LinkName），因此
     seed 与面板添加节点都用**规范命名作为 fragment**，`name` 字段保持一致

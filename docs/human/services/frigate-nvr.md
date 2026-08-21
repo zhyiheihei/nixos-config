@@ -17,7 +17,7 @@
 
 | 项 | 值 |
 | --- | --- |
-| Web UI | `https://frigate.opi5p.zhyi.cc`（**仅内网可达**，`accessibleBy = private`，HTTPS 用 `*.<hostname>.zhyi.cc` 通配证书） |
+| Web UI | `https://frigate.opi5p.zhyi.xin`（**仅内网可达**，`accessibleBy = private`，HTTPS 用 `*.<hostname>.zhyi.xin` 通配证书） |
 | 容器 | `ghcr.io/blakeblackshear/frigate:stable-rk`（官方 Rockchip 专版，含 RKNN 支持） |
 | 录像存储 | QNAP NAS → opi5p NFS `/mnt/storage/surveillance/frigate` → 容器 `/media/frigate` |
 | 配置/数据库 | opi5p 本机 `/nix/persistent/var/lib/frigate` → 容器 `/config` |
@@ -35,7 +35,7 @@
    │                   └─ go2rtc（容器内置，实时预览）
    └─ ONVIF 控制
 
-浏览器 ──> frigate.opi5p.zhyi.cc（内网私有 vhost）
+浏览器 ──> frigate.opi5p.zhyi.xin（内网私有 vhost）
               └─> 127.0.0.1:8971（frigate web，host 网络）
 ```
 
@@ -58,7 +58,7 @@
 
 ## 日常使用
 
-1. 浏览器打开 `https://frigate.opi5p.zhyi.cc`（仅内网）。认证走统一身份链：
+1. 浏览器打开 `https://frigate.opi5p.zhyi.xin`（仅内网）。认证走统一身份链：
    oauth2-proxy → Dex（`login.zhyi.xin`）→ Pocket ID（`id.zhyi.xin`）Passkey
    登录；frigate 本体不设密码（`auth.enabled=false`，用户/角色由反代 header
    透传，`default_role=admin`）。
@@ -70,7 +70,7 @@
 
 > 反代说明：frigate 0.17 的 Web 是 HTTPS-only（容器自签证书），内网 vhost
 > 以 `https://127.0.0.1:8971` + `proxy_ssl_verify off` 反代，对外是
-> `https://frigate.opi5p.zhyi.cc`（`*.<hostname>.zhyi.cc` 通配证书）。
+> `https://frigate.opi5p.zhyi.xin`（`*.<hostname>.zhyi.xin` 通配证书）。
 > 认证由 oauth2-proxy 在 nginx 层强制（`enableOAuth`），frigate 本体关闭
 > 认证（`auth.enabled=false`），经 `proxy.header_map` 透传 `X-User`/`X-Groups`。
 

@@ -115,7 +115,7 @@
 - 宿主只暴露前端 `LT.portStr.MoviePilot.Frontend` → 容器 `3000`；后端容器内 `3001`。
 - 环境：`TZ`、`PORT=3001`、`NGINX_PORT=3000`、`MOVIEPILOT_AUTO_UPDATE=false`、`DB_TYPE=sqlite`、`CACHE_BACKEND_TYPE=cachetools`。
 - 卷：数据目录、`.cloakbrowser`、整个 `/mnt/storage`（避免 NFS 子目录破坏 hardlink 导入）。
-- 额外：SOCKS5 代理环境走家庭路由器出口；`--add-host=jellyfin-api.rock5c.zhyi.cc:LAN-IP`；`moviepilot-plugin-health` 定时服务恢复 BrushFlow/SubtitleAssistant 路由。
+- 额外：SOCKS5 代理环境走家庭路由器出口；`--add-host=jellyfin-api.rock5c.zhyi.xin:LAN-IP`；`moviepilot-plugin-health` 定时服务恢复 BrushFlow/SubtitleAssistant 路由。
 
 ### Nix 包形态
 

@@ -103,7 +103,7 @@ Miniflux 与 RSSHub 已统一使用本机 Firefox 153.0.1 的真实 UA，减少�
 podman exec --user=archivebox archivebox archivebox add <url>
 ```
 
-或直接使用 https://archivebox.opi5p.zhyi.cc/ 的 Add 页面。
+或直接使用 https://archivebox.opi5p.zhyi.xin/ 的 Add 页面。
 
 ## 官方 API 与 AI 输入
 

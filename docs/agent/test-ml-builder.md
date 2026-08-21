@@ -2,7 +2,7 @@
 
 `ml-builder` 是当前强构建机，主机元数据在
 [`hosts/ml-builder/host.nix`](../../hosts/ml-builder/host.nix)。它的部署地址为
-`ml-builder.zhyi.cc`，SSH 使用端口 `2222`，局域网固定地址以
+`ml-builder.zhyi.xin`，SSH 使用端口 `2222`，局域网固定地址以
 [家庭局域网 IP 规划](home-lan-ip-plan.md) 为准。
 
 ## 连接与基础状态
@@ -10,7 +10,7 @@
 从管理机连接：
 
 ```bash
-ssh -A -p 2222 root@ml-builder.zhyi.cc
+ssh -A -p 2222 root@ml-builder.zhyi.xin
 ```
 
 登录后执行：
@@ -79,11 +79,11 @@ journalctl -k --since "24 hours ago" | rg -i 'oom|ld.lld|killed process'
 
 ## 作为远程 builder
 
-Hydra/PVE 通过 `nix-builder@ml-builder.zhyi.cc` 使用该机。连接失败时，在调度机
+Hydra/PVE 通过 `nix-builder@ml-builder.zhyi.xin` 使用该机。连接失败时，在调度机
 检查：
 
 ```bash
-ssh -A -p 2222 nix-builder@ml-builder.zhyi.cc true
+ssh -A -p 2222 nix-builder@ml-builder.zhyi.xin true
 cat /etc/nix/machines-with-localhost
 ```
 

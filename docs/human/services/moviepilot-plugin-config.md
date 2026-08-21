@@ -44,7 +44,7 @@
 
 ## 媒体服务器
 
-- Jellyfin：`http://jellyfin-api.rock5c.zhyi.cc`，同步全部媒体库。
+- Jellyfin：`http://jellyfin-api.rock5c.zhyi.xin`，同步全部媒体库。
 
 ## 插件
 
