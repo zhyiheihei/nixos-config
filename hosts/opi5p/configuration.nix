@@ -45,23 +45,15 @@ in
   # relying on intermittent direct GitHub connectivity.
   environment.variables = proxyEnvironment;
   systemd.services.nix-daemon.environment = proxyEnvironment;
+  # 让 NCPS 缓存写入本地 NVMe 持久盘（不在 NFS-backed /mnt/storage），并路由其
+  # 上游下载走与构建一致的稳定出口。
   systemd.services.ncps.environment = {
-    HTTP_PROXY = config.lantian.ncps.proxy;
-    HTTPS_PROXY = config.lantian.ncps.proxy;
+    HTTP_PROXY = outboundProxy;
+    HTTPS_PROXY = outboundProxy;
     NO_PROXY = ncpsProxyBypass;
-    http_proxy = config.lantian.ncps.proxy;
-    https_proxy = config.lantian.ncps.proxy;
+    http_proxy = outboundProxy;
+    https_proxy = outboundProxy;
     no_proxy = ncpsProxyBypass;
-  };
-  # NCPS cache lives on the local NVMe-backed persistent filesystem, not on
-  # the NFS-backed /mnt/storage. Kept together with the service's proxy
-  # settings per module-placement-norms §2/§3.
-  lantian.ncps = {
-    dataPath = "/nix/persistent/var/cache/ncps";
-    tempPath = "/nix/persistent/var/cache/ncps-tmp";
-    proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    proxyUnit = null;
-    storageUnit = "nix.mount";
   };
 
   # 两台乐橙摄像头 NVR（Frigate stable-rk 容器，RKNN NPU 检测）。
