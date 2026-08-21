@@ -18,7 +18,6 @@
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/wallos.nix
     ../../nixos/optional-apps/webdav.nix
-    ../../nixos/client-components/cups.nix
     ../../nixos/client-components/multicast-dns.nix
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
     ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
