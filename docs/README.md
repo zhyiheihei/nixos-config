@@ -52,14 +52,13 @@
 ### 服务指南
 
 - [Homepage 卡片与健康检查](human/services/homepage-link-audit.md)
-- [下载与媒体链路使用指南](human/services/media-pipeline-guide.md)
+- [下载与媒体链路使用指南（含 MoviePilot 插件状态）](human/services/media-pipeline-guide.md)
 - [Memos 服务接入（SSO / 存储 / 通知 / AI）](human/services/memos.md)
 - [Ignis 服务接入（Web Obsidian / vault / SSO）](human/services/ignis.md)
 - [Frigate NVR 使用手册（乐橙摄像头）](human/services/frigate-nvr.md)
 - [飞牛 fnOS NFS 媒体库接入](human/services/fnos-nfs-media.md)
 - [RSS 链路](human/services/rss-chain.md)
 - [SublinkPro 订阅管理](human/services/sublinkpro.md)
-- [MoviePilot 插件配置](human/services/moviepilot-plugin-config.md)
 - [协作内容链](human/services/collab-content-chain.md)
 
 ### 调研记录
