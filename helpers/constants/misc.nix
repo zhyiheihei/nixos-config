@@ -25,5 +25,6 @@
     # Hardware
     "cuda"
     "low-ram"
+    "macos"
   ] (v: v);
 }
