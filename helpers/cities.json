@@ -48,6 +48,30 @@
     "name": "Tokyo"
   },
   {
+    "admin1": "01",
+    "admin2": "",
+    "country": "SG",
+    "lat": "1.28967",
+    "lng": "103.85007",
+    "name": "Singapore"
+  },
+  {
+    "admin1": "02",
+    "admin2": "3302",
+    "country": "CN",
+    "lat": "29.87819",
+    "lng": "121.54945",
+    "name": "Ningbo"
+  },
+  {
+    "admin1": "04",
+    "admin2": "TPE",
+    "country": "TW",
+    "lat": "25.05306",
+    "lng": "121.52639",
+    "name": "Taipei"
+  },
+  {
     "admin1": "20",
     "admin2": "3907",
     "country": "NO",
@@ -102,5 +126,13 @@
     "lat": "47.61038",
     "lng": "-122.20068",
     "name": "Bellevue"
+  },
+  {
+    "admin1": "11",
+    "admin2": "",
+    "country": "KR",
+    "lat": "37.56654",
+    "lng": "126.97797",
+    "name": "Seoul"
   }
 ]
