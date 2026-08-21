@@ -13,13 +13,13 @@
 | 主机 | index | 角色 | 主机元数据地址 | 说明 |
 | --- | ---: | --- | --- | --- |
 | `router` | 112 | 家庭路由器 | `192.168.0.1` | PPPoE、LAN 网关、DHCP、DNS、DDNS 与 qBittorrent 单实例。 |
-| `ml-2700` | 113 | `client` | `ml-2700.zhyi.cc` | 家庭客户端，LAN 地址 `192.168.0.53`。 |
-| `ml-builder` | 114 | `nix-builder` | `ml-builder.zhyi.cc` | 强构建机，28 vCPU；Hydra 与 x86-only 容器（ArchiveTeam/ClawEmail/Epic Awesome Gamer）自 2026-08-12 起运行于此。 |
-| `macmini` | 115 | aarch64-darwin / macOS | `macmini.zhyi.cc` | 家庭 Mac mini，nix-darwin 管理；`manualDeploy`，不参与 Colmena，用 `darwin-rebuild` 本机部署；接入与维护见 [Mac mini](../human/hardware/macmini.md)。 |
-| `ml-home-vm` | ~~115~~ | x86_64 / 家庭服务 VM | ~~`192.168.0.51`~~ | 已退役（2026-08-03）：应用迁至 ROCK5C/OPI5P/PVE，主机定义已从 flake 移除；`*.ml-home-vm.zhyi.cc` 服务别名由 ROCK 5C 继续承载。index 115 已由 macmini 复用。 |
-| `pve-5700u` | 116 | PVE | `pve-5700u.zhyi.cc` | PVE 宿主（仅虚拟化）；Hydra 与本机构建能力已迁至 ml-builder。 |
-| `hostdare` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.cc` 通配符公网入口。 |
-| `volcengine` | 119 | `server` / 公网入口 | `volcengine.zhyi.cc` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
+| `ml-2700` | 113 | `client` | `ml-2700.zhyi.xin` | 家庭客户端，LAN 地址 `192.168.0.53`。 |
+| `ml-builder` | 114 | `nix-builder` | `ml-builder.zhyi.xin` | 强构建机，28 vCPU；Hydra 与 x86-only 容器（ArchiveTeam/ClawEmail/Epic Awesome Gamer）自 2026-08-12 起运行于此。 |
+| `macmini` | 115 | aarch64-darwin / macOS | `macmini.zhyi.xin` | 家庭 Mac mini，nix-darwin 管理；`manualDeploy`，不参与 Colmena，用 `darwin-rebuild` 本机部署；接入与维护见 [Mac mini](../human/hardware/macmini.md)。 |
+| `ml-home-vm` | ~~115~~ | x86_64 / 家庭服务 VM | ~~`192.168.0.51`~~ | 已退役（2026-08-03）：应用迁至 ROCK5C/OPI5P/PVE，主机定义已从 flake 移除；`*.ml-home-vm.zhyi.xin` 服务别名由 ROCK 5C 继续承载。index 115 已由 macmini 复用。 |
+| `pve-5700u` | 116 | PVE | `pve-5700u.zhyi.xin` | PVE 宿主（仅虚拟化）；Hydra 与本机构建能力已迁至 ml-builder。 |
+| `hostdare` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.xin` 通配符公网入口。 |
+| `volcengine` | 119 | `server` / 公网入口 | `volcengine.zhyi.xin` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
 | `greencloud` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、协作内容链路与 ZeroTier controller（监控栈 2026-08-14 迁至 tencent）。 |
 | `google` | 121 | `server` / 公网入口 / 日志目标 | `35.212.152.140` | US VPS（GCP）；Filebeat 目标仍指向此机，但当前未部署 Elasticsearch，日志链待修复。 |
 | `opi5p` | 122 | RK3588 / reDroid | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。 |
@@ -28,7 +28,7 @@
 | `h28k` | 125 | RK3528 / 异地路由器（预部署） | WAN DHCP / LAN `192.168.30.1` | HINLINK H28K；双千兆口、Kea、CoreDNS 与 nftables NAT；SSH/SOPS/ZeroTier 身份已采集（08-04 修正 ZeroTier 身份），仍在家中 staging（临时 SSH 放行规则保留），待迁异地站点。 |
 | `opi03` | 126 | H618 / reDroid 实验设备 | DHCP（未固定） | Orange Pi Zero 3；本地 Android 镜像和硬件加速仍在开发，尚未完成正式网络身份与实机验收。 |
 | `taishanpi` | 127 | RK3566 / 暂停维护 | 未定（Wi-Fi bring-up） | LCKFB Taishan Pi（泰山派）；无有线网卡，Wi-Fi/MIPI 适配中；2026-08 起暂停维护。 |
-| `tencent` | 128 | `server` / 公网入口 / DN42 | `tencent.zhyi.cc` | 腾讯云首尔 VPS（2C/4G，AS132203）；DN42 节点、cn-accel 出口、监控中心（Prometheus/Grafana 自 greencloud 迁入，2026-08-14）；2026-08-13 重装完成，host key/ZeroTier 已回填，LTNET mesh 已接入（hostdare 不可达期间除外）。 |
+| `tencent` | 128 | `server` / 公网入口 / DN42 | `tencent.zhyi.xin` | 腾讯云首尔 VPS（2C/4G，AS132203）；DN42 节点、cn-accel 出口、监控中心（Prometheus/Grafana 自 greencloud 迁入，2026-08-14）；2026-08-13 重装完成，host key/ZeroTier 已回填，LTNET mesh 已接入（hostdare 不可达期间除外）。 |
 
 家庭局域网地址、MAC 与 DHCP 边界以 [家庭局域网 IP 规划](home-lan-ip-plan.md)
 为准；LTNET、ZeroTier、WireGuard 与 DN42 关系以
@@ -36,8 +36,34 @@
 
 服务实际运行位置和跨主机依赖以
 [全主机服务归属与链路](fleet-service-chain.md) 为准。旧服务域名中包含
-主机名不表示服务仍运行在该主机，例如多个 `*.ml-home-vm.zhyi.cc` 入口已由 ROCK 5C
+主机名不表示服务仍运行在该主机，例如多个 `*.ml-home-vm.zhyi.xin` 入口已由 ROCK 5C
 承载并反代到 OPI5P 或 PVE。
+
+## 作者主机 → 本仓主机映射
+
+公共模块（与上游逐字对齐）引用 `LT.hosts.<作者主机>` 时按下表直接替换为本仓
+真实主机名（无别名机制，见 work-norms §2）。多对一映射以**角色/地域最接近**为准；
+若某作者主机只被引用为某服务的承载者而本仓对应主机不承载该服务，则删除该引用。
+
+| 作者主机 | 本仓主机 | 依据 |
+| --- | --- | --- |
+| `lt-hp-omen` | `ml-laptop` | 主力客户端（物理笔记本） |
+| `lt-home-rdp` | `ml-builder` | 家庭 RDP/构建机 |
+| `pve-epyc` | `pve-5700u` | PVE 宿主 |
+| `lt-home-router` | `router` | 家庭路由器 |
+| `lt-home-vm` | `rock5c` | 家庭服务 VM 已退役，应用迁至 ROCK5C/OPI5P/PVE |
+| `lt-dell-wyse` | `ml-2700` | 作者物理笔记本 |
+| `lt-dell-wyse-thin` | `opi03` | 瘦客户端/实验设备 |
+| `lt-rpi4` | `lubancat1` | 低功耗 ARM 板 |
+| `lt-home-lte` | `h28k` | 异地/备用路由器 |
+| `pve-c3758` | `taishanpi` | 暂停维护的 ARM 板 |
+| `pve-hp-z220-sff` | `opi5p` | 家庭服务/媒体 |
+| `alice` / `zgocloud` | `volcengine` | CN VPS，公网入口 |
+| `buyvm` / `oracle-vm1` / `oracle-vm2` | `google` | 海外 VPS |
+| `bwg-lax` / `virmach-ny1g` / `virmach-ny6g` | `hostdare` | 海外 VPS，公网入口 |
+| `colocrossing` | `greencloud` | 海外 VPS，公共服务 |
+| `terrahost` / `v-ps-sea` / `azure-vm1` / `azure-vm2` / `azure-vm3` | `tencent` | 海外 VPS，监控/服务 |
+| `oracle-vm-arm1` | `rock5c` | ARM VPS |
 
 ## 关键字段
 

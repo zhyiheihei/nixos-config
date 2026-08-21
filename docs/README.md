@@ -74,7 +74,6 @@
 
 ### 迁移与对齐（进行中）
 
-- [2026-08-15 上游对齐审计（分批 backport）](human/migrations/upstream-alignment-audit-2026-08-15.md)
 - [2026-08-20 macmini darwin 闭包导入加速](human/migrations/macmini-darwin-import.md)
 
 ## 历史归档

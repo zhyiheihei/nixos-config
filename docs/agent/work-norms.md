@@ -12,7 +12,12 @@
 ## 2. 对照作者原版，不偏离
 
 - 改动任何 `nixos/` 模块前，先 `diff` 上级目录 `../nixos-config-exam/` 的对应文件
-- **作者原版是基准**；复刻允许的必要偏离只有：域名（zhyi.xin/zhyi.cc vs xuyh0120.win）、用户（zhyi vs lantian）、复刻特有主机/服务
+- **作者原版是基准**；复刻允许的必要偏离只有：
+  - **域名**：单一 `zhyi.xin`（zhyi.cc / moliy.site 已于 2026-08-20 并入，不再使用双域）
+  - **用户**：`zhyi`（显示名 Magic Flash）vs 作者 `lantian`（显示名 Lan Tian）；GitHub `zhyiheihei` vs `lantian1998`
+  - **硬性值**：时区 `Asia/Shanghai`（作者 America/Los_Angeles）、DN42 ASN `4242423712` / ULA `fdd8:1938:4e88`（作者 2547 / fdbc:f9dc:67ad）、自建主机与私有网络拓扑
+  - **模块命名空间** `lantian.*`（xddxdd 模块系统约定）是前缀不是用户名，绝不能替换
+- 公共模块里 `LT.hosts.<作者主机>` 引用**直接替换为对应真实主机**（无别名），映射见 `hosts-overview.md`；作者主机引用删除前确认是否影响 eval
 - 偏离作者的地方必须在提交信息/注释里说明原因
 - 复刻新增的能力（如 rss 链路自动化、immich-rockchip）要独立成模块，不污染作者原版文件
 - **磁盘/子卷布局同样要与作者对齐**，不止配置文件。主机级配置逐字对齐但底层磁盘结构不对齐，会导致依赖该结构的服务（如 `lantian.backup` 的 btrfs `subvolume snapshot`）配置通过、运行必失败。物理 client 的子卷布局基准见 `new-host-standard.md`；新主机接入或迁移前先核对子卷，再谈配置对齐
@@ -31,7 +36,7 @@
 
 ## 5. 巡检看报错/指标，不看服务是否 running
 
-- 见 `docs/operations/inspection-playbook.md`（三层方法 + 各链路清单）
+- 见 [`inspection-playbook.md`](inspection-playbook.md)（三层方法 + 各链路清单）
 - `systemctl is-active` 只是入口；结论必须以 journalctl 报错、Prometheus 失败指标、数据流转为据
 
 ## 6. 聚焦当前任务，不擅自扩散
