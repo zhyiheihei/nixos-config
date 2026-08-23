@@ -165,12 +165,6 @@ in
       enableCommonLocationOptions = false;
       sslCertificate = "zerossl-zhyi.xin";
     };
-    "xn--gmqs02au1c935d.pub" = {
-      serverAliases = [ "www.xn--gmqs02au1c935d.pub" ];
-      locations."/".return = "307 https://zhyi.xin$request_uri";
-      enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-xn--gmqs02au1c935d.pub";
-    };
     "lab.zhyi.xin" = {
       locations."/".return = "307 https://lab.zhyi.xin$request_uri";
       enableCommonLocationOptions = false;
