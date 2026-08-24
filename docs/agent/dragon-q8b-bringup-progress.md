@@ -298,3 +298,87 @@ SD 卡验证通过后，将系统刷入 NVMe 正式使用。
 - `config/kernel/linux-sc8280xp-vendor.config`
 
 Armbian 支持我们就支持，Armbian 不支持的暂不管。
+
+## SD 卡安装（2026-08-24 完成）
+
+### 安装方式
+
+用户要求「直接 nix install 方式，UEFI 安装到 SD 卡」。SD 卡插在 opi5p
+（aarch64 原生主机）上，识别为 `/dev/mmcblk1`（119.4G）。
+
+### 关键步骤与坑
+
+1. **closure 复制方向**：ml-builder（x86_64）→ opi5p（aarch64）。
+   - ml-builder 能 ssh 到 opi5p，反之不行（opi5p 无 ml-builder 的 key）。
+   - `nix copy --to ssh-ng://root@192.168.0.62`，NIX_SSHOPTS 必须带
+     `-p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null`。
+   - **不要用 tmux 后台跑**：tmux 里 agent socket 会漂移导致
+     `Permission denied (publickey)`。直接前台跑（长 timeout）最可靠。
+2. **UUID 更新**：新 SD 卡分区后 UUID 变化，必须更新
+   `hosts/dragon-q8b/hardware-configuration.nix` 并重新构建 closure。
+   - BOOT=`56C0-FB03`，NIX=`66493006-e89d-41dc-800f-9c437b92474a`。
+   - 新 closure：`4xms4a4qrf58fbrf9c97w3dnjfwkk94q-nixos-system-dragon-q8b-26.11pre-git`。
+3. **nixos-install-tools 架构坑**：从 ml-builder 复制的 install-tools 是
+   x86_64 二进制，在 aarch64 的 opi5p 上执行报
+   `unshare: 无法执行二进制文件: 可执行文件格式错误`（EXIT=126）。
+   **必须在 opi5p 上构建 aarch64 版**：
+   `nix build nixpkgs#nixos-install-tools`，得到
+   `bg139k1nijb4j1zwmipah6qhhf9q8apc-nixos-install-tools-26.11pre-git`。
+4. **分区布局**：UEFI 两分区（512M EFI + 剩余 Btrfs），创建
+   `nix`/`persistent`/`persistent/home` 三个 subvol。
+5. **nixos-install 成功**：`nixos-install --root /mnt --system $CLOSURE
+   --no-root-passwd --no-channel-copy`，systemd-boot 装到
+   `/boot/EFI/BOOT/BOOTAA64.EFI`，bootloader entry 生成，profile 建立。
+
+### 安装结果
+
+- systemd-boot 已装，`/boot/EFI/BOOT/BOOTAA64.EFI` 存在。
+- 引导成功（用户确认系统指示灯正常），但**网卡全失效**（见下）。
+
+## 网卡失效排查（进行中）
+
+### 现象
+
+- dragon-q8b 引导成功（指示灯正常），但**所有网卡失效**，包括板载
+  TC956x 2.5GbE 和 USB 网卡 rtl8125b。
+- 192.168.0.66 完全不可达：ping 不通、2222 关闭、router ARP 表无此 MAC、
+  kea DHCP 无租约。
+
+### 已确认的内核 config 事实
+
+vendored config `pkgs/sc8280xp-kernel/sc8280xp_vendor_config` 中网卡驱动
+**全是模块（=m）**，不是内建（=y）：
+
+```
+CONFIG_STMMAC_ETH=m        # 板载 TC956x 2.5GbE 的 stmmac 驱动
+CONFIG_TOSHIBA_TC956X_PCI=m # TC956x PCI 桥
+CONFIG_USB_RTL8152=m       # USB 网卡 rtl8125b 的 r8152 驱动
+CONFIG_USB_RTL8150=m
+```
+
+而 `nixos/hardware/dragon-q8b/default.nix` 里 `kernelModules` 只强制加载
+`tls`/`wireguard`，`extraModulePackages = lib.mkForce []`。这些网卡驱动模块
+是否被正确打包进 initrd/系统并自动加载，是排查重点。
+
+### Radxa 官方文档关键发现（docs.radxa.com/dragon/q8b）
+
+1. **引导方式**：Radxa OS 用 systemd-boot，启动配置在
+   `/boot/efi/loader/entries/`，**默认不含 `devicetree` 参数**（用 BIOS/UEFI
+   提供的 DTB）。与我们的 systemd-boot 方案一致。
+2. **BIOS 启动顺序**：默认 **USB → SD Card → NVMe → UFS**。
+3. **BIOS 有「Device Tree Settings」和「Third-party OS Compatibility
+   Settings」**：UEFI 在启动 Linux 前是否加载/修正/传递 DTB，以及第三方
+   OS 兼容性配置，可能影响网卡初始化。
+4. **官方内核源码是 `radxa-pkg/linux-qcom`**（mainline qcom 分支），不是
+   Armbian 的 `radxa/kernel`（vendor 分支）。官方 defconfig 是
+   `radxa_qcom_7_0_defconfig`。
+
+### 下一步排查方向
+
+1. 确认网卡驱动模块（stmmac/tc956x/r8152）是否打进 initrd 或系统模块目录，
+   以及是否被自动加载。
+2. 对比 Radxa 官方 defconfig 与 Armbian vendored config 的网卡相关选项。
+3. 检查 BIOS 的 Device Tree Settings / Third-party OS Compatibility 是否
+   需要调整（UEFI 传递 DTB 的方式可能影响网卡）。
+4. 若 Armbian vendor 内核本身网卡驱动有问题，考虑换官方
+   `radxa-pkg/linux-qcom` 源码 + `radxa_qcom_7_0_defconfig`。
