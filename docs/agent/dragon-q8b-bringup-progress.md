@@ -375,10 +375,79 @@ CONFIG_USB_RTL8150=m
 
 ### 下一步排查方向
 
-1. 确认网卡驱动模块（stmmac/tc956x/r8152）是否打进 initrd 或系统模块目录，
+1. 确认网卡驱动模块（st_bridge/tc2xx/r8152）是否打进 initrd 或系统模块目录，
    以及是否被自动加载。
 2. 对比 Radxa 官方 defconfig 与 Armbian vendored config 的网卡相关选项。
 3. 检查 BIOS 的 Device Tree Settings / Third-party OS Compatibility 是否
    需要调整（UEFI 传递 DTB 的方式可能影响网卡）。
 4. 若 Armbian vendor 内核本身网卡驱动有问题，考虑换官方
    `radxa-pkg/linux-qcom` 源码 + `radxa_qcom_7_0_defconfig`。
+
+## 串口诊断与 console 参数（2026-08-25 会话）
+
+> 本节记录最近一次会话（serial + 签名复制）的进展。
+
+### 串口：唯一诊断通道
+
+- dragon-q8b 完全不可达（192.168.0.66 ping 不通、2222 关、ARP 无记录），
+  串口是当前唯一能看内核日志的通道。
+- mac 串口设备：`/dev/cu.usbmodem57920206431`，参数 **115200 8N1 无流控**。
+- tio 命令（`-L` 是布尔开关，日志用 `--log-file`）：
+  `tio -b 115200 --log-file /tmp/dragon-q8b-serial.log /dev/cu.usbmodem57920206431`
+
+### 串口日志关键结论
+
+- 日志**停在 UEFI End（ExitBootServices 后）**，没有任何 Linux 内核输出。
+- UEFI 版本 `6.0.260818.BOOT.MXF.1.1.c1-00167-MAKENA-1`，SBL1 BUILD 2026-08-18。
+- EEPROM：product='RS782-D8S32W0X110' ver='V1.305' sn='H4CO47JI'。
+- **根因：kernelParams 缺 console 参数**，内核日志没输出到串口。
+   Radxa OS 官方启动参数含 `console=ttyMSM0,115200n8 earlycon ... console=tty1`，
+   我们的 `boot.kernelParams` 只有 `clk_ignore_unused pd_ignore_unused`。
+
+### 已改：kernelParams 加 console 参数（commit 405ce264，已 push）
+
+`hosts/dragon-q8b/configuration.nix` 的 kernelParams 改为：
+```
+clk_ignore_unused pd_ignore_unused console=ttyMSM0.115200n8 earlycon
+```
+已 push origin，ml-builder 仓库（`/nix/src/nixos-config`）`git pull --ff-only`
+对齐到 405ce264。
+
+### ⚠️ 新 toplevel 构建 + 复制签名阻塞（未解决）
+
+1. 在 ml-builder 构建含 console 参数的新 toplevel，约 21 分钟后成功：
+   `/nix/store/dhjdrswvnzqsyax45cgc35lbk6drv93r-nixos-system-dragon-q8b-26.11pre-git`
+2. `nix copy --to ssh-ng://root@192.168.0.62` 报签名错误：
+   `cannot add path ... because it lacks a signature by a trusted key`，
+   具体是 `gen-hostid`（0kac5cvjsbrnlh2saa2lkjqyn2ik2xq8）缺签名。整个复制失败。
+3. **根因**：opi5p 的 nix.conf `require-sigs=true`，trusted-public-keys 含
+   `lantian:...`。而 ml-builder 的签名私钥 `nix-privkey` 是 **0 字节空文件**
+   （`/run/secrets/nix-privkey`，真实路径 `/run/secrets.d/1/nix-privkey`），
+   构建出的新路径没有 lantian 签名，opi5p 拒收。
+4. attic 中转尝试失败：attic push 持续 `InternalServerError`；attic 服务器
+   attic.zhyi.xin 解析到 greencloud（192.168.0.119），但 greencloud 上找不到
+   atticd 服务/单元/nginx 反代。attic cache info 能返回
+   `Public: true, Public Key: lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/...`。
+
+### 待办（新会话接手点）
+
+1. 让新 closure 到 opi5p。可行的路：
+   - **治本**：修好 ml-builder 的 `nix-privkey`（0 字节空文件）——解密
+     `secrets/common/nix.yaml` 看该字段是否真空、是否 age key 缺失导致 sops
+     写空。或换用 `nix store sign` 从有私钥的主机签名。
+   - **绕路**：dragon-q8b 是 aarch64，opi5p 也是 aarch64，直接在 opi5p 原生
+     构建 toplevel，避免跨架构复制（opi5p 需先建仓）。
+   - **绕路2**：opsh/其他已能打通的 chain，或先在 opi5p 把 `require-sigs`
+     放宽（但那是改全局安全配置，需用户同意）。
+2. 复制成功后，用户重新接串口，抓带 console 参数的内核启动日志，确认
+   内核真正启动、网卡驱动模块（stmmac/tc956x/r8152）是否加载、报什么错。
+3. 若网卡驱动未加载，改 `nixos/hardware/dragon-q8b/default.nix` 的
+   `kernelModules`/`initrd.availableKernelModules` 加入网卡驱动模块，重建。
+4. 若 Armbian vendor 内核网卡驱动本身有问题，换官方 `radxa-pkg/linux-qcom`
+   源码 + `radxa_qcom_7_0_defconfig`。
+
+### 会话健康提示
+
+- 上一会话在 attic 服务器位置排查上陷入重复循环。接手后**不要在 attic 上
+  反复绕**，优先走签名治具（修 nix-privkey）或 opi5p 原生构建两条路。
+- `nix-privkey` 空文件是签名失败的直接根因，`require-sigs` 信任链到它为止。
