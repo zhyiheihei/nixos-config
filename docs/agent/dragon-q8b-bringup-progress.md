@@ -312,8 +312,10 @@ Armbian 支持我们就支持，Armbian 不支持的暂不管。
    - ml-builder 能 ssh 到 opi5p，反之不行（opi5p 无 ml-builder 的 key）。
    - `nix copy --to ssh-ng://root@192.168.0.62`，NIX_SSHOPTS 必须带
      `-p 2222 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null`。
-   - **不要用 tmux 后台跑**：tmux 里 agent socket 会漂移导致
-     `Permission denied (publickey)`。直接前台跑（长 timeout）最可靠。
+   - **不要用 tmux 后台跑**（若 mac 可能休眠）：之前复制失败那次
+     `Permission denied (publickey)` 的根因不是 tmux，而是
+     **bitwarden 的 ssh agent 因为 mac 电脑休眠失效**（agent socket 变陈旧，
+     需重新唤起 agent / 重新认证）。直接前台跑（长 timeout）最可靠。
 2. **UUID 更新**：新 SD 卡分区后 UUID 变化，必须更新
    `hosts/dragon-q8b/hardware-configuration.nix` 并重新构建 closure。
    - BOOT=`56C0-FB03`，NIX=`66493006-e89d-41dc-800f-9c437b92474a`。
