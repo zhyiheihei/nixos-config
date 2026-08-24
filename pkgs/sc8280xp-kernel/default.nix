@@ -34,6 +34,12 @@ let
 in
 (crossPkgs.linuxManualConfig {
   stdenv = crossStdenv;
+  # Dragon Q8B is a UEFI board: CONFIG_EFI_ZBOOT=y makes the arm64 kernel
+  # produce an EFI stub image (vmlinuz.efi).  linuxManualConfig's default
+  # target for aarch64 is "Image", whose `make install` then fails with
+  # "Missing file: arch/arm64/boot/vmlinuz.efi".  Forcing the vmlinuz.efi
+  # target routes install through `zinstall` and installs the EFI stub image.
+  target = "vmlinuz.efi";
   inherit modDirVersion;
   version = "${modDirVersion}-armbian";
   extraMeta.branch = "linux-7.0.11";
