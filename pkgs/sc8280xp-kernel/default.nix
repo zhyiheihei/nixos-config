@@ -21,12 +21,19 @@ let
     overlays = [ ];
   };
 
+  # Radxa linux-7.0.11 vendor kernel fails to compile with GCC 15's stricter
+  # type checking (cred.h cap_issubset gets kernel_cap_t vs struct mismatch).
+  # Armbian builds this kernel with Ubuntu's GCC 11.4.  Nixpkgs has removed
+  # GCC 11/12, so use the oldest available cross stdenv (GCC 13).
+  crossStdenv = crossPkgs.gcc13Stdenv;
+
   modDirVersion = "7.0.11";
 
   vendorKernelConfig = ./sc8280xp_vendor_config;
   vendorKernelConfigOptions = import ./sc8280xp_vendor_config.nix;
 in
 (crossPkgs.linuxManualConfig {
+  stdenv = crossStdenv;
   inherit modDirVersion;
   version = "${modDirVersion}-armbian";
   extraMeta.branch = "linux-7.0.11";
