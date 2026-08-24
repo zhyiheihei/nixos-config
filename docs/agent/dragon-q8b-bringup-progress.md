@@ -450,6 +450,74 @@ clk_ignore_unused pd_ignore_unused console=ttyMSM0.115200n8 earlycon
 
 ### 会话健康提示
 
-- 上一会话在 attic 服务器位置排查上陷入重复循环。接手后**不要在 attic 上
-  反复绕**，优先走签名治具（修 nix-privkey）或 opi5p 原生构建两条路。
+- 上一会话在 attic 服务器位置反复排查。接手后**不要在 attic 上反复绕**，
+  优先走签名治具（修 nix-privkey）或 opi5p 原生构建两条路。
 - `nix-privkey` 空文件是签名失败的直接根因，`require-sigs` 信任链到它为止。
+
+## attic 路线推进（2026-08-25 第二会话）
+
+> 用户明确要求走 attic 路线。铁律：**任何问题先看文档**（`docs/agent/` 里
+> 的知识库齐全）。本会话所有研究都先读文档。
+
+### 关键认知纠正（读 `docs/agent/attic-s3-cache.md`）
+
+1. **attic 服务确实在 greencloud**，`nixos/optional-apps/attic.nix` 由
+   `hosts/greencloud/configuration.nix` 导入。之前没找到是查错了地方。
+2. **`nix-privkey` 根本不是 attic 的签名密钥**——文档明确：att 缓存签名
+   私钥由服务端管理，客户端和上传端都不应持有。所以 attic push 会让 attic
+   用自身密钥签名，opi5p 拉取时用 `lantian` 公钥校验——**完全绕开
+   ml-builder 的 nix-privkey 空文件问题**。这是 attic 路线的意义。
+3. 手动上传凭据在 ml-builder：`/run/secrets/attic-upload-key`（只应含
+   `--pull lantian --push lantian`）。
+
+### attic 服务健康检查（文档命令）
+
+- `systemctl is-active atticd nginx postgresql`（greencloud）→ 均 `active`。
+- atticd 已运行 1 天，但日志显示 upload_path 报 `500 Internal Server Error`，
+  latency 29s/15s/18s，`dispatch failure: io error: stream closed broken pipe`。
+- vaults3 S3 后端：attic 的 `storage.type=s3`，endpoint
+  `https://vaults3.zhyi.xin:8443`，bucket `nix-cache`。
+
+### vaults3 / S3 链路实证（用户提示非标准端口找问题）
+
+- vaults3 服务在 **router（192.168.0.1）**，监听 `:9000`（vaults3.nix）。
+- opi5p（edge 入口）vhost `vaults3.zhyi.xin` proxyPass 到 router:9000。
+- 公网入口 `vaults3.zhyi.xin:8443`（443 被运营商封锁，用 8443），router
+  转发到 opi5p:443 再反代到 router:9000。
+- 各链路 curl 均通（403 是 S3 无凭据正常响应，1s 内）：
+  - router:9000 direct、opi5p 443 vhost（--resolve）、公网 8443 均 403。
+- **关键实证**：`.multipart` 目录最后修改时间 `8月25日 01:02`（正是 attic
+  push 报 500 时间 UTC 17:01 = 北京 01:01），说明 attic 的 S3 上传**到达了
+  vaults3** 并留下 multipart 残留。所以 500 真实发生在 S3 写入层（NFS
+  存储），不是 8443 链路问题。
+- vaults3 存储是 NFS 挂载 `192.168.0.40:/nixos`（`/mnt/storage`），历史上有
+  `multipart part could not be moved` rename 失败错误（8/20）。
+
+### ⚠️ 新阻塞：闭包不完整（已 GC 部分依赖）
+
+- `nix-store -qR` 新 closure `dhjirsw...`，918 个依赖，其中 **15 个路径
+  MISSING**（不在 store）：`gen-hostid`（0kac5cvjsbrnlh2saa2lkjqyn2ik2xq8）、
+  `bird`、`sshd.conf-final`、`hm_gitconfig`、`hm_homezhyi.cache.keep` 等。
+- 这就是复制报缺签名的同一路径。原因：之前构建成功但没固定 root，被 GC
+  删了部分依赖。闭包残缺 → attic push 引用不存在路径会失败。
+
+### 解决方案（进行中）
+
+- **重建 toplevel 并用 out-link 固定 root**（文档「手动补推流程」）：
+  `nix build .#nixosConfigurations.dragon-q8b.config.system.build.toplevel \
+    --out-link /root/cache-roots/dragon-q8b --max-jobs 28 --cores 28`
+- 已在 ml-builder 后台启动（log `/tmp/q8b-rebuild.log`）。
+- 完成后 attic push 补推：`attic push lantian /root/cache-roots/dragon-q8b`。
+
+### 待办（新会话接手点）
+
+1. 等待重建完成（约 20 分钟），验证闭包完整（`nix-store -qR` 无 MISSING）。
+2. `attic push lantian /root/cache-roots/dragon-q8b` 上传完整闭包。
+3. opi5p 用 `nix copy --from https://attic.zhyi.xin/lantian` 拉取（opi5p
+   require-sigs=true，但 attic 服务端会签名，用 lantian 公钥校验）。
+4. 用户重新接串口，抓带 console 参数的内核启动日志，确认内核启动与网卡
+   驱动加载。
+5. 若网卡驱动未加载，改 `nixos/hardware/dragon-q8b/default.nix` 的
+   `kernelModules`/`initrd.availableKernelModules`。
+6. 若 Arbian vendor 内核网卡驱动有问题，换官方 `radxa-pkg/linux-qcom` +
+   `radxa_qcom_7_0_defconfig`。
