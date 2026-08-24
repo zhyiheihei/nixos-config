@@ -54,6 +54,13 @@ in
   configfile = vendorKernelConfig;
   config = vendorKernelConfigOptions;
   kernelPatches = [ ];
+  # systemd-boot (used by the UEFI dragon-q8b) asserts the kernel carries
+  # `features.efiBootStub`.  linuxManualConfig defaults features to { }, while
+  # nixpkgs' generic `kernel` sets efiBootStub = true.  The vendor kernel
+  # produces vmlinuz.efi, so declare the EFI stub feature explicitly.
+  features = {
+    efiBootStub = true;
+  };
 }).overrideAttrs (old: {
   requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
   # Match gnull/nixos-rk3588's vendor.nix dodge: the Armbian extlinux/grub
