@@ -2,6 +2,7 @@
 {
   imports = [
     ../../nixos/hardware/disable-watchdog.nix
+    ../../nixos/hardware/dragon-q8b
   ];
 
   fileSystems."/boot" = {
