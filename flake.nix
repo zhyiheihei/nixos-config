@@ -18,6 +18,10 @@
     systems.url = "github:nix-systems/default";
 
     # keep-sorted start block=yes
+    audio-cpp = {
+      url = "github:0xShug0/audio.cpp";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     betterfox-nix = {
       url = "github:HeitorAugustoLN/betterfox-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -46,7 +50,7 @@
     fast-nix-gc = {
       url = "github:Mic92/fast-nix-gc";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.treefmt-nix.follows = "nur-xddxdd/treefmt-nix";
+      inputs.treefmt-nix.follows = "treefmt-nix";
     };
     firefox-addons = {
       url = "github:petrkozorezov/firefox-addons-nix";
@@ -59,7 +63,12 @@
       inputs.flake-compat.follows = "flake-compat";
       inputs.flake-parts.follows = "flake-parts";
       inputs.systems.follows = "systems";
-      inputs.treefmt-nix.follows = "nur-xddxdd/treefmt-nix";
+      inputs.treefmt-nix.follows = "treefmt-nix";
+    };
+    git-hooks = {
+      url = "github:cachix/git-hooks.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-compat.follows = "flake-compat";
     };
     home-manager = {
       url = "github:nix-community/home-manager";
@@ -74,8 +83,9 @@
       url = "github:numtide/llm-agents.nix";
       inputs.flake-parts.follows = "flake-parts";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.rust-overlay.follows = "rust-overlay";
       inputs.systems.follows = "systems";
-      inputs.treefmt-nix.follows = "nur-xddxdd/treefmt-nix";
+      inputs.treefmt-nix.follows = "treefmt-nix";
     };
     markdown-apa7th-docx = {
       url = "github:xddxdd/markdown-apa7th-docx";
@@ -84,6 +94,8 @@
     never-gonna-rust = {
       url = "github:xddxdd/never-gonna-rust";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.rust-overlay.follows = "rust-overlay";
     };
     nix-alien = {
       url = "github:thiagokokada/nix-alien";
@@ -102,7 +114,9 @@
     };
     nix-gaming = {
       url = "github:fufexan/nix-gaming";
+      inputs.flake-compat.follows = "flake-compat";
       inputs.flake-parts.follows = "flake-parts";
+      inputs.git-hooks.follows = "git-hooks";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-index-database = {
@@ -123,7 +137,7 @@
     nixfmt-rs = {
       url = "github:Mic92/nixfmt-rs";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.treefmt-nix.follows = "nur-xddxdd/treefmt-nix";
+      inputs.treefmt-nix.follows = "treefmt-nix";
     };
     nur = {
       url = "github:nix-community/NUR";
@@ -136,7 +150,10 @@
       inputs.flake-parts.follows = "flake-parts";
       inputs.nix-cachyos-kernel.follows = "nix-cachyos-kernel";
       inputs.nix-index-database.follows = "nix-index-database";
+      inputs.nixfmt-rs.follows = "nixfmt-rs";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.pre-commit-hooks-nix.follows = "git-hooks";
+      inputs.treefmt-nix.follows = "treefmt-nix";
     };
     picoforge = {
       url = "github:librekeys/picoforge";
@@ -155,12 +172,20 @@
       inputs.utils.follows = "flake-utils";
       inputs.flake-compat.follows = "flake-compat";
     };
+    rust-overlay = {
+      url = "github:oxalica/rust-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     secrets = {
       # url = "/home/zhyi/Projects/nixos-secrets";
       url = "github:zhyiheihei/nixos-secrets";
+      inputs.agenix.inputs.home-manager.follows = "home-manager";
+      inputs.agenix.inputs.systems.follows = "systems";
+      inputs.flake-compat.follows = "flake-compat";
       inputs.flake-parts.follows = "flake-parts";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.nur-xddxdd.follows = "nur-xddxdd";
+      inputs.treefmt-nix.follows = "treefmt-nix";
     };
     sops-nix = {
       url = "github:Mic92/sops-nix";
@@ -176,6 +201,10 @@
       inputs.nur.follows = "nur";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
+    };
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     zhyi-packages = {
       url = "github:zhyiheihei/zhyi-packages";
@@ -238,6 +267,13 @@
           inherit (self) packages devShells;
           nixosConfigurations = lib.mapAttrs (n: v: v.config.system.build.toplevel) self.nixosConfigurations;
         };
+
+        ipv4List = builtins.concatStringsSep "\n" (
+          lib.filter (v: v != "" && v != null) (lib.mapAttrsToList (k: v: v.public.IPv4) LT.hosts)
+        );
+        ipv6List = builtins.concatStringsSep "\n" (
+          lib.filter (v: v != "" && v != null) (lib.mapAttrsToList (k: v: v.public.IPv6) LT.hosts)
+        );
       };
 
       perSystem =
