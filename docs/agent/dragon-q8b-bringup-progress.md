@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-24 21:10
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-24 21:35
 
 ## 主机基本信息
 
@@ -142,15 +142,20 @@ sc8280xp-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/
 
 ## 当前构建状态
 
-### 阻塞：pahole 段错误（Error 139）
+### ✅ 内核交叉编译成功（2026-08-24 21:33）
 
-GCC 14 第二次构建在 modules 阶段失败：
-`gen-btf.sh: line 70: Segmentation fault (core dumped) ${PAHOLE} -J ...`。
-根因是 vendored config 多了 `CONFIG_DEBUG_INFO_BTF=y`（对照 Radxa 官方 defconfig 无 BTF）。
+移除 `CONFIG_DEBUG_INFO_BTF` 后重新构建成功，全程无 Error/段错误，干净输出 store path：
 
-**待办**：从 `pkgs/sc8280xp-kernel/sc8280xp_vendor_config` 移除
-`CONFIG_DEBUG_INFO_BTF=y`（第 4189 行），同时从
-`sc8280xp_vendor_config.nix` 移除对应 attrset 项，提交 push，ml-builder pull 后重新构建。
+- **out**：`/nix/store/spnibagqyg904r3ycips3rh3k4cgd2nr-k-aarch64-unknown-linux-gnu`
+  - `vmlinuz.efi`（15MB，UEFI 启动镜像）
+  - `System.map`
+  - `dtbs/qcom/sc8280xp-radxa-dragon-q8b.dtb`（+ `-el2.dtb`）
+- **modules**：`/nix/store/k5srn51b4f5l2knvxk3bsm9wfm47hvl8-k-aarch64-unknown-linux-gnu-modules`
+  - 3822 个 `.ko.zst` 模块 + 完整模块元数据（modules.dep/builtin/alias/symbols）
+  - 含 qcom/sc8280xp 相关驱动
+
+derivation 有三个 output：`out`（内核镜像）、`dev`（编译开发树）、`modules`（内核模块）。
+注意 `--print-out-paths` 只打印主 output `out`，模块在单独 output 里。
 
 ### 构建命令（ml-builder tmux `q8b-kernel`）
 
@@ -159,9 +164,9 @@ cd /nix/src/nixos-config && tmux new-session -d -s q8b-kernel \
   "nix build .#sc8280xp-kernel --no-link --print-out-paths --max-jobs 28 --cores 28 2>&1 | tee /tmp/q8b-kernel-build.log"
 ```
 
-- tmux session: `q8b-kernel`
+- tmux session: `q8b-kernel`（构建完成后可 kill）
 - 构建日志: `/tmp/q8b-kernel-build.log`
-- 如果成功会输出 /nix/store/xxx-k-aarch64-unknown-linux-gnu 路径
+- 下一个里程碑：将内核接入 dragon-q8b 的 NixOS 配置并构建 toplevel
 
 ### 接手后检查构建状态的命令
 
@@ -177,16 +182,11 @@ ssh -A ml-builder 'pgrep -c make'
 
 ## 待完成步骤
 
-### 1. 移除 CONFIG_DEBUG_INFO_BTF 后重新构建内核
+### 1. ✅ 内核交叉编译成功（已完成）
 
-从 `pkgs/sc8280xp-kernel/sc8280xp_vendor_config` 移除 `CONFIG_DEBUG_INFO_BTF=y`
-（第 4189 行），同步从 `sc8280xp_vendor_config.nix` 移除对应项，提交 push，
-ml-builder pull 后重新构建。构建成功后 `nix build` 会输出 store path。验证：
-
-```bash
-ssh ml-builder 'cat /tmp/q8b-kernel-build.log | tail -5'
-# 应该看到一行 /nix/store/xxx-k-aarch64-unknown-linux-gnu 路径
-```
+移除 `CONFIG_DEBUG_INFO_BTF` 后构建成功。store path：
+`/nix/store/spnibagqyg904r3ycips3rh3k4cgd2nr-k-aarch64-unknown-linux-gnu`
+（见上方「当前构建状态」）。
 
 ### 2. 将内核包接入 dragon-q8b 的 NixOS 配置
 
@@ -236,8 +236,8 @@ SD 卡验证通过后，将系统刷入 NVMe 正式使用。
 3. **swap 已固化**在 ml-builder 配置里，重启不丢，118G 总交换，j28 不会 OOM。
 4. **git 同步铁律**：本地改 → push origin → ml-builder `git pull --ff-only`。
    ml-builder 不能直接 push（无权限），需通过本地中转。
-5. **pahole 段错误根因是 BTF**：vendored config 从 Armbian 引入了
-   `CONFIG_DEBUG_INFO_BTF=y`，Radxa 官方 defconfig 没有。移除后应能修复。
+5. **pahole 段错误根因是 BTF（已解决）**：vendored config 从 Armbian 引入了
+   `CONFIG_DEBUG_INFO_BTF=y`，Radxa 官方 defconfig 没有。移除后构建成功。
 6. **Radxa 官方内核源码是 `radxa-pkg/linux-qcom`**（mainline），不是 Armbian 的
    `radxa/kernel`（vendor）。当前包用 Armbian 的 vendor 分支；若后续要完全对齐
    官方，需换源码 + 官方 defconfig（`make radxa_qcom_7_0_defconfig` 展开）。
