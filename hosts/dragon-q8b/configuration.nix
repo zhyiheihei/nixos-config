@@ -16,7 +16,7 @@
   # boot-params module enables GRUB by default; disable it explicitly.
   boot.loader.grub.enable = lib.mkForce false;
   boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.efi.canTouchEfiVariables = lib.mkForce true;
 
   boot.kernelParams = [
     "clk_ignore_unused"
