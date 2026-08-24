@@ -34,9 +34,6 @@
     noIndex.enable = true;
   };
 
-  # cn-accel is used for the v2ray exit; skip mihomo to save memory.
-  lantian.mihomo.enable = false;
-
   # hostdare 流量限额小，关闭每日自动备份；需要时手动触发：
   #   systemctl start backup-nix-persistent.service
   lantian.backup.schedule = null;

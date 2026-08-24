@@ -94,7 +94,6 @@ rec {
     N8N = 13678;
     Vaultwarden = 13772;
     Tika = 13787;
-    Mihomo = 13792;
     OpenAIEdgeTTS = 13789;
     MTranServer = 13791;
     Plausible = 13800;
