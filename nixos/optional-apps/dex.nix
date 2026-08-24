@@ -119,7 +119,7 @@ let
         id = "oauth-proxy";
         name = "OAuth2 Proxy";
         secret = {
-          _secret = config.sops.secrets.dex-oauth2-proxy-secret.path;
+          _secret = config.sops.secrets.dex-oauth-proxy-secret.path;
         };
         redirectURIs = [
           "https://*.zhyi.xin/oauth2/callback"

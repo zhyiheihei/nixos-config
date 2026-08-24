@@ -5,6 +5,7 @@
     # Common libraries
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-25.05";
+    nixpkgs-multiverse.url = "github:fzakaria/nixpkgs-multiverse";
 
     flake-compat = {
       url = "github:edolstra/flake-compat";
@@ -210,10 +211,7 @@
       url = "github:zhyiheihei/zhyi-packages";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    zsh-patina = {
-      url = "github:michel-kraemer/zsh-patina";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+
     # keep-sorted end
   };
 
