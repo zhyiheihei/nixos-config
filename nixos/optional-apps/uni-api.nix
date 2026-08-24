@@ -9,7 +9,13 @@
 }:
 let
   uni-api-patched = pkgs.nur-xddxdd.uni-api.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ../../patches/uni-api-fix-tool-parameters.patch ];
+    patches = (old.patches or [ ]) ++ [
+      ../../patches/uni-api-fix-tool-parameters.patch
+      # Ollama Cloud 用非标准字段名 reasoning（而非 reasoning_content）返回思考
+      # 内容；小 max_tokens 探测请求（如客户端模型可用性检查）会得到 content 空、
+      # reasoning 非空的响应，被误判为 empty response 而 502。
+      ../../patches/uni-api-fix-ollama-reasoning-empty-response.patch
+    ];
   });
 
   uniApiConfig = {
