@@ -94,7 +94,7 @@ in
     # Kubernetes
     arkade
     faas-cli # OpenFaaS
-    ktop
+    kubectl-ktop
     kubectl
     kubernetes-helm
     lens
