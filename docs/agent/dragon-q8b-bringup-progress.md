@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-24 21:45
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-24 22:25
 
 ## 主机基本信息
 
@@ -171,38 +171,56 @@ UEFI 板走 systemd-boot，boot 配置已在 `configuration.nix` 设好，硬件
 验证：`nix eval .#nixosConfigurations.dragon-q8b.config.boot.kernelPackages.kernel.version`
 返回 `7.0.11-armbian`。
 
-### 正在构建 dragon-q8b toplevel（2026-08-24 21:44）
+### ✅ dragon-q8b toplevel 构建成功（2026-08-24 22:22）
+
+store path：`/nix/store/hb0b9galapx9mmd8g0ba6wx1d6myr39y-nixos-system-dragon-q8b-26.11pre-git`
+
+vendor 内核正确打包进系统（kernel → `/nix/store/86jz1hw83...-k-aarch64-unknown-linux-gnu`，
+含 MMAP 配置版本）。initrd、boot.json、dtbs 齐全。
+
+构建过程中解决三个阻塞点（见下方「toplevel 构建阻塞」）。
+
+## toplevel 构建阻塞（均已解决）
+
+### 1. systemd-boot 断言：This kernel does not support the EFI boot stub
+
+- 现象：toplevel 求值失败，`Failed assertions: This kernel does not support the EFI boot stub`。
+- 根因：nixpkgs `systemd-boot.nix` 断言要求内核有 `features.efiBootStub`。
+  `linuxManualConfig` 默认 `features={}`，而 nixpkgs generic `kernel` 设 `efiBootStub=true`。
+- 解决：`pkgs/sc8280xp-kernel/default.nix` 传 `features = { efiBootStub = true; }`。
+  vendor 内核产出 vmlinuz.efi，该声明合理。
+  （features 只是 passthru 元数据，不改变 derivation 输入，不触发内核重编）
+
+### 2. aslr sysctl 模块：Unable to determine mmap_rnd_bits_max
+
+- 现象：`55-nixos-aslr-entropy.conf` 构建失败
+  `Unable to determine mmap_rnd_bits_max. Check your kernel configfile is valid.`
+- 根因：nixpkgs `sysctl.nix` 无条件从内核 `configfile`（vendored 静态文件）grep
+  `CONFIG_ARCH_MMAP_RND_BITS_MAX`。Armbian vendored config 缺整组 arm64 MMAP
+  选项（rock5c 的 gnull vendor config 有）。
+- 解决：在 `sc8280xp_vendor_config` 和 `.nix` 两处补上 arm64 MMAP 选项
+  （值参照同为 arm64 的 rock5c vendor config：MIN=18/MAX=33/compat 11/16）。
+  注意该变更改 configfile，会触发内核重编。
+
+### 3. toplevel 并行构建 GCC 段错误（OOM）
+
+- 现象：toplevel 并行编内核+initrd+系统单元时，GCC 段错误
+  `drivers/power/supply/bq27xxx_battery_hdq.mod.o Error 1`。
+- 根因：toplevel 同时编译多个大 derivation（内核+其他）内存过载，GCC 段错误。
+- 解决：**先单独编完内核**（`nix build .#sc8280xp-kernel`），缓存就绪后
+  toplevel 只编其余依赖，不再 OOM。
+
+## 构建命令（ml-builder tmux）
 
 ```bash
+# 先单独编内核（避免 toplevel 并行 OOM）
+cd /nix/src/nixos-config && tmux new-session -d -s q8b-kernel \
+  "nix build .#sc8280xp-kernel --no-link --print-out-paths --max-jobs 28 --cores 28 2>&1 | tee /tmp/q8b-kernel-build.log"
+
+# 内核缓存就绪后再编 toplevel
 cd /nix/src/nixos-config && tmux new-session -d -s q8b-toplevel \
   "nix build .#nixosConfigurations.dragon-q8b.config.system.build.toplevel --no-link --print-out-paths --max-jobs 28 --cores 28 2>&1 | tee /tmp/q8b-toplevel-build.log"
 ```
-
-- tmux session: `q8b-toplevel`
-- 构建日志: `/tmp/q8b-toplevel-build.log`
-
-### 构建命令（ml-builder tmux `q8b-kernel`）
-
-```bash
-cd /nix/src/nixos-config && tmux new-session -d -s q8b-kernel \
-  "nix build .#sc8280xp-kernel --no-link --print-out-paths --max-jobs 28 --cores 28 2>&1 | tee /tmp/q8b-kernel-build.log"
-```
-
-- tmux session: `q8b-kernel`（构建完成后可 kill）
-- 构建日志: `/tmp/q8b-kernel-build.log`
-- 下一个里程碑：将内核接入 dragon-q8b 的 NixOS 配置并构建 toplevel
-
-### 接手后检查构建状态的命令
-
-```bash
-ssh -A ml-builder 'tmux ls'
-ssh -A ml-builder 'tail -10 /tmp/q8b-kernel-build.log'
-ssh -A ml-builder 'pgrep -c make'
-# 构建成功看 store path，失败看 Error
-```
-
-注意连接要用 `ssh -A ml-builder`（agent forwarding），因为 ml-builder 需要
-本地 Mac 的 SSH key 才有 GitHub 访问权限，否则 git fetch/pull 报 Permission denied。
 
 ## 待完成步骤
 
@@ -212,22 +230,16 @@ ssh -A ml-builder 'pgrep -c make'
 `/nix/store/spnibagqyg904r3ycips3rh3k4cgd2nr-k-aarch64-unknown-linux-gnu`
 （见上方「当前构建状态」）。
 
-### 2. ✅ 内核接入 NixOS 配置（已完成，toplevel 构建中）
+### 2. ✅ 内核接入 NixOS 配置（已完成）
 
 新建 `nixos/hardware/dragon-q8b/default.nix` 硬件模块引入 vendor 内核
 （见「当前构建状态」），`hosts/dragon-q8b/hardware-configuration.nix` 已 import。
-配置求值成功（`kernelPackages.kernel.version = 7.0.11-armbian`）。
-toplevel 构建中（tmux `q8b-toplevel`）。
 
-### 3. 构建 dragon-q8b 系统包
+### 3. ✅ dragon-q8b toplevel 构建成功（已完成）
 
-```bash
-# 在 ml-builder 上
-cd /nix/src/nixos-config
-nix build .#nixosConfigurations.dragon-q8b.config.system.build.toplevel --max-jobs 28 --cores 28
-```
+store path：`/nix/store/hb0b9galapx9mmd8g0ba6wx1d6myr39y-nixos-system-dragon-q8b-26.11pre-git`
 
-### 4. 构建 SD 卡镜像
+### 4. 刷入 SD 卡/存储验证
 
 dragon-q8b 是 UEFI 板子，不需要 u-boot/extlinux。需要确认 SD 卡镜像方案：
 
@@ -259,6 +271,11 @@ SD 卡验证通过后，将系统刷入 NVMe 正式使用。
 6. **Radxa 官方内核源码是 `radxa-pkg/linux-qcom`**（mainline），不是 Armbian 的
    `radxa/kernel`（vendor）。当前包用 Armbian 的 vendor 分支；若后续要完全对齐
    官方，需换源码 + 官方 defconfig（`make radxa_qcom_7_0_defconfig` 展开）。
+7. **toplevel 构建三个阻塞已解决**（详见「toplevel 构建阻塞」）：
+   systemd-boot 需 `features.efiBootStub`；aslr 需 configfile 有
+   `CONFIG_ARCH_MMAP_RND_BITS_MAX`；并行构建 OOM 需先单独编内核。
+8. **构建顺序铁律**：先 `nix build .#sc8280xp-kernel` 编完内核缓存，
+   再 `nix build .#nixosConfigurations.dragon-q8b...toplevel`，避免并行 OOM。
 
 ## 参考的其他 ARM 板硬件模块
 
@@ -271,7 +288,7 @@ SD 卡验证通过后，将系统刷入 NVMe 正式使用。
 | orangepi-zero3 (RK3588S) | nixos/hardware/orangepi-zero3/ | extlinux + U-Boot dd | vendor kernel |
 | hinlink-h28k (RK3568) | nixos/hardware/hinlink-h28k/ | extlinux + U-Boot dd | vendor kernel |
 | taishanpi | nixos/hardware/taishanpi/ | extlinux + U-Boot dd | vendor kernel |
-| **dragon-q8b (SC8280XP)** | **待创建** | **systemd-boot + EFI** | **self.packages.x86_64-linux.sc8280xp-kernel** |
+| **dragon-q8b (SC8280XP)** | **nixos/hardware/dragon-q8b/** | **systemd-boot + EFI** | **self.packages.x86_64-linux.sc8280xp-kernel** |
 
 ## 配置参考来源
 
