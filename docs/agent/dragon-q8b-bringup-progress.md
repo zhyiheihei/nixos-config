@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-24 20:40
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-24 21:10
 
 ## 主机基本信息
 
@@ -93,11 +93,66 @@ sc8280xp-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/
 - 尝试：`gcc13Stdenv` → 交叉编译器本身构建失败；改为 `gcc14Stdenv`（当前）。
 - 改在 `pkgs/sc8280xp-kernel/default.nix`，给 `linuxManualConfig` 传 `stdenv = crossPkgs.gcc14Stdenv`。
 
+### 3. pahole 段错误 → 根因是 vendored config 多了 CONFIG_DEBUG_INFO_BTF
+
+- 现象：GCC 14 第二次构建，modules 阶段 `gen-btf.sh: line 70: Segmentation fault (core dumped) ${PAHOLE} -J ...`（Error 139）。
+- 根因：pahole 处理交叉编译的 aarch64 .ko 时段错误。对照 Radxa 官方 defconfig
+  `radxa_qcom_7_0_defconfig` 发现：官方**完全没有 `CONFIG_DEBUG_INFO_BTF`**（只有
+  `CONFIG_DEBUG_INFO_DWARF5=y`），而我的 vendored config `sc8280xp_vendor_config`
+  第 4189 行多了 `CONFIG_DEBUG_INFO_BTF=y`（来自 Armbian 的
+  `linux-sc8280xp-vendor.config` 第 4171 行）——这就是 pahole 段错误的根源。
+- pahole 版本：nixpkgs 1.31（段错误），Ubuntu 机器 1.25。
+- 待办：从 vendored config 移除 `CONFIG_DEBUG_INFO_BTF=y`（回归 Radxa 官方配置），重新构建。
+
+## 调研发现（Radxa 官方 vs Armbian 编译方式）
+
+> 用户要求认真研究 Armbian 官方版本和 Radxa 官方文档
+> （https://docs.radxa.com/dragon/q8b），理解正确编译方式后再动手。
+
+### 内核源码：Radxa 官方用 linux-qcom，不是 Armbian 的 radxa/kernel
+
+- **Radxa 官方内核源码是 `radxa-pkg/linux-qcom`**（mainline qcom 分支），
+  **不是** Armbian 用的 `radxa/kernel`（vendor 分支）。这是"抄作业抄不明白"的核心。
+- 当前 `pkgs/sc8280xp-kernel` 用的是 Armbian 的 `radxa/kernel` linux-7.0.11 vendor 分支。
+- 若后续要完全对齐 Radxa 官方，需考虑换到 `radxa-pkg/linux-qcom` 源码 + 官方 defconfig。
+
+### 编译方式：Radxa 官方用 devenv (Nix dev container) + make deb
+
+- Radxa 官方用 **devenv（Nix dev container）** + `make deb` 编译内核。
+- 基础镜像 Debian bookworm，用 `crossbuild-essential-arm64`（GCC 12）。
+- Armbian 用系统包 `aarch64-linux-gnu-gcc`（Ubuntu GCC 11.4）。
+- 官方 defconfig：`radxa_qcom_7_0_defconfig`（3778 行，3660 CONFIG 条目）。
+  - `CONFIG_EFI_ZBOOT=y`（第 778 行）
+  - `CONFIG_DEBUG_INFO_DWARF5=y`，**无 `CONFIG_DEBUG_INFO_BTF`**
+  - `CONFIG_EFIVAR_FS=y`（第 3533 行，systemd-boot/EFI 需要）
+  - `CONFIG_ARCH_QCOM=y`，q8b dtb 会编译（`sc8280xp-radxa-dragon-q8b.dtb`）
+- 对比：Armbian `sc8280xp_vendor_config`（4231 行，4152 CONFIG 条目）多出
+  `CONFIG_DEBUG_INFO_BTF=y`（第 4189 行）。
+
+### Armbian debs 里没有 sc8280xp 构建产物
+
+- 检查 Armbian debs：只有 rockchip64/rk35xx，**没有 sc8280xp 构建产物**。
+- 说明 Armbian 在这台机器上还没成功构建过 sc8280xp 内核，不能直接抄它的产物。
+
+### 结论
+
+- 当前用 Armbian vendored config 构建，需先移除 `CONFIG_DEBUG_INFO_BTF=y` 修复 pahole 段错误。
+- 若后续要完全对齐 Radxa 官方，可考虑换 `radxa-pkg/linux-qcom` 源码 + `radxa_qcom_7_0_defconfig`
+  （defconfig 格式，需在 configurePhase 里 `make radxa_qcom_7_0_defconfig` 展开）。
+
 ## 当前构建状态
 
-### 正在构建（GCC 14 交叉编译）
+### 阻塞：pahole 段错误（Error 139）
 
-在 ml-builder 上用 tmux 虚拟终端运行：
+GCC 14 第二次构建在 modules 阶段失败：
+`gen-btf.sh: line 70: Segmentation fault (core dumped) ${PAHOLE} -J ...`。
+根因是 vendored config 多了 `CONFIG_DEBUG_INFO_BTF=y`（对照 Radxa 官方 defconfig 无 BTF）。
+
+**待办**：从 `pkgs/sc8280xp-kernel/sc8280xp_vendor_config` 移除
+`CONFIG_DEBUG_INFO_BTF=y`（第 4189 行），同时从
+`sc8280xp_vendor_config.nix` 移除对应 attrset 项，提交 push，ml-builder pull 后重新构建。
+
+### 构建命令（ml-builder tmux `q8b-kernel`）
 
 ```bash
 cd /nix/src/nixos-config && tmux new-session -d -s q8b-kernel \
@@ -106,7 +161,6 @@ cd /nix/src/nixos-config && tmux new-session -d -s q8b-kernel \
 
 - tmux session: `q8b-kernel`
 - 构建日志: `/tmp/q8b-kernel-build.log`
-- 状态：正在构建 GCC 14.4 交叉编译器 + stdenv + 内核（session 还在，make 进程 >0）
 - 如果成功会输出 /nix/store/xxx-k-aarch64-unknown-linux-gnu 路径
 
 ### 接手后检查构建状态的命令
@@ -123,9 +177,11 @@ ssh -A ml-builder 'pgrep -c make'
 
 ## 待完成步骤
 
-### 1. 等内核构建完成
+### 1. 移除 CONFIG_DEBUG_INFO_BTF 后重新构建内核
 
-构建成功后 `nix build` 会输出 store path。验证：
+从 `pkgs/sc8280xp-kernel/sc8280xp_vendor_config` 移除 `CONFIG_DEBUG_INFO_BTF=y`
+（第 4189 行），同步从 `sc8280xp_vendor_config.nix` 移除对应项，提交 push，
+ml-builder pull 后重新构建。构建成功后 `nix build` 会输出 store path。验证：
 
 ```bash
 ssh ml-builder 'cat /tmp/q8b-kernel-build.log | tail -5'
@@ -176,10 +232,15 @@ SD 卡验证通过后，将系统刷入 NVMe 正式使用。
 
 1. **连 ml-builder 必须 `ssh -A`**（agent forwarding），否则 git 同步失败。
 2. **GCC 版本链**：默认 GCC 15 → 类型不兼容；GCC 13 → 交叉编译器构建失败；
-   当前 GCC 14（gcc14Stdenv）正在构建。若 GCC 14 仍编译失败，需考虑其他方案。
+   当前 GCC 14（gcc14Stdenv）。若 GCC 14 仍编译失败，需考虑其他方案。
 3. **swap 已固化**在 ml-builder 配置里，重启不丢，118G 总交换，j28 不会 OOM。
 4. **git 同步铁律**：本地改 → push origin → ml-builder `git pull --ff-only`。
    ml-builder 不能直接 push（无权限），需通过本地中转。
+5. **pahole 段错误根因是 BTF**：vendored config 从 Armbian 引入了
+   `CONFIG_DEBUG_INFO_BTF=y`，Radxa 官方 defconfig 没有。移除后应能修复。
+6. **Radxa 官方内核源码是 `radxa-pkg/linux-qcom`**（mainline），不是 Armbian 的
+   `radxa/kernel`（vendor）。当前包用 Armbian 的 vendor 分支；若后续要完全对齐
+   官方，需换源码 + 官方 defconfig（`make radxa_qcom_7_0_defconfig` 展开）。
 
 ## 参考的其他 ARM 板硬件模块
 
