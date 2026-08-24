@@ -21,6 +21,9 @@
   boot.kernelParams = [
     "clk_ignore_unused"
     "pd_ignore_unused"
+    # Radxa OS 官方启动参数：串口输出内核日志，便于诊断启动/网卡问题
+    "console=ttyMSM0,115200n8"
+    "earlycon"
   ];
 
   # The mainline kernel already contains the SC8280XP platform drivers; the
