@@ -12,6 +12,9 @@
   # Qualcomm SC8280XP (Snapdragon 8cx Gen 3) UEFI board, like the ThinkPad
   # X13s.  The Radxa Q8B UEFI firmware passes the board DTB to the kernel
   # itself, so no dtb= parameter or extra bootloader files are needed here.
+  # SC8280XP UEFI firmware boots via systemd-boot, not GRUB.  The common
+  # boot-params module enables GRUB by default; disable it explicitly.
+  boot.loader.grub.enable = lib.mkForce false;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
