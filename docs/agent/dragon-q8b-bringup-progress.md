@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-24 21:35
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-24 21:45
 
 ## 主机基本信息
 
@@ -152,10 +152,34 @@ sc8280xp-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/
   - `dtbs/qcom/sc8280xp-radxa-dragon-q8b.dtb`（+ `-el2.dtb`）
 - **modules**：`/nix/store/k5srn51b4f5l2knvxk3bsm9wfm47hvl8-k-aarch64-unknown-linux-gnu-modules`
   - 3822 个 `.ko.zst` 模块 + 完整模块元数据（modules.dep/builtin/alias/symbols）
-  - 含 qcom/sc8280xp 相关驱动
+  - 含 tc956x 网卡驱动（`dwmac-tc956x.ko.zst`）、wireguard、tls
 
 derivation 有三个 output：`out`（内核镜像）、`dev`（编译开发树）、`modules`（内核模块）。
 注意 `--print-out-paths` 只打印主 output `out`，模块在单独 output 里。
+
+### ✅ 内核接入 NixOS 配置（2026-08-24 21:40）
+
+新建 `nixos/hardware/dragon-q8b/default.nix` 硬件模块，同 rock5c/opi5p 边界：
+
+- 引入 `self.packages.x86_64-linux.sc8280xp-kernel`（cross vendor 内核）
+- `extraModulePackages = lib.mkForce [ ]`（out-of-tree 模块无法对 cross 内核构建）
+- `kernelModules` 保留 server 角色所需 `tls`/`wireguard`
+- 关闭 `fileSystems."/run/nullfs".enable`
+- 主机 `hosts/dragon-q8b/hardware-configuration.nix` import 该模块
+
+UEFI 板走 systemd-boot，boot 配置已在 `configuration.nix` 设好，硬件模块不重复设置。
+验证：`nix eval .#nixosConfigurations.dragon-q8b.config.boot.kernelPackages.kernel.version`
+返回 `7.0.11-armbian`。
+
+### 正在构建 dragon-q8b toplevel（2026-08-24 21:44）
+
+```bash
+cd /nix/src/nixos-config && tmux new-session -d -s q8b-toplevel \
+  "nix build .#nixosConfigurations.dragon-q8b.config.system.build.toplevel --no-link --print-out-paths --max-jobs 28 --cores 28 2>&1 | tee /tmp/q8b-toplevel-build.log"
+```
+
+- tmux session: `q8b-toplevel`
+- 构建日志: `/tmp/q8b-toplevel-build.log`
 
 ### 构建命令（ml-builder tmux `q8b-kernel`）
 
@@ -188,18 +212,12 @@ ssh -A ml-builder 'pgrep -c make'
 `/nix/store/spnibagqyg904r3ycips3rh3k4cgd2nr-k-aarch64-unknown-linux-gnu`
 （见上方「当前构建状态」）。
 
-### 2. 将内核包接入 dragon-q8b 的 NixOS 配置
+### 2. ✅ 内核接入 NixOS 配置（已完成，toplevel 构建中）
 
-当前 `hosts/dragon-q8b/configuration.nix` 还没有引用 sc8280xp-kernel。需要类似 rock5c 的方式：
-
-```nix
-# 在 configuration.nix 中（或新建 nixos/hardware/dragon-q8b/default.nix）
-lantian.kernel = lib.mkForce self.packages.x86_64-linux.sc8280xp-kernel;
-```
-
-参考其他 ARM 板的做法（如 rock5c、lubancat-1）：
-- `nixos/hardware/rock-5c/default.nix` 第 88 行：`lantian.kernel = lib.mkForce rock5cKernel;`
-- 需要考虑是否创建 `nixos/hardware/dragon-q8b/default.nix` 硬件模块
+新建 `nixos/hardware/dragon-q8b/default.nix` 硬件模块引入 vendor 内核
+（见「当前构建状态」），`hosts/dragon-q8b/hardware-configuration.nix` 已 import。
+配置求值成功（`kernelPackages.kernel.version = 7.0.11-armbian`）。
+toplevel 构建中（tmux `q8b-toplevel`）。
 
 ### 3. 构建 dragon-q8b 系统包
 
