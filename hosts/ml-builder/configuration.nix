@@ -43,9 +43,10 @@ in
     ../../nixos/optional-apps/archiveteam.nix
     ../../nixos/optional-apps/clawemail.nix
     ../../nixos/optional-apps/epic-awesome-gamer
-    # Hydra coordinates builds on this host since 2026-08-12; pve-5700u is a
-    # hypervisor-only host after the service evacuation.
-    ../../nixos/optional-apps/hydra
+    # Hydra disabled on this builder (memory pressure during SC8280XP kernel
+    # bring-up froze the host). Re-enable deliberately by un-commenting this
+    # import.
+    # ../../nixos/optional-apps/hydra
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/nix-distributed.nix
     # ../../nixos/optional-apps/opencl.nix
@@ -131,6 +132,12 @@ in
   # concurrency was capped. Use the full-RAM zram swap so a single linker can
   # survive.
   zramSwap.memoryPercent = lib.mkForce 100;
+  # SC8280XP kernel cross-build with 28-way GCC concurrency exhausts 56 GiB
+  # physical RAM faster than zram can compress.  Add a 64 GiB disk-backed
+  # swap file on /nix so the kernel has real backing store for spike pages.
+  swapDevices = [
+    { device = "/nix/swapfile"; size = 64 * 1024; }
+  ];
 
   services.openssh.settings.MaxStartups = "64:30:128";
 
