@@ -36,6 +36,9 @@ let
     CONFIG_ARCH_MMAP_RND_BITS_MIN=18
     CONFIG_ARCH_MMAP_RND_COMPAT_BITS_MAX=16
     CONFIG_ARCH_MMAP_RND_COMPAT_BITS_MIN=11
+    # dragon-q8b uses Adreno 690, not AMD/NVIDIA GPU; cross-compile fails
+    # CONFIG_DRM_AMDGPU is not set
+    # CONFIG_DRM_NOUVEAU is not set
   '';
 in
 (crossPkgs.linuxManualConfig {
