@@ -85,14 +85,11 @@ in
     cat ${extraConfigFragment} >> "$buildRoot/.config"
     make ARCH=arm64 O="$buildRoot" olddefconfig
   '';
-  # Replace `make oldconfig` with a no-op since preConfigure already produced
-  # a complete .config via olddefconfig.  oldconfig would prompt on EOF.
-  configurePhase = builtins.replaceStrings
-    [
-      ''      make "''${makeFlags[@]}" oldconfig''
-    ]
-    [
-      ''      true''
-    ]
-    (old.configurePhase or "");
+  # preConfigure already expanded the defconfig and produced a complete
+  # .config.  Replace the entire configurePhase to avoid linuxManualConfig's
+  # default mkdir/cp/oldconfig sequence conflicting with our preConfigure.
+  configurePhase = ''
+    runHook preConfigure
+    runHook postConfigure
+  '';
 })
