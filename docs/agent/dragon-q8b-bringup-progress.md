@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 12:50
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 13:30
 
 ## 主机基本信息
 
@@ -817,6 +817,50 @@ linux-firmware 里只有 `qcom/sc8280xp/LENOVO/21BX/` 目录的固件
 3. 固件获取（Radxa deb 包或链接 LENOVO 固件）
 4. colmena deploy greencloud 触发 ACME 证书申请（greencloud 构建
    需先修复 Python 3.14 pkg_resources 问题）
+
+## 内核构建修复链（2026-08-25 13:30）
+
+换用 Radxa 官方内核后，构建经历了多次失败，每次不同根因：
+
+1. **ARCH=arm64 缺失**：`make radxa_qcom_7_0_defconfig` 在 x86_64 主机上
+   默认找 `arch/x86/configs/`。修复：preConfigure 显式 `make ARCH=arm64`。
+2. **configurePhase mkdir 冲突**：preConfigure 创建了 build 目录，
+   linuxManualConfig 默认 configurePhase 也尝试创建。修复：完全覆盖
+   configurePhase 为 `runHook preConfigure; runHook postConfigure`。
+3. **config attrset 缺 CONFIG_ 前缀**：`isModular = config.isYes "MODULES"`
+   查找 `CONFIG_MODULES`（带前缀），但 attrset 写了 `MODULES`。导致
+   无 modules output，initrd 无法提取网卡驱动。修复：所有 attrset
+   键改用 `CONFIG_` 前缀。
+4. **AMD GPU 驱动交叉编译失败**：Radxa defconfig 启用了 `CONFIG_DRM_AMDGPU`，
+   GCC 14 交叉编译 `drivers/gpu/drm/amd/amdgpu/` 链接失败。dragon-q8b
+   用 Adreno 690 不需要 AMD GPU 驱动。修复：config fragment 添加
+   `# CONFIG_DRM_AMDGPU is not set` 和 `# CONFIG_DRM_NOUVEAU is not set`。
+
+### 当前构建状态
+
+- ml-builder tmux session `q8b-build` 构建 toplevel（含新内核）中
+- 日志：`/tmp/q8b-build3.log`
+- 内核 derivation：`5kh2bfwx8ipfj0rhiakrb7m724c096ah`（每次 config 变更 hash 变）
+- 修复 4 后正在重新编译（约 20-30 分钟）
+
+### 关键文件变更清单
+
+| 文件 | 变更 |
+| --- | --- |
+| `pkgs/sc8280xp-kernel/default.nix` | 换 Radxa commit + defconfig + fragment |
+| `pkgs/sc8280xp-kernel/sc8280xp_vendor_config` | 保留但不再使用 |
+| `pkgs/sc8280xp-kernel/sc8280xp_vendor_config.nix` | 保留但不再使用 |
+| `nixos/hardware/dragon-q8b/default.nix` | initrd 移除 btrfs（内建），保留网卡 |
+| `hosts/dragon-q8b/hardware-configuration.nix` | UUID 切换到 NVMe |
+| `hosts/dragon-q8b/host.nix` | 添加 zerotier node ID |
+
+### 接手提示
+
+- 内核构建用 tmux 后台跑，检查 `tmux list-sessions` 和 `/tmp/q8b-build3.log`
+- 构建成功后：`nix copy --to ssh-ng://root@192.168.0.66 --no-check-sigs
+  $(readlink /root/cache-roots/dragon-q8b)` 复制到 dragon-q8b
+- dragon-q8b 上挂载 NVMe + nixos-install（参考文档上方"安装命令参考"）
+- ml-builder 上 flake.lock 有 nix 自动修改，git stash 后 pull
 
 ### 串口通信方法（mac 本机）
 
