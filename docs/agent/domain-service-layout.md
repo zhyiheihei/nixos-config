@@ -21,8 +21,9 @@
   家庭主机（rock5c/opi5p）时由入口机保留 Host/SNI 反向代理。
 - **身份服务**（Dex/Pocket ID/Vaultwarden）由 volcengine 直接承载，DNS 直指
   `volcengine.zhyi.xin`。
-- **家庭入站** 443 被运营商封锁时，外部入口统一 8443，由 Router 转换到 OPI5P
-  Nginx 标准 443（Hairpin NAT 模式，不用全局 DNS 覆盖）。
+- **家庭入站** 443 被运营商封锁时，外部入口统一 8443，router 直通到 OPI5P
+  Nginx 8443（端口不变，nginx 在 443 与 8443 同时监听，见
+  `hosts/opi5p/edge-vhosts.nix`）。
 - Attic 是例外：`attic.zhyi.xin` → volcengine 本机；`vaults3.zhyi.xin` 指向家庭
   DDNS 的 S3 存储后端。
 

@@ -483,7 +483,7 @@ clk_ignore_unused pd_ignore_unused console=ttyMSM0.115200n8 earlycon
 - vaults3 服务在 **router（192.168.0.1）**，监听 `:9000`（vaults3.nix）。
 - opi5p（edge 入口）vhost `vaults3.zhyi.xin` proxyPass 到 router:9000。
 - 公网入口 `vaults3.zhyi.xin:8443`（443 被运营商封锁，用 8443），router
-  转发到 opi5p:443 再反代到 router:9000。
+  直通到 opi5p:8443（nginx 原生监听 8443，端口不变）再反代到 router:9000。
 - 各链路 curl 均通（403 是 S3 无凭据正常响应，1s 内）：
   - router:9000 direct、opi5p 443 vhost（--resolve）、公网 8443 均 403。
 - **关键实证**：`.multipart` 目录最后修改时间 `8月25日 01:02`（正是 attic
@@ -570,29 +570,32 @@ clk_ignore_unused pd_ignore_unused console=ttyMSM0.115200n8 earlycon
 - 验证：`nix copy --from <attic> <k-image> --to file:///tmp/verify` 成功，
   NAR 校验通过。**attric 上的闭包已完整可用**。
 
-### 新阻塞：opi5p 从 attic 拉取时 307 到 vaults3.zhyi.xin:8443 连不上
+### 新阻塞（已解决）：opi5p 从 attic 拉取时 307 到 vaults3.zhyi.xin:8443 连不上
+
+> 已由下文「已落地：opi5p HTTPS vhost 补 8443 监听」解决（nginx 现在 443 与 8443 同时监听）。
+> 本段保留作为排查过程记录。
 
 - opi5p 的 `/etc/hosts` 把 `vaults3.zhyi.xin` 覆盖到本机
-  （192.168.0.62 / interconnect），但 opi5p nginx 只监听 443，**未监听
-  8443**。attic 的 NAR 下载 307 重定向到 `vaults3.zhyi.xin:8443`（S3
+  （192.168.0.62 / interconnect），但当时 opi5p nginx 只监听 443，未监听
+  8443。attic 的 NAR 下载 307 重定向到 `vaults3.zhyi.xin:8443`（S3
   presigned URL 用 :8443），opi5p 连自己 192.168.0.62:8443 无监听 → 失败。
 - ml-builder 无此 hosts 覆盖走公网 8443 反而能通。
 
-### 待办：opi5p 的 vaults3 vhost 补 8443 监听（home-ddns 专属特色）
+### 已落地：opi5p 的 HTTPS vhost 补 8443 监听（home-ddns 专属特色）
 
 > 用户拍板：把 8443 监听加上，作为 home-ddns（家宽入口）专属特色。
 
-- 目标文件：`hosts/opi5p/edge-vhosts.nix` 的 `vaults3.zhyi.xin` vhost
-  （可能也要 `jellyfin.zhyi.xin` 等 home-ddns 承载域）。
-- 做法：在 vhost 上启用 `listenHTTPS` 的 8443 监听。该 vhost 目前走默认
-  HTTPS 443（`LT.port.HTTPS`）。需要额外 listen 8443（TLS）。
+- 目标文件：`hosts/opi5p/edge-vhosts.nix`。
+- 做法：该文件基于 `config.lantian.nginxVhosts` 重新生成
+  `services.nginx.virtualHosts`，给每个启用 TLS 的 vhost 追加一条 8443
+  监听，443 与 8443 同时服务同一套证书与路由（仅 opi5p 生效）。
 - vhost 机制见 `nixos/common-apps/nginx/vhost-options/vhost-options.nix`：
   `listenHTTPS` 选项默认监听 `LT.port.HTTPS`(443)，一个 vhost 一次只能
-  一个 HTTPS listen；要给 8443 需在 `services.nginx` 层追加同名 8443
-  virtualHost 或改 `listen` mkForce 加 8443。
-- **防火墙**：opi5p 需放行 8443 入站（当前 router 只把公网 8443 DNAT 到
-  opi5p:443，opi5p 本地 8443 未监听）。确认 `networking.firewall` 或
-  nftables 允许 8443。
+  一个 HTTPS listen；额外 8443 在 `services.nginx.virtualHosts` 层 mkForce
+  追加 8443 监听实现。
+- **防火墙**：router 把公网/家内 8443 DNAT 直通到 opi5p:8443（端口不变，
+  `hosts/router/firewall.nix` 两处）。确认 `networking.firewall` 或 nftables
+  允许 8443 入站。
 - 验证：opi5p 上 `curl -k https://127.0.0.1:8443 -H "Host: vaults3.zhyi.xin"`
   应返回 403（S3 无凭据），再跑 attic 拉取确认 NAR 307 落到本机 8443 通。
 - 改完走 nix 部署（在 ml-builder 上 `colmena apply --on opi5p`）。

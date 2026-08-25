@@ -118,11 +118,12 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 | 具名 `zhyi.xin` Web 服务 | 显式 CNAME 到 `home-ddns`、`greencloud` 或 `volcengine` | 按作者服务角色逐项声明，不使用统一通配符兜底 |
 | `hostdare.zhyi.xin` | A `36.50.85.113` | `hostdare` 自身服务 |
 
-家庭公网封锁标准 `443`。DNS、Nginx vhost、OAuth 回调和应用自身 URL 仍保持
+家庭公网封锁标准 `443`。DNS、Nginx 服务、OAuth 回调和应用自身 URL 仍保持
 作者的标准 HTTPS 结构；需要从公网直接访问 `home-ddns` 承载的服务时，客户端
-显式使用 `https://域名:8443/`，router 将公网 `8443` 转发到家庭入口的
-`443`。VaultS3 的公网转发和 LAN Hairpin 同样将外部 8443 转换为 OPI5P 的标准
-443；Nginx 不额外监听 8443。不要把 `8443` 固化进 DNS 记录或内部服务配置。
+显式使用 `https://域名:8443/`。router 将公网 `8443` 直通转发到家庭入口的
+OPI5P Nginx（端口不变），OPI5P 在 `hosts/opi5p/edge-vhosts.nix` 中给每个启用
+TLS 的 vhost 追加 8443 监听，443 与 8443 同时服务同一套证书与路由。不要把
+`8443` 固化进 DNS 记录或内部服务配置（DNS 与回源 URL 一律用标准 443 结构）。
 
 Hydra 已于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统一由 greencloud
 的 Nginx vhost 反代到 ml-builder 的 LTNET 地址，不再依赖 hostdare 直连或家庭 PVE 的

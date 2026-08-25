@@ -8,17 +8,21 @@ let
     v:
     let
       cfg = v._config;
-      hasTLS = lib.any (l: lib.elem "ssl" (l.extraParameters or [ ])) (cfg.listen or [ ]);
+      baseListen = cfg.listen; # lib.mkForce 的 override 包装，取 content
+      existing = baseListen.content or baseListen;
+      hasTLS = lib.any (l: lib.elem "ssl" (l.extraParameters or [ ])) existing;
     in
     if hasTLS then
       cfg // {
-        listen = cfg.listen ++ [
-          {
-            addr = "0.0.0.0";
-            port = publicHttpsPort;
-            extraParameters = [ "ssl" ];
-          }
-        ];
+        listen = lib.mkForce (
+          existing ++ [
+            {
+              addr = "0.0.0.0";
+              port = publicHttpsPort;
+              extraParameters = [ "ssl" ];
+            }
+          ]
+        );
       }
     else
       cfg;
