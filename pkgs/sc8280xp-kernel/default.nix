@@ -77,12 +77,13 @@ in
     export buildRoot="$(pwd)/build"
     mkdir -p "$buildRoot"
 
-    # Expand the official Radxa defconfig
-    make O="$buildRoot" radxa_qcom_7_0_defconfig
+    # Expand the official Radxa defconfig (ARCH=arm64 required, otherwise
+    # make looks under arch/x86/configs/ on the x86_64 build host)
+    make ARCH=arm64 O="$buildRoot" radxa_qcom_7_0_defconfig
 
     # Append board-specific / NixOS-required config, then re-expand
     cat ${extraConfigFragment} >> "$buildRoot/.config"
-    make O="$buildRoot" olddefconfig
+    make ARCH=arm64 O="$buildRoot" olddefconfig
   '';
   # Replace `make oldconfig` with a no-op since preConfigure already produced
   # a complete .config via olddefconfig.  oldconfig would prompt on EOF.
