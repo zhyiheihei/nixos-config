@@ -14,7 +14,7 @@ stdenv.mkDerivation {
     owner = "andersson";
     repo = "pd-mapper";
     rev = "5ecd2fe926aca7abfe40724177f63b942cff3947";
-    hash = lib.fakeHash;
+    hash = "sha256-I5/N24KONtNRSub00Mqh1GoMHO2qQKTj/ts2N6DQdPc=";
   };
 
   nativeBuildInputs = [ pkg-config ];
