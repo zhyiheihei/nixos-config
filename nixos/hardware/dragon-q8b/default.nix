@@ -28,15 +28,19 @@ in
   boot = {
     # btrfs is CONFIG_BTRFS_FS=y (built-in) in the Radxa defconfig — no .ko
     # needed in initrd.  TC956x 2.5GbE + r8152 USB NIC are modules (=m).
+    # DRM_MSM is =m (module) so GPU driver loads after initrd is mounted,
+    # allowing firmware_class.path to find ZAP shader firmware.
     initrd.availableKernelModules = lib.mkForce [
       "dwmac_tc956x"
       "gpio_tc956x"
       "r8152"
+      "msm"
     ];
     initrd.kernelModules = lib.mkForce [
       "dwmac_tc956x"
       "gpio_tc956x"
       "r8152"
+      "msm"
     ];
     # This force replaces the repository-wide module list, so retain the
     # modules required by the standard server role.

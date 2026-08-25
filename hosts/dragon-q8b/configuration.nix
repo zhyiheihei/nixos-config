@@ -33,9 +33,9 @@
     "qcom/sc8280xp/qcdxkmsuc8280.mbn.zst"
   ];
 
-  # Qualcomm SC8280XP userspace services: qrtr (IPC router), pd-mapper
-  # (protection domain mapper, needed for audio/modem), rmtfs (remote
-  # filesystem service).  Reference: ThinkPad X13s NixOS configs.
+  # Qualcomm SC8280XP userspace services.  qrtr nameserver is built into
+  # the kernel (CONFIG_QCOM_RMTFS_MEM=y), pd-mapper is not needed since 6.11.
+  # rmtfs provides remote filesystem access for modem/audio.
   environment.systemPackages = with pkgs; [
     qrtr
     rmtfs
@@ -43,38 +43,15 @@
     (callPackage ../../pkgs/pd-mapper {})
   ];
 
-  systemd.services.qrtr = {
-    description = "Qualcomm IPC Router";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.qrtr}/bin/qrtr-ns";
-      Restart = "always";
-    };
-  };
-
-  systemd.services.pd-mapper = {
-    description = "Qualcomm Protection Domain Mapper";
-    after = [ "qrtr.service" ];
-    requires = [ "qrtr.service" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = "${pkgs.callPackage ../../pkgs/pd-mapper {}}/bin/pd-mapper";
-      Restart = "always";
-    };
-  };
-
   systemd.services.rmtfs = {
     description = "Qualcomm Remote Filesystem Service";
-    after = [ "qrtr.service" ];
-    requires = [ "qrtr.service" ];
+    after = [ "network.target" ];
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
       ExecStart = "${pkgs.rmtfs}/bin/rmtfs";
       Restart = "always";
+      RestartSec = "10";
     };
   };
 
