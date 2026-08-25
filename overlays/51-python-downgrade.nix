@@ -5,7 +5,7 @@
 _: final: prev:
 {
   python3 = prev.python3.override {
-    self = final.python3;
+    self = prev.python3;
     packageOverrides = _self: super: {
       xstatic = super.xstatic.overridePythonAttrs (old: {
         nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ super.setuptools ];
