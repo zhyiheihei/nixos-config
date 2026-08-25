@@ -39,6 +39,8 @@ let
     # dragon-q8b uses Adreno 690, not AMD/NVIDIA GPU; cross-compile fails
     # CONFIG_DRM_AMDGPU is not set
     # CONFIG_DRM_NOUVEAU is not set
+    # GCC 14 cross-compile segfaults in dwarf2out.cc with DWARF5 debug info
+    # CONFIG_DEBUG_INFO is not set
   '';
 in
 (crossPkgs.linuxManualConfig {
