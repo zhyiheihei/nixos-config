@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 15:00
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 17:35
 
 ## 主机基本信息
 
@@ -915,6 +915,51 @@ linux-firmware 里只有 `qcom/sc8280xp/LENOVO/21BX/` 目录的固件
 2. ACME 证书：当前用 minica 自签名 bootstrap，后续需 colmena deploy greencloud
    申请正式证书（greencloud 构建需先修复 Python 3.14 pkg_resources 问题）
 3. sops secrets：dragon-q8b 的 age key 已在 .sops.yaml，secrets 解密成功
+
+## Radxa 官方固件安装成功（2026-08-25 17:35）
+
+### 固件来源
+
+从 `radxa-pkg/radxa-firmware` 仓库获取 SC8280XP 固件（commit e1761009）。
+固件包通过 `hardware.firmware` 集成到 NixOS 配置。
+
+### 固件加载结果
+
+| 硬件 | 之前 | 之后 |
+| --- | --- | --- |
+| ADSP | offline（固件缺失）| ✅ running |
+| CDSP | offline（固件缺失）| ✅ running |
+| VPU | firmware download failed | ✅ video0/video1 存在 |
+| GPU | bind failed -19 | ⚠️ DRM 设备存在，DPU 仍 bind failed |
+| Audio | No soundcards | ⚠️ 编解码器绑定，声卡未完全就绪 |
+
+### 固件文件清单
+
+- `qcom/sc8280xp/radxa/dragon-q8b/qcadsp8280.mbn` (ADSP)
+- `qcom/sc8280xp/qccdsp8280.mbn` (CDSP)
+- `qcom/vpu/vpu20_p4_gen2_s6.mbn` (VPU)
+- `qcom/sc8280xp/qcdxkmsuc8280.mbn` (GPU/display)
+- `qcom/sc8280xp/qcslpi8280.mbn` (SLPI)
+- `qcom/sc8280xp/qcvss8280.mbn` (VSS)
+
+### 最终系统状态
+
+- 内核：Radxa 官方 7.0.11（radxa_qcom_7_0_defconfig）
+- 固件：Radxa 官方 SC8280XP 固件
+- 网络：TC956x 2.5GbE 192.168.0.66
+- 存储：NVMe Samsung 238G
+- nginx：active（MPTCP_IPV6=y）
+- sops：secrets 解密成功
+- zerotier：已授权，LTNET 连通
+- 失败服务：零
+- ACME 证书：minica 自签名 bootstrap（后续需 colmena deploy greencloud 申请正式证书）
+
+### 剩余待办
+
+1. GPU DPU 绑定失败 (-19)：可能需要 DTB 调试或额外驱动配置
+2. Audio 声卡未完全就绪：依赖 ADSP，可能需要额外配置
+3. ACME 正式证书：greencloud 构建有 Python 3.14 pkg_resources 问题需修复
+4. SD 卡可拔掉（系统从 NVMe 启动）
 
 ### 串口通信方法（mac 本机）
 
