@@ -46,7 +46,9 @@ in
         multicastLimit = 256;
         routes = ztRoutes;
         members = LT.zerotier.hosts;
-        relays = lib.mapAttrsToList (n: v: v.zerotier) (LT.hostsWithTag LT.tags.server);
+        relays = lib.filter (v: v != null) (
+          lib.mapAttrsToList (n: v: v.zerotier) (LT.hostsWithTag LT.tags.server)
+        );
       };
     };
   };
