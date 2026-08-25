@@ -2,14 +2,21 @@
   lib,
   modulesPath,
   self,
+  pkgs,
   ...
 }:
 let
-  # Keep the cross-built vendor kernel outside NixOS module evaluation, using
-  # the same package boundary as the other ARM boards (rock5c, opi5p).  The
-  # kernel is a regular x86_64 Flake package that emits aarch64 binaries on
-  # ml-builder.
   sc8280xpKernel = self.packages.x86_64-linux.sc8280xp-kernel;
+
+  radxaFirmware = pkgs.runCommand "radxa-firmware-sc8280xp" {} ''
+    mkdir -p $out/lib/firmware
+    cp -r ${pkgs.fetchFromGitHub {
+      owner = "radxa-pkg";
+      repo = "radxa-firmware";
+      rev = "e1761009df008adfd62c77f2c5584e3067449013";
+      hash = "sha256-W7SLEGWRhnnSO0Rk1v002BNymId22imEWaYKBAOgs6Y=";
+    }}/radxa-firmware-sc8280xp/lib/firmware/* $out/lib/firmware/
+  '';
 in
 {
   imports = [
@@ -43,6 +50,8 @@ in
   };
 
   fileSystems."/run/nullfs".enable = lib.mkForce false;
+
+  hardware.firmware = [ radxaFirmware ];
 
   lantian.kernel = lib.mkForce sc8280xpKernel;
 }
