@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 13:30
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 15:00
 
 ## 主机基本信息
 
@@ -861,6 +861,60 @@ linux-firmware 里只有 `qcom/sc8280xp/LENOVO/21BX/` 目录的固件
   $(readlink /root/cache-roots/dragon-q8b)` 复制到 dragon-q8b
 - dragon-q8b 上挂载 NVMe + nixos-install（参考文档上方"安装命令参考"）
 - ml-builder 上 flake.lock 有 nix 自动修改，git stash 后 pull
+
+## Radxa 官方内核构建成功（2026-08-25 15:00）
+
+### 最终方案
+
+放弃在 Nix 构建里 `make defconfig` + hack configurePhase/postInstall
+的方式，改为和 Armbian 一样的方式：
+1. 在 ml-builder 上 clone 内核源码，`make radxa_qcom_7_0_defconfig` 展开
+2. 添加 extra config（TC956x/R8152/MMAP/禁用 AMDGPU/禁用 DEBUG_INFO）
+3. `make olddefconfig`，sed 强制 `CONFIG_DEBUG_INFO_NONE=y`，再 olddefconfig
+4. 把生成的完整 .config（11066 行）保存到仓库
+5. 从 .config 生成 config attrset（6168 行）
+6. 用标准 `linuxManualConfig` 构建（只改 configurePhase 加 olddefconfig）
+
+### 构建成功
+
+- closure：`bq5v9ry9gzzagq061fd66163qyph68ph-nixos-system-dragon-q8b-26.11pre-git`
+- nix copy --no-check-sigs 复制到 dragon-q8b
+- nixos-install 到 NVMe 成功
+- 重启后验证全部通过：
+  - `uname -r` → 7.0.11（Radxa 内核）
+  - `CONFIG_IPV6=y` + `CONFIG_MPTCP_IPV6=y` → nginx active ✅
+  - `CONFIG_BTRFS_FS=y`（内建）
+  - `CONFIG_DEBUG_INFO_NONE=y`
+  - 零失败服务
+
+### 之前构建失败的原因总结
+
+之前在 Nix 构建里 `make defconfig` + 覆盖 configurePhase/postInstall 的方式
+有多个不兼容问题：
+1. `linuxManualConfig` 的 postInstall 包含 `make modules_install` 和 `cp vmlinux`，
+   不能简单跳过（modules 不会安装，vmlinux 不存在）
+2. `config` attrset 需要 `CONFIG_` 前缀（`isYes "MODULES"` 查找 `CONFIG_MODULES`）
+3. GCC 14 DWARF5 段错误（需要禁用 DEBUG_INFO）
+4. AMD GPU 驱动交叉编译失败（需要禁用 AMDGPU）
+
+改为预先展开 defconfig 生成完整 .config 后，这些问题全部消失。
+
+### 关键文件
+
+| 文件 | 说明 |
+| --- | --- |
+| `pkgs/sc8280xp-kernel/default.nix` | 标准 linuxManualConfig，源码 commit f87cd1e7a6cf |
+| `pkgs/sc8280xp-kernel/sc8280xp_radxa_config` | 展开后的完整 .config（11066 行）|
+| `pkgs/sc8280xp-kernel/sc8280xp_radxa_config.nix` | config attrset（6168 行）|
+| `pkgs/sc8280xp-kernel/sc8280xp_vendor_config` | 旧 Armbian config（保留不使用）|
+| `pkgs/sc8280xp-kernel/sc8280xp_vendor_config.nix` | 旧 Armbian attrset（保留不使用）|
+
+### 剩余待办
+
+1. 固件：GPU/VPU/NPU 固件仍缺（linux-firmware 只有 LENOVO/21BX 路径）
+2. ACME 证书：当前用 minica 自签名 bootstrap，后续需 colmena deploy greencloud
+   申请正式证书（greencloud 构建需先修复 Python 3.14 pkg_resources 问题）
+3. sops secrets：dragon-q8b 的 age key 已在 .sops.yaml，secrets 解密成功
 
 ### 串口通信方法（mac 本机）
 
