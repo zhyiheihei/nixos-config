@@ -49,7 +49,7 @@
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
-      ExecStart = "${pkgs.qrtr}/bin/qrtr-cfg";
+      ExecStart = "${pkgs.qrtr}/bin/qrtr-ns";
       Restart = "always";
     };
   };
