@@ -19,20 +19,14 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 
   boot = {
-    # btrfs is CONFIG_BTRFS_FS=m (module), not built-in — without it in
-    # initrd, blkid cannot read btrfs superblocks and by-uuid devices never
-    # appear, causing root mount timeout.
-    #
-    # TC956x 2.5GbE + r8152 USB NIC are also modules (=m); they load via
-    # auxiliary/PCI/USB bus auto-matching but only if present in initrd.
+    # btrfs is CONFIG_BTRFS_FS=y (built-in) in the Radxa defconfig — no .ko
+    # needed in initrd.  TC956x 2.5GbE + r8152 USB NIC are modules (=m).
     initrd.availableKernelModules = lib.mkForce [
-      "btrfs"
       "dwmac_tc956x"
       "gpio_tc956x"
       "r8152"
     ];
     initrd.kernelModules = lib.mkForce [
-      "btrfs"
       "dwmac_tc956x"
       "gpio_tc956x"
       "r8152"
