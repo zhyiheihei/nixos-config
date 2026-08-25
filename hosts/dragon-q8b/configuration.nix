@@ -19,9 +19,19 @@
     "pd_ignore_unused"
     "console=ttyMSM0,115200n8"
     "earlycon"
+    # GPU 驱动（内建=y）在启动早期 probe，此时 udev 还没设置 firmware_class.path。
+    # 显式设置让 GPU 驱动能从 initrd 的 /lib/firmware 加载 ZAP shader 固件。
+    "firmware_class.path=/lib/firmware"
   ];
 
   hardware.enableRedistributableFirmware = true;
+
+  # 确保 initrd 包含 GPU ZAP shader 固件，让 GPU 驱动在启动时能加载。
+  # firmware_class.path=/lib/firmware 让内核从 initrd 的 /lib/firmware 搜索。
+  boot.initrd.extraFirmwarePaths = [
+    "qcom/sc8280xp/LENOVO/21BX/qcdxkmsuc8280.mbn.zst"
+    "qcom/sc8280xp/qcdxkmsuc8280.mbn.zst"
+  ];
 
   # Qualcomm SC8280XP userspace services: qrtr (IPC router), pd-mapper
   # (protection domain mapper, needed for audio/modem), rmtfs (remote
