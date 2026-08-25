@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 18:30
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 20:15
 
 ## 主机基本信息
 
@@ -1004,6 +1004,61 @@ auxiliary device，DPU 无法绑定（`adev bind failed: -19`）。
    alsa-ucm-conf 已添加。Audio 超时是已知问题。
 3. **UEFI 设置**：检查 Radxa Q8B BIOS 的 "Third-party OS Compatibility" 和
    "Device Tree Settings"（Radxa 文档提到但页面 404）。
+
+## GPU 模块化 + 服务精简（2026-08-25 20:15）
+
+### 改动
+
+1. CONFIG_DRM_MSM 从 =y 改为 =m（模块），让 GPU 驱动在 initrd 挂载后才加载
+2. initrd 加入 msm 模块 + ZAP shader 固件（extraFirmwarePaths）
+3. boot.kernelParams 添加 firmware_class.path=/lib/firmware
+4. 移除 qrtr-ns 服务（内核 6.11+ 自带 nameserver）
+5. 移除 pd-mapper 服务（jhovold wiki 确认 6.11+ 不需要）
+6. rmtfs 服务独立运行（不依赖 qrtr）
+
+### 结果
+
+| 项目 | 状态 |
+| --- | --- |
+| msm 模块加载 | ✅ 在 initrd 阶段加载 |
+| rmtfs | ✅ active |
+| 零失败服务 | ✅ |
+| nginx | ✅ active |
+| ADSP/CDSP/VPU | ✅ running |
+| GPU DPU 绑定 | ❌ 仍 adev bind failed -19 |
+| Audio 声卡 | ❌ DP0 Playback codec dai not found |
+
+### GPU/Audio 问题进一步分析
+
+GPU DPU 绑定失败和 Audio 问题是**关联的**：
+1. GPU 驱动（adreno）probe 但不注册 DPU 需要的 auxiliary device
+2. DPU 无法绑定（adev bind failed -19）
+3. DisplayPort 不工作
+4. DP0 音频 codec DAI 不可用
+5. 音频驱动 deferred probe（codec dai not found）
+
+固件加载时机不再是问题（msm 模块在 initrd 阶段加载，固件在 initrd 里），
+但 GPU auxiliary device 注册可能需要更深入的内核调试。
+
+### 可能的后续方案
+
+1. **换用 mainline 内核**（pkgs.linuxPackages_latest）— jhovold wiki 显示
+   X13s 在 mainline 上 GPU/display 基本工作。Radxa vendor 7.0.11 可能有 bug
+2. **检查 UEFI 设置** — Third-party OS Compatibility / Device Tree Settings
+3. **接受当前状态** — 服务器角色不需要 GPU/display/audio，核心功能全部正常
+
+### 最终系统状态
+
+- 内核：Radxa 官方 7.0.11（radxa_qcom_7_0_defconfig），DRM_MSM=m
+- 固件：Radxa 官方 SC8280XP 固件（ADSP/CDSP/VPU running）
+- 网络：TC956x 2.5GbE 192.168.0.66
+- 存储：NVMe Samsung 238G
+- nginx：active（MPTCP_IPV6=y）
+- sops：secrets 解密成功
+- zerotier：已授权，LTNET 连通
+- rmtfs：active
+- 失败服务：零
+- GPU/display/audio：不工作（需 mainline 内核或 UEFI 调试）
 
 ### 串口通信方法（mac 本机）
 
