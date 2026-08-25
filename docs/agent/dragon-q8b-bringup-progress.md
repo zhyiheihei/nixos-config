@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 17:35
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 18:30
 
 ## 主机基本信息
 
@@ -960,6 +960,50 @@ linux-firmware 里只有 `qcom/sc8280xp/LENOVO/21BX/` 目录的固件
 2. Audio 声卡未完全就绪：依赖 ADSP，可能需要额外配置
 3. ACME 正式证书：greencloud 构建有 Python 3.14 pkg_resources 问题需修复
 4. SD 卡可拔掉（系统从 NVMe 启动）
+
+## GPU/Audio 问题研究（2026-08-25 18:30）
+
+### GPU/DPU 绑定失败根因
+
+GPU 驱动（adreno，CONFIG_DRM_MSM=y 内建）在启动 0.4 秒时 probe，
+此时 udev 还没设置 `firmware_class.path`（在系统启动后才设置）。
+GPU 驱动无法加载 ZAP shader 固件
+（`qcom/sc8280xp/LENOVO/21BX/qcdxkmsuc8280.mbn`），不注册 `msm_drm`
+auxiliary device，DPU 无法绑定（`adev bind failed: -19`）。
+
+固件文件本身存在（linux-firmware + Radxa 固件包都有 qcdxkmsuc8280.mbn.zst），
+内核支持 zstd 压缩固件（CONFIG_FW_LOADER_COMPRESS_ZSTD=y），
+但加载时机不对。
+
+**注意**：不要尝试 GPU unbind 操作——会导致 adreno_remove 内核 panic
+（NULL pointer dereference），系统崩溃重启。
+
+### jhovold X13s wiki 关键信息
+
+- pd-mapper 在内核 6.11+ 不需要了（我们用 7.0.11）
+- Audio：ADSP 偶尔无法注册服务（已知问题，very infrequent）
+- UEFI：最近的固件如果启用 "Linux Boot" 选项，可以不需要 efi=noruntime
+- 固件：需要 linux-firmware 20241210 或更新版本
+
+### BrainWart/x13s-nixos 参考配置
+
+- 使用 `dtb=` 参数指定内核 DTB（X13s 的 UEFI 不传递 DTB）
+- `hardware.firmware = lib.mkBefore [ pkgs.x13s.firmware.graphics ]`
+- initrd 包含固件：`boot.initrd.systemd.contents."/lib".source = modulesWithExtra/lib`
+- initrd 模块包含 msm、gpucc_sc8280xp、dispcc_sc8280xp、phy_qcom_edp 等
+- 但 X13s 用 mainline 内核（驱动是模块），dragon-q8b 用 vendor 内核（驱动内建）
+
+### 待实施方案（等机器恢复）
+
+1. **GPU 固件加载**：在 `boot.kernelParams` 添加
+   `firmware_class.path=/lib/firmware`，确保 initrd 包含 ZAP shader 固件。
+   NixOS initrd 通过 `makeModulesClosure` 包含 `hardware.firmware` 的固件到
+   initrd 的 `/lib/firmware` 目录。设置内核命令行参数让 GPU 驱动在启动时
+   就能搜索这个路径。
+2. **Audio**：保留 qrtr/rmtfs 服务，pd-mapper 在 6.11+ 不需要但保留无害。
+   alsa-ucm-conf 已添加。Audio 超时是已知问题。
+3. **UEFI 设置**：检查 Radxa Q8B BIOS 的 "Third-party OS Compatibility" 和
+   "Device Tree Settings"（Radxa 文档提到但页面 404）。
 
 ### 串口通信方法（mac 本机）
 
