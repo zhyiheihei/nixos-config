@@ -23,9 +23,9 @@ let
     # Copied to both paths (no symlink): the firmware zstd-compression hook
     # renames files to .zst and breaks relative symlinks pointing at them.
     cp ${./firmware/SC8280XP-Radxa-Dragon-Q8B-tplg.bin} \
-      $out/lib/firmware/qcom/sc8280xp/radxa/dragon-q8b/
+      $out/lib/firmware/qcom/sc8280xp/radxa/dragon-q8b/SC8280XP-Radxa-Dragon-Q8B-tplg.bin
     cp ${./firmware/SC8280XP-Radxa-Dragon-Q8B-tplg.bin} \
-      $out/lib/firmware/qcom/sc8280xp/
+      $out/lib/firmware/qcom/sc8280xp/SC8280XP-Radxa-Dragon-Q8B-tplg.bin
   '';
 in
 {
