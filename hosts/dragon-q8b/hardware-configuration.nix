@@ -6,7 +6,7 @@
   ];
 
   fileSystems."/boot" = {
-    device = "/dev/disk/by-uuid/56C0-FB03";
+    device = "/dev/disk/by-uuid/DB72-1C49";
     fsType = "vfat";
     options = [
       "fmask=0077"
@@ -15,7 +15,7 @@
   };
 
   fileSystems."/nix" = {
-    device = "/dev/disk/by-uuid/66493006-e89d-41dc-800f-9c437b92474a";
+    device = "/dev/disk/by-uuid/e9ab9a38-49d2-48c9-a2b3-85dce405e99b";
     fsType = "btrfs";
     neededForBoot = true;
     options = [
@@ -28,7 +28,7 @@
   };
 
   fileSystems."/nix/persistent" = {
-    device = "/dev/disk/by-uuid/66493006-e89d-41dc-800f-9c437b92474a";
+    device = "/dev/disk/by-uuid/e9ab9a38-49d2-48c9-a2b3-85dce405e99b";
     fsType = "btrfs";
     neededForBoot = true;
     options = [
@@ -41,7 +41,7 @@
   };
 
   fileSystems."/nix/persistent/home" = {
-    device = "/dev/disk/by-uuid/66493006-e89d-41dc-800f-9c437b92474a";
+    device = "/dev/disk/by-uuid/e9ab9a38-49d2-48c9-a2b3-85dce405e99b";
     fsType = "btrfs";
     options = [
       "subvol=persistent/home"
