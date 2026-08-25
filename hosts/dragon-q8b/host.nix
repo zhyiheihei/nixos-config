@@ -11,6 +11,7 @@
     lan-access
     server
   ];
+  manualDeploy = true;
   cpuThreads = 8;
   city = geo.cities."CN Ningbo";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFHX4OQA+OsOx2jxm8sqFI6a08kbC8duwP5ymzPykN5Z root@dragon-q8b";
