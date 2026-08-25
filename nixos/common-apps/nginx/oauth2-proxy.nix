@@ -6,11 +6,7 @@
   ...
 }:
 {
-  sops.secrets.dex-oauth-proxy-secret = {
-    sopsFile = inputs.secrets + "/common/dex.yaml";
-    owner = "dex";
-    group = "dex";
-  };
+  sops.secrets.dex-oauth-proxy-secret.sopsFile = inputs.secrets + "/common/dex.yaml";
   sops.secrets.oauth2-proxy-cookie-secret.sopsFile = inputs.secrets + "/common/oauth2-proxy.yaml";
   sops.templates.oauth2-proxy-keys.content = ''
     OAUTH2_PROXY_COOKIE_SECRET=${config.sops.placeholder.oauth2-proxy-cookie-secret}
