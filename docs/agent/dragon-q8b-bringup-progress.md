@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 12:35
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 12:50
 
 ## 主机基本信息
 
@@ -748,6 +748,75 @@ SD 卡安装（closure 7zg8wq1g）后系统完整启动：
 3. 后续：把 dragon-q8b 的 age key 加入 secrets 仓库 `.sops.yaml`，
    colmena apply --on dragon-q8b 部署 secrets。
 4. 后续：考虑换官方 `radxa-pkg/linux-qcom` + `radxa_qcom_7_0_defconfig`。
+
+## 换用 Radxa 官方内核（2026-08-25 12:50）
+
+### 原因
+
+Armbian vendor config 的 `CONFIG_IPV6=m`（模块）导致 `CONFIG_MPTCP_IPV6`
+无法启用（Kconfig depends on IPV6=y），nginx `listen [::]:80 multipath`
+报 `EPROTONOSUPPORT`。此外 GPU/VPU/NPU 固件全缺（linux-firmware 只有
+LENOVO/21BX 目录的 SC8280XP 固件，没有 radxa/dragon-q8b 路径）。
+
+### Radxa 官方内核信息
+
+- 源码：`github.com/radxa/kernel` commit `f87cd1e7a6cf9e164ef1a34c846312f9055e3f29`
+  （radxa-pkg/linux-qcom rsdk 打包仓库的 submodule 引用，2026-08-18）
+- defconfig：`radxa_qcom_7_0_defconfig`（3778 行，在内核源码 arch/arm64/configs/ 里）
+- 版本：7.0.11（和 Armbian 相同）
+- hash：`sha256-e6Ic4NJ1H0xLbyezDAvqCFpRg7F9AaQpXZiFpBW+Dmw=`
+
+### Radxa defconfig 关键优势
+
+| 配置 | Armbian | Radxa | 影响 |
+| --- | --- | --- | --- |
+| CONFIG_IPV6 | =m | 默认 y | MPTCP_IPV6 自动启用 |
+| CONFIG_BTRFS_FS | =m | =y | initrd 不需要 btrfs 模块 |
+| CONFIG_EFIVAR_FS | ? | =y | systemd-boot EFI 变量 |
+| CONFIG_DEBUG_INFO_BTF | =y（已删） | 不启用 | 避免 pahole 段错误 |
+| CONFIG_MPTCP_IPV6 | 缺 | 默认 y | nginx IPv6 multipath |
+
+### config fragment（额外添加）
+
+Radxa defconfig 不含的板级/NixOS 配置：
+- CONFIG_TC956X_PCI=m, CONFIG_DWMAC_TC956X=m, CONFIG_GPIO_TC956X=m
+- CONFIG_USB_R8152=m
+- CONFIG_ARCH_MMAP_RND_BITS_MAX=33 等（nixpkgs sysctl 需要）
+
+### 构建状态
+
+- ml-builder tmux session `q8b-kernel` 交叉编译中
+- 日志：`/tmp/q8b-kernel-build.log`
+- 闭包复制路径：`nix copy --to ssh-ng://root@192.168.0.66 --no-check-sigs`
+
+### 硬件现状（当前 Armbian 内核）
+
+| 硬件 | 状态 | 原因 |
+| --- | --- | --- |
+| 网络 TC956x 2.5GbE | ✅ 工作 | 驱动模块在 initrd |
+| NVMe Samsung 238G | ✅ 工作 | 内建驱动 |
+| SD 卡 | ✅ 工作 | 内建驱动 |
+| USB | ✅ 工作 | |
+| GPU Adreno 690 | ❌ bind failed -19 | 固件 + 驱动问题 |
+| VPU Adreno 5th gen | ❌ 固件缺失 | qcom/vpu/vpu20_p4_gen2_s6.mbn |
+| NPU/DSP ADSP+CDSP | ❌ offline | qcom/sc8280xp/radxa/dragon-q8b/qcadsp8280.mbn |
+| Audio | ❌ 无声卡 | 依赖 ADSP 固件 |
+| DisplayPort | ❌ probe failed | component add failed |
+
+### 固件问题（换内核不解决）
+
+linux-firmware 里只有 `qcom/sc8280xp/LENOVO/21BX/` 目录的固件
+（ThinkPad X13s），dragon-q8b 需要 `qcom/sc8280xp/radxa/dragon-q8b/`
+路径的固件。需从 Radxa deb 包或 Armbian 固件包获取。
+
+### 待完成
+
+1. 内核构建完成 → 构建 toplevel → nix copy 到 dragon-q8b → 重新安装
+2. 硬件模块 `nixos/hardware/dragon-q8b/default.nix` 可能需要调整
+   （btrfs 内建后 initrd 不需要 btrfs 模块）
+3. 固件获取（Radxa deb 包或链接 LENOVO 固件）
+4. colmena deploy greencloud 触发 ACME 证书申请（greencloud 构建
+   需先修复 Python 3.14 pkg_resources 问题）
 
 ### 串口通信方法（mac 本机）
 
