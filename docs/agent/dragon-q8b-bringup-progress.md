@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 11:20
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 12:35
 
 ## 主机基本信息
 
@@ -712,6 +712,50 @@ btrfs 选项写的是 `subvol=home`，但实际 btrfs subvol 路径是
 2. 预期：btrfs 模块加载 → by-uuid 设备出现 → 根文件系统挂载 → 系统启动。
 3. 关注网卡驱动模块加载情况（stmmac/dwmac-tc956x/r8152）。
 4. 若网卡仍不工作，检查 UEFI Device Tree Settings / Third-party OS Compatibility。
+
+## NVMe 安装（2026-08-25 12:35）
+
+### 系统启动成功
+
+SD 卡安装（closure 7zg8wq1g）后系统完整启动：
+- btrfs 模块加载 → by-uuid 设备出现 → 根文件系统挂载成功
+- systemd 全部启动到 multi-user.target
+- 网卡驱动完全工作：TC956x 双口 2.5GbE（QCA8081 PHY）+ r8152 USB NIC
+  - eth0: 192.168.0.66/24, 2500Mb/s, 获取到公网 IPv6
+  - SSH -p 2222 root@192.168.0.66 可连
+- 剩余失败服务（sops-install-secrets/nginx/filebeat）因 dragon-q8b
+  的 age key 未加入 secrets 仓库 `.sops.yaml` 导致，需后续 colmena 部署。
+- remoteproc firmware（adsp/cdsp/video-codec）加载失败：正常，无 Qualcomm 固件。
+- 网卡 NO-CARRIER 问题：用户确认是网线插错口，换到 eth0 后链路正常。
+
+### NVMe 安装流程
+
+- NVMe: Samsung MZVLW256HEHP-00000, 238.5G, PCIe Gen.3 x2
+- NVMe 已有分区（vfat + btrfs），UUID: DB72-1C49 / e9ab9a38-...
+- 调整 btrfs subvol：删除顶层 home，在 persistent 下创建 persistent/home
+  （与 SD 卡布局统一）
+- hardware-configuration.nix UUID 切换到 NVMe（commit 69182ca3）
+- 新 closure：`9cx1232z4av13gfn97ijh0z721rmp6ix-nixos-system-dragon-q8b-26.11pre-git`
+- nix copy --no-check-sigs 从 ml-builder 复制到 dragon-q8b（4 个差异路径）
+- 在 dragon-q8b 本机 nixos-install → **EFI boot entry 写入 NVRAM 成功**
+  （SD 卡安装时在 opi5p 上跑无法写 NVRAM，本机可以）
+- efibootmgr 确认：Boot0000 → NVMe EFI, BootOrder 0000,0001
+
+### 下一步
+
+1. 拔掉 SD 卡，重启 dragon-q8b，从 NVMe 启动。
+2. 验证网络和 SSH。
+3. 后续：把 dragon-q8b 的 age key 加入 secrets 仓库 `.sops.yaml`，
+   colmena apply --on dragon-q8b 部署 secrets。
+4. 后续：考虑换官方 `radxa-pkg/linux-qcom` + `radxa_qcom_7_0_defconfig`。
+
+### 串口通信方法（mac 本机）
+
+- 串口设备：`/dev/cu.usbmodem57920206431`，115200 8N1
+- Python 脚本：`/tmp/serial_cmd2.py`（用 termios 设置波特率，
+  os.open 读写串口设备文件，发送命令并读取输出）
+- 用法：`python3 /tmp/serial_cmd2.py "command"`
+- dragon-q8b 网络通后可直接 SSH -p 2222 root@192.168.0.66
 
 ### 安装命令参考（ml-builder SSH 到 opi5p）
 
