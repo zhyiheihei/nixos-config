@@ -4,6 +4,7 @@
   fetchFromGitHub,
   pkg-config,
   qrtr,
+  xz,
 }:
 
 stdenv.mkDerivation {
