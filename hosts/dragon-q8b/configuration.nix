@@ -30,7 +30,7 @@
     qrtr
     rmtfs
     alsa-ucm-conf
-    (callPackage ../../pkgs/pd-mapper { inherit qrtr; })
+    (callPackage ../../pkgs/pd-mapper {})
   ];
 
   systemd.services.qrtr = {
@@ -51,7 +51,7 @@
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       Type = "simple";
-      ExecStart = "${pkgs.callPackage ../../pkgs/pd-mapper { inherit qrtr; }}/bin/pd-mapper";
+      ExecStart = "${pkgs.callPackage ../../pkgs/pd-mapper {}}/bin/pd-mapper";
       Restart = "always";
     };
   };
