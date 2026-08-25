@@ -9,13 +9,21 @@ let
   sc8280xpKernel = self.packages.x86_64-linux.sc8280xp-kernel;
 
   radxaFirmware = pkgs.runCommand "radxa-firmware-sc8280xp" {} ''
-    mkdir -p $out/lib/firmware
+    mkdir -p $out/lib/firmware/qcom/sc8280xp/radxa/dragon-q8b
     cp -r ${pkgs.fetchFromGitHub {
       owner = "radxa-pkg";
       repo = "radxa-firmware";
       rev = "e1761009df008adfd62c77f2c5584e3067449013";
       hash = "sha256-W7SLEGWRhnnSO0Rk1v002BNymId22imEWaYKBAOgs6Y=";
     }}/radxa-firmware-sc8280xp/lib/firmware/* $out/lib/firmware/
+    # Audioreach topology, required by qcom-apm (dmesg otherwise:
+    # "tplg firmware loading qcom/sc8280xp/SC8280XP-Radxa-Dragon-Q8B-tplg.bin failed -2").
+    # Not shipped in radxa-pkg/radxa-firmware nor upstream linux-firmware;
+    # extracted from the official Ubuntu image (radxa-dragon-midstream noble r5).
+    cp ${./firmware/SC8280XP-Radxa-Dragon-Q8B-tplg.bin} \
+      $out/lib/firmware/qcom/sc8280xp/radxa/dragon-q8b/
+    ln -s radxa/dragon-q8b/SC8280XP-Radxa-Dragon-Q8B-tplg.bin \
+      $out/lib/firmware/qcom/sc8280xp/SC8280XP-Radxa-Dragon-Q8B-tplg.bin
   '';
 in
 {
