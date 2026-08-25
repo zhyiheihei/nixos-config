@@ -1,5 +1,34 @@
-{ LT, ... }:
+{ LT, lib, config, ... }:
+let
+  # 家庭宽带 WAN 443 被运营商封禁，公网 TLS 入口走 8443。nginx 的 vhost
+  # 每 HTTPS 端口只能有一个，这里基于 lantian.nginxVhosts 重新生成
+  # virtualHosts，给每个启用 TLS 的 vhost 追加 8443 监听（仅本主机生效）。
+  publicHttpsPort = 8443;
+  with8443 =
+    v:
+    let
+      cfg = v._config;
+      hasTLS = lib.any (l: lib.elem "ssl" (l.extraParameters or [ ])) (cfg.listen or [ ]);
+    in
+    if hasTLS then
+      cfg // {
+        listen = cfg.listen ++ [
+          {
+            addr = "0.0.0.0";
+            port = publicHttpsPort;
+            extraParameters = [ "ssl" ];
+          }
+        ];
+      }
+    else
+      cfg;
+in
 {
+  # 让 8443 由 nginx 原生监听（router 直通到本机 8443，不再转换到 443）。
+  services.nginx.virtualHosts = lib.mkForce (
+    lib.mapAttrs (_: with8443) config.lantian.nginxVhosts
+  );
+
   networking.hosts."${LT.this.interconnect.IPv4}" = [
     "vaults3.zhyi.xin"
     "jellyfin.zhyi.xin"
@@ -9,7 +38,7 @@
 
   # VaultS3 runs natively on the router (192.168.0.1:9000); opi5p keeps the
   # public TLS front for the 8443 compatibility endpoint (router DNATs
-  # 8443 -> opi5p:443).
+  # 8443 -> opi5p:8443).
   lantian.nginxVhosts."vaults3.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://${LT.hosts.router.interconnect.IPv4}:9000";
@@ -20,7 +49,7 @@
     noIndex.enable = true;
   };
 
-  # 家宽 WAN 443 被运营商封禁，router 把公网 8443 DNAT 到 opi5p:443。
+  # 家宽 WAN 443 被运营商封禁，router 把公网 8443 DNAT 直通 opi5p:8443（端口不变）。
   # 这三个域名解析到 home-ddns（家宽 IP），公网只能经 8443 进入，
   # 所以 TLS 前沿必须落在 opi5p（而非原本只监听家内 443 的 rock5c）。
   # 后端沿用各服务现有 HTTP 中转 vhost，不回源公网 DNS，避免环路。
