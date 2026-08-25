@@ -67,6 +67,7 @@ in
     CONFIG_EFIVAR_FS=y
   '';
   config = {
+    MODULES = "y";
     BTRFS_FS = "y";
     EFIVAR_FS = "y";
     DRM_MSM = "y";
