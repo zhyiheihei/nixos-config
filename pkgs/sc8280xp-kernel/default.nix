@@ -90,10 +90,12 @@ in
 }).overrideAttrs (old: {
   requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
   name = "k";
-  # Radxa defconfig doesn't produce vmlinux (only vmlinuz.efi), so skip
-  # the default postInstall that copies vmlinux to $dev.  Server role
-  # doesn't need perf/kernel-dev tools.
-  postInstall = "";
+  # postInstall contains `make modules_install` which we need. Only skip
+  # the `cp vmlinux $dev/` line since Radxa defconfig doesn't generate vmlinux.
+  postInstall = builtins.replaceStrings
+    ["cp vmlinux $dev/"]
+    ["# cp vmlinux skipped — Radxa defconfig does not generate vmlinux"]
+    (old.postInstall or "");
   preConfigure = ''
     export buildRoot="$(pwd)/build"
     mkdir -p "$buildRoot"
