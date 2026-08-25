@@ -1,6 +1,7 @@
 {
   lib,
   LT,
+  pkgs,
   ...
 }:
 {
@@ -9,11 +10,6 @@
     ./hardware-configuration.nix
   ];
 
-  # Qualcomm SC8280XP (Snapdragon 8cx Gen 3) UEFI board, like the ThinkPad
-  # X13s.  The Radxa Q8B UEFI firmware passes the board DTB to the kernel
-  # itself, so no dtb= parameter or extra bootloader files are needed here.
-  # SC8280XP UEFI firmware boots via systemd-boot, not GRUB.  The common
-  # boot-params module enables GRUB by default; disable it explicitly.
   boot.loader.grub.enable = lib.mkForce false;
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = lib.mkForce true;
@@ -21,15 +17,56 @@
   boot.kernelParams = [
     "clk_ignore_unused"
     "pd_ignore_unused"
-    # Radxa OS 官方启动参数：串口输出内核日志，便于诊断启动/网卡问题
     "console=ttyMSM0,115200n8"
     "earlycon"
   ];
 
-  # The mainline kernel already contains the SC8280XP platform drivers; the
-  # TC956x 2.5GbE pairs load from the auxiliary bus automatically.
-
   hardware.enableRedistributableFirmware = true;
+
+  # Qualcomm SC8280XP userspace services: qrtr (IPC router), pd-mapper
+  # (protection domain mapper, needed for audio/modem), rmtfs (remote
+  # filesystem service).  Reference: ThinkPad X13s NixOS configs.
+  environment.systemPackages = with pkgs; [
+    qrtr
+    rmtfs
+    alsa-ucm-conf
+    (callPackage ../../pkgs/pd-mapper { inherit qrtr; })
+  ];
+
+  systemd.services.qrtr = {
+    description = "Qualcomm IPC Router";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.qrtr}/bin/qrtr-cfg";
+      Restart = "always";
+    };
+  };
+
+  systemd.services.pd-mapper = {
+    description = "Qualcomm Protection Domain Mapper";
+    after = [ "qrtr.service" ];
+    requires = [ "qrtr.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.callPackage ../../pkgs/pd-mapper { inherit qrtr; }}/bin/pd-mapper";
+      Restart = "always";
+    };
+  };
+
+  systemd.services.rmtfs = {
+    description = "Qualcomm Remote Filesystem Service";
+    after = [ "qrtr.service" ];
+    requires = [ "qrtr.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "simple";
+      ExecStart = "${pkgs.rmtfs}/bin/rmtfs";
+      Restart = "always";
+    };
+  };
 
   systemd.network.networks."10-dragon-q8b-lan" = {
     matchConfig.Name = "eth0";
