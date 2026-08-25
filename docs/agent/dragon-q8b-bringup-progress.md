@@ -493,26 +493,31 @@ clk_ignore_unused pd_ignore_unused console=ttyMSM0.115200n8 earlycon
 - vaults3 存储是 NFS 挂载 `192.168.0.40:/nixos`（`/mnt/storage`），历史上有
   `multipart part could not be moved` rename 失败错误（8/20）。
 
-### ⚠️ 新阻塞：闭包不完整（已 GC 部分依赖）
+### ⚠️ 新阻塞：闭包不完整（已 GC 部分依赖）——【已证伪，闭包完整】
 
-- `nix-store -qR` 新 closure `dhjirsw...`，918 个依赖，其中 **15 个路径
-  MISSING**（不在 store）：`gen-hostid`（0kac5cvjsbrnlh2saa2lkjqyn2ik2xq8）、
-  `bird`、`sshd.conf-final`、`hm_gitconfig`、`hm_homezhyi.cache.keep` 等。
-- 这就是复制报缺签名的同一路径。原因：之前构建成功但没固定 root，被 GC
-  删了部分依赖。闭包残缺 → attic push 引用不存在路径会失败。
+- 曾用 `nix-store -qR` 列出 918 个依赖，用 `[ -d "$p" ]` 判断发现 15 个
+  `MISSING`（gen-hostid、bird、sshd.conf-final 等），误以为被 GC 删了。
+- **证伪**：改用 `[ -e "$p" ]`（文件/软链感知）重查，**918 个依赖全部存在**，
+  闭包完整。`gen-hostid` 等是**文件**不是目录，`-d` 误报。
+- 结论：out-link `dhjirsw...` 一直有效，重建时 nix build 短路跳过（结果
+  已存在）。真正阻塞仍是**签名**（路径没带 lantian 签名，opi5p require-sigs
+  =true 拒收）。
 
 ### 解决方案（进行中）
 
-- **重建 toplevel 并用 out-link 固定 root**（文档「手动补推流程」）：
-  `nix build .#nixosConfigurations.dragon-q8b.config.system.build.toplevel \
-    --out-link /root/cache-roots/dragon-q8b --max-jobs 28 --cores 28`
-- 已在 ml-builder 后台启动（log `/tmp/q8b-rebuild.log`）。
-- 完成后 attic push 补推：`attic push lantian /root/cache-roots/dragon-q8b`。
+- 已用 `--out-link /root/cache-roots/dragon-q8b` 固定 root（指向
+  `dhjirsw...`，完整闭包）。
+- 走 attic 服务端签名绕开本地 nix-privkey 空文件：
+  `attic push lantian /root/cache-roots/dragon-q8b`
+- **注意**：之前 attic push 报 500 是 vaults3 S3 存储层问题（multipart 残留
+  实证到达 vaults3），重试前先确认 S3 写入正常。
 
 ### 待办（新会话接手点）
 
 1. 等待重建完成（约 20 分钟），验证闭包完整（`nix-store -qR` 无 MISSING）。
+   【已证伪闭包不完整：918 依赖全在，重建短路跳过】
 2. `attic push lantian /root/cache-roots/dragon-q8b` 上传完整闭包。
+   【注意此前 500 是 vaults3 S3 存储层问题，重试前确认 S3 写入】
 3. opi5p 用 `nix copy --from https://attic.zhyi.xin/lantian` 拉取（opi5p
    require-sigs=true，但 attic 服务端会签名，用 lantian 公钥校验）。
 4. 用户重新接串口，抓带 console 参数的内核启动日志，确认内核启动与网卡
@@ -521,3 +526,82 @@ clk_ignore_unused pd_ignore_unused console=ttyMSM0.115200n8 earlycon
    `kernelModules`/`initrd.availableKernelModules`。
 6. 若 Arbian vendor 内核网卡驱动有问题，换官方 `radxa-pkg/linux-qcom` +
    `radxa_qcom_7_0_defconfig`。
+
+## attic push 500 根因定位与清理重传（2026-08-25 第三会话）
+
+> 本次会话把 attic push 一直 500 的根因彻底定位到 **vaults3 S3 后端 chunk
+> 对象被截断**，并清库重传成功。核心收获记在这里，新会话直接从“验证
+> opi5p 拉取”接手。
+
+### 根因：nginx client_body 临时目录权限错 → 大 PUT 被截断
+
+- 此前 attic push 报 500，`storage error: dispatch failure`，后定位到
+  **opi5p 的 nginx `client_body` 临时目录** `/var/cache/nginx/client_body`
+  owner=nobody 且 700，nginx worker（User=nginx）写入时 `Permission
+  denied`，大对象（内核/initrd/modules 等，几十 MB）PUT 被 500 中断。
+- **修复**：`chown -R nginx:nginx /var/cache/nginx/client_body`。
+- 但 500 中断已造成**部分大 chunk 只传了一半**，attic 数据库却标记为
+  valid——这是后续“push 显示 ✅ 但下载 not valid”的根源。
+
+### 定位过程（证据链）
+
+1. `attic push` 报 500 后重试显示 `✅ already cached`，但
+   `nix path-info --store https://attic.zhyi.xin/lantian <path>` 对内核
+   `86jz1hw...` 报 `is not valid`。
+2. attic DB 里 object/nar/chunk 记录都在（nar state=`V` valid，num_chunks=1）。
+3. chunk 元数据指向 S3 key，`curl` vaults3 实际下载该 chunk 对象只有
+   **18MB**，而 DB 记录 chunk_size=**69MB**——**S3 对象被截断/残缺**。
+4. 一一核对：5 个残缺 chunk（内核、nginx-lantian、initrd、pkgs-patched、
+   sops-install-secrets）DB 记录的大小都远大于 vaults3 实际对象大小。
+
+> 注意：attic chunk 是 zstd 压缩的，S3 对象大小小于 chunk_size（未压缩）是
+> 正常的。真正的异常是**残缺对象**——DB 记录 chunk_size 与对象实际内容不一致
+> 导致下载校验失败。判断“截断”不能只看大小差，要核对下载后 NAR 校验是否通过。
+
+### 清理残缺 chunk 并重传（用户批准）
+
+- 备份 attic DB：`sudo -u postgres pg_dump atticd > /tmp/atticd-backup-*.sql`
+  （greencloud）。
+- 删 5 个残缺 chunk 的 DB 记录（chunkref + chunk）与 S3 对象（router 上
+  `/mnt/storage/vaults3-data/nix-cache/<key>.chunk`）。每个 chunk 仅被一个
+  nar 引用（已确认），安全。
+- 再删对应 5 个 object + nar 记录，让 attic 完全重建。
+- 重跑 `attic push` 这 5 个路径 → 全部重新上传成功。
+- 验证：`nix copy --from <attic> <k-image> --to file:///tmp/verify` 成功，
+  NAR 校验通过。**attric 上的闭包已完整可用**。
+
+### 新阻塞：opi5p 从 attic 拉取时 307 到 vaults3.zhyi.xin:8443 连不上
+
+- opi5p 的 `/etc/hosts` 把 `vaults3.zhyi.xin` 覆盖到本机
+  （192.168.0.62 / interconnect），但 opi5p nginx 只监听 443，**未监听
+  8443**。attic 的 NAR 下载 307 重定向到 `vaults3.zhyi.xin:8443`（S3
+  presigned URL 用 :8443），opi5p 连自己 192.168.0.62:8443 无监听 → 失败。
+- ml-builder 无此 hosts 覆盖走公网 8443 反而能通。
+
+### 待办：opi5p 的 vaults3 vhost 补 8443 监听（home-ddns 专属特色）
+
+> 用户拍板：把 8443 监听加上，作为 home-ddns（家宽入口）专属特色。
+
+- 目标文件：`hosts/opi5p/edge-vhosts.nix` 的 `vaults3.zhyi.xin` vhost
+  （可能也要 `jellyfin.zhyi.xin` 等 home-ddns 承载域）。
+- 做法：在 vhost 上启用 `listenHTTPS` 的 8443 监听。该 vhost 目前走默认
+  HTTPS 443（`LT.port.HTTPS`）。需要额外 listen 8443（TLS）。
+- vhost 机制见 `nixos/common-apps/nginx/vhost-options/vhost-options.nix`：
+  `listenHTTPS` 选项默认监听 `LT.port.HTTPS`(443)，一个 vhost 一次只能
+  一个 HTTPS listen；要给 8443 需在 `services.nginx` 层追加同名 8443
+  virtualHost 或改 `listen` mkForce 加 8443。
+- **防火墙**：opi5p 需放行 8443 入站（当前 router 只把公网 8443 DNAT 到
+  opi5p:443，opi5p 本地 8443 未监听）。确认 `networking.firewall` 或
+  nftables 允许 8443。
+- 验证：opi5p 上 `curl -k https://127.0.0.1:8443 -H "Host: vaults3.zhyi.xin"`
+  应返回 403（S3 无凭据），再跑 attic 拉取确认 NAR 307 落到本机 8443 通。
+- 改完走 nix 部署（在 ml-builder 上 `colmena apply --on opi5p`）。
+
+### 接手提示（新会话）
+
+- 当前 attic 上闭包已完整可用（清理重传后 NAR 校验通过）。剩余核心：
+  让 opi5p 成功从 attic 拉到完整闭包。
+- 优先解决 opi5p 8443 监听（上述待办），或考虑 ml-builder 中继（opi5p
+  从 ml-builder `ssh-ng`/`nix copy` 拉已签名路径）作为临时绕过。
+- **不要直接清 attic 库**（文档铁律），若仍遇“已缓存但下载失败”，
+  先核 chunk DB 记录 vs vaults3 对象内容，而非盲删。
