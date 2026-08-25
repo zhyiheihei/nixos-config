@@ -90,8 +90,7 @@
     "tls://yg-sin.magicum.net:23900"
   ],
   "south-africa": [
-    "tls://r1.worcester.yggdrasil.novasredes.network:2001",
-    "tls://r2.worcester.yggdrasil.novasredes.network:2001"
+    "tls://r1.worcester.yggdrasil.novasredes.network:2001"
   ],
   "spain": [
     "tls://spain.magicum.net:36901"
