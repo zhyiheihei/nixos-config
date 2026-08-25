@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 21:15
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 22:30
 
 ## 主机基本信息
 
@@ -1086,16 +1086,64 @@ loaded qcom/a660_gmu.bin from new location
 systemctl --failed: 0
 ```
 
-GPU/display 完全工作。音频链路大幅前进但未通：wcd938x codec bound、
-ADSP 服务加载（Radxa 专属固件 qcom/sc8280xp/radxa/dragon-q8b/qcadsp8280.mbn），
-卡在 `qcom-apm ASoC error (-2): snd_soc_component_probe()` →
-`snd-sc8280xp failed with error -2`。后续线索：linux-firmware 里有
-`SC8280XP-LENOVO-X13S-tplg.bin`（audioreach 拓扑），vendor 内核是否需要
-待查；或者参考 Radxa 官方系统的音频配置。
+GPU/display 完全工作。音频见下一节。
+
+## 音频根因：缺 audioreach 拓扑文件（2026-08-25 22:30）— 已解决
+
+### 根因链
+
+1. `snd-sc8280xp` 卡初始化时 qcom-apm 请求拓扑文件
+2. 文件名由驱动拼出：`qcom/<driver_name>/<card_name>-tplg.bin`，即
+   `qcom/sc8280xp/SC8280XP-Radxa-Dragon-Q8B-tplg.bin`（见 vendor 内核
+   `sound/soc/qcom/qdsp6/topology.c` 的 `audioreach_tplg_init`）
+3. 这个文件 radxa-pkg/radxa-firmware（含最新 tag 0.2.41）和上游
+   linux-firmware 都**没有**——只在官方 Ubuntu 镜像 rootfs 里
+
+### 获取方式
+
+用户本地有官方镜像 `radxa-dragon-midstream_noble_gnome_r5.output_512.img`，
+scp 到 dragon-q8b 后 loop 挂载，从
+`lib/firmware/qcom/sc8280xp/radxa/dragon-q8b/` 提取（28KB，md5
+`c742f1c038203f974b1ec42321eea6b8`），放入仓库
+`nixos/hardware/dragon-q8b/firmware/`，在 radxaFirmware 里 cp 到两个
+路径（内核只找 `qcom/sc8280xp/` 顶层，官方镜像两处都有）。
+
+UCM 配置（Radxa-Dragon-Q8B.conf / Dragon-Q8B-HiFi.conf 等）也一并从官方
+镜像提取留档在 `firmware/ucm2/`。服务器无 PipeWire 未集成；将来要出声
+需 override alsa-ucm-conf（alsa-lib 硬链接该包，注入需重编链）。
+
+### 踩坑记录（Nix 固件打包）
+
+1. **zstd 压缩 hook 断 symlink**：nixpkgs `compress-firmware.nix` 会把
+   .bin 压成 .bin.zst，指向它的相对 symlink 变 broken → 构建检查失败。
+   对策：两个路径各放实文件
+2. **cp 到目录保留 store 全名**：`cp ${./firmware/X} $out/dir/` 的源文件
+   名是 `hash-X`，输出文件名带 hash 前缀，nix 引用扫描把文件名里的
+   hash 当非法引用拒绝。对策：cp 时显式写目标文件名
+
+### 最终验证（2026-08-25 22:20 重启后）
+
+```
+$ cat /proc/asound/cards
+ 0 [SC8280XPRadxaDr]: sc8280xp - SC8280XP-Radxa-Dragon-Q8B
+                      RadxaComputerCo.Ltd.-RadxaDragonQ8B-V1.305-RS782_D8S32W0X110
+$ cat /proc/asound/pcm
+00-00: MultiMedia1 Playback (*) :  : playback 1
+00-01: MultiMedia2 Playback (*) :  : playback 1
+00-02: MultiMedia3 Playback (*) :  : playback 1
+00-03: MultiMedia4 Playback (*) :  : playback 1
+00-04: MultiMedia5 Capture (*) :  : capture 1
+```
+
+残留无害日志：`CMD timeout for [1001021] opcode`（APM 初始化期某命令
+超时，不阻塞）；`din/dout-ports mismatch`（soundwire 端口数警告，一直在）。
+
+注：期间并行会话的 python overlay（58-frigate-hass + 51-python-downgrade
+交互）曾阻塞全仓求值数小时，还原后恢复，与硬件任务无关。
 
 ### UEFI 第三方 OS 兼容选项（用户问过，备忘）
 
-当前 BIOS 四个兼容方案都「启用」，但系统能启动且 GPU 正常：
+当前 BIOS 四个兼容方案都「启用」，但系统能启动且 GPU/音频正常：
 
 - 忽略 CLK/PD：等效于 kernelParams 里的 clk_ignore_unused/pd_ignore_unused，
   已有参数覆盖，BIOS 开关无所谓
@@ -1110,13 +1158,19 @@ ADSP 服务加载（Radxa 专属固件 qcom/sc8280xp/radxa/dragon-q8b/qcadsp8280
 
 - 内核：Radxa 官方 7.0.11（radxa_qcom_7_0_defconfig），DRM_MSM=m
 - GPU/display：✅ msm 1.13.0，DP-1/DP-2/HDMI-A-1 + renderD128
-- 固件：Radxa 官方 SC8280XP（ADSP/CDSP/VPU running）+ a660 SQE/GMU 进 initrd
+- Audio：✅ 声卡 SC8280XPRadxaDr，4 playback + 1 capture PCM
+- 固件：Radxa 官方 SC8280XP（ADSP/CDSP/VPU running）+ a660 SQE/GMU
+  进 initrd + Q8B audioreach tplg（从官方镜像提取）
 - 网络：TC956x 2.5GbE 192.168.0.66
 - 存储：NVMe Samsung 238G
 - nginx：active；sops：解密成功；zerotier：LTNET 连通
 - rmtfs：已移除（无 modem 无必要）
 - 失败服务：零
-- 音频：❌ qcom-apm probe -2（open item，见上）
+
+## bring-up 完成总结
+
+所有硬件目标达成：网络/存储/GPU/display/音频/DSP 全部工作，零失败服务。
+剩余可选优化：接显示器验证 DP 输出、PipeWire+UCM 出声（需用户态集成）。
 
 ### 串口通信方法（mac 本机）
 
