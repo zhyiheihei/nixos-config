@@ -67,16 +67,16 @@ in
     CONFIG_EFIVAR_FS=y
   '';
   config = {
-    MODULES = "y";
-    BTRFS_FS = "y";
-    EFIVAR_FS = "y";
-    DRM_MSM = "y";
-    MPTCP = "y";
-    MPTCP_IPV6 = "y";
-    STMMAC_ETH = "m";
-    BLK_DEV_NVME = "y";
-    MMC_SDHCI_MSM = "y";
-    QCA808X_PHY = "y";
+    CONFIG_MODULES = "y";
+    CONFIG_BTRFS_FS = "y";
+    CONFIG_EFIVAR_FS = "y";
+    CONFIG_DRM_MSM = "y";
+    CONFIG_MPTCP = "y";
+    CONFIG_MPTCP_IPV6 = "y";
+    CONFIG_STMMAC_ETH = "m";
+    CONFIG_BLK_DEV_NVME = "y";
+    CONFIG_MMC_SDHCI_MSM = "y";
+    CONFIG_QCA808X_PHY = "y";
   };
   kernelPatches = [ ];
   features = {
