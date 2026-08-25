@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 20:15
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 21:15
 
 ## 主机基本信息
 
@@ -1047,18 +1047,76 @@ GPU DPU 绑定失败和 Audio 问题是**关联的**：
 2. **检查 UEFI 设置** — Third-party OS Compatibility / Device Tree Settings
 3. **接受当前状态** — 服务器角色不需要 GPU/display/audio，核心功能全部正常
 
+## GPU 根因：nomodeset（2026-08-25 21:15）— 已解决
+
+上一节的推测全部作废。真正根因是 **server 角色统一加的 `nomodeset`**：
+
+- `nixos/server-components/boot-params.nix` 给所有 server 加 nofb/nomodeset/vga=normal
+- `nomodeset` 让 DRM 驱动直接拒绝 probe → msm 从未加载成功
+- 之前所有「adev bind failed -19」「DP0 codec dai not found」都是它的连锁反应
+- X13s（client 角色）、Radxa 官方系统都没这参数，所以正常
+
+### 修复过程中的两次失败（教训）
+
+1. **mkForce 重建 kernelParams**：把模块级合并参数（root=fstab、nohibernate、
+   lsm、vt.default_*、nowatchdog 等）全部顶掉 → gpt-auto-root 超时进 emergency，
+   无法启动，用户从 systemd-boot 菜单回退旧代才救回。kernelParams 全集很多，
+   手工重列必碎。
+2. **正确做法：`disabledModules`**：主机级禁用 boot-params.nix。该模块其余
+   功能（grub memtest86/netboot.xyz）是 x86 专用空操作，aarch64 上禁了没损失。
+   模块级参数不再受影响。
+
+### 同时修复
+
+- **移除 rmtfs 服务**：DTB 无 rmtfs-mem 节点、/dev/qcom_rmtfs_mem1 不存在、
+  此板无 modem（只有 adsp/cdsp remoteproc），rmtfs 无服务对象。之前
+  journalctl 里 rmtfs 从未成功过（早期记录「rmtfs ✅ active」是误判）。
+- **initrd 补 Adreno 固件**：a660_sqe.fw.zst、a660_gmu.bin.zst（linux-firmware
+  里有但没进 initrd，msm 在 initrd 阶段 probe 就要加载）。
+
+### 验证结果（2026-08-25 21:00 重启后）
+
+```
+msm_dpu ae01000: bound ae90000/ae98000/ae9a000 displayport-controller
+adreno 3d00000.gpu: bound (ops a3xx_ops)
+[drm] Initialized msm 1.13.0 for ae01000.display-controller on minor 1
+loaded qcom/a660_sqe.fw from new location
+loaded qcom/a660_gmu.bin from new location
+/sys/class/drm/: card1-DP-1  card1-DP-2  card1-HDMI-A-1  renderD128
+systemctl --failed: 0
+```
+
+GPU/display 完全工作。音频链路大幅前进但未通：wcd938x codec bound、
+ADSP 服务加载（Radxa 专属固件 qcom/sc8280xp/radxa/dragon-q8b/qcadsp8280.mbn），
+卡在 `qcom-apm ASoC error (-2): snd_soc_component_probe()` →
+`snd-sc8280xp failed with error -2`。后续线索：linux-firmware 里有
+`SC8280XP-LENOVO-X13S-tplg.bin`（audioreach 拓扑），vendor 内核是否需要
+待查；或者参考 Radxa 官方系统的音频配置。
+
+### UEFI 第三方 OS 兼容选项（用户问过，备忘）
+
+当前 BIOS 四个兼容方案都「启用」，但系统能启动且 GPU 正常：
+
+- 忽略 CLK/PD：等效于 kernelParams 里的 clk_ignore_unused/pd_ignore_unused，
+  已有参数覆盖，BIOS 开关无所谓
+- simple-bridge/gpio-shared 兼容：vendor 内核有 DRM_SIMPLE_BRIDGE=y、
+  GPIO_SHARED_PROXY=y，按 Radxa 提示「用受支持系统时不建议启用」可关，
+  但当前开着也没出问题，不动
+- 强制较小 PCIe BAR：NVMe 正常，不动
+
+结论：BIOS 维持现状，不动。
+
 ### 最终系统状态
 
 - 内核：Radxa 官方 7.0.11（radxa_qcom_7_0_defconfig），DRM_MSM=m
-- 固件：Radxa 官方 SC8280XP 固件（ADSP/CDSP/VPU running）
+- GPU/display：✅ msm 1.13.0，DP-1/DP-2/HDMI-A-1 + renderD128
+- 固件：Radxa 官方 SC8280XP（ADSP/CDSP/VPU running）+ a660 SQE/GMU 进 initrd
 - 网络：TC956x 2.5GbE 192.168.0.66
 - 存储：NVMe Samsung 238G
-- nginx：active（MPTCP_IPV6=y）
-- sops：secrets 解密成功
-- zerotier：已授权，LTNET 连通
-- rmtfs：active
+- nginx：active；sops：解密成功；zerotier：LTNET 连通
+- rmtfs：已移除（无 modem 无必要）
 - 失败服务：零
-- GPU/display/audio：不工作（需 mainline 内核或 UEFI 调试）
+- 音频：❌ qcom-apm probe -2（open item，见上）
 
 ### 串口通信方法（mac 本机）
 
