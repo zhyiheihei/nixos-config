@@ -44,7 +44,7 @@
     device = "/dev/disk/by-uuid/66493006-e89d-41dc-800f-9c437b92474a";
     fsType = "btrfs";
     options = [
-      "subvol=home"
+      "subvol=persistent/home"
       "compress-force=zstd"
       "autodefrag"
       "nosuid"

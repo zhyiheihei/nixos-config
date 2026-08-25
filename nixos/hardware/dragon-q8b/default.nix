@@ -19,12 +19,26 @@ in
   nixpkgs.hostPlatform = lib.mkDefault "aarch64-linux";
 
   boot = {
-    initrd.availableKernelModules = lib.mkForce [ ];
-    initrd.kernelModules = lib.mkForce [ ];
+    # btrfs is CONFIG_BTRFS_FS=m (module), not built-in — without it in
+    # initrd, blkid cannot read btrfs superblocks and by-uuid devices never
+    # appear, causing root mount timeout.
+    #
+    # TC956x 2.5GbE + r8152 USB NIC are also modules (=m); they load via
+    # auxiliary/PCI/USB bus auto-matching but only if present in initrd.
+    initrd.availableKernelModules = lib.mkForce [
+      "btrfs"
+      "dwmac_tc956x"
+      "gpio_tc956x"
+      "r8152"
+    ];
+    initrd.kernelModules = lib.mkForce [
+      "btrfs"
+      "dwmac_tc956x"
+      "gpio_tc956x"
+      "r8152"
+    ];
     # This force replaces the repository-wide module list, so retain the
-    # modules required by the standard server role.  The SC8280XP board DTB is
-    # passed by the UEFI firmware and the TC956x 2.5GbE pairs load from the
-    # auxiliary bus automatically, so no board-specific driver is listed here.
+    # modules required by the standard server role.
     kernelModules = lib.mkForce [
       "tls"
       "wireguard"
