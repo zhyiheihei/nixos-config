@@ -1,6 +1,6 @@
 # dragon-q8b NixOS 适配进度文档
 
-> 本文档用于会话崩溃后快速接手。最后更新：2026-08-24 22:25
+> 本文档用于会话崩溃后快速接手。最后更新：2026-08-25 11:05
 
 ## 主机基本信息
 
@@ -606,5 +606,98 @@ clk_ignore_unused pd_ignore_unused console=ttyMSM0.115200n8 earlycon
   让 opi5p 成功从 attic 拉到完整闭包。
 - 优先解决 opi5p 8443 监听（上述待办），或考虑 ml-builder 中继（opi5p
   从 ml-builder `ssh-ng`/`nix copy` 拉已签名路径）作为临时绕过。
-- **不要直接清 attic 库**（文档铁律），若仍遇“已缓存但下载失败”，
+- **不要直接清 attic 库**（文档铁律），若仍遇"已缓存但下载失败"，
   先核 chunk DB 记录 vs vaults3 对象内容，而非盲删。
+
+## SD 卡安装（2026-08-25 第二次，本次会话）
+
+> 闭包齐全（attic 上 dhjirsw closure 完整可用，opi5p 8443 监听已生效），
+> SD 卡 UUID 匹配 hardware-configuration（上次分区沿用），直接开工。
+
+### 安装流程
+
+1. **opi5p 从 attic 拉取完整闭包**：`nix copy --from https://attic.zhyi.xin/lantian
+   --no-check-sigs /nix/store/dhjirswvnzqsyax45cgc35lbk6drv93r-nixos-system-dragon-q8b-26.11pre-git`，
+   全部 918 依赖拉取成功（内核 modules、initrd、toplevel 等）。
+2. **构建 nixos-install-tools（aarch64 原生）**：`nix build nixpkgs#nixos-install-tools`
+   → `bg139k1nijb4j1zwmipah6qhhf9q8apc-nixos-install-tools-26.11pre-git`。
+3. **OOM 处置**：第一次 nixos-install 被 OOM kill（opi5p 15G 内存仅剩 614M，
+   load 28，systemd-journald 反复被 OOM kill）。临时停掉 resilio/clamav/
+   tachidesk/peerbanhelper/immich/redis-immich/bitmagnet×3/frigate 共 10 个
+   服务，释放约 4G 内存（可用 1.4G→5.5G）。安装完后恢复。
+4. **bootloader 挂载坑**：nixos-install 只挂 neededForBoot=true 的文件系统
+   （/nix、/nix/persistent），不挂 /boot（neededForBoot 默认 false），导致
+   systemd-boot 报 `efiSysMountPoint = '/boot' is not a mounted partition`。
+   解决：手动挂载所有文件系统到 /mnt/q8b（含 /boot），再重跑 nixos-install，
+   bootloader 安装成功。
+5. **安装成功**：systemd-boot 装到 `/boot/EFI/BOOT/BOOTAA64.EFI`，
+   bootloader entry 含 `console=ttyMSM0,115200n8 earlycon` 参数，
+   kernel(vmlinuz.efi 15MB)+initrd(24MB) 复制到 EFI 分区，profile 建立。
+
+### 安装结果
+
+- closure：`dhjirswvnzqsyax45cgc35lbk6drv93r-nixos-system-dragon-q8b-26.11pre-git`
+- bootloader entry：`nixos-e3d658e7...conf`，options 含 console 参数
+- kernel：`86jz1hw83...-k-aarch64-unknown-linux-gnu`（vmlinuz.efi）
+- initrd：`r7dhj347...-initrd-k-aarch64-unknown-linux-gnu`
+- dtbs：含 `sc8280xp-radxa-dragon-q8b.dtb` + `-el2.dtb`（UEFI 自带 DTB 传递，entry 不含 devicetree 参数）
+- SD 卡挂载已全部卸载，opi5p 服务已恢复
+
+### ⚠️ 已知 bug：hardware-configuration.nix home subvol 路径错误
+
+`hosts/dragon-q8b/hardware-configuration.nix` 中 `/nix/persistent/home` 的
+btrfs 选项写的是 `subvol=home`，但实际 btrfs subvol 路径是
+`persistent/home`（nested under persistent subvol，top level 257）。
+`subvol=home` 挂载失败（`fsconfig() failed: 没有那个文件或目录`）。
+应改为 `subvol=persistent/home`。该 subvol 不是 neededForBoot，不影响
+安装和启动，但系统启动后 /nix/persistent/home 会挂载失败。需后续修正
++重建 closure。
+
+### 待办（新会话接手点）
+
+1. **用户操作**：把 SD 卡从 opi5p 拔出，插到 dragon-q8b，接串口
+   （mac: `/dev/cu.usbmodem57920206431`，115200 8N1），启动抓日志。
+   这次有 console 参数，应该能看到内核启动输出。
+2. **串口日志重点**：确认内核真正启动、网卡驱动模块
+   （stmmac/tc956x/r8152）是否加载、报什么错。
+3. **网卡驱动未加载**：改 `nixos/hardware/dragon-q8b/default.nix` 的
+   `kernelModules`/`initrd.availableKernelModules` 加入网卡驱动模块，重建。
+4. **UEFI DTB 设置**：检查 BIOS 的 Device Tree Settings / Third-party OS
+   Compatibility 是否需要调整（UEFI 传递 DTB 的方式可能影响网卡初始化）。
+5. **home subvol bug**：修正 `subvol=home` → `subvol=persistent/home`，
+   重建 closure + 重传 attic + 重新安装。
+6. **Armbian vendor 内核网卡问题**：若 vendor 内核驱动有问题，换官方
+   `radxa-pkg/linux-qcom` + `radxa_qcom_7_0_defconfig`。
+
+### 安装命令参考（ml-builder SSH 到 opi5p）
+
+```bash
+# 拉取闭包（已执行，闭包在 opi5p store）
+nix copy --from https://attic.zhyi.xin/lantian --no-check-sigs \
+  /nix/store/dhjirswvnzqsyax45cgc35lbk6drv93r-nixos-system-dragon-q8b-26.11pre-git
+
+# 构建 install-tools（已执行）
+nix build nixpkgs#nixos-install-tools --no-link --print-out-paths
+
+# 临时停重型服务（若再装需要）
+systemctl stop resilio.service clamav-daemon.service podman-tachidesk.service \
+  peerbanhelper.service immich-server.service redis-immich.service \
+  bitmagnet-dht.service bitmagnet-http.service bitmagnet-queue.service \
+  podman-frigate.service
+
+# 手动挂载 SD 卡（nixos-install 不挂 /boot）
+mount -t btrfs -o subvol=nix,compress-force=zstd,autodefrag,nosuid,nodev \
+  /dev/mmcblk1p2 /mnt/q8b/nix
+mkdir -p /mnt/q8b/boot && mount -o fmask=0077,dmask=0077 /dev/mmcblk1p1 /mnt/q8b/boot
+mkdir -p /mnt/q8b/nix/persistent && mount -t btrfs -o subvol=persistent,... /dev/mmcblk1p2 /mnt/q8b/nix/persistent
+# home subvol 需先修 hardware-configuration 再挂
+
+# 安装
+nix shell nixpkgs#nixos-install-tools -c nixos-install --root /mnt/q8b \
+  --system /nix/store/dhjirswvnzqsyax45cgc35lbk6drv93r-nixos-system-dragon-q8b-26.11pre-git \
+  --no-root-passwd --no-channel-copy
+
+# 卸载 + 恢复服务
+umount /mnt/q8b/nix/persistent /mnt/q8b/boot /mnt/q8b/nix; rmdir /mnt/q8b
+systemctl start resilio.service ...
+```
