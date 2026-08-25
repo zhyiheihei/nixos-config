@@ -14,13 +14,24 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = lib.mkForce true;
 
-  boot.kernelParams = [
+  # server 角色给所有服务器加 nofb/nomodeset/vga=normal（见
+  # nixos/server-components/boot-params.nix），但 nomodeset 会让 DRM 驱动拒绝
+  # probe（日志表现 adev bind failed -19），GPU/DPU/DisplayPort 音频全部瘫痪。
+  # kernelParams 是追加合并、无法单独移除某项，只能 mkForce 重建完整列表。
+  # 前 7 项复制自 nixos/minimal-components/kernel.nix 的基础参数，上游改动需同步。
+  boot.kernelParams = lib.mkForce [
+    "cgroup_enable=memory"
+    "delayacct"
+    "ibt=off"
+    "log_buf_len=1048576"
+    "rcuupdate.rcu_cpu_stall_suppress=1"
+    "split_lock_detect=off"
+    "swapaccount=1"
     "clk_ignore_unused"
     "pd_ignore_unused"
     "console=ttyMSM0,115200n8"
     "earlycon"
-    # GPU 驱动（内建=y）在启动早期 probe，此时 udev 还没设置 firmware_class.path。
-    # 显式设置让 GPU 驱动能从 initrd 的 /lib/firmware 加载 ZAP shader 固件。
+    # msm 模块在 initrd 阶段加载，显式设置固件搜索路径（覆盖 udev 后期设置）。
     "firmware_class.path=/lib/firmware"
   ];
 
