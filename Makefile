@@ -61,8 +61,6 @@ local: FORCE
 local-reboot: FORCE
 	@nix run .#colmena -- apply --reboot --on $(shell cat /etc/hostname)
 
-# ssh push 部署：colmena 并行 build --keep-result，然后逐台 push closure + activate
-# copy/activate 方式与 deploy-ssh 完全一致
 _deploy-tag: FORCE
 	@nix run .#colmena -- build --on $(TAG) --keep-result --eval-node-limit 5 --parallel 0
 	@for ROOT in .gcroots/node-*; do \
