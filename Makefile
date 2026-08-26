@@ -14,7 +14,9 @@ help: FORCE
 		'make all-all-reboot 部署并重启 @non-local 主机' \
 		'make local          部署并切换当前主机' \
 		'make local-reboot   部署并重启当前主机' \
-		'make deploy-ssh   在本机构建后通过 ssh 推送给目标主机（HOST=xxx）' \
+		'make deploy-ssh HOST=xxx   在本机构建后通过 ssh 推送给目标主机' \
+		'make deploy-ssh-all       遍历所有主机执行 deploy-ssh' \
+		'make deploy-ssh-default   遍历 @default 主机执行 deploy-ssh' \
 		'make clean          在 Hive 主机上运行 nixos-cleanup' \
 		'make update         更新全部 Flake inputs 和 nvfetcher' \
 		'make update-nur     只更新 nur-xddxdd input' \
@@ -50,20 +52,32 @@ build-x86: FORCE
 local: FORCE
 	@nix run .#colmena -- apply --on $(shell cat /etc/hostname)
 
-deploy-ssh: FORCE
-	@HOST=$(HOST); \
-	if [ -z "$$HOST" ]; then echo "Usage: make deploy-ssh HOST=ml-laptop"; exit 1; fi; \
-	echo "Building $$HOST on this machine..."; \
-	RESULT=$$(nix build .#nixosConfigurations.$$HOST.config.system.build.toplevel --no-link --print-out-paths); \
-	echo "Built: $$RESULT"; \
-	echo "Copying closure to $$HOST via ssh..."; \
-	nix copy --to "ssh-ng://$$HOST:2222" $$RESULT; \
-	echo "Activating on $$HOST..."; \
-	ssh -p 2222 $$HOST "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"; \
-	echo "Done."
-
 local-reboot: FORCE
 	@nix run .#colmena -- apply --reboot --on $(shell cat /etc/hostname)
+
+deploy-ssh: FORCE
+	@if [ -z "$(HOST)" ]; then echo "Usage: make deploy-ssh HOST=ml-laptop"; exit 1; fi
+	@for HOST in $(HOST); do \
+		echo "=== $$HOST ==="; \
+		RESULT=$$(nix build .#nixosConfigurations.$$HOST.config.system.build.toplevel --no-link --print-out-paths 2>&1); \
+		if [ $$? -ne 0 ]; then echo "Build failed for $$HOST: $$RESULT"; continue; fi; \
+		echo "Built: $$RESULT"; \
+		echo "Copying closure to $$HOST via ssh..."; \
+		nix copy --to "ssh-ng://$$HOST:2222" $$RESULT; \
+		echo "Activating on $$HOST..."; \
+		ssh -p 2222 $$HOST "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"; \
+		echo "=== $$HOST done ==="; \
+	done
+
+deploy-ssh-all: FORCE
+	@for HOST in $$(ls hosts/); do \
+		$(MAKE) deploy-ssh HOST=$$HOST || true; \
+	done
+
+deploy-ssh-default: FORCE
+	@for HOST in $$(grep -L manualDeploy hosts/*/host.nix | sed 's|hosts/||;s|/host.nix||'); do \
+		$(MAKE) deploy-ssh HOST=$$HOST || true; \
+	done
 
 clean: FORCE
 	@nix run .#colmena -- exec -- nixos-cleanup
