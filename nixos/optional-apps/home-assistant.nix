@@ -31,7 +31,7 @@
     customComponents = [
       pkgs.home-assistant-custom-components.xiaomi_home
       pkgs.dreame-vacuum
-      pkgs.frigate-hass
+      pkgs.home-assistant-custom-components.frigate
     ];
 
     # Frigate 集成依赖的 Web 代理库（camera 实体画面反代）。
