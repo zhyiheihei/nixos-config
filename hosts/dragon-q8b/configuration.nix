@@ -89,6 +89,19 @@
   # 这里启用按接口的实例。
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@eth0.service" ];
 
+  # 容器镜像加速：通过 tencent 上的 hubproxy（hub.tencent.zhyi.xin，走
+  # ZeroTier/LTNET 隧道）拉取 docker.io 镜像，daocloud 作为后备。
+  environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
+    [[registry]]
+    location = "docker.io"
+
+    [[registry.mirror]]
+    location = "hub.tencent.zhyi.xin"
+
+    [[registry.mirror]]
+    location = "docker.m.daocloud.io"
+  '';
+
   # ArchiveBox 绑定 NFS 媒体库，必须在挂载后启动。
   systemd.services.archivebox = {
     after = [ "mnt-storage.mount" ];
