@@ -85,6 +85,10 @@
   };
   networking.networkmanager.enable = lib.mkForce false;
 
+  # NFS 媒体库挂载需要等物理网络就绪。通用策略禁用了全局 wait-online，
+  # 这里启用按接口的实例。
+  systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@eth0.service" ];
+
   # ArchiveBox 绑定 NFS 媒体库，必须在挂载后启动。
   systemd.services.archivebox = {
     after = [ "mnt-storage.mount" ];
