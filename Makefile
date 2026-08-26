@@ -62,6 +62,7 @@ local-reboot: FORCE
 	@nix run .#colmena -- apply --reboot --on $(shell cat /etc/hostname)
 
 # ssh push 部署：colmena 并行 build --keep-result，然后逐台 push closure + activate
+# copy/activate 方式与 deploy-ssh 完全一致
 _deploy-tag: FORCE
 	@nix run .#colmena -- build --on $(TAG) --keep-result --eval-node-limit 5 --parallel 0
 	@for ROOT in .gcroots/node-*; do \
@@ -70,8 +71,8 @@ _deploy-tag: FORCE
 		FULL=$$(grep -m1 'hostname' hosts/$$HOST/host.nix | sed "s/.*\"\(.*\)\".*/\1/"); \
 		RESULT=$$(readlink -f $$ROOT); \
 		echo "=== $$HOST ==="; \
-		nix copy --to "ssh-ng://$$FULL:2222" $$RESULT || { echo "copy failed for $$HOST, skipping"; continue; }; \
-		ssh -p 2222 $$FULL "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch" || echo "activate failed for $$HOST"; \
+		nix copy --to "ssh-ng://$$FULL:2222" $$RESULT; \
+		ssh -p 2222 $$FULL "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"; \
 		echo "=== $$HOST done ==="; \
 	done
 
