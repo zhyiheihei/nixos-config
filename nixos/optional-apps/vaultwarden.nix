@@ -7,32 +7,16 @@
   ...
 }:
 {
-  imports = [ ./mysql.nix ];
-
   sops.secrets.vaultwarden-env.sopsFile = inputs.secrets + "/vaultwarden.yaml";
-
-  services.mysql = {
-    ensureDatabases = [ "vaultwarden" ];
-    ensureUsers = [
-      {
-        name = "vaultwarden";
-        ensurePermissions = {
-          "vaultwarden.*" = "ALL PRIVILEGES";
-        };
-      }
-    ];
-  };
 
   services.vaultwarden = {
     enable = true;
-    dbBackend = "mysql";
+    dbBackend = "sqlite";
     config = {
       SIGNUPS_ALLOWED = false;
       DOMAIN = "https://bitwarden.zhyi.xin";
       ROCKET_ADDRESS = "127.0.0.1";
       ROCKET_PORT = LT.port.Vaultwarden;
-
-      DATABASE_URL = "mysql:///vaultwarden";
 
       USE_SENDMAIL = "true";
       SENDMAIL_COMMAND = lib.getExe pkgs.msmtp;
@@ -53,8 +37,6 @@
   };
 
   systemd.services.vaultwarden = {
-    after = [ "mysql.service" ];
-    requires = [ "mysql.service" ];
     serviceConfig = {
       RestrictAddressFamilies = [
         "AF_UNIX"
