@@ -5,17 +5,22 @@
     publicKey = "lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=";
   };
 
-  # Author's NUR binary cache (xddxdd/nur-packages exposes its attic via
-  # flake `meta`). Keep ours + additionally pull the author's cache for
-  # upstream packages.
+  # Author's NUR binary caches (xddxdd/nur-packages exposes both attic and
+  # cachix via flake `meta`). Keep ours + additionally pull the author's
+  # caches for upstream packages.
   authorAttic = {
     url = inputs.nur-xddxdd.meta.atticUrl;
     publicKey = inputs.nur-xddxdd.meta.atticPublicKey;
+  };
+  authorCachix = {
+    url = inputs.nur-xddxdd.meta.cachixUrl;
+    publicKey = inputs.nur-xddxdd.meta.cachixPublicKey;
   };
 
   substituters = [
     attic.url
     authorAttic.url
+    authorCachix.url
     "https://mirror.sjtu.edu.cn/nix-channels/store"
     "https://mirrors.ustc.edu.cn/nix-channels/store"
     "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
@@ -27,6 +32,7 @@
   trusted-public-keys = [
     attic.publicKey
     authorAttic.publicKey
+    authorCachix.publicKey
     # SJTU / USTC / TUNA mirrors serve cache.nixos.org content, so the
     # official key must be trusted for their substitutes to be accepted.
     "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
