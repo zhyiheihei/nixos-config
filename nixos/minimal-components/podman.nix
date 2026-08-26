@@ -64,5 +64,19 @@
     users.users.zhyi.extraGroups = [ "podman" ];
 
     virtualisation.oci-containers.backend = "podman";
+
+    # CN 区域设备自动配置 Docker Hub 加速源，避免直连不可达。
+    # hub.tencent.zhyi.xin 为自建 hubproxy（LTNET 隧道），
+    # daocloud 兜底。
+    environment.etc."containers/registries.conf.d/99-mirrors.conf".text = lib.mkIf (LT.this.city.country == "CN") ''
+      [[registry]]
+      location = "docker.io"
+
+      [[registry.mirror]]
+      location = "hub.tencent.zhyi.xin"
+
+      [[registry.mirror]]
+      location = "docker.m.daocloud.io"
+    '';
   };
 }

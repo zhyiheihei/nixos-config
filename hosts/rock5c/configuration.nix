@@ -129,23 +129,6 @@ in
 
   boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
 
-  environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
-    # Self-hosted acceleration via hubproxy on tencent (hub.tencent.zhyi.xin,
-    # reached over the ZeroTier/LTNET tunnel). daocloud kept as fallback when
-    # the tunnel is unreachable. Other registries (gcr/quay/k8s) are pulled
-    # explicitly as hub.tencent.zhyi.xin/<registry>/<image>; podman mirrors
-    # cannot express hubproxy's /v2/<registry>/ prefix routing, and GHCR
-    # rejects anonymous pulls from datacenter IPs.
-    [[registry]]
-    location = "docker.io"
-
-    [[registry.mirror]]
-    location = "hub.tencent.zhyi.xin"
-
-    [[registry.mirror]]
-    location = "docker.m.daocloud.io"
-  '';
-
   # BrushFlow/SubtitleAssistant can lose their dynamic page/API routes after a
   # container restart.  Only reload when the route is actually missing, so the
   # health check never causes churn during normal operation.
