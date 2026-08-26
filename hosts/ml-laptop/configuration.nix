@@ -195,7 +195,7 @@
     ];
   };
 
-:  networking.hosts = {
+  networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
   };
 }
