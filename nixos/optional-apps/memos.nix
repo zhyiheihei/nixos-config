@@ -51,7 +51,7 @@
       environment = {
         MEMOS_MODE = "prod";
         MEMOS_PORT = LT.portStr.Memos;
-        MEMOS_INSTANCE_URL = "https://memos.${config.networking.hostName}.zhyi.xin";
+        MEMOS_INSTANCE_URL = "https://memos.zhyi.xin";
         TZ = config.time.timeZone;
       };
     };
@@ -63,18 +63,26 @@
     };
 
     lantian.nginxVhosts = {
-      "memos.${config.networking.hostName}.zhyi.xin" = {
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.Memos}";
+      "memos.zhyi.xin" = {
+        locations = {
+          "/" = {
+            proxyPass = "http://127.0.0.1:${LT.portStr.Memos}";
+          };
         };
-        accessibleBy = "private";
-        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
+
+        sslCertificate = "zerossl-zhyi.xin";
         noIndex.enable = true;
       };
       "memos.localhost" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
-        locations."/".proxyPass = "http://127.0.0.1:${LT.portStr.Memos}";
+
+        locations = {
+          "/" = {
+            proxyPass = "http://127.0.0.1:${LT.portStr.Memos}";
+          };
+        };
+
         accessibleBy = "localhost";
         noIndex.enable = true;
       };

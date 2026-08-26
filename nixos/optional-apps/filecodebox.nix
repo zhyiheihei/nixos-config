@@ -28,16 +28,25 @@
 
     lantian.nginxVhosts = {
       "filebox.zhyi.xin" = {
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.FileCodeBox}";
+        locations = {
+          "/" = {
+            proxyPass = "http://127.0.0.1:${LT.portStr.FileCodeBox}";
+          };
         };
-        sslCertificate = "lets-encrypt-zhyi.xin";
+
+        sslCertificate = "zerossl-zhyi.xin";
         noIndex.enable = true;
       };
       "filebox.localhost" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
-        locations."/".proxyPass = "http://127.0.0.1:${LT.portStr.FileCodeBox}";
+
+        locations = {
+          "/" = {
+            proxyPass = "http://127.0.0.1:${LT.portStr.FileCodeBox}";
+          };
+        };
+
         accessibleBy = "localhost";
         noIndex.enable = true;
       };

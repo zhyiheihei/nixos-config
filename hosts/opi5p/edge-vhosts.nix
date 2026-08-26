@@ -49,7 +49,7 @@ in
       proxyOverrideHost = "$http_host";
       proxyNoTimeout = true;
     };
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 
@@ -68,7 +68,7 @@ in
       proxyWebsockets = true;
       proxyNoTimeout = true;
     };
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 
@@ -80,7 +80,69 @@ in
       proxyOverrideHost = "$http_host";
       proxyWebsockets = true;
     };
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  # Memos / FileCodeBox / Sun Panel 迁到 dragon-q8b（Qualcomm SC8280XP）。
+  # opi5p 保持公网 8443 TLS 前沿，回源 dragon-q8b 内网 443。
+  lantian.nginxVhosts."memos.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+      proxyOverrideHost = "memos.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name memos.zhyi.xin;
+      '';
+    };
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  lantian.nginxVhosts."filebox.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+      proxyOverrideHost = "filebox.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name filebox.zhyi.xin;
+      '';
+    };
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  lantian.nginxVhosts."index.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+      proxyOverrideHost = "index.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name index.zhyi.xin;
+      '';
+    };
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  lantian.nginxVhosts."index-helper.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+      proxyOverrideHost = "index-helper.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name index-helper.zhyi.xin;
+      '';
+    };
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 

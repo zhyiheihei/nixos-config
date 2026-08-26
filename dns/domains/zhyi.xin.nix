@@ -223,6 +223,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "memos";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
       name = "matrix";
       target = "greencloud.zhyi.xin.";
       ttl = "1h";

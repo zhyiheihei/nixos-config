@@ -7,7 +7,9 @@
 {
   imports = [
     ../../nixos/server.nix
+
     ./hardware-configuration.nix
+    ./home-services.nix
   ];
 
   boot.loader.grub.enable = lib.mkForce false;
@@ -52,7 +54,23 @@
   environment.systemPackages = with pkgs; [
     qrtr
     alsa-ucm-conf
+    nfs-utils
   ];
+
+  # NAS 媒体库直接由 NAS 导出，与 opi5p/rock5c 挂同一个 NFS share。
+  boot.supportedFilesystems = [ "nfs" ];
+
+  fileSystems."/mnt/storage" = {
+    device = "192.168.0.40:/nixos";
+    fsType = "nfs";
+    options = [
+      "_netdev"
+      "noatime"
+      "hard"
+      "vers=4.1"
+      "nconnect=16"
+    ];
+  };
 
   systemd.network.networks."10-dragon-q8b-lan" = {
     matchConfig.Name = "eth0";
@@ -66,4 +84,10 @@
     ];
   };
   networking.networkmanager.enable = lib.mkForce false;
+
+  # ArchiveBox 绑定 NFS 媒体库，必须在挂载后启动。
+  systemd.services.archivebox = {
+    after = [ "mnt-storage.mount" ];
+    requires = [ "mnt-storage.mount" ];
+  };
 }

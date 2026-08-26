@@ -25,7 +25,7 @@
         User = "root";
         Group = "root";
         Environment = [ "TZ=${config.time.timeZone}" ];
-        ExecStart = "${pkgs.memos}/bin/memos --addr 127.0.0.1 --port ${LT.portStr.Memos} --data ${config.lantian.memos.storage} --driver sqlite --instance-url https://memos.${config.networking.hostName}.zhyi.xin --log-level info";
+        ExecStart = "${pkgs.memos}/bin/memos --addr 127.0.0.1 --port ${LT.portStr.Memos} --data ${config.lantian.memos.storage} --driver sqlite --instance-url https://memos.zhyi.xin --log-level info";
         Restart = "on-failure";
         RestartSec = "5s";
       };

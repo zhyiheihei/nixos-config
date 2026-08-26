@@ -70,12 +70,15 @@
     };
 
     lantian.nginxVhosts."wallos.${config.networking.hostName}.zhyi.xin" = {
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.Wallos}";
-        proxyNoTimeout = true;
+      locations = {
+        "/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.Wallos}";
+          proxyNoTimeout = true;
+        };
       };
+
       accessibleBy = "private";
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
       noIndex.enable = true;
     };
   };

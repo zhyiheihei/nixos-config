@@ -33,30 +33,48 @@
 
     lantian.nginxVhosts = {
       "index.zhyi.xin" = {
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.SunPanel}";
+        locations = {
+          "/" = {
+            proxyPass = "http://127.0.0.1:${LT.portStr.SunPanel}";
+          };
         };
-        sslCertificate = "lets-encrypt-zhyi.xin";
+
+        sslCertificate = "zerossl-zhyi.xin";
         noIndex.enable = true;
       };
       "index-helper.zhyi.xin" = {
-        locations."/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.SunPanelHelper}";
+        locations = {
+          "/" = {
+            proxyPass = "http://127.0.0.1:${LT.portStr.SunPanelHelper}";
+          };
         };
-        sslCertificate = "lets-encrypt-zhyi.xin";
+
+        sslCertificate = "zerossl-zhyi.xin";
         noIndex.enable = true;
       };
       "sun-panel.localhost" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
-        locations."/".proxyPass = "http://127.0.0.1:${LT.portStr.SunPanel}";
+
+        locations = {
+          "/" = {
+            proxyPass = "http://127.0.0.1:${LT.portStr.SunPanel}";
+          };
+        };
+
         accessibleBy = "localhost";
         noIndex.enable = true;
       };
       "sun-panel-helper.localhost" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
-        locations."/".proxyPass = "http://127.0.0.1:${LT.portStr.SunPanelHelper}";
+
+        locations = {
+          "/" = {
+            proxyPass = "http://127.0.0.1:${LT.portStr.SunPanelHelper}";
+          };
+        };
+
         accessibleBy = "localhost";
         noIndex.enable = true;
       };
