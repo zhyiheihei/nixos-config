@@ -3,9 +3,7 @@
   imports = [
     ../../nixos/optional-apps/archivebox.nix
     ../../nixos/optional-apps/clamav.nix
-    ../../nixos/optional-apps/filecodebox-nix.nix
     ../../nixos/optional-apps/memos-nix.nix
-    ../../nixos/optional-apps/sun-panel-nix.nix
     ../../nixos/optional-apps/wallos.nix
   ];
 
@@ -15,8 +13,6 @@
   # 轻量服务数据放本地持久盘。
   lantian.memos.storage = "/nix/persistent/srv/memos";
   lantian.wallos.storage = "/nix/persistent/srv/wallos";
-  lantian.sunPanel.storage = "/nix/persistent/srv/sun-panel";
-  lantian.filecodebox.storage = "/nix/persistent/srv/filecodebox";
 
   lantian.wallos.enable = true;
 }
