@@ -59,7 +59,7 @@ deploy-ssh: FORCE
 	@if [ -z "$(HOST)" ]; then echo "Usage: make deploy-ssh HOST=ml-laptop"; exit 1; fi
 	@for HOST in $(HOST); do \
 		echo "=== $$HOST ==="; \
-		RESULT=$$(nix build .#nixosConfigurations.$$HOST.config.system.build.toplevel --no-link --print-out-paths 2>&1); \
+		RESULT=$$(nix build .#nixosConfigurations.$$HOST.config.system.build.toplevel --no-link --print-out-paths 2>/dev/null); \
 		if [ $$? -ne 0 ]; then echo "Build failed for $$HOST: $$RESULT"; continue; fi; \
 		echo "Built: $$RESULT"; \
 		echo "Copying closure to $$HOST via ssh..."; \
