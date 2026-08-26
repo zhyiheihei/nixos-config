@@ -30,7 +30,7 @@ in
         else
           "send.ahasend.com";
       port = 587;
-      from = "postmaster@zhyi.xin";
+      from = "postmaster@zhyi.cc";
       user = "EjG9ROGAei";
       passwordeval = "cat ${config.sops.secrets.smtp-pass.path}";
       tls = true;
