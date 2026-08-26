@@ -169,6 +169,17 @@
   # the settings option only accepts atom values.
   services.sunshine.settings.csrf_allowed_origins = "https://192.168.0.55:47990,https://198.18.0.118:47990,https://ml-laptop.zhyi.xin:47990";
 
+  # NVIDIA 是雷电坞外接 eGPU：未连接时 nvidia 内核模块不加载，
+  # nvidia-container-toolkit-cdi-generator（公共模块 hardware/nvidia/prime.nix
+  # 经 hardware.nvidia-container-toolkit.enable 引入）会因 NVML "Driver Not
+  # Loaded" 硬失败，中止 switch-to-configuration，导致 colmena apply 报
+  # "Child process exited with error code: 4"。仅在本机加在位条件：模块已加载
+  # （/proc/driver/nvidia/version 存在 ⇔ eGPU 在位，模块由 udev 按设备加载）
+  # 才运行；否则 unit 为 skipped，不影响激活。eGPU 在位时行为与上游一致。
+  # 热插拔接入后如需立即生成 CDI spec，手动 restart 该 unit 即可。
+  systemd.services.nvidia-container-toolkit-cdi-generator.unitConfig.ConditionPathExists =
+    "/proc/driver/nvidia/version";
+
   # 笔记本解热能力有限：覆盖公共 client-components/tlp.nix 的 AC 策略。
   # 原版 AC 用 performance governor 恒定最高频（负载 0.65 也飙 4.3GHz/70°C）；
   # 这里 AC 改 schedutil 按负载动态调频（轻载自动降频、重载仍可 boost），
