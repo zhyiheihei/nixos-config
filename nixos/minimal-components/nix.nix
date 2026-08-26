@@ -103,10 +103,6 @@ in
       warn-dirty = false;
       netrc-file = config.sops.secrets.nix-netrc.path;
       use-xdg-base-directories = true;
-      # 作者 attic 的签名密钥已轮换但 nur-packages/helpers/meta.nix 的
-      # atticPublicKey 未同步更新，导致 narinfo 签名不被 trusted-public-keys
-      # 信任。关掉签名校验以命中作者 attic 缓存，避免本地重编译大包。
-      require-sigs = false;
 
       # # Determinate Nix specific
       # eval-cores = 0;
