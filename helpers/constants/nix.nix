@@ -19,8 +19,8 @@
 
   substituters = [
     attic.url
-    authorAttic.url
     authorCachix.url
+    authorAttic.url
     "https://mirror.sjtu.edu.cn/nix-channels/store"
     "https://mirrors.ustc.edu.cn/nix-channels/store"
     "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
@@ -31,8 +31,8 @@
   ];
   trusted-public-keys = [
     attic.publicKey
-    authorAttic.publicKey
     authorCachix.publicKey
+    authorAttic.publicKey
     # SJTU / USTC / TUNA mirrors serve cache.nixos.org content, so the
     # official key must be trusted for their substitutes to be accepted.
     "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
