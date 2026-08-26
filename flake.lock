@@ -1602,11 +1602,11 @@
         "treefmt-nix": "treefmt-nix_3"
       },
       "locked": {
-        "lastModified": 1787745480,
-        "narHash": "sha256-wjNuqRKF2QWIr4LdGIFKrYpTVS76pePQgdXioq9doXU=",
+        "lastModified": 1787745933,
+        "narHash": "sha256-Qf4tbt6GPa+h2piiP4fZqzRRUCM2Z9VRSDC51ljYcN0=",
         "owner": "zhyiheihei",
         "repo": "zhyi-packages",
-        "rev": "0bae613cee74c0cee51a25217b6b40cf18902818",
+        "rev": "5d34fec65204303ab58934e88d47054534a91a36",
         "type": "github"
       },
       "original": {
