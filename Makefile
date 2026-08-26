@@ -63,7 +63,7 @@ deploy-ssh: FORCE
 		if [ $$? -ne 0 ]; then echo "Build failed for $$HOST: $$RESULT"; continue; fi; \
 		echo "Built: $$RESULT"; \
 		echo "Copying closure to $$HOST via ssh..."; \
-		nix-store --export $$(nix-store -qR $$RESULT) | ssh -p 2222 $$HOST 'nix-store --import'; \
+		nix copy --to "ssh-ng://$$HOST:2222" --no-check-sigs $$RESULT; \
 		echo "Activating on $$HOST..."; \
 		ssh -p 2222 $$HOST "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"; \
 		echo "=== $$HOST done ==="; \
