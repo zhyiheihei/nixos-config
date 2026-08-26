@@ -198,4 +198,17 @@
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
   };
+
+  # ml-laptop 在国内，Docker Hub 不可达。优先走自家 hubproxy
+  # （hub.tencent.zhyi.xin），daocloud 兜底。
+  environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
+    [[registry]]
+    location = "docker.io"
+
+    [[registry.mirror]]
+    location = "hub.tencent.zhyi.xin"
+
+    [[registry.mirror]]
+    location = "docker.m.daocloud.io"
+  '';
 }
