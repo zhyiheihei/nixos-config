@@ -115,11 +115,6 @@ in
     # Five seconds is too short for GitHub archive redirects from this network,
     # even when the proxy is healthy.
     connect-timeout = lib.mkForce 15;
-    # 作者 attic 签名密钥已轮换但 nur-packages/helpers/meta.nix 的
-    # atticPublicKey 未同步更新，narinfo 签名不被 trusted-public-keys 信任。
-    # 仅在 ml-builder 构建节点关闭签名校验，以命中作者 attic 缓存，
-    # 避免本地重编译 firefox/materialgram 等大包。其他主机不受影响。
-    require-sigs = false;
   };
 
   # Flake lock updates fetch some inputs in the invoking client, while
