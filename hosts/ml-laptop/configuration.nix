@@ -155,6 +155,9 @@
   services.usbmuxd.enable = true;
   systemd.services.usbmuxd.serviceConfig.Restart = "always";
 
+  # 对齐上游 lt-hp-omen：手柄驱动。
+  hardware.xpadneo.enable = true;
+
   boot.loader.grub = {
     efiSupport = true;
     device = "nodev";
