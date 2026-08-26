@@ -142,6 +142,19 @@
     # keep-sorted end
   };
 
+  # 对齐上游 lt-hp-omen：sddm X11 DPI、触摸板手势、waydroid、usbmuxd。
+  # sddm 跑在 X11 上（登录界面），plasma session 走 wayland（kde.nix 默认）。
+  services.displayManager.sddm.settings.X11.ServerArguments = "-dpi 144";
+  services.libinput.touchpad = {
+    accelSpeed = "0.4";
+    clickMethod = "clickfinger";
+    disableWhileTyping = false;
+  };
+
+  virtualisation.waydroid.enable = true;
+  services.usbmuxd.enable = true;
+  systemd.services.usbmuxd.serviceConfig.Restart = "always";
+
   boot.loader.grub = {
     efiSupport = true;
     device = "nodev";
