@@ -177,6 +177,12 @@
   # （/proc/driver/nvidia/version 存在 ⇔ eGPU 在位，模块由 udev 按设备加载）
   # 才运行；否则 unit 为 skipped，不影响激活。eGPU 在位时行为与上游一致。
   # 热插拔接入后如需立即生成 CDI spec，手动 restart 该 unit 即可。
+  # eGPU 雷电授权持久化：固件不记 thunderbolt authorized 状态，重启后
+  # authorized=0，PCIe 隧道不建立、驱动不加载。boltd 用 boot ACL 记住
+  # 已授权设备，重启自动重新授权。首次仍需手动一次：
+  #   boltctl authorize --policy auto bb030000-0070-7c0e-033f-e425de412825
+  services.hardware.bolt.enable = true;
+
   systemd.services.nvidia-container-toolkit-cdi-generator.unitConfig.ConditionPathExists =
     "/proc/driver/nvidia/version";
 
