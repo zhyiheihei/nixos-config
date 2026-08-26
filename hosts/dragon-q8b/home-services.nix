@@ -3,9 +3,9 @@
   imports = [
     ../../nixos/optional-apps/archivebox.nix
     ../../nixos/optional-apps/clamav.nix
-    ../../nixos/optional-apps/filecodebox.nix
+    ../../nixos/optional-apps/filecodebox-nix.nix
     ../../nixos/optional-apps/memos-nix.nix
-    ../../nixos/optional-apps/sun-panel.nix
+    ../../nixos/optional-apps/sun-panel-nix.nix
     ../../nixos/optional-apps/wallos.nix
   ];
 
