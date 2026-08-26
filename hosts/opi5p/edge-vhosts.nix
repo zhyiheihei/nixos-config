@@ -44,11 +44,14 @@ in
   # public TLS front for the 8443 compatibility endpoint (router DNATs
   # 8443 -> opi5p:8443).
   lantian.nginxVhosts."vaults3.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "http://${LT.hosts.router.interconnect.IPv4}:9000";
-      proxyOverrideHost = "$http_host";
-      proxyNoTimeout = true;
+    locations = {
+      "/" = {
+        proxyPass = "http://${LT.hosts.router.interconnect.IPv4}:9000";
+        proxyOverrideHost = "$http_host";
+        proxyNoTimeout = true;
+      };
     };
+
     sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
@@ -62,12 +65,15 @@ in
   # HTTP 8096。mac 不装 nginx（nix-darwin 无 services.nginx/nginxVhosts），
   # opi5p 保持公网 TLS 前沿，回源指 mac。认证为 Jellyfin 自带登录，无 basicAuth。
   lantian.nginxVhosts."jellyfin.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "http://${LT.hosts.macmini.interconnect.IPv4}:8096";
-      proxyOverrideHost = "$http_host";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
+    locations = {
+      "/" = {
+        proxyPass = "http://${LT.hosts.macmini.interconnect.IPv4}:8096";
+        proxyOverrideHost = "$http_host";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+      };
     };
+
     sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
@@ -75,73 +81,106 @@ in
   # QNAP NAS 管理界面，与 opi5p 同网段，直接回源 NAS 自身。
   # 认证与 rock5c 的 qnap.zhyi.xin 一致（无 basicAuth，QNAP 自带登录）。
   lantian.nginxVhosts."qnap.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "http://192.168.0.40:8080";
-      proxyOverrideHost = "$http_host";
-      proxyWebsockets = true;
+    locations = {
+      "/" = {
+        proxyPass = "http://192.168.0.40:8080";
+        proxyOverrideHost = "$http_host";
+        proxyWebsockets = true;
+      };
     };
+
     sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 
-  # Memos / FileCodeBox / Sun Panel 迁到 dragon-q8b（Qualcomm SC8280XP）。
-  # opi5p 保持公网 8443 TLS 前沿，回源 dragon-q8b 内网 443。
+  # Memos / Wallos / FileCodeBox / Sun Panel 迁到 dragon-q8b（Qualcomm
+  # SC8280XP）。opi5p 保持公网 8443 TLS 前沿，回源 dragon-q8b 内网 443。
   lantian.nginxVhosts."memos.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
-      proxyOverrideHost = "memos.zhyi.xin";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-      extraConfig = ''
-        proxy_ssl_server_name on;
-        proxy_ssl_name memos.zhyi.xin;
-      '';
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "memos.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name memos.zhyi.xin;
+        '';
+      };
     };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  lantian.nginxVhosts."wallos.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "wallos.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name wallos.zhyi.xin;
+        '';
+      };
+    };
+
     sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 
   lantian.nginxVhosts."filebox.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
-      proxyOverrideHost = "filebox.zhyi.xin";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-      extraConfig = ''
-        proxy_ssl_server_name on;
-        proxy_ssl_name filebox.zhyi.xin;
-      '';
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "filebox.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name filebox.zhyi.xin;
+        '';
+      };
     };
+
     sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 
   lantian.nginxVhosts."index.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
-      proxyOverrideHost = "index.zhyi.xin";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-      extraConfig = ''
-        proxy_ssl_server_name on;
-        proxy_ssl_name index.zhyi.xin;
-      '';
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "index.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name index.zhyi.xin;
+        '';
+      };
     };
+
     sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 
   lantian.nginxVhosts."index-helper.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
-      proxyOverrideHost = "index-helper.zhyi.xin";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-      extraConfig = ''
-        proxy_ssl_server_name on;
-        proxy_ssl_name index-helper.zhyi.xin;
-      '';
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "index-helper.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name index-helper.zhyi.xin;
+        '';
+      };
     };
+
     sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };

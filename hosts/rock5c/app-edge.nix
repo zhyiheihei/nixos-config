@@ -42,6 +42,10 @@ let
       backend = "memos.zhyi.xin";
       address = dragonAddress;
     };
+    "wallos.zhyi.xin" = {
+      backend = "wallos.zhyi.xin";
+      address = dragonAddress;
+    };
     "index.zhyi.xin" = {
       backend = "index.zhyi.xin";
       address = dragonAddress;
