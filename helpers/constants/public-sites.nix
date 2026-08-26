@@ -49,6 +49,7 @@ _: [
   "login.zhyi.xin"
   "matrix-client.zhyi.xin"
   "matrix-federation.zhyi.xin"
+  "memos.zhyi.xin"
   "n8n.zhyi.xin"
   "nav.zhyi.xin"
   "pb.zhyi.xin"
@@ -57,6 +58,7 @@ _: [
   "rk-jellyfin.zhyi.xin"
   "stats.zhyi.xin"
   "vaults3.zhyi.xin"
+  "wallos.zhyi.xin"
   # keep-sorted end
 
   # Intentionally public without authentication
