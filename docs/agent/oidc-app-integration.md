@@ -75,27 +75,25 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
 - 绑定状态：`zhyi` 已绑定，sub/email 与 Pocket ID 一致；
   Dex 日志确认 `preferred_username=zhyi`、`email=molishanguang@outlook.com`。
 
-## MoviePilot v3 尝试与回退（2026-08-27）
+## MoviePilot v3 迁移与 OIDC 现状（2026-08-27）
 
-- **结论：v3 无官方可用路径，已回退 v2 等待官方支持。** rock5c 一度被
-  （绕过 colmena 的手工操作）切到 moviepilot-v3，因以下问题放弃：
+- **基线：rock5c 已锁定 moviepilot-v3**（`media-apps.nix` 的 mkForce，主模块
+  同步对齐）。当日曾短暂尝试回退 v2，最终决定保持 v3、等官方支持。
 - 域名统一回补：MP 内 `plugin.OidcAuth` 的 `redirect_uri` 从旧域
   `.zhyi.cc` 改为 `.zhyi.xin`（2026-08-20 单一域决策的残留），其余字段
-  （issuer / client_id / secret / claims）核对无误。此修复在回退后继续有效。
+  （issuer / client_id / secret / claims）核对无误。
 - **OidcAuth 无官方 v3 适配**：逐一核对上游三套索引
   （package.json 79 条、package.v2.json 64 条、package.v3.json 22 条），
   仅 package.v2.json 含 `OIDC 认证 0.3.2`。v3 市场适配器声明「V3 临时默认兼容 V2」，
   因此插件可加载，但回调最后一环会因 v2 式数据库调用崩溃：
   `'NoneType' object has no attribute 'execute'`（`User.get(db=None, …)`）。
+- **过渡期登录方式**：OIDC 登录暂不可用；MP 本地账号（zhyi）密码登录不受影响。
 - 曾做本地补丁（`plugins-store/oidcauth/__init__.py` 三处改用 v3
   `UserOper`，备份 `__init__.py.bak-v032`），编译/导入/热重载均通过，
-  但整体仍选择等官方 v3 插件；补丁文件与快照
-  `user.db.pre-v2-rollback` 留在数据卷备查，升级 v3 时可参考。
-- 回退风险预案：若 v3 期间动过 SQLite schema 导致 v2 起不来，回滚
-  `user.db.bak-20260815-0430`；OIDC 绑定可靠
-  `allow_auto_bind_by_username=true` 在首次登录时自动重建。
-- 升级 v3 的触发条件：`package.v3.json` 出现 oidcauth 条目后，把
-  `nixos/optional-apps/moviepilot.nix` 的 image 换回 `-v3` 并部署验证。
+  但按用户决定等官方支持，不作为长期方案；补丁文件与快照
+  `user.db.pre-v2-rollback` 留在数据卷备查，升级 v3 后如需可复用。
+- 升级触发条件：`package.v3.json` 出现 oidcauth 条目（或本地补丁验证通过
+  且用户重新启用）。届时直接使用现有配置即可，redirect_uri 已是新域。
 
 ## 官方用法对照
 

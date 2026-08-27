@@ -30,9 +30,10 @@ in
     };
 
     virtualisation.oci-containers.containers.moviepilot = {
-      # v2 保持：上游市场唯一存在的 OidcAuth（0.3.2）仅适配 v2；等官方
-      # package.v3.json 出现 oidcauth 后再升 v3（2026-08-27 决策）。
-      image = "docker.io/jxxghp/moviepilot-v2:latest";
+      # 与 hosts/rock5c/media-apps.nix 的 mkForce 保持一致：v3 基线。
+      # OidcAuth 官方尚无 v3 适配，OIDC 登录暂不可用（等 package.v3.json
+      # 出现 oidcauth），本地密码登录不受影响；详见 oidc-app-integration.md。
+      image = "docker.io/jxxghp/moviepilot-v3:latest";
       autoStart = true;
       labels."io.containers.autoupdate" = "registry";
       ports = [
