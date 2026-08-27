@@ -71,11 +71,17 @@ let
       wants = [ "network-online.target" ];
       wantedBy = [ "multi-user.target" ];
 
-      # acc-gw 运行期按名字调用这些工具建立分流与探测
+      # acc-gw 运行期按名字调用这些工具建立分流与探测，且会以
+      # system("sh -c …") 方式执行命令批处理、用 ps 做进程探测（上游路由器
+      # 固件有完整 /bin，这里显式补齐）：ExecStartPre 需要 ip（iproute2），
+      # sh 由 bash 提供
       path = [
         pkgs.iptables
         pkgs.ipset
+        pkgs.iproute2
         pkgs.curl
+        pkgs.bash
+        pkgs.procps
       ];
 
       serviceConfig = {
