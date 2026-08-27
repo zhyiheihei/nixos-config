@@ -472,10 +472,12 @@ in
   };
 
   # Tachidesk 迁至 dragon-q8b，opi5p 保持公网 8443 TLS 前沿，回源 dragon-q8b。
-  # basicAuth 在 dragon-q8b 的 nginx 层处理，opi5p 纯透传。
+  # basicAuth 在两层 nginx 上都启用（同一份 htpasswd，客户端只需输入一次），
+  # 满足 nginx-security 策略断言且不改变访问控制语义。
   lantian.nginxVhosts."tachidesk.zhyi.xin" = {
     locations = {
       "/" = {
+        enableBasicAuth = true;
         proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
         proxyOverrideHost = "tachidesk.zhyi.xin";
         proxyWebsockets = true;
