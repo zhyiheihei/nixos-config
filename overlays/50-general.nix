@@ -62,7 +62,10 @@ rec {
     # signature.VerifyFirst rejects a narinfo as soon as the first key with a
     # matching name fails, so our attic and the author's attic (both signing
     # as "lantian") shadow each other and attic-only paths are never served.
-    patches = (old.patches or [ ]) ++ [ ../patches/ncps-verify-any-named-key.patch ];
+    patches = (old.patches or [ ]) ++ [
+      ../patches/ncps-verify-any-named-key.patch
+      ../patches/ncps-tolerate-missing-filesize.patch
+    ];
     # The cache-package tests enable Go ThreadSanitizer, which cannot run
     # under qemu-user aarch64 emulation (unsupported VMA range 47/48).
     doCheck = false;

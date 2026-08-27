@@ -1,0 +1,23 @@
+--- a/pkg/cache/upstream/cache.go
++++ b/pkg/cache/upstream/cache.go
+@@ -376,14 +376,12 @@
+ 	}
+ 
+ 	if ni.FileSize == 0 {
+-		if ni.Compression != nar.CompressionTypeNone.String() {
+-			// TODO: Realistically this can be determined by looking at the NAR
+-			// when it arrives but ncps is undergoing a lot of changes currently
+-			// and since this is async it breaks a lot of tests.
+-			return nil, fmt.Errorf("%w: FileSize is missing for a compressed NAR", ErrInvalidNarInfo)
+-		}
+-
+-		ni.FileSize = ni.NarSize
++		if ni.Compression == nar.CompressionTypeNone.String() {
++			ni.FileSize = ni.NarSize
++		}
++		// Attic-style caches omit FileSize for compressed NARs; nix clients
++		// accept such narinfos. The real compressed size is recorded after the
++		// first NAR download (see storeNarFile), so do not reject the entry.
+ 	}
+ 
+ 	return ni, nil
