@@ -218,14 +218,17 @@
   # 打入 D3cold；Turing 卡经雷电线唤醒失败会直接打死 GSP 固件 RPC——表现为
   # nvidia-smi 枚举不到设备（Sunshine 因此回落 Intel 核显 VAAPI 导致串流
   # 卡顿）、NVRM 反复 assert，甚至关机都被 D3cold→D0 失败卡死。见 2026-08-27
-  # 排障记录。两行都做同一件事（关运行时休眠）：finegrained 关掉 NixOS 的
-  # 参数+udev 规则，modprobe 参数兜底防上游变更。代价是 eGPU 不再自动省电。
-  # 注意：本机用 open 内核模块（prime.nix），GSP 是强制的，无法走
-  # NVreg_EnableGpuFirmware=0 这条 Turing 关 GSP 的替代方案。
+  # 排障记录。故 finegrained 必须关：作者桌面卡（PCIe 直连、无雷电唤醒
+  # 问题）可以用它，本机雷电坞不行。代价是 eGPU 不再自动省电；待闭源
+  # 驱动跑稳后，如需找回深度省电可单独实验改回 true（届时观察是否复现）。
+  #
+  # 驱动切换为闭源内核模块，与上游 lt-hp-omen 的主机级覆盖完全一致（作者
+  # 在 omen 上同样对 Turing 卡强制 open=false）：Turing 代际官方推荐闭源，
+  # 且电源管理走传统消息机制，较 open 模块的 GSP 模式在雷电流下更成熟。
+  # 若后续仍出现 GSP 类故障，下一步备选是再加
+  # options nvidia NVreg_EnableGpuFirmware=0 关掉 GSP 固件。
   hardware.nvidia.powerManagement.finegrained = lib.mkForce false;
-  boot.extraModprobeConfig = lib.mkAfter ''
-    options nvidia NVreg_DynamicPowerManagement=0x0
-  '';
+  hardware.nvidia.open = lib.mkForce false;
 
   # 笔记本解热能力有限：覆盖公共 client-components/tlp.nix 的 AC 策略。
   # 原版 AC 用 performance governor 恒定最高频（负载 0.65 也飙 4.3GHz/70°C）；
