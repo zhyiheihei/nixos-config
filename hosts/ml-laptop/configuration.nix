@@ -34,8 +34,11 @@
     # - Sunshine：本机是 Moonlight 远程控制的目标设备，串流服务端必须有。
     # - ncps-client：全仓各主机统一导入的局域网二进制缓存代理（ opi5p NCPS
     #   单一入口），属构建基础设施而非应用；删掉会回退直连公网缓存，显著变慢。
+    # - leigod-accelerator：雷神加速器后台守护（官方无 Linux 桌面版，基于
+    #   SteamDeck 插件二进制移植，模块内注释有全部适配细节）。
     ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/leigod-accelerator.nix
   ];
 
   # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。
@@ -209,6 +212,20 @@
 
   systemd.services.nvidia-container-toolkit-cdi-generator.unitConfig.ConditionPathExists =
     "/proc/driver/nvidia/version";
+
+  # 雷电坞 eGPU（RTX 2080 Ti）稳定性修复，仅本机：
+  # 公共 prime.nix 开了 finegrained（RTD3 运行时休眠），eGPU 空闲几秒即被
+  # 打入 D3cold；Turing 卡经雷电线唤醒失败会直接打死 GSP 固件 RPC——表现为
+  # nvidia-smi 枚举不到设备（Sunshine 因此回落 Intel 核显 VAAPI 导致串流
+  # 卡顿）、NVRM 反复 assert，甚至关机都被 D3cold→D0 失败卡死。见 2026-08-27
+  # 排障记录。两行都做同一件事（关运行时休眠）：finegrained 关掉 NixOS 的
+  # 参数+udev 规则，modprobe 参数兜底防上游变更。代价是 eGPU 不再自动省电。
+  # 注意：本机用 open 内核模块（prime.nix），GSP 是强制的，无法走
+  # NVreg_EnableGpuFirmware=0 这条 Turing 关 GSP 的替代方案。
+  hardware.nvidia.powerManagement.finegrained = lib.mkForce false;
+  boot.extraModprobeConfig = lib.mkAfter ''
+    options nvidia NVreg_DynamicPowerManagement=0x0
+  '';
 
   # 笔记本解热能力有限：覆盖公共 client-components/tlp.nix 的 AC 策略。
   # 原版 AC 用 performance governor 恒定最高频（负载 0.65 也飙 4.3GHz/70°C）；

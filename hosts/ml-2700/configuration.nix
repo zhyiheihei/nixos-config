@@ -9,15 +9,21 @@
     ../../nixos/client.nix
 
     ./hardware-configuration.nix
-    ../../nixos/optional-apps/homepage.nix
+
+    # 与上游 lt-dell-wyse 对齐的本机文件；wireplumber 规则中的 PCI 卡路径
+    # 是 wyse 机型的，需换成本机 HDMI 音频卡名后才生效（见该文件内注释）。
+    ./wireplumber-disable-hdmi-audio.nix
+    # ./xvcd.nix
+
+    # 与上游 lt-dell-wyse 逐字对齐的 optional-apps 导入列表（含注释占位）。
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/pipewire-combined-sink-alsa.nix
+    # ../../nixos/optional-apps/pipewire-network-audio-receive.nix
     ../../nixos/optional-apps/pipewire-roc-source.nix
     ../../nixos/optional-apps/pipewire-vban-recv.nix
     ../../nixos/optional-apps/pipewire-volume-control.nix
-    ../../nixos/optional-apps/samba.nix
-    ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/syncthing
+    ../../nixos/optional-apps/sunshine.nix
   ];
 
   # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。
@@ -49,23 +55,6 @@
     };
     schedule = "daily";
     persistentTimer = true;
-  };
-
-  # 与作者 lt-hp-omen 逐字对齐的 home SMB 共享（force user/valid users 改 zhyi）。
-  services.samba.settings = {
-    "zhyi" = {
-      "path" = "/home/zhyi";
-      "browseable" = "yes";
-      "read only" = "no";
-      "guest ok" = "no";
-      "create mask" = "0644";
-      "directory mask" = "0755";
-      "force user" = "zhyi";
-      "force group" = "zhyi";
-      "valid users" = "zhyi";
-      "veto files" = "/._*/.DS_Store/Thumbs.db/";
-      "delete veto files" = "yes";
-    };
   };
 
   # Bind mounts
