@@ -5,7 +5,12 @@
   ...
 }:
 {
-  imports = [ ./immich-rknn-worker.nix ];
+  # 收编基础模块（services.immich 本体、vhost、postgresql 依赖），硬件主机
+  # 只需导入本模块一行。全仓库仅 opi5p 使用，无其他消费者受影响。
+  imports = [
+    ./immich-rknn-worker.nix
+    ./immich.nix
+  ];
 
   # Rockchip RK3588 专用：immich-machine-learning 改用官方 -rknn 容器镜像
   # （https://immich.app/docs/features/ml-hardware-acceleration#rknn）。

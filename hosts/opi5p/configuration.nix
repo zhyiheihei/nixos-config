@@ -6,78 +6,120 @@
   ...
 }:
 let
-  outboundProxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
-  proxyEnvironment = {
-    GOPROXY = "https://goproxy.cn,direct";
-    HTTP_PROXY = outboundProxy;
-    HTTPS_PROXY = outboundProxy;
-    NO_PROXY = proxyBypass;
-    http_proxy = outboundProxy;
-    https_proxy = outboundProxy;
-    no_proxy = proxyBypass;
-  };
+  # 家庭宽带 WAN 443 被运营商封禁，公网 TLS 入口走 8443。nginx 的 vhost
+  # 每 HTTPS 端口只能有一个，这里基于 lantian.nginxVhosts 重新生成
+  # virtualHosts，给每个启用 TLS 的 vhost 追加 8443 监听（仅本主机生效）。
+  publicHttpsPort = 8443;
+  with8443 =
+    v:
+    let
+      cfg = v._config;
+      baseListen = cfg.listen; # lib.mkForce 的 override 包装，取 content
+      existing = baseListen.content or baseListen;
+      hasTLS = lib.any (l: lib.elem "ssl" (l.extraParameters or [ ])) existing;
+    in
+    if hasTLS then
+      cfg // {
+        listen = lib.mkForce (
+          existing ++ [
+            {
+              addr = "0.0.0.0";
+              port = publicHttpsPort;
+              extraParameters = [ "ssl" ];
+            }
+          ]
+        );
+      }
+    else
+      cfg;
 in
 {
   imports = [
     ../../nixos/server.nix
-    ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/frigate-rockchip.nix
-    ../../nixos/hardware/rockchip/accelerator-metrics.nix
 
     ./hardware-configuration.nix
-    ./home-services.nix
-    ./media-automation.nix
-    ./qbittorrent-router.nix
+    ./media-center.nix
+    ./shares.nix
+
+    ../../nixos/client-components/multicast-dns.nix
+
+    ../../nixos/hardware/rockchip/accelerator-metrics.nix
+
+    ../../nixos/optional-apps/asf.nix
+    ../../nixos/optional-apps/calibre-cops.nix
+    ../../nixos/optional-apps/frigate-rockchip.nix
+    ../../nixos/optional-apps/home-assistant.nix
+    ../../nixos/optional-apps/ignis.nix
+    # Immich 单入口：rockchip 层内部已收编基础模块（immich.nix），并关闭
+    # aarch64 上会构建失败的 nix 版 ML、改走 RKNN 推理（本机 rknn worker 又
+    # 在下方 mkForce 关闭，推理现由 rock5c 承担）。
+    ../../nixos/optional-apps/immich-rockchip.nix
+    ../../nixos/optional-apps/ncps.nix
+    ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/resilio-sync.nix
+    ../../nixos/optional-apps/sftp-server.nix
+    ../../nixos/optional-apps/syncthing
+    ../../nixos/optional-apps/webdav.nix
+
+    ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
+    ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
   ];
 
-  # This host is a native aarch64 builder. Registering qemu-arm through
-  # binfmt would intercept reDroid's 32-bit ARM HAL binaries instead of
-  # letting the kernel's native compat layer execute them.
-  lantian.qemu-user-static-binfmt.enable = lib.mkForce false;
+  ########################################
+  # Native builder & NCPS cache egress
+  ########################################
 
   # Fixed-output derivations execute on this native ARM builder. Route their
   # source downloads through the same stable egress as ml-builder instead of
   # relying on intermittent direct GitHub connectivity.
-  environment.variables = proxyEnvironment;
-  systemd.services.nix-daemon.environment = proxyEnvironment;
+  environment.variables = {
+    GOPROXY = "https://goproxy.cn,direct";
+    HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+    http_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    https_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+  };
+  systemd.services.nix-daemon.environment = config.environment.variables;
   # 让 NCPS 缓存写入本地 NVMe 持久盘（不在 NFS-backed /mnt/storage），并路由其
   # 上游下载走与构建一致的稳定出口。
-  systemd.services.ncps.environment = {
-    HTTP_PROXY = outboundProxy;
-    HTTPS_PROXY = outboundProxy;
-    NO_PROXY = proxyBypass;
-    http_proxy = outboundProxy;
-    https_proxy = outboundProxy;
-    no_proxy = proxyBypass;
-  };
+  systemd.services.ncps.environment = lib.getAttrs [
+    "HTTP_PROXY"
+    "HTTPS_PROXY"
+    "NO_PROXY"
+    "http_proxy"
+    "https_proxy"
+    "no_proxy"
+  ] config.environment.variables;
 
-  # 两台乐橙摄像头 NVR（Frigate stable-rk 容器，RKNN NPU 检测）。
-  # 摄像头本地密码在 secrets/frigate.yaml（key: bedroom-pw / livingroom-pw），
-  # rtspUrl 里的 sops 占位符由 sops 模板渲染时替换为真实密码。
-  # 注意：乐橙 App 里需关闭 RTSP 加密（TLS），否则 frigate 拉流失败。
-  lantian.frigate = {
-    enable = true;
-    cameras = {
-      bedroom = {
-        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-bedroom-pw"}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
-        onvifHost = "192.168.0.104";
-        # 猫活动区：卧室画面中央主体区域（归一化 0~1 平铺坐标，相对 detect 帧），
-        # 覆盖约中央 75%；供 HA 猫检测告警的 zone 过滤用，可在 UI 里微调顶点。
-        zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
-      };
-      livingroom = {
-        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-livingroom-pw"}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
-        onvifHost = "192.168.0.115";
-        # 猫活动区（归一化平铺坐标，覆盖约中央 75%），供告警 zone 过滤。
-        zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
-      };
-    };
-  };
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.
   # Match ml-builder so a healthy private cache is not disabled prematurely.
   nix.settings.connect-timeout = lib.mkForce 15;
+
+  # This host is a native aarch64 builder; registering qemu binfmt emulators
+  # is unnecessary and would only intercept native builds with slower paths.
+  lantian.qemu-user-static-binfmt.enable = lib.mkForce false;
+
+  # Keep short-lived compiler objects off the relatively slow eMMC-backed
+  # Btrfs filesystem. Unused memory remains available to the remaining
+  # services, with zram handling temporary pressure.
+  fileSystems."/var/cache/nix" = {
+    device = "tmpfs";
+    fsType = "tmpfs";
+    options = [
+      "mode=0755"
+      "nodev"
+      "nosuid"
+      "size=8G"
+    ];
+  };
+  systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
+
+  ########################################
+  # Networking & NAS storage mount
+  ########################################
 
   # Both onboard NICs use the same RTL8125 driver, so eth0/eth1 follow PCIe
   # probe order and can swap between boots. Match the permanent MAC addresses
@@ -117,32 +159,12 @@ in
   # carrier, so enable systemd's scoped per-interface instance only.
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@lan0.service" ];
 
-  # Keep short-lived compiler objects off the relatively slow eMMC-backed
-  # Btrfs filesystem. The limit is not reserved at boot; unused memory remains
-  # available to reDroid and the kernel, with zram handling temporary pressure.
-  fileSystems."/var/cache/nix" = {
-    device = "tmpfs";
-    fsType = "tmpfs";
-    options = [
-      "mode=0755"
-      "nodev"
-      "nosuid"
-      "size=8G"
-    ];
-  };
-  systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
-
   # Break the boot ordering cycle between yggdrasil (Before=network.target),
   # the NFS mnt-storage mount (After=network.target) and nix-daemon.socket
   # (local-fs.target -> sockets.target). With the cycle, systemd drops
   # nix-daemon.socket at boot and ssh-ng deployment fails until the socket is
   # started manually. Yggdrasil still starts via multi-user.target.
   systemd.services.yggdrasil.unitConfig.Before = lib.mkForce [ ];
-
-  # reDroid is intentionally disabled (2026-08, memory pressure policy; the
-  # RKNN worker moved to ROCK 5C). While it stays off, keep the full zram
-  # capacity available to the remaining services; revisit when reDroid returns.
-  zramSwap.memoryPercent = lib.mkForce 100;
 
   # `boot.supportedFilesystems` loads the kernel client, while nfs-utils
   # supplies mount.nfs.  Keep both host-local: this board reads the NAS
@@ -164,115 +186,42 @@ in
     ];
   };
 
-  # Android's bpfloader requires this to remain writable/enabled. The common
-  # hardening policy sets it to the irreversible value 1, which cannot be
-  # changed back until reboot and makes every official reDroid image shut down.
-  # Keep ADB bound to the LAN address; do not expose this host publicly.
-  boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
+  # 内存紧张的小板：全量 zram 兜底其余服务的临时压力。
+  zramSwap.memoryPercent = lib.mkForce 100;
 
-  # CNflysky's RK3588 image is paired with the Armbian vendor kernel's Mali
-  # CSF/Bifrost driver. Keep the image outside the immutable system closure;
-  # Podman pulls it at runtime and stores Android state on persistent /nix.
-  environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
-    # Self-hosted acceleration via hubproxy on tencent (hub.tencent.zhyi.xin,
-    # reached over the ZeroTier/LTNET tunnel). daocloud kept as fallback when
-    # the tunnel is unreachable.
-    [[registry]]
-    location = "docker.io"
+  ########################################
+  # Frigate NVR（乐橙摄像头 ×2）
+  ########################################
 
-    [[registry.mirror]]
-    location = "hub.tencent.zhyi.xin"
-
-    [[registry.mirror]]
-    location = "docker.m.daocloud.io"
-  '';
-
-  virtualisation.oci-containers.containers.redroid = {
-    # Intentionally disabled (2026-08): reDroid stays off while memory is
-    # shared with the production media/database stack. Re-enable deliberately
-    # by removing this line.
-    autoStart = lib.mkForce false;
-    image = "docker.io/cnflysky/redroid-rk3588:lineage-20";
-    labels."io.containers.autoupdate" = "registry";
-    privileged = true;
-    ports = [ "${LT.this.interconnect.IPv4}:5555:5555" ];
-    volumes = [
-      "/nix/persistent/var/lib/redroid-rk3588-lineage20:/data"
-    ];
-    cmd = [
-      # Define a portrait-native panel, then rotate it below. Android will
-      # still render at 1280x720, but SystemUI uses its landscape side-navbar
-      # layout instead of treating landscape as the natural rotation.
-      "androidboot.redroid_width=720"
-      "androidboot.redroid_height=1280"
-      "androidboot.redroid_fps=60"
-      # CNflysky exposes ADB through the container Ethernet interface. Declare
-      # both settings explicitly instead of relying on image defaults, so a
-      # container/image refresh cannot silently disable network ADB. The host
-      # port remains bound only to the home-LAN address above.
-      "androidboot.redroid_adbd_bind_eth0=1"
-      "ro.adb.secure=0"
-      # reDroid is connected through the container's Ethernet interface.
-      # Some Android applications only start large downloads on Wi-Fi, so use
-      # the image's supported Fake WiFi compatibility layer.
-      "androidboot.redroid_fake_wifi=1"
-      # Enable the Kitsune Magisk integration bundled with this image.
-      "androidboot.redroid_magisk=1"
-      # Match the upstream compose example instead of advertising a TV or
-      # embedded-device product class to applications.
-      "ro.build.characteristics=default"
-    ];
-  };
-
-  systemd.tmpfiles.settings.redroid."/nix/persistent/var/lib/redroid-rk3588-lineage20"."d" = {
-    mode = "0700";
-    user = "root";
-    group = "root";
-  };
-
-  systemd.services.podman-redroid = {
-    # Intentionally disabled together with the redroid container above.
-    enable = lib.mkForce false;
-    wants = [ "network-online.target" ];
-    after = [ "network-online.target" ];
-    environment = {
-      HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-      HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-      NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.xin";
+  # 摄像头本地密码在 secrets/frigate.yaml（key: bedroom-pw / livingroom-pw），
+  # rtspUrl 里的 sops 占位符由 sops 模板渲染时替换为真实密码。
+  # 注意：乐橙 App 里需关闭 RTSP 加密（TLS），否则 frigate 拉流失败。
+  lantian.frigate = {
+    enable = true;
+    cameras = {
+      bedroom = {
+        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-bedroom-pw"}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        onvifHost = "192.168.0.104";
+        # 猫活动区：卧室画面中央主体区域（归一化 0~1 平铺坐标，相对 detect 帧），
+        # 覆盖约中央 75%；供 HA 猫检测告警的 zone 过滤用，可在 UI 里微调顶点。
+        zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
+      };
+      livingroom = {
+        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-livingroom-pw"}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        onvifHost = "192.168.0.115";
+        # 猫活动区（归一化平铺坐标，覆盖约中央 75%），供告警 zone 过滤。
+        zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
+      };
     };
-    preStart = lib.mkBefore ''
-      for attempt in $(${pkgs.coreutils}/bin/seq 1 60); do
-        if ${pkgs.iproute2}/bin/ip -4 address show lan0 \
-          | ${pkgs.gnugrep}/bin/grep -qF "inet ${LT.this.interconnect.IPv4}/24"; then
-          break
-        fi
-        ${pkgs.coreutils}/bin/sleep 1
-      done
-
-      if ! ${pkgs.iproute2}/bin/ip -4 address show lan0 \
-        | ${pkgs.gnugrep}/bin/grep -qF "inet ${LT.this.interconnect.IPv4}/24"; then
-        echo "LAN address ${LT.this.interconnect.IPv4} is unavailable" >&2
-        exit 1
-      fi
-
-      if ! test -c /dev/mali0; then
-        echo "Armbian Mali CSF device /dev/mali0 is unavailable" >&2
-        exit 1
-      fi
-    '';
   };
 
-  # Byparr includes a browser runtime and its first GHCR pull is large.  Keep
-  # the image pull on the same stable egress as the other OPI5P workloads.
-  systemd.services.podman-byparr.environment = proxyEnvironment;
+  ########################################
+  # Immich (Rockchip)
+  ########################################
 
-  # Ignis downloads the Obsidian app from its official source on first run;
-  # keep that traffic on the router SOCKS5 proxy like the other workloads.
-  systemd.services.podman-ignis.environment = proxyEnvironment;
-
-  # Immich transcodes and extracts video thumbnails through ffmpeg. Use the
-  # repo's Rockchip build (rkmpp/RGA) and let the service reach the VPU and
-  # Mali render nodes; the default immich unit hides /dev and pins a plain
+  # Transcodes and extracts video thumbnails through ffmpeg. Use the repo's
+  # Rockchip build (rkmpp/RGA) and let the service reach the VPU and Mali
+  # render nodes; the default immich unit hides /dev and pins a plain
   # jellyfin-ffmpeg without rkmpp.
   systemd.services.immich-server = {
     path = [ pkgs.jellyfin-ffmpeg-rockchip ];
@@ -286,43 +235,227 @@ in
     KERNEL=="cma", MODE="0660", GROUP="video"
   '';
 
-  # OPI5P OOM-killed immich-server once while its 16 GiB was shared with the
-  # RKNN worker, PostgreSQL, qBittorrent and ClamAV. ROCK 5C now owns the
-  # distributed RKNN worker, so keep the NPU load off this node.
+  # OPI5P OOM-killed immich-server once while its 16 GiB was shared with other
+  # heavy services. ROCK 5C owns the distributed RKNN worker, so keep the NPU
+  # load off this node.
   lantian.immichRknnWorker.enable = lib.mkForce false;
 
-  systemd.services.redroid-landscape-navigation = {
-    description = "Configure reDroid display, navigation, and application networking";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "podman-redroid.service" ];
-    requires = [ "podman-redroid.service" ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      Restart = "on-failure";
-      RestartSec = 5;
-    };
-    script = ''
-      for attempt in $(${pkgs.coreutils}/bin/seq 1 90); do
-        if ${pkgs.podman}/bin/podman exec redroid getprop sys.boot_completed \
-          | ${pkgs.gnugrep}/bin/grep -qx 1; then
-          ${pkgs.podman}/bin/podman exec redroid wm size reset
-          ${pkgs.podman}/bin/podman exec redroid wm user-rotation lock 1
-          # The image enables Android's restricted networking mode by default.
-          # It blocks ordinary application UIDs (including TapTap) even while
-          # the container, DNS, and Android's validated default network work.
-          ${pkgs.podman}/bin/podman exec redroid settings put global restricted_networking_mode 0
-          exit 0
-        fi
-        ${pkgs.coreutils}/bin/sleep 2
-      done
+  lantian.immich.storage = "/mnt/storage/immich";
 
-      echo "reDroid did not finish booting within 180 seconds" >&2
-      exit 1
-    '';
+  # Manual import drop folder for the Immich external library. It lives on the
+  # NFS-backed /mnt/storage so both the immich service and zhyi (via SMB/SSH)
+  # can reach it without crossing the immich-only /mnt/storage/immich root.
+  systemd.tmpfiles.settings.immich-import."/mnt/storage/immich-import"."d" = {
+    mode = "0775";
+    user = "immich";
+    group = "users";
   };
 
-  # The SFTP/data chain moved to OPI5P.  ml-home-vm is offline; this host is
-  # both the backup server and a backup client, so point it at itself.
-  lantian.backup.sftpEndpoint = "opi5p.zhyi.xin";
+  ########################################
+  # Home payloads storage locations
+  ########################################
+
+  services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
+
+  # Resilio Sync migrated from the QNAP NAS (2026-08). Identity and config
+  # stay in the local /var/lib/resilio-sync; the synced folders are served
+  # from the NFS share (bind-mounted at /sync and /downloads by the module).
+  lantian.resilioSync = {
+    dataDir = "/mnt/storage/resilio/data";
+    downloadsDir = "/mnt/storage/resilio/downloads";
+  };
+
+  # Ignis vault is the knowledge-chain folder (Syncthing home copy on the
+  # NFS share). Notes was merged into Documents (2026-08-20), so point the
+  # vault at media/Documents; the module default still names media/Notes.
+  lantian.ignis.enable = true;
+  lantian.ignis.vaultDir = "/mnt/storage/media/Documents";
+
+  # Ignis downloads the Obsidian app from its official source on first run;
+  # keep that traffic on the router SOCKS5 proxy like the other workloads.
+  systemd.services.podman-ignis.environment = {
+    HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin";
+  };
+
+  # FlClash MKCOLs /FlClash/ before every WebDAV backup and webdav_client
+  # treats MKCOL 405 as success, so pre-provision the writable target dir.
+  systemd.tmpfiles.settings.flclash."/mnt/storage/FlClash"."d" = {
+    mode = "0775";
+    user = "zhyi";
+    group = "users";
+  };
+
+  # The hourly timer can fire before sops-install-secrets writes the calendar
+  # sync script on a fresh boot; make the run wait for the secret explicitly.
+  systemd.services.radicale-calendar-sync = {
+    after = [ "sops-install-secrets.service" ];
+    requires = [ "sops-install-secrets.service" ];
+  };
+
+  ########################################
+  # Public TLS front (8443) for the home edge
+  ########################################
+
+  # 让 8443 由 nginx 原生监听（router 直通到本机 8443，不再转换到 443）。
+  services.nginx.virtualHosts = lib.mkForce (
+    lib.mapAttrs (_: with8443) config.lantian.nginxVhosts
+  );
+
+  networking.hosts."${LT.this.interconnect.IPv4}" = [
+    "vaults3.zhyi.xin"
+    "jellyfin.zhyi.xin"
+    "qnap.zhyi.xin"
+    "tachidesk.zhyi.xin"
+  ];
+
+  # VaultS3 runs natively on the router (192.168.0.1:9000); opi5p keeps the
+  # public TLS front for the 8443 compatibility endpoint (router DNATs
+  # 8443 -> opi5p:8443).
+  lantian.nginxVhosts."vaults3.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "http://${LT.hosts.router.interconnect.IPv4}:9000";
+        proxyOverrideHost = "$http_host";
+        proxyNoTimeout = true;
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  # 家宽 WAN 443 被运营商封禁，router 把公网 8443 DNAT 直通 opi5p:8443（端口不变）。
+  # 这三个域名解析到 home-ddns（家宽 IP），公网只能经 8443 进入，
+  # 所以 TLS 前沿必须落在 opi5p（而非原本只监听家内 443 的 rock5c）。
+  # 后端沿用各服务现有 HTTP 中转 vhost，不回源公网 DNS，避免环路。
+
+  # Jellyfin 本体迁到 macmini（192.168.0.54，VideoToolbox 硬解），直接监听
+  # HTTP 8096。mac 不装 nginx（nix-darwin 无 services.nginx/nginxVhosts），
+  # opi5p 保持公网 TLS 前沿，回源指 mac。认证为 Jellyfin 自带登录，无 basicAuth。
+  lantian.nginxVhosts."jellyfin.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "http://${LT.hosts.macmini.interconnect.IPv4}:8096";
+        proxyOverrideHost = "$http_host";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  # QNAP NAS 管理界面，与 opi5p 同网段，直接回源 NAS 自身。
+  # 认证与 rock5c 的 qnap.zhyi.xin 一致（无 basicAuth，QNAP 自带登录）。
+  lantian.nginxVhosts."qnap.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "http://192.168.0.40:8080";
+        proxyOverrideHost = "$http_host";
+        proxyWebsockets = true;
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  # Memos / Wallos / FileCodeBox / Sun Panel 迁到 dragon-q8b（Qualcomm
+  # SC8280XP）。opi5p 保持公网 8443 TLS 前沿，回源 dragon-q8b 内网 443。
+  lantian.nginxVhosts."memos.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "memos.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name memos.zhyi.xin;
+        '';
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  lantian.nginxVhosts."wallos.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "wallos.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name wallos.zhyi.xin;
+        '';
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  lantian.nginxVhosts."filebox.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "filebox.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name filebox.zhyi.xin;
+        '';
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  lantian.nginxVhosts."index.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "index.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name index.zhyi.xin;
+        '';
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  lantian.nginxVhosts."index-helper.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "index-helper.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name index-helper.zhyi.xin;
+        '';
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  # Tachidesk 公开 vhost 由 tachidesk.nix（media-center 导入）提供，
+  # 本文件不重复定义，避免 proxyPass 冲突。tachidesk 的私网 HTTP 后端
+  # 转发见 media-center.nix。
 }

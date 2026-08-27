@@ -1,3 +1,7 @@
+# OPI5P 媒体中心。上游 lt-home-vm 的下载链（qBittorrent/sonarr/flexget）
+# 在本仓库演化为：qB 与 *arr 迁往 router/rock5c，由 MoviePilot v3 接管；
+# 本机只保留 bitmagnet / peerbanhelper / tachidesk 的门控与代理出口，
+# 以及为 rock5c 准备的 NFS 库目录。
 {
   config,
   lib,
@@ -7,42 +11,22 @@
 let
   activationMarker = "/nix/persistent/var/lib/media-automation/ready";
   tachideskActivationMarker = "/nix/persistent/var/lib/media-automation/tachidesk-ready";
-  vertexActivationMarker = "/nix/persistent/var/lib/media-automation/vertex-ready";
   mediaGatedServices = [
     "bitmagnet-dht"
     "bitmagnet-http"
     "bitmagnet-queue"
-    "flexget-runner"
-    "iyuuplus"
-    "jproxy"
     "peerbanhelper"
-    "podman-byparr"
-    "qbittorrent"
-    "qbittorrent-pt"
-    "qbittorrent-pt-cleanup"
-    "qbittorrent-seedbox"
   ];
   gatedServices = mediaGatedServices ++ [
     "podman-tachidesk"
-    "podman-vertex"
   ];
-  # flexget-runner and iyuuplus are replaced by MoviePilot (disabled units in
-  # migratedServices below), so their proxy environment would be dead config.
+  # Bitmagnet 对 GitHub/TMDB 类元数据源的直连不稳定，统一走本机声明的
+  # 出站代理；LAN 与项目域名经 NO_PROXY 保持直连。
   proxiedServices = [
     "bitmagnet-dht"
     "bitmagnet-http"
     "bitmagnet-queue"
     "podman-tachidesk"
-    "podman-vertex"
-  ];
-  # These services are replaced by MoviePilot and must not run alongside it.
-  # Units stay defined in their modules for rollback.
-  migratedServices = [
-    "flexget-runner"
-    "iyuuplus"
-    "jproxy"
-    "podman-byparr"
-    "podman-vertex"
   ];
   proxyEnvironment = lib.getAttrs [
     "HTTP_PROXY"
@@ -54,23 +38,17 @@ let
   ] config.environment.variables;
 in
 {
-  imports = [ ./media-download-chain.nix ];
+  imports = [
+    ../../nixos/optional-apps/bitmagnet.nix
+    ../../nixos/optional-apps/peerbanhelper.nix
+    ../../nixos/optional-apps/tachidesk.nix
+  ];
 
-  # The old and new download stacks must never write the same NFS paths at
-  # once.  Deploy all packages, units, users, secrets and databases first, but
-  # keep every writer stopped until the state transfer has completed.
   systemd.services = lib.mkMerge [
-    (lib.genAttrs mediaGatedServices (_: {
+    (lib.genAttrs gatedServices (_: {
       partOf = [ "media-automation.target" ];
       unitConfig.ConditionPathExists = activationMarker;
     }))
-    (lib.genAttrs migratedServices (_: {
-      enable = lib.mkForce false;
-    }))
-    # OPI5P's direct route to GitHub, TMDB and scene-mapping APIs is
-    # intermittent or geo-blocked. Reuse the host's declared outbound proxy
-    # for metadata/indexer traffic while LAN and project domains stay direct
-    # through NO_PROXY. Torrent peer traffic is intentionally unaffected.
     (lib.genAttrs proxiedServices (_: {
       environment = proxyEnvironment;
     }))
@@ -78,43 +56,49 @@ in
     # already live, so a configuration deployment must not start a fresh
     # empty instance before its SQLite database and library are copied.
     {
-      podman-tachidesk = {
-        partOf = [ "media-automation.target" ];
-        unitConfig.ConditionPathExists = tachideskActivationMarker;
-      };
-      podman-vertex = {
-        partOf = [ "media-automation.target" ];
-        unitConfig.ConditionPathExists = vertexActivationMarker;
-      };
-    }
-  ];
-  systemd.timers = lib.mkMerge [
-    (lib.genAttrs [
-      "flexget-runner"
-      "qbittorrent-pt-cleanup"
-    ] (_: {
-      partOf = [ "media-automation.target" ];
-      unitConfig.ConditionPathExists = activationMarker;
-    }))
-    {
-      flexget-runner.enable = lib.mkForce false;
+      podman-tachidesk.unitConfig.ConditionPathExists = tachideskActivationMarker;
     }
   ];
 
   systemd.targets.media-automation = {
-    description = "OPI5P media download and automation stack";
+    description = "OPI5P media automation stack";
     wantedBy = [ "multi-user.target" ];
     unitConfig.ConditionPathExists = activationMarker;
-    wants = map (name: "${name}.service") gatedServices ++ [
-      "flexget-runner.timer"
-      "qbittorrent-pt-cleanup.timer"
-    ];
+    wants = map (name: "${name}.service") gatedServices;
     after = [
       "mnt-storage.mount"
-      "mysql.service"
       "postgresql.service"
     ];
   };
+
+  systemd.tmpfiles.settings."media-storage" = lib.mkMerge [
+    {
+      "/mnt/storage".d = {
+        mode = "755";
+        user = "root";
+        group = "root";
+      };
+      "/mnt/storage/downloads".d = {
+        mode = "755";
+        user = "zhyi";
+        group = "users";
+      };
+    }
+    {
+      # 库目录名沿用已退役的 sonarr/radarr：MoviePilot v3 与 Jellyfin 的媒体库
+      # 扫描仍以这两个路径组织 union（见 rock5c/media-edge.nix），改名断库。
+      "/mnt/storage/media-radarr".d = {
+        mode = "755";
+        user = "zhyi";
+        group = "users";
+      };
+      "/mnt/storage/media-sonarr".d = {
+        mode = "755";
+        user = "zhyi";
+        group = "users";
+      };
+    }
+  ];
 
   systemd.tmpfiles.settings.media-automation = {
     "/nix/persistent/var/lib/media-automation".d = {
