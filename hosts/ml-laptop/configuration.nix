@@ -245,37 +245,36 @@
   hardware.nvidia.powerManagement.finegrained = lib.mkForce false;
   hardware.nvidia.open = lib.mkForce false;
 
-  # 笔记本解热能力有限：覆盖公共 client-components/tlp.nix 的 AC 策略。
-  # 原版 AC 用 performance governor 恒定最高频（负载 0.65 也飙 4.3GHz/70°C）；
-  # 这里 AC 改 schedutil 按负载动态调频（轻载自动降频、重载仍可 boost），
-  # 能效策略 balance_power、平台档 balanced。电池模式仍是 powersave，不变。
-  # services.tlp.settings = {
-  #   CPU_SCALING_GOVERNOR_ON_AC = lib.mkForce "schedutil";
-  #   CPU_ENERGY_PERF_POLICY_ON_AC = lib.mkForce "balance_power";
-  #   PLATFORM_PROFILE_ON_AC = lib.mkForce "balanced";
-  #   RUNTIME_PM_ON_AC = lib.mkForce "on";
-  #   # TLP 的 RUNTIME_PM_ON_AC=auto 不看驱动绑定，会把 eGPU 上未绑 nvidia
-  #   # 驱动的功能（.1 音频 / .2 USB xHCI / .3 UCSI）设成 auto；这些功能一旦
-  #   # 进入 D3cold，同卡的 VGA 功能整体不可访问且唤醒失败（"Unable to change
-  #   # power state from D3cold to D0, device inaccessible"），风扇停转、
-  #   # nvidia-smi 枚举为空。RTD3 关闭只管 .0 绑驱动的功能，管不住 TLP 这条
-  #   # 路径——见 2026-08-27 第二轮排障。故按地址把三条功能排除出运行时休眠
-  #   # （地址随雷电授权固定，重启后不变）。
-  #   PCIE_RUNTIME_PM_DENYLIST =
-  #     "0000:03:01.0 0000:03:02.0 0000:03:04.0 0000:04:00.0 0000:04:00.1 0000:04:00.2 0000:04:00.3";
-  # };
+  # eGPU（RTX 2080 Ti via Thunderbolt 3 Oculink dock）运行时电源管理修复。
+  #
+  # 根因：公共 client-components/tlp.nix 的 RUNTIME_PM_ON_AC=auto 对所有
+  # PCIe 设备启用运行时 PM。eGPU 经雷电 3 链路连接，其附属功能（.2 USB
+  # xHCI、.3 UCSI）进入 D3cold 后无法经雷电线唤醒（dmesg 实测 "Unable to
+  # change power state from D3cold to D0, device inaccessible"），导致整卡
+  # 不可访问、NVRM Xid 154（Node Reboot Required）。hardware.nvidia.
+  # powerManagement.finegrained=mkForce false 只管 .0 VGA 功能的 RTD3，
+  # 管不住 TLP 对 .2/.3 的运行时 PM。上游 lt-hp-omen 的 dGPU 是 PCIe 直连，
+  # D3cold 唤醒无问题，故公共 tlp.nix 不做地址排除。
+  #
+  # 之前修复失败的根因：用了不存在的 TLP 选项名 PCIE_RUNTIME_PM_DENYLIST
+  # 和带 0000: 前缀的地址格式。TLP 1.10.2 的正确选项名是
+  # RUNTIME_PM_DENYLIST，地址格式同 lspci 第一列（不带 domain 前缀）。
+  #
+  # 修复两路：
+  # 1. TLP RUNTIME_PM_DENYLIST：排除 eGPU 全部 4 条功能 + 上游雷电桥
+  #    （03:02.0/03:04.0 已观测到 suspended）。
+  # 2. udev 兜底：强制 power/control=on，防止 nvidia powerManagement 的
+  #    bind udev 规则把 .0 设回 auto。udev KERNEL 用 sysfs 全名（带 0000:）。
+  # PCIe 地址由雷电拓扑决定，dock/USB-C 口不变则固定。
+  services.tlp.settings.RUNTIME_PM_DENYLIST = lib.mkForce
+    "02:00.0 03:01.0 03:02.0 03:04.0 04:00.0 04:00.1 04:00.2 04:00.3";
 
-  # # # udev 兜底：匹配到本卡四条功能即强制 power/control=on，即使未来有其他
-  # # # 守护进程（或 TLP 规则变更）再往 auto 写也能被 add/change 事件纠正。
-  # # # 仅限本机固定的 04:00.x 槽位，不影响其他主机。
-  # # services.udev.extraRules = ''
-  # #   ACTION=="add|change", SUBSYSTEM=="pci", KERNEL=="0000:04:00.[0-3]", TEST=="power/control", ATTR{power/control}="on"
-  # # '';
-  #   ACTION=="add|change", SUBSYSTEM=="pci", KERNEL=="0000:03:0[124].0|0000:04:00.[0-3]", TEST=="power/control", ATTR{power/control}="on"
-  # '';
+  services.udev.extraRules = ''
+    ACTION=="add|change|bind", SUBSYSTEM=="pci", KERNEL=="0000:02:00.0", TEST=="power/control", ATTR{power/control}="on"
+    ACTION=="add|change|bind", SUBSYSTEM=="pci", KERNEL=="0000:03:0[124].0", TEST=="power/control", ATTR{power/control}="on"
+    ACTION=="add|change|bind", SUBSYSTEM=="pci", KERNEL=="0000:04:00.[0-3]", TEST=="power/control", ATTR{power/control}="on"
+  '';
 
-  # boot.extraModprobeConfig = ''
-  #   options snd_hda_intel power_save=0
   # 蓝牙：AX211 蓝牙硬件已识别（hci0），启用 bluetooth 服务让蓝牙可用。
   # 用作者写法 hardware.bluetooth（services.bluetooth 无此选项会导致整机 eval 失败）。
   hardware.bluetooth = {
