@@ -38,6 +38,13 @@
       value = "/run/current-system/sw/share/applications/fcitx5-wayland-launcher.desktop";
     };
 
+    # 关闭全屏应用直通扫描。Wayland 下 KWin 对全屏应用启用 direct scanout
+    # 时，游戏帧直接翻到独立硬件平面；而 Sunshine 的 KMS 捕获只读主平面，
+    # 串流画面于是停留在残留的桌面内容上（本机屏幕看合成结果则正常）。
+    # 强制 KWin 全量合成到主平面后抓取即正确。2026-08-27 于 ml-laptop
+    # 经 Moonlight 实测验证。
+    configFile.kwinrc.Compositing.AllowDirectScanout.value = false;
+
     desktop = {
       icons = {
         alignment = "left";
