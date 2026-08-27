@@ -56,7 +56,7 @@ in
     # already live, so a configuration deployment must not start a fresh
     # empty instance before its SQLite database and library are copied.
     {
-      podman-tachidesk.unitConfig.ConditionPathExists = tachideskActivationMarker;
+      podman-tachidesk.unitConfig.ConditionPathExists = lib.mkForce tachideskActivationMarker;
     }
   ];
 
