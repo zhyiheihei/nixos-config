@@ -23,6 +23,31 @@ let
     n:
     let
       inherit (LT.hosts."${n}") system;
+
+      # 可选的宿主级 CUDA 能力裁剪：hosts/<name>/cuda-capabilities.nix 存在
+      # 时（内容形如 { capabilitiesString = "75"; }），对该宿主注入的包集
+      # 套一层 overrideScope，替换全部 cudaPackages 别名 flags 中的目标架构
+      # 字符串。所有按参数名自动取 cudaPackages 的 CUDA 软件包随之只编译该
+      # 目标。背景见 hosts/ml-laptop/cuda-capabilities.nix 内注释。
+      capFile = ../hosts + "/${n}/cuda-capabilities.nix";
+      capOptions = if builtins.pathExists capFile then import capFile else null;
+      capsPkgs =
+        raw:
+        if capOptions == null then
+          raw
+        else
+          raw.extend (
+            _: prev: rec {
+              cudaPackages_12 = prev.cudaPackages_12.overrideScope (
+                _: cprev: {
+                  flags = cprev.flags // {
+                    cmakeCudaArchitecturesString = capOptions.capabilitiesString;
+                  };
+                }
+              );
+              cudaPackages = prev.recurseIntoAttrs cudaPackages_12;
+            }
+          );
     in
     [
       (_: {
@@ -31,7 +56,7 @@ let
         system.stateVersion = LT.constants.stateVersion;
 
         # Force inherit nixpkgs
-        _module.args.pkgs = lib.mkForce (patchedPkgsFor system (pkgsNameFor n));
+        _module.args.pkgs = lib.mkForce (capsPkgs (patchedPkgsFor system (pkgsNameFor n)));
       })
 
       # keep-sorted start

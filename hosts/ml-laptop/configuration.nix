@@ -2,7 +2,6 @@
   config,
   lib,
   LT,
-  self,
   ...
 }:
 {
@@ -277,38 +276,8 @@
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
   };
 
-  # eGPU 是 RTX 2080 Ti（Turing，compute capability 7.5）。nixpkgs 默认把
-  # CUDA 12.9 的全部目标一起编译，nvcc 的 cicc/ptxas 在处理 fattn-mma-f16
-  # 系列模板实例时确定性 segfault（signal 11，两次构建在同样的文件上以同
-  # 样方式崩溃），llama-cpp 因此构建失败、整机部署被卡住。本机只需要
-  # sm_75：裁掉其余目标即完全避开该路径，同时大幅缩短构建时间。
-  #
-  # 上游本来的开关是 nixpkgs.config.cudaCapabilities = [ "7.5" ]（由
-  # nixpkgs pkgs/development/cuda-modules/backendStdenv/default.nix 消费），
-  # 但本仓库的 pkgs 是 flake 在 NixOS 模块系统之外构造好再经
-  # _module.args.pkgs mkForce 注入的（flake-modules/nixos-configurations.nix），
-  # 宿主配置里的 nixpkgs.config.* 对包集不生效。所以这里对注入的基础包集
-  # 再套一层 overrideScope，替换 cudaPackages 两级别名里的 flags：
-  # 所有按参数名自动取 cudaPackages 的 CUDA 软件包（llama-cpp /
-  # whisper-cpp 等 CMAKE_CUDA_ARCHITECTURES 消费者）无需逐包改动全部命中。
-  # 注意：外层已有一个 mkForce 注入，这里必须用更高优先级覆盖，
-  # 同级再次 mkForce 会因 conflicting definitions 求值失败。
-  _module.args.pkgs =
-    let
-      basePkgs = self.allSystems.${LT.this.system}._module.args.pkgs;
-      capOnlyFlags =
-        _: cprev: {
-          flags = cprev.flags // {
-            cmakeCudaArchitecturesString = "75";
-          };
-        };
-    in
-    lib.mkOverride 900 (
-      basePkgs.extend (
-        _: prev: rec {
-          cudaPackages_12 = prev.cudaPackages_12.overrideScope capOnlyFlags;
-          cudaPackages = prev.recurseIntoAttrs cudaPackages_12;
-        }
-      )
-    );
+  # eGPU 是 RTX 2080 Ti（Turing，compute capability 7.5）。CUDA 目标裁剪
+  # （只编译 sm_75）不在本文件做：本仓库 pkgs 由 flake 在 NixOS 模块系统外
+  # 构造后强制注入，nixpkgs.config.* 对包集不生效，实际开关是同目录的
+  # cuda-capabilities.nix（flake-modules/nixos-configurations.nix 消费）。
 }
