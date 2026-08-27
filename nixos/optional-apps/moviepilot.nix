@@ -30,9 +30,9 @@ in
     };
 
     virtualisation.oci-containers.containers.moviepilot = {
-      # v3 自 2026-08-27 起为本机实际运行版本；OidcAuth 插件的 v3 兼容补丁
-      # 见 docs/agent/oidc-app-integration.md（本地补丁随卷持久化）。
-      image = "docker.io/jxxghp/moviepilot-v3:latest";
+      # v2 保持：上游市场唯一存在的 OidcAuth（0.3.2）仅适配 v2；等官方
+      # package.v3.json 出现 oidcauth 后再升 v3（2026-08-27 决策）。
+      image = "docker.io/jxxghp/moviepilot-v2:latest";
       autoStart = true;
       labels."io.containers.autoupdate" = "registry";
       ports = [
