@@ -1,7 +1,7 @@
 # OPI5P 媒体中心。上游 lt-home-vm 的下载链（qBittorrent/sonarr/flexget）
 # 在本仓库演化为：qB 与 *arr 迁往 router/rock5c，由 MoviePilot v3 接管；
-# 本机只保留 bitmagnet / peerbanhelper / tachidesk 的门控与代理出口，
-# 以及为 rock5c 准备的 NFS 库目录。
+# tachidesk / peerbanhelper 已迁至 dragon-q8b（负载降压），本机只保留
+# bitmagnet 的门控与代理出口，以及为 rock5c 准备的 NFS 库目录。
 {
   config,
   lib,
@@ -10,23 +10,16 @@
 }:
 let
   activationMarker = "/nix/persistent/var/lib/media-automation/ready";
-  tachideskActivationMarker = "/nix/persistent/var/lib/media-automation/tachidesk-ready";
   mediaGatedServices = [
     "bitmagnet-dht"
     "bitmagnet-http"
     "bitmagnet-queue"
-    "peerbanhelper"
   ];
-  gatedServices = mediaGatedServices ++ [
-    "podman-tachidesk"
-  ];
-  # Bitmagnet 对 GitHub/TMDB 类元数据源的直连不稳定，统一走本机声明的
-  # 出站代理；LAN 与项目域名经 NO_PROXY 保持直连。
+  gatedServices = mediaGatedServices;
   proxiedServices = [
     "bitmagnet-dht"
     "bitmagnet-http"
     "bitmagnet-queue"
-    "podman-tachidesk"
   ];
   proxyEnvironment = lib.getAttrs [
     "HTTP_PROXY"
@@ -40,8 +33,6 @@ in
 {
   imports = [
     ../../nixos/optional-apps/bitmagnet.nix
-    ../../nixos/optional-apps/peerbanhelper.nix
-    ../../nixos/optional-apps/tachidesk.nix
   ];
 
   systemd.services = lib.mkMerge [
@@ -52,12 +43,6 @@ in
     (lib.genAttrs proxiedServices (_: {
       environment = proxyEnvironment;
     }))
-    # Tachidesk has its own cutover marker. The rest of the media stack is
-    # already live, so a configuration deployment must not start a fresh
-    # empty instance before its SQLite database and library are copied.
-    {
-      podman-tachidesk.unitConfig.ConditionPathExists = lib.mkForce tachideskActivationMarker;
-    }
   ];
 
   systemd.targets.media-automation = {
@@ -118,17 +103,4 @@ in
     };
   };
 
-  # Public TLS remains on rock5c with the rest of the home edge. Expose a
-  # private HTTP-only backend here so the edge never loops through public DNS.
-  lantian.nginxVhosts."tachidesk-backend.opi5p.zhyi.xin" = {
-    listenHTTP.enable = true;
-    listenHTTPS.enable = false;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.Tachidesk}";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-    };
-    accessibleBy = "private";
-    noIndex.enable = true;
-  };
 }

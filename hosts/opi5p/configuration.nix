@@ -471,7 +471,23 @@ in
     noIndex.enable = true;
   };
 
-  # Tachidesk 公开 vhost 由 tachidesk.nix（media-center 导入）提供，
-  # 本文件不重复定义，避免 proxyPass 冲突。tachidesk 的私网 HTTP 后端
-  # 转发见 media-center.nix。
+  # Tachidesk 迁至 dragon-q8b，opi5p 保持公网 8443 TLS 前沿，回源 dragon-q8b。
+  # basicAuth 在 dragon-q8b 的 nginx 层处理，opi5p 纯透传。
+  lantian.nginxVhosts."tachidesk.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyOverrideHost = "tachidesk.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name tachidesk.zhyi.xin;
+        '';
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
 }

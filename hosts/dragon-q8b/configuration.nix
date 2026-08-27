@@ -10,6 +10,7 @@
 
     ./hardware-configuration.nix
     ./home-services.nix
+    ./media-automation.nix
   ];
 
   boot.loader.grub.enable = lib.mkForce false;
