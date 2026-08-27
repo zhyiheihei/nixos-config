@@ -57,6 +57,7 @@ in
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/resilio-sync.nix
+    ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/webdav.nix
@@ -250,6 +251,21 @@ in
     user = "immich";
     group = "users";
   };
+
+  ########################################
+  # reDroid（停用中）
+  ########################################
+
+  # CNflysky's RK3588 image pairs with the Armbian vendor kernel's Mali
+  # CSF/Bifrost driver (/dev/mali0); Podman pulls at runtime and Android state
+  # persists under /nix/persistent. Intentionally disabled (2026-08, memory
+  # pressure policy; the RKNN worker moved to ROCK 5C): flip
+  # lantian.redroid.enable back to true to re-enable the whole stack
+  # (container, LAN/mali0 preStart gates, landscape navigation).
+  # While enabled on this native aarch64 builder, also keep
+  # lantian.qemu-user-static-binfmt.enable off so reDroid's 32-bit ARM HAL
+  # binaries are never intercepted by qemu emulation.
+  lantian.redroid.enable = lib.mkForce false;
 
   ########################################
   # Home payloads storage locations
