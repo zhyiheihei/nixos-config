@@ -208,7 +208,7 @@
   services.sunshine.settings = {
     encoder = "vaapi";
     capture = "kms";
-    upnp = false;
+    # upnp = false;
   };
 
   # NVIDIA 是雷电坞外接 eGPU：未连接时 nvidia 内核模块不加载，
