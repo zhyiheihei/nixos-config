@@ -65,20 +65,38 @@
 
     virtualisation.oci-containers.backend = "podman";
 
-    # CN 区域设备自动配置 Docker Hub 加速源，避免直连不可达。
-    # hub.tencent.zhyi.xin 为自建 hubproxy（LTNET 隧道），
-    # daocloud 兜底。
+    # CN 区域设备自动配置镜像加速源，避免直连不可达。
+    # hub.tencent.zhyi.xin 为自建 hubproxy（LTNET 隧道），daocloud 兜底。
+    # hubproxy 对 docker.io 用根路径（/v2/library/alpine），对其余上游用
+    # 「上游前缀」路径（/v2/ghcr.io/<repo>），因此非 Docker Hub 的 mirror
+    # location 必须携带上游前缀（hub.tencent.zhyi.xin/ghcr.io 等），
+    # 由容器栈完成路径改写。支持的源经逐个探测确认：ghcr.io / quay.io /
+    # registry.k8s.io / gcr.io 可达；mcr.microsoft.com / lscr.io /
+    # nvcr.io 不支持。
     environment.etc."containers/registries.conf.d/99-mirrors.conf" = lib.mkIf (LT.this.city.country == "CN") {
-      text = ''
-        [[registry]]
-        location = "docker.io"
+      text =
+        ''
+          [[registry]]
+          location = "docker.io"
 
-        [[registry.mirror]]
-        location = "hub.tencent.zhyi.xin"
+          [[registry.mirror]]
+          location = "hub.tencent.zhyi.xin"
 
-        [[registry.mirror]]
-        location = "docker.m.daocloud.io"
-      '';
+          [[registry.mirror]]
+          location = "docker.m.daocloud.io"
+        ''
+        + lib.concatMapStrings (upstream: ''
+          [[registry]]
+          location = "${upstream}"
+
+          [[registry.mirror]]
+          location = "hub.tencent.zhyi.xin/${upstream}"
+        '') [
+          "ghcr.io"
+          "quay.io"
+          "registry.k8s.io"
+          "gcr.io"
+        ];
     };
   };
 }
