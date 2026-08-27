@@ -52,31 +52,30 @@ valid narinfo followed by HTTP 403 for the referenced NAR, which made NCPS
 return HTTP 500 instead of falling back. The same failed store path was
 retested through NCPS and returned HTTP 200 after removal.
 
-### NCPS upstream proxy exception
+### NCPS proxy and mirror health
 
 NCPS on opi5p normally fetches public upstreams through the router SOCKS5
-proxy (`socks5://192.168.0.1:1080`). `mirror.sjtu.edu.cn` is the exception:
-the proxy line intermittently times out with `http2: timeout awaiting
-response headers`, which makes NCPS purge the entry and return HTTP 500 with
-`the narinfo was purged`. The host config therefore adds
-`mirror.sjtu.edu.cn` to NCPS's `NO_PROXY`/`no_proxy` so those requests stay
-on the LAN.
-
-The override lives next to `proxyBypass` in
-[hosts/opi5p/configuration.nix](../../../hosts/opi5p/configuration.nix); always extend the shared bypass list there
+proxy (`socks5://192.168.0.1:1080`). The shared bypass list lives next to
+`proxyBypass` in
+[hosts/opi5p/configuration.nix](../../../hosts/opi5p/configuration.nix); always extend it there
 instead of copying a new `NO_PROXY` value into another host file.
 
-Verify after deploying:
+Two caches were removed from `LT.constants.nix.substituters` because they
+poison ncps's first-positive-wins selection:
 
-```bash
-systemctl show ncps -p Environment
-journalctl -u ncps -f
-curl -sS --noproxy '*' -m 10 -o /dev/null -w '%{http_code}\n' \
-  https://mirror.sjtu.edu.cn/nix-channels/store/nix-cache-info
-```
+- TUNA returned a valid narinfo followed by HTTP 403 for the referenced NAR,
+  which made NCPS return HTTP 500 instead of falling back.
+- SJTU answered HTTP 200 to the HEAD existence probe for paths it does not
+  host while its GET returned 404. Since ncps races all upstreams and picks
+  the first one whose HEAD is < 400 — without retrying others — every path
+  missing from SJTU failed deterministically.
 
-`Environment` must contain `mirror.sjtu.edu.cn` in both `NO_PROXY` values,
-and the curl from opi5p must return `200`.
+A further fix was needed for attic-hosted paths: ncps verified narinfo
+signatures via go-nix's `VerifyFirst`, where the first configured key with a
+matching name decides the verdict. Our attic and the author's attic both sign
+as `lantian`, so whichever key came first shadowed the other and valid paths
+on the losing cache were silently rejected (`overlays/50-general.nix` patches
+ncps to accept any matching-name key that verifies, like nix itself does).
 
 ## China DNS
 

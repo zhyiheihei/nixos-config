@@ -1,0 +1,40 @@
+--- a/pkg/cache/upstream/cache.go
++++ b/pkg/cache/upstream/cache.go
+@@ -369,10 +369,8 @@
+ 		return ni, fmt.Errorf("error while checking the narInfo: %w", err)
+ 	}
+ 
+-	if len(c.publicKeys) > 0 {
+-		if !signature.VerifyFirst(ni.Fingerprint(), ni.Signatures, c.publicKeys) {
+-			return ni, ErrSignatureValidationFailed
+-		}
++	if len(c.publicKeys) > 0 && !verifyNarInfoSignatures(ni.Fingerprint(), ni.Signatures, c.publicKeys) {
++		return ni, ErrSignatureValidationFailed
+ 	}
+ 
+ 	if ni.FileSize == 0 {
+@@ -637,3 +635,24 @@
+ 
+ 	return errors.Is(err, context.DeadlineExceeded) || (errors.As(err, &netErr) && netErr.Timeout())
+ }
++
++// verifyNarInfoSignatures mirrors nix's own trust semantics: a narinfo is
++// trusted when any signature whose key name matches a configured public key
++// verifies against that key. Unlike signature.VerifyFirst, configured keys
++// sharing the same name (e.g. two independent caches that both sign as
++// "lantian") do not shadow each other through list ordering.
++func verifyNarInfoSignatures(
++	fingerprint string,
++	signatures []signature.Signature,
++	publicKeys []signature.PublicKey,
++) bool {
++	for _, sig := range signatures {
++		for _, pubKey := range publicKeys {
++			if pubKey.Name == sig.Name && pubKey.Verify(fingerprint, sig) {
++				return true
++			}
++		}
++	}
++
++	return false
++}

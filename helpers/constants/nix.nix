@@ -17,6 +17,9 @@
     publicKey = inputs.nur-xddxdd.meta.cachixPublicKey;
   };
 
+  # mirror.sjtu.edu.cn is intentionally absent: it answers HEAD probes with
+  # HTTP 200 for store paths it does not have, so ncps selects it as the
+  # winning upstream and fails on download without falling back.
   substituters = [
     attic.url
     authorCachix.url
@@ -32,8 +35,8 @@
     attic.publicKey
     authorCachix.publicKey
     authorAttic.publicKey
-    # SJTU / USTC / TUNA mirrors serve cache.nixos.org content, so the
-    # official key must be trusted for their substitutes to be accepted.
+    # USTC / TUNA mirrors serve cache.nixos.org content, so the official key
+    # must be trusted for their substitutes to be accepted.
     "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
     "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
     "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="

@@ -17,10 +17,6 @@ let
     https_proxy = outboundProxy;
     no_proxy = proxyBypass;
   };
-  # NCPS reaches mirror.sjtu.edu.cn through the router SOCKS5 proxy, and that
-  # line intermittently times out. Keep other upstreams proxied, but let SJTU
-  # requests go direct from the LAN.
-  ncpsProxyBypass = "${proxyBypass},mirror.sjtu.edu.cn";
 in
 {
   imports = [
@@ -50,10 +46,10 @@ in
   systemd.services.ncps.environment = {
     HTTP_PROXY = outboundProxy;
     HTTPS_PROXY = outboundProxy;
-    NO_PROXY = ncpsProxyBypass;
+    NO_PROXY = proxyBypass;
     http_proxy = outboundProxy;
     https_proxy = outboundProxy;
-    no_proxy = ncpsProxyBypass;
+    no_proxy = proxyBypass;
   };
 
   # 两台乐橙摄像头 NVR（Frigate stable-rk 容器，RKNN NPU 检测）。
@@ -147,13 +143,6 @@ in
   # RKNN worker moved to ROCK 5C). While it stays off, keep the full zram
   # capacity available to the remaining services; revisit when reDroid returns.
   zramSwap.memoryPercent = lib.mkForce 100;
-
-  assertions = [
-    {
-      assertion = lib.hasInfix "mirror.sjtu.edu.cn" config.systemd.services.ncps.environment.NO_PROXY;
-      message = "opi5p NCPS must bypass the proxy for mirror.sjtu.edu.cn; update ncpsProxyBypass and docs/human/network/ltnet-home-relay.md together";
-    }
-  ];
 
   # `boot.supportedFilesystems` loads the kernel client, while nfs-utils
   # supplies mount.nfs.  Keep both host-local: this board reads the NAS
