@@ -9,7 +9,6 @@ _: [
   "element.zhyi.xin"
   "gemini.zhyi.xin"
   "google-ssl.zhyi.xin"
-  "google-test-ssl.zhyi.xin"
   "gopher.zhyi.xin"
   "lab.zhyi.xin"
   "letsencrypt-ssl.zhyi.xin"

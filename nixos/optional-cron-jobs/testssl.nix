@@ -9,7 +9,6 @@ let
     "lab.zhyi.xin"
 
     "google-ssl.zhyi.xin"
-    "google-test-ssl.zhyi.xin"
     "letsencrypt-ssl.zhyi.xin"
     "letsencrypt-test-ssl.zhyi.xin"
     "zerossl.zhyi.xin"

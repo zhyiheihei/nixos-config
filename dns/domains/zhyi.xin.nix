@@ -133,12 +133,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "google-test-ssl";
-      target = "greencloud.zhyi.xin.";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "gopher";
       target = "greencloud.zhyi.xin.";
       ttl = "1h";

@@ -97,25 +97,6 @@ in
     };
   };
 
-  mkGoogleTestCert = domain: {
-    "google-test-${domain}-rsa" = {
-      inherit domain;
-      extraLegoFlags = [ "--eab" ];
-      keyType = "rsa4096";
-      server = "https://dv.acme-v02.test-api.pki.goog/directory";
-      validMinDays = 30;
-      renewInterval = rsaRenewInterval;
-    };
-    "google-test-${domain}-ecc" = {
-      inherit domain;
-      extraLegoFlags = [ "--eab" ];
-      keyType = "ec384";
-      server = "https://dv.acme-v02.test-api.pki.goog/directory";
-      validMinDays = 30;
-      renewInterval = eccRenewInterval;
-    };
-  };
-
   mkZeroSSLCert = domain: {
     "zerossl-${domain}-rsa" = {
       inherit domain;

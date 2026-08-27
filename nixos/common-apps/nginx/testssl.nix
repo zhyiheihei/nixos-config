@@ -21,10 +21,6 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
         "google"
       ]
       [
-        "google-test-ssl"
-        "google-test"
-      ]
-      [
         "letsencrypt-ssl"
         "lets-encrypt"
       ]

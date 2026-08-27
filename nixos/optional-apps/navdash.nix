@@ -104,7 +104,6 @@ let
     "fastapi-dls.rock5c.zhyi.xin" = "Python--Python--python.org";
     "filebox.zhyi.xin" = "Filecodebox--文件快递柜--qdnas-s";
     "google-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
-    "google-test-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "hub.tencent.zhyi.xin" = "Docker_A";
     "id.zhyi.xin" = "2Fauth_A";
     "ignis.opi5p.zhyi.xin" = "mcp_obsidian";
@@ -199,7 +198,6 @@ let
       "ca.zhyi.xin" = "存储与证书";
       "vaults3.zhyi.xin" = "存储与证书";
       "google-ssl.zhyi.xin" = "存储与证书";
-      "google-test-ssl.zhyi.xin" = "存储与证书";
       "letsencrypt-ssl.zhyi.xin" = "存储与证书";
       "letsencrypt-test-ssl.zhyi.xin" = "存储与证书";
       "zerossl.zhyi.xin" = "存储与证书";
