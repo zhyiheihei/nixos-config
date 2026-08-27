@@ -2,6 +2,7 @@
   config,
   lib,
   LT,
+  pkgs,
   ...
 }:
 {
@@ -259,6 +260,61 @@
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = false;
+  };
+
+  ########################################
+  # 锁屏 PIN 码认证（主密码之外的便捷通道）
+  ########################################
+
+  # 在 kde（锁屏 greeter）PAM 栈里、kwallet 捕获之后与 pam_unix 之前
+  # 插入 sufficient 的本地 PIN 校验：PIN 命中即直接放行，未命中继续走
+  # 原主密码流程，两种凭据二选一。排序采用模块要求的相对偏移写法，
+  # 避免 NixOS 内置 order 变动导致规则漂移。
+  #
+  # 设置/修改 PIN（部署后在目标机以 root 执行）：set-local-pin
+  # 未设置或哈希文件缺失时本规则恒失败，行为与改动前完全一致。
+  #
+  # 安全边界说明：PIN 以 sha256 形式存于 /var/lib/lantian-local-pin
+  # （root:0600，tmpfiles 创建）；在线爆破受 greeter 的
+  # StartLimitBurst=5/500s 与 kscreenlocker 输入限速约束。请使用
+  # ≥6 位且避免纯生日/重复模式；sudo/login/su 刻意不接入此通道，
+  # 重要操作仍需完整主密码。
+  security.pam.services.kde.rules.auth.local-pin = {
+    order = config.security.pam.services.kde.rules.auth.kwallet.order + 100;
+    control = "sufficient";
+    modulePath = "${pkgs.linux-pam}/lib/security/pam_exec.so";
+    args = [
+      "expose_authtok"
+      (pkgs.writeShellScript "pam-verify-local-pin" ''
+        hash_file="/var/lib/lantian-local-pin/pin.sha256"
+        [ -r "$hash_file" ] || exit 1
+        input=$(head -c 256)
+        [ -n "$input" ] || exit 1
+        calc="$(printf %s "$input" | sha256sum | cut -d" " -f1)" || exit 1
+        printf %s "$calc" | cmp -s - "$(cat "$hash_file")"
+      '')
+    ];
+  };
+
+  # 首次设置 PIN：root 运行 set-local-pin，交互输入两次。
+  environment.systemPackages = [
+    (pkgs.writeShellScriptBin "set-local-pin" ''
+      read -rsp "输入新 PIN（建议≥6位）: " p1; echo
+      read -rsp "再次确认           : " p2; echo
+      if [ -z "$p1" ] || [ "$p1" != "$p2" ]; then
+        echo "为空或两次不一致，已取消"; exit 1
+      fi
+      install -d -m 0700 /var/lib/lantian-local-pin
+      printf %s "$p1" | sha256sum | cut -d" " -f1 > /var/lib/lantian-local-pin/pin.sha256
+      chmod 600 /var/lib/lantian-local-pin/pin.sha256
+      echo "本地 PIN 已更新。锁屏解锁立即可用，无需重启。"
+    '')
+  ];
+
+  systemd.tmpfiles.settings.lantian-local-pin."/var/lib/lantian-local-pin".d = {
+    mode = "0700";
+    user = "root";
+    group = "root";
   };
 
   # 主网络走 NetworkManager（client 默认）。临时有线网卡和 WiFi 均由其接管；
