@@ -11,7 +11,7 @@ let
   );
 in
 {
-  imports = [ (inputs.secrets + "/nixos-hidden-module/50853c2b39dfb34e") ];
+  imports = [ (inputs.secrets + "/nixos-hidden-module/2900643475cbafb7") ];
 
   home.packages = [ pkgs.rtk ];
 
