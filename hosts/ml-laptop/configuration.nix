@@ -9,15 +9,33 @@
     ../../nixos/client.nix
 
     ./hardware-configuration.nix
+
+    # 与上游 lt-hp-omen 逐字对齐的 optional-apps 导入列表（含注释占位）。
+    ../../nixos/optional-apps/audio-cpp.nix
+    ../../nixos/optional-apps/byparr.nix
+    # ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/homepage.nix
-    ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/pipewire-combined-sink-alsa.nix
-    ../../nixos/optional-apps/pipewire-roc-source.nix
-    ../../nixos/optional-apps/pipewire-vban-recv.nix
-    ../../nixos/optional-apps/pipewire-volume-control.nix
+    ../../nixos/optional-apps/libvirt
+    ../../nixos/optional-apps/llama-cpp.nix
+    ../../nixos/optional-apps/netns-tnl-buyvm.nix
+    ../../nixos/optional-apps/nix-distributed.nix
+    ../../nixos/optional-apps/obs-studio.nix
+    ../../nixos/optional-apps/opencl.nix
+    # ../../nixos/optional-apps/pipewire-noise-cancelling.nix
+    ../../nixos/optional-apps/pipewire-roc-sink.nix
+    # ../../nixos/optional-apps/qdrant.nix
     ../../nixos/optional-apps/samba.nix
-    ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/syncthing
+    ../../nixos/optional-apps/virtualbox.nix
+    ../../nixos/optional-apps/vlmcsd.nix
+    ../../nixos/optional-apps/whisper-cpp.nix
+
+    # 本机保留（上游 lt-hp-omen 列表之外的必要项）：
+    # - Sunshine：本机是 Moonlight 远程控制的目标设备，串流服务端必须有。
+    # - ncps-client：全仓各主机统一导入的局域网二进制缓存代理（ opi5p NCPS
+    #   单一入口），属构建基础设施而非应用；删掉会回退直连公网缓存，显著变慢。
+    ../../nixos/optional-apps/sunshine.nix
+    ../../nixos/optional-apps/ncps-client.nix
   ];
 
   # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。
@@ -53,6 +71,12 @@
 
   # 与作者 lt-hp-omen 逐字对齐的 HiDPI（grub/console 字体缩放）。
   lantian.hidpi = 1.5;
+
+  # 与上游 lt-hp-omen 逐字对齐：ROC 网络音频发送目标（pipewire-roc-sink 的
+  # 接收端 IP）。不设则 roc-sink 导入为空操作；如接收端不同请按实际改。
+  lantian.pipewire.roc-sink-ip = [
+    "192.168.0.207"
+  ];
 
   # 与作者 lt-hp-omen 逐字对齐的 home SMB 共享（force user/valid 改 zhyi）。
   services.samba.settings = {
