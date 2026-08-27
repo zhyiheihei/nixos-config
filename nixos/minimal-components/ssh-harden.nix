@@ -90,6 +90,12 @@ in
       PermitRootLogin = lib.mkForce "prohibit-password";
       PasswordAuthentication = false;
       KbdInteractiveAuthentication = false;
+      # Fleet deploys fan out many concurrent sessions from a handful of
+      # builder sources; per-source penalties (plus the MaxStartups backlog)
+      # then silence sshd for those sources for minutes at a time and stall
+      # colmena pushes mid-flight. Trust the home LAN and the LTNET mesh.
+      PerSourcePenaltyExemptList = "192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1";
+      MaxStartups = lib.mkForce "64:30:128";
       # https://www.sshaudit.com/
       Ciphers = [
         "aes256-gcm@openssh.com"
