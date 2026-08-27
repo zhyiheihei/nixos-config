@@ -24,6 +24,7 @@
     ../../nixos/optional-apps/pipewire-volume-control.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/sunshine.nix
+    ../../nixos/optional-apps/leigod-accelerator.nix
   ];
 
   # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。

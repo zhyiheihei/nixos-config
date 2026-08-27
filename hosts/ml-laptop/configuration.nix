@@ -249,40 +249,33 @@
   # 原版 AC 用 performance governor 恒定最高频（负载 0.65 也飙 4.3GHz/70°C）；
   # 这里 AC 改 schedutil 按负载动态调频（轻载自动降频、重载仍可 boost），
   # 能效策略 balance_power、平台档 balanced。电池模式仍是 powersave，不变。
-  services.tlp.settings = {
-    CPU_SCALING_GOVERNOR_ON_AC = lib.mkForce "schedutil";
-    CPU_ENERGY_PERF_POLICY_ON_AC = lib.mkForce "balance_power";
-    PLATFORM_PROFILE_ON_AC = lib.mkForce "balanced";
-    # 【第三轮 2026-08-27】eGPU 运行时休眠问题最终版。前两轮只保住叶子功能
-    # 却漏了三点：TLP 每次重扫（电源切换/唤醒/tlp 重启）都会重写控制；上游
-    # 雷电桥 03:02.0/03:04.0 同样被设成 auto 进入挂起，整条隧道低功耗后
-    # 唤醒穿透失败；以及 Function 0 也曾被写 auto。症状汇总链：叶子休眠
-    # → 整卡 D3cold/D3hot 唤醒失败（xhci/hda/nvidia-gpu 反复"Unable to
-    # change power state"）→ 风扇停转、nvidia-smi 枚举为空 → Xid 154
-    # （Node Reboot Required）。修复分四层：
-    # 1) AC 模式全局 RUNTIME_PM_ON_AC=on：eGPU 必然在供电场景使用，即使
-    #    换雷电口导致 PCI 地址漂移也无条件回到 on（电池模式维持 auto 省电）；
-    # 2) PCIE_RUNTIME_PM_DENYLIST 覆盖桥×3+功能×4 全部七个地址，电池模式下
-    #    也按地址排除（地址对应雷电坞隧道的固定拓扑）；
-    # 3) udev 对 add/change 事件强制上述地址 power/control=on；
-    # 4) 关闭 snd_hda_intel 的 power_save，消除音频控制器自动休眠源头。
-    RUNTIME_PM_ON_AC = lib.mkForce "on";
-    PCIE_RUNTIME_PM_DENYLIST =
-      "0000:03:01.0 0000:03:02.0 0000:03:04.0 0000:04:00.0 0000:04:00.1 0000:04:00.2 0000:04:00.3";
-  };
+  # services.tlp.settings = {
+  #   CPU_SCALING_GOVERNOR_ON_AC = lib.mkForce "schedutil";
+  #   CPU_ENERGY_PERF_POLICY_ON_AC = lib.mkForce "balance_power";
+  #   PLATFORM_PROFILE_ON_AC = lib.mkForce "balanced";
+  #   RUNTIME_PM_ON_AC = lib.mkForce "on";
+  #   # TLP 的 RUNTIME_PM_ON_AC=auto 不看驱动绑定，会把 eGPU 上未绑 nvidia
+  #   # 驱动的功能（.1 音频 / .2 USB xHCI / .3 UCSI）设成 auto；这些功能一旦
+  #   # 进入 D3cold，同卡的 VGA 功能整体不可访问且唤醒失败（"Unable to change
+  #   # power state from D3cold to D0, device inaccessible"），风扇停转、
+  #   # nvidia-smi 枚举为空。RTD3 关闭只管 .0 绑驱动的功能，管不住 TLP 这条
+  #   # 路径——见 2026-08-27 第二轮排障。故按地址把三条功能排除出运行时休眠
+  #   # （地址随雷电授权固定，重启后不变）。
+  #   PCIE_RUNTIME_PM_DENYLIST =
+  #     "0000:03:01.0 0000:03:02.0 0000:03:04.0 0000:04:00.0 0000:04:00.1 0000:04:00.2 0000:04:00.3";
+  # };
 
-  # udev 兜底：匹配雷电桥与 eGPU 四条功能即强制 power/control=on，即使
-  # 未来有其他守护进程（或 TLP 规则变更）再往 auto 写也能被 add/change
-  # 事件纠正。仅限本机固定拓扑，不影响其他主机。
-  services.udev.extraRules = ''
-    ACTION=="add|change", SUBSYSTEM=="pci", KERNEL=="0000:03:0[124].0|0000:04:00.[0-3]", TEST=="power/control", ATTR{power/control}="on"
-  '';
+  # # # udev 兜底：匹配到本卡四条功能即强制 power/control=on，即使未来有其他
+  # # # 守护进程（或 TLP 规则变更）再往 auto 写也能被 add/change 事件纠正。
+  # # # 仅限本机固定的 04:00.x 槽位，不影响其他主机。
+  # # services.udev.extraRules = ''
+  # #   ACTION=="add|change", SUBSYSTEM=="pci", KERNEL=="0000:04:00.[0-3]", TEST=="power/control", ATTR{power/control}="on"
+  # # '';
+  #   ACTION=="add|change", SUBSYSTEM=="pci", KERNEL=="0000:03:0[124].0|0000:04:00.[0-3]", TEST=="power/control", ATTR{power/control}="on"
+  # '';
 
-  # 关闭 snd_hda_intel 自动省电：eGPU 上 .1 音频功能进入省电态会牵连整卡。
-  boot.extraModprobeConfig = ''
-    options snd_hda_intel power_save=0
-  '';
-
+  # boot.extraModprobeConfig = ''
+  #   options snd_hda_intel power_save=0
   # 蓝牙：AX211 蓝牙硬件已识别（hci0），启用 bluetooth 服务让蓝牙可用。
   # 用作者写法 hardware.bluetooth（services.bluetooth 无此选项会导致整机 eval 失败）。
   hardware.bluetooth = {
