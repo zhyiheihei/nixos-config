@@ -39,7 +39,7 @@
     #   SteamDeck 插件二进制移植，模块内注释有全部适配细节）。
     ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/leigod-accelerator.nix
+    # ../../nixos/optional-apps/leigod-accelerator.nix
   ];
 
   # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。
