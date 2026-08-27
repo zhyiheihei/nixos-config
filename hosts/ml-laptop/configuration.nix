@@ -275,4 +275,10 @@
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
   };
+
+  # eGPU 是 RTX 2080 Ti（Turing, sm_75）。nixpkgs 默认给 llama-cpp 编译
+  # sm_75～sm_121a 共 8 种 arch，CUDA 12.9 的 ptxas 在处理 fattn-mma-f16
+  # 模板实例时 segfault（signal 11）。限制只编译 sm_75 即可避开，同时也
+  # 大幅缩短构建时间。
+  nixpkgs.config.cudaArches = [ "sm_75" ];
 }
