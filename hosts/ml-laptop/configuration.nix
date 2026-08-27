@@ -245,6 +245,15 @@
   hardware.nvidia.powerManagement.finegrained = lib.mkForce false;
   hardware.nvidia.open = lib.mkForce false;
 
+  # NVIDIA 595.x 驱动默认 NVreg_DynamicPowerManagement=3（fine-grained
+  # RTD3），驱动内部自行管理运行时 D3，不经 PCIe power/control 路径，
+  # 故上面 udev/TLP denylist 对 .0 VGA 无效。NixOS nvidia 模块在
+  # finegrained=false 时不设此参数（源码 nvidia.nix L814 仅 finegrained
+  # =true 时写 0x02），留下驱动默认值 3。雷电 eGPU 被 RTD3 打入 D3cold
+  # 后唤醒失败（Xid 154）。显式设 0 彻底关闭驱动内部 RTD3，保留
+  # powerManagement.enable 的 suspend/resume 视频内存保存功能。
+  hardware.nvidia.moduleParams.nvidia.NVreg_DynamicPowerManagement = 0;
+
   # eGPU（RTX 2080 Ti via Thunderbolt 3 Oculink dock）运行时电源管理修复。
   #
   # 根因：公共 client-components/tlp.nix 的 RUNTIME_PM_ON_AC=auto 对所有
