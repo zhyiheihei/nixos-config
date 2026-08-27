@@ -11,9 +11,7 @@ let
   );
 in
 {
-  imports = [ (inputs.secrets + "/nixos-hidden-module/2900643475cbafb7") ];
-
-  home.packages = [ pkgs.rtk ];
+  imports = [ (inputs.secrets + "/nixos-hidden-module/a7129082a691a699") ];
 
   programs.mcp = {
     enable = true;
@@ -78,7 +76,6 @@ in
         "npm:pi-mcp-adapter"
         "npm:pi-model-discovery"
         "npm:pi-ollama-cloud"
-        "npm:pi-rtk-optimizer"
         "npm:pi-simplify"
         "npm:pi-subagents"
         # keep-sorted end
