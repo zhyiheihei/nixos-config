@@ -386,6 +386,18 @@
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
   };
 
+  # vlmcsd 经 netns.kms 广播 anycast KMS 地址，netns.nix（公共模块）为每个
+  # enableBird 的 netns 起 netns-bird-${name} 服务，硬设 User/Group=bird。但
+  # bird 用户只在 server-apps/bird（server 角色专属）里创建，client 不导入
+  # 它，导致 netns-bird-kms 启动报 status=217/USER（用户不存在），colmena
+  # apply 整体失败。主机级补 bird 用户/组，定义与 server-apps/bird 一致。
+  users.users.bird = {
+    description = "BIRD Internet Routing Daemon user";
+    group = "bird";
+    isSystemUser = true;
+  };
+  users.groups.bird = { };
+
   # eGPU 是 RTX 2080 Ti（Turing，compute capability 7.5）。CUDA 目标裁剪
   # （只编译 sm_75）不在本文件做：本仓库 pkgs 由 flake 在 NixOS 模块系统外
   # 构造后强制注入，nixpkgs.config.* 对包集不生效，实际开关是同目录的
