@@ -196,6 +196,20 @@
   # the settings option only accepts atom values.
   services.sunshine.settings.csrf_allowed_origins = "https://192.168.0.55:47990,https://198.18.0.118:47990,https://ml-laptop.zhyi.xin:47990";
 
+  # Sunshine 全栈固定核显（Intel）：eGPU(card0) 不驱任何显示器，而本版
+  # Sunshine 的 nvenc 初始化要求编码 GPU 自带 monitor，导致每轮探测都
+  # "Couldn't find monitor [0]" 失败（约 0.4s/轮），再回落 vulkan→vaapi。
+  # 显式钉死 encoder=vaapi / capture=kms 跳过探测循环：KMS 命中的就是
+  # 核显侧 HDMI-A-1 输出（prep_cmd 的 kscreen-doctor 也作用于此），
+  # VA-API 由 client-components/xorg.nix 的 LIBVA_DRIVER_NAME=iHD 驱动。
+  # upnp=false：本机在防火墙策略中永不做公网端口转发，UPnP 映射注定
+  # 失败且每天刷百余条 "Failed to map ... 501" 日志噪音。
+  services.sunshine.settings = {
+    encoder = "vaapi";
+    capture = "kms";
+    upnp = false;
+  };
+
   # NVIDIA 是雷电坞外接 eGPU：未连接时 nvidia 内核模块不加载，
   # nvidia-container-toolkit-cdi-generator（公共模块 hardware/nvidia/prime.nix
   # 经 hardware.nvidia-container-toolkit.enable 引入）会因 NVML "Driver Not
