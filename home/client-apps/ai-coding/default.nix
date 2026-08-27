@@ -11,6 +11,8 @@ let
   );
 in
 {
+  imports = [ (inputs.secrets + "/nixos-hidden-module/50853c2b39dfb34e") ];
+
   home.packages = [ pkgs.rtk ];
 
   programs.mcp = {
