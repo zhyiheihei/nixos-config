@@ -275,8 +275,19 @@
   # 2. udev 兜底：强制 power/control=on，防止 nvidia powerManagement 的
   #    bind udev 规则把 .0 设回 auto。udev KERNEL 用 sysfs 全名（带 0000:）。
   # PCIe 地址由雷电拓扑决定，dock/USB-C 口不变则固定。
-  services.tlp.settings.RUNTIME_PM_DENYLIST = lib.mkForce
-    "02:00.0 03:01.0 03:02.0 03:04.0 04:00.0 04:00.1 04:00.2 04:00.3";
+  services.tlp.settings = {
+    # eGPU 运行时 PM 排除（见上方注释）
+    RUNTIME_PM_DENYLIST = lib.mkForce
+      "02:00.0 03:01.0 03:02.0 03:04.0 04:00.0 04:00.1 04:00.2 04:00.3";
+
+    # 笔记本解热能力有限：覆盖公共 client-components/tlp.nix 的 AC 策略。
+    # 原版 AC 用 performance governor 恒定最高频（负载 0.65 也飙 4.3GHz/70°C）；
+    # AC 改 schedutil 按负载动态调频（轻载自动降频、重载仍可 boost），
+    # 能效策略 balance_power、平台档 balanced。电池模式仍是 powersave，不变。
+    CPU_SCALING_GOVERNOR_ON_AC = lib.mkForce "schedutil";
+    CPU_ENERGY_PERF_POLICY_ON_AC = lib.mkForce "balance_power";
+    PLATFORM_PROFILE_ON_AC = lib.mkForce "balanced";
+  };
 
   services.udev.extraRules = ''
     ACTION=="add|change|bind", SUBSYSTEM=="pci", KERNEL=="0000:02:00.0", TEST=="power/control", ATTR{power/control}="on"
