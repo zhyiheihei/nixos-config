@@ -253,7 +253,23 @@
     CPU_SCALING_GOVERNOR_ON_AC = lib.mkForce "schedutil";
     CPU_ENERGY_PERF_POLICY_ON_AC = lib.mkForce "balance_power";
     PLATFORM_PROFILE_ON_AC = lib.mkForce "balanced";
+
+    # TLP 的 RUNTIME_PM_ON_AC=auto 不看驱动绑定，会把 eGPU 上未绑 nvidia
+    # 驱动的功能（.1 音频 / .2 USB xHCI / .3 UCSI）设成 auto；这些功能一旦
+    # 进入 D3cold，同卡的 VGA 功能整体不可访问且唤醒失败（"Unable to change
+    # power state from D3cold to D0, device inaccessible"），风扇停转、
+    # nvidia-smi 枚举为空。RTD3 关闭只管 .0 绑驱动的功能，管不住 TLP 这条
+    # 路径——见 2026-08-27 第二轮排障。故按地址把三条功能排除出运行时休眠
+    # （地址随雷电授权固定，重启后不变）。
+    PCIE_RUNTIME_PM_DENYLIST = "0000:04:00.1 0000:04:00.2 0000:04:00.3";
   };
+
+  # # udev 兜底：匹配到本卡四条功能即强制 power/control=on，即使未来有其他
+  # # 守护进程（或 TLP 规则变更）再往 auto 写也能被 add/change 事件纠正。
+  # # 仅限本机固定的 04:00.x 槽位，不影响其他主机。
+  # services.udev.extraRules = ''
+  #   ACTION=="add|change", SUBSYSTEM=="pci", KERNEL=="0000:04:00.[0-3]", TEST=="power/control", ATTR{power/control}="on"
+  # '';
 
   # 蓝牙：AX211 蓝牙硬件已识别（hci0），启用 bluetooth 服务让蓝牙可用。
   # 用作者写法 hardware.bluetooth（services.bluetooth 无此选项会导致整机 eval 失败）。
@@ -285,14 +301,14 @@
     modulePath = "${pkgs.linux-pam}/lib/security/pam_exec.so";
     args = [
       "expose_authtok"
-      (pkgs.writeShellScript "pam-verify-local-pin" ''
+      ("${pkgs.writeShellScript "pam-verify-local-pin" ''
         hash_file="/var/lib/lantian-local-pin/pin.sha256"
         [ -r "$hash_file" ] || exit 1
         input=$(head -c 256)
         [ -n "$input" ] || exit 1
         calc="$(printf %s "$input" | sha256sum | cut -d" " -f1)" || exit 1
         printf %s "$calc" | cmp -s - "$(cat "$hash_file")"
-      '')
+      ''}")
     ];
   };
 
