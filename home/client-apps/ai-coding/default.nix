@@ -30,14 +30,6 @@ in
     extraPackages = [ pkgs.nodejs ];
 
     models.providers = {
-      linuxdo-hub = {
-        api = "openai-completions";
-        baseUrl = "https://hub.linux.do/v1";
-      };
-      tokenrhythm = {
-        api = "openai-completions";
-        baseUrl = "https://tokenrhythm.studio/v1";
-      };
       uni-api = {
         api = "openai-completions";
         baseUrl = "https://ai-api.zhyi.xin/v1";
@@ -49,8 +41,8 @@ in
       collapseChangelog = true;
       enableInstallTelemetry = false;
       enableAnalytics = false;
-      defaultProvider = "ollama-cloud";
-      defaultModel = "glm-5.2";
+      defaultProvider = "uni-api";
+      defaultModel = "glm-5.2:opencode-zen";
       defaultThinkingLevel = "high";
       showCacheMissNotices = true;
 
@@ -75,7 +67,6 @@ in
         "npm:pi-fast-resume"
         "npm:pi-mcp-adapter"
         "npm:pi-model-discovery"
-        "npm:pi-ollama-cloud"
         "npm:pi-simplify"
         "npm:pi-subagents"
         # keep-sorted end
@@ -93,9 +84,6 @@ in
       requestTimeoutMs = 60000;
       scriptMode = false;
     };
-  };
-  home.file.".pi/agent/ollama-cloud.json".text = builtins.toJSON {
-    webTools = false;
   };
   home.file.".pi/agent/extensions/no-update-check.ts".source = ./extensions/no-update-check.ts;
   home.file.".pi/agent/extensions/nixos-command-guard.ts".source =
