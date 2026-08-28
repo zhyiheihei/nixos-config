@@ -42,6 +42,12 @@
       group = "sftp";
       mode = "755";
     };
+    # storagebox 双备份仓库根（minimal-components/backup/common.nix）
+    "/data/sftp-server/backups/rustic-storagebox"."d" = {
+      user = "sftp";
+      group = "sftp";
+      mode = "755";
+    };
   };
 
   # GreenCloud APAC 网络：DHCPv4 在该机房拿不到租约（2026-08-29 首启实测），

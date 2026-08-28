@@ -73,8 +73,11 @@ rec {
       cache-dir = "/var/cache/restic/storagebox"
 
       [repository.options]
+      # 异地第二备份目的地（对齐作者 storagebox 双备份设计）。
+      # 故意走公网域名而非 LTNET：与 home 仓库（sftpEndpoint，LTNET/内网）
+      # 形成独立路径，任一网络平面故障不影响另一份备份。
       user = "sftp"
-      endpoint = "ssh://${config.lantian.backup.sftpEndpoint}:2222"
+      endpoint = "ssh://greencloud-jp.zhyi.xin:2222"
       key = "${config.sops.secrets.sftp-privkey.path}"
       root = "/backups/rustic-storagebox"
       known_hosts_strategy = "Accept"
@@ -99,7 +102,7 @@ rec {
 
   maintenanceHosts = {
     "opi5p" = [ "home" ];
-    "google" = [ "storagebox" ];
+    "greencloud-jp" = [ "storagebox" ];
   };
 
   resticCommands = lib.mapAttrsToList (
