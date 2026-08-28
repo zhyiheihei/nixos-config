@@ -11,6 +11,11 @@
     ./hardware-configuration.nix
     ./home-services.nix
     ./media-automation.nix
+
+    # 从 opi5p 迁入（2026-08-28）：ncps 缓存代理与 Resilio Sync 引擎。
+    # opi5p 侧同步移除（configuration.nix / media-center.nix）。
+    ../../nixos/optional-apps/ncps.nix
+    ../../nixos/optional-apps/resilio-sync.nix
   ];
 
   boot.loader.grub.enable = lib.mkForce false;
@@ -107,5 +112,35 @@
   systemd.services.archivebox = {
     after = [ "mnt-storage.mount" ];
     requires = [ "mnt-storage.mount" ];
+  };
+
+  # 关闭 zram（2026-08-28，与 opi5p 同款修复）：本机内存 8G，迁入 Resilio
+  # （~2.4G RSS）与 bitmagnet/postgres 后服务密度接近物理内存上限。zram 的
+  # zstd 压缩在内存吃满时让 kswapd 吃满一个核，陷入 swap 风暴死亡螺旋
+  # （opi5p 已实测 load 181）。改用 NVMe swap 文件兜底。
+  zramSwap.enable = lib.mkForce false;
+  swapDevices = [
+    { device = "/nix/swapfile"; size = 4096; }
+  ];
+
+  # Resilio Sync 引擎从 opi5p 迁入（2026-08-28）。identity/索引状态
+  # （/var/lib/resilio-sync，4.4G）已 rsync 到本机持久盘；同步的文件夹
+  # 数据本体在 NAS（/mnt/storage/resilio/*，与 opi5p 同一 NFS share，
+  # 模块 bind 到 /sync 与 /downloads，数据库里的路径无需改动）。
+  lantian.resilioSync = {
+    dataDir = "/mnt/storage/resilio/data";
+    downloadsDir = "/mnt/storage/resilio/downloads";
+  };
+
+  # NCPS 上游（cache.nixos.org / attic 等）需走 router SOCKS5 出口；
+  # ncps.nix 模块只定义监听地址与缓存参数，代理环境在这里补齐
+  # （与 opi5p configuration.nix 的同名块一致）。
+  systemd.services.ncps.environment = {
+    HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+    http_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    https_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+    no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   };
 }

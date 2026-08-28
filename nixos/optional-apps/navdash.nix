@@ -212,7 +212,7 @@ let
       "pt.opi5p.zhyi.xin" = "媒体与下载";
       "seedbox.opi5p.zhyi.xin" = "媒体与下载";
       "peerbanhelper.opi5p.zhyi.xin" = "媒体与下载";
-      "bitmagnet.opi5p.zhyi.xin" = "媒体与下载";
+      "bitmagnet.dragon-q8b.zhyi.xin" = "媒体与下载";
       "moviepilot.rock5c.zhyi.xin" = "媒体与下载";
       "radarr.rock5c.zhyi.xin" = "媒体与下载";
       "sonarr.rock5c.zhyi.xin" = "媒体与下载";

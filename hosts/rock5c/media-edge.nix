@@ -20,6 +20,12 @@ let
     pt = LT.port.qBitTorrentPT.WebUI;
     seedbox = LT.port.qBitTorrentSeedbox.WebUI;
   };
+  # 边缘反代的后端所在主机。bitmagnet 于 2026-08-28、peerbanhelper 于
+  # 2026-08 迁至 dragon-q8b；其余仍在 opi5p。
+  backendHost = {
+    bitmagnet = "dragon-q8b";
+    peerbanhelper = "dragon-q8b";
+  };
   mkProxyLocation = service:
     if builtins.hasAttr service qbitPorts then {
       proxyPass = "http://${LT.hosts.router.interconnect.IPv4}:${builtins.toString qbitPorts.${service}}";
@@ -27,8 +33,8 @@ let
       proxyNoTimeout = true;
       allowCORS = true;
     } else {
-      proxyPass = "https://${service}.opi5p.zhyi.xin";
-      proxyOverrideHost = "${service}.opi5p.zhyi.xin";
+      proxyPass = "https://${service}.${backendHost.${service} or "opi5p"}.zhyi.xin";
+      proxyOverrideHost = "${service}.${backendHost.${service} or "opi5p"}.zhyi.xin";
       proxyWebsockets = true;
       proxyNoTimeout = true;
     };

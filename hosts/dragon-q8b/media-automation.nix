@@ -27,6 +27,9 @@ in
   imports = [
     ../../nixos/optional-apps/peerbanhelper.nix
     ../../nixos/optional-apps/tachidesk.nix
+    # bitmagnet 三件套从 opi5p 迁入（2026-08-28）；bitmagnet.nix 内部
+    # 引入 postgresql.nix，本机随之获得独立 postgres 实例。
+    ../../nixos/optional-apps/bitmagnet.nix
   ];
 
   systemd.services = lib.mkMerge [
@@ -34,9 +37,15 @@ in
       partOf = [ "media-automation.target" ];
       unitConfig.ConditionPathExists = activationMarker;
     }))
-    {
-      podman-tachidesk.environment = proxyEnvironment;
-    }
+    (lib.genAttrs [
+      "bitmagnet-dht"
+      "bitmagnet-http"
+      "bitmagnet-queue"
+    ] (_: {
+      partOf = [ "media-automation.target" ];
+      unitConfig.ConditionPathExists = activationMarker;
+      environment = proxyEnvironment;
+    }))
   ];
 
   systemd.targets.media-automation = {
@@ -52,6 +61,16 @@ in
       mode = "0700";
       user = "root";
       group = "root";
+    };
+    # bitmagnet 的 postgres 库（38 GiB，DHT 爬取元数据）写入密集，
+    # 目录仍为空时设 NOCOW，再由 postgres 初始化（与 opi5p 同款处理）。
+    "/nix/persistent/var/lib/postgresql" = {
+      d = {
+        mode = "0700";
+        user = "postgres";
+        group = "postgres";
+      };
+      h.argument = "+C";
     };
   };
 }
