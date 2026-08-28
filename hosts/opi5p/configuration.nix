@@ -187,8 +187,17 @@ in
     ];
   };
 
-  # 内存紧张的小板：全量 zram 兜底其余服务的临时压力。
-  zramSwap.memoryPercent = lib.mkForce 100;
+  # 关闭 zram：16GB 内存跑十几个重负载服务时，zram 的 zstd 压缩/解压
+  # 让 kswapd0 吃满一个核（98.5% CPU），系统陷入 swap 风暴死亡螺旋
+  # （load 181、全系统 D 状态、SSH 断连）。zram 在内存充裕时是好东西，
+  # 但本机服务密度远超物理内存，zram 的 CPU 开销反而成了系统卡死的
+  # 直接元凶。改用 NVMe swap 文件（GT50 直写 1.8GB/s），swap 读写走
+  # 磁盘不吃 CPU，系统慢但不卡死；内存耗尽时 OOM killer 快速杀进程
+  # 释放内存，比 zram 压缩死循环健康得多。
+  zramSwap.enable = lib.mkForce false;
+  swapDevices = [
+    { device = "/nix/swapfile"; size = 16384; }
+  ];
 
   ########################################
   # Frigate NVR（乐橙摄像头 ×2）
