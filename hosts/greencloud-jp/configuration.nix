@@ -18,7 +18,31 @@
 
   # sftp-server.nix 默认 chroot 到 /nix/persistent/sftp-server（39G 系统盘），
   # 备份机改到 1T 数据盘 /data。
-  users.users.sftp.home = lib.mkForce "/data/sftp-server";
+  # sshd 的 ChrootDirectory 要求整个路径 root 属主且不可被他人写，因此 home
+  # 本身 root 属主、数据写到内部 sftp 可写的 backups/restic 子目录
+  # （与 minimal-components/backup 的 restic root=/backups/restic 对齐）。
+  users.users.sftp = {
+    home = lib.mkForce "/data/sftp-server";
+    createHome = lib.mkForce false;
+  };
+
+  systemd.tmpfiles.settings.sftp-backup = {
+    "/data/sftp-server"."d" = {
+      user = "root";
+      group = "root";
+      mode = "755";
+    };
+    "/data/sftp-server/backups"."d" = {
+      user = "sftp";
+      group = "sftp";
+      mode = "755";
+    };
+    "/data/sftp-server/backups/restic"."d" = {
+      user = "sftp";
+      group = "sftp";
+      mode = "755";
+    };
+  };
 
   # GreenCloud APAC 网络：DHCPv4 在该机房拿不到租约（2026-08-29 首启实测），
   # v4/v6 均为静态；网关来自救援环境实测，v6 网关是 onlink 子网路由器。
