@@ -12,7 +12,7 @@
     server
   ];
   cpuThreads = 2;
-  hostname = "backup.zhyi.xin";
+  hostname = "45.159.48.76";
   city = geo.cities."JP Tokyo";
   # Generated during the 2026-08-29 install at /nix/persistent/etc/ssh;
   # fingerprint SHA256:GJ8IBWu9Q3aPIOaYm8uc62XlJQaPagPjQ+4dyxaZGgk.
