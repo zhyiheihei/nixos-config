@@ -196,7 +196,7 @@ in
   # 释放内存，比 zram 压缩死循环健康得多。
   zramSwap.enable = lib.mkForce false;
   swapDevices = [
-    { device = "/nix/swapfile"; size = 16384; }
+    { device = "/nix/swapfile"; size = 4096; }
   ];
 
   ########################################
