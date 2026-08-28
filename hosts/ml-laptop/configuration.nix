@@ -228,50 +228,48 @@
   systemd.services.nvidia-container-toolkit-cdi-generator.unitConfig.ConditionPathExists =
     "/proc/driver/nvidia/version";
 
-  # 雷电坞 eGPU（RTX 2080 Ti）稳定性修复，仅本机：
-  # 公共 prime.nix 开了 finegrained（RTD3 运行时休眠），eGPU 空闲几秒即被
-  # 打入 D3cold；Turing 卡经雷电线唤醒失败会直接打死 GSP 固件 RPC——表现为
-  # nvidia-smi 枚举不到设备（Sunshine 因此回落 Intel 核显 VAAPI 导致串流
-  # 卡顿）、NVRM 反复 assert，甚至关机都被 D3cold→D0 失败卡死。见 2026-08-27
-  # 排障记录。故 finegrained 必须关：作者桌面卡（PCIe 直连、无雷电唤醒
-  # 问题）可以用它，本机雷电坞不行。代价是 eGPU 不再自动省电；待闭源
-  # 驱动跑稳后，如需找回深度省电可单独实验改回 true（届时观察是否复现）。
+  # 雷电坞 eGPU（RTX 2080 Ti via TBT3 Oculink dock）稳定性修复，仅本机。
+  # 2026-08-28 排障结论：595.x 驱动即使在禁用 GSP 固件后，遗留代码路径
+  # 在 Turing + 雷电 3 eGPU 下仍存在根本性不兼容——nvidia-drm boot 时
+  # 能初始化（仅读 PCI 配置空间），但首次 MMIO 访问（约 3 分钟后
+  # Vulkan 进程触达）即 Xid 79，无 PCIe AER 错误，纯驱动↔GPU 通信失败。
+  # 降级到 535 分支（早于 560+ GSP 强制启用时代）是当前最可行的方向。
   #
-  # 驱动切换为闭源内核模块，与上游 lt-hp-omen 的主机级覆盖完全一致（作者
-  # 在 omen 上同样对 Turing 卡强制 open=false）：Turing 代际官方推荐闭源，
-  # 且电源管理走传统消息机制，较 open 模块的 GSP 模式在雷电流下更成熟。
-  # 若后续仍出现 GSP 类故障，下一步备选是再加
-  # options nvidia NVreg_EnableGpuFirmware=0 关掉 GSP 固件。
+  # finegrained 关闭：公共 prime.nix 开了 RTD3 运行时休眠，eGPU 空闲
+  # 几秒即被打入 D3cold，Turing 卡经雷电线唤醒失败会打死 GSP 固件 RPC。
+  # 作者桌面卡（PCIe 直连）可以用它，本机雷电坞不行。
   hardware.nvidia.powerManagement.finegrained = lib.mkForce false;
   hardware.nvidia.open = lib.mkForce false;
 
-  # NVIDIA 595.x 驱动默认 NVreg_DynamicPowerManagement=3（fine-grained
-  # RTD3），驱动内部自行管理运行时 D3，不经 PCIe power/control 路径，
-  # 故上面 udev/TLP denylist 对 .0 VGA 无效。NixOS nvidia 模块在
-  # finegrained=false 时不设此参数（源码 nvidia.nix L814 仅 finegrained
-  # =true 时写 0x02），留下驱动默认值 3。雷电 eGPU 被 RTD3 打入 D3cold
-  # 后唤醒失败（Xid 154）。显式设 0 彻底关闭驱动内部 RTD3，保留
+  # eGPU 经雷电 3 隧道连接，PCI 总线号由雷电拓扑决定。公共 prime.nix
+  # 硬编码 nvidiaBusId="PCI:1:0:0"（适用于 PCIe 直连 dGPU 如 lt-hp-omen），
+  # 但本机 eGPU 实际在 0000:04:00.0（PCI:4:0:0）。BusId 不匹配会导致
+  # X server PRIME offload 指向错误设备。
+  hardware.nvidia.prime.nvidiaBusId = lib.mkForce "PCI:4:0:0";
+
+  # 驱动降级 595.x → 535 分支（535.288.01）：535 分支早于 560+ 的 GSP
+  # 强制启用时代，遗留代码路径是主路径且经过充分测试，对雷电 eGPU
+  # 更友好。595.x 即使 NVreg_EnableGpuFirmware=0 禁了 GSP（确认 /proc
+  # GPU Firmware: N/A），遗留路径仍首次 MMIO 即 Xid 79。
+  hardware.nvidia.package = lib.mkForce config.boot.kernelPackages.nvidia_x11_legacy535;
+
+  # 显式关闭驱动内部 RTD3（NVreg_DynamicPowerManagement=0），防止雷电
+  # eGPU 被驱动主动打入 D3cold 后唤醒失败（Xid 154）。保留
   # powerManagement.enable 的 suspend/resume 视频内存保存功能。
   hardware.nvidia.moduleParams.nvidia.NVreg_DynamicPowerManagement = 0;
 
-  # Xid 79 (GPU has fallen off the bus) 修复：595.x 闭源驱动在 Turing
-  # 卡上仍走 GSP 固件（EnableGpuFirmware=18），雷电 eGPU 场景下 GSP 固件
-  # 崩溃导致 GPU 不响应 MMIO，驱动判定掉卡。实测开机后约 6 分钟静默
-  # 掉卡（无 PCIe link down、无 AER，纯固件挂起）。关闭 GSP 固件回退到
-  # 传统驱动路径，在雷电 eGPU 下更稳定。代价是失去 GSP 提供的部分电源
-  # 管理功能，但对雷电 eGPU 本就不能用 RTD3，无实际损失。
+  # 显式禁用 GSP 固件。535 分支对 Turing 默认不加载 GSP，此参数作为
+  # 保险。595.x 即使设此值，遗留路径仍不稳定（已实测确认）。
   hardware.nvidia.moduleParams.nvidia.NVreg_EnableGpuFirmware = 0;
 
-  # 曾试过的 PCIe 内核参数（均已回退）：
-  # - pci=realloc：导致雷电桥 03:01.0 的 memory window 未分配，eGPU
-  #   完全无法枚举（bus 04 上无设备）。
-  # - pcie_aspm=off：导致 eGPU 卡在 D3cold 无法上电，nvidia 驱动 probe
-  #   失败（"Unable to change power state from D3cold to D0"），开机
-  #   即不可用。本机的雷电 3 控制器（JHL7440 Titan Ridge）在 ASPM
-  #   完全禁用后反而无法正常管理设备电源状态。
-  # 结论：本机雷电 eGPU 不适配社区通用的 PCIe 内核参数修复，仅靠
-  # NVreg_DynamicPowerManagement=0 + NVreg_EnableGpuFirmware=0 +
-  # TLP/udev 运行时 PM 排除来保持稳定。
+  # 曾试过的修复（均在 595.x 驱动上，均未能阻止 Xid 79）：
+  # - pci=realloc：雷电桥 memory window 未分配，eGPU 完全无法枚举。
+  # - pcie_aspm=off：eGPU 卡在 D3cold 无法上电，JHL7440 在 ASPM 完全
+  #   禁用后无法正常管理设备电源状态。
+  # - NVreg_EnableGpuFirmware=0：GSP 确认未加载，但 595.x 遗留路径仍
+  #   首次 MMIO 即失败。
+  # 结论：595.x 驱动的遗留代码路径在 Turing + 雷电 3 eGPU 下存在根本性
+  # 不兼容，降级到 535 分支是当前最可行的方向。
 
   # eGPU（RTX 2080 Ti via Thunderbolt 3 Oculink dock）运行时电源管理修复。
   #
