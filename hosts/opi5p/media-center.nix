@@ -1,7 +1,9 @@
 # OPI5P 媒体中心。上游 lt-home-vm 的下载链（qBittorrent/sonarr/flexget）
 # 在本仓库演化为：qB 与 *arr 迁往 router/rock5c，由 MoviePilot v3 接管；
-# tachidesk / peerbanhelper 已迁至 dragon-q8b（负载降压），本机只保留
-# bitmagnet 的门控与代理出口，以及为 rock5c 准备的 NFS 库目录。
+# tachidesk / peerbanhelper 已迁至 dragon-q8b（负载降压）；
+# bitmagnet 三件套也已于 2026-08-28 迁至 dragon-q8b（含其 postgres 库，
+# 爬取数据可再生，未做迁移、从零重建）。本机保留为 rock5c 准备的 NFS
+# 库目录与 postgres（immich/home-assistant 仍在用）。
 {
   config,
   lib,
@@ -10,17 +12,9 @@
 }:
 let
   activationMarker = "/nix/persistent/var/lib/media-automation/ready";
-  mediaGatedServices = [
-    "bitmagnet-dht"
-    "bitmagnet-http"
-    "bitmagnet-queue"
-  ];
+  mediaGatedServices = [ ];
   gatedServices = mediaGatedServices;
-  proxiedServices = [
-    "bitmagnet-dht"
-    "bitmagnet-http"
-    "bitmagnet-queue"
-  ];
+  proxiedServices = [ ];
   proxyEnvironment = lib.getAttrs [
     "HTTP_PROXY"
     "HTTPS_PROXY"
@@ -31,10 +25,6 @@ let
   ] config.environment.variables;
 in
 {
-  imports = [
-    ../../nixos/optional-apps/bitmagnet.nix
-  ];
-
   systemd.services = lib.mkMerge [
     (lib.genAttrs gatedServices (_: {
       partOf = [ "media-automation.target" ];

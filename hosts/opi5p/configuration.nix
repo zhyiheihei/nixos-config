@@ -54,9 +54,9 @@ in
     # aarch64 上会构建失败的 nix 版 ML、改走 RKNN 推理（本机 rknn worker 又
     # 在下方 mkForce 关闭，推理现由 rock5c 承担）。
     ../../nixos/optional-apps/immich-rockchip.nix
-    ../../nixos/optional-apps/ncps.nix
+    # ncps 服务端与 resilio-sync 引擎已迁至 dragon-q8b（2026-08-28），
+    # 本机保留 ncps-client 作为缓存消费者。
     ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/resilio-sync.nix
     ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
@@ -83,16 +83,6 @@ in
     no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   };
   systemd.services.nix-daemon.environment = config.environment.variables;
-  # 让 NCPS 缓存写入本地 NVMe 持久盘（不在 NFS-backed /mnt/storage），并路由其
-  # 上游下载走与构建一致的稳定出口。
-  systemd.services.ncps.environment = lib.getAttrs [
-    "HTTP_PROXY"
-    "HTTPS_PROXY"
-    "NO_PROXY"
-    "http_proxy"
-    "https_proxy"
-    "no_proxy"
-  ] config.environment.variables;
 
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.
@@ -282,13 +272,9 @@ in
 
   services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
 
-  # Resilio Sync migrated from the QNAP NAS (2026-08). Identity and config
-  # stay in the local /var/lib/resilio-sync; the synced folders are served
-  # from the NFS share (bind-mounted at /sync and /downloads by the module).
-  lantian.resilioSync = {
-    dataDir = "/mnt/storage/resilio/data";
-    downloadsDir = "/mnt/storage/resilio/downloads";
-  };
+  # Resilio Sync 引擎已迁至 dragon-q8b（2026-08-28）；同步的数据本体仍
+  # 在 NAS（/mnt/storage/resilio/*）。本机 /nix/persistent/var/lib/resilio-sync
+  # 的 identity/索引随迁移拷走，确认 dragon 稳定后可删除回收空间。
 
   # Ignis vault is the knowledge-chain folder (Syncthing home copy on the
   # NFS share). Notes was merged into Documents (2026-08-20), so point the
