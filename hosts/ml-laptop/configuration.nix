@@ -254,6 +254,27 @@
   # powerManagement.enable 的 suspend/resume 视频内存保存功能。
   hardware.nvidia.moduleParams.nvidia.NVreg_DynamicPowerManagement = 0;
 
+  # Xid 79 (GPU has fallen off the bus) 修复：595.x 闭源驱动在 Turing
+  # 卡上仍走 GSP 固件（EnableGpuFirmware=18），雷电 eGPU 场景下 GSP 固件
+  # 崩溃导致 GPU 不响应 MMIO，驱动判定掉卡。实测开机后约 6 分钟静默
+  # 掉卡（无 PCIe link down、无 AER，纯固件挂起）。关闭 GSP 固件回退到
+  # 传统驱动路径，在雷电 eGPU 下更稳定。代价是失去 GSP 提供的部分电源
+  # 管理功能，但对雷电 eGPU 本就不能用 RTD3，无实际损失。
+  hardware.nvidia.moduleParams.nvidia.NVreg_EnableGpuFirmware = 0;
+
+  # 雷电 eGPU PCIe 链路稳定性修复（kernel cmdline 参数，需重启生效）。
+  #
+  # pci=realloc：让内核重新分配热插拔雷电设备后面的 PCI BAR / bridge
+  #   window，减少枚举/链路建立失败。对雷电 eGPU 是推荐设置，副作用小。
+  # pcie_aspm=off：全局禁用 PCIe Active State Power Management（L0s/L1）。
+  #   雷电 3 隧道上的 ASPM L1 状态可能导致链路不稳，进而触发 Xid 79。
+  #   Arch BBS / eGPU.io 社区多人验证此参数解决雷电 eGPU 掉卡问题。
+  #   代价是整机 PCIe 设备（NVMe/WiFi 等）失去 ASPM 省电，但 TLP 设的
+  #   PCIE_ASPM_ON_AC=performance 本来就偏高性能，影响可接受。
+  # 参考：github.com/plotfi/tensor-playground/pull/17 eGPU workaround 文档
+  # 和 bbs.archlinux.org/viewtopic.php?id=304020 中多人确认。
+  boot.kernelParams = [ "pci=realloc" "pcie_aspm=off" ];
+
   # eGPU（RTX 2080 Ti via Thunderbolt 3 Oculink dock）运行时电源管理修复。
   #
   # 根因：公共 client-components/tlp.nix 的 RUNTIME_PM_ON_AC=auto 对所有
