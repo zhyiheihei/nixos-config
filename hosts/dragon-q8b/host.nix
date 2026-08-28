@@ -9,6 +9,8 @@
   system = "aarch64-linux";
   tags = with tags; [
     lan-access
+    # 原生 aarch64 远程构建机（2026-08-29 自 opi5p 接棒；opi5p 恢复后可并存）
+    nix-builder
     server
   ];
   cpuThreads = 8;

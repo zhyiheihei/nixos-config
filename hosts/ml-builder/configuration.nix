@@ -62,6 +62,16 @@ in
     mode = "0600";
   };
 
+  # Hydra is disabled here, but the distributed-builder client key it used to
+  # provision is still the one secrets/ssh/nix-builder.nix authorizes on every
+  # nix-builder host. Keep wiring it so nix-distributed can reach the builders.
+  sops.secrets.hydra-builder-ssh-privkey = {
+    sopsFile = inputs.secrets + "/hydra.yaml";
+    key = "hydra-ssh-privkey";
+    mode = "0400";
+  };
+  lantian.nix-distributed.sshKeyPath = config.sops.secrets.hydra-builder-ssh-privkey.path;
+
   # Only this machine advertises the native x86_64 toolchain used for
   # AArch64 cross builds. Ordinary x86_64 derivations remain distributable to
   # the other builders.

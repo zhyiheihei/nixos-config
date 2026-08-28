@@ -117,11 +117,6 @@ in
   };
 
   programs.ssh.extraConfig = ''
-    Host eu.nixbuild.net
-      User root
-      Port 22
-      PubkeyAcceptedKeyTypes ssh-ed25519
-
     Host sftp.opi5p.ltnet.zhyi.xin
       HostName opi5p.ltnet.zhyi.xin
       User sftp
