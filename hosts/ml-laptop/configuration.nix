@@ -262,20 +262,16 @@
   # 管理功能，但对雷电 eGPU 本就不能用 RTD3，无实际损失。
   hardware.nvidia.moduleParams.nvidia.NVreg_EnableGpuFirmware = 0;
 
-  # 雷电 eGPU PCIe 链路稳定性修复（kernel cmdline 参数，需重启生效）。
-  #
-  # pcie_aspm=off：全局禁用 PCIe Active State Power Management（L0s/L1）。
-  #   雷电 3 隧道上的 ASPM L1 状态可能导致链路不稳，进而触发 Xid 79。
-  #   Arch BBS / eGPU.io 社区多人验证此参数解决雷电 eGPU 掉卡问题。
-  #   代价是整机 PCIe 设备（NVMe/WiFi 等）失去 ASPM 省电，但 TLP 设的
-  #   PCIE_ASPM_ON_AC=performance 本来就偏高性能，影响可接受。
-  # 参考：bbs.archlinux.org/viewtopic.php?id=304020 中多人确认。
-  #
-  # 注意：曾试过同时加 pci=realloc，但在本机（TBT4-Oculink DOCK +
-  #   RTX 2080 Ti）上导致雷电桥 03:01.0 的 memory window 未分配，eGPU
-  #   完全无法枚举（bus 04 上无设备）。故回退 pci=realloc，仅保留
-  #   pcie_aspm=off。
-  boot.kernelParams = [ "pcie_aspm=off" ];
+  # 曾试过的 PCIe 内核参数（均已回退）：
+  # - pci=realloc：导致雷电桥 03:01.0 的 memory window 未分配，eGPU
+  #   完全无法枚举（bus 04 上无设备）。
+  # - pcie_aspm=off：导致 eGPU 卡在 D3cold 无法上电，nvidia 驱动 probe
+  #   失败（"Unable to change power state from D3cold to D0"），开机
+  #   即不可用。本机的雷电 3 控制器（JHL7440 Titan Ridge）在 ASPM
+  #   完全禁用后反而无法正常管理设备电源状态。
+  # 结论：本机雷电 eGPU 不适配社区通用的 PCIe 内核参数修复，仅靠
+  # NVreg_DynamicPowerManagement=0 + NVreg_EnableGpuFirmware=0 +
+  # TLP/udev 运行时 PM 排除来保持稳定。
 
   # eGPU（RTX 2080 Ti via Thunderbolt 3 Oculink dock）运行时电源管理修复。
   #
