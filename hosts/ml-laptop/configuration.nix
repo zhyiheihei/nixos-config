@@ -264,16 +264,18 @@
 
   # 雷电 eGPU PCIe 链路稳定性修复（kernel cmdline 参数，需重启生效）。
   #
-  # pci=realloc：让内核重新分配热插拔雷电设备后面的 PCI BAR / bridge
-  #   window，减少枚举/链路建立失败。对雷电 eGPU 是推荐设置，副作用小。
   # pcie_aspm=off：全局禁用 PCIe Active State Power Management（L0s/L1）。
   #   雷电 3 隧道上的 ASPM L1 状态可能导致链路不稳，进而触发 Xid 79。
   #   Arch BBS / eGPU.io 社区多人验证此参数解决雷电 eGPU 掉卡问题。
   #   代价是整机 PCIe 设备（NVMe/WiFi 等）失去 ASPM 省电，但 TLP 设的
   #   PCIE_ASPM_ON_AC=performance 本来就偏高性能，影响可接受。
-  # 参考：github.com/plotfi/tensor-playground/pull/17 eGPU workaround 文档
-  # 和 bbs.archlinux.org/viewtopic.php?id=304020 中多人确认。
-  boot.kernelParams = [ "pci=realloc" "pcie_aspm=off" ];
+  # 参考：bbs.archlinux.org/viewtopic.php?id=304020 中多人确认。
+  #
+  # 注意：曾试过同时加 pci=realloc，但在本机（TBT4-Oculink DOCK +
+  #   RTX 2080 Ti）上导致雷电桥 03:01.0 的 memory window 未分配，eGPU
+  #   完全无法枚举（bus 04 上无设备）。故回退 pci=realloc，仅保留
+  #   pcie_aspm=off。
+  boot.kernelParams = [ "pcie_aspm=off" ];
 
   # eGPU（RTX 2080 Ti via Thunderbolt 3 Oculink dock）运行时电源管理修复。
   #
