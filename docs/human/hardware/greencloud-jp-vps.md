@@ -57,6 +57,18 @@
 - [x] greencloud 控制器声明式授权该成员；`greencloud-jp.zhyi.xin` A/AAAA
       已由 dnscontrol 发布，greencloud 上 ACME 证书签发中。
 
+## VaultS3 S3 网关（s3.zhyi.xin，2026-08-29）
+
+- host-local 配置（对齐 router 上的既有实例）：数据 `/data/vaults3-data`
+  （1T 盘），元数据 `/nix/persistent/var/lib/vaults3`，仅监听 loopback:9000，
+  由 nginx 反代 `s3.zhyi.xin`（泛域名证书 + `client_max_body_size 0`）。
+- SigV4 兼容：LT nginx 默认透传 `$host`，签名校验不受反代影响。
+- 凭据沿用机群约定：access key `zhyi` / secret key 来自共享 `default-pw`
+  （sops template `vaults3-credentials`）。
+- DNS：`s3.zhyi.xin` CNAME → `greencloud-jp.zhyi.xin`，由 dnscontrol CI 发布。
+- 验证（2026-08-29）：匿名请求按 S3 语义拒绝；SigV4 建桶/上传/列举/下载/
+  删桶 roundtrip 全通过。
+
 ## cn-accel 出口节点（2026-08-29）
 
 - host.nix 加 `cn-accel` 标签（启用 server-apps/v2ray.nix 的 xray），configuration.nix
