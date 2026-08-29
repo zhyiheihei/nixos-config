@@ -76,7 +76,9 @@
 
 ## 待办
 
-- [ ] SFTP 登录端到端验证（需要 Bitwarden 中的 sftp 客户端私钥）。
+- [x] SFTP 登录端到端验证（2026-08-29，google 用 sops 解密的 sftp-privkey
+      登录 `sftp@greencloud-jp.zhyi.xin:2222`：chroot 生效、`/backups` 可写、
+      上传/读回/删除 roundtrip 通过）。
 - [ ] S3 网关选型与部署（Garage / MinIO，数据盘 `/data`）。
 - [ ] 决策是否把各服务器 `lantian.backup.sftpEndpoint` 从 `opi5p.zhyi.xin`
       切换到 `greencloud-jp.zhyi.xin`。
