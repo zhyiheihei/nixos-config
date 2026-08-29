@@ -64,6 +64,7 @@ _: [
   # keep-sorted start
   "volcengine.zhyi.xin"
   "flapalerted.zhyi.xin"
+  "greencloud-jp.zhyi.xin"
   "hostdare.zhyi.xin"
   "greencloud.zhyi.xin"
   "google.zhyi.xin"
