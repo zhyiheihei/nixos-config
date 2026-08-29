@@ -57,6 +57,22 @@
 - [x] greencloud 控制器声明式授权该成员；`greencloud-jp.zhyi.xin` A/AAAA
       已由 dnscontrol 发布，greencloud 上 ACME 证书签发中。
 
+## cn-accel 出口节点（2026-08-29）
+
+- host.nix 加 `cn-accel` 标签（启用 server-apps/v2ray.nix 的 xray），configuration.nix
+  将默认 vhost 证书升级为 `lets-encrypt-zhyi.xin`（泛域名，SAN `*.zhyi.xin`）；
+  域名需加入 `helpers/constants/public-sites.nix` 的有意公开白名单，否则求值断言失败。
+- 订阅侧（greencloud 的 SublinkPro，面板 `sub.zhyi.xin`）：
+  seed 脚本已加入节点循环；但 `subcription/update` API 存在「与自己重名」的
+  校验 bug，存量订阅无法通过 API 追加节点，需直接改
+  `/var/lib/sublinkpro/db/sublink.db` 的 `subcription_nodes` 关联表
+  （本次已把节点 ID 91/92/93/94/248 挂到订阅 1）。
+- 客户端实际使用的分享链接是「默认分享链接」（token 与
+  SUBLINK_SHARE_TOKEN 派生值无关），验证时用 shares/get 查真实 token。
+- greencloud 上 per-host 的 `zerossl-greencloud-jp.zhyi.xin-rsa` 证书订单
+  因 ZeroSSL API 抖动失败中（自签兜底已手动放入同步目录，nginx 正常）；
+  ZeroSSL 恢复后定时器会自动换成真证书。
+
 ## 待办
 
 - [ ] SFTP 登录端到端验证（需要 Bitwarden 中的 sftp 客户端私钥）。
