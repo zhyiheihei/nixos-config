@@ -29,6 +29,9 @@ in
 
     # SFTP 备份端点（internal-sftp chroot，chroot 目录改到 1T 数据盘）。
     ../../nixos/optional-apps/sftp-server.nix
+
+    # Gitea（自 greencloud 迁入，2026-08-29；模块自带 mysql 依赖）。
+    ../../nixos/optional-apps/gitea
   ];
 
   # 本机是机群的异地备份目标，不再向外推送自身备份。
@@ -71,6 +74,16 @@ in
   # cn-accel 出口节点：默认 vhost 的 /ray 走真证书（同 tencent；xray 服务由
   # cn-accel 标签经 server-apps/v2ray.nix 启用）。
   lantian.nginxVhosts."greencloud-jp.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
+
+  # Gitea LFS/附件存储：原 router 上的 vaults3 已停摆（服务 inactive、数据盘
+  # 缺失），改指向本机 vaults3（s3.zhyi.xin，nginx 443 TLS）。
+  services.gitea.settings.storage = {
+    MINIO_ENDPOINT = "s3.zhyi.xin:443";
+    MINIO_BUCKET = "gitea";
+    MINIO_LOCATION = "east-1";
+    MINIO_USE_SSL = true;
+    SERVE_DIRECT = false;
+  };
 
   # VaultS3 S3 网关：数据放 1T 数据盘，仅监听 loopback，由 nginx 反代
   # s3.zhyi.xin（泛域名证书）。与 router 上的实例共用机群统一凭据约定。
