@@ -16,6 +16,10 @@
   # 本机是机群的异地备份目标，不再向外推送自身备份。
   lantian.backup.schedule = null;
 
+  # cn-accel 出口节点：默认 vhost 的 /ray 走真证书（同 tencent；xray 服务由
+  # cn-accel 标签经 server-apps/v2ray.nix 启用）。
+  lantian.nginxVhosts."greencloud-jp.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
+
   # sftp-server.nix 默认 chroot 到 /nix/persistent/sftp-server（39G 系统盘），
   # 备份机改到 1T 数据盘 /data。
   # sshd 的 ChrootDirectory 要求整个路径 root 属主且不可被他人写，因此 home

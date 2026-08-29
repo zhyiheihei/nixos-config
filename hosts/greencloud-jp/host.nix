@@ -7,6 +7,7 @@
 {
   index = 130;
   tags = with tags; [
+    cn-accel
     dn42
     public-facing
     server

@@ -70,6 +70,21 @@ in
             path: /ray
             host: hostdare.zhyi.xin
             mode: stream-up
+        - name: 🇯🇵 日本 GreenCloud JP
+          type: vless
+          server: greencloud-jp.zhyi.xin
+          port: 443
+          uuid: "${config.sops.placeholder.v2ray-key}"
+          network: xhttp
+          tls: true
+          udp: true
+          servername: greencloud-jp.zhyi.xin
+          client-fingerprint: chrome
+          encryption: ""
+          xhttp-opts:
+            path: /ray
+            host: greencloud-jp.zhyi.xin
+            mode: stream-up
         - name: 🇺🇸 美国 Google
           type: vless
           server: google.zhyi.xin
@@ -121,6 +136,7 @@ in
           type: select
           proxies:
             - 🇯🇵 日本 HostDare
+            - 🇯🇵 日本 GreenCloud JP
             - 🇺🇸 美国 Google
             - 🇸🇬 新加坡 GreenCloud
             - 🇰🇷 韩国 Tencent
@@ -308,12 +324,13 @@ in
         curl_auth -X DELETE "$api/api/v1/nodes/delete?id=$stale_id" || true
       done
 
-      for node in hostdare google greencloud tencent; do
+      for node in hostdare google greencloud tencent greencloud-jp; do
         case "$node" in
           hostdare) server=hostdare.zhyi.xin; display="🇯🇵 日本 HostDare" ;;
           google) server=google.zhyi.xin; display="🇺🇸 美国 Google" ;;
           greencloud) server=greencloud.zhyi.xin; display="🇸🇬 新加坡 GreenCloud" ;;
           tencent) server=tencent.zhyi.xin; display="🇰🇷 韩国 Tencent" ;;
+          greencloud-jp) server=greencloud-jp.zhyi.xin; display="🇯🇵 日本 GreenCloud JP" ;;
         esac
         # SublinkPro sets NameMode=link on add, so the LinkName (#fragment)
         # is what clients see; use the standardized display name there.
@@ -325,7 +342,7 @@ in
       done
 
       ids=$(curl_auth "$api/api/v1/nodes/get" \
-        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="🇯🇵 日本 HostDare" or .LinkName=="🇺🇸 美国 Google" or .LinkName=="🇸🇬 新加坡 GreenCloud" or .LinkName=="🇰🇷 韩国 Tencent") | .ID] | join(",")')
+        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="🇯🇵 日本 HostDare" or .LinkName=="🇺🇸 美国 Google" or .LinkName=="🇸🇬 新加坡 GreenCloud" or .LinkName=="🇰🇷 韩国 Tencent" or .LinkName=="🇯🇵 日本 GreenCloud JP") | .ID] | join(",")')
       if [ -z "$ids" ]; then
         echo "No overseas Xray nodes found after seeding" >&2
         exit 1
