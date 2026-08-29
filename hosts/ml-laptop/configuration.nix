@@ -228,6 +228,28 @@
   systemd.services.nvidia-container-toolkit-cdi-generator.unitConfig.ConditionPathExists =
     "/proc/driver/nvidia/version";
 
+  # eGPU 核心频率锁定：TB3 隧道在核心 P-state 切换瞬间（405↔7000MHz
+  # 跳变）易失联（Xid 79/109，完整游戏会话必触发）。锁 1500MHz 后完整
+  # 会话实测干净。1500MHz 是 Turing 的甜点档：游戏帧率损失约 10%，
+  # 空载功耗约 +10W（22W）。显存锁（-lmc）TB3 下驱动不支持，无法消除
+  # 显存切换，但实测已不致命。坞未接时 unit 条件不满足、自动跳过。
+  systemd.services.egpu-clock-lock = {
+    description = "Lock eGPU core clock to avoid TB3 P-state transition drops";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "nvidia-persistenced.service" ];
+    wants = [ "nvidia-persistenced.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    # /proc/driver/nvidia/version 存在 ⇔ eGPU 在位（同 CDI generator 条件）
+    unitConfig.ConditionPathExists = [ "/proc/driver/nvidia/version" ];
+    script = ''
+      ${config.hardware.nvidia.package.bin}/bin/nvidia-smi -pm 1
+      ${config.hardware.nvidia.package.bin}/bin/nvidia-smi -lgc 1500,1500
+    '';
+  };
+
   # 雷电坞 eGPU（RTX 2080 Ti via TBT3 Oculink dock），仅本机。
   #
   # ==================== eGPU 排障终版结论（2026-08-29） ====================
@@ -235,12 +257,15 @@
   # 症状一：Xid 79 "GPU has fallen off the bus"（空载/负载均可触发）
   #   根因：vfio.nix 无条件注入的 pcie_acs_override 在雷电桥上伪造 ACS、
   #   破坏隧道 PCIe 事务路由。已在项目级修复：仅直通设备非空才注入
-  #   （hardware/vfio.nix）。实证：移除后 535/595 累计 5h+ 零自发性掉卡
-  #   （此前每次开机必死，最快 3 分钟）。
-  #   残留已知触发源：Chromium 系应用（Discord 实测）的 Vulkan 视频管线
-  #   会主动选中 eGPU 并致其掉线（Xid 79，线程 [vkps] Update）；535 因缺
-  #   VK_KHR_load_store_op_none 反而"免疫"。属 TB3 隧道 + Turing 的链路
-  #   健壮性短板，非本机配置层面可解，暂无系统级规避手段。
+  #   （hardware/vfio.nix）。
+  #   残留触发源（两个，均已实测）：核心 P-state 切换瞬间（游戏菜单/
+  #   加载/退出时 405↔7000MHz 跳变）冲击 TB3 隧道——完整游戏会话在
+  #   250W/180W 限功下均会 Xid 79/109，锁核心 1500MHz 后完整会话干净
+  #   通过（16:44-17:20 实测，含进出菜单的显存切换）；Chromium 系应用
+  #   （Discord 实测）的 Vulkan 视频管线主动选 eGPU 也会触发。
+  #   缓解：下方 egpu-clock-lock 服务开机锁定核心频率；Discord 关闭
+  #   硬件加速（GUI 设置）。锁定需 nvidia-smi -pm 1 先行，显存锁 TB3
+  #   下驱动不支持（-lmc 报 not supported）。
   #
   # 症状二：游戏回落核显（535 降级期间出现，现已消除）
   #   根因：535 的 Vulkan 缺 VK_KHR_load_store_op_none，Proton DXVK 3.x
