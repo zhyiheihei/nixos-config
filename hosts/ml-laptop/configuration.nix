@@ -228,28 +228,45 @@
   systemd.services.nvidia-container-toolkit-cdi-generator.unitConfig.ConditionPathExists =
     "/proc/driver/nvidia/version";
 
-  # 雷电坞 eGPU（RTX 2080 Ti via TBT3 Oculink dock）稳定性修复，仅本机。
-  # 2026-08-28 排障结论：595.x 驱动即使在禁用 GSP 固件后，遗留代码路径
-  # 在 Turing + 雷电 3 eGPU 下仍存在根本性不兼容——nvidia-drm boot 时
-  # 能初始化（仅读 PCI 配置空间），但首次 MMIO 访问（约 3 分钟后
-  # Vulkan 进程触达）即 Xid 79，无 PCIe AER 错误，纯驱动↔GPU 通信失败。
-  # 降级到 535 分支（早于 560+ GSP 强制启用时代）是当前最可行的方向。
+  # 雷电坞 eGPU（RTX 2080 Ti via TBT3 Oculink dock），仅本机。
   #
-  # finegrained 关闭：公共 prime.nix 开了 RTD3 运行时休眠，eGPU 空闲
-  # 几秒即被打入 D3cold，Turing 卡经雷电线唤醒失败会打死 GSP 固件 RPC。
-  # 作者桌面卡（PCIe 直连）可以用它，本机雷电坞不行。
+  # ==================== eGPU 排障终版结论（2026-08-29） ====================
+  #
+  # 症状一：Xid 79 "GPU has fallen off the bus"（空载/负载均可触发）
+  #   根因：vfio.nix 无条件注入的 pcie_acs_override 在雷电桥上伪造 ACS、
+  #   破坏隧道 PCIe 事务路由。已在项目级修复：仅直通设备非空才注入
+  #   （hardware/vfio.nix）。实证：移除后 535/595 累计 5h+ 零自发性掉卡
+  #   （此前每次开机必死，最快 3 分钟）。
+  #   残留已知触发源：Chromium 系应用（Discord 实测）的 Vulkan 视频管线
+  #   会主动选中 eGPU 并致其掉线（Xid 79，线程 [vkps] Update）；535 因缺
+  #   VK_KHR_load_store_op_none 反而"免疫"。属 TB3 隧道 + Turing 的链路
+  #   健壮性短板，非本机配置层面可解，暂无系统级规避手段。
+  #
+  # 症状二：游戏回落核显（535 降级期间出现，现已消除）
+  #   根因：535 的 Vulkan 缺 VK_KHR_load_store_op_none，Proton DXVK 3.x
+  #   将其列为硬性要求，2080 Ti 被判不合格（steam-1466860.log 实录）。
+  #   595 支持该扩展。已撤销降级回默认驱动，游戏由 DXVK/VKD3D 按最大
+  #   显存自动选 2080 Ti，无需任何过滤器/手动配置。
+  #
+  # 电源管理（保留，证据充分）：Xid 154 / "D3cold to D0 device
+  #   inaccessible" 由 TLP 对隧道上设备的运行时 PM 引起（finegrained 只
+  #   管 .0 功能，管不住 .2/.3 和上游桥）。以下四层防护全部保留：
+  #   TLP RUNTIME_PM_DENYLIST + udev 强制 power/control=on +
+  #   NVreg_DynamicPowerManagement=0 + finegrained=false。
+  #
+  # 恢复手段：掉线后软件无法救回（PCI remove/rescan、CTO 调整均实测
+  #   无效；勿在 RM 运行时改 GPU 端点 DevCtl2，会致 RmInitAdapter
+  #   0x22:0x56:774 全灭）。整机重启或坞断电重插可恢复。
+  #
+  # 已排除的其他假说：CTO 完成超时（根端口禁用后仍掉）；硬件本体
+  #   （Windows 同硬件零故障）；坞内交换芯片 DevCtl2（只读不可改）。
+  # ========================================================================
   hardware.nvidia.powerManagement.finegrained = lib.mkForce false;
   hardware.nvidia.open = lib.mkForce false;
 
-  # DXVK/VKD3D（Proton 的 DX11/DX12 转译层）默认取 Vulkan 枚举的首个设备，
-  # 而 loader 按 ICD 文件名排序：intel 恒在 nvidia 之前，导致 DX12 游戏默认
-  # 落在核显。会话级设备过滤器让所有 Proton 游戏自动落到 eGPU，无需每游戏
-  # 手动配置。GL 游戏仍走 steam-offload（见 nvidia/prime.nix）。
-  # 注意：拔掉 eGPU 后这两个过滤器会找不到设备，游戏内需自行清空该变量。
-  environment.sessionVariables = {
-    DXVK_FILTER_DEVICE_NAME = "NVIDIA GeForce RTX 2080 Ti";
-    VKD3D_FILTER_DEVICE_NAME = "NVIDIA GeForce RTX 2080 Ti";
-  };
+  # DXVK/VKD3D 过滤器已撤销：535 缺 VK_KHR_load_store_op_none 时过滤器
+  # 只会让 DXVK 找不到任何设备而秒退；回 595 后 DXVK/VKD3D 默认选最大
+  # 显存设备，自动走 2080 Ti，无需任何干预。
 
   # eGPU 经雷电 3 隧道连接，PCI 总线号由雷电拓扑决定。公共 prime.nix
   # 硬编码 nvidiaBusId="PCI:1:0:0"（适用于 PCIe 直连 dGPU 如 lt-hp-omen），
@@ -257,71 +274,12 @@
   # X server PRIME offload 指向错误设备。
   hardware.nvidia.prime.nvidiaBusId = lib.mkForce "PCI:4:0:0";
 
-  # 驱动降级 595.x → 535 分支（535.288.01）：535 分支早于 560+ 的 GSP
-  # 强制启用时代，遗留代码路径是主路径且经过充分测试，对雷电 eGPU
-  # 更友好。595.x 即使 NVreg_EnableGpuFirmware=0 禁了 GSP（确认 /proc
-  # GPU Firmware: N/A），遗留路径仍首次 MMIO 即 Xid 79。
-  hardware.nvidia.package = lib.mkForce config.boot.kernelPackages.nvidia_x11_legacy535;
-
-  # 显式关闭驱动内部 RTD3（NVreg_DynamicPowerManagement=0），防止雷电
-  # eGPU 被驱动主动打入 D3cold 后唤醒失败（Xid 154）。保留
-  # powerManagement.enable 的 suspend/resume 视频内存保存功能。
+  # RTD3 防护：DynamicPowerManagement=0 防 eGPU 被驱动打入 D3cold 后
+  # 唤醒失败（Xid 154，详见下方 TLP 段）。EnableGpuFirmware=0 禁 GSP
+  # 为保险项（其原始理论依据已被 ACS 结论推翻，无正/反实证），保留作
+  # 为稳定性回归时的第一个排查开关。
   hardware.nvidia.moduleParams.nvidia.NVreg_DynamicPowerManagement = 0;
-
-  # 显式禁用 GSP 固件。535 分支对 Turing 默认不加载 GSP，此参数作为
-  # 保险。595.x 即使设此值，遗留路径仍不稳定（已实测确认）。
   hardware.nvidia.moduleParams.nvidia.NVreg_EnableGpuFirmware = 0;
-
-  # 曾试过的修复（均在 595.x 驱动上，均未能阻止 Xid 79）：
-  # - pci=realloc：雷电桥 memory window 未分配，eGPU 完全无法枚举。
-  # - pcie_aspm=off：eGPU 卡在 D3cold 无法上电，JHL7440 在 ASPM 完全
-  #   禁用后无法正常管理设备电源状态。
-  # - NVreg_EnableGpuFirmware=0：GSP 确认未加载，但 595.x 遗留路径仍
-  #   首次 MMIO 即失败。
-  # 【结论已被 2026-08-28/29 实测推翻，见下方 eGPU 排障记录】降级 535
-  # 只是把首次 Xid 79 从 3 分钟（负载）推迟到 1h43m（空载），不是修复。
-
-  # eGPU 空载掉卡（Xid 79 "GPU has fallen off the bus"）排障记录，2026-08-29。
-  #
-  # 已实测排除的假说：
-  # 1. 链路级 D3cold / 运行时 PM：TLP denylist + udev 强制 power/control=on
-  #    + NVreg_DynamicPowerManagement=0 生效后，掉线时所有设备仍在 D0，
-  #    无 Xid 154。
-  # 2. 驱动分支：595.45.04 与 535.288.01 均掉（见上）。
-  # 3. PCIe Completion Timeout：在根端口 00:07.0 禁用 CTO（DevCtl2
-  #    TimeoutDis+，主机侧端口坞断电后仍保留）后 3 分钟内仍空载 Xid 79
-  #    （2026-08-29 00:42:43）。注意：坞内交换芯片端口 02:00.0/03:04.0 的
-  #    DevCtl2 只读，无法改。
-  # 4. 硬件（坞供电/卡本体）：同一套硬件 Windows 下毫无故障。
-  #
-  # 重要教训：不要在驱动运行时改 GPU 端点（04:00.0）的 DevCtl2——RM 自己
-  # 管理该寄存器，改完 RmInitAdapter 全部失败（0x22:0x56:774，该错误码
-  # 历史上从未出现），只能坞断电重来。
-  #
-  # 掉线后软件无法恢复的两种实测形态：配置空间全 0xFF（lspci 报
-  # "Unknown header type 7f"）时 remove+rescan 无效；配置空间尚在但 RM
-  # 初始化失败时同样救不回。唯一恢复手段：坞断电重插。
-  #
-  # 当前实验（本轮）：移除 libvirt→vfio.nix 无条件带来的四个内核参数。
-  # 本机 lantian.vfio.ids 为空、无任何直通设备，参数纯属死重；其中
-  # pcie_acs_override 强制在下游端口（含雷电桥）伪造 ACS、改写 PCIe
-  # 事务路由，且 Windows 下无此机制毫无故障——是剩余头号嫌疑。
-  # AER 控制权在固件（_OSC 未授予 OS），所有链路级错误对内核不可见，
-  # 掉线时 dmesg 只有 NVRM 三行是常态而非线索缺失。
-  # 若验证有效：回头把 vfio.nix 的 kernelParams 改为按需启用（ids 非空
-  # 才生效），本机的 mkForce 即可移除。
-  boot.kernelParams = lib.mkForce [
-    "i915.enable_guc=3"
-    "cgroup_enable=memory"
-    "delayacct"
-    "ibt=off"
-    "log_buf_len=1048576"
-    "rcuupdate.rcu_cpu_stall_suppress=1"
-    "split_lock_detect=off"
-    "swapaccount=1"
-    "net.ifnames=0"
-    "psi=1"
-  ];
 
   # eGPU（RTX 2080 Ti via Thunderbolt 3 Oculink dock）运行时电源管理修复。
   #

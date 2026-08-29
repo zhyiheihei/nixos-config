@@ -31,7 +31,11 @@ in
     boot.kernelModules = [
       "vfio-pci"
     ];
-    boot.kernelParams = [
+    # IOMMU/ACS 参数仅在真正配置了直通设备时注入：pcie_acs_override 会在
+    # 下游端口（含雷电桥）伪造 ACS、改写 PCIe 事务路由，对雷电 eGPU 等非
+    # 直通场景是有害的（实测导致 Xid 79 空间掉卡）。ids 为空的主机不应背
+    # 这些参数。
+    boot.kernelParams = lib.optionals (cfg.ids != [ ]) [
       "intel_iommu=on"
       "iommu=pt"
       "amd_iommu=on"
