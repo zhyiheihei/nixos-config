@@ -75,6 +75,13 @@ in
   # Fixed-output derivations execute on this native ARM builder. Route their
   # source downloads through the same stable egress as ml-builder instead of
   # relying on intermittent direct GitHub connectivity.
+  #
+  # 2026-08-29: 这些代理变量绝不喂给 nix-daemon（曾用
+  # `systemd.services.nix-daemon.environment = config.environment.variables`
+  # 全量灌入）。daemon 的出站 HTTP 经 router V2Ray 阻塞时连接不退，客户端
+  # 超时重连 → sshd/nix-daemon 连环孵化 → OOM 死循环（2TB NVMe 时代与本次
+  # SD 重装均复现；dragon/ml-builder 的 daemon 无代理故永不触发）。
+  # 代理只作用于交互 shell 与显式声明代理的服务。
   environment.variables = {
     GOPROXY = "https://goproxy.cn,direct";
     HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
@@ -84,7 +91,6 @@ in
     https_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
     no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   };
-  systemd.services.nix-daemon.environment = config.environment.variables;
 
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.
@@ -190,6 +196,28 @@ in
   swapDevices = [
     { device = "/nix/swapfile"; size = 4096; }
   ];
+
+  # swapDevices 只激活已存在的文件；dd 镜像首启时 /nix/swapfile 不存在，
+  # swap 单元直接 failed（2026-08-29 实证：全机无 swap 兜底放大了 daemon
+  # 堆积的破坏）。镜像不带 4G 文件（浪费体积），首启按需创建。
+  systemd.services.opi5p-swapfile-bootstrap = {
+    description = "Create /nix/swapfile before swap.target when missing";
+    wantedBy = [ "swap.target" ];
+    before = [ "swap.target" "nix-swapfile.swap" ];
+    requires = [ "nix.mount" ];
+    after = [ "nix.mount" ];
+    unitConfig.ConditionPathExists = "!/nix/swapfile";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = [
+        "${pkgs.coreutils}/bin/touch /nix/swapfile"
+        "${pkgs.e2fsprogs}/bin/chattr +C /nix/swapfile"
+        "${pkgs.coreutils}/bin/dd if=/dev/zero of=/nix/swapfile bs=1M count=4096 status=none"
+        "${pkgs.coreutils}/bin/chmod 600 /nix/swapfile"
+        "${pkgs.util-linux}/bin/mkswap /nix/swapfile"
+      ];
+    };
+  };
 
   ########################################
   # Frigate NVR（乐橙摄像头 ×2）—— 重装过渡期摘除，NVMe 落定后恢复
