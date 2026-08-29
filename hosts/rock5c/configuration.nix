@@ -115,9 +115,6 @@ in
   # carrier, so enable systemd's scoped per-interface instance only.
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@lan0.service" ];
 
-  # The SFTP/data chain moved to OPI5P.  Override only this migrated host;
-  # other machines retain the author's established backup endpoint.
-  lantian.backup.sftpEndpoint = "opi5p.zhyi.xin";
 
   # ROCK 5C has no reliable RTC. A calendar timer is armed while the clock is
   # still months behind, then fires immediately when time synchronization
