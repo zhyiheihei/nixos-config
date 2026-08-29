@@ -18,8 +18,6 @@
     ../../nixos/optional-apps/bird-lg-go.nix
     ../../nixos/optional-apps/byparr.nix
     ../../nixos/optional-apps/flapalerted.nix
-    ../../nixos/optional-apps/gitea
-    ../../nixos/optional-apps/gitea-actions.nix
     ../../nixos/optional-apps/imapfilter.nix
     ../../nixos/optional-apps/lemmy.nix
     ../../nixos/optional-apps/librechat.nix
