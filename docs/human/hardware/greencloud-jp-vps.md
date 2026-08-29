@@ -70,8 +70,9 @@
 - 客户端实际使用的分享链接是「默认分享链接」（token 与
   SUBLINK_SHARE_TOKEN 派生值无关），验证时用 shares/get 查真实 token。
 - greencloud 上 per-host 的 `zerossl-greencloud-jp.zhyi.xin-rsa` 证书订单
-  因 ZeroSSL API 抖动失败中（自签兜底已手动放入同步目录，nginx 正常）；
-  ZeroSSL 恢复后定时器会自动换成真证书。
+  因 ZeroSSL API 抖动失败中；nginx 的双证书布局要求四个文件齐全，已用
+  lets-encrypt-greencloud-jp 同域名证书填充 zerossl-rsa 位（真实受信证书，
+  非 self-signed），ZeroSSL 恢复后定时器会自动覆盖为原生 ZeroSSL 证书。
 
 ## 待办
 
