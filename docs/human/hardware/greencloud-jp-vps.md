@@ -86,6 +86,23 @@
   lets-encrypt-greencloud-jp 同域名证书填充 zerossl-rsa 位（真实受信证书，
   非 self-signed），ZeroSSL 恢复后定时器会自动覆盖为原生 ZeroSSL 证书。
 
+## Gitea 迁移（2026-08-29）
+
+- 自 greencloud 迁入：MySQL 全量 dump（150K）+ `/var/lib/gitea`（686K，
+  经 ml-builder 中转），恢复后 chown git:gitea。
+- LFS/附件存储：原 router 家内 vaults3 已停摆（服务 inactive、数据盘缺失），
+  改指向本机 `s3.zhyi.xin:443`（`MINIO_ENDPOINT` mkForce 覆盖模块默认）。
+- 存储凭据：VaultS3 的 IAM 为「用户 + 服务端生成的 access key（可绑定桶）」，
+  已建 `gitea` IAM 用户及其密钥（`POST /api/v1/keys`），写入 secrets
+  `gitea.yaml`（注：`subcription/update` 类自比名校验 bug 的教训——先读实现
+  再下结论，VaultS3 并非只认统一账户，initial 判断有误已纠正）。
+- DNS：`git.zhyi.xin` CNAME 切至 `greencloud-jp`（dnscontrol CI 发布）。
+- 未迁移：Gitea Actions runner（历史 0 次运行，未启用；需要时可在任意机器
+  启用 gitea-actions 模块指向 git.zhyi.xin）。greencloud 旧数据
+  （/var/lib/gitea、/var/lib/mysql）保留作回滚备份。
+- 验证：Web explore 303/证书受信、SSH clone（git@git.zhyi.xin:zhyi/notes.git）
+  返回 HEAD；私有仓库 HTTPS 提示凭据为预期行为。
+
 ## 待办
 
 - [x] SFTP 登录端到端验证（2026-08-29，google 用 sops 解密的 sftp-privkey

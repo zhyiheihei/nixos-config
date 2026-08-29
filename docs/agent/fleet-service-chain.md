@@ -209,8 +209,10 @@ ml-home-vm 已退役，旧 `*.ml-home-vm.zhyi.xin` 名称不应再被当作实�
 
 `greencloud` 承担：
 
-- 协作/内容：Gitea、Gitea Actions、Matrix Synapse workers、Mautrix GMessages、
+- 协作/内容：Matrix Synapse workers、Mautrix GMessages、
   Lemmy、Maddy、NetBox、Bepasty、Radicale、Miniflux、RSSHub、Quassel、Syncthing；
+  （Gitea 与 Gitea Actions 已于 2026-08-29 迁至 `greencloud-jp`，见
+  [greencloud-jp 接入记录](../human/hardware/greencloud-jp-vps.md)）；
 - AI 前端/自动化：LibreChat、n8n、n8n task runner、n8n OpenAI Bridge、Metapi；
 - 监控：Prometheus、Alertmanager、Grafana、Blackbox exporter、ClickHouse、
   Plausible、FlapAlerted、Bird-LG、StayRTR 和各类 exporter；
@@ -308,9 +310,9 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | NFS | `192.168.0.40:/nixos` | IP 白名单 |
 | CalDAV/CardDAV | `https://cal.zhyi.xin` | LDAP |
 | Matrix 联邦 | `https://matrix.zhyi.xin` | LDAP |
-| Git SSH | `git.zhyi.xin:2222` | SSH 公钥 |
+| Git SSH | `git.zhyi.xin:2222`（greencloud-jp） | SSH 公钥 |
 | rsync CI | 由 `ssh/rsync-ci.nix` 公钥限制 | SSH 公钥 |
-| VaultS3 S3 API | `vaults3.zhyi.xin:8443` | S3 凭据 |
+| VaultS3 S3 API | `s3.zhyi.xin`（greencloud-jp；gitea LFS 桶同址） | S3 凭据 |
 | Attic 上传 API | `https://attic.zhyi.xin` | token |
 | NCPS | `opi5p:13851` | 无登录 |
 | restic/rustic 备份 | `ssh://opi5p.zhyi.xin:2222` | SSH 公钥 + 仓库口令 |
