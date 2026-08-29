@@ -78,11 +78,11 @@ in
   # Gitea LFS/附件存储：原 router 上的 vaults3 已停摆（服务 inactive、数据盘
   # 缺失），改指向本机 vaults3（s3.zhyi.xin，nginx 443 TLS）。
   services.gitea.settings.storage = {
-    MINIO_ENDPOINT = "s3.zhyi.xin:443";
-    MINIO_BUCKET = "gitea";
-    MINIO_LOCATION = "east-1";
-    MINIO_USE_SSL = true;
-    SERVE_DIRECT = false;
+    MINIO_ENDPOINT = lib.mkForce "s3.zhyi.xin:443";
+    MINIO_BUCKET = lib.mkForce "gitea";
+    MINIO_LOCATION = lib.mkForce "east-1";
+    MINIO_USE_SSL = lib.mkForce true;
+    SERVE_DIRECT = lib.mkForce false;
   };
 
   # VaultS3 S3 网关：数据放 1T 数据盘，仅监听 loopback，由 nginx 反代
