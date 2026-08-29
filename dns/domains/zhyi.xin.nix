@@ -295,6 +295,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "s3";
+      target = "greencloud-jp.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "stats";
       target = "greencloud.zhyi.xin.";
       ttl = "1h";

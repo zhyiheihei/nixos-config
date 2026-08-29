@@ -55,6 +55,7 @@ _: [
   "prometheus.zhyi.xin"
   "qnap.zhyi.xin"
   "rk-jellyfin.zhyi.xin"
+  "s3.zhyi.xin"
   "stats.zhyi.xin"
   "vaults3.zhyi.xin"
   "wallos.zhyi.xin"
