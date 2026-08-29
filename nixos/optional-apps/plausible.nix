@@ -109,4 +109,16 @@ in
     isSystemUser = true;
   };
   users.groups.plausible = { };
+
+  # GEONAMES_SOURCE_FILE 指向 StateDirectory，但没有任何机制生成该文件
+  # （greencloud 2026-08-14 迁移后 plausible 一直起不来的原因）。plausible
+  # 包自带 geonames.lite.csv，用 tmpfiles 符号链接到当前闭包的副本；
+  # 不用 ExecStartPre 是避免与 netns wrapper 的启动钩子冲突。
+  systemd.tmpfiles.settings.plausible-geonames = {
+    "/var/lib/plausible/geonames.csv"."L+" = {
+      user = "plausible";
+      group = "plausible";
+      argument = "${pkgs.plausible}/lib/location-0.1.0/priv/geonames.lite.csv";
+    };
+  };
 }
