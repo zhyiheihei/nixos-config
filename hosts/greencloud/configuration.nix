@@ -18,6 +18,9 @@
     ../../nixos/optional-apps/bird-lg-go.nix
     ../../nixos/optional-apps/byparr.nix
     ../../nixos/optional-apps/flapalerted.nix
+    # Gitea Actions runner：Gitea 服务在 greencloud-jp（性能弱不跑 CI），
+    # runner 留在本机（4 线程）指向 git.zhyi.xin；注册 token 随 DB 迁移仍有效。
+    ../../nixos/optional-apps/gitea-actions.nix
     ../../nixos/optional-apps/imapfilter.nix
     ../../nixos/optional-apps/lemmy.nix
     ../../nixos/optional-apps/librechat.nix
