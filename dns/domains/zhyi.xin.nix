@@ -122,7 +122,7 @@ let
     {
       recordType = "CNAME";
       name = "git";
-      target = "greencloud.zhyi.xin.";
+      target = "greencloud-jp.zhyi.xin.";
       ttl = "1h";
     }
     {
