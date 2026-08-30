@@ -33,10 +33,6 @@ in
       uni-api = {
         api = "openai-completions";
         baseUrl = "https://ai-api.zhyi.xin/v1";
-        # 智谱系上游（Console Go 等）只认 system/user/assistant/tool，不接受
-        # OpenAI 的 developer 角色；pi-ai 对 reasoning 模型按启发式默认发
-        # developer。provider 级 compat 关掉它，作用于 uni-api 全部模型
-        # （含自动发现的）；等价于 pi-ollama-cloud 插件的内置 compat。
         compat = {
           supportsDeveloperRole = false;
         };
@@ -48,9 +44,11 @@ in
       collapseChangelog = true;
       enableInstallTelemetry = false;
       enableAnalytics = false;
-      defaultProvider = "uni-api";
-      # 网关已暴露裸模型 id，带渠道后缀的 id 不存在
-      defaultModel = "glm-5.2";
+      # 默认走 ollama-cloud：pi-ollama-cloud 插件给模型内置完整 compat
+      # （supportsDeveloperRole=false 等），智谱系上游不会报 1214。
+      # uni-api 渠道保留可用，但其自动发现模型开 thinking 会踩 1214。
+      defaultProvider = "ollama-cloud";
+      defaultModel = "glm-5.3";
       defaultThinkingLevel = "high";
       showCacheMissNotices = true;
 
@@ -75,6 +73,7 @@ in
         "npm:pi-fast-resume"
         "npm:pi-mcp-adapter"
         "npm:pi-model-discovery"
+        "npm:pi-ollama-cloud"
         "npm:pi-simplify"
         "npm:pi-subagents"
         # keep-sorted end
@@ -92,6 +91,10 @@ in
       requestTimeoutMs = 60000;
       scriptMode = false;
     };
+  };
+  home.file.".pi/agent/ollama-cloud.json".text = builtins.toJSON {
+    webTools = false;
+    usageStatus = true;
   };
   home.file.".pi/agent/extensions/no-update-check.ts".source = ./extensions/no-update-check.ts;
   home.file.".pi/agent/extensions/nixos-command-guard.ts".source =
