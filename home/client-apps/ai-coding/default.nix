@@ -30,12 +30,13 @@ in
     extraPackages = [ pkgs.nodejs ];
 
     models.providers = {
+      linuxdo-hub = {
+        api = "openai-completions";
+        baseUrl = "https://hub.linux.do/v1";
+      };
       uni-api = {
         api = "openai-completions";
         baseUrl = "https://ai-api.zhyi.xin/v1";
-        compat = {
-          supportsDeveloperRole = false;
-        };
       };
     };
 
@@ -44,13 +45,8 @@ in
       collapseChangelog = true;
       enableInstallTelemetry = false;
       enableAnalytics = false;
-      # 默认走 ollama-cloud：pi-ollama-cloud 插件给模型内置完整 compat
-      # （supportsDeveloperRole=false 等），智谱系上游不会报 1214。
-      # uni-api 渠道保留可用，但其自动发现模型开 thinking 会踩 1214。
-      # glm-5.3 不在 pi-ollama-cloud 的注册清单内（缓存 18 个模型无它），
-      # 选同代的 glm-5.3-flash。
       defaultProvider = "ollama-cloud";
-      defaultModel = "glm-5.3-flash";
+      defaultModel = "glm-5.3";
       defaultThinkingLevel = "high";
       showCacheMissNotices = true;
 
@@ -67,6 +63,8 @@ in
 
       packages = [
         # keep-sorted start
+        "npm:@cortexkit/pi-magic-context"
+        "npm:@moguw/pi-session-migrate"
         "npm:@monotykamary/pi-tps"
         "npm:@narumitw/pi-langfuse"
         "npm:@rwese/pi-question"
@@ -97,6 +95,20 @@ in
   home.file.".pi/agent/ollama-cloud.json".text = builtins.toJSON {
     webTools = false;
     usageStatus = true;
+  };
+  # https://github.com/cortexkit/magic-context/blob/master/CONFIGURATION.md
+  home.file.".config/cortexkit/magic-context.jsonc".text = builtins.toJSON {
+    enabled = true;
+    auto_update = false;
+    allow_home_project = true;
+    historian.pi.model = "ollama-cloud/glm-5.3";
+    dreamer.pi.model = "ollama-cloud/glm-5.3";
+    sidekick.model = "ollama-cloud/glm-5.3";
+    embedding = {
+      provider = "openai-compatible";
+      model = "nomic-embed-code";
+      endpoint = "http://127.0.0.1:${LT.portStr.LlamaSwap}/v1";
+    };
   };
   home.file.".pi/agent/extensions/no-update-check.ts".source = ./extensions/no-update-check.ts;
   home.file.".pi/agent/extensions/nixos-command-guard.ts".source =

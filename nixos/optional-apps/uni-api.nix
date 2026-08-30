@@ -9,17 +9,7 @@
 }:
 let
   uni-api-patched = pkgs.nur-xddxdd.uni-api.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [
-      ../../patches/uni-api-fix-tool-parameters.patch
-      # 智谱系等 OpenAI 兼容上游不接受 OpenAI 新式 developer 角色（报
-      # [1214] Incorrect role information）；developer 与 system 语义等价，
-      # 网关在 Message 解析时统一归一为 system。
-      ../../patches/uni-api-fix-developer-role.patch
-      # Ollama Cloud 用非标准字段名 reasoning（而非 reasoning_content）返回思考
-      # 内容；小 max_tokens 探测请求（如客户端模型可用性检查）会得到 content 空、
-      # reasoning 非空的响应，被误判为 empty response 而 502。
-      ../../patches/uni-api-fix-ollama-reasoning-empty-response.patch
-    ];
+    patches = (old.patches or [ ]) ++ [ ../../patches/uni-api-fix-tool-parameters.patch ];
   });
 
   uniApiConfig = {
@@ -62,11 +52,6 @@ in
 {
   imports = [ (inputs.secrets + "/uni-api") ];
 
-  sops.secrets."uni-api-admin-api-key" = {
-    owner = "uni-api";
-    group = "ai-gateways";
-  };
-
   systemd.services.uni-api = {
     description = "Uni-API Server";
     after = [
@@ -78,9 +63,6 @@ in
 
     environment = {
       DISABLE_DATABASE = "true";
-      # UniAPI started importing msgspec on 2026-07-28, but the current NUR
-      # package does not yet include it in the generated Python environment.
-      PYTHONPATH = "${pkgs.python3Packages.msgspec}/${pkgs.python3.sitePackages}";
       UVICORN_HOST = "127.0.0.1";
       UVICORN_PORT = LT.portStr.UniAPI;
     };
@@ -118,41 +100,23 @@ in
   };
   users.groups.ai-gateways.members = [ "nginx" ];
 
-  lantian.nginxVhosts = {
-    "uni-api.${config.networking.hostName}.zhyi.xin" = {
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
-        proxyNoTimeout = true;
-        proxyOverrideHost = "localhost";
-      };
-
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
-      noIndex.enable = true;
-      accessibleBy = "private";
+  lantian.localVhosts."uni-api" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
+      proxyNoTimeout = true;
+      proxyOverrideHost = "localhost";
     };
-    "uni-api.localhost" = {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
+  };
 
+  lantian.nginxVhosts = lib.optionalAttrs (config.networking.hostName == "v-ps-sea") {
+    "ai-api.xuyh0120.win" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
         proxyNoTimeout = true;
         proxyOverrideHost = "localhost";
       };
 
-      noIndex.enable = true;
-      accessibleBy = "localhost";
-    };
-  }
-  // lib.optionalAttrs (config.networking.hostName == "tencent") {
-    "ai-api.zhyi.xin" = {
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
-        proxyNoTimeout = true;
-        proxyOverrideHost = "localhost";
-      };
-
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = "zerossl-xuyh0120.win";
       noIndex.enable = true;
     };
   };
