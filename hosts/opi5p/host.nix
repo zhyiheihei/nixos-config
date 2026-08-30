@@ -18,8 +18,11 @@
   ];
   cpuThreads = 8;
   city = geo.cities."CN Ningbo";
-  # 2026-08-29 NVMe 报废重装，host key 轮换（SD/NVMe 新系统首启生成）
-  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOXLxDaHhgehDz/DNwsilfo2mFdeNOTmcUjiHBlaY1Bz root@opi5p";
+  # 2026-08-30 从 8-27 快照恢复 etc/ssh，钥匙回到原生 mloC
+  #（SHA256:mloCmodzu1MrdnZUxwRfRoMQWORF9xKgS1UccjwIrBw）；secrets 已全库
+  # rekey 到该钥匙的 age 形式（secrets 仓 372bf21）。8-29 的 H7+p 私钥
+  # 随 dragon 无持久化 /root 蒸发，已废止。
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIITTMAnkcLtBaK31sz6e7aGEvSkqKZuEeeJETBmK33Ef root@opi5p";
   interconnect = {
     name = "home-lan";
     IPv4 = "192.168.0.62";
