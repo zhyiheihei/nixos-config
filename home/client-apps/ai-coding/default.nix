@@ -36,21 +36,6 @@ in
         compat = {
           supportsDeveloperRole = false;
         };
-        # 声明常用模型并显式给元数据：provider 级 compat 只对"声明"的模型
-        # 生效（自动发现注册的模型拿不到），且 contextWindow 不继承、缺省
-        # 落到 128k。声明模型会替换同名自动发现模型，并被同步加载（pi -p 可见）。
-        # 取值 = 网关各渠道真实目录；未声明的模型仍可自动发现，但走智谱系
-        # 渠道会报 [1214]，需要时照格式追加。
-        models = [
-          { id = "glm-5.2"; contextWindow = 1048576; maxTokens = 32768; }
-          { id = "glm-5.3"; contextWindow = 1048576; maxTokens = 32768; }
-          { id = "glm-5.3-flash"; contextWindow = 1048576; maxTokens = 32768; }
-          { id = "glm-5.1"; contextWindow = 202752; maxTokens = 32768; }
-          { id = "glm_for_coding"; contextWindow = 200000; maxTokens = 32768; }
-          { id = "deepseek-v4-flash"; contextWindow = 1048576; maxTokens = 32768; }
-          { id = "deepseek-v4-pro"; contextWindow = 1048576; maxTokens = 32768; }
-          { id = "kimi-k3"; contextWindow = 1048576; maxTokens = 32768; }
-        ];
       };
     };
 
