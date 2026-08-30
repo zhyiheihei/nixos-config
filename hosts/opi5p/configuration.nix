@@ -193,12 +193,14 @@ in
   # 磁盘不吃 CPU，系统慢但不卡死；内存耗尽时 OOM killer 快速杀进程
   # 释放内存，比 zram 压缩死循环健康得多。
   zramSwap.enable = lib.mkForce false;
-  # swapfile 必须放 /nix/persistent/（独立于 /nix 根子卷的路径不行——persistent
-  # 是根子卷上的普通目录，但 backup-nix-persistent 会对 /nix 做只读快照，
-  # btrfs 禁止快照含活动 swapfile 的子卷（EBUSY "Text file busy"，
-  # 2026-08-30 实证）。挪进 persistent 后由 resticIgnored 的 swapfile 条目排除。
+  # swapfile 必须放在独立子卷 /nix/swap 里：backup-nix-persistent 会对 /nix
+  # 做只读快照，而 btrfs 禁止快照含活动 swapfile 的子卷（EBUSY
+  # "Text file busy"，2026-08-30 实证）。本机 btrfs 没有任何子卷布局
+  #（persistent 是普通目录，snapshot -r /nix 会带上它），swapfile 挪路径
+  # 无解，必须单独开子卷——snapshot 不递归进入子卷，EBUSY 与备份冗余
+  # 两个问题同时消失，swapfile 也不需要进 resticIgnored。
   swapDevices = [
-    { device = "/nix/persistent/swapfile"; size = 4096; }
+    { device = "/nix/swap/swapfile"; size = 4096; }
   ];
 
   # swapDevices 只激活已存在的文件；dd 镜像首启时 swapfile 不存在，
@@ -208,23 +210,24 @@ in
   # swap.target → 本单元 → basic.target → sysinit.target → swap.target
   # 排序环，systemd 直接删掉 swap.target（2026-08-30 NVMe 首启实证：swap 整轮没起）。
   systemd.services.opi5p-swapfile-bootstrap = {
-    description = "Create /nix/persistent/swapfile before swap.target when missing";
+    description = "Create /nix/swap subvolume and swapfile before swap.target when missing";
     wantedBy = [ "swap.target" ];
     before = [ "swap.target" "nix-swapfile.swap" ];
     requires = [ "nix.mount" ];
     after = [ "nix.mount" ];
     unitConfig = {
       DefaultDependencies = lib.mkForce false;
-      ConditionPathExists = "!/nix/persistent/swapfile";
+      ConditionPathExists = "!/nix/swap/swapfile";
     };
     serviceConfig = {
       Type = "oneshot";
       ExecStart = [
-        "${pkgs.coreutils}/bin/touch /nix/persistent/swapfile"
-        "${pkgs.e2fsprogs}/bin/chattr +C /nix/persistent/swapfile"
-        "${pkgs.coreutils}/bin/dd if=/dev/zero of=/nix/persistent/swapfile bs=1M count=4096 status=none"
-        "${pkgs.coreutils}/bin/chmod 600 /nix/persistent/swapfile"
-        "${pkgs.util-linux}/bin/mkswap /nix/persistent/swapfile"
+        "${pkgs.util-linux}/bin/test -d /nix/swap || ${pkgs.btrfs-progs}/bin/btrfs subvolume create /nix/swap"
+        "${pkgs.coreutils}/bin/touch /nix/swap/swapfile"
+        "${pkgs.e2fsprogs}/bin/chattr +C /nix/swap/swapfile"
+        "${pkgs.coreutils}/bin/dd if=/dev/zero of=/nix/swap/swapfile bs=1M count=4096 status=none"
+        "${pkgs.coreutils}/bin/chmod 600 /nix/swap/swapfile"
+        "${pkgs.util-linux}/bin/mkswap /nix/swap/swapfile"
       ];
     };
   };
