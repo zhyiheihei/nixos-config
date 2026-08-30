@@ -200,13 +200,19 @@ in
   # swapDevices 只激活已存在的文件；dd 镜像首启时 /nix/swapfile 不存在，
   # swap 单元直接 failed（2026-08-29 实证：全机无 swap 兜底放大了 daemon
   # 堆积的破坏）。镜像不带 4G 文件（浪费体积），首启按需创建。
+  # DefaultDependencies 必须关：默认隐式 After=basic.target 会构成
+  # swap.target → 本单元 → basic.target → sysinit.target → swap.target
+  # 排序环，systemd 直接删掉 swap.target（2026-08-30 实证：swap 整轮没起）。
   systemd.services.opi5p-swapfile-bootstrap = {
     description = "Create /nix/swapfile before swap.target when missing";
     wantedBy = [ "swap.target" ];
     before = [ "swap.target" "nix-swapfile.swap" ];
     requires = [ "nix.mount" ];
     after = [ "nix.mount" ];
-    unitConfig.ConditionPathExists = "!/nix/swapfile";
+    unitConfig = {
+      DefaultDependencies = lib.mkForce false;
+      ConditionPathExists = "!/nix/swapfile";
+    };
     serviceConfig = {
       Type = "oneshot";
       ExecStart = [

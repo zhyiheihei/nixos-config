@@ -213,10 +213,10 @@
   # 专门的 KWIN 后端：直连 KWin screencast Wayland 协议、合成后输出、不经
   # portal 授权。需 -DSUNSHINE_ENABLE_KWIN 编译开关 + pipewire 头文件，
   # 故下方 overrideAttrs 重编，capture 值为 "kwin"。
-  services.sunshine.package = pkgs.sunshine.overrideAttrs (old: {
+  services.sunshine.package = lib.mkForce (pkgs.sunshine.overrideAttrs (old: {
     cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DSUNSHINE_ENABLE_KWIN:BOOL=ON" ];
     buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.pipewire ];
-  });
+  }));
   services.sunshine.settings = {
     encoder = "vaapi";
     capture = "kwin";
