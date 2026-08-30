@@ -47,9 +47,12 @@ in
 
     # 2026-08-29 重装过渡期：重服务临时摘除（SD 卡性能不足 + sops 未就绪时
     # 这些服务只会循环崩溃拖垮机器），NVMe 落定后分批恢复。
+    # 2026-08-30：NVMe 已落定，按 §3.3 硬件依赖清单分批恢复
+    #（frigate → immich）；asf/cops/ignis/syncthing/webdav 等 NAS/状态类
+    # 服务随迁移决策另定，不在本机恢复。
     # ../../nixos/optional-apps/asf.nix
     # ../../nixos/optional-apps/calibre-cops.nix
-    # ../../nixos/optional-apps/frigate-rockchip.nix
+    ../../nixos/optional-apps/frigate-rockchip.nix
     # ../../nixos/optional-apps/home-assistant.nix
     # ../../nixos/optional-apps/ignis.nix
     # Immich 单入口：rockchip 层内部已收编基础模块（immich.nix），并关闭
@@ -239,21 +242,21 @@ in
   # 摄像头本地密码在 secrets/frigate.yaml（key: bedroom-pw / livingroom-pw），
   # rtspUrl 里的 sops 占位符由 sops 模板渲染时替换为真实密码。
   # 注意：乐橙 App 里需关闭 RTSP 加密（TLS），否则 frigate 拉流失败。
-  # lantian.frigate = {
-  #   enable = true;
-  #   cameras = {
-  #     bedroom = {
-  #       rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-bedroom-pw"}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
-  #       onvifHost = "192.168.0.104";
-  #       zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
-  #     };
-  #     livingroom = {
-  #       rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-livingroom-pw"}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
-  #       onvifHost = "192.168.0.115";
-  #       zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
-  #     };
-  #   };
-  # };
+  lantian.frigate = {
+    enable = true;
+    cameras = {
+      bedroom = {
+        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-bedroom-pw"}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        onvifHost = "192.168.0.104";
+        zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
+      };
+      livingroom = {
+        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-livingroom-pw"}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        onvifHost = "192.168.0.115";
+        zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
+      };
+    };
+  };
 
   ########################################
   # Immich (Rockchip) —— 重装过渡期摘除
