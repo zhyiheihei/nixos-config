@@ -228,6 +228,16 @@
   systemd.services.nvidia-container-toolkit-cdi-generator.unitConfig.ConditionPathExists =
     "/proc/driver/nvidia/version";
 
+  # 内核对照实验（2026-08-30）：CachyOS lts-lto（6.18）的 thunderbolt/PCIe
+  # 热插拔栈在显存 reclocking 瞬间仍失联（锁核心频率只降低概率：完整游戏
+  # 会话 ~3.5h 必死一次，另有全程无 Xid 的静默死）。换 nixpkgs 官方 6.12
+  # LTS 内核做对照——NVIDIA 官方支持矩阵钉在 6.12，其 TB 栈久经 LTS 验证。
+  # 注意：lkca-6.12 = nvidia 595 需要的 signed module 支持；extraModulePackages
+  # 与外置模块（cryptodev/emperors-scepter 等）随 kernelPackages 自动重编。
+  # 若 6.12 下掉卡消失 → CachyOS 6.18 TB 栈回归，保持本覆写；若依旧 →
+  # 排除内核因素，恢复 lantian.kernel 默认值，下一步是坞固件/换线/报 upstream。
+  lantian.kernel = lib.mkForce pkgs.linuxKernel.packages.linux_6_12.kernel;
+
   # eGPU 核心频率锁定：TB3 隧道在核心 P-state 切换瞬间（405↔7000MHz
   # 跳变）易失联（Xid 79/109，完整游戏会话必触发）。锁 1500MHz 后完整
   # 会话实测干净。1500MHz 是 Turing 的甜点档：游戏帧率损失约 10%，
