@@ -8,6 +8,7 @@ rec {
   resticIgnored = ''
     media/
     sftp-server/
+    swapfile
     tmp/
     var/cache/
     var/lib/asterisk/

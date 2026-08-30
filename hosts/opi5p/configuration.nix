@@ -193,34 +193,38 @@ in
   # 磁盘不吃 CPU，系统慢但不卡死；内存耗尽时 OOM killer 快速杀进程
   # 释放内存，比 zram 压缩死循环健康得多。
   zramSwap.enable = lib.mkForce false;
+  # swapfile 必须放 /nix/persistent/（独立于 /nix 根子卷的路径不行——persistent
+  # 是根子卷上的普通目录，但 backup-nix-persistent 会对 /nix 做只读快照，
+  # btrfs 禁止快照含活动 swapfile 的子卷（EBUSY "Text file busy"，
+  # 2026-08-30 实证）。挪进 persistent 后由 resticIgnored 的 swapfile 条目排除。
   swapDevices = [
-    { device = "/nix/swapfile"; size = 4096; }
+    { device = "/nix/persistent/swapfile"; size = 4096; }
   ];
 
-  # swapDevices 只激活已存在的文件；dd 镜像首启时 /nix/swapfile 不存在，
+  # swapDevices 只激活已存在的文件；dd 镜像首启时 swapfile 不存在，
   # swap 单元直接 failed（2026-08-29 实证：全机无 swap 兜底放大了 daemon
   # 堆积的破坏）。镜像不带 4G 文件（浪费体积），首启按需创建。
   # DefaultDependencies 必须关：默认隐式 After=basic.target 会构成
   # swap.target → 本单元 → basic.target → sysinit.target → swap.target
-  # 排序环，systemd 直接删掉 swap.target（2026-08-30 实证：swap 整轮没起）。
+  # 排序环，systemd 直接删掉 swap.target（2026-08-30 NVMe 首启实证：swap 整轮没起）。
   systemd.services.opi5p-swapfile-bootstrap = {
-    description = "Create /nix/swapfile before swap.target when missing";
+    description = "Create /nix/persistent/swapfile before swap.target when missing";
     wantedBy = [ "swap.target" ];
     before = [ "swap.target" "nix-swapfile.swap" ];
     requires = [ "nix.mount" ];
     after = [ "nix.mount" ];
     unitConfig = {
       DefaultDependencies = lib.mkForce false;
-      ConditionPathExists = "!/nix/swapfile";
+      ConditionPathExists = "!/nix/persistent/swapfile";
     };
     serviceConfig = {
       Type = "oneshot";
       ExecStart = [
-        "${pkgs.coreutils}/bin/touch /nix/swapfile"
-        "${pkgs.e2fsprogs}/bin/chattr +C /nix/swapfile"
-        "${pkgs.coreutils}/bin/dd if=/dev/zero of=/nix/swapfile bs=1M count=4096 status=none"
-        "${pkgs.coreutils}/bin/chmod 600 /nix/swapfile"
-        "${pkgs.util-linux}/bin/mkswap /nix/swapfile"
+        "${pkgs.coreutils}/bin/touch /nix/persistent/swapfile"
+        "${pkgs.e2fsprogs}/bin/chattr +C /nix/persistent/swapfile"
+        "${pkgs.coreutils}/bin/dd if=/dev/zero of=/nix/persistent/swapfile bs=1M count=4096 status=none"
+        "${pkgs.coreutils}/bin/chmod 600 /nix/persistent/swapfile"
+        "${pkgs.util-linux}/bin/mkswap /nix/persistent/swapfile"
       ];
     };
   };
