@@ -6,7 +6,7 @@
 
 | 层次 | 作用 | 地址/接口来源 |
 | --- | --- | --- |
-| 家庭局域网 | 同一 `home-lan` 的直接管理与服务访问 | `hosts/*/host.nix` 中的 `interconnect.IPv4`；当前统一使用 `192.168.0.0/24`（Router VM 后，MTU 9000） |
+| 家庭局域网 | 同一 `home-lan` 的直接管理与服务访问 | `hosts/*/host.nix` 中的 `interconnect.IPv4`；当前统一使用 `192.168.0.0/24`（NanoPi R5C router 后，`br-lan` MTU 9000） |
 | H28K 站点局域网 | 当前嵌套测试、以后迁往异地的独立 LAN | `192.168.30.0/24`；`h28k` 为 `192.168.30.1`，WAN 使用 DHCP |
 | ZeroTier | 设备可达性与无公网节点之间的 WireGuard 建链 | 网络 `466270de75000001`，接口 `zttalxbxtu` |
 | LTNET | 内部服务地址与路由前缀 | `198.18.0.<index>`、`198.18.<index>.0/24`、`fdd8:1938:4e88::<index>` |
@@ -17,11 +17,11 @@
 
 ## 家庭 LAN 静态分配
 
-家庭网络统一使用 `192.168.0.0/24`。Router VM 直连光猫并作为 `192.168.0.1` 网关，PVE 的 `br-lan` 将物理设备和 VM 接入同一 LAN。基础设施使用 DHCP 池外的静态地址，Router 的 DHCP 池为 `192.168.0.100-249`。
+家庭网络统一使用 `192.168.0.0/24`。NanoPi R5C router 直连光猫并作为 `192.168.0.1` 网关，PVE 的 `br-lan` 将物理设备和 VM 接入同一 LAN。基础设施使用 DHCP 池外的静态地址，Router 的 DHCP 池为 `192.168.0.100-249`。
 
 | Address | Host | Status |
 | --- | --- | --- |
-| `192.168.0.1` | `router` VM | 网关 / NAT / DDNS |
+| `192.168.0.1` | `router`（NanoPi R5C） | 网关 / NAT / DDNS |
 | `192.168.0.2` | `pve-5700u` | PVE 宿主 |
 | `192.168.0.40` | QNAP NAS | NFS 与 S3 存储 |
 | `192.168.0.41` | `fn-os` (PVE VM 101) | 飞牛 NAS / NFS 客户端 |
@@ -34,6 +34,7 @@
 | `192.168.0.63` | `opi5p` (lan1) | 备用网口救援地址（lan0 主地址为 .62，无默认路由） |
 | `192.168.0.64` | `rock5c` | RK3588 边缘与控制节点 |
 | `192.168.0.65` | `lubancat1` | RK3566 适配节点 |
+| `192.168.0.66` | `dragon-q8b` | SC8280XP aarch64 server |
 | `192.168.0.104` | `cam-bedroom` | 乐橙卧室摄像头（Kea 静态预留，RTSP/ONVIF） |
 | `192.168.0.115` | `cam-livingroom` | 乐橙客厅摄像头（Kea 静态预留，RTSP/ONVIF） |
 
@@ -55,7 +56,7 @@ H28K 管理独立的 `192.168.30.0/24`，它不是家庭 `home-lan` 的扩展。
 - `router`、`opi5p`、`rock5c`、`fn-os`（PVE VM 101）的 NFS 挂载源为 `192.168.0.40:/nixos`；`fn-os` 在 `/vol1/1000/Photos` automount。
 - ARM 板卡统一从 `192.168.0.60` 起分配静态地址，不占用原 VM 地址。
 - 部署 `router`/`opi5p`/`rock5c`/`fn-os` 前需在 QNAP NFS export 中放行对应客户端地址（`fn-os` 为 `192.168.0.41`）。
-- Router VM 提供 IPv6 RA 广播，VM 通过 SLAAC 获取 IPv6 地址。
+- Router 提供 IPv6 RA 广播，LAN 设备通过 SLAAC 获取 IPv6 地址。
 - `greencloud` 已迁移到 SG 公网节点，不占用家庭 LAN 地址。
 - `h28k` 的 `192.168.30.0/24` 是独立站点网段，不计入家庭静态地址池。
 
@@ -63,22 +64,31 @@ H28K 管理独立的 `192.168.30.0/24`，它不是家庭 `home-lan` 的扩展。
 
 | 主机 | index | 家庭局域网 IPv4 | ZeroTier 节点 ID | LTNET IPv4 | WireGuard/LTNET 声明 |
 | --- | ---: | --- | --- | --- | --- |
-| `ml-builder` | 114 | `192.168.0.50` | `2c86750714` | `198.18.0.114` | 主构建机 + Hydra；经 WSS 接入 server mesh |
-| `ml-home-vm` | 115 | `192.168.0.51`（保留地址） | `c340ae9a91` | `198.18.0.115` | 已退役（2026-08-03）；不再参与 server mesh |
-| `greencloud` | 120 | 无 | `76d1b20a73` | `198.18.0.120` | SG 公网节点；server mesh、DN42 与 ZeroTier controller |
-| `ml-2700` | 113 | `192.168.0.53` | `214f8619a9` | `198.18.0.113` | 当前没有 server mesh 声明 |
+| `router` | 112 | `192.168.0.1` | `f1de7dca51` | `198.18.0.112` | NanoPi R5C 网关；无 server mesh（lan-access） |
+| `ml-2700` | 113 | `192.168.0.53` | `214f8619a9` | `198.18.0.113` | 客户端；当前没有 server mesh 声明 |
+| `ml-builder` | 114 | `192.168.0.50` | `2c86750714` | `198.18.0.114` | 主构建机（Hydra 当前禁用）；server mesh 全互联 |
+| `macmini` | 115 | `192.168.0.54` | — | `198.18.0.115` | Mac mini（M4）nix-darwin 客户端；不参与 server mesh |
+| `ml-home-vm` | 115（旧） | `192.168.0.51`（保留地址） | `c340ae9a91` | `198.18.0.115` | 已退役（2026-08-03）；index 115 已由 `macmini` 继承 |
+| `pve-5700u` | 116 | `192.168.0.2` | `706ba6d04d` | `198.18.0.116` | PVE 宿主；当前没有 server mesh 声明 |
+| `hostdare` | 117 | 无 | `a073934677` | `198.18.0.117` | server mesh 全互联；公网端点 `36.50.85.113` |
 | `ml-laptop` | 118 | `192.168.0.55` | `08d6522fba` | `198.18.0.118` | 物理笔记本；当前没有 server mesh 声明 |
-| `pve-5700u` | 116 | `192.168.0.2` | `706ba6d04d` | `198.18.0.116` | 当前没有 server mesh 声明 |
-| `hostdare` | 117 | 无 | `a073934677` | `198.18.0.117` | server mesh 全互联；为 WSS/TCP WireGuard transport 服务端 |
-| `volcengine` | 119 | 无 | `ecd09d7bc2` | `198.18.0.119` | server mesh 全互联；到 `hostdare` 经 WSS/TCP |
+| `volcengine` | 119 | 无 | `ecd09d7bc2` | `198.18.0.119` | server mesh 全互联 |
+| `greencloud` | 120 | 无 | `76d1b20a73` | `198.18.0.120` | SG 公网节点；server mesh、DN42 与 ZeroTier controller |
 | `google` | 121 | 无 | `47c75f186a` | `198.18.0.121` | server mesh 全互联；公网节点 |
-| `h28k` | 125 | `192.168.30.1`（独立站点 LAN） | 待首启采集 | `198.18.0.125` | 预部署；以后承载附加路由 `192.168.30.0/24` |
+| `opi5p` | 122 | `192.168.0.62` | `7e7ce20750` | `198.18.0.122` | RK3588 应用节点；server mesh 全互联 + nix-builder |
+| `rock5c` | 123 | `192.168.0.64` | `8a55fde716` | `198.18.0.123` | RK3588 边缘控制节点；server mesh 全互联 |
+| `lubancat1` | 124 | `192.168.0.65` | `fde3beab16` | `198.18.0.124` | RK3566 适配节点；server mesh 全互联（low-ram） |
+| `h28k` | 125 | `192.168.30.1`（独立站点 LAN） | `368d3cf42b` | `198.18.0.125` | 预部署；承载附加路由 `192.168.30.0/24`；无 server mesh（lan-access） |
+| `opi03` | 126 | — | — | `198.18.0.126` | 预部署；lan-access，无 server mesh |
+| `taishanpi` | 127 | — | — | `198.18.0.127` | 适配节点；lan-access + low-ram，无 server mesh |
+| `tencent` | 128 | 无 | `7edc5323e0` | `198.18.0.128` | 公网 VPS；server mesh + DN42 + public-facing；监控栈 |
+| `dragon-q8b` | 129 | `192.168.0.66` | `095fd45400` | `198.18.0.129` | SC8280XP aarch64 server；server mesh 全互联 |
+| `greencloud-jp` | 130 | 无 | `f4ec4a081c` | `198.18.0.130` | JP 公网节点；server mesh + DN42 + cn-accel |
 | `molishanguang-macbook` | 200 | 无 | `174ea952dd` | `198.18.0.200` | 额外 ZeroTier 客户端；不参与 server mesh |
 
 ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index>`，IPv6 为 `fdd8:1938:4e88::<index>`。额外客户端的声明来源仍是 secrets 的 `zerotier-additional-hosts.nix`；上表只记录已授权的 Mac 固定分配。
 
-`h28k` 行中的 LTNET 地址目前只是由 index 推导的目标地址；在真实 node ID 写回
-`host.nix`、controller 授权和 SOPS rekey 完成前，它不是已授权或已验证的在线节点。
+`h28k` 的 ZeroTier node ID `368d3cf42b` 已于 2026-08-15 写回 `host.nix`（替换了之前错误的 `d58553ad47`）；controller 授权状态以 ZeroTier controller 为准。
 
 ## WireGuard 与 LTNET
 
@@ -86,9 +96,8 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 | --- | --- |
 | 私钥 | 每台启用 mesh 的主机从 `per-host/wg-priv/<hostname>.yaml` 由 SOPS 解密 |
 | 公钥 | 由 secrets 的 `wg-pubkey.nix` 提供；不在仓库文档中复制 |
-| 对等选择 | 当前 server mesh 由在线节点组成（`greencloud`、`hostdare`、`volcengine`、`google` 等）；`ml-home-vm` 已退役，不再参与 |
-| 端点选择 | 同一 `interconnect.name` 时走局域网；跨网段优先使用各 host 声明的 WSS/TCP transport |
-| TCP transport | 在线家庭节点与公网 server 之间的 WireGuard 经本地 WSS/TCP `443` 封装；WireGuard 本体只在本机回环与 `wstunnel` 间通信 |
+| 对等选择 | 当前 server mesh 由在线节点组成（`greencloud`、`hostdare`、`volcengine`、`google`、`tencent`、`dragon-q8b`、`greencloud-jp`、`opi5p`、`rock5c`、`lubancat1` 等）；`ml-home-vm` 已退役，不再参与 |
+| 端点选择 | 同一 `interconnect.name` 时走局域网；跨网段由 `wgEndpointFor` 选对端公网 IPv4（其次 IPv6）直连，无 WSS/TCP 封装层 |
 | 路由 | BIRD 通过每条 `wgmesh<peer-index>` 链路上的 IPv6 link-local iBGP 交换 LTNET、DN42 与附加路由 |
 | 可观察性 | WireGuard exporter 监听本机 LTNET IPv4；BIRD 配置见 `nixos/server-apps/bird/config/ltnet.nix` |
 
@@ -108,11 +117,11 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 | 域名/模式 | DNS 声明 | 服务入口/后端 |
 | --- | --- | --- |
 | `主机.zhyi.xin`、`*.主机.zhyi.xin` | `host-recs.nix` 按主机公网或 LTNET 地址生成 | 作者式主机与私有服务命名；不经过统一公网入口 |
-| `*.ml-home-vm.zhyi.xin` | 历史 CNAME | `ml-home-vm` 已退役；服务由 `rock5c`/`opi5p` 承载，入口以 vhost/DNS 为准 |
+| `*.ml-home-vm.zhyi.xin` | 历史 CNAME | `ml-home-vm` 已退役；服务由 `rock5c`/`opi5p`/`dragon-q8b` 承载，入口以 vhost/DNS 为准 |
 | `ha.opi5p.zhyi.xin` | `*.opi5p.zhyi.xin` 通配解析到 OPI5P LTNET | 私有服务规范命名（`服务.承载主机.zhyi.xin`），仅内网/LTNET 可达 |
 | `vaults3.zhyi.xin` | CNAME 到 `home-ddns.zhyi.xin` | 家庭动态公网入口 |
 | `hydra.zhyi.xin` | CNAME 到 `greencloud.zhyi.xin` | greencloud Nginx 反代到 `ml-builder` 的 Hydra 端口（LTNET `198.18.0.114`） |
-| `attic.zhyi.xin` | CNAME 到 `volcengine.zhyi.xin` | volcengine 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
+| `attic.zhyi.xin` | CNAME 到 `greencloud.zhyi.xin` | greencloud 上的 Attic 服务；存储数据面仍由配置的 S3 后端承担 |
 | `greencloud.zhyi.xin` | A `203.55.176.158` | SSH、Colmena、ZeroTier controller 与公共服务入口 |
 | `zhyi.xin` | A `101.96.199.157` | VOLCENGINE 上的公开根站入口 |
 | 具名 `zhyi.xin` Web 服务 | 显式 CNAME 到 `home-ddns`、`greencloud` 或 `volcengine` | 按作者服务角色逐项声明，不使用统一通配符兜底 |
@@ -121,13 +130,14 @@ DNSControl 只声明记录；运行时的 `/etc/hosts` 可以在局域网中覆�
 家庭公网封锁标准 `443`。DNS、Nginx 服务、OAuth 回调和应用自身 URL 仍保持
 作者的标准 HTTPS 结构；需要从公网直接访问 `home-ddns` 承载的服务时，客户端
 显式使用 `https://域名:8443/`。router 将公网 `8443` 直通转发到家庭入口的
-OPI5P Nginx（端口不变），OPI5P 在 `hosts/opi5p/edge-vhosts.nix` 中给每个启用
+OPI5P Nginx（端口不变），OPI5P 在 `hosts/opi5p/configuration.nix` 中给每个启用
 TLS 的 vhost 追加 8443 监听，443 与 8443 同时服务同一套证书与路由。不要把
 `8443` 固化进 DNS 记录或内部服务配置（DNS 与回源 URL 一律用标准 443 结构）。
 
-Hydra 已于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统一由 greencloud
-的 Nginx vhost 反代到 ml-builder 的 LTNET 地址，不再依赖 hostdare 直连或家庭 PVE 的
-公网 IPv6。不要把 Hydra 改回 pve-5700u 或改到 VOLCENGINE 来掩盖入口问题。
+Hydra 原定于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统一由 greencloud
+的 Nginx vhost 反代到 ml-builder 的 LTNET 地址。当前 Hydra 模块在 `ml-builder` 配置中
+被注释禁用（SC8280XP 内核 bring-up 期间内存压力冻结），待重新启用后恢复上述入口。
+不要把 Hydra 改回 pve-5700u 或改到 VOLCENGINE 来掩盖入口问题。
 
 ## 局域网覆盖
 

@@ -77,5 +77,5 @@ zone 必须继续走 `198.19.0.253 → 198.19.0.254 → Knot`。只改 `../../ne
 - 2026-08-10（Attic 迁移执行）：greencloud 已部署 atticd 并恢复元数据，
   DNS 已切换，volcengine 的 atticd 已移除；待 greencloud 链路稳定后重推
   moviepilot 并清理临时 dump/key。
-- 待办：`hostdare` 流量耗尽不可达，配置未切换；配额恢复后执行
+- `hostdare` 流量配额已恢复，在线可达；已执行
   `colmena apply --on hostdare` 并复核。
