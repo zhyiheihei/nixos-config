@@ -58,7 +58,7 @@ in
     # Immich 单入口：rockchip 层内部已收编基础模块（immich.nix），并关闭
     # aarch64 上会构建失败的 nix 版 ML、改走 RKNN 推理（本机 rknn worker 又
     # 在下方 mkForce 关闭，推理现由 rock5c 承担）。
-    # ../../nixos/optional-apps/immich-rockchip.nix
+    ../../nixos/optional-apps/immich-rockchip.nix
     # ncps 服务端与 resilio-sync 引擎已迁至 dragon-q8b（2026-08-28），
     # 本机保留 ncps-client 作为缓存消费者。
     ../../nixos/optional-apps/ncps-client.nix
@@ -259,27 +259,29 @@ in
   };
 
   ########################################
-  # Immich (Rockchip) —— 重装过渡期摘除
+  # Immich (Rockchip) —— 重装过渡期摘除，2026-08-30 随批次 2 恢复
   ########################################
 
-  # systemd.services.immich-server = {
-  #   path = [ pkgs.jellyfin-ffmpeg-rockchip ];
-  #   serviceConfig = {
-  #     PrivateDevices = lib.mkForce false;
-  #     DevicePolicy = lib.mkForce "auto";
-  #   };
-  # };
-  # users.users.immich.extraGroups = [ "video" "render" ];
-  # services.udev.extraRules = ''
-  #   KERNEL=="cma", MODE="0660", GROUP="video"
-  # '';
-  # lantian.immichRknnWorker.enable = lib.mkForce false;
-  # lantian.immich.storage = "/mnt/storage/immich";
-  # systemd.tmpfiles.settings.immich-import."/mnt/storage/immich-import"."d" = {
-  #   mode = "0775";
-  #   user = "immich";
-  #   group = "users";
-  # };
+  # 注意：旧 NVMe 的 postgres（immich 库）随盘报废，本次为全新空库起点
+  #（照片本体在 NAS /mnt/storage/immich 未受影响）。
+  systemd.services.immich-server = {
+    path = [ pkgs.jellyfin-ffmpeg-rockchip ];
+    serviceConfig = {
+      PrivateDevices = lib.mkForce false;
+      DevicePolicy = lib.mkForce "auto";
+    };
+  };
+  users.users.immich.extraGroups = [ "video" "render" ];
+  services.udev.extraRules = ''
+    KERNEL=="cma", MODE="0660", GROUP="video"
+  '';
+  lantian.immichRknnWorker.enable = lib.mkForce false;
+  lantian.immich.storage = "/mnt/storage/immich";
+  systemd.tmpfiles.settings.immich-import."/mnt/storage/immich-import"."d" = {
+    mode = "0775";
+    user = "immich";
+    group = "users";
+  };
 
   ########################################
   # reDroid（停用中）—— 模块导入已注释，配置一并摘除
