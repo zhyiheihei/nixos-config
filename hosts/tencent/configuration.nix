@@ -11,6 +11,11 @@
     ../../nixos/optional-apps/navdash.nix
     ../../nixos/optional-apps/prometheus
     ../../nixos/optional-apps/searxng.nix
+
+    # 2026-08-31 自 greencloud 迁入：日历同步定时任务（每小时）。脚本按
+    # 主机名取 secrets/per-host/radicale-calendar-sync/tencent.yaml；
+    # radicale 服务端仍在 greencloud，脚本内目标地址指向其公网入口。
+    ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
   ];
 
   lantian.hubproxy.enable = true;

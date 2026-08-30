@@ -40,9 +40,11 @@ in
 
     # ../../nixos/optional-apps/llama-cpp.nix
     # ../../nixos/optional-apps/llama-cpp-qwen3_6.nix
-    ../../nixos/optional-apps/archiveteam.nix
-    ../../nixos/optional-apps/clawemail.nix
-    ../../nixos/optional-apps/epic-awesome-gamer
+    # 2026-08-31 迁出：archiveteam → rock5c，clawemail/epic-awesome-gamer →
+    # dragon-q8b（本机回归纯构建机定位）。
+    # ../../nixos/optional-apps/archiveteam.nix
+    # ../../nixos/optional-apps/clawemail.nix
+    # ../../nixos/optional-apps/epic-awesome-gamer
     # Hydra disabled on this builder (memory pressure during SC8280XP kernel
     # bring-up froze the host). Re-enable deliberately by un-commenting this
     # import.

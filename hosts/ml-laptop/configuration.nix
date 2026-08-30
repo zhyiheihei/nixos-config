@@ -18,7 +18,8 @@
     ../../nixos/optional-apps/homepage.nix
     ../../nixos/optional-apps/libvirt
     ../../nixos/optional-apps/llama-cpp.nix
-    ../../nixos/optional-apps/netns-tnl-buyvm.nix
+    # 2026-08-31 注释：buyvm 隧道不再由本机承接。
+    # ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/obs-studio.nix
     ../../nixos/optional-apps/opencl.nix

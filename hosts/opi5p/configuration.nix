@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   LT,
   pkgs,
@@ -65,6 +66,14 @@ in
     ../../nixos/optional-apps/ncps-client.nix
     # ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/sftp-server.nix
+    # 2026-08-31 自 greencloud 迁入：librechat（连带 uni-api/mongodb/mcp）与
+    # n8n（连带 postgresql/openai-bridge，postgres 复用本机既有实例）。
+    # 本机为公网 8443 TLS 前沿，ai/n8n vhost 自动获得 8443 监听。
+    # hidden module 5ac5eb91326c8f04 为 LibreChat modelSpecs + HA/MoviePilot
+    # MCP 集成，随服务同迁。
+    ../../nixos/optional-apps/librechat.nix
+    ../../nixos/optional-apps/n8n
+    "${inputs.secrets}/nixos-hidden-module/5ac5eb91326c8f04"
     # ../../nixos/optional-apps/syncthing
     # ../../nixos/optional-apps/webdav.nix
 
@@ -321,6 +330,30 @@ in
   #   after = [ "sops-install-secrets.service" ];
   #   requires = [ "sops-install-secrets.service" ];
   # };
+
+  ########################################
+  # LibreChat / n8n（自 greencloud 迁入，2026-08-31）
+  ########################################
+
+  # UniAPI consolidated to hostdare (2026-08-14): LibreChat's upstream moves
+  # from the retired rock5c UniAPI to the public ai-api.zhyi.xin entry.
+  services.librechat.settings.endpoints.custom = lib.mkForce [
+    {
+      name = "UniAPI";
+      apiKey = "\${UNI_API_KEY}";
+      baseURL = "https://ai-api.zhyi.xin/v1";
+      models = {
+        default = lib.unique (
+          lib.concatMap (provider: builtins.map (v: v.value) provider._models)
+            config.lantian.llm-providers
+        );
+        fetch = false;
+      };
+    }
+  ];
+
+  # n8n ships zh-CN translations; make the editor default to Simplified Chinese.
+  services.n8n.environment.N8N_DEFAULT_LOCALE = "zh-CN";
 
   ########################################
   # Public TLS front (8443) for the home edge

@@ -27,6 +27,9 @@ in
     # Phase 1 of the ml-home-vm split migration.  These services stay on the
     # ROCK 5C address until the edge role has been verified and cut over.
     ../../nixos/optional-apps/metacubexd.nix
+    # 2026-08-31 自 ml-builder 迁入：ArchiveTeam Warrior（网络抓取容器，
+    # 与本机下载链同域）。vhost 由模块自带（archiveteam.rock5c.zhyi.xin）。
+    ../../nixos/optional-apps/archiveteam.nix
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
 
     ./hardware-configuration.nix
