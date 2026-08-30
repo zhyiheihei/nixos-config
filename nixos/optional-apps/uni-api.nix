@@ -24,15 +24,14 @@ let
       {
         provider = v.name;
         api = if v.apiKeyPath != null then { _secret = v.apiKeyPath; } else "sk-123456";
+        model =
+          if v._models != { } then
+            builtins.map (m: {
+              "${m.name}" = m.value;
+            }) v._models
+          else
+            null;
       }
-      # _models 为空（订阅渠道走 uni-api 上游自动发现）时必须整个省略 model 键：
-      # 输出 model = null 的话，自动发现失败后 None 会残留，get_model_dict 迭代
-      # None 直接崩；键不存在时 get_model_dict 返回空字典，服务可正常起。
-      // (lib.optionalAttrs (v._models != [ ]) {
-        model = builtins.map (m: {
-          "${m.name}" = m.value;
-        }) v._models;
-      })
       // (lib.optionalAttrs (v.baseURL != null) {
         base_url = v.baseURL;
       })
