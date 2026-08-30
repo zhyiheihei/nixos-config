@@ -100,23 +100,41 @@ in
   };
   users.groups.ai-gateways.members = [ "nginx" ];
 
-  lantian.localVhosts."uni-api" = {
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
-      proxyNoTimeout = true;
-      proxyOverrideHost = "localhost";
-    };
-  };
-
-  lantian.nginxVhosts = lib.optionalAttrs (config.networking.hostName == "v-ps-sea") {
-    "ai-api.xuyh0120.win" = {
+  lantian.nginxVhosts = {
+    "uni-api.${config.networking.hostName}.zhyi.xin" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
         proxyNoTimeout = true;
         proxyOverrideHost = "localhost";
       };
 
-      sslCertificate = "zerossl-xuyh0120.win";
+      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
+      noIndex.enable = true;
+      accessibleBy = "private";
+    };
+    "uni-api.localhost" = {
+      listenHTTP.enable = true;
+      listenHTTPS.enable = false;
+
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
+        proxyNoTimeout = true;
+        proxyOverrideHost = "localhost";
+      };
+
+      noIndex.enable = true;
+      accessibleBy = "localhost";
+    };
+  }
+  // lib.optionalAttrs (config.networking.hostName == "tencent") {
+    "ai-api.zhyi.xin" = {
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
+        proxyNoTimeout = true;
+        proxyOverrideHost = "localhost";
+      };
+
+      sslCertificate = "zerossl-zhyi.xin";
       noIndex.enable = true;
     };
   };
