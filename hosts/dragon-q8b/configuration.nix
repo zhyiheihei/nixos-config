@@ -16,12 +16,6 @@
     # opi5p 侧同步移除（configuration.nix / media-center.nix）。
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/resilio-sync.nix
-
-    # 从 opi5p 迁入（2026-08-30，按 §5.2 原计划）：Home Assistant + MQTT
-    # broker（LTNET 监听，frigate 自 opi5p 远端发布）。数据自快照恢复副本
-    # 迁入 /nix/persistent/var/lib/home-assistant；frigate 本体留在 opi5p
-    #（RK3588 硬解），集成 URL 指 opi5p:5000。
-    ../../nixos/optional-apps/home-assistant.nix
   ];
 
   boot.loader.grub.enable = lib.mkForce false;

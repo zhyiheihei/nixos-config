@@ -200,12 +200,10 @@ in
         {
           # 声明当前镜像的配置版本，避免 frigate 误认为 0.13 旧配置而每次启动都迁移。
           version = "0.17-0";
-          # 事件走 MQTT（HA Frigate 集成的传感器靠它）。2026-08-30 HA 迁至
-          # dragon-q8b，broker 随 HA 驻 dragon（LTNET 监听），frigate 是唯一
-          # 远端生产者；本机回环 broker 已随 HA 模块撤除。
+          # 事件走本机 mosquitto（HA Frigate 集成的传感器靠它；回环匿名）。
           mqtt = {
             enabled = true;
-            host = LT.hosts.dragon-q8b.ltnet.IPv4;
+            host = "127.0.0.1";
             port = 1883;
           };
           # 认证交给上游 oauth2-proxy（Dex/Pocket ID），本体不设密码：
