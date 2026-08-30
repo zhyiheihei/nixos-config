@@ -72,6 +72,10 @@ in
           builtins.concatStringsSep " " [
             (lib.getExe pkgs.rsync)
             "-aczrq"
+            # 源端部分文件组非 root（如 ltnet-registry root:nginx），客户端沙箱
+            # 无 CAP_CHOWN 会对每个新文件 chgrp EPERM → exit 23（首次全量同步
+            # 必现，2026-08-30 opi5p 实证）。组信息对消费方无意义，不保留。
+            "--no-group"
             "--delete-after"
             "--timeout=300"
             "rsync://${LT.hosts.${primaryServer}.ltnet.IPv4}/sync-servers/"
