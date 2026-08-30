@@ -1,0 +1,17 @@
+--- a/core/models.py
++++ b/core/models.py
+@@ -60,6 +60,14 @@
+     tool_calls: Optional[List[ToolCall]] = None
+     tool_call_id: Optional[str] = None
+ 
++    @field_validator("role")
++    @classmethod
++    def normalize_developer_role(cls, role: str) -> str:
++        # 智谱系等 OpenAI 兼容上游不接受 OpenAI 新式 developer 角色
++        # （报 [1214] Incorrect role information）；developer 与 system
++        # 语义等价，网关侧统一归一为 system。
++        return "system" if role == "developer" else role
++
+     class Config:
+         extra = "allow"  # 允许额外的字段
+ 
