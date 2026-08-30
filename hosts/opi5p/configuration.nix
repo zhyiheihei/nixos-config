@@ -262,8 +262,13 @@ in
   # Immich (Rockchip) —— 重装过渡期摘除，2026-08-30 随批次 2 恢复
   ########################################
 
-  # 注意：旧 NVMe 的 postgres（immich 库）随盘报废，本次为全新空库起点
-  #（照片本体在 NAS /mnt/storage/immich 未受影响）。
+  # 注意：旧 NVMe 的 postgres（immich 库）已从 NAS rustic 快照恢复
+  #（2026-08-30，restic 仓 ba4e6365 = 08-27 状态）。
+  # immich uid/gid 必须钉死为 984:982：NAS /mnt/storage/immich 全树与
+  # 恢复的本地状态文件都属 984:982（0700），新系统自动分配的 uid 对不上
+  # 会 EACCES（2026-08-30 实证 encoded-video/.immich 读不了）。
+  users.users.immich.uid = lib.mkForce 984;
+  users.groups.immich.gid = lib.mkForce 982;
   systemd.services.immich-server = {
     path = [ pkgs.jellyfin-ffmpeg-rockchip ];
     serviceConfig = {
