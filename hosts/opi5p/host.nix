@@ -10,10 +10,11 @@
   # Native ARM fallback builder: this RK3588 handles aarch64 derivations
   # whose build scripts must execute target code; the dedicated build path
   # remains ml-builder (see docs/agent/hosts-overview.md).
-  # nix-builder tag 暂摘（2026-08-29 机器故障，构建职责由 dragon-q8b 接棒），
-  # 机器恢复后加回。
+  # 2026-08-31 nix-builder tag 加回：机器恢复，aarch64 构建自 dragon-q8b
+  # 切回本机（dragon 8G 内存天花板，构建期间 OOM 连环实证）。
   tags = with tags; [
     lan-access
+    nix-builder
     server
   ];
   cpuThreads = 8;

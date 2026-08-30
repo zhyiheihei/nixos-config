@@ -53,7 +53,8 @@ in
     # ../../nixos/optional-apps/asf.nix
     # ../../nixos/optional-apps/calibre-cops.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
-    # ../../nixos/optional-apps/home-assistant.nix
+    # 2026-08-31 迁 dragon 决策取消，本机恢复（数据已自快照回位）。
+    ../../nixos/optional-apps/home-assistant.nix
     # ../../nixos/optional-apps/ignis.nix
     # Immich 单入口：rockchip 层内部已收编基础模块（immich.nix），并关闭
     # aarch64 上会构建失败的 nix 版 ML、改走 RKNN 推理（本机 rknn worker 又
