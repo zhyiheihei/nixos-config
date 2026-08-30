@@ -29,6 +29,5 @@
   };
   # Server-role BIRD configuration consumes the region even without dn42.
   dn42.region = constants.dn42.region.Asia-E;
-  # 2026-08-30 NVMe 重刷清掉 /var/lib/zerotier-one，节点身份重建（旧 7e7ce20750 已废）
-  zerotier = "77eccc5e34";
+  zerotier = "7e7ce20750";
 }
