@@ -47,8 +47,10 @@ in
       # 默认走 ollama-cloud：pi-ollama-cloud 插件给模型内置完整 compat
       # （supportsDeveloperRole=false 等），智谱系上游不会报 1214。
       # uni-api 渠道保留可用，但其自动发现模型开 thinking 会踩 1214。
+      # glm-5.3 不在 pi-ollama-cloud 的注册清单内（缓存 18 个模型无它），
+      # 选同代的 glm-5.3-flash。
       defaultProvider = "ollama-cloud";
-      defaultModel = "glm-5.3";
+      defaultModel = "glm-5.3-flash";
       defaultThinkingLevel = "high";
       showCacheMissNotices = true;
 
