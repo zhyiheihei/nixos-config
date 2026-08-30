@@ -42,7 +42,9 @@ in
       enableInstallTelemetry = false;
       enableAnalytics = false;
       defaultProvider = "uni-api";
-      defaultModel = "glm-5.2:opencode-zen";
+      # 网关已改为暴露裸模型 id（见 nixos-secrets uni-api/providers/），
+      # 裸 id 才能在 models.dev 目录命中正确的上下文元数据。
+      defaultModel = "glm-5.2";
       defaultThinkingLevel = "high";
       showCacheMissNotices = true;
 

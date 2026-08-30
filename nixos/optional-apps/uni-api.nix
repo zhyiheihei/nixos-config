@@ -24,8 +24,10 @@ let
       {
         provider = v.name;
         api = if v.apiKeyPath != null then { _secret = v.apiKeyPath; } else "sk-123456";
+        # _models 为空（订阅渠道走 uni-api 上游自动发现）时省略 model 字段；
+        # 原先的 `!= { }` 是列表与属性集的比较笔误，永远为真。
         model =
-          if v._models != { } then
+          if v._models != [ ] then
             builtins.map (m: {
               "${m.name}" = m.value;
             }) v._models
