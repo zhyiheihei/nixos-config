@@ -44,13 +44,13 @@
   };
   bosl2 = {
     pname = "bosl2";
-    version = "v2.0.751";
+    version = "v2.0.752";
     src = fetchFromGitHub {
       owner = "BelfrySCAD";
       repo = "BOSL2";
-      rev = "v2.0.751";
+      rev = "v2.0.752";
       fetchSubmodules = false;
-      sha256 = "sha256-WyTUmyCYcK/e+adYJysn0A2yVdYbcyGzN6ODJnIutMQ=";
+      sha256 = "sha256-gHtgMRKhs0U/mz0oflvMUjeT8i0BRbYOTs1ammKQSmU=";
     };
   };
   delegacy-rpz = {
@@ -316,15 +316,15 @@
   };
   ulauncher-emoji = {
     pname = "ulauncher-emoji";
-    version = "195d167ea0cfdbb2169906b5acaac8097db84767";
+    version = "3ea26a6c07195c9e954ca254133aa56b608e6e53";
     src = fetchFromGitHub {
       owner = "Ulauncher";
       repo = "ulauncher-emoji";
-      rev = "195d167ea0cfdbb2169906b5acaac8097db84767";
+      rev = "3ea26a6c07195c9e954ca254133aa56b608e6e53";
       fetchSubmodules = false;
-      sha256 = "sha256-DFOm8R5gP6rfvzYvGJAaBTRa6GGd1fyP+RShNR44aPA=";
+      sha256 = "sha256-AaO9qPkVTWlFSFg9wSEGqJrM34/yTAqFMRx6h7kUp/U=";
     };
-    date = "2025-10-05";
+    date = "2026-08-30";
   };
   ulauncher-extension-list = {
     pname = "ulauncher-extension-list";
@@ -456,13 +456,13 @@
   };
   yourls = {
     pname = "yourls";
-    version = "1.10.5";
+    version = "1.10.6";
     src = fetchFromGitHub {
       owner = "YOURLS";
       repo = "YOURLS";
-      rev = "1.10.5";
+      rev = "1.10.6";
       fetchSubmodules = false;
-      sha256 = "sha256-let+wK/xC14qIb89PWinQEerAItmK7iCufJBt+/JIx0=";
+      sha256 = "sha256-aGnrrCosgdyAkWhIc+6cRbtMXi2hKf3x74ofiTMhcl0=";
     };
   };
   yourls-404-if-not-found = {
