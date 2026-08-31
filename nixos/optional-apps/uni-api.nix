@@ -100,33 +100,15 @@ in
   };
   users.groups.ai-gateways.members = [ "nginx" ];
 
-  lantian.nginxVhosts = {
-    "uni-api.${config.networking.hostName}.zhyi.xin" = {
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
-        proxyNoTimeout = true;
-        proxyOverrideHost = "localhost";
-      };
-
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
-      noIndex.enable = true;
-      accessibleBy = "private";
+  lantian.localVhosts."uni-api" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
+      proxyNoTimeout = true;
+      proxyOverrideHost = "localhost";
     };
-    "uni-api.localhost" = {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
+  };
 
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
-        proxyNoTimeout = true;
-        proxyOverrideHost = "localhost";
-      };
-
-      noIndex.enable = true;
-      accessibleBy = "localhost";
-    };
-  }
-  // lib.optionalAttrs (config.networking.hostName == "tencent") {
+  lantian.nginxVhosts = lib.optionalAttrs (config.networking.hostName == "tencent") {
     "ai-api.zhyi.xin" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.UniAPI}";
