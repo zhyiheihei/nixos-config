@@ -132,6 +132,9 @@ rec {
     WGMesh.WebSocket = 13841;
     Ncps = 13851;
     IyuuPlus = 13878;
+    # 上游同号（13880）。本仓 LlamaCpp.Qwen3Reranker 亦为 13880，但其模块
+    # 当前无主机导入；若未来 llama-swap 与 llama-cpp-qwen3 同机启用需改端口。
+    LlamaSwap = 13880;
     LlamaCpp.Qwen3Reranker = 13880;
     LlamaCpp.Qwen3 = 13881;
     LlamaCpp.Qwen3_6 = 13881;
