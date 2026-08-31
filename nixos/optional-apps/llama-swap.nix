@@ -2,7 +2,6 @@
   lib,
   pkgs,
   LT,
-  config,
   ...
 }:
 let
@@ -115,20 +114,10 @@ in
   };
   users.groups.llama-swap = { };
 
-  # 上游用 lantian.localVhosts（本仓未声明该 option），按 work-norms §3 等价
-  # 改写为本仓 nginxVhosts 惯用法。本机是 client 主机、无证书基础设施，故用
-  # uni-api.localhost 同款纯 HTTP 仅本机形态，而非上游 private + zerossl 形态；
-  # magic-context 的 embedding 只打 127.0.0.1 直连端口，不经 nginx。
-  lantian.nginxVhosts."llama-swap.localhost" = {
-    listenHTTP.enable = true;
-    listenHTTPS.enable = false;
-
+  lantian.localVhosts."llama-swap" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.LlamaSwap}";
       proxyNoTimeout = true;
     };
-
-    noIndex.enable = true;
-    accessibleBy = "localhost";
   };
 }
