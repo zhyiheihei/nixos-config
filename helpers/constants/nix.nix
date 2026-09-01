@@ -6,8 +6,7 @@
   };
 
   # Author's NUR binary caches (xddxdd/nur-packages exposes both attic and
-  # cachix via flake `meta`). Keep ours + additionally pull the author's
-  # caches for upstream packages.
+  # cachix via flake `meta`).
   authorAttic = {
     url = inputs.nur-xddxdd.meta.atticUrl;
     publicKey = inputs.nur-xddxdd.meta.atticPublicKey;
@@ -17,27 +16,29 @@
     publicKey = inputs.nur-xddxdd.meta.cachixPublicKey;
   };
 
-  # mirror.sjtu.edu.cn is intentionally absent: it answers HEAD probes with
-  # HTTP 200 for store paths it does not have, so ncps selects it as the
-  # winning upstream and fails on download without falling back.
   substituters = [
     attic.url
     authorCachix.url
     authorAttic.url
-    "https://mirrors.ustc.edu.cn/nix-channels/store"
-    "https://mirrors.tuna.tsinghua.edu.cn/nix-channels/store"
     "https://cache.nixos-cuda.org"
     "https://cuda-maintainers.cachix.org"
     "https://nix-gaming.cachix.org"
     "https://comfyui.cachix.org"
   ];
+
+  # ncps（nixpkgs 0.9.4）无法解析非 hash 命名的上游 NAR URL：attic 系用
+  # nar/<store-path-hash>.nar，cachix 新版用 nar/<uuid>.nar.zst，命中即 500
+  # 且不回退（kalbasit/ncps#1329）。ncps 上游必须排除这三个，由客户端
+  # substituters 直连（见 ncps-client.nix / ncps.nix）。
+  atticSubstituters = [
+    attic.url
+    authorCachix.url
+    authorAttic.url
+  ];
   trusted-public-keys = [
     attic.publicKey
     authorCachix.publicKey
     authorAttic.publicKey
-    # USTC / TUNA mirrors serve cache.nixos.org content, so the official key
-    # must be trusted for their substitutes to be accepted.
-    "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
     "cache.nixos-cuda.org:74DUi4Ye579gUqzH4ziL9IyiJBlDpMRn9MBN8oNan9M="
     "cuda-maintainers.cachix.org-1:0dq3bujKpuEPMCX6U4WylrUDZ9JyUG0VpVZa7CNfq5E="
     "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
