@@ -5,8 +5,6 @@
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/memos-nix.nix
     ../../nixos/optional-apps/wallos.nix
-    ../../nixos/optional-apps/clawemail.nix
-    ../../nixos/optional-apps/epic-awesome-gamer
   ];
 
   # ArchiveBox 数据在 NAS 上，dragon-q8b 挂载同一个 NFS share。

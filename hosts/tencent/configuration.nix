@@ -11,6 +11,7 @@
     ../../nixos/optional-apps/navdash.nix
     ../../nixos/optional-apps/prometheus
     ../../nixos/optional-apps/searxng.nix
+    ../../nixos/optional-apps/clawemail.nix
 
     # 2026-08-31 自 greencloud 迁入：日历同步定时任务（每小时）。脚本按
     # 主机名取 secrets/per-host/radicale-calendar-sync/tencent.yaml；
