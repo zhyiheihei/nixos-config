@@ -239,9 +239,15 @@
   };
 
   systemd.services.alertmanager = {
-    preStart = lib.mkForce ''
-      ${utils.genJqSecretsReplacementSnippet config.services.prometheus.alertmanager.configuration "/tmp/alert-manager-substituted.yaml"}
-    '';
+    # 秘密替换必须走 serviceConfig.ExecStartPre（mkForce 顶掉 nixpkgs 模块
+    # 自带的 envsubst 步骤）：envsubst 会用未替换 _secret 的 dump 覆盖渲染
+    # 结果，alertmanager 0.33 严格解析直接报
+    # "cannot unmarshal !!map into config.plain"（2026-09-01）。
+    serviceConfig.ExecStartPre = lib.mkForce [
+      (utils.genJqSecretsReplacementSnippet
+        config.services.prometheus.alertmanager.configuration
+        "/tmp/alert-manager-substituted.yaml")
+    ];
   };
 
   lantian.nginxVhosts."alert.zhyi.xin" = {
