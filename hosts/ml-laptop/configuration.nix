@@ -14,6 +14,7 @@
     # 与上游 lt-hp-omen 逐字对齐的 optional-apps 导入列表（含注释占位）。
     ../../nixos/optional-apps/audio-cpp.nix
     ../../nixos/optional-apps/byparr.nix
+    ../../nixos/optional-apps/clash-verge.nix
     # ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/homepage.nix
     ../../nixos/optional-apps/libvirt
@@ -180,6 +181,14 @@
   };
 
   virtualisation.waydroid.enable = true;
+
+  # waydroid 硬编码挂载 $XDG_RUNTIME_DIR/pulse/native，而本机 PipeWire 跑在
+  # 系统级（socket 在 /var/run/pulse/native），没有这个链接时 lxc 挂载失败、
+  # 容器无法启动。
+  systemd.user.tmpfiles.rules = [
+    "L+ %t/pulse/native - - - - /var/run/pulse/native"
+  ];
+
   services.usbmuxd.enable = true;
   systemd.services.usbmuxd.serviceConfig.Restart = "always";
 
