@@ -14,13 +14,12 @@
     # 与上游 lt-hp-omen 逐字对齐的 optional-apps 导入列表（含注释占位）。
     ../../nixos/optional-apps/audio-cpp.nix
     ../../nixos/optional-apps/byparr.nix
+    ../../nixos/optional-apps/clash-verge.nix
     # ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/homepage.nix
     ../../nixos/optional-apps/libvirt
     ../../nixos/optional-apps/llama-cpp.nix
-    ../../nixos/optional-apps/llama-swap.nix
-    # 2026-08-31 注释：buyvm 隧道不再由本机承接。
-    # ../../nixos/optional-apps/netns-tnl-buyvm.nix
+    ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/obs-studio.nix
     ../../nixos/optional-apps/opencl.nix
@@ -182,6 +181,14 @@
   };
 
   virtualisation.waydroid.enable = true;
+
+  # waydroid 硬编码挂载 $XDG_RUNTIME_DIR/pulse/native，而本机 PipeWire 跑在
+  # 系统级（socket 在 /var/run/pulse/native），没有这个链接时 lxc 挂载失败、
+  # 容器无法启动。
+  systemd.user.tmpfiles.rules = [
+    "L+ %t/pulse/native - - - - /var/run/pulse/native"
+  ];
+
   services.usbmuxd.enable = true;
   systemd.services.usbmuxd.serviceConfig.Restart = "always";
 
@@ -202,26 +209,14 @@
   # Sunshine 全栈固定核显（Intel）：eGPU(card0) 不驱任何显示器，而本版
   # Sunshine 的 nvenc 初始化要求编码 GPU 自带 monitor，导致每轮探测都
   # "Couldn't find monitor [0]" 失败（约 0.4s/轮），再回落 vulkan→vaapi。
-  # 显式钉死 encoder=vaapi 跳过探测循环，VA-API 由 client-components/
-  # xorg.nix 的 LIBVA_DRIVER_NAME=iHD 驱动。
+  # 显式钉死 encoder=vaapi / capture=kms 跳过探测循环：KMS 命中的就是
+  # 核显侧 HDMI-A-1 输出（prep_cmd 的 kscreen-doctor 也作用于此），
+  # VA-API 由 client-components/xorg.nix 的 LIBVA_DRIVER_NAME=iHD 驱动。
   # upnp=false：本机在防火墙策略中永不做公网端口转发，UPnP 映射注定
   # 失败且每天刷百余条 "Failed to map ... 501" 日志噪音。
-  #
-  # capture=kwin（2026-08-30）：kms 抓屏对 X11/XWayland 内容会周期性闪帧
-  # （Wayland 内容正常、物理屏正常，AllowDirectScanout=false 已生效仍闪）
-  # ——KMS 平面复制绕过合成器，对 X11 帧呈现时序敏感。备选后端逐一排除：
-  # pipewire（portal 授权是启动前提，无授权启动即失败，且 nixpkgs 构建未
-  # 编译）、wlr（要求 wlr-export-dmabuf，KWin 不支持）。本版 Sunshine 有
-  # 专门的 KWIN 后端：直连 KWin screencast Wayland 协议、合成后输出、不经
-  # portal 授权。需 -DSUNSHINE_ENABLE_KWIN 编译开关 + pipewire 头文件，
-  # 故下方 overrideAttrs 重编，capture 值为 "kwin"。
-  services.sunshine.package = lib.mkForce (pkgs.sunshine.overrideAttrs (old: {
-    cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DSUNSHINE_ENABLE_KWIN:BOOL=ON" ];
-    buildInputs = (old.buildInputs or [ ]) ++ [ pkgs.pipewire ];
-  }));
   services.sunshine.settings = {
     encoder = "vaapi";
-    capture = "kwin";
+    capture = "kms";
     # upnp = false;
   };
 
