@@ -40,15 +40,15 @@ curl -sS "http://127.0.0.1:9090/api/v1/query" --data-urlencode 'query=<指标>' 
 - **入口**：prometheus / alertmanager / grafana 服务 active（监控栈 2026-08-14 自 greencloud 迁至 tencent）
 - **日志**：各服务 journalctl 的 error/warn（如 Grafana datasource 报错、Prometheus 抓取失败）
 - **监控指标**：
-  - `up{job!="blackbox"}` 的 down 目标（排除已知离线机：hostdare 流量耗尽、opi03/h28k 未部署）
+  - `up{job!="blackbox"}` 的 down 目标（排除已知离线机：opi03/h28k 未部署）
   - `scrape_samples_scraped` / 抓取成功率（router 国际 ZT 链路丢包，node job 已调 2m/110s）
   - 关键 exporter：blackbox、wireguard、coredns（knot）、bird、mysql、exportarr（radarr/sonarr/bazarr/prowlarr）
 - **面板**：Grafana 各面板非空（「设备性能」「链路速率」「各接口实时吞吐」等），注意 panel 的 refId 不能重复（Grafana 13+）
 
-### 2. 下载链路（router）与媒体应用（rock5c）
-- **入口**：router 上 qbittorrent 单实例；opi5p 上 bitmagnet /
+### 2. 下载链路（router）与媒体应用（rock5c / dragon-q8b）
+- **入口**：router 上 qbittorrent 单实例；dragon-q8b 上 bitmagnet /
   peerbanhelper / tachidesk，以及 rock5c 上 moviepilot / jellyfin / handbrake
-  均 running（仅入口）
+  均 running（仅入口；bitmagnet/peerbanhelper/tachidesk 于 2026-08-28 自 opi5p 迁至 dragon-q8b，opi5p 仅保留 8443 TLS 前沿回源）
 - **日志（重点）**：
   - **moviepilot**：`无法获取下载地址` / `触发站点流控` → 站点限流或索引异常；`没有找到可整理的媒体文件` → 确认下载路径为 `/mnt/storage/downloads` 且非隐藏目录
   - **jellyfin**：WS 断开/请求取消 = 客户端行为（🟢）
@@ -110,7 +110,7 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
 - **数据流转**：`dig` 抽查公网域名（注意 DNS 发布走 GitHub Actions dnscontrol，生效有 TTL 延迟；国内网络可能 UDP 53 劫持，用 DoH 交叉验证）
 
 ### 7. 分布式构建链（ml-builder / opi5p）
-- **入口**：nix daemon、Hydra（ml-builder）、buildMachines（ml-builder 通告 x86_64+aarch64，opi5p 仅 native aarch64、无 big-parallel；pve-5700u 不再参与构建）
+- **入口**：nix daemon、buildMachines（ml-builder 通告 x86_64+aarch64，opi5p 仅 native aarch64、无 big-parallel；pve-5700u 不再参与构建）；Hydra 模块当前在 ml-builder 被注释禁用（SC8280XP 内核 bring-up 期间内存压力），重新启用后恢复巡检
 - **日志**：`Cannot build ... (no substituter)` = 远程 builder 缺输入（`builders-use-substitutes=false` 所致）；对策：`nix copy --to ssh://nix-builder@<builder> --derivation <drv>` 或 qemu 本机构建
 - **注意**：opi5p 负载敏感，巡检/部署时不要连续压它（此前多次重试导致 SSH 无响应）；qemu TCG 编译 arm 慢但可用（binfmt 已注册）
 
@@ -129,6 +129,5 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
 
 - 🔴 必须当次处理或明确排期；🟡 记录并观察；🟢 说明为何是噪音（避免下次重复排查）
 - 已知离线/噪音清单（巡检时直接排除，节省时间）：
-  - hostdare（流量耗尽离线，blackbox/node 告警属预期）
   - opi03 / h28k（未部署，或用户工作中）
   - prowlarr `Missing translation`、decluttarr pre-start、jellyfin WS 断开 = 噪音

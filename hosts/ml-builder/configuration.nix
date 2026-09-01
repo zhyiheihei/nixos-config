@@ -40,9 +40,11 @@ in
 
     # ../../nixos/optional-apps/llama-cpp.nix
     # ../../nixos/optional-apps/llama-cpp-qwen3_6.nix
-    ../../nixos/optional-apps/archiveteam.nix
-    ../../nixos/optional-apps/clawemail.nix
-    ../../nixos/optional-apps/epic-awesome-gamer
+    # 2026-08-31 迁出：archiveteam → rock5c，clawemail/epic-awesome-gamer →
+    # dragon-q8b（本机回归纯构建机定位）。
+    # ../../nixos/optional-apps/archiveteam.nix
+    # ../../nixos/optional-apps/clawemail.nix
+    # ../../nixos/optional-apps/epic-awesome-gamer
     # Hydra disabled on this builder (memory pressure during SC8280XP kernel
     # bring-up froze the host). Re-enable deliberately by un-commenting this
     # import.
@@ -143,11 +145,15 @@ in
   # survive.
   zramSwap.memoryPercent = lib.mkForce 100;
   # SC8280XP kernel cross-build with 28-way GCC concurrency exhausts 56 GiB
-  # physical RAM faster than zram can compress.  Add a 64 GiB disk-backed
-  # swap file on /nix so the kernel has real backing store for spike pages.
-  swapDevices = [
-    { device = "/nix/swapfile"; size = 64 * 1024; }
-  ];
+  # physical RAM faster than zram can compress.  曾配 64 GiB /nix/swapfile，
+  # 但 2026-08-31 起发现两个问题：swapfile 在 /nix 里会让
+  # backup-nix-persistent 的 btrfs 快照报 "Text file busy"；且 /nix 是
+  # sda2+sdb 双设备 btrfs，swapfile 无法保证落在单设备（内核拒收
+  # "swapfile must be on one device"，跨设备分布全凭分配运气）。
+  # 故移除磁盘 swap，仅保留 zram；如需磁盘 swap 建议加独立 swap 分区。
+  # swapDevices = [
+  #   { device = "/nix/swapfile"; size = 64 * 1024; }
+  # ];
 
   services.openssh.settings.MaxStartups = "64:30:128";
 

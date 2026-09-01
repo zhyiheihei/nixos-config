@@ -41,6 +41,12 @@
       default = 0;
     };
 
+    # 独立 GPU 显存（GB），llama-swap 据此选模型量化档位；无独显主机保持 0。
+    vramGB = lib.mkOption {
+      type = lib.types.int;
+      default = 0;
+    };
+
     # Geolocation
     city = {
       country = lib.mkOption { type = lib.types.str; };

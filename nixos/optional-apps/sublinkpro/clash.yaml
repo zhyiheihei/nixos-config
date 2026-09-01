@@ -46,8 +46,11 @@ proxy-groups:
       - __ALL_PROXIES__
 rules:
   - DOMAIN-SUFFIX,zhyi.xin,DIRECT
-  - DOMAIN-SUFFIX,zhyi.xin,DIRECT
   - DOMAIN-SUFFIX,zhyi.dn42,DIRECT
+  # ZeroTier：按进程与控制通道端口直连，避免 TUN 模式劫持隧道自身流量；
+  # 管理网段落在 192.168.0.0/16 与 fc00::/7，已被下面的私有网段规则覆盖。
+  - PROCESS-NAME,zerotier-one,DIRECT
+  - DST-PORT,9993,DIRECT
   - IP-CIDR,198.18.0.0/15,DIRECT,no-resolve
   - IP-CIDR6,fdd8:1938:4e88::/48,DIRECT,no-resolve
   - IP-CIDR,127.0.0.0/8,DIRECT,no-resolve
@@ -57,5 +60,6 @@ rules:
   - IP-CIDR,100.64.0.0/10,DIRECT,no-resolve
   - IP-CIDR6,fc00::/7,DIRECT,no-resolve
   - IP-CIDR6,fe80::/10,DIRECT,no-resolve
+  - GEOSITE,CN,DIRECT
   - GEOIP,CN,DIRECT,no-resolve
   - MATCH,PROXY

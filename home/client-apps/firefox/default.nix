@@ -67,6 +67,7 @@ let
           tweaks-for-youtube
           ublacklist
           wappalyzer
+          zeroomega
           # keep-sorted end
         ];
         force = true;

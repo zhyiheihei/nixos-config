@@ -45,6 +45,18 @@
     # 经 Moonlight 实测验证。
     configFile.kwinrc.Compositing.AllowDirectScanout.value = false;
 
+    # 触控板滚动速度降到默认的 50%。仅对 Wayland 会话生效（KWin 读取
+    # kcminputrc 的 ScrollFactor）；X11 会话走 services.libinput，无此选项。
+    input.touchpads = [
+      {
+        enable = true;
+        name = "SYNA32EB:00 06CB:CEE7 Touchpad";
+        vendorId = "06CB";
+        productId = "CEE7";
+        scrollSpeed = 0.5;
+      }
+    ];
+
     desktop = {
       icons = {
         alignment = "left";

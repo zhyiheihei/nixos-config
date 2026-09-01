@@ -119,8 +119,11 @@
   # zstd 压缩在内存吃满时让 kswapd 吃满一个核，陷入 swap 风暴死亡螺旋
   # （opi5p 已实测 load 181）。改用 NVMe swap 文件兜底。
   zramSwap.enable = lib.mkForce false;
+  # swapfile 移入独立子卷 /nix/swap（2026-09-01）：放在 /nix 下会让
+  # backup-nix-persistent 对 /nix 的 btrfs 快照报 "Text file busy"，
+  # 快照会跳过嵌套子卷，故 /nix/swap 不再阻碍每日备份。
   swapDevices = [
-    { device = "/nix/swapfile"; size = 4096; }
+    { device = "/nix/swap/swapfile"; size = 4096; }
   ];
 
   # Resilio Sync 引擎从 opi5p 迁入（2026-08-28）。identity/索引状态

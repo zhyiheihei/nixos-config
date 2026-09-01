@@ -1,5 +1,6 @@
 {
   config,
+  inputs,
   lib,
   LT,
   pkgs,
@@ -47,20 +48,32 @@ in
 
     # 2026-08-29 重装过渡期：重服务临时摘除（SD 卡性能不足 + sops 未就绪时
     # 这些服务只会循环崩溃拖垮机器），NVMe 落定后分批恢复。
+    # 2026-08-30：NVMe 已落定，按 §3.3 硬件依赖清单分批恢复
+    #（frigate → immich）；asf/cops/ignis/syncthing/webdav 等 NAS/状态类
+    # 服务随迁移决策另定，不在本机恢复。
     # ../../nixos/optional-apps/asf.nix
     # ../../nixos/optional-apps/calibre-cops.nix
-    # ../../nixos/optional-apps/frigate-rockchip.nix
-    # ../../nixos/optional-apps/home-assistant.nix
+    ../../nixos/optional-apps/frigate-rockchip.nix
+    # 2026-08-31 迁 dragon 决策取消，本机恢复（数据已自快照回位）。
+    ../../nixos/optional-apps/home-assistant.nix
     # ../../nixos/optional-apps/ignis.nix
     # Immich 单入口：rockchip 层内部已收编基础模块（immich.nix），并关闭
     # aarch64 上会构建失败的 nix 版 ML、改走 RKNN 推理（本机 rknn worker 又
     # 在下方 mkForce 关闭，推理现由 rock5c 承担）。
-    # ../../nixos/optional-apps/immich-rockchip.nix
+    ../../nixos/optional-apps/immich-rockchip.nix
     # ncps 服务端与 resilio-sync 引擎已迁至 dragon-q8b（2026-08-28），
     # 本机保留 ncps-client 作为缓存消费者。
     ../../nixos/optional-apps/ncps-client.nix
     # ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/sftp-server.nix
+    # 2026-08-31 自 greencloud 迁入：librechat（连带 uni-api/mongodb/mcp）与
+    # n8n（连带 postgresql/openai-bridge，postgres 复用本机既有实例）。
+    # 本机为公网 8443 TLS 前沿，ai/n8n vhost 自动获得 8443 监听。
+    # hidden module 5ac5eb91326c8f04 为 LibreChat modelSpecs + HA/MoviePilot
+    # MCP 集成，随服务同迁。
+    ../../nixos/optional-apps/librechat.nix
+    ../../nixos/optional-apps/n8n
+    "${inputs.secrets}/nixos-hidden-module/5ac5eb91326c8f04"
     # ../../nixos/optional-apps/syncthing
     # ../../nixos/optional-apps/webdav.nix
 
@@ -193,28 +206,41 @@ in
   # 磁盘不吃 CPU，系统慢但不卡死；内存耗尽时 OOM killer 快速杀进程
   # 释放内存，比 zram 压缩死循环健康得多。
   zramSwap.enable = lib.mkForce false;
+  # swapfile 必须放在独立子卷 /nix/swap 里：backup-nix-persistent 会对 /nix
+  # 做只读快照，而 btrfs 禁止快照含活动 swapfile 的子卷（EBUSY
+  # "Text file busy"，2026-08-30 实证）。本机 btrfs 没有任何子卷布局
+  #（persistent 是普通目录，snapshot -r /nix 会带上它），swapfile 挪路径
+  # 无解，必须单独开子卷——snapshot 不递归进入子卷，EBUSY 与备份冗余
+  # 两个问题同时消失，swapfile 也不需要进 resticIgnored。
   swapDevices = [
-    { device = "/nix/swapfile"; size = 4096; }
+    { device = "/nix/swap/swapfile"; size = 4096; }
   ];
 
-  # swapDevices 只激活已存在的文件；dd 镜像首启时 /nix/swapfile 不存在，
+  # swapDevices 只激活已存在的文件；dd 镜像首启时 swapfile 不存在，
   # swap 单元直接 failed（2026-08-29 实证：全机无 swap 兜底放大了 daemon
   # 堆积的破坏）。镜像不带 4G 文件（浪费体积），首启按需创建。
+  # DefaultDependencies 必须关：默认隐式 After=basic.target 会构成
+  # swap.target → 本单元 → basic.target → sysinit.target → swap.target
+  # 排序环，systemd 直接删掉 swap.target（2026-08-30 NVMe 首启实证：swap 整轮没起）。
   systemd.services.opi5p-swapfile-bootstrap = {
-    description = "Create /nix/swapfile before swap.target when missing";
+    description = "Create /nix/swap subvolume and swapfile before swap.target when missing";
     wantedBy = [ "swap.target" ];
     before = [ "swap.target" "nix-swapfile.swap" ];
     requires = [ "nix.mount" ];
     after = [ "nix.mount" ];
-    unitConfig.ConditionPathExists = "!/nix/swapfile";
+    unitConfig = {
+      DefaultDependencies = lib.mkForce false;
+      ConditionPathExists = "!/nix/swap/swapfile";
+    };
     serviceConfig = {
       Type = "oneshot";
       ExecStart = [
-        "${pkgs.coreutils}/bin/touch /nix/swapfile"
-        "${pkgs.e2fsprogs}/bin/chattr +C /nix/swapfile"
-        "${pkgs.coreutils}/bin/dd if=/dev/zero of=/nix/swapfile bs=1M count=4096 status=none"
-        "${pkgs.coreutils}/bin/chmod 600 /nix/swapfile"
-        "${pkgs.util-linux}/bin/mkswap /nix/swapfile"
+        "${pkgs.util-linux}/bin/test -d /nix/swap || ${pkgs.btrfs-progs}/bin/btrfs subvolume create /nix/swap"
+        "${pkgs.coreutils}/bin/touch /nix/swap/swapfile"
+        "${pkgs.e2fsprogs}/bin/chattr +C /nix/swap/swapfile"
+        "${pkgs.coreutils}/bin/dd if=/dev/zero of=/nix/swap/swapfile bs=1M count=4096 status=none"
+        "${pkgs.coreutils}/bin/chmod 600 /nix/swap/swapfile"
+        "${pkgs.util-linux}/bin/mkswap /nix/swap/swapfile"
       ];
     };
   };
@@ -226,44 +252,46 @@ in
   # 摄像头本地密码在 secrets/frigate.yaml（key: bedroom-pw / livingroom-pw），
   # rtspUrl 里的 sops 占位符由 sops 模板渲染时替换为真实密码。
   # 注意：乐橙 App 里需关闭 RTSP 加密（TLS），否则 frigate 拉流失败。
-  # lantian.frigate = {
-  #   enable = true;
-  #   cameras = {
-  #     bedroom = {
-  #       rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-bedroom-pw"}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
-  #       onvifHost = "192.168.0.104";
-  #       zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
-  #     };
-  #     livingroom = {
-  #       rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-livingroom-pw"}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
-  #       onvifHost = "192.168.0.115";
-  #       zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
-  #     };
-  #   };
-  # };
+  lantian.frigate = {
+    enable = true;
+    cameras = {
+      bedroom = {
+        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-bedroom-pw"}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        onvifHost = "192.168.0.104";
+        zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
+      };
+      livingroom = {
+        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-livingroom-pw"}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        onvifHost = "192.168.0.115";
+        zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
+      };
+    };
+  };
 
   ########################################
-  # Immich (Rockchip) —— 重装过渡期摘除
+  # Immich (Rockchip) —— 重装过渡期摘除，2026-08-30 随批次 2 恢复
   ########################################
 
-  # systemd.services.immich-server = {
-  #   path = [ pkgs.jellyfin-ffmpeg-rockchip ];
-  #   serviceConfig = {
-  #     PrivateDevices = lib.mkForce false;
-  #     DevicePolicy = lib.mkForce "auto";
-  #   };
-  # };
-  # users.users.immich.extraGroups = [ "video" "render" ];
-  # services.udev.extraRules = ''
-  #   KERNEL=="cma", MODE="0660", GROUP="video"
-  # '';
-  # lantian.immichRknnWorker.enable = lib.mkForce false;
-  # lantian.immich.storage = "/mnt/storage/immich";
-  # systemd.tmpfiles.settings.immich-import."/mnt/storage/immich-import"."d" = {
-  #   mode = "0775";
-  #   user = "immich";
-  #   group = "users";
-  # };
+  # 注意：旧 NVMe 的 postgres（immich 库）随盘报废，本次为全新空库起点
+  #（照片本体在 NAS /mnt/storage/immich 未受影响）。
+  systemd.services.immich-server = {
+    path = [ pkgs.jellyfin-ffmpeg-rockchip ];
+    serviceConfig = {
+      PrivateDevices = lib.mkForce false;
+      DevicePolicy = lib.mkForce "auto";
+    };
+  };
+  users.users.immich.extraGroups = [ "video" "render" ];
+  services.udev.extraRules = ''
+    KERNEL=="cma", MODE="0660", GROUP="video"
+  '';
+  lantian.immichRknnWorker.enable = lib.mkForce false;
+  lantian.immich.storage = "/mnt/storage/immich";
+  systemd.tmpfiles.settings.immich-import."/mnt/storage/immich-import"."d" = {
+    mode = "0775";
+    user = "immich";
+    group = "users";
+  };
 
   ########################################
   # reDroid（停用中）—— 模块导入已注释，配置一并摘除
@@ -302,6 +330,30 @@ in
   #   after = [ "sops-install-secrets.service" ];
   #   requires = [ "sops-install-secrets.service" ];
   # };
+
+  ########################################
+  # LibreChat / n8n（自 greencloud 迁入，2026-08-31）
+  ########################################
+
+  # UniAPI consolidated to hostdare (2026-08-14): LibreChat's upstream moves
+  # from the retired rock5c UniAPI to the public ai-api.zhyi.xin entry.
+  services.librechat.settings.endpoints.custom = lib.mkForce [
+    {
+      name = "UniAPI";
+      apiKey = "\${UNI_API_KEY}";
+      baseURL = "https://ai-api.zhyi.xin/v1";
+      models = {
+        default = lib.unique (
+          lib.concatMap (provider: builtins.map (v: v.value) provider._models)
+            config.lantian.llm-providers
+        );
+        fetch = false;
+      };
+    }
+  ];
+
+  # n8n ships zh-CN translations; make the editor default to Simplified Chinese.
+  services.n8n.environment.N8N_DEFAULT_LOCALE = "zh-CN";
 
   ########################################
   # Public TLS front (8443) for the home edge

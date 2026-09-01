@@ -44,13 +44,13 @@
   };
   bosl2 = {
     pname = "bosl2";
-    version = "v2.0.751";
+    version = "v2.0.752";
     src = fetchFromGitHub {
       owner = "BelfrySCAD";
       repo = "BOSL2";
-      rev = "v2.0.751";
+      rev = "v2.0.752";
       fetchSubmodules = false;
-      sha256 = "sha256-WyTUmyCYcK/e+adYJysn0A2yVdYbcyGzN6ODJnIutMQ=";
+      sha256 = "sha256-gHtgMRKhs0U/mz0oflvMUjeT8i0BRbYOTs1ammKQSmU=";
     };
   };
   delegacy-rpz = {
@@ -256,15 +256,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "5278c76f102803c19a11624ff7f458860ff02aaa";
+    version = "c6eb3206923173e023f95407c5f84afd875d8fe9";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "5278c76f102803c19a11624ff7f458860ff02aaa";
+      rev = "c6eb3206923173e023f95407c5f84afd875d8fe9";
       fetchSubmodules = false;
-      sha256 = "sha256-FtAvEQ4986eK4e1llZzz8K4CUvN4fE3okhA2FNvEiXg=";
+      sha256 = "sha256-4NuWt2RUuzwV0ZXFdEafyJg7/YoToogx2iHOPq45LDA=";
     };
-    date = "2026-08-24";
+    date = "2026-08-31";
   };
   ulauncher-albert-calculate-anything = {
     pname = "ulauncher-albert-calculate-anything";
@@ -316,15 +316,15 @@
   };
   ulauncher-emoji = {
     pname = "ulauncher-emoji";
-    version = "195d167ea0cfdbb2169906b5acaac8097db84767";
+    version = "3ea26a6c07195c9e954ca254133aa56b608e6e53";
     src = fetchFromGitHub {
       owner = "Ulauncher";
       repo = "ulauncher-emoji";
-      rev = "195d167ea0cfdbb2169906b5acaac8097db84767";
+      rev = "3ea26a6c07195c9e954ca254133aa56b608e6e53";
       fetchSubmodules = false;
-      sha256 = "sha256-DFOm8R5gP6rfvzYvGJAaBTRa6GGd1fyP+RShNR44aPA=";
+      sha256 = "sha256-AaO9qPkVTWlFSFg9wSEGqJrM34/yTAqFMRx6h7kUp/U=";
     };
-    date = "2025-10-05";
+    date = "2026-08-30";
   };
   ulauncher-extension-list = {
     pname = "ulauncher-extension-list";
@@ -456,13 +456,13 @@
   };
   yourls = {
     pname = "yourls";
-    version = "1.10.5";
+    version = "1.10.6";
     src = fetchFromGitHub {
       owner = "YOURLS";
       repo = "YOURLS";
-      rev = "1.10.5";
+      rev = "1.10.6";
       fetchSubmodules = false;
-      sha256 = "sha256-let+wK/xC14qIb89PWinQEerAItmK7iCufJBt+/JIx0=";
+      sha256 = "sha256-aGnrrCosgdyAkWhIc+6cRbtMXi2hKf3x74ofiTMhcl0=";
     };
   };
   yourls-404-if-not-found = {

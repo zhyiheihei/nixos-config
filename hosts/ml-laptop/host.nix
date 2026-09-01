@@ -7,6 +7,8 @@
   ];
   city = geo.cities."CN Ningbo";
   cpuThreads = 18;
+  # eGPU RTX 2080 Ti（22G 改装版）；llama-swap 据此选模型量化档位。
+  vramGB = 22;
   hostname = "ml-laptop.zhyi.xin";
   manualDeploy = true;
   # 2026-08-19 安装时生成并持久化到 /mnt/nix/persistent/etc/ssh。

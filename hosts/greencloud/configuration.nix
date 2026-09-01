@@ -23,11 +23,14 @@
     ../../nixos/optional-apps/gitea-actions.nix
     ../../nixos/optional-apps/imapfilter.nix
     ../../nixos/optional-apps/lemmy.nix
-    ../../nixos/optional-apps/librechat.nix
+    # 2026-08-31 迁出：librechat/n8n → opi5p（含 hidden module
+    # 5ac5eb91326c8f04 的 modelSpecs/MCP 配置），radicale-calendar-sync →
+    # tencent（per-host secret 已按主机名重建）。radicale 服务端留在本机。
+    # ../../nixos/optional-apps/librechat.nix
     ../../nixos/optional-apps/maddy.nix
     ../../nixos/optional-apps/matrix-synapse
     ../../nixos/optional-apps/miniflux.nix
-    ../../nixos/optional-apps/n8n
+    # ../../nixos/optional-apps/n8n
     ../../nixos/optional-apps/netbox.nix
     ../../nixos/optional-apps/nginx-api.nix
     ../../nixos/optional-apps/plausible.nix
@@ -43,32 +46,32 @@
 
     ../../nixos/optional-cron-jobs/cleanup-github-notifications
     ../../nixos/optional-cron-jobs/dn42-certificate.nix
-    ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
+    # ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
     ../../nixos/optional-cron-jobs/testssl.nix
 
     "${inputs.secrets}/nixos-hidden-module/11116c7374949a7a"
     "${inputs.secrets}/nixos-hidden-module/35c68fea6f2bde77"
-    "${inputs.secrets}/nixos-hidden-module/5ac5eb91326c8f04"
+    # 2026-08-31 随 librechat 迁至 opi5p。
+    # "${inputs.secrets}/nixos-hidden-module/5ac5eb91326c8f04"
     "${inputs.secrets}/nixos-hidden-module/c9f6c0c333e73062"
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
   ];
 
-  # UniAPI consolidated to hostdare (2026-08-14): LibreChat's upstream moves
-  # from the retired rock5c UniAPI to the public ai-api.zhyi.xin entry.
-  services.librechat.settings.endpoints.custom = lib.mkForce [
-    {
-      name = "UniAPI";
-      apiKey = "\${UNI_API_KEY}";
-      baseURL = "https://ai-api.zhyi.xin/v1";
-      models = {
-        default = lib.unique (
-          lib.concatMap (provider: builtins.map (v: v.value) provider._models)
-            config.lantian.llm-providers
-        );
-        fetch = false;
-      };
-    }
-  ];
+  # 2026-08-31 随 librechat 迁至 opi5p（见 imports 注释）。
+  # services.librechat.settings.endpoints.custom = lib.mkForce [
+  #   {
+  #     name = "UniAPI";
+  #     apiKey = "\${UNI_API_KEY}";
+  #     baseURL = "https://ai-api.zhyi.xin/v1";
+  #     models = {
+  #       default = lib.unique (
+  #         lib.concatMap (provider: builtins.map (v: v.value) provider._models)
+  #           config.lantian.llm-providers
+  #       );
+  #       fetch = false;
+  #     };
+  #   }
+  # ];
 
   services.atticd.package = lib.mkForce pkgs.nur-xddxdd.lantianCustomized."attic-telnyx-compatible";
 
@@ -146,8 +149,8 @@
     environment.HOST = lib.mkForce LT.this.ltnet.IPv4;
   };
 
-  # n8n ships zh-CN translations; make the editor default to Simplified Chinese.
-  services.n8n.environment.N8N_DEFAULT_LOCALE = "zh-CN";
+  # 2026-08-31 随 n8n 迁至 opi5p。
+  # services.n8n.environment.N8N_DEFAULT_LOCALE = "zh-CN";
 
   # Match the user's local Firefox identity so anti-bot sites do not reject the
   # Miniflux fetcher as a non-browser client. Keep RSSHub on the same UA.

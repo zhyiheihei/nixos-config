@@ -26,10 +26,11 @@
 | `opi5p` | 122 | RK3588 / reDroid | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。 |
 | `rock5c` | 123 | RK3588 / 家庭边缘 | `192.168.0.64` | Radxa ROCK 5C；边缘代理、控制链、MetaCubeXD 与 reDroid。 |
 | `lubancat1` | 124 | RK3566 / `server` / `low-ram` | `192.168.0.65` | 原版 LubanCat-1（非 V2），2 GiB RAM、无 eMMC；server 基线已上线，尚未迁入用户应用。 |
-| `h28k` | 125 | RK3528 / 异地路由器（预部署） | WAN DHCP / LAN `192.168.30.1` | HINLINK H28K；双千兆口、Kea、CoreDNS 与 nftables NAT；SSH/SOPS/ZeroTier 身份已采集（08-04 修正 ZeroTier 身份），仍在家中 staging（临时 SSH 放行规则保留），待迁异地站点。 |
+| `h28k` | 125 | RK3528 / 异地路由器（预部署） | WAN DHCP / LAN `192.168.30.1` | HINLINK H28K；双千兆口、Kea、CoreDNS 与 nftables NAT；SSH/SOPS/ZeroTier 身份已采集（ZeroTier node ID `368d3cf42b`，2026-08-15 修正），仍在家中 staging（临时 SSH 放行规则保留），待迁异地站点。 |
 | `opi03` | 126 | H618 / reDroid 实验设备 | DHCP（未固定） | Orange Pi Zero 3；本地 Android 镜像和硬件加速仍在开发，尚未完成正式网络身份与实机验收。 |
 | `taishanpi` | 127 | RK3566 / 暂停维护 | 未定（Wi-Fi bring-up） | LCKFB Taishan Pi（泰山派）；无有线网卡，Wi-Fi/MIPI 适配中；2026-08 起暂停维护。 |
-| `tencent` | 128 | `server` / 公网入口 / DN42 | `tencent.zhyi.xin` | 腾讯云首尔 VPS（2C/4G，AS132203）；DN42 节点、cn-accel 出口、监控中心（Prometheus/Grafana 自 greencloud 迁入，2026-08-14）；2026-08-13 重装完成，host key/ZeroTier 已回填，LTNET mesh 已接入（hostdare 不可达期间除外）。 |
+| `tencent` | 128 | `server` / 公网入口 / DN42 | `tencent.zhyi.xin` | 腾讯云首尔 VPS（2C/4G，AS132203）；DN42 节点、cn-accel 出口、监控中心（Prometheus/Grafana 自 greencloud 迁入，2026-08-14）；2026-08-13 重装完成，host key/ZeroTier 已回填，LTNET mesh 已接入。 |
+| `dragon-q8b` | 129 | SC8280XP / `server` | `192.168.0.66` | Radxa Dragon Q8B（SC8280XP aarch64，8G RAM）；server mesh 成员；2026-08-28 起承载 bitmagnet/peerbanhelper/tachidesk/archivebox/memos 等（自 opi5p 迁入）。 |
 | `greencloud-jp` | 130 | `server` / DN42 / 异地备份 / `cn-accel` 出口 / S3 网关 / Gitea | `45.159.48.76` | GreenCloud 东京存储 VPS（2C/3G + 1T 数据盘，IIJ 线路）；SFTP 备份端点 + storagebox 双备份仓库；S3 网关（`s3.zhyi.xin`，含 gitea LFS 桶）；cn-accel 出口（订阅内 🇯🇵 日本 GreenCloud JP）；Gitea 自 greencloud 迁入（2026-08-29，`git.zhyi.xin`）；v4 静态（该机房 DHCPv4 拿不到租约）；接入记录见 [greencloud-jp](../human/hardware/greencloud-jp-vps.md)。 |
 
 家庭局域网地址、MAC 与 DHCP 边界以 [网络参照的 LAN 分配](reference.md#家庭-lan-静态分配)
