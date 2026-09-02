@@ -54,6 +54,8 @@
     environment.systemPackages = [ config.services.syncthing.package ];
 
     systemd.services.syncthing = {
+      # ExecStartPre 引导需要调用 syncthing -generate（见 update-config.py）
+      path = [ config.services.syncthing.package ];
       serviceConfig = {
         AmbientCapabilities = [
           "CAP_DAC_OVERRIDE"

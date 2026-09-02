@@ -8,6 +8,7 @@ Syncthing 配置文件修改工具
 """
 
 import json
+import subprocess
 import sys
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -65,6 +66,15 @@ def main():
         updates = json.load(f)
 
     config_path = Path(sys.argv[2])
+    if not config_path.exists():
+        # 全新节点的首次启动：config.xml 尚不存在，先用 syncthing -generate
+        # 引导一份默认配置，否则 ExecStartPre 解析失败、服务 start-limit-hit
+        # （2026-09-02 greencloud-jp 首次部署实测）。
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(
+            ["syncthing", "-generate", str(config_path.parent)],
+            check=True,
+        )
     update_config(config_path, updates)
 
 
