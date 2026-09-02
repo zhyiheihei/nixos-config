@@ -14,7 +14,7 @@
 | --- | --- | --- |
 | ml-2700 | NixOS 客户端 | `OFHULYP-EHZTYED-ZJKMBJ6-YNC3SSO-GHQD33A-IF4B6QI-IGLCDTF-VZFHJAH` |
 | opi5p | 服务器 | `6OVUWPX-LFALVDJ-BMNP24B-LAQQSTJ-BJWPIN4-3TA6GFC-NGAD22X-BRK5HQZ` |
-| greencloud | 服务器 | `N5O6F67-DQRWGKH-LMAOLVW-VJN53EP-MGLEXJ2-AMXHLWE-KHO4XW6-4NR64QP` |
+| greencloud-jp | 服务器 | `R7Q2KPX-5FVFXJE-OVKKES3-JSBOU4M-FMFZ34T-AGHWZDE-W3XDIOY-A7Q6BA2` |
 | ml-laptop | 物理笔记本 | `7LYGWIN-NBYO45E-RXJ4M53-BEDOXRC-3UK5NSF-TFCV3ZL-ZBFKEYS-NXMFSAS` |
 | Mac（本机） | 待加入 | 安装 Syncthing 后在 GUI 中查看 |
 
@@ -25,7 +25,7 @@
 
 - `https://syncthing.ml-2700.zhyi.xin`
 - `https://syncthing.opi5p.zhyi.xin`
-- `https://syncthing.greencloud.zhyi.xin`
+- `https://syncthing.greencloud-jp.zhyi.xin`
 - `https://syncthing.ml-laptop.zhyi.xin`
 
 ## 2. 安装 Syncthing（macOS）

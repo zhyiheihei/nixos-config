@@ -139,7 +139,7 @@ staticClients 与 LDAP 消费者。模块存在但**没有被任何主机导入*
 | n8n | `n8n.zhyi.xin` | greencloud |
 | ArchiSteamFarm | `asf.zhyi.xin` | rock5c 边缘 → opi5p |
 | 代理订阅（登录部分） | `sub.zhyi.xin` | greencloud |
-| Syncthing | `syncthing.opi5p.zhyi.xin` / `syncthing.greencloud.zhyi.xin` | opi5p / greencloud |
+| Syncthing | `syncthing.opi5p.zhyi.xin` / `syncthing.greencloud-jp.zhyi.xin` | opi5p / greencloud-jp |
 | ArchiveBox | `archivebox.opi5p.zhyi.xin` | opi5p |
 | Ignis | `ignis.opi5p.zhyi.xin` | opi5p |
 | Frigate | `frigate.opi5p.zhyi.xin` | opi5p |

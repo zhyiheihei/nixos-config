@@ -31,7 +31,7 @@
 | `taishanpi` | 127 | RK3566 / 暂停维护 | 未定（Wi-Fi bring-up） | LCKFB Taishan Pi（泰山派）；无有线网卡，Wi-Fi/MIPI 适配中；2026-08 起暂停维护。 |
 | `tencent` | 128 | `server` / 公网入口 / DN42 | `tencent.zhyi.xin` | 腾讯云首尔 VPS（2C/4G，AS132203）；DN42 节点、cn-accel 出口、监控中心（Prometheus/Grafana 自 greencloud 迁入，2026-08-14）；2026-08-13 重装完成，host key/ZeroTier 已回填，LTNET mesh 已接入。 |
 | `dragon-q8b` | 129 | SC8280XP / `server` | `192.168.0.66` | Radxa Dragon Q8B（SC8280XP aarch64，8G RAM）；server mesh 成员；2026-08-28 起承载 bitmagnet/peerbanhelper/tachidesk/archivebox/memos 等（自 opi5p 迁入）。 |
-| `greencloud-jp` | 130 | `server` / DN42 / 异地备份 / `cn-accel` 出口 / S3 网关 / Gitea | `45.159.48.76` | GreenCloud 东京存储 VPS（2C/3G + 1T 数据盘，IIJ 线路）；SFTP 备份端点 + storagebox 双备份仓库；S3 网关（`s3.zhyi.xin`，含 gitea LFS 桶）；cn-accel 出口（订阅内 🇯🇵 日本 GreenCloud JP）；Gitea 自 greencloud 迁入（2026-08-29，`git.zhyi.xin`）；v4 静态（该机房 DHCPv4 拿不到租约）；接入记录见 [greencloud-jp](../human/hardware/greencloud-jp-vps.md)。 |
+| `greencloud-jp` | 130 | `server` / DN42 / 异地备份 / `cn-accel` 出口 / S3 网关 / Gitea / Syncthing | `45.159.48.76` | GreenCloud 东京存储 VPS（2C/3G + 1T 数据盘，IIJ 线路）；SFTP 备份端点 + storagebox 双备份仓库；S3 网关（`s3.zhyi.xin`，含 gitea LFS 桶）；cn-accel 出口（订阅内 🇯🇵 日本 GreenCloud JP）；Gitea 自 greencloud 迁入（2026-08-29，`git.zhyi.xin`）；Syncthing 同步节点自 greencloud 移交（2026-09，存储 `/data/syncthing`，知识库 vault `/data/syncthing/Notes`）；v4 静态（该机房 DHCPv4 拿不到租约）；接入记录见 [greencloud-jp](../human/hardware/greencloud-jp-vps.md)。 |
 
 家庭局域网地址、MAC 与 DHCP 边界以 [网络参照的 LAN 分配](reference.md#家庭-lan-静态分配)
 为准；LTNET、ZeroTier、WireGuard 与 DN42 关系以

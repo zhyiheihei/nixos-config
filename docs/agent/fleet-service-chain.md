@@ -141,12 +141,16 @@ UniAPI 仍是唯一外部 Provider 汇聚点。不得把 Metapi、AxonHub 或 n8
 ```text
 ml-2700 Documents（bindfs 持久目录）
   -> git push Gitea（git.zhyi.xin，私有权威）
-  -> Syncthing 四机（ml-2700 / ml-laptop / opi5p / greencloud）
+  -> Syncthing 四机（ml-2700 / ml-laptop / opi5p / greencloud-jp）
 Ignis（web Obsidian，opi5p）直接读写 opi5p 上的 Documents 副本
 ```
 
 - 私有天线：`~/Documents` 整体 bind 到 `media/Documents`，内嵌独立 git 仓库，
   Gitea 为权威源，Syncthing 负责四机分发；Documents 与 nixos-config 不共用 `.git`。
+  Syncthing 同步节点于 2026-09 自 greencloud 移交 greencloud-jp（1T 数据盘
+  `/data/syncthing`，常驻公网）；新节点首次启动需手动引导 config.xml
+  （`sudo -u syncthing syncthing generate --home=/var/lib/syncthing`，
+  公共模块的 ExecStartPre 只更新不创建，与上游 exam 对齐不改动）。
 - Web 版 Obsidian：Ignis（`ignis.opi5p.zhyi.xin`）把 opi5p 的
   `/mnt/storage/media/Documents` 挂为 vault，浏览器里编辑的内容仍在 Syncthing/Gitea
   分发内；nginx 层走 oauth2-proxy（Dex SSO）。详见
@@ -210,8 +214,9 @@ ml-home-vm 已退役，旧 `*.ml-home-vm.zhyi.xin` 名称不应再被当作实�
 `greencloud` 承担：
 
 - 协作/内容：Matrix Synapse workers、Mautrix GMessages、
-  Lemmy、Maddy、NetBox、Bepasty、Radicale、Miniflux、RSSHub、Quassel、Syncthing；
-  （Gitea 与 Gitea Actions 已于 2026-08-29 迁至 `greencloud-jp`，见
+  Lemmy、Maddy、NetBox、Bepasty、Radicale、Miniflux、RSSHub、Quassel；
+  Syncthing 已于 2026-09 移交 greencloud-jp（Gitea 与 Gitea Actions 已于
+  2026-08-29 迁至 `greencloud-jp`，见
   [greencloud-jp 接入记录](../human/hardware/greencloud-jp-vps.md)）；
 - AI 前端/自动化：LibreChat、n8n、n8n task runner、n8n OpenAI Bridge、Metapi；
 - 监控：Prometheus、Alertmanager、Grafana、Blackbox exporter、ClickHouse、
@@ -289,7 +294,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | MoviePilot | `https://moviepilot.rock5c.zhyi.xin` | 应用登录 |
 | Home Assistant | `https://ha.opi5p.zhyi.xin` | 自带账号（zhyi / default-pw） |
 | Syncthing | `https://syncthing.opi5p.zhyi.xin` | Dex OAuth |
-| Syncthing (GreenCloud) | `https://syncthing.greencloud.zhyi.xin` | Dex OAuth |
+| Syncthing (GreenCloud JP) | `https://syncthing.greencloud-jp.zhyi.xin` | Dex OAuth |
 | Resilio Sync | `https://resilio.opi5p.zhyi.xin/gui/` | 自带账号（zhyi / default-pw） |
 | ArchiveBox | `https://archivebox.opi5p.zhyi.xin` | Dex OAuth |
 | WebDAV（webdev） | `https://dav.zhyi.xin` | Basic Auth |

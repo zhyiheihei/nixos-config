@@ -25,7 +25,7 @@ OpenWebUI-KB-Manager 是可选扩展）。
 | 私有笔记载体 | 本地 Markdown/Documents，客户端 `Documents` bind 到 Syncthing 持久目录 | `~/Documents` 整体 bindfs 到 `/nix/persistent/media/Documents`（四台 client 统一） |
 | 私有 Git | Gitea `git.lantian.pub`，`DEFAULT_PRIVATE = "private"`，push-create | Gitea `git.zhyi.xin`，已推送 `zhyi/notes` |
 | 去中心化 Git | Radicle `radicle.lantian.pub` + 客户端 radicle-node | 未启用（候选） |
-| 私有同步 | Syncthing 客户端 + 服务器 | 已生效：ml-2700 / ml-laptop / opi5p / greencloud 四节点同步 `media` 文件夹 |
+| 私有同步 | Syncthing 客户端 + 服务器 | 已生效：ml-2700 / ml-laptop / opi5p / greencloud-jp 四节点同步 `media` 文件夹 |
 | 公开写作环境 | editorconfig（md/mdx/astro 2 空格）、markdown-apa7th-docx | 已随 home 模块生效 |
 | 公开博客源码 | `xddxdd/blog`，Astro + Markdown/MDX | 已删除（2026-08-20）：`~/Documents/Blog` 为唯一副本且已永久删除，远端仓库不存在 |
 | 公开发布 | GitHub Actions 构建并推送 `lantian1998.github.io` + rsync 服务器 | 公开路线暂停，无远端仓库 |

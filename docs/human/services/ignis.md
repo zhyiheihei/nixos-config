@@ -12,7 +12,7 @@ Ignis 的 vault 直接挂载 opi5p 上 Syncthing 的 Documents 家庭副本
 Documents 后 vault 指向改为此路径）。浏览器里编辑的每一份 Markdown 就是知识链
 私有权威的同一份文件：
 
-- 写回后经 Syncthing 四机分发（ml-2700 / ml-laptop / opi5p / greencloud），
+- 写回后经 Syncthing 四机分发（ml-2700 / ml-laptop / opi5p / greencloud-jp），
 - git 权威仍是 Gitea（`git.zhyi.xin`，`zhyi/notes`），
 - Documents 与 nixos-config 依旧是两个独立 git 仓库，互不混用。
 
