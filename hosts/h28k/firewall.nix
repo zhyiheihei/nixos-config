@@ -5,9 +5,9 @@
   ...
 }:
 let
-  # Ports that must never be exposed on the untrusted WAN side. Mirrors the
-  # author's PUBLIC_INPUT list (nixos-config-exam/hosts/lt-home-router/
-  # firewall.nix) minus services the H28K site does not run.
+  # Ports that must never be exposed on the untrusted WAN side. Same list as
+  # the author's lt-home-router (nixos-config-exam/hosts/lt-home-router/
+  # firewall.nix).
   publicFirewalledPorts = [
     137
     138
@@ -30,13 +30,14 @@ in
 {
   # The repository-wide prefix classifier treats both eth0 and eth1 as WAN.
   # Override it for this two-port router so eth0 is trusted LAN and eth1 is an
-  # untrusted DHCP uplink.
+  # untrusted DHCP uplink. Firewall model mirrors the author's lt-home-router:
+  # input/output default to accept with explicit drops for timestamp ICMP,
+  # ZeroTier mDNS and the never-exposed ports on the WAN. The earlier
+  # drop-by-default input chain was a deviation from upstream and silently cut
+  # off the Colmena deploy path (SSH over ZeroTier/LTNET on zt*).
   networking.nftables.tables.lantian.content = lib.mkForce ''
     chain FILTER_INPUT {
-      type filter hook input priority 5; policy drop;
-
-      ct state invalid drop
-      ct state { established, related } accept
+      type filter hook input priority 5; policy accept;
 
       # Drop timestamp ICMP pkts (author's router recipe)
       meta l4proto icmp icmp type timestamp-reply drop
@@ -46,36 +47,23 @@ in
       iifname "zt*" udp sport 5353 reject
       iifname "zt*" udp dport 5353 reject
 
-      iifname "lo" accept
-      iifname "eth0" accept
-      iifname "ns-*" accept
+      # WAN is an IPv4-only DHCP uplink
+      iifname "eth1" meta nfproto ipv6 drop
 
-      # Untrusted uplink: reject the never-exposed ports, then allow only
-      # DHCP replies, ZeroTier peers and the temporary home staging SSH.
-      # (Deviation from the author's policy-accept model: the remote-site WAN
-      # is untrusted, so input stays drop-by-default with explicit accepts.)
       iifname "eth1" jump PUBLIC_INPUT
-      iifname "eth1" udp sport 67 udp dport 68 accept
-      iifname "eth1" udp dport 9993 accept
-      iifname "eth1" ip saddr 192.168.0.0/24 tcp dport 2222 accept
-
-      meta l4proto icmp accept
-      meta l4proto ipv6-icmp accept
     }
 
     chain FILTER_FORWARD {
-      type filter hook forward priority 5; policy drop;
+      type filter hook forward priority 5; policy accept;
 
+      # Clamp TCP MSS
       tcp flags syn tcp option maxseg size set rt mtu
-      ct state invalid drop
+
       ct state { established, related } accept
       ct status dnat accept
 
-      # LAN and service namespaces may use the WAN. Once ZeroTier is enrolled,
-      # LTNET may also route into the remote-site LAN without source NAT.
-      iifname "eth0" accept
-      iifname "ns-*" accept
-      iifname "zt*" oifname "eth0" accept
+      # Block new connections from the public interface
+      iifname "eth1" drop
     }
 
     chain FILTER_OUTPUT {
@@ -86,7 +74,7 @@ in
       oifname "zt*" udp dport 5353 reject
 
       # Never leak the firewalled ports out the WAN (author's recipe)
-      oifname "eth1" jump PUBLIC_OUTPUT
+      oifname "eth1" fib saddr type local jump PUBLIC_OUTPUT
     }
 
     chain NAT_PREROUTING {
@@ -126,17 +114,25 @@ in
     }
 
     chain PUBLIC_INPUT {
-      tcp dport { ${lib.concatMapStringsSep "," builtins.toString publicFirewalledPorts} } reject with tcp reset
-      udp dport { ${lib.concatMapStringsSep "," builtins.toString publicFirewalledPorts} } reject with icmpx type port-unreachable
+      tcp dport @PUBLIC_FIREWALLED_PORTS reject with tcp reset
+      udp dport @PUBLIC_FIREWALLED_PORTS reject with icmpx type port-unreachable
       return
     }
 
     chain PUBLIC_OUTPUT {
-      tcp sport { ${lib.concatMapStringsSep "," builtins.toString publicFirewalledPorts} } drop
-      udp sport { ${lib.concatMapStringsSep "," builtins.toString publicFirewalledPorts} } drop
+      tcp sport @PUBLIC_FIREWALLED_PORTS drop
+      udp sport @PUBLIC_FIREWALLED_PORTS drop
       return
     }
 
     ${setOf "RESERVED_IPV4" LT.constants.reserved.IPv4}
+
+    set PUBLIC_FIREWALLED_PORTS {
+      type inet_service
+      flags constant
+      elements = {
+        ${lib.concatMapStringsSep "," builtins.toString publicFirewalledPorts}
+      }
+    }
   '';
 }
