@@ -27,9 +27,9 @@ in
     # Phase 1 of the ml-home-vm split migration.  These services stay on the
     # ROCK 5C address until the edge role has been verified and cut over.
     ../../nixos/optional-apps/metacubexd.nix
-    # 2026-08-31 自 ml-builder 迁入：ArchiveTeam Warrior（网络抓取容器，
-    # 与本机下载链同域）。vhost 由模块自带（archiveteam.rock5c.zhyi.xin）。
-    ../../nixos/optional-apps/archiveteam.nix
+    # archiveteam 曾于 2026-08-31 自 ml-builder 迁入，但 warrior 镜像仅有
+    # amd64 变体，与 clawemail/epic 同款限制；2026-09-02 按同一决策迁至
+    # x86_64 的 tencent，本机不再承接。
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
 
     ./hardware-configuration.nix
@@ -58,12 +58,6 @@ in
   # ROCK 5C carries a Rockchip RK3588S2 SoC (same VPU family as opi5p's
   # RK3588): enable the rockchip jellyfin build with full AV1/HDR decode.
   lantian.jellyfinRockchip.soc = "rk3588";
-
-  # archiveteam warrior 镜像只有 amd64 变体（与 clawemail/epic 同款限制，
-  # 见 690b0d26），aarch64 本机直跑会 Exec format error。本机不是 nix
-  # builder，开 qemu-user binfmt 不会有 opi5p 那种拖慢原生构建的副作用；
-  # warrior 是网络型负载，qemu 模拟开销可接受。
-  lantian.qemu-user-static-binfmt.enable = lib.mkForce true;
 
   # Never scan an empty local directory when the direct NAS mount is absent.
   systemd.services.jellyfin = {

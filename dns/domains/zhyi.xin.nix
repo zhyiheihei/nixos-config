@@ -406,6 +406,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "archiveteam.tencent";
+      target = "tencent.ltnet.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "n8n-bridge.greencloud";
       target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";

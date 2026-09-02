@@ -12,6 +12,9 @@
     ../../nixos/optional-apps/prometheus
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/clawemail.nix
+    # 2026-09-02 自 rock5c 迁入（warrior 镜像仅有 amd64 变体，aarch64 主机
+    # 无法运行；与 clawemail 同一决策，见 690b0d26）。
+    ../../nixos/optional-apps/archiveteam.nix
 
     # 2026-08-31 自 greencloud 迁入：日历同步定时任务（每小时）。脚本按
     # 主机名取 secrets/per-host/radicale-calendar-sync/tencent.yaml；
