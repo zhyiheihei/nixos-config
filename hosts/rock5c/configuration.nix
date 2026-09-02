@@ -59,6 +59,12 @@ in
   # RK3588): enable the rockchip jellyfin build with full AV1/HDR decode.
   lantian.jellyfinRockchip.soc = "rk3588";
 
+  # archiveteam warrior 镜像只有 amd64 变体（与 clawemail/epic 同款限制，
+  # 见 690b0d26），aarch64 本机直跑会 Exec format error。本机不是 nix
+  # builder，开 qemu-user binfmt 不会有 opi5p 那种拖慢原生构建的副作用；
+  # warrior 是网络型负载，qemu 模拟开销可接受。
+  lantian.qemu-user-static-binfmt.enable = true;
+
   # Never scan an empty local directory when the direct NAS mount is absent.
   systemd.services.jellyfin = {
     after = [ "mnt-storage.mount" ];

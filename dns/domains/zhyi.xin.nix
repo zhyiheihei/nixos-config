@@ -11,8 +11,8 @@ let
     {
       recordType = "CNAME";
       name = "ai";
-      target = "greencloud.zhyi.xin.";
-      ttl = "1h";
+      target = homeDdnsTarget;
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
@@ -254,8 +254,8 @@ let
     {
       recordType = "CNAME";
       name = "n8n";
-      target = "greencloud.zhyi.xin.";
-      ttl = "1h";
+      target = homeDdnsTarget;
+      ttl = "2m";
     }
     {
       recordType = "CNAME";

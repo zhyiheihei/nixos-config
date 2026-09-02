@@ -87,7 +87,11 @@ let
         secret = {
           _secret = config.sops.secrets.dex-librechat-secret.path;
         };
-        redirectURIs = [ "https://ai.zhyi.xin/oauth/openid/callback" ];
+        # ai 迁至 opi5p（家宽 443 被封）后公网走 :8443；保留无端口条目兼容局域网入口。
+        redirectURIs = [
+          "https://ai.zhyi.xin/oauth/openid/callback"
+          "https://ai.zhyi.xin:8443/oauth/openid/callback"
+        ];
       }
       {
         id = "memos";

@@ -337,6 +337,15 @@ in
 
   # UniAPI consolidated to hostdare (2026-08-14): LibreChat's upstream moves
   # from the retired rock5c UniAPI to the public ai-api.zhyi.xin entry.
+
+  # 家宽 WAN 80/443 被运营商封禁，公网唯一入口是 8443（router DNAT 直通本机）。
+  # 与 jellyfin/vaults3 的既有模式一致：对外 URL 一律带 :8443，否则 OAuth 回调
+  # 与 webhook 域名对不上 Dex 登记的 redirectURI。覆盖模块内不带端口的默认值。
+  services.librechat.env.DOMAIN_CLIENT = lib.mkForce "https://ai.zhyi.xin:8443";
+  services.librechat.env.DOMAIN_SERVER = lib.mkForce "https://ai.zhyi.xin:8443";
+  services.n8n.environment.N8N_EDITOR_BASE_URL = lib.mkForce "https://n8n.zhyi.xin:8443";
+  services.n8n.environment.WEBHOOK_URL = lib.mkForce "https://n8n.zhyi.xin:8443/";
+
   services.librechat.settings.endpoints.custom = lib.mkForce [
     {
       name = "UniAPI";
