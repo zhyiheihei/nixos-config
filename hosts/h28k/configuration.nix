@@ -1,4 +1,4 @@
-{ lib, ... }:
+{ lib, LT, ... }:
 {
   imports = [
     ../../nixos/minimal.nix
