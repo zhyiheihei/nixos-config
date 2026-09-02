@@ -492,4 +492,21 @@ in
     sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
+
+  # Linkr：家庭内网设备，以 mDNS 名 linkr-zhyi.local 回源（nginx 启动时经
+  # NSS/nss-mdns 解析，依赖本机 avahi）。*.opi5p.zhyi.xin 的 DNS 通配记录
+  # 本就指向本机 LTNET 地址，无公网解析，无需新增记录。
+  lantian.nginxVhosts."linkr.opi5p.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "http://linkr-zhyi.local";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+      };
+    };
+
+    accessibleBy = "private";
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
 }
