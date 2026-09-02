@@ -8,8 +8,7 @@
   pkgs,
   utils,
   ...
-}:
-let
+}:let
   ########################################
   # v2ray（全仓出站代理的统一入口）
   ########################################
@@ -455,6 +454,20 @@ in
     externalInterface = "ppp0";
     internalIPs = [ "br-lan" ];
   };
+
+  # The fleet-wide ZeroTier interface whitelist has no "ppp" prefix (the
+  # author's routers dial via VLAN subinterfaces like eth1.201), so ppp0 lands
+  # in the generated blacklist and this router's daemon cannot bind the PPPoE
+  # uplink: no packets ever come back from the PLANET roots (paths=[] on every
+  # peer) and the whole home-LAN overlay stalls behind the missing controller
+  # reachability. Re-derive the blacklist from the stock whitelist (netns
+  # prefixes excluded, same as the module) plus "ppp".
+  services.zerotierone.localConf.settings.interfacePrefixBlacklist = lib.mkForce
+    (pkgs.callPackage ../../nixos/minimal-components/zerotier/whitelist_to_blacklist.nix { }
+      ((builtins.filter (v: v != "ns") (LT.constants.interfacePrefixes.WAN
+        ++ LT.constants.interfacePrefixes.LAN))
+        ++ [ "ppp" ])
+    );
 
   ########################################
   # v2ray
