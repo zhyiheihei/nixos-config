@@ -472,10 +472,11 @@ in
 
   # h28k declares its own site interconnect (h28k-lan), so the module-generated
   # try list has no hint for it, but while staging at home the board is on the
-  # same subnet as this router (192.168.0.139). Without a hint neither node
-  # ever learns the other's identity and every frame from it is dropped
-  # (peer tables stay mutually empty). Mirror the module's try-list derivation
-  # but treat h28k as reachable by its home-lan IP. Remove together with
+  # same subnet as this router and its staging address is its hostname option
+  # (192.168.0.139, the colmena target). Without a hint neither node ever
+  # learns the other's identity and every frame from it is dropped (peer
+  # tables stay mutually empty). Mirror the module's try-list derivation but
+  # treat h28k as reachable by its staging address. Remove together with
   # hosts/h28k/configuration.nix's matching override after the relocation.
   services.zerotierone.localConf.virtual = lib.mkForce
     (lib.mapAttrs'
@@ -483,8 +484,11 @@ in
         let
           interconnectIPv4 =
             if host.interconnect.name != null && host.interconnect.IPv4 != null
-                && (host.interconnect.name == "home-lan" || host.hostname == "h28k.zhyi.xin")
-            then host.interconnect.IPv4
+                && (host.interconnect.name == "home-lan" || host.hostname == "192.168.0.139")
+            then
+              if host.hostname == "192.168.0.139"
+              then host.hostname
+              else host.interconnect.IPv4
             else null;
         in
           lib.nameValuePair host.zerotier {
