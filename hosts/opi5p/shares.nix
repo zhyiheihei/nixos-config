@@ -35,7 +35,8 @@
     "delete veto files" = "yes";
   };
 
-  lantian.syncthing.storage = "/mnt/storage/media";
+  # 重装过渡期 syncthing 模块尚未回迁，先摘除；回迁时恢复此行
+  # lantian.syncthing.storage = "/mnt/storage/media";
 
   fileSystems = {
     "/run/sftp" = lib.mkForce {

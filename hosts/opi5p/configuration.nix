@@ -40,7 +40,7 @@ in
 
     ./hardware-configuration.nix
     ./media-center.nix
-    # ./shares.nix
+    ./shares.nix
 
     ../../nixos/client-components/multicast-dns.nix
 
