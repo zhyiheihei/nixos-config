@@ -46,7 +46,7 @@ in
       enableInstallTelemetry = false;
       enableAnalytics = false;
       defaultProvider = "ollama-cloud";
-      defaultModel = "glm-5.3";
+      defaultModel = "glm-5.3-flash";
       defaultThinkingLevel = "high";
       showCacheMissNotices = true;
 
