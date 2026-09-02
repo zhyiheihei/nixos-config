@@ -32,7 +32,25 @@ in
 
     # Gitea（自 greencloud 迁入，2026-08-29；模块自带 mysql 依赖）。
     ../../nixos/optional-apps/gitea
+
+    # Syncthing 同步节点（自 greencloud 撤销后迁入，2026-09）：本机常驻公网、
+    # 1T 数据盘，作为机群的常在线异地同步节点，配合家庭 NAS（opi5p）实现
+    # Obsidian 知识库多端同步。GUI 里的设备/共享文件夹仍需手动对接
+    # （模块 overrideDevices/overrideFolders = false）。
+    ../../nixos/optional-apps/syncthing
   ];
+
+  # Syncthing 存储放 1T 数据盘；默认值 /nix/persistent/media 在 40G 系统盘
+  # 上放不下同步数据。
+  lantian.syncthing.storage = "/data/syncthing";
+
+  # 私有知识库（Obsidian vault）固定目录，与 opi5p 上 Ignis 的 vault
+  # （/mnt/storage/media/Notes）同名，方便在 Syncthing 中对接同一共享文件夹。
+  systemd.tmpfiles.settings.syncthing."/data/syncthing/Notes"."d" = {
+    mode = "755";
+    user = "syncthing";
+    group = "syncthing";
+  };
 
   # 本机是机群的异地备份目标，不再向外推送自身备份。
   lantian.backup.schedule = null;

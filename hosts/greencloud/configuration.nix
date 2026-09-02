@@ -39,7 +39,8 @@
     ../../nixos/optional-apps/rsshub.nix
     ../../nixos/optional-apps/rsync-server-ci.nix
     ../../nixos/optional-apps/sublinkpro-nix.nix
-    ../../nixos/optional-apps/syncthing
+    # Syncthing 节点已撤销（2026-09）：同步节点职责移交给 greencloud-jp
+    # （1T 数据盘 + 常驻公网更合适）。
     ../../nixos/optional-apps/tg-bot-cleaner-bot
     ../../nixos/optional-apps/yggdrasil-alfis.nix
     ../../nixos/optional-apps/zerotierone-controller.nix
