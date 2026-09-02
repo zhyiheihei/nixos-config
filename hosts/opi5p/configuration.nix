@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   lib,
   LT,
   pkgs,
@@ -54,9 +53,6 @@ in
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/sftp-server.nix
-    ../../nixos/optional-apps/librechat.nix
-    ../../nixos/optional-apps/n8n
-    "${inputs.secrets}/nixos-hidden-module/5ac5eb91326c8f04"
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/webdav.nix
 
@@ -313,39 +309,6 @@ in
   #   after = [ "sops-install-secrets.service" ];
   #   requires = [ "sops-install-secrets.service" ];
   # };
-
-  ########################################
-  # LibreChat / n8n（自 greencloud 迁入，2026-08-31）
-  ########################################
-
-  # UniAPI consolidated to hostdare (2026-08-14): LibreChat's upstream moves
-  # from the retired rock5c UniAPI to the public ai-api.zhyi.xin entry.
-
-  # 家宽 WAN 80/443 被运营商封禁，公网唯一入口是 8443（router DNAT 直通本机）。
-  # 与 jellyfin/vaults3 的既有模式一致：对外 URL 一律带 :8443，否则 OAuth 回调
-  # 与 webhook 域名对不上 Dex 登记的 redirectURI。覆盖模块内不带端口的默认值。
-  services.librechat.env.DOMAIN_CLIENT = lib.mkForce "https://ai.zhyi.xin:8443";
-  services.librechat.env.DOMAIN_SERVER = lib.mkForce "https://ai.zhyi.xin:8443";
-  services.n8n.environment.N8N_EDITOR_BASE_URL = lib.mkForce "https://n8n.zhyi.xin:8443";
-  services.n8n.environment.WEBHOOK_URL = lib.mkForce "https://n8n.zhyi.xin:8443/";
-
-  services.librechat.settings.endpoints.custom = lib.mkForce [
-    {
-      name = "UniAPI";
-      apiKey = "\${UNI_API_KEY}";
-      baseURL = "https://ai-api.zhyi.xin/v1";
-      models = {
-        default = lib.unique (
-          lib.concatMap (provider: builtins.map (v: v.value) provider._models)
-            config.lantian.llm-providers
-        );
-        fetch = false;
-      };
-    }
-  ];
-
-  # n8n ships zh-CN translations; make the editor default to Simplified Chinese.
-  services.n8n.environment.N8N_DEFAULT_LOCALE = "zh-CN";
 
   ########################################
   # Public TLS front (8443) for the home edge
