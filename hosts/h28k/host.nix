@@ -7,12 +7,6 @@
   manualDeploy = true;
   city = geo.cities."CN Ningbo";
 
-  # Colmena target while staging at home: the WAN is DHCP on the home LAN and
-  # DNS (h28k.zhyi.xin) only carries the ZeroTier/LTNET addresses. Same
-  # pattern as the author's lt-home-lte (hostname = home LAN IP); update
-  # after relocating to the remote site.
-  hostname = "192.168.0.139";
-
   # SSH host keys regenerated after the board was reflashed on 2026-08-15;
   # the previous record belonged to the earlier image and no longer matches.
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAnVvpIL8PvnULm0/zMZv1AEU29M8AQkvkVLZXUnclK9 root@h28k";

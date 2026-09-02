@@ -1,4 +1,4 @@
-{ lib, LT, ... }:
+{ lib, ... }:
 {
   imports = [
     ../../nixos/minimal.nix
@@ -20,33 +20,6 @@
     externalInterface = "eth1";
     internalIPs = [ "eth0" ];
   };
-
-  # While staging at home this board sits on the home LAN (same subnet as the
-  # home router), but it declares its own site interconnect (h28k-lan), so the
-  # fleet-generated ZeroTier `try` list has no hint for the home router
-  # (interconnectIPv4For only matches within the same interconnect) and the
-  # two nodes never activate a direct path (both stay paths=[] via the PLANET
-  # roots only). Mirror the module's try-list derivation, but treat the home
-  # router as reachable by its home-lan IP. Remove together with the host.nix
-  # hostname override after relocating to the remote site.
-  services.zerotierone.localConf.virtual = lib.mkForce
-    (lib.mapAttrs'
-      (k: host:
-        let
-          interconnectIPv4 =
-            if host.interconnect.name != null && host.interconnect.IPv4 != null
-                && (host.interconnect.name == "home-lan" || host.hostname == "router.zhyi.xin")
-            then host.interconnect.IPv4
-            else null;
-        in
-          lib.nameValuePair host.zerotier {
-            try =
-              (lib.optionals (interconnectIPv4 != null) [ "${interconnectIPv4}/9993" ])
-              ++ (lib.optionals (host.public.IPv4 != null) [ "${host.public.IPv4}/9993" ])
-              ++ (lib.optionals (host.public.IPv6 != null) [ "${host.public.IPv6}/9993" ])
-              ++ (lib.optionals (host.public.IPv6Alt != null) [ "${host.public.IPv6Alt}/9993" ]);
-          })
-      (lib.filterAttrs (n: v: v.zerotier != null) LT.otherHosts));
 
   networking.networkmanager.enable = lib.mkForce false;
 
