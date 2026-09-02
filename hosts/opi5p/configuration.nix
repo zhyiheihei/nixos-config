@@ -45,40 +45,23 @@ in
     ../../nixos/client-components/multicast-dns.nix
 
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
-
-    # 2026-08-29 重装过渡期：重服务临时摘除（SD 卡性能不足 + sops 未就绪时
-    # 这些服务只会循环崩溃拖垮机器），NVMe 落定后分批恢复。
-    # 2026-08-30：NVMe 已落定，按 §3.3 硬件依赖清单分批恢复
-    #（frigate → immich）；asf/cops/ignis/syncthing/webdav 等 NAS/状态类
-    # 服务随迁移决策另定，不在本机恢复。
-    # ../../nixos/optional-apps/asf.nix
-    # ../../nixos/optional-apps/calibre-cops.nix
+    ../../nixos/optional-apps/asf.nix
+    ../../nixos/optional-apps/calibre-cops.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
-    # 2026-08-31 迁 dragon 决策取消，本机恢复（数据已自快照回位）。
     ../../nixos/optional-apps/home-assistant.nix
-    # ../../nixos/optional-apps/ignis.nix
-    # Immich 单入口：rockchip 层内部已收编基础模块（immich.nix），并关闭
-    # aarch64 上会构建失败的 nix 版 ML、改走 RKNN 推理（本机 rknn worker 又
-    # 在下方 mkForce 关闭，推理现由 rock5c 承担）。
+    ../../nixos/optional-apps/ignis.nix
     ../../nixos/optional-apps/immich-rockchip.nix
-    # ncps 服务端与 resilio-sync 引擎已迁至 dragon-q8b（2026-08-28），
-    # 本机保留 ncps-client 作为缓存消费者。
     ../../nixos/optional-apps/ncps-client.nix
-    # ../../nixos/optional-apps/redroid-rk3588.nix
+    ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/sftp-server.nix
-    # 2026-08-31 自 greencloud 迁入：librechat（连带 uni-api/mongodb/mcp）与
-    # n8n（连带 postgresql/openai-bridge，postgres 复用本机既有实例）。
-    # 本机为公网 8443 TLS 前沿，ai/n8n vhost 自动获得 8443 监听。
-    # hidden module 5ac5eb91326c8f04 为 LibreChat modelSpecs + HA/MoviePilot
-    # MCP 集成，随服务同迁。
     ../../nixos/optional-apps/librechat.nix
     ../../nixos/optional-apps/n8n
     "${inputs.secrets}/nixos-hidden-module/5ac5eb91326c8f04"
-    # ../../nixos/optional-apps/syncthing
-    # ../../nixos/optional-apps/webdav.nix
+    ../../nixos/optional-apps/syncthing
+    ../../nixos/optional-apps/webdav.nix
 
-    # ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
-    # ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
+    ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
+    ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
   ];
 
   ########################################
