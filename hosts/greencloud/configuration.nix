@@ -13,7 +13,6 @@
     ./hardware-configuration.nix
 
     ../../nixos/optional-apps/acme
-    ../../nixos/optional-apps/attic.nix
     ../../nixos/optional-apps/bepasty.nix
     ../../nixos/optional-apps/bird-lg-go.nix
     ../../nixos/optional-apps/byparr.nix
@@ -74,7 +73,9 @@
     }
   ];
 
-  services.atticd.package = lib.mkForce pkgs.nur-xddxdd.lantianCustomized."attic-telnyx-compatible";
+  # Attic 已迁 greencloud-jp（2026-09）：本机不再跑 atticd；
+  # postgres 里 atticd 库保留（导出后已传 jp，可作回滚数据源）。
+  # services.atticd.package = lib.mkForce pkgs.nur-xddxdd.lantianCustomized."attic-telnyx-compatible";
 
   networking.domain = lib.mkForce "zhyi.xin";
 
