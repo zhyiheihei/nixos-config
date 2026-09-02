@@ -96,6 +96,12 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
   - Memos AI：`curl -fsS -H "Authorization: Bearer $(cat /run/secrets/memos-ai-token)" http://127.0.0.1:13819/api/v1/instance/settings/AI` 确认 Provider 仍是 Metapi
 - 模型选择：AI 链默认 OpenCode Go 的 DeepSeek V4 Flash，`/v1/models` 需存在
   `deepseek-v4-flash:opencode-go` 别名
+- **大请求体 500（openresty 页面）**：`ai-api.zhyi.xin` 收到超过 `client_body_buffer_size`
+  512k 的请求体（agent 上下文变大即触发）时，nginx 需把 body 溢写到
+  `/var/cache/nginx/client_body`；该目录若属主是历史残留的 `nobody`（0700），worker
+  写不进去就返回 500。特征：`journalctl -u nginx` 有 `[crit] open() ... client_body ...
+  Permission denied`，UniAPI journal 无该请求痕迹。修复：`chown -R nginx:nginx
+  /var/cache/nginx` 后重启 nginx（2026-09-02 hostdare、google 已修，router 未检查）
 
 ### 5. 备份链路（7 台 → opi5p）
 - **入口**：backup 服务/timer 状态
