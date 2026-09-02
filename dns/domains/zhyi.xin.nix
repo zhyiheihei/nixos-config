@@ -41,7 +41,8 @@ let
     {
       recordType = "CNAME";
       name = "attic";
-      target = "greencloud.zhyi.xin.";
+      # atticd 自 greencloud 迁 greencloud-jp（2026-09），存储改本地盘
+      target = "greencloud-jp.zhyi.xin.";
       ttl = "1h";
     }
     {
