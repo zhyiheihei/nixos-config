@@ -21,10 +21,11 @@ let
     seedbox = LT.port.qBitTorrentSeedbox.WebUI;
   };
   # 边缘反代的后端所在主机。bitmagnet 于 2026-08-28、peerbanhelper 于
-  # 2026-08 迁至 dragon-q8b；其余仍在 opi5p。
+  # 2026-08、tachidesk 于 2026-09-04 迁至 dragon-q8b；其余仍在 opi5p。
   backendHost = {
     bitmagnet = "dragon-q8b";
     peerbanhelper = "dragon-q8b";
+    tachidesk = "dragon-q8b";
   };
   mkProxyLocation = service:
     if builtins.hasAttr service qbitPorts then {
@@ -50,19 +51,16 @@ let
       };
     }
   ];
-  backendLocation = backendHost: {
-    proxyPass = "http://${LT.hosts.opi5p.interconnect.IPv4}";
-    proxyOverrideHost = backendHost;
-    proxyWebsockets = true;
-    proxyNoTimeout = true;
-  };
 in
 {
   lantian.nginxVhosts =
     builtins.listToAttrs (builtins.concatLists (map mkEdgeVhosts edgeServices))
     // {
+      # tachidesk 跑在 dragon-q8b（模块 vhost 与上游逐字对齐：
+      # tachidesk.zhyi.xin + basicAuth），边缘直连其机器域，不再经
+      # opi5p 的 tachidesk-backend 死跳（2026-09-04 撤除跨机 -backend）。
       "tachidesk.zhyi.xin" = {
-        locations."/" = (backendLocation "tachidesk-backend.opi5p.zhyi.xin") // {
+        locations."/" = (mkProxyLocation "tachidesk") // {
           enableBasicAuth = true;
         };
         sslCertificate = "lets-encrypt-zhyi.xin";
@@ -71,7 +69,7 @@ in
       "tachidesk.localhost" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
-        locations."/" = backendLocation "tachidesk-backend.opi5p.zhyi.xin";
+        locations."/" = mkProxyLocation "tachidesk";
         accessibleBy = "localhost";
         noIndex.enable = true;
       };
