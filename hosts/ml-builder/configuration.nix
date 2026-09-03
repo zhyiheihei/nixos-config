@@ -83,9 +83,7 @@ in
   # also build aarch64 derivations locally via QEMU, on top of the native
   # opi5p builder. Keep explicit cross derivations (kernel/U-Boot
   # toolchains) local as well.
-  # mkForce：2026-09-04 摘除 nix-builder tag 后，environment.nix 按标签的
-  # 默认表达式变 false，与本行同优先级冲突（同 rock5c 当年 92bdd542 的做法）。
-  lantian.qemu-user-static-binfmt.enable = lib.mkForce true;
+  lantian.qemu-user-static-binfmt.enable = true;
 
   systemd.network.networks.eth0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];

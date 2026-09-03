@@ -9,10 +9,7 @@
   tags = with tags; [
     server
     lan-access
-    # 2026-09-04 摘除 nix-builder：构建机角色移交 ml-laptop（x86）+ opi5p
-    # （aarch64），本机回归 colmena 部署节点定位。binfmt 为本机
-    # configuration.nix 显式开启，不受此 tag 摘除影响。
-    # nix-builder
+    nix-builder
   ];
 
   # 强机器/虚拟机作为 Nix 远程构建机使用。
