@@ -60,15 +60,17 @@ in
     immutableByDefault = true;
     overrideConfig = false;
     resetFiles = [
-      "kwinrc"
-      "khotkeysrc"
+      # keep-sorted start
       "kglobalshortcutsrc"
+      "khotkeysrc"
       "kscreenlockerrc"
       "ksmserverrc"
       "ksplashrc"
+      "kwinrc"
       "kwinrulesrc"
       "okularpartrc"
       "powerdevilrc"
+      # keep-sorted end
     ];
 
     configFile.kwinrc = {
@@ -84,14 +86,13 @@ in
         OpenGLIsUnsafe = false;
         WindowsBlockCompositing = false;
       };
-      Xwayland.Scale = osConfig.lantian.hidpi or 1;
-      Windows.RollOverDesktops = true;
-      "org.kde.kdecoration2".ShowToolTips = false;
-
       "Wayland".InputMethod = {
         shellExpand = true;
         value = "/run/current-system/sw/share/applications/fcitx5-wayland-launcher.desktop";
       };
+      Xwayland.Scale = osConfig.lantian.hidpi or 1;
+      Windows.RollOverDesktops = true;
+      "org.kde.kdecoration2".ShowToolTips = false;
 
       Plugins.better_blur_dxEnabled = true;
       Effect-better-blur-dx = {
@@ -104,6 +105,7 @@ in
         Brightness = 25;
         NoiseStrength = 0;
       };
+      # Disable wallpaper scrolling on workspace switch
       Effect-slide.SlideBackground = false;
     };
 
@@ -177,7 +179,6 @@ in
       edgeBarrier = 100;
 
       effects = {
-        blur.enable = false;
         cube.enable = false;
         desktopSwitching.animation = "slide";
         dimAdminMode.enable = true;
@@ -190,6 +191,9 @@ in
         snapHelper.enable = false;
         translucency.enable = false;
         windowOpenClose.animation = "scale";
+
+        # Conflict with Better Blur DX
+        blur.enable = false;
         wobblyWindows.enable = false;
       };
 
@@ -288,7 +292,7 @@ in
           position = {
             apply = "initially";
             # FIXME: calculate based on screen size
-            value = "550,160";
+            value = "550,120";
           };
           skippager = {
             apply = "force";
