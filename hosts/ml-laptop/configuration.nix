@@ -38,10 +38,18 @@
     #   单一入口），属构建基础设施而非应用；删掉会回退直连公网缓存，显著变慢。
     # - leigod-accelerator：雷神加速器后台守护（官方无 Linux 桌面版，基于
     #   SteamDeck 插件二进制移植，模块内注释有全部适配细节）。
+    # - hydra：CI 自 ml-builder 迁入（2026-09-04，ml-builder 退役批次）；
+    #   x86 构建走本机 localhost，aarch64 交由 opi5p（nix-builder tag 通告）。
     ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/hydra
     # ../../nixos/optional-apps/leigod-accelerator.nix
   ];
+
+  # 对齐 ml-builder 的 aarch64-cross 通告：四个 ARM 硬件内核包带
+  # requiredSystemFeatures = [ "aarch64-cross" ]，本地 daemon 必须声明该
+  # feature 才能在本机跑这些构建（binfmt 已由 client tag 启用）。
+  nix.settings.extra-system-features = [ "aarch64-cross" ];
 
   # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。
   # client 默认不启用 backup（enable 默认 hasTag server），此处显式启用。

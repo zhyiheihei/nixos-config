@@ -5,40 +5,17 @@
 }:
 let
   activationMarker = "/nix/persistent/var/lib/media-apps/ready";
+  # 老的 *arr 四件套（sonarr/radarr/bazarr/prowlarr）及 decluttarr、exportarr
+  # 已被 MoviePilot 链路完全替代，模块 import 于 2026-09-04 撤除（死链 vhost
+  # 一并消失，homepage 同步不再列出）。回滚 = git revert 本提交重新加回
+  # import；/nix/persistent/var/lib 下各服务数据未删。
   gatedServices = [
     "jellyfin"
-    "sonarr"
-    "radarr"
-    "bazarr"
-    "prowlarr"
-    "decluttarr"
     "podman-handbrake"
-    "prometheus-exportarr-sonarr-exporter"
-    "prometheus-exportarr-radarr-exporter"
-    "prometheus-exportarr-prowlarr-exporter"
-    "prometheus-exportarr-bazarr-exporter"
-  ];
-  # These services are fully replaced by MoviePilot.  The units remain defined
-  # in their modules for rollback, but must not run alongside the new chain.
-  migratedServices = [
-    "sonarr"
-    "radarr"
-    "bazarr"
-    "prowlarr"
-    "decluttarr"
-    "prometheus-exportarr-sonarr-exporter"
-    "prometheus-exportarr-radarr-exporter"
-    "prometheus-exportarr-prowlarr-exporter"
-    "prometheus-exportarr-bazarr-exporter"
   ];
 in
 {
   imports = [
-    ../../nixos/optional-apps/sonarr/sonarr.nix
-    ../../nixos/optional-apps/sonarr/radarr.nix
-    ../../nixos/optional-apps/sonarr/bazarr.nix
-    ../../nixos/optional-apps/sonarr/prowlarr.nix
-    ../../nixos/optional-apps/sonarr/decluttarr.nix
     ../../nixos/optional-apps/jellyfin-rockchip.nix
     ../../nixos/optional-apps/handbrake-rockchip.nix
     ../../nixos/optional-apps/moviepilot.nix
@@ -74,38 +51,8 @@ in
     (lib.genAttrs gatedServices (_: {
       unitConfig.ConditionPathExists = activationMarker;
     }))
-    (lib.genAttrs migratedServices (_: {
-      enable = lib.mkForce false;
-    }))
     {
       # Never scan an empty local directory when the NAS mount is absent.
-      sonarr = {
-        after = [ "mnt-storage.mount" ];
-        requires = [ "mnt-storage.mount" ];
-        serviceConfig.BindPaths = [
-          "/mnt/storage/media-sonarr"
-          "/mnt/storage/.downloads-qb-pt"
-          "/mnt/storage/.downloads-qb"
-        ];
-      };
-      radarr = {
-        after = [ "mnt-storage.mount" ];
-        requires = [ "mnt-storage.mount" ];
-        serviceConfig.BindPaths = [
-          "/mnt/storage/media-radarr"
-          "/mnt/storage/.downloads-qb-pt"
-          "/mnt/storage/.downloads-qb"
-        ];
-      };
-      bazarr = {
-        after = [ "mnt-storage.mount" ];
-        requires = [ "mnt-storage.mount" ];
-        path = [ pkgs.mediainfo ];
-        serviceConfig.BindPaths = [
-          "/mnt/storage/media-radarr"
-          "/mnt/storage/media-sonarr"
-        ];
-      };
       podman-handbrake = {
         after = [ "mnt-storage.mount" ];
         requires = [ "mnt-storage.mount" ];

@@ -42,7 +42,8 @@ curl -sS "http://127.0.0.1:9090/api/v1/query" --data-urlencode 'query=<指标>' 
 - **监控指标**：
   - `up{job!="blackbox"}` 的 down 目标（排除已知离线机：opi03/h28k 未部署）
   - `scrape_samples_scraped` / 抓取成功率（router 国际 ZT 链路丢包，node job 已调 2m/110s）
-  - 关键 exporter：blackbox、wireguard、coredns（knot）、bird、mysql、exportarr（radarr/sonarr/bazarr/prowlarr）
+  - 关键 exporter：blackbox、wireguard、coredns（knot）、bird、mysql（exportarr 已随
+    rock5c \*arr 四件套退役于 2026-09-04 撤除，scrape-configs.nix 中的遗留目标另行清理）
 - **面板**：Grafana 各面板非空（「设备性能」「链路速率」「各接口实时吞吐」等），注意 panel 的 refId 不能重复（Grafana 13+）
 
 ### 2. 下载链路（router）与媒体应用（rock5c / dragon-q8b）
@@ -136,4 +137,4 @@ curl -sS http://127.0.0.1:13890/api/v1/subscribe/history/电视剧 -H "Authoriza
 - 🔴 必须当次处理或明确排期；🟡 记录并观察；🟢 说明为何是噪音（避免下次重复排查）
 - 已知离线/噪音清单（巡检时直接排除，节省时间）：
   - opi03 / h28k（未部署，或用户工作中）
-  - prowlarr `Missing translation`、decluttarr pre-start、jellyfin WS 断开 = 噪音
+  - jellyfin WS 断开 = 噪音（prowlarr/decluttarr 已于 2026-09-04 随 \*arr 退役移除）

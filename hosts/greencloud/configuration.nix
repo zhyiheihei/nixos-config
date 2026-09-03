@@ -126,10 +126,11 @@
 
   lantian.nginxVhosts."greencloud.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
-  # Hydra moved from pve-5700u to ml-builder on 2026-08-12. The common vhost
+  # Hydra moved from pve-5700u to ml-builder on 2026-08-12, then to
+  # ml-laptop on 2026-09-04 (ml-builder retirement batch). The common vhost
   # module keeps the upstream pve-epyc target; override only the backend here.
   lantian.nginxVhosts."hydra.zhyi.xin".locations."/".proxyPass = lib.mkForce (
-    "http://${LT.hosts.ml-builder.ltnet.IPv4}:${LT.portStr.Hydra}"
+    "http://${LT.hosts.ml-laptop.ltnet.IPv4}:${LT.portStr.Hydra}"
   );
 
   # Home Assistant is a public app for the mobile companion; greencloud

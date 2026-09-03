@@ -4,6 +4,9 @@
   tags = with tags; [
     client
     lan-access
+    # 2026-09-04 加回：接管 ml-builder 的 x86 构建机角色（hydra 同步迁入），
+    # 同时使本机对其他主机的 nix-distributed 可作为构建机被调度。
+    nix-builder
   ];
   city = geo.cities."CN Ningbo";
   cpuThreads = 18;
