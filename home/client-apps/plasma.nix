@@ -16,7 +16,9 @@ in
   # user manager 读会话 DISPLAY（激活脚本自身环境无此变量），会话未运行时
   # 跳过。
   home.activation.zz-fix-xwayland-dpi = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    sessionDisplay=$(systemctl --user show-environment 2>/dev/null | sed -n 's/^DISPLAY=//p')
+    # 激活脚本 PATH 里没有 systemctl，需用全路径；systemctl --user 在无会话时
+    # 会失败，需吞掉退出码避免 set -e 使整个激活报 127。
+    sessionDisplay=$("/run/current-system/sw/bin/systemctl" --user show-environment 2>/dev/null | sed -n 's/^DISPLAY=//p' || true)
     if [ -n "$sessionDisplay" ]; then
       DISPLAY=$sessionDisplay ${kcminitFonts} || true
     fi
