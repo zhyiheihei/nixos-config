@@ -75,12 +75,6 @@ in
 
     configFile.kwinrc = {
       Compositing = {
-        # 关闭全屏应用直通扫描。Wayland 下 KWin 对全屏应用启用 direct scanout
-        # 时，游戏帧直接翻到独立硬件平面；而 Sunshine 的 KMS 捕获只读主平面，
-        # 串流画面于是停留在残留的桌面内容上（本机屏幕看合成结果则正常）。
-        # 强制 KWin 全量合成到主平面后抓取即正确。2026-08-27 于 ml-laptop
-        # 经 Moonlight 实测验证。
-        AllowDirectScanout.value = false;
         GLCore = true;
         LatencyPolicy = "ExtremelyLow";
         OpenGLIsUnsafe = false;
@@ -108,18 +102,6 @@ in
       # Disable wallpaper scrolling on workspace switch
       Effect-slide.SlideBackground = false;
     };
-
-    # 触控板滚动速度降到默认的 50%。仅对 Wayland 会话生效（KWin 读取
-    # kcminputrc 的 ScrollFactor）；X11 会话走 services.libinput，无此选项。
-    input.touchpads = [
-      {
-        enable = true;
-        name = "SYNA32EB:00 06CB:CEE7 Touchpad";
-        vendorId = "06CB";
-        productId = "CEE7";
-        scrollSpeed = 0.5;
-      }
-    ];
 
     desktop = {
       icons = {
