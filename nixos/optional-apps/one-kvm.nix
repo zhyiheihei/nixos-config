@@ -40,7 +40,9 @@ in
 
     virtualisation.oci-containers.containers.one-kvm = {
       # full 镜像含 ttyd/gostc/easytier 扩展；仅需主程序可换 silentwind0/one-kvm。
-      image = "silentwind0/one-kvm:latest";
+      # 镜像名必须全限定：NixOS 的 podman 无 unqualified-search registries，
+      # short-name 会直接 pull 失败。
+      image = "docker.io/silentwind0/one-kvm:latest";
       autoStart = true;
       labels."io.containers.autoupdate" = "registry";
       environment = {

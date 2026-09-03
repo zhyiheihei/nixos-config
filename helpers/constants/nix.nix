@@ -26,10 +26,9 @@
     "https://comfyui.cachix.org"
   ];
 
-  # ncps（nixpkgs 0.9.4）无法解析非 hash 命名的上游 NAR URL：attic 系用
-  # nar/<store-path-hash>.nar，cachix 新版用 nar/<uuid>.nar.zst，命中即 500
-  # 且不回退（kalbasit/ncps#1329）。ncps 上游必须排除这三个，由客户端
-  # substituters 直连（见 ncps-client.nix / ncps.nix）。
+  # ncps（上游 flake，>= 3a46da66）已支持非 hash 命名的上游 NAR URL
+  # （kalbasit/ncps#1329），attic 系缓存全部合并进 ncps 上游，此列表仅存
+  # 于常量，客户端不再区分。
   atticSubstituters = [
     attic.url
     authorCachix.url

@@ -1,6 +1,8 @@
+diff --git a/pkg/cache/upstream/cache.go b/pkg/cache/upstream/cache.go
+index da7345a..91d41b3 100644
 --- a/pkg/cache/upstream/cache.go
 +++ b/pkg/cache/upstream/cache.go
-@@ -369,10 +369,8 @@
+@@ -465,10 +465,8 @@ func (c *Cache) GetNarInfo(ctx context.Context, hash string) (*narinfo.NarInfo,
  		return ni, fmt.Errorf("error while checking the narInfo: %w", err)
  	}
  
@@ -12,8 +14,8 @@
 +		return ni, ErrSignatureValidationFailed
  	}
  
- 	if ni.FileSize == 0 {
-@@ -637,3 +635,24 @@
+ 	// Some upstreams (niks3, nix-serve) omit the optional FileHash/FileSize on
+@@ -790,3 +788,24 @@ func isTimeout(err error) bool {
  
  	return errors.Is(err, context.DeadlineExceeded) || (errors.As(err, &netErr) && netErr.Timeout())
  }

@@ -17,12 +17,11 @@
       maxSize = "100G";
       signNarinfo = false;
       upstream = {
-        # 排除 attic 系上游：ncps 0.9.4 解析不了 attic/cachix 的非 hash 命名
-        # NAR URL，命中即 500 不回退（kalbasit/ncps#1329）。这几个缓存由
-        # 客户端 substituters 直连（ncps-client.nix），公钥已在常量里。
-        urls =
-          [ "https://cache.nixos.org" ]
-          ++ lib.filter (u: !builtins.elem u LT.constants.nix.atticSubstituters) LT.constants.nix.substituters;
+        # 2026-09-03 起用 ncps 上游 flake（>= 3a46da66），非 hash NAR URL
+        # （attic/cachix，kalbasit/ncps#1329）已修复，attic 系缓存合并进
+        # 上游，客户端只需指向 ncps 单一入口。cache.nixos.org 由
+        # minimal-components/nix.nix 在客户端侧前置，不经常量传递。
+        urls = [ "https://cache.nixos.org" ] ++ LT.constants.nix.substituters;
         publicKeys = LT.constants.nix.trusted-public-keys;
       };
     };
