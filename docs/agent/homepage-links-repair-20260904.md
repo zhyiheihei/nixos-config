@@ -77,10 +77,10 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 
 | # | 组 | 链接 | 现象（2026-09-04） | 状态 | 根因 | 修复 | 验证 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| A1 | 超时 | lab.ml-2700.zhyi.xin | 连接超时（198.18.0.113） | ⬜ | | | |
-| A2 | 超时 | syncthing.ml-2700.zhyi.xin | 连接超时（198.18.0.113） | ⬜ | | | |
-| A3 | 超时 | volume.ml-2700.zhyi.xin | 连接超时（198.18.0.113） | ⬜ | | | |
-| A4 | 超时 | lab.lubancat1.zhyi.xin | 连接超时（198.18.0.124） | ⬜ | | | |
+| A1 | 超时 | lab.ml-2700.zhyi.xin | 连接超时（198.18.0.113） | ⏸️ | 主机离线（见轮 2） | 开机即恢复 | 开机后复测 |
+| A2 | 超时 | syncthing.ml-2700.zhyi.xin | 连接超时（198.18.0.113） | ⏸️ | 主机离线（见轮 2） | 开机即恢复 | 开机后复测 |
+| A3 | 超时 | volume.ml-2700.zhyi.xin | 连接超时（198.18.0.113） | ⏸️ | 主机离线（见轮 2） | 开机即恢复 | 开机后复测 |
+| A4 | 超时 | lab.lubancat1.zhyi.xin | 连接超时（198.18.0.124） | ⏸️ | 主机离线（见轮 2） | 开机即恢复 | 开机后复测 |
 | B1 | DNS | filebox.zhyi.xin | NXDOMAIN | ⬜ | | | |
 | B2 | DNS | index.zhyi.xin | NXDOMAIN | ⬜ | | | |
 | B3 | DNS | index-helper.zhyi.xin | NXDOMAIN | ⬜ | | | |
@@ -122,7 +122,32 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 > 诊断提示（轮 1 观察，供下轮参考）：ml-2700 与 lubancat1 整机 443 不可达但 mesh IP 可路由（待确认主机是否开机）；
 > rock5c 502 组对应上游容器（\*arr 栈）；F 组两台后端 vhost 首轮正常说明配置曾生效，翻转发生在此轮检查期间。
 
-## 进展日志
+## 进展日志（最新在上）
+
+### 轮 2 · 2026-09-04 · A 组（超时 ×4）诊断（完成）
+
+结论：**根因 = 主机不在线**，四个嫌疑中排除三个——
+
+- **被墙：排除**。目标 198.18.0.113 / .124 是 198.18.0.0/15 mesh 私网地址，
+  流量不出 ZeroTier 隧道，公网墙无法介入
+- **服务失败：排除**。ICMP、SSH(2222)、80/443 同时无响应；仅 nginx 服务挂掉
+  不会带走 ping + ssh
+- **配置问题：排除**。同批检查中其他主机的同模板 vhost（lab.ml-laptop 等）响应正常；
+  且主机整机不可达与 vhost 配置无关
+- **主机离线：证实**，四重独立证据：
+  1. mesh IP ICMP 100% 丢包，TCP 2222/443/80 全部超时（自 ml-laptop）
+  2. ZeroTier peer 表（ml-laptop `zerotier-cli peers`）中无 `214f8619a9`
+     (ml-2700) 与 `fde3beab16` (lubancat1)，节点连 PLANET 中继路径都没有 = ZT 层离线
+  3. 同家庭 LAN 侧（ml-laptop 与 ml-2700 同在 192.168.0.0/24）ICMP 全丢，
+     192.168.0.53 ARP incomplete = L2 层就不在场
+  4. Prometheus（tencent）：lubancat1 的 node/nginx/coredns/wireguard 四 job 全部
+     up=0；ml-2700 无监控覆盖（client 机，符合预期）
+- 旁证：2026-09-02 syncthing 集群调整时 ml-2700 就已处于关机状态，之后未开机
+- **处置**：A1-A4 均为物理动作（开机），无法远程修复，挂起等主机上线后复测。
+  注意 ml-2700 开机后除 vhost 恢复外，还欠 syncthing 集群三步操作
+  （加 greencloud-jp 设备、更新 media 文件夹 devices、删 greencloud 旧设备），
+  见 syncthing 拓扑备忘（2026-09-02）
+- 本轮仅诊断，未改任何配置
 
 ### 轮 1 · 2026-09-04 · 全量检查（完成）
 
