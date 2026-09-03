@@ -39,53 +39,12 @@ in
     # （模块 overrideDevices/overrideFolders = false）。
     ../../nixos/optional-apps/syncthing
 
-    # Attic 二进制缓存（自 greencloud 迁入，2026-09）。本机到 home-ddns 的
-    # vaults3（S3）TCP 全被墙，且 mesh 无 peers，存储改用本地盘 /data。
+    # Attic 二进制缓存（自 greencloud 迁入，2026-09）。存储用公共模块默认
+    # 的 S3（vaults3.zhyi.xin:8443）：老数据 chunk 一直在 vaults3，且迁移
+    # 期间实测本机到 home-ddns 8443 恢复可达（曾短暂被墙，local 盘方案
+    # 会导致老 nar 全部 404，故放弃）。S3 凭据走 attic-credentials secret。
     ../../nixos/optional-apps/attic.nix
   ];
-
-  # 公共模块把 settings 整段 mkForce 成 S3 存储（vaults3 本机不可达），
-  # 这里整体重写：数据库仍走本机 postgres socket，存储改 local。
-  # api/substituter endpoint 保持 attic.zhyi.xin（DNS 切到本机后生效）。
-  services.atticd.settings = lib.mkOverride 49 {
-    listen = "[::1]:${LT.portStr.Attic}";
-    api-endpoint = "https://attic.zhyi.xin/";
-    substituter-endpoint = "https://attic.zhyi.xin/";
-    database = {
-      url = "postgres://atticd?host=/run/postgresql&user=atticd";
-      heartbeat = true;
-    };
-    require-proof-of-possession = false;
-    storage = {
-      type = "local";
-      path = "/data/attic-storage";
-    };
-    chunking = {
-      nar-size-threshold = 0;
-      min-size = 16384;
-      avg-size = 65536;
-      max-size = 262144;
-    };
-    compression = {
-      type = "zstd";
-      level = 9;
-    };
-    garbage-collection = {
-      interval = "12 hours";
-      default-retention-period = "3 month";
-    };
-  };
-
-  systemd.services.atticd = {
-    after = [ "data.mount" ];
-    unitConfig.RequiresMountsFor = [ "/data/attic-storage" ];
-  };
-
-  systemd.tmpfiles.settings.attic-storage."/data/attic-storage"."d" = {
-    mode = "0700";
-    user = "atticd";
-    group = "atticd";
-  };
 
   # Syncthing 存储放 1T 数据盘；默认值 /nix/persistent/media 在 40G 系统盘
   # 上放不下同步数据。
