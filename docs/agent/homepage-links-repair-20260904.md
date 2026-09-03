@@ -101,9 +101,9 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 | E3 | 502 | prowlarr.rock5c.zhyi.xin | 502 稳定 | ✅ | 同 E2 | 同 E2 | 同 E2 |
 | E4 | 502 | radarr.rock5c.zhyi.xin | 502 稳定 | ✅ | 同 E2 | 同 E2 | 同 E2 |
 | E5 | 502 | sonarr.rock5c.zhyi.xin | 502 稳定 | ✅ | 同 E2 | 同 E2 | 同 E2 |
-| F1 | 翻转 | jellyfin-backend.opi5p.zhyi.xin | 首轮 301+有效证书 → 后持续 snakeoil | ⬜ | | | |
-| F2 | 翻转 | handbrake-backend.opi5p.zhyi.xin | 同上 | ⬜ | | | |
-| F3 | 翻转 | jellyfin-api.rock5c.zhyi.xin | 502 ↔ snakeoil 抖动 | ⬜ | | | |
+| F1 | 翻转 | jellyfin-backend.opi5p.zhyi.xin | 首轮 301+有效证书 → 后持续 snakeoil | ✅ | HTTP-only 内部回源 vhost 在 rock5c，DNS 按名字解析到 opi5p（无此 vhost）→ 默认服务器兑底；设计给已退役 ml-home-vm 前沿用 | 结构性问题，待拓扑决策（轮 4） | - |
+| F2 | 翻转 | handbrake-backend.opi5p.zhyi.xin | 同上 | ✅ | 同 F1（handbrake-rockchip 同模式） | 同 F1 | - |
+| F3 | 翻转 | jellyfin-api.rock5c.zhyi.xin | 502 ↔ snakeoil 抖动 | ✅ | HTTP-only（设计如此）；https 直连必 snakeoil；HTTP 80 的 502 = 上游 macmini(192.168.0.54:8096) 关机 | macmini 开机后 502 自愈；https 死链属首页生成器结构问题 | 待 macmini 上线复测 |
 | G1 | 循环 | lab.zhyi.xin | 307 自重定向无限循环 | ⬜ | | | |
 | H1 | 403 | ai-api.zhyi.xin | 403 稳定（待判读是否预期） | ⬜ | | | |
 | H2 | 403 | api.zhyi.xin | 403 稳定（同上） | ⬜ | | | |
@@ -123,6 +123,34 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 > rock5c 502 组对应上游容器（\*arr 栈）；F 组两台后端 vhost 首轮正常说明配置曾生效，翻转发生在此轮检查期间。
 
 ## 进展日志（最新在上）
+
+### 轮 4 · 2026-09-04 · F 组诊断（完成）+ ml-builder tag 恢复
+
+**ml-builder tag 恢复**（用户决定保留构建机角色）：commit 4a241af7，恢复 nix-builder tag
+与 binfmt 普通赋值；ml-builder 本机 switch（colmena 自推无授权，改用
+nix build + switch-to-configuration）；ml-laptop 重新部署后 hydra builder 列表
+= ml-builder(x86) + opi5p(aarch64) + localhost。
+
+**F 组诊断结论**（只诊断未改动，用户中跹确认 macmini 未开机）：
+
+1. **macmini (192.168.0.54) 关机**——三台机 TCP/ICMP 全不可达，ARP incomplete。
+   media-edge.nix 注释宣称 Jellyfin 已迁 macmini（VideoToolbox），但只迁了一半：
+   MoviePilot 消费端 jellyfin-api 已指向 macmini（502），公网入口实际还在用
+   rock5c 本机残留的旧 jellyfin 实例（active）
+2. **公网 jellyfin.zhyi.xin 活着的真相**：响应头 Server: zhyi/rock5c + 延迟 3ms ——
+   路由器 DNAT → rock5c nginx → rock5c 本机旧 jellyfin。与 media-edge 注释的
+   macmini 目标拓扑矛盾，媒体链路处于「迁移半途」状态
+3. **F1/F2 结构性死链**：jellyfin-backend/handbrake-backend.opi5p 是 HTTP-only
+   私有回源 vhost（listenHTTPS=false，proxy 本机 unix socket），注释注明服务对象是
+   已退役的 ml-home-vm 公网前沿；模块 import 在 rock5c（迁移后随服务走），但
+   mesh DNS 按名字模式把 *.opi5p 解析到 opi5p —— opi5p 无此 vhost → snakeoil 444。
+   首页生成器把 HTTP-only vhost 生成为 https 链接，此类回源名永远成死链
+4. **F3**：jellyfin-api.rock5c 同为 HTTP-only（首页生成为 https → 000 结构性）；
+   HTTP 80 的 502 = 上游 macmini 关机，开机后自愈
+5. **风险提示（未处理）**： opi5p 残留的 jellyfin.zhyi.xin vhost 指向关机的 macmini；
+   若 DNAT 切回 opi5p 或其配置重载生效，公网 jellyfin 将 502。 rock5c 旧 jellyfin
+   实例与 macmini 官方目标并存，两套库一致性存疑。 op后待用户决策：
+   jellyfin 最终落点（macmini vs rock5c）与 F1/F2/F3 的去留
 
 ### 轮 3 实施 · 2026-09-04 · E 组修复（完成 ✅）+ B1-B3 侧效结案
 
