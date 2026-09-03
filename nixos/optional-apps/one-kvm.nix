@@ -58,7 +58,8 @@ in
         # 均为内核内建（=y），无需加载模块。
       ];
       extraOptions = [
-        # Web(8080/4430)/RTSP(8554)/RustDesk 等端口由程序自身配置，host 网络
+        # Web(8420)/RTSP(8554)/RustDesk 等端口由程序自身配置，host 网络
+        # （Web 端口按 One-KVM 文档设为 8420，端口登记 OneKVM）
         "--network=host"
         "--privileged"
       ];
@@ -80,6 +81,22 @@ in
           done
         '')
       ];
+    };
+
+    # KVM Web UI：主机私有域名，OAuth（Dex）保护。容器 host 网络直听 8420。
+    lantian.nginxVhosts."kvm.${config.networking.hostName}.zhyi.xin" = {
+      locations = {
+        "/" = {
+          enableOAuth = true;
+          proxyPass = "http://127.0.0.1:${LT.portStr.OneKVM}";
+          proxyWebsockets = true;
+          proxyNoTimeout = true;
+        };
+      };
+
+      accessibleBy = "private";
+      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
+      noIndex.enable = true;
     };
   };
 }

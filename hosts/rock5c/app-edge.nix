@@ -38,6 +38,10 @@ let
       backend = "immich.zhyi.xin";
       address = opiAddress;
     };
+    "kvm.zhyi.xin" = {
+      backend = "kvm.opi5p.zhyi.xin";
+      address = opiAddress;
+    };
     "memos.zhyi.xin" = {
       backend = "memos.zhyi.xin";
       address = dragonAddress;
@@ -67,6 +71,7 @@ let
       // lib.optionalAttrs (
         builtins.elem frontend [
           "asf.zhyi.xin"
+          "kvm.zhyi.xin"
         ]
       ) { enableOAuth = true; };
     sslCertificate = "zerossl-zhyi.xin";

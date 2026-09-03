@@ -40,6 +40,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "kvm";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
       name = "attic";
       # atticd 自 greencloud 迁 greencloud-jp（2026-09），存储改本地盘
       target = "greencloud-jp.zhyi.xin.";

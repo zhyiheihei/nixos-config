@@ -33,6 +33,7 @@ rec {
     ArchiveTeam = 8001;
     JProxy = 8117;
     Waline = 8360;
+    OneKVM = 8420;
     Matrix.Public = 8448;
     Radicle.Node = 8776;
     ResilioSync.UI = 8888;
