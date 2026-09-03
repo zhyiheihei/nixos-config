@@ -1,4 +1,4 @@
-{ pkgs, lib, osConfig, ... }:
+{ pkgs, lib, config, osConfig, ... }:
 let
   kcminitFonts = "${pkgs.kdePackages.plasma-workspace}/bin/kcminit kcm_fonts_init";
 in
@@ -15,7 +15,10 @@ in
   # 96，且按字母序排在 reloadSystemd 之后；钩子排序在 stylix 之后，从 systemd
   # user manager 读会话 DISPLAY（激活脚本自身环境无此变量），会话未运行时
   # 跳过。
-  home.activation.zz-fix-xwayland-dpi = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  # root 也导入 client-apps，但没有 Plasma 会话，且其 kwinrc 无 Xwayland.Scale：
+  # 若 root 的钩子跑到，会按默认 1.0 把 zhyi 已写入的 Xft.dpi 144 覆盖回 96。
+  # 因此 hook 与服务都仅对非 root 用户生效。
+  home.activation.zz-fix-xwayland-dpi = lib.mkIf (config.home.username != "root") (lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     # 激活脚本 PATH 里没有 systemctl，需用全路径；systemctl --user 在无会话时
     # 会失败，需吞掉退出码避免 set -e 使整个激活报 127。
     sessionDisplay=$("/run/current-system/sw/bin/systemctl" --user show-environment 2>/dev/null | sed -n 's/^DISPLAY=//p' || true)
@@ -24,9 +27,9 @@ in
       # krdb::xftDpi 走非 Wayland 分支写 96，必须强制 wayland 平台。
       DISPLAY=$sessionDisplay QT_QPA_PLATFORM=wayland ${kcminitFonts} || true
     fi
-  '';
+  '');
 
-  systemd.user.services.fix-xwayland-dpi = {
+  systemd.user.services.fix-xwayland-dpi = lib.mkIf (config.home.username != "root") {
     Unit = {
       Description = "Re-run kcminit fonts init to fix Xft.dpi race at login";
       After = [ "plasma-workspace.target" ];
