@@ -38,6 +38,21 @@ in
         api = "openai-completions";
         baseUrl = "https://ai-api.zhyi.xin/v1";
       };
+      # taotoken 非 pi 内置渠道，直连其 OpenAI 兼容端点；
+      # 额度高、速度慢，作为 pi 的默认消费渠道。
+      taotoken = {
+        api = "openai-completions";
+        baseUrl = "https://taotoken.net/api/v1";
+        models = [
+          {
+            id = "glm-5.3-flash";
+            reasoning = true;
+            contextWindow = 200000;
+            maxTokens = 131072;
+            compat.supportsDeveloperRole = false;
+          }
+        ];
+      };
     };
 
     settings = {
@@ -45,7 +60,7 @@ in
       collapseChangelog = true;
       enableInstallTelemetry = false;
       enableAnalytics = false;
-      defaultProvider = "ollama-cloud";
+      defaultProvider = "taotoken";
       defaultModel = "glm-5.3-flash";
       defaultThinkingLevel = "high";
       showCacheMissNotices = true;
@@ -101,9 +116,9 @@ in
     enabled = true;
     auto_update = false;
     allow_home_project = true;
-    historian.pi.model = "ollama-cloud/glm-5.3";
-    dreamer.pi.model = "ollama-cloud/glm-5.3";
-    sidekick.model = "ollama-cloud/glm-5.3";
+    historian.pi.model = "taotoken/glm-5.3-flash";
+    dreamer.pi.model = "taotoken/glm-5.3-flash";
+    sidekick.model = "taotoken/glm-5.3-flash";
     embedding = {
       provider = "openai-compatible";
       model = "nomic-embed-code";

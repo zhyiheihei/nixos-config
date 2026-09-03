@@ -44,9 +44,20 @@ let
         };
         role = "admin";
       }
+      # n8n 专用 key：额度瀑布的订阅渠道留给其他消费者，
+      # n8n 全量流量锁死在高额度、慢速的 taotoken 渠道。
+      {
+        api = {
+          _secret = config.sops.secrets."uni-api-n8n-api-key".path;
+        };
+        model = [ "taotoken/*" ];
+        role = "admin";
+      }
     ];
 
-    preferences.cooldown_period = 5;
+    # 300s：额度耗尽的渠道（429）减少无效探测，
+    # 仍能在合理时间内感知周额度刷新。
+    preferences.cooldown_period = 300;
   };
 in
 {
