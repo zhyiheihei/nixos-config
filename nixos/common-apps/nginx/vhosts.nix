@@ -165,11 +165,10 @@ in
       enableCommonLocationOptions = false;
       sslCertificate = "zerossl-zhyi.xin";
     };
-    "lab.zhyi.xin" = {
-      locations."/".return = "307 https://lab.zhyi.xin$request_uri";
-      enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-zhyi.xin";
-    };
+    # lab.xuyh0120.win 在上游重定向到 lab.lantian.pub（跨域到正牌 lab 站）；
+    # 域名统一并入 zhyi.xin 后跨域重定向退化为自跳（G1 死链），而真实的
+    # lab 站由 nginx-lab 模块的 lab.zhyi.xin vhost 承担，故删去此重定向块
+    # （2026-09-04，homepage 检查 G1）。
   }
   // lib.optionalAttrs (LT.this.hasTag LT.tags.public-facing) {
     "gopher.zhyi.xin" = {
