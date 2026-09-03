@@ -1,10 +1,25 @@
 { pkgs, lib, osConfig, ... }:
+let
+  kcminitFonts = "${pkgs.kdePackages.plasma-workspace}/bin/kcminit kcm_fonts_init";
+in
 {
-  # 登录时序竞争：kcminit（写 xrdb 的 Xft.dpi = kwinrc Xwayland.Scale × 96）在
-  # plasma-manager 把 Xwayland.Scale 写入 kwinrc 之前跑完，导致 X11 应用（如
-  # wechat-uos 的 QT_AUTO_SCREEN_SCALE_FACTOR）读到 96 DPI 不缩放。等
-  # plasma-workspace.target（含 DISPLAY 环境）就绪后重跑一次修正。
-  # 2026-09-03 于 ml-laptop 实测：手动 kcminit kcm_fonts_init 后 Xft.dpi 96→144。
+  # X11 应用（如 wechat-uos 的 QT_AUTO_SCREEN_SCALE_FACTOR）从 xrdb 的 Xft.dpi
+  # 取缩放，由 kcminit (kcm_fonts_init) 写入。登录时序竞争：plasma-kcminit 在
+  # KWin 创建 wayland-0 socket 之前启动，QGuiApplication 回退 xcb，
+  # krdb::xftDpi 走非 Wayland 分支读 kcmfonts forceFontDPI（默认 96），而非
+  # kwinrc Xwayland.Scale×96，导致 X11 应用不缩放。实测于 ml-laptop：
+  # 无 WAYLAND_DISPLAY 时 kcminit 写 96，有则写 144。
+  # 修复：登录后 plasma-workspace.target 就绪（wayland socket + DISPLAY 均已
+  # 就绪）时重跑一次。另加 home.activation 钩子处理中途 nixos-rebuild switch：
+  # 该场景下 stylixLookAndFeel（QT_QPA_PLATFORM=minimal）会把 Xft.dpi 重置回
+  # 96，且按字母序排在 reloadSystemd 之后；钩子排序在 stylix 之后，且仅有
+  # 显示器可用时（会话已运行）才会实际生效。
+  home.activation.zz-fix-xwayland-dpi = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    if [ -n "''${DISPLAY:-}" ] || [ -n "''${WAYLAND_DISPLAY:-}" ]; then
+      ${kcminitFonts} || true
+    fi
+  '';
+
   systemd.user.services.fix-xwayland-dpi = {
     Unit = {
       Description = "Re-run kcminit fonts init to fix Xft.dpi race at login";
@@ -14,7 +29,7 @@
 
     Service = {
       Type = "oneshot";
-      ExecStart = "${pkgs.kdePackages.plasma-workspace}/bin/kcminit kcm_fonts_init";
+      ExecStart = kcminitFonts;
     };
 
     Install = {
