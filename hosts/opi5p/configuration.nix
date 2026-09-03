@@ -459,7 +459,10 @@ in
     };
 
     accessibleBy = "private";
-    sslCertificate = "zerossl-zhyi.xin";
+    # 两级子域不在 zerossl-zhyi.xin 通配范围内，须用 opi5p 机器通配证书
+    # （同 syncthing 模块的 zerossl-${hostName} 模式），否则浏览器报
+    # 证书主机名不匹配（2026-09-04 homepage 检查轮 7 修复）。
+    sslCertificate = "zerossl-opi5p.zhyi.xin";
     noIndex.enable = true;
   };
 }
