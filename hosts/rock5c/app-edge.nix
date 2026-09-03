@@ -42,14 +42,6 @@ let
       backend = "wallos.zhyi.xin";
       address = dragonAddress;
     };
-    "index.zhyi.xin" = {
-      backend = "index.zhyi.xin";
-      address = dragonAddress;
-    };
-    "index-helper.zhyi.xin" = {
-      backend = "index-helper.zhyi.xin";
-      address = dragonAddress;
-    };
   };
   mkFixedFrontend = frontend: cfg: {
     locations."/" =

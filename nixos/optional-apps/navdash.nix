@@ -106,8 +106,6 @@ let
     "hub.tencent.zhyi.xin" = "Docker_A";
     "id.zhyi.xin" = "2Fauth_A";
     "ignis.opi5p.zhyi.xin" = "mcp_obsidian";
-    "index-helper.zhyi.xin" = "SunPanel_A--面板";
-    "index.zhyi.xin" = "SunPanel_A--面板";
     "jproxy.opi5p.zhyi.xin" = "JProxy_A--代理服务";
     "lab.google.zhyi.xin" = "Nginx_B";
     "lab.greencloud.zhyi.xin" = "Nginx_B";
@@ -175,8 +173,6 @@ let
       "rk-jellyfin.zhyi.xin" = "媒体链路";
       # 公开 · 效率工具
       "tools.zhyi.xin" = "效率工具";
-      "index.zhyi.xin" = "效率工具";
-      "index-helper.zhyi.xin" = "效率工具";
       "api.zhyi.xin" = "效率工具";
       "asf.zhyi.xin" = "效率工具";
       "dsh.zhyi.xin" = "效率工具";

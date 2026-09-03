@@ -164,18 +164,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "index";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
-    {
-      recordType = "CNAME";
-      name = "index-helper";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
-    {
-      recordType = "CNAME";
       name = "jellyfin";
       target = homeDdnsTarget;
       ttl = "2m";

@@ -383,8 +383,9 @@ in
     noIndex.enable = true;
   };
 
-  # Memos / Wallos / FileCodeBox / Sun Panel 迁到 dragon-q8b（Qualcomm
-  # SC8280XP）。opi5p 保持公网 8443 TLS 前沿，回源 dragon-q8b 内网 443。
+  # Memos / Wallos 迁到 dragon-q8b（Qualcomm SC8280XP）。opi5p 保持公网
+  # 8443 TLS 前沿，回源 dragon-q8b 内网 443。（FileCodeBox / Sun Panel
+  # 曾同期迁出，2026-09-03 两者均已退役，vhost 一并删除。）
   lantian.nginxVhosts."memos.zhyi.xin" = {
     locations = {
       "/" = {
@@ -421,42 +422,6 @@ in
     noIndex.enable = true;
   };
 
-  lantian.nginxVhosts."index.zhyi.xin" = {
-    locations = {
-      "/" = {
-        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
-        proxyOverrideHost = "index.zhyi.xin";
-        proxyWebsockets = true;
-        proxyNoTimeout = true;
-        extraConfig = ''
-          proxy_ssl_server_name on;
-          proxy_ssl_name index.zhyi.xin;
-        '';
-      };
-    };
-
-    sslCertificate = "zerossl-zhyi.xin";
-    noIndex.enable = true;
-  };
-
-  lantian.nginxVhosts."index-helper.zhyi.xin" = {
-    locations = {
-      "/" = {
-        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
-        proxyOverrideHost = "index-helper.zhyi.xin";
-        proxyWebsockets = true;
-        proxyNoTimeout = true;
-        extraConfig = ''
-          proxy_ssl_server_name on;
-          proxy_ssl_name index-helper.zhyi.xin;
-        '';
-      };
-    };
-
-    sslCertificate = "zerossl-zhyi.xin";
-    noIndex.enable = true;
-  };
-
   # Tachidesk 迁至 dragon-q8b，opi5p 保持公网 8443 TLS 前沿，回源 dragon-q8b。
   # basicAuth 在两层 nginx 上都启用（同一份 htpasswd，客户端只需输入一次），
   # 满足 nginx-security 策略断言且不改变访问控制语义。
@@ -479,14 +444,15 @@ in
     noIndex.enable = true;
   };
 
-  # Linkr：家庭内网设备（192.168.0.41，mDNS 名 linkr-zhyi.local，固定 IP 更
-  # 稳——nginx 启动时即解析 proxyPass 主机名，mDNS 抖动会直接炸 nginx）。
+  # Linkr：家庭内网设备（固定 IP，mDNS 名 linkr-zhyi.local 不再使用——
+  # nginx 启动时即解析 proxyPass 主机名，mDNS 抖动会直接炸 nginx，且设备
+  # 已改用静态地址 192.168.0.42）。
   # *.opi5p.zhyi.xin 的 DNS 通配记录本就指向本机 LTNET 地址，无公网解析，
   # 无需新增记录。
   lantian.nginxVhosts."linkr.opi5p.zhyi.xin" = {
     locations = {
       "/" = {
-        proxyPass = "http://192.168.0.41";
+        proxyPass = "http://192.168.0.42";
         proxyWebsockets = true;
         proxyNoTimeout = true;
       };

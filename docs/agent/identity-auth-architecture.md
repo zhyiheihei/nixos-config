@@ -179,8 +179,6 @@ oauth2-proxy）**
 | 服务 | 入口 | 承载主机 | 说明 |
 | --- | --- | --- | --- |
 | Home Assistant | `ha.opi5p.zhyi.xin` | opi5p | 内网私有，HA 自有账号 |
-| Sun Panel | `index.zhyi.xin` | opi5p | Sun Panel 自有账号 |
-| Sun Panel Helper | `index-helper.zhyi.xin` | opi5p | 资源后端随面板 |
 | Resilio Sync | `resilio.opi5p.zhyi.xin/gui/` | opi5p | webui 凭据由模块强制为 zhyi/default-pw |
 
 ### 体系外
@@ -194,7 +192,6 @@ oauth2-proxy）**
 | qBittorrent | `bt.router.zhyi.xin` | WebUI 登录 |
 | PVE | `pve-5700u.zhyi.xin:8006` | 应用登录 |
 | Plausible | `stats.zhyi.xin` | 应用管理员 |
-| FileCodeBox | `filebox.zhyi.xin` | 应用管理 |
 | Bepasty | `pb.zhyi.xin` | 分享链接 / 无账号 |
 | QNAP NAS | `qnap.zhyi.xin` | 应用管理 |
 | Hydra | `hydra.zhyi.xin` | 应用登录 |
@@ -267,14 +264,12 @@ SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）�
 | qBittorrent | 有（未接） | WebUI 登录 | 不接 |
 | PVE | 有（未接） | 应用登录 | 不接 |
 | Plausible / Bepasty / Hydra / Element / Sonarr / IYUU / llama-cpp / step-ca / SearXNG / RSSHub / BitMagnet / Metapi / n8n-bridge / Attic / UniAPI / FastAPI-DLS / PeerBanHelper | 有（未接） | 各自认证 | 不接 |
-| **FileCodeBox** | **无（新增）** | 自带管理登录 | **可接**：加 oauth2-proxy（同 Halo 后台模式，`enableOAuth`） |
 | **MetaCubeXD** | **无（新增）** | 私有 + 控制 token | **可接**：加 oauth2-proxy；或保持控制 token |
 | **OpenSpeedTest** | **无（新增）** | 私有无认证 | 不建议接（LAN 测速需免登录直连） |
 | **VaultS3** | **无（新增）** | S3 凭据 | 不建议接（S3 凭据模型与 OIDC 冲突） |
 | **QNAP NAS** | **无（新增）** | NAS 自有账号 | 无法接（非本仓库软件） |
 | **Halo** | **无（新增）** | 前台公开、后台已走 oauth2-proxy | 已部分接入，无需动作 |
 | **Home Assistant** | **无（新增）** | 内网私有，HA 自有账号 | 已接统一凭据（J：zhyi/default-pw，不挂 oauth2-proxy） |
-| **Sun Panel（+Helper）** | **无（新增）** | 自有认证 | 已接统一凭据（J：zhyi/default-pw，不挂 oauth2-proxy） |
 | **Resilio Sync** | **无（新增）** | webui 自有登录 | 已接统一凭据（J：webui 强制 zhyi/default-pw） |
 | ~~Vertex~~ | **无（新增）** | 已退役 | **已移除**（2026-08-15） |
 
@@ -304,9 +299,8 @@ SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）�
 | 服务 | 说明 |
 | --- | --- |
 | Home Assistant | HA 界面 → 用户资料（已改自有账号登录，不再挂 oauth2-proxy） |
-| Sun Panel（+Helper） | 面板设置页 |
 | Vaultwarden | 主密码用户自设（SSO 走 Dex 是另一套，不影响主密码） |
-| Jellyfin / Immich / qBittorrent / PVE / Plausible / FileCodeBox / Bepasty / QNAP / Hydra(admin) / Sonarr / IYUU | 各自账号体系，改密在应用内 |
+| Jellyfin / Immich / qBittorrent / PVE / Plausible / Bepasty / QNAP / Hydra(admin) / Sonarr / IYUU | 各自账号体系，改密在应用内 |
 
 ### 改密操作步骤
 
@@ -317,7 +311,7 @@ SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）�
 3. 主仓库：`nix flake update secrets` 并提交 flake.lock。
 4. ml-builder 同步后部署：glauth 主机（volcengine、rock5c）、BasicAuth 与
    default-pw 消费方所在主机（opi5p、rock5c、greencloud、tencent、ml-builder 等）。
-5. 手动项：在 HA、Sun Panel 及自带账号应用内分别改密。
+5. 手动项：在 HA 及自带账号应用内分别改密。
 
 ## 运维要点
 

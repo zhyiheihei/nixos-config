@@ -190,8 +190,8 @@ Nix clients -> Attic（volcengine） -> VaultS3（OPI5P -> QNAP）
 `opi5p` 仍是重状态家庭应用节点，`rock5c` 承接媒体播放层：
 
 - 数据库与缓存（opi5p）：PostgreSQL、MySQL、Redis for Immich、Redis for SearXNG；
-- 家庭应用（opi5p）：Immich、Memos、Home Assistant、ArchiveBox、FileCodeBox、
-  SunPanel、SearXNG、Calibre COPS；RSS 阅读链为 greencloud 的 Miniflux/RSSHub，
+- 家庭应用（opi5p）：Immich、Memos、Home Assistant、ArchiveBox、
+  SearXNG、Calibre COPS；RSS 阅读链为 greencloud 的 Miniflux/RSSHub，
   ArchiveBox 承担无法订阅站点的归档；
 - 下载链路（router）：qBittorrent 单实例；
 - 下载消费方（opi5p）：Bitmagnet、PeerBanHelper、Tachidesk；
@@ -256,9 +256,6 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | Plausible | `https://stats.zhyi.xin` | 应用管理员 |
 | Bepasty | `https://pb.zhyi.xin` | 分享链接 / 无账号 |
 | IT Tools | `https://tools.zhyi.xin` | 公开 |
-| Sun Panel | `https://index.zhyi.xin` | 自带认证（zhyi / default-pw） |
-| Sun Panel Helper | `https://index-helper.zhyi.xin` | 自带认证（zhyi / default-pw） |
-| FileCodeBox | `https://filebox.zhyi.xin` | 应用管理 |
 | 网络信息 API | `https://api.zhyi.xin/geoip` | 公开 |
 | Avatar API | `https://avatar.zhyi.xin` | 公开 |
 | ArchiSteamFarm | `https://asf.zhyi.xin` | Dex OAuth / IPC |

@@ -40,8 +40,6 @@ _: [
   "hydra.zhyi.xin"
   "id.zhyi.xin"
   "immich.zhyi.xin"
-  "index-helper.zhyi.xin"
-  "index.zhyi.xin"
   "jellyfin.zhyi.xin"
   "lemmy.zhyi.xin"
   "login.zhyi.xin"
