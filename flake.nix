@@ -141,9 +141,13 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
     # nixpkgs 的 ncps 0.9.4 不认 attic/cachix 的非 hash NAR URL（#1329，
-    # 2026-06-07 04cb40b 修复），改用上游 flake。不 follow 本仓 nixpkgs：
-    # 上游 go.mod 要求 go >= 1.26.6，本仓 nixpkgs 锁在 1.26.5。
-    ncps.url = "github:kalbasit/ncps";
+    # 2026-06-07 04cb40b 修复），改用上游 flake。go.mod 要求 go >= 1.26.6
+    # 而本仓 nixpkgs 锁在 1.26.5，由 overlay 用 go_1_27 覆盖（见
+    # overlays/60-non-flake-packages.nix），故 follow 本仓 nixpkgs。
+    ncps = {
+      url = "github:kalbasit/ncps";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     nixfmt-rs = {
       url = "github:Mic92/nixfmt-rs";
       inputs.nixpkgs.follows = "nixpkgs";

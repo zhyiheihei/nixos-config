@@ -1,8 +1,10 @@
 { inputs, ... }: rec {
   attic = rec {
-    cacheName = "lantian";
-    url = "https://attic.zhyi.xin/lantian";
-    publicKey = "lantian:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=";
+    # 2026-09-03 自 lantian 改名 zhyi：服务端复制 cache 行并保留同一
+    # keypair（公钥值不变，仅签名/公钥的名字前缀变）。
+    cacheName = "zhyi";
+    url = "https://attic.zhyi.xin/zhyi";
+    publicKey = "zhyi:Pi7qMC8lIOrR8cTh4vfcRuSL/z+Bh5BAFYlEo/mbq2U=";
   };
 
   # Author's NUR binary caches (xddxdd/nur-packages exposes both attic and

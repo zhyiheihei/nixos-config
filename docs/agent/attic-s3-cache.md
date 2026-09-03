@@ -8,22 +8,24 @@
 
 ```text
 Hydra (ml-builder) / 手动构建 (ml-builder)
-  -> attic push lantian
-  -> Attic (greencloud)
+  -> attic push zhyi
+  -> Attic (greencloud-jp)
   -> PostgreSQL + VaultS3 (home-ddns) bucket nix-cache
   -> 持有只读 token 的受管 Nix 主机
 ```
 
 - Attic 服务、Nginx vhost 与 S3 参数定义在
   [`nixos/optional-apps/attic.nix`](../../nixos/optional-apps/attic.nix)，由
-  `hosts/greencloud/configuration.nix` 导入。
+  `hosts/greencloud-jp/configuration.nix` 导入（2026-09 自 greencloud 迁入）。
 - Attic 只监听回环地址，由同机 Nginx 发布；外部数据面使用
-  `https://attic.zhyi.xin/lantian`（标准 443 端口）。
+  `https://attic.zhyi.xin/zhyi`（标准 443 端口）。
+- 缓存名 2026-09-03 自 `lantian` 改为 `zhyi`：服务端复制 cache 行并保留同一
+  keypair（公钥值不变，仅名字前缀变）；`lantian` 缓存保留作回滚。
 - `lantian` 已于 2026-07-30 切换为 private；匿名请求返回 `401`，不再提供公开
   substituter。
 - S3 凭据与上传 token 只在私有 secrets 仓库的 `common/attic.yaml` 中以 SOPS 加密
   保存。修改它必须遵循 secrets 仓库的 `docs/sops-manual.md`。
-- 全体受管主机只通过 `common/nix.yaml` 的 `nix-netrc` 获得 `lantian` 的读取权限。
+- 全体受管主机只通过 `common/nix.yaml` 的 `nix-netrc` 获得 `zhyi` 的读取权限。
   上传凭据只部署到 `ml-builder`；Hydra 自动上传与手动上传都由它承担。2026-08-12
   迁移后 `pve-5700u` 不再部署上传 token。
 - Hydra 在
@@ -35,9 +37,9 @@ Hydra (ml-builder) / 手动构建 (ml-builder)
 
 | 凭据 | 保存位置 | 部署范围 | 权限 |
 | --- | --- | --- | --- |
-| Attic fleet read token | `common/nix.yaml` 的 `nix-netrc` | 所有受管主机 | 仅 `pull lantian` |
-| Attic upload token | `common/attic.yaml` 的 `attic-upload-key` | 仅 `ml-builder` | `pull/push lantian` |
-| Attic JWT/S3 凭据 | `common/attic.yaml` 的 `attic-credentials` | 仅 `greencloud` 的 `atticd` | 服务端管理与存储 |
+| Attic fleet read token | `common/nix.yaml` 的 `nix-netrc` | 所有受管主机 | 仅 `pull lantian`、`pull zhyi` |
+| Attic upload token | `common/attic.yaml` 的 `attic-upload-key` | 仅 `ml-builder` | `pull/push lantian`、`pull/push zhyi` |
+| Attic JWT/S3 凭据 | `common/attic.yaml` 的 `attic-credentials` | 仅 `greencloud-jp` 的 `atticd` | 服务端管理与存储 |
 | Cache public key | `helpers/constants/nix.nix` | 公开配置 | 只用于验证 NAR 签名 |
 
 Bearer token 识别的是“持有凭据者”，不是机器硬件本身。这里的“只有我的主机”是通过
@@ -61,7 +63,7 @@ Attic，再回退到本机 NCPS；该顺序定义在
 ```netrc
 machine attic.zhyi.xin
 login attic
-password <仅含 pull lantian 权限的 JWT>
+password <仅含 pull zhyi 权限的 JWT>
 ```
 
 `nixos/minimal-components/nix.nix` 按作者原有模式，通过
@@ -70,7 +72,7 @@ password <仅含 pull lantian 权限的 JWT>
 
 ```bash
 curl --fail --netrc-file /run/secrets/nix-netrc \
-  https://attic.zhyi.xin/lantian/nix-cache-info
+  https://attic.zhyi.xin/zhyi/nix-cache-info
 ```
 
 `nix store ping` 只验证 store URL，不能单独证明私有缓存认证和对象读取成功。
@@ -81,21 +83,21 @@ curl --fail --netrc-file /run/secrets/nix-netrc \
 的匿名请求返回 `401`。2026-08-12 后只有 `ml-builder` 存在
 `/run/secrets/attic-upload-key`。
 
-在 greencloud 上：
+在 greencloud-jp 上：
 
 ```bash
 systemctl is-active atticd nginx postgresql
 journalctl -u atticd.service --since '30 minutes ago' --no-pager
 ```
 
-缓存配置和权限需要管理员 token 时，使用 `attic cache info lantian` 检查；不要为了
+缓存配置和权限需要管理员 token 时，使用 `attic cache info zhyi` 检查；不要为了
 修改优先级或 upstream key 直接更新 PostgreSQL 表。
 
 ## 从公开缓存切换为私有缓存（已完成）
 
 必须严格按以下顺序操作，避免所有主机同时失去 substituter：
 
-1. 在 `volcengine` 生成长期只读 token，仅授予 `--pull lantian`。
+1. 在 `volcengine` 生成长期只读 token，仅授予 `--pull zhyi`。
 2. 将其以上述 netrc 格式写入 secrets 仓库的 `common/nix.yaml` 中
    `nix-netrc` 字段；不要把 JWT 输出到终端日志或 Shell history。
 3. 更新主仓库的 `secrets` flake input，先部署全部受管主机。
@@ -104,23 +106,23 @@ journalctl -u atticd.service --since '30 minutes ago' --no-pager
 5. 使用临时管理 token 登录 Attic，然后执行：
 
    ```bash
-   attic cache configure lantian --private
+   attic cache configure zhyi --private
    ```
 
    当前 `attic-client 0.1.0` 在仅传 `--private` 时也会发送
    `retention_period = Global`，所以临时 token 实际需要同时具有
-   `--pull lantian`、`--configure-cache lantian` 和
-   `--configure-cache-retention lantian`。这不会改变当前缓存策略，因为
-   `lantian` 原本就使用服务端全局的 3 个月 retention。临时 token 不需要且不应
+   `--pull zhyi`、`--configure-cache zhyi` 和
+   `--configure-cache-retention zhyi`。这不会改变当前缓存策略，因为
+   `zhyi` 沿用服务端全局的 3 个月 retention。临时 token 不需要且不应
    具有 push、delete、create-cache 或 destroy-cache。
 
 6. 验证匿名请求返回 `401` 或 `403`，而配置了 netrc 的 Nix 请求仍成功：
 
    ```bash
    curl -o /dev/null -sS -w '%{http_code}\n' \
-     https://attic.zhyi.xin/lantian/nix-cache-info
+     https://attic.zhyi.xin/zhyi/nix-cache-info
    curl --fail --netrc-file /run/secrets/nix-netrc \
-     https://attic.zhyi.xin/lantian/nix-cache-info
+     https://attic.zhyi.xin/zhyi/nix-cache-info
    ```
 
 不要直接修改 PostgreSQL 的 `cache.is_public`。使用 Attic API 可以保留权限检查和
@@ -145,8 +147,8 @@ Nix 依据 binary cache 的 `Priority` 选择下载源，数值越小优先级�
 `substituters` 的排列顺序不能替代服务端优先级。
 
 ```bash
-attic cache info lantian
-curl -fsS https://attic.zhyi.xin/lantian/nix-cache-info
+attic cache info zhyi
+curl -fsS https://attic.zhyi.xin/zhyi/nix-cache-info
 ```
 
 只有持有 `configure_cache` 权限的管理员才可以修改 priority。修改前后都必须记录
@@ -180,12 +182,12 @@ Attic 与反代日志，不要因单个错误就清空数据库或 S3。
 手动上传：
 
 ```bash
-attic login --set-default lantian https://attic.zhyi.xin \
+attic login --set-default zhyi https://attic.zhyi.xin \
   "$(cat /run/secrets/attic-upload-key)"
-attic push lantian ./result
+attic push zhyi ./result
 ```
 
-`attic-upload-key` 应只具有 `--pull lantian --push lantian`，不应带
+`attic-upload-key` 应只具有 `--pull zhyi --push zhyi`，不应带
 `create-cache`、`configure-cache`、`destroy-cache` 或 `delete` 权限。完成私有化后，
 管理员 token 不应保留在构建机上。
 
@@ -211,9 +213,9 @@ attic push lantian ./result
    ```bash
    ROOT=/root/cache-roots/rock5c
    TOKEN=$(cat /run/secrets/attic-upload-key)
-   nix shell nixpkgs#attic-client -c attic login --set-default lantian \
+   nix shell nixpkgs#attic-client -c attic login --set-default zhyi \
      https://attic.zhyi.xin "$TOKEN"
-   nix shell nixpkgs#attic-client -c attic push lantian "$ROOT"
+   nix shell nixpkgs#attic-client -c attic push zhyi "$ROOT"
    ```
 
    需要补推 `.gcroots` 中的多个已验证根时用 `make push-cache`。不要启用
@@ -223,7 +225,7 @@ attic push lantian ./result
 
    ```bash
    P=$(readlink -f "$ROOT")
-   nix copy --from https://attic.zhyi.xin/lantian \
+   nix copy --from https://attic.zhyi.xin/zhyi \
      --to file:///tmp/attic-copy-test "$P"
    rm -rf /tmp/attic-copy-test
    ```

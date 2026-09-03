@@ -748,7 +748,9 @@
       "inputs": {
         "flake-parts": "flake-parts_2",
         "git-hooks-nix": "git-hooks-nix",
-        "nixpkgs": "nixpkgs_2",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
         "process-compose-flake": "process-compose-flake",
         "treefmt-nix": "treefmt-nix",
         "trilium": "trilium"
@@ -827,7 +829,7 @@
         "flake-parts": [
           "flake-parts"
         ],
-        "nixpkgs": "nixpkgs_4"
+        "nixpkgs": "nixpkgs_3"
       },
       "locked": {
         "lastModified": 1787421204,
@@ -1178,22 +1180,6 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1787848966,
-        "narHash": "sha256-7gDpu5hpq0rOYnYMcOWqSzquK4HA/xU8Xf3CjUBOOJA=",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "d57af924f160a5084293c71c2043f058bd1cdb60",
-        "type": "github"
-      },
-      "original": {
-        "owner": "NixOS",
-        "ref": "nixos-26.05",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
-    "nixpkgs_3": {
-      "locked": {
         "lastModified": 1769184885,
         "narHash": "sha256-wVX5Cqpz66SINNsmt3Bv/Ijzzfl8EPUISq5rKK129K0=",
         "owner": "NixOS",
@@ -1207,7 +1193,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_4": {
+    "nixpkgs_3": {
       "locked": {
         "lastModified": 1787374233,
         "narHash": "sha256-VZY8AkhbcDhxBSXsdUlHK7oS8ez5nJ2vzYzkkNI35ok=",
@@ -1223,7 +1209,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_5": {
+    "nixpkgs_4": {
       "locked": {
         "lastModified": 1787360063,
         "narHash": "sha256-dt4WdcvsA8/RCe+VZZwqU0X+XMM3wBbGCWA0/sFWzGo=",
@@ -1482,7 +1468,7 @@
         "nix-math": "nix-math",
         "nixcord": "nixcord",
         "nixfmt-rs": "nixfmt-rs",
-        "nixpkgs": "nixpkgs_5",
+        "nixpkgs": "nixpkgs_4",
         "nixpkgs-multiverse": "nixpkgs-multiverse",
         "nixpkgs-stable": "nixpkgs-stable",
         "nur": "nur",
@@ -1828,7 +1814,7 @@
     "trilium": {
       "inputs": {
         "flake-utils": "flake-utils_2",
-        "nixpkgs": "nixpkgs_3",
+        "nixpkgs": "nixpkgs_2",
         "pnpm2nix": "pnpm2nix"
       },
       "locked": {
