@@ -16,7 +16,7 @@
     environment.HOME = "/var/cache/attic-watch-store";
 
     script = ''
-      attic login --set-default lantian https://attic.greencloud.zhyi.xin $(cat ${config.sops.secrets.attic-upload-key.path})
+      attic login --set-default lantian https://attic.zhyi.xin $(cat ${config.sops.secrets.attic-upload-key.path})
       exec attic watch-store lantian
     '';
 
