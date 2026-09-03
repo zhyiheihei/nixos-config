@@ -124,6 +124,24 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 
 ## 进展日志（最新在上）
 
+### 轮 6 · 2026-09-04 · 跨机 -backend 模式全面退役（完成 ✅）
+
+用户确认：跨机 -backend 可以没有；以最对齐 exam、最小改动方式收尾。
+commit 46997540，仅改 media-edge.nix 一个文件，部署 rock5c。
+
+- 上游对照：exam 有 tachidesk.nix，vhost 即 `tachidesk.xuyh0120.win`
+  （带 basicAuth）跑在服务机上——我们的 tachidesk.nix 逐字对齐（换域名），
+  零改动；坏的只是 rock5c 边缘指向 opi5p 的回源跳板（tachidesk 8-28 已迁
+  dragon-q8b，实测 auth 过后 301 到无人定义的域名 → snakeoil 死循环）
+- 实施：media-edge.nix 把 tachidesk.zhyi.xin / tachidesk.localhost 改用
+  mkProxyLocation 直连 tachidesk.dragon-q8b.zhyi.xin（复用 backendHost 映射
+  加 tachidesk=dragon-q8b），backendLocation 辅助函数删除
+- 验证：边缘→dragon-q8b 链路 401（Server: zhyi/dragon-q8b，到达真身 vhost）；
+  公网 401 正常；jellyfin 302 / jellyfin-api 302 未受影响
+- **跨机 -backend 命名自本轮起全面退役**：新服务消费一律机器域 vhost
+  （${service}.${hostName}.zhyi.xin）+ 边缘直连；同机容器消费走
+  --add-host + HTTP-only vhost（jellyfin-api 模式，上游对应物 localhost 变体）
+
 ### 轮 5 · 2026-09-04 · F 组修复（完成 ✅）
 
 用户决策：**jellyfin 定格 rock5c**；F1/F2 参照上游 exam 对齐。
