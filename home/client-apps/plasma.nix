@@ -20,7 +20,9 @@ in
     # 会失败，需吞掉退出码避免 set -e 使整个激活报 127。
     sessionDisplay=$("/run/current-system/sw/bin/systemctl" --user show-environment 2>/dev/null | sed -n 's/^DISPLAY=//p' || true)
     if [ -n "$sessionDisplay" ]; then
-      DISPLAY=$sessionDisplay ${kcminitFonts} || true
+      # home-manager.service 的 unit 环境带 QT_QPA_PLATFORM=offscreen，会让
+      # krdb::xftDpi 走非 Wayland 分支写 96，必须强制 wayland 平台。
+      DISPLAY=$sessionDisplay QT_QPA_PLATFORM=wayland ${kcminitFonts} || true
     fi
   '';
 
