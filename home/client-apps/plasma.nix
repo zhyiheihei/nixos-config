@@ -75,6 +75,7 @@ in
 
     configFile.kwinrc = {
       Compositing = {
+        AllowDirectScanout.value = false;
         GLCore = true;
         LatencyPolicy = "ExtremelyLow";
         OpenGLIsUnsafe = false;
