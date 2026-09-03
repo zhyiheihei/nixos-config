@@ -1,5 +1,27 @@
-{ pkgs, osConfig, ... }:
+{ pkgs, lib, osConfig, ... }:
 {
+  # 登录时序竞争：kcminit（写 xrdb 的 Xft.dpi = kwinrc Xwayland.Scale × 96）在
+  # plasma-manager 把 Xwayland.Scale 写入 kwinrc 之前跑完，导致 X11 应用（如
+  # wechat-uos 的 QT_AUTO_SCREEN_SCALE_FACTOR）读到 96 DPI 不缩放。等
+  # plasma-workspace.target（含 DISPLAY 环境）就绪后重跑一次修正。
+  # 2026-09-03 于 ml-laptop 实测：手动 kcminit kcm_fonts_init 后 Xft.dpi 96→144。
+  systemd.user.services.fix-xwayland-dpi = {
+    Unit = {
+      Description = "Re-run kcminit fonts init to fix Xft.dpi race at login";
+      After = [ "plasma-workspace.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+
+    Service = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.kdePackages.plasma-workspace}/bin/kcminit kcm_fonts_init";
+    };
+
+    Install = {
+      WantedBy = [ "plasma-workspace.target" ];
+    };
+  };
+
   programs.okular = {
     enable = true;
     package = null;
