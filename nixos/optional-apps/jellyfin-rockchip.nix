@@ -111,19 +111,11 @@ in
         sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
-      # The public edge on ml-home-vm reaches this HTTP-only LAN vhost. Its
-      # private ACL keeps the application socket unreachable from the WAN.
-      "jellyfin-backend.opi5p.zhyi.xin" = {
-        listenHTTP.enable = true;
-        listenHTTPS.enable = false;
-        locations."/" = {
-          proxyPass = "http://unix:/run/jellyfin/socket";
-          proxyWebsockets = true;
-          proxyNoTimeout = true;
-        };
-        noIndex.enable = true;
-        accessibleBy = "private";
-      };
+      # jellyfin-backend.opi5p.zhyi.xin HTTP-only 回源 vhost 已于 2026-09-04
+      # 撤除：它专为已退役的 ml-home-vm 前沿设计（上游无跨机 -backend 惯例，
+      # 对应物是 jellyfin.localhost），前沿退役后无任何消费者，且 mesh DNS
+      # 按名字模式把它解析到 opi5p 导致死链。jellyfin 定格 rock5c 后，
+      # 公网入口即上方 jellyfin.zhyi.xin（本机 unix socket 直连）。
       "jellyfin.localhost" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;

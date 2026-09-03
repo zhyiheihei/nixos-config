@@ -86,16 +86,7 @@
     };
   };
 
-  # Private HTTP backend for the stable TLS frontend on ml-home-vm.
-  lantian.nginxVhosts."handbrake-backend.opi5p.zhyi.xin" = {
-    listenHTTP.enable = true;
-    listenHTTPS.enable = false;
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.HandBrake}";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-    };
-    accessibleBy = "private";
-    noIndex.enable = true;
-  };
+  # handbrake-backend.opi5p.zhyi.xin HTTP-only 回源 vhost 已于 2026-09-04
+  # 撤除：它专为已退役的 ml-home-vm TLS 前沿设计，前沿退役后无任何消费者
+  # （上游无跨机 -backend 惯例）。手刹直连走本文件主 vhost。
 }
