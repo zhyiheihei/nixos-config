@@ -359,7 +359,10 @@ let
     }
     {
       recordType = "CNAME";
-      name = "searx.tencent";
+      # 2026-09-04 自 searx.tencent 改名：vhost 名为 searx.zhyi.xin
+      # （searxng.nix，private ACL），LTNET 视图名字须与 vhost 一致，
+      # 否则 mesh 内解析不到（homepage 检查 B4）。
+      name = "searx";
       target = "tencent.ltnet.zhyi.xin.";
       ttl = "1h";
     }
