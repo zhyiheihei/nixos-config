@@ -81,9 +81,9 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 | A2 | 超时 | syncthing.ml-2700.zhyi.xin | 连接超时（198.18.0.113） | ⏸️ | 主机离线（见轮 2） | 开机即恢复 | 开机后复测 |
 | A3 | 超时 | volume.ml-2700.zhyi.xin | 连接超时（198.18.0.113） | ⏸️ | 主机离线（见轮 2） | 开机即恢复 | 开机后复测 |
 | A4 | 超时 | lab.lubancat1.zhyi.xin | 连接超时（198.18.0.124） | ⏸️ | 主机离线（见轮 2） | 开机即恢复 | 开机后复测 |
-| B1 | DNS | filebox.zhyi.xin | NXDOMAIN | ⬜ | | | |
-| B2 | DNS | index.zhyi.xin | NXDOMAIN | ⬜ | | | |
-| B3 | DNS | index-helper.zhyi.xin | NXDOMAIN | ⬜ | | | |
+| B1 | DNS | filebox.zhyi.xin | NXDOMAIN | ✅ | 仓库早已退役 filecodebox（2cb1f5a2），首页是旧部署的陈旧快照 | 随轮 3 部署 ml-laptop 首页重生成，条目消失 | 首页已不含 |
+| B2 | DNS | index.zhyi.xin | NXDOMAIN | ✅ | 同 B1（sun-panel 已从 dragon-q8b 移除 ff733028，模块成孤儿） | 同 B1 | 首页已不含 |
+| B3 | DNS | index-helper.zhyi.xin | NXDOMAIN | ✅ | 同 B2 | 同 B2 | 首页已不含 |
 | B4 | DNS | searx.zhyi.xin | NXDOMAIN | ⬜ | | | |
 | C1 | 证书 | matrix-federation.zhyi.xin | 证书 CN=snakeoil.local | ⬜ | | | |
 | C2 | 证书 | vaults3.zhyi.xin | 证书 CN=snakeoil.local | ⬜ | | | |
@@ -96,11 +96,11 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 | D6 | H2reset | lab.volcengine.zhyi.xin | 同上 | ⬜ | | | |
 | D7 | H2reset | uni-api.greencloud.zhyi.xin | 同上（证书 CN=greencloud.zhyi.xin） | ⬜ | | | |
 | D8 | H2reset | uni-api.hostdare.zhyi.xin | 同上（证书 CN=hostdare.zhyi.xin） | ⬜ | | | |
-| E1 | 502 | hydra.zhyi.xin | 502 稳定 | ⏳ | hydra 随 ml-builder 退役停用（import 被注释，13300 不监听），边缘 vhost 仍指 ml-builder | 迁至 ml-laptop，方案见轮 3 | 待实施 |
-| E2 | 502 | bazarr.rock5c.zhyi.xin | 502 稳定 | ⏳ | 服务已被 MoviePilot 替代并有意停用（media-apps.nix enable=mkForce false），vhost 遗留 | 撤除死链 vhost，方案见轮 3 | 待实施 |
-| E3 | 502 | prowlarr.rock5c.zhyi.xin | 502 稳定 | ⏳ | 同 E2 | 同 E2 | 待实施 |
-| E4 | 502 | radarr.rock5c.zhyi.xin | 502 稳定 | ⏳ | 同 E2 | 同 E2 | 待实施 |
-| E5 | 502 | sonarr.rock5c.zhyi.xin | 502 稳定 | ⏳ | 同 E2 | 同 E2 | 待实施 |
+| E1 | 502 | hydra.zhyi.xin | 502 稳定 | ✅ | hydra 随 ml-builder 退役停用（import 被注释，13300 不监听），边缘 vhost 仍指 ml-builder | 迁至 ml-laptop 全新起（轮 3 确认） | 轮 3：边缘 200，UI 正常，管理员已建 |
+| E2 | 502 | bazarr.rock5c.zhyi.xin | 502 稳定 | ✅ | 服务已被 MoviePilot 替代并有意停用（media-apps.nix enable=mkForce false），vhost 遗留 | 撤除 import 清死链（轮 3 确认） | 轮 3：vhost 已消失，首页不再列出 |
+| E3 | 502 | prowlarr.rock5c.zhyi.xin | 502 稳定 | ✅ | 同 E2 | 同 E2 | 同 E2 |
+| E4 | 502 | radarr.rock5c.zhyi.xin | 502 稳定 | ✅ | 同 E2 | 同 E2 | 同 E2 |
+| E5 | 502 | sonarr.rock5c.zhyi.xin | 502 稳定 | ✅ | 同 E2 | 同 E2 | 同 E2 |
 | F1 | 翻转 | jellyfin-backend.opi5p.zhyi.xin | 首轮 301+有效证书 → 后持续 snakeoil | ⬜ | | | |
 | F2 | 翻转 | handbrake-backend.opi5p.zhyi.xin | 同上 | ⬜ | | | |
 | F3 | 翻转 | jellyfin-api.rock5c.zhyi.xin | 502 ↔ snakeoil 抖动 | ⬜ | | | |
@@ -123,6 +123,34 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 > rock5c 502 组对应上游容器（\*arr 栈）；F 组两台后端 vhost 首轮正常说明配置曾生效，翻转发生在此轮检查期间。
 
 ## 进展日志（最新在上）
+
+### 轮 3 实施 · 2026-09-04 · E 组修复（完成 ✅）+ B1-B3 侧效结案
+
+方案经用户确认后实施（E1 数据全新起；E2-E5 撤除前完成消费者调研）。
+commit c3433d72，四台 toplevel 求值通过后部署：ml-laptop → greencloud → rock5c。
+
+**E1 hydra 迁移落地**：
+- ml-laptop：import hydra + nix-builder tag + aarch64-cross；hydra 全家桶启动，
+  13300 监听，UI 200；管理员 zhyi 已建（随机密码已交用户，可重置）
+- greencloud：vhost 改指 ml-laptop，hydra.zhyi.xin 边缘 200
+- ml-builder：摘 nix-builder tag；binfmt 改 mkForce true 解决优先级冲突
+  （摘 tag 后 environment.nix 标签表达式变 false，同 92bdd542 先例）
+- 构建拓扑生效：ml-laptop machines-with-localhost = localhost（x86_64+QEMU 平台，4 jobs）
+  + opi5p（aarch64 原生 8 jobs + big-parallel），ml-builder 已不在列表
+- 部署备志：ml-laptop 是 manualDeploy 主机，ml-builder 需 ssh 覆盖才能推
+  （198.18.0.118 + mac-book 钥匙）；greencloud 的 ssh 覆盖
+  （203.55.176.158→198.18.0.120:2222）此前被清掉，本次已补回
+
+**E2-E5 死链清理落地**：media-apps.nix 撤 sonarr/radarr/bazarr/prowlarr/decluttarr
+五个 import，vhost/homepage 条目消失，直连变 444 兑底；moviepilot/jellyfin
+200/302 未受影响；服务数据留在盘上，回滚 = git revert。
+
+**B1-B3 侧效结案**：本次部署 ml-laptop（homepage 所在机）后首页从陈旧快照刷新为
+当前 flake 口径，filebox/index/index-helper 三个早已在仓库中退役的条目随之消失
+（105 → 98 个链接）。B4 searx 仍在列，待诊断。
+
+**遗留（不在 E 组）**：prometheus scrape-configs.nix 的 rock5c exportarr 目标
+（公共模块）待另批次清理；F 组状态翻转未动（下轮）。
 
 ### 轮 3 · 2026-09-04 · E 组（502 ×5）诊断（完成，方案待确认）
 
