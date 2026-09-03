@@ -64,5 +64,10 @@ in
 }).overrideAttrs
   (old: {
     requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
-    patches = (old.patches or [ ]) ++ [ ../../nixos/hardware/orangepi-5-plus/vendor-fan-curve.patch ];
+    patches = (old.patches or [ ]) ++ [
+      ../../nixos/hardware/orangepi-5-plus/vendor-fan-curve.patch
+      # 启用板载 HDMI RX（hdmirx_ctrler），配合 256MB CMA 预留（vendor DT
+      # reserved-memory 节点已就位）；驱动 CONFIG_VIDEO_ROCKCHIP_HDMIRX=y 已内置。
+      ../../nixos/hardware/orangepi-5-plus/vendor-hdmirx.patch
+    ];
   })
