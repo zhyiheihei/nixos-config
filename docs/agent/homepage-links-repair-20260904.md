@@ -85,9 +85,9 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 | B2 | DNS | index.zhyi.xin | NXDOMAIN | ✅ | 同 B1（sun-panel 已从 dragon-q8b 移除 ff733028，模块成孤儿） | 同 B1 | 首页已不含 |
 | B3 | DNS | index-helper.zhyi.xin | NXDOMAIN | ✅ | 同 B2 | 同 B2 | 首页已不含 |
 | B4 | DNS | searx.zhyi.xin | NXDOMAIN | ⬜ | | | |
-| C1 | 证书 | matrix-federation.zhyi.xin | 证书 CN=snakeoil.local | ⬜ | | | |
-| C2 | 证书 | vaults3.zhyi.xin | 证书 CN=snakeoil.local | ⬜ | | | |
-| C3 | 证书 | linkr.opi5p.zhyi.xin | 证书 CN=zhyi.xin，域名不匹配 | ⬜ | | | |
+| C1 | 证书 | matrix-federation.zhyi.xin | 证书 CN=snakeoil.local | ✅ | 配置正确：listenHTTPS.port=8448（Matrix federation 惯例端口），443 的 snakeoil 是设计使然 | 无需修复 | 轮 7：8448 返 404（federation 端点根路径正常行为） |
+| C2 | 证书 | vaults3.zhyi.xin | 证书 CN=snakeoil.local | ✅ | 配置正确： opi5p 上的 8443 兼容端点（router DNAT），443 落在 rock5c 无此 vhost | 无需修复 | 轮 7：8443 返 403（S3 未签名请求正常拒绝） |
+| C3 | 证书 | linkr.opi5p.zhyi.xin | 证书 CN=zhyi.xin，域名不匹配 | ✅ | 配置 bug：两级子域配了根域通配证书 zerossl-zhyi.xin | 改用机器通配 zerossl-opi5p.zhyi.xin（轮 7 一行修复，1024207bb） | 轮 7：证书验证通过，200 |
 | D1 | H2reset | lab.google.zhyi.xin | TLS 有效（ZeroSSL），HTTP/2 PROTOCOL_ERROR | ⬜ | | | |
 | D2 | H2reset | lab.greencloud-jp.zhyi.xin | 同上 | ⬜ | | | |
 | D3 | H2reset | lab.greencloud.zhyi.xin | 同上 | ⬜ | | | |
@@ -123,6 +123,21 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 > rock5c 502 组对应上游容器（\*arr 栈）；F 组两台后端 vhost 首轮正常说明配置曾生效，翻转发生在此轮检查期间。
 
 ## 进展日志（最新在上）
+
+### 轮 7 · 2026-09-04 · C 组（证书 ×3）诊断+修复（完成 ✅）
+
+按用户口径「没开机的不论，配置文件没问题就行」逐项核验：
+
+- **C1 matrix-federation**：配置正确。listenHTTPS.port = Matrix.Public (8448)，
+  federation 惯例端口；443 snakeoil 为默认服务器兑底属设计内。实测 8448 → 404
+  （federation 端点根路径正常行为）。结案，无改动
+- **C2 vaults3**：配置正确。 opi5p 上的 8443 兼容端点（router DNATs
+  8443→opi5p:8443）；443 落在 rock5c（当前 DNAT 目标）无此 vhost。实测
+  8443 → 403（S3 对未签名请求的正常拒绝）。结案，无改动
+- **C3 linkr.opi5p**：配置 bug 已修。vhost 证书配了根域通配 zerossl-zhyi.xin，
+  不覆盖两级子域 linkr.opi5p；改机器通配 zerossl-opi5p.zhyi.xin（syncthing
+  模块 zerossl-${hostName} 同款）。commit 1024207bb，部署 opi5p 后证书验证
+  通过、返 200（回源设备 192.168.0.42 在线）
 
 ### 轮 6 · 2026-09-04 · 跨机 -backend 模式全面退役（完成 ✅）
 
