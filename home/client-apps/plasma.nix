@@ -12,11 +12,13 @@ in
   # 修复：登录后 plasma-workspace.target 就绪（wayland socket + DISPLAY 均已
   # 就绪）时重跑一次。另加 home.activation 钩子处理中途 nixos-rebuild switch：
   # 该场景下 stylixLookAndFeel（QT_QPA_PLATFORM=minimal）会把 Xft.dpi 重置回
-  # 96，且按字母序排在 reloadSystemd 之后；钩子排序在 stylix 之后，且仅有
-  # 显示器可用时（会话已运行）才会实际生效。
+  # 96，且按字母序排在 reloadSystemd 之后；钩子排序在 stylix 之后，从 systemd
+  # user manager 读会话 DISPLAY（激活脚本自身环境无此变量），会话未运行时
+  # 跳过。
   home.activation.zz-fix-xwayland-dpi = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    if [ -n "''${DISPLAY:-}" ] || [ -n "''${WAYLAND_DISPLAY:-}" ]; then
-      ${kcminitFonts} || true
+    sessionDisplay=$(systemctl --user show-environment 2>/dev/null | sed -n 's/^DISPLAY=//p')
+    if [ -n "$sessionDisplay" ]; then
+      DISPLAY=$sessionDisplay ${kcminitFonts} || true
     fi
   '';
 
