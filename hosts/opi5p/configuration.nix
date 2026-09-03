@@ -421,24 +421,6 @@ in
     noIndex.enable = true;
   };
 
-  lantian.nginxVhosts."filebox.zhyi.xin" = {
-    locations = {
-      "/" = {
-        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
-        proxyOverrideHost = "filebox.zhyi.xin";
-        proxyWebsockets = true;
-        proxyNoTimeout = true;
-        extraConfig = ''
-          proxy_ssl_server_name on;
-          proxy_ssl_name filebox.zhyi.xin;
-        '';
-      };
-    };
-
-    sslCertificate = "zerossl-zhyi.xin";
-    noIndex.enable = true;
-  };
-
   lantian.nginxVhosts."index.zhyi.xin" = {
     locations = {
       "/" = {

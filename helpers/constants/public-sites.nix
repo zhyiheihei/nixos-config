@@ -35,7 +35,6 @@ _: [
   "cal.zhyi.xin"
   "couchdb.zhyi.xin"
   "dashboard.zhyi.xin"
-  "filebox.zhyi.xin"
   "git.zhyi.xin"
   "ha.zhyi.xin"
   "hydra.zhyi.xin"

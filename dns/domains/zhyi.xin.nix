@@ -104,12 +104,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "filebox";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
-    {
-      recordType = "CNAME";
       name = "flapalerted";
       target = "greencloud.zhyi.xin.";
       ttl = "1h";

@@ -30,10 +30,6 @@ let
       backend = "dav.zhyi.xin";
       address = opiAddress;
     };
-    "filebox.zhyi.xin" = {
-      backend = "filebox.zhyi.xin";
-      address = dragonAddress;
-    };
     "immich.zhyi.xin" = {
       backend = "immich.zhyi.xin";
       address = opiAddress;

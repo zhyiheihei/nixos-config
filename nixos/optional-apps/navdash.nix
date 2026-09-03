@@ -102,7 +102,6 @@ let
     "attic.zhyi.xin" = "Attic_A";
     "books.zhyi.xin" = "Calibre--电子书管理--qdnas-s";
     "fastapi-dls.rock5c.zhyi.xin" = "Python--Python--python.org";
-    "filebox.zhyi.xin" = "Filecodebox--文件快递柜--qdnas-s";
     "google-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "hub.tencent.zhyi.xin" = "Docker_A";
     "id.zhyi.xin" = "2Fauth_A";
@@ -178,7 +177,6 @@ let
       "tools.zhyi.xin" = "效率工具";
       "index.zhyi.xin" = "效率工具";
       "index-helper.zhyi.xin" = "效率工具";
-      "filebox.zhyi.xin" = "效率工具";
       "api.zhyi.xin" = "效率工具";
       "asf.zhyi.xin" = "效率工具";
       "dsh.zhyi.xin" = "效率工具";
