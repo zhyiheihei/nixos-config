@@ -83,7 +83,9 @@
   };
 
   # 与作者 lt-hp-omen 逐字对齐的 HiDPI（grub/console 字体缩放）。
-  lantian.hidpi = 1.5;
+  # 2026-09-03：1.5 → 1.6，与 KWin Wayland 输出缩放（kscreen 里的 1.6）一致，
+  # 让 X11 应用（Xft.dpi = hidpi × 96）与 Wayland 原生应用视觉大小统一。
+  lantian.hidpi = 1.6;
 
   # 与上游 lt-hp-omen 逐字对齐：ROC 网络音频发送目标（pipewire-roc-sink 的
   # 接收端 IP）。不设则 roc-sink 导入为空操作；如接收端不同请按实际改。
