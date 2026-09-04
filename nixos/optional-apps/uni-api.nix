@@ -44,13 +44,12 @@ let
         };
         role = "admin";
       }
-      # n8n 专用 key：额度瀑布的订阅渠道留给其他消费者，
-      # n8n 全量流量锁死在高额度、慢速的 taotoken 渠道。
+      # n8n 专用 key：锁定 glm_for_coding（zhipu-coding 渠道）。
       {
         api = {
           _secret = config.sops.secrets."uni-api-n8n-api-key".path;
         };
-        model = [ "taotoken/*" ];
+        model = [ "glm_for_coding" ];
         role = "admin";
       }
     ];
