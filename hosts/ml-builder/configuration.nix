@@ -15,16 +15,11 @@ let
   # Store paths are 0444, so keep the matching public identity under /root/.ssh
   # with 0600 permissions for agent-backed second-hop deployments.
   macBookIdentity = "/root/.ssh/mac-book-ssh-identity.pub";
-  outboundProxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,.zhyi.xin";
-  proxyEnvironment = {
+  # 集群统一出站代理（LT.proxyEnvironment），叠加 builder 特有的
+  # Go 模块代理。Flake lock 的拉取在发起客户端侧，FOD fetch 走
+  # multi-user Nix daemon，两侧共用同一代理；内网服务由 bypass 直连。
+  proxyEnvironment = LT.proxyEnvironment // {
     GOPROXY = "https://goproxy.cn,direct";
-    HTTP_PROXY = outboundProxy;
-    HTTPS_PROXY = outboundProxy;
-    NO_PROXY = proxyBypass;
-    http_proxy = outboundProxy;
-    https_proxy = outboundProxy;
-    no_proxy = proxyBypass;
   };
 in
 {

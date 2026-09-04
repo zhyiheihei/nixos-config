@@ -47,6 +47,13 @@
     # ../../nixos/optional-apps/leigod-accelerator.nix
   ];
 
+  # Hydra evaluator（及其 fork 出的 nix fetch 子进程）直连 GitHub 拉 flake
+  # inputs 极慢（2026-09-04 实测求值长期卡在 fetch 阶段），给 evaluator
+  # unit 注入集群统一出站代理；不动公共模块 nixos/optional-apps/hydra。
+  # bypass 已含两个内网段：opi5p ncps substituter（192.168.0.66:13851，
+  # netrc 认证）与 LTNET 服务均直连。
+  systemd.services.hydra-evaluator.environment = LT.proxyEnvironment;
+
   # 对齐 ml-builder 的 aarch64-cross 通告：四个 ARM 硬件内核包带
   # requiredSystemFeatures = [ "aarch64-cross" ]，本地 daemon 必须声明该
   # feature 才能在本机跑这些构建（binfmt 已由 client tag 启用）。

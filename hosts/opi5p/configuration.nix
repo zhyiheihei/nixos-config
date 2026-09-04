@@ -77,14 +77,10 @@ in
   # 超时重连 → sshd/nix-daemon 连环孵化 → OOM 死循环（2TB NVMe 时代与本次
   # SD 重装均复现；dragon/ml-builder 的 daemon 无代理故永不触发）。
   # 代理只作用于交互 shell 与显式声明代理的服务。
-  environment.variables = {
+  environment.variables = LT.proxyEnvironment // {
     GOPROXY = "https://goproxy.cn,direct";
-    HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
-    http_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    https_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+    NO_PROXY = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
+    no_proxy = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
   };
 
   # The private Attic endpoint occasionally needs slightly more than Nix's

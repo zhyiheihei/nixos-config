@@ -10,9 +10,6 @@
   pkgs,
   ...
 }:
-let
-  routerSocks5 = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-in
 {
   options.lantian.redroid = {
     enable = lib.mkOption {
@@ -88,10 +85,9 @@ in
         systemd.services.podman-redroid = {
           wants = [ "network-online.target" ];
           after = [ "network-online.target" ];
-          environment = {
-            HTTP_PROXY = routerSocks5;
-            HTTPS_PROXY = routerSocks5;
-            NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,docker.m.daocloud.io,.zhyi.xin";
+          # 镜像加速域名直连，其余按集群统一出站代理。
+          environment = LT.proxyEnvironment // {
+            NO_PROXY = "${LT.proxyBypass},docker.m.daocloud.io";
           };
           preStart = ''
             for attempt in $(${pkgs.coreutils}/bin/seq 1 60); do

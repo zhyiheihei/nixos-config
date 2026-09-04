@@ -3,7 +3,6 @@
 # 导致 ncps 和 node exporter 间歇性超时。dragon-q8b（SC8280XP/8G）当前
 # 负载 0.02，有充足余量承接这两个 Java/Podman 服务。
 {
-  config,
   lib,
   LT,
   ...
@@ -14,14 +13,6 @@ let
     "peerbanhelper"
     "podman-tachidesk"
   ];
-  proxyEnvironment = {
-    HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin";
-    http_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    https_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin";
-  };
 in
 {
   imports = [
@@ -37,15 +28,18 @@ in
       partOf = [ "media-automation.target" ];
       unitConfig.ConditionPathExists = activationMarker;
     }))
-    (lib.genAttrs [
-      "bitmagnet-dht"
-      "bitmagnet-http"
-      "bitmagnet-queue"
-    ] (_: {
-      partOf = [ "media-automation.target" ];
-      unitConfig.ConditionPathExists = activationMarker;
-      environment = proxyEnvironment;
-    }))
+    (lib.genAttrs
+      [
+        "bitmagnet-dht"
+        "bitmagnet-http"
+        "bitmagnet-queue"
+      ]
+      (_: {
+        partOf = [ "media-automation.target" ];
+        unitConfig.ConditionPathExists = activationMarker;
+        environment = LT.proxyEnvironment;
+      })
+    )
   ];
 
   systemd.targets.media-automation = {

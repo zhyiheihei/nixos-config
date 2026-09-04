@@ -123,7 +123,10 @@
   # backup-nix-persistent 对 /nix 的 btrfs 快照报 "Text file busy"，
   # 快照会跳过嵌套子卷，故 /nix/swap 不再阻碍每日备份。
   swapDevices = [
-    { device = "/nix/swap/swapfile"; size = 4096; }
+    {
+      device = "/nix/swap/swapfile";
+      size = 4096;
+    }
   ];
 
   # Resilio Sync 引擎从 opi5p 迁入（2026-08-28）。identity/索引状态
@@ -138,12 +141,8 @@
   # NCPS 上游（cache.nixos.org / attic 等）需走 router SOCKS5 出口；
   # ncps.nix 模块只定义监听地址与缓存参数，代理环境在这里补齐
   # （与 opi5p configuration.nix 的同名块一致）。
-  systemd.services.ncps.environment = {
-    HTTP_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    HTTPS_PROXY = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
-    http_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    https_proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-    no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+  systemd.services.ncps.environment = LT.proxyEnvironment // {
+    NO_PROXY = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
+    no_proxy = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
   };
 }

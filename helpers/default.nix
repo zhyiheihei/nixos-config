@@ -43,6 +43,15 @@ let
       nix
       ;
     geo = call ./geo.nix;
+    # 不走 call：callPackageWith 会构造 pkgs // helpers 参数集，而 pkgs 在
+    # NixOS 上下文绑定每主机 _module.args.pkgs，被主机配置引用 proxy 时
+    # 形成无限递归。普通 import + 显式传参只强制用到的 attr。
+    proxy = import ./proxy.nix { inherit hosts portStr; };
+    inherit (proxy)
+      outboundProxy
+      proxyBypass
+      proxyEnvironment
+      ;
 
     sources = call _sources/generated.nix;
 

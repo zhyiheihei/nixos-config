@@ -2,19 +2,13 @@
   lib,
   LT,
   pkgs,
-  config,
   ...
 }:
 let
-  proxy = "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
-  proxyEnvironment = {
-    HTTP_PROXY = proxy;
-    HTTPS_PROXY = proxy;
-    NO_PROXY = proxyBypass;
-    http_proxy = proxy;
-    https_proxy = proxy;
-    no_proxy = proxyBypass;
+  # 集群统一出站代理 + 本机特有豁免（m-team PT 域名直连）。
+  proxyEnvironment = LT.proxyEnvironment // {
+    NO_PROXY = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
+    no_proxy = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
   };
   # MoviePilot container: PySocks resolves hostnames locally with socks5;
   # socks5h keeps GitHub/plugin traffic on the router proxy with remote DNS.
@@ -63,25 +57,16 @@ in
   systemd.services.jellyfin = {
     after = [ "mnt-storage.mount" ];
     requires = [ "mnt-storage.mount" ];
-    environment = {
-      HTTP_PROXY = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-      HTTPS_PROXY = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-      NO_PROXY = lib.mkForce proxyBypass;
-      http_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-      https_proxy = lib.mkForce "socks5://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-      no_proxy = lib.mkForce proxyBypass;
-    };
+    environment = lib.mkForce proxyEnvironment;
   };
 
   # MoviePilot container: PySocks resolves hostnames locally with socks5;
   # socks5h keeps GitHub/plugin traffic on the router proxy with remote DNS.
-  systemd.services.podman-moviepilot.environment = {
+  systemd.services.podman-moviepilot.environment = proxyEnvironment // {
     HTTP_PROXY = moviepilotProxy;
     HTTPS_PROXY = moviepilotProxy;
-    NO_PROXY = proxyBypass;
     http_proxy = moviepilotProxy;
     https_proxy = moviepilotProxy;
-    no_proxy = proxyBypass;
   };
 
   virtualisation.oci-containers.containers.moviepilot.extraOptions = [
@@ -92,7 +77,9 @@ in
   # downloads go through the same stable router egress. Moved here from
   # media-apps.nix / immich-ml.nix per module-placement-norms §3.
   systemd.services.podman-handbrake.environment = proxyEnvironment;
-  systemd.services.podman-immich-machine-learning-rknn.environment = lib.genAttrs (lib.attrNames proxyEnvironment) (k: lib.mkForce proxyEnvironment.${k});
+  systemd.services.podman-immich-machine-learning-rknn.environment =
+    lib.genAttrs (lib.attrNames proxyEnvironment)
+      (k: lib.mkForce proxyEnvironment.${k});
 
   # Match the onboard GMAC by its permanent address so future driver or probe
   # ordering changes cannot silently move the static LAN configuration.
@@ -117,7 +104,6 @@ in
   # service. This host's NFS media mount must still wait for its physical LAN
   # carrier, so enable systemd's scoped per-interface instance only.
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@lan0.service" ];
-
 
   # ROCK 5C has no reliable RTC. A calendar timer is armed while the clock is
   # still months behind, then fires immediately when time synchronization
