@@ -48,8 +48,8 @@ in
     # VaultS3（s3.zhyi.xin，与 Gitea 同一实例；2026-09 初曾指向家中
     # vaults3.zhyi.xin:8443，跨境大对象上传会被中间链路切断，CI
     # push-cache 连锁失败，遂切回本机并新建数据库、弃用旧缓存）。
-    # atticd 的 S3 凭据改用本机实例统一凭据（见下方
-    # atticd-s3-credentials template），JWT 签名密钥仍来自
+    # atticd 用本机实例的专用 IAM key（vaults3-atticd，官方 API 创建，
+    # 见下方 sops.secrets.vaults3-atticd），JWT 签名密钥仍来自
     # common/attic.yaml，现有上传 token 不受影响。
     ../../nixos/optional-apps/attic.nix
   ];
@@ -135,24 +135,22 @@ in
     group = "vaults3";
   };
 
-  # atticd 的 S3 连接凭据：改用本机 VaultS3 的统一凭据（与 Gitea 同一套），
-  # 不再用 common/attic.yaml 里指向家中实例的 AWS key。JWT 签名密钥继续由
-  # 公共模块的 attic-credentials 提供，既有 attic token（CI 上传、fleet
-  # 只读）不受影响。systemd 按顺序读多个 EnvironmentFile，同名变量后者
-  # 覆盖前者：模板放在 attic-credentials 之后，AWS_* 以本模板为准。
-  sops.templates.atticd-s3-credentials = {
-    content = ''
-      AWS_ACCESS_KEY_ID=zhyi
-      AWS_SECRET_ACCESS_KEY=${config.sops.placeholder.default-pw}
-    '';
-    mode = "0400";
+  # atticd 的 S3 连接凭据：本机 VaultS3 上 atticd 专用的 IAM key
+  # （common/attic.yaml 的 vaults3-atticd；服务端用户/策略经 VaultS3
+  # 官方 API 创建，key-policy-atticd 限定 nix-cache 桶 s3:*，桶上另设
+  # 匿名 s3:GetObject 桶策略供 S3 直链下载）。JWT 签名密钥继续由公共
+  # 模块的 attic-credentials 提供，既有 attic token（CI 上传、fleet
+  # 只读）不受影响。systemd 按顺序读多个 EnvironmentFile，同名变量
+  # 后者覆盖前者：AWS_* 以 vaults3-atticd 为准。
+  sops.secrets.vaults3-atticd = {
+    sopsFile = inputs.secrets + "/common/attic.yaml";
     owner = "atticd";
     group = "atticd";
   };
 
   systemd.services.atticd.serviceConfig.EnvironmentFile = lib.mkForce [
     config.sops.secrets.attic-credentials.path
-    config.sops.templates.atticd-s3-credentials.path
+    config.sops.secrets.vaults3-atticd.path
   ];
 
   systemd.tmpfiles.settings.vaults3 = {
@@ -198,7 +196,8 @@ in
   };
 
   # atticd 的 nix-cache 桶不会由 VaultS3 自动创建；用幂等 oneshot 保证
-  # 存在，atticd 排在其后再启动。
+  # 存在，atticd 排在其后再启动。建桶走官方 S3 API（awscli SigV4，
+  # root 凭据；建桶是管理操作，不用 atticd 的专用 key）。
   systemd.services.vaults3-init-nix-cache = {
     description = "Ensure nix-cache bucket exists for atticd";
     wantedBy = [ "multi-user.target" ];
@@ -212,8 +211,11 @@ in
       Group = "vaults3";
       EnvironmentFile = config.sops.templates.vaults3-credentials.path;
       ExecStart = pkgs.writeShellScript "vaults3-init-nix-cache" ''
-        if ! ${vaults3Pkg}/bin/vaults3-cli bucket info nix-cache >/dev/null 2>&1; then
-          ${vaults3Pkg}/bin/vaults3-cli bucket create nix-cache
+        export PATH=${pkgs.awscli2}/bin:$PATH
+        if ! aws --endpoint-url http://127.0.0.1:9000 --region us-east-1 \
+          s3api head-bucket --bucket nix-cache >/dev/null 2>&1; then
+          aws --endpoint-url http://127.0.0.1:9000 --region us-east-1 \
+            s3api create-bucket --bucket nix-cache
         fi
       '';
     };
