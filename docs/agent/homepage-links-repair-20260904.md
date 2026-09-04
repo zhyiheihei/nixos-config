@@ -84,18 +84,18 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 | B1 | DNS | filebox.zhyi.xin | NXDOMAIN | ✅ | 仓库早已退役 filecodebox（2cb1f5a2），首页是旧部署的陈旧快照 | 随轮 3 部署 ml-laptop 首页重生成，条目消失 | 首页已不含 |
 | B2 | DNS | index.zhyi.xin | NXDOMAIN | ✅ | 同 B1（sun-panel 已从 dragon-q8b 移除 ff733028，模块成孤儿） | 同 B1 | 首页已不含 |
 | B3 | DNS | index-helper.zhyi.xin | NXDOMAIN | ✅ | 同 B2 | 同 B2 | 首页已不含 |
-| B4 | DNS | searx.zhyi.xin | NXDOMAIN | ⬜ | | | |
+| B4 | DNS | searx.zhyi.xin | NXDOMAIN | ✅ | 服务在 tencent（vhost 健康本机 200），LTNET 视图登记名 searx.tencent 与 vhost 名错位 | CNAME 改名 searx（轮 8，5be05741），CI 发布待 TTL | 待生效复测 |
 | C1 | 证书 | matrix-federation.zhyi.xin | 证书 CN=snakeoil.local | ✅ | 配置正确：listenHTTPS.port=8448（Matrix federation 惯例端口），443 的 snakeoil 是设计使然 | 无需修复 | 轮 7：8448 返 404（federation 端点根路径正常行为） |
 | C2 | 证书 | vaults3.zhyi.xin | 证书 CN=snakeoil.local | ✅ | 配置正确： opi5p 上的 8443 兼容端点（router DNAT），443 落在 rock5c 无此 vhost | 无需修复 | 轮 7：8443 返 403（S3 未签名请求正常拒绝） |
 | C3 | 证书 | linkr.opi5p.zhyi.xin | 证书 CN=zhyi.xin，域名不匹配 | ✅ | 配置 bug：两级子域配了根域通配证书 zerossl-zhyi.xin | 改用机器通配 zerossl-opi5p.zhyi.xin（轮 7 一行修复，1024207bb） | 轮 7：证书验证通过，200 |
-| D1 | H2reset | lab.google.zhyi.xin | TLS 有效（ZeroSSL），HTTP/2 PROTOCOL_ERROR | ⬜ | | | |
-| D2 | H2reset | lab.greencloud-jp.zhyi.xin | 同上 | ⬜ | | | |
-| D3 | H2reset | lab.greencloud.zhyi.xin | 同上 | ⬜ | | | |
-| D4 | H2reset | lab.hostdare.zhyi.xin | 同上 | ⬜ | | | |
-| D5 | H2reset | lab.tencent.zhyi.xin | 同上 | ⬜ | | | |
-| D6 | H2reset | lab.volcengine.zhyi.xin | 同上 | ⬜ | | | |
-| D7 | H2reset | uni-api.greencloud.zhyi.xin | 同上（证书 CN=greencloud.zhyi.xin） | ⬜ | | | |
-| D8 | H2reset | uni-api.hostdare.zhyi.xin | 同上（证书 CN=hostdare.zhyi.xin） | ⬜ | | | |
+| D1 | H2reset | lab.google.zhyi.xin | TLS 有效（ZeroSSL），HTTP/2 PROTOCOL_ERROR | ✅ | 配置正确：private ACL 对公网源的 444 兑底（accessBlockAction）；mesh 源实测 404 正常放行 | 无需修复（mesh 内访问即正常） | 轮 8：mesh 源 404 |
+| D2 | H2reset | lab.greencloud-jp.zhyi.xin | 同上 | ✅ | 同 D1（private ACL 拒公网源） | 无需修复 | 同 D1 |
+| D3 | H2reset | lab.greencloud.zhyi.xin | 同上 | ✅ | 同 D1 | 无需修复 | 同 D1 |
+| D4 | H2reset | lab.hostdare.zhyi.xin | 同上 | ✅ | 同 D1 | 无需修复 | 同 D1 |
+| D5 | H2reset | lab.tencent.zhyi.xin | 同上 | ✅ | 同 D1 | 无需修复 | 同 D1 |
+| D6 | H2reset | lab.volcengine.zhyi.xin | 同上 | ✅ | 同 D1 | 无需修复 | 同 D1 |
+| D7 | H2reset | uni-api.greencloud.zhyi.xin | 同上（证书 CN=greencloud.zhyi.xin） | ✅ | 同 D1；mesh 源实测 403（应用鉴权，vhost 活着） | 无需修复 | 轮 8：mesh 源 403 |
+| D8 | H2reset | uni-api.hostdare.zhyi.xin | 同上（证书 CN=hostdare.zhyi.xin） | ✅ | 同 D7 | 无需修复 | 同 D7 |
 | E1 | 502 | hydra.zhyi.xin | 502 稳定 | ✅ | hydra 随 ml-builder 退役停用（import 被注释，13300 不监听），边缘 vhost 仍指 ml-builder | 迁至 ml-laptop 全新起（轮 3 确认） | 轮 3：边缘 200，UI 正常，管理员已建 |
 | E2 | 502 | bazarr.rock5c.zhyi.xin | 502 稳定 | ✅ | 服务已被 MoviePilot 替代并有意停用（media-apps.nix enable=mkForce false），vhost 遗留 | 撤除 import 清死链（轮 3 确认） | 轮 3：vhost 已消失，首页不再列出 |
 | E3 | 502 | prowlarr.rock5c.zhyi.xin | 502 稳定 | ✅ | 同 E2 | 同 E2 | 同 E2 |
@@ -104,18 +104,18 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 | F1 | 翻转 | jellyfin-backend.opi5p.zhyi.xin | 首轮 301+有效证书 → 后持续 snakeoil | ✅ | HTTP-only 内部回源 vhost（ml-home-vm 时代设计）在 rock5c，DNS 按名字解析到 opi5p → 默认服务器兑底 | 撤除死源 vhost（上游无跨机 -backend 惯例，全仓无消费者），轮 5 | 首页已不含，求值断言通过 |
 | F2 | 翻转 | handbrake-backend.opi5p.zhyi.xin | 同上 | ✅ | 同 F1（handbrake-rockchip 同模式） | 同 F1，轮 5 | 首页已不含 |
 | F3 | 翻转 | jellyfin-api.rock5c.zhyi.xin | 502 ↔ snakeoil 抖动 | ✅ | HTTP-only（设计如此）；https 直连必 snakeoil；HTTP 80 的 502 = 上游 macmini 关机 | jellyfin 定格 rock5c，回源改本机 unix socket，轮 5 | 轮 5：HTTP 80 返 302，重写路径 401（已达 Jellyfin） |
-| G1 | 循环 | lab.zhyi.xin | 307 自重定向无限循环 | ⬜ | | | |
-| H1 | 403 | ai-api.zhyi.xin | 403 稳定（待判读是否预期） | ⬜ | | | |
-| H2 | 403 | api.zhyi.xin | 403 稳定（同上） | ⬜ | | | |
-| H3 | 403 | gemini.zhyi.xin | 403 稳定（同上） | ⬜ | | | |
-| H4 | 403 | lemmy.zhyi.xin | 403 稳定（同上） | ⬜ | | | |
-| H5 | 403 | s3.zhyi.xin | 403 稳定（同上） | ⬜ | | | |
-| I1 | 404 | lab.dragon-q8b.zhyi.xin | 404（vhost 存活） | ⬜ | | | |
-| I2 | 404 | lab.ml-builder.zhyi.xin | 404 | ⬜ | | | |
-| I3 | 404 | lab.ml-laptop.zhyi.xin | 404 | ⬜ | | | |
-| I4 | 404 | lab.opi5p.zhyi.xin | 404 | ⬜ | | | |
-| I5 | 404 | lab.rock5c.zhyi.xin | 404 | ⬜ | | | |
-| J1 | 注意 | letsencrypt-test-ssl.zhyi.xin | LE STAGING 测试证书，验证不过（预期内，确认后可关闭） | ⬜ | | | |
+| G1 | 循环 | lab.zhyi.xin | 307 自重定向无限循环 | ✅ | 域名合并 artifact：上游 lab.xuyh0120.win→lab.lantian.pub 跨域重定向，单域化后退化为自跳（vhosts.nix 硬写） | 删自跳块；舰队无 lab 站，条目随首页退役（nginx-lab 模块保留待用） | 轮 8：307 消失，首页 96→95 |
+| H1 | 403 | ai-api.zhyi.xin | 403 稳定（待判读是否预期） | ✅ | 应用层鉴权拒绝（非 nginx ACL），配置正确 | 无需修复 | 轮 8 判读结案 |
+| H2 | 403 | api.zhyi.xin | 403 稳定（同上） | ✅ | 同 H1 | 无需修复 | 同 H1 |
+| H3 | 403 | gemini.zhyi.xin | 403 稳定（同上） | ✅ | 同 H1 | 无需修复 | 同 H1 |
+| H4 | 403 | lemmy.zhyi.xin | 403 稳定（同上） | ✅ | 同 H1 | 无需修复 | 同 H1 |
+| H5 | 403 | s3.zhyi.xin | 403 稳定（同上） | ✅ | s3 返 S3 标准 AccessDenied XML（缺 Authorization 头），应用层行为 | 无需修复 | 轮 8 判读结案 |
+| I1 | 404 | lab.dragon-q8b.zhyi.xin | 404（vhost 存活） | ✅ | /var/www/lab.<host> 空目录，autoindex 404，vhost 本身正常 | 无需修复（放文件即有列表） | 轮 8 判读结案 |
+| I2 | 404 | lab.ml-builder.zhyi.xin | 404 | ✅ | 同 I1 | 无需修复 | 同 I1 |
+| I3 | 404 | lab.ml-laptop.zhyi.xin | 404 | ✅ | 同 I1 | 无需修复 | 同 I1 |
+| I4 | 404 | lab.opi5p.zhyi.xin | 404 | ✅ | 同 I1 | 无需修复 | 同 I1 |
+| I5 | 404 | lab.rock5c.zhyi.xin | 404 | ✅ | 同 I1 | 无需修复 | 同 I1 |
+| J1 | 注意 | letsencrypt-test-ssl.zhyi.xin | LE STAGING 测试证书，验证不过（预期内） | ✅ | 该 vhost 本就是证书链路测试用途，STAGING 证书属预期 | 无需修复 | 轮 8 确认结案 |
 
 > 组提示：A=超时、B=DNS、C=证书、D=H2reset、E=502、F=状态翻转、G=重定向循环、
 > H=403 待判读、I=404 待判读、J=预期内注意项。
@@ -123,6 +123,32 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 > rock5c 502 组对应上游容器（\*arr 栈）；F 组两台后端 vhost 首轮正常说明配置曾生效，翻转发生在此轮检查期间。
 
 ## 进展日志（最新在上）
+
+### 轮 8 · 2026-09-04 · D/G/I/H/B4/J 全部结案（完成 ✅）
+
+- **D 组 ×8**：配置正确。lab.*/uni-api.* vhost 均为 `accessibleBy = "private"`，
+  公网源访问被 ACL 兑底（accessBlockAction=/444.internal → HTTP/2 PROTOCOL_ERROR
+  即 exit 92 签名）；mesh 源实测 lab.google 404、uni-api.greencloud 403（应用
+  鉴权，vhost 活着）。无需修复，从 mesh/保留源访问即正常
+- **G1 lab.zhyi.xin 307 自循环**：真配置 bug。上游 vhosts-lantian.nix 中
+  lab.xuyh0120.win 307 跳 lab.lantian.pub（跨域到正牌 lab 站）；域名统一并入
+  zhyi.xin 时机械替换使两目标同名，重定向退化为自跳，并与 nginx-lab 模块的
+  完整 vhost 同名合并（return 短路 try_files）。修复：删 vhosts.nix 自跳块
+  （bddc6d5a）；我舰队无主机部署 nginx-lab（exam 里是 terrahost），lab 站
+  不存在，条目随首页退役（96→95），nginx-lab 模块保留待用
+- **I 组 ×5**：配置正确。lab.<host> root 指向 /var/www/lab.<host>，空目录时
+  autoindex 404，vhost 本身正常；放文件即有列表。结案无改动
+- **H 组 ×5**：403 为应用层鉴权拒绝（s3 返 S3 标准 AccessDenied XML 等），
+  非 nginx ACL，配置正确。结案无改动
+- **B4 searx**：服务在 tencent 且健康（本机 200，accessibleBy=private），
+  但 LTNET DNS 视图登记名 searx.tencent 与 vhost 名 searx.zhyi.xin 错位 →
+  mesh 内 NXDOMAIN。修复：CNAME 改名 searx（5be05741，对齐 rsshub 一级名
+  先例），已推 CI 发布，TTL 1h 内生效待复测
+- **J1**：LE STAGING 测试证书属预期，确认结案
+
+**当前进度**：105 → 95 链接；已解决/结案 35 项，仅剩 A1-A4（等待开机，物理动作）。
+已知遗留批次：opi5p 边缘残留（jellyfin/tachidesk 指向旧目标）两份 vhost、
+prometheus scrape-configs.nix 的 exportarr 遗留目标（公共模块）。
 
 ### 轮 7 · 2026-09-04 · C 组（证书 ×3）诊断+修复（完成 ✅）
 
