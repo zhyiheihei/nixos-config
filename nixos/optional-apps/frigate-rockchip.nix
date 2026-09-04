@@ -219,6 +219,9 @@ in
             default_role = "admin";
           };
           database.path = "/config/frigate.db";
+          # 同名 go2rtc restream：frigate live 视图与 HA camera 实体
+          # （rtsp://<host>:8554/<name>）的直播流来源，缺了 HA 里只能看快照。
+          go2rtc.streams = lib.mapAttrs (_: cam: [ cam.rtspUrl ]) cfg.cameras;
           detectors.rknn = {
             type = "rknn";
             num_cores = cfg.numCores;
