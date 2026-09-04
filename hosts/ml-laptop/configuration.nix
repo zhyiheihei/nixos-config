@@ -38,8 +38,9 @@
     #   单一入口），属构建基础设施而非应用；删掉会回退直连公网缓存，显著变慢。
     # - leigod-accelerator：雷神加速器后台守护（官方无 Linux 桌面版，基于
     #   SteamDeck 插件二进制移植，模块内注释有全部适配细节）。
-    # - hydra：CI 自 ml-builder 迁入（2026-09-04，ml-builder 退役批次）；
-    #   x86 构建走本机 localhost，aarch64 交由 opi5p（nix-builder tag 通告）。
+    # - hydra：CI 自 ml-builder 迁入（2026-09-04）；构建分发远端
+    #   （x86/aarch64-cross → ml-builder，aarch64 原生 → opi5p），
+    #   本机仅保留 1 个本地槽，见下方 max-jobs 与 buildMachines 覆盖。
     ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/hydra
@@ -53,6 +54,40 @@
   # bypass 已含两个内网段：opi5p ncps substituter（192.168.0.66:13851，
   # netrc 认证）与 LTNET 服务均直连。
   systemd.services.hydra-evaluator.environment = LT.proxyEnvironment;
+
+  # 构建拓扑：本机保留 1 个本地构建槽吸收小构建与求值期 FOD，避免
+  # builder 网络抖动时全部外派空转；host.nix 不打 nix-builder 标签，
+  # 故不对外通告本机。/etc/nix/machines（由 nix.buildMachines 生成）
+  # 仅含远端：ml-builder 条目额外通告 aarch64-cross——ARM 厂商内核
+  # 交叉构建带 requiredSystemFeatures = [ "aarch64-cross" ] 硬性要求，
+  # 不通告则 max-jobs 外无机器可接、直接失败。hydra 经
+  # /etc/nix/machines 分发，与本机 daemon 用同一份机器清单。
+  nix.settings.max-jobs = 1;
+  nix.buildMachines = lib.mkForce (
+    let
+      mk = n: maxJobs: features: {
+        inherit (LT.hosts.${n}) system;
+        hostName = "${n}.zhyi.xin";
+        protocol = "ssh";
+        speedFactor = LT.hosts.${n}.cpuThreads;
+        sshKey = config.sops.secrets.hydra-builder-ssh-privkey.path;
+        sshUser = "nix-builder";
+        inherit maxJobs;
+        supportedFeatures = features;
+        mandatoryFeatures = [ ];
+      };
+    in
+    [
+      (mk "ml-builder" LT.hosts.ml-builder.cpuThreads [ "aarch64-cross" ])
+      (mk "ml-builder" 1 [
+        "big-parallel"
+        "aarch64-cross"
+      ])
+      (mk "opi5p" LT.hosts.opi5p.cpuThreads [ ])
+      (mk "opi5p" 1 [ "big-parallel" ])
+    ]
+  );
+  services.hydra.buildMachinesFiles = lib.mkForce [ "/etc/nix/machines" ];
 
   # 对齐 ml-builder 的 aarch64-cross 通告：四个 ARM 硬件内核包带
   # requiredSystemFeatures = [ "aarch64-cross" ]，本地 daemon 必须声明该
