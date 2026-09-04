@@ -20,7 +20,7 @@ in
 
   programs.pi-coding-agent = {
     enable = true;
-    package = inputs.llm-agents.packages."${pkgs.stdenv.hostPlatform.system}".pi.override {
+    package = pkgs.llm-agents.pi.override {
       useBun = false;
     };
     # # Not implemented correctly in home manager
@@ -38,14 +38,12 @@ in
         api = "openai-completions";
         baseUrl = "https://ai-api.zhyi.xin/v1";
       };
-      # taotoken 非 pi 内置渠道，直连其 OpenAI 兼容端点；
-      # 额度高、速度慢，作为 pi 的默认消费渠道。
       taotoken = {
         api = "openai-completions";
         baseUrl = "https://taotoken.net/api/v1";
         models = [
           {
-            id = "glm-5.3-flash";
+            id = "glm_for_coding";
             reasoning = true;
             contextWindow = 200000;
             maxTokens = 131072;
@@ -60,7 +58,7 @@ in
       collapseChangelog = true;
       enableInstallTelemetry = false;
       enableAnalytics = false;
-      defaultProvider = "uni-api";
+      defaultProvider = "zai-coding-cn";
       defaultModel = "glm-5.3-flash";
       defaultThinkingLevel = "high";
       showCacheMissNotices = true;
@@ -78,6 +76,7 @@ in
 
       packages = [
         # keep-sorted start
+        "git:github.com/xddxdd/pi-model-discovery@v0.3.1"
         "npm:@cortexkit/pi-magic-context"
         "npm:@moguw/pi-session-migrate"
         "npm:@monotykamary/pi-tps"
@@ -87,7 +86,6 @@ in
         "npm:pi-codex-goal"
         "npm:pi-fast-resume"
         "npm:pi-mcp-adapter"
-        "npm:pi-model-discovery"
         "npm:pi-ollama-cloud"
         "npm:pi-simplify"
         "npm:pi-subagents"
@@ -116,9 +114,9 @@ in
     enabled = true;
     auto_update = false;
     allow_home_project = true;
-    historian.pi.model = "taotoken/glm-5.3-flash";
-    dreamer.pi.model = "taotoken/glm-5.3-flash";
-    sidekick.model = "taotoken/glm-5.3-flash";
+    historian.pi.model = "uni-api/glm-5.3-flash";
+    dreamer.pi.model = "uni-api/glm-5.3-flash";
+    sidekick.model = "uni-api/glm-5.3-flash";
     embedding = {
       provider = "openai-compatible";
       model = "nomic-embed-code";

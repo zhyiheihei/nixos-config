@@ -24,30 +24,11 @@
     };
   };
 
-  lantian.nginxVhosts = {
-    "sonarr.${config.networking.hostName}.zhyi.xin" = {
-      locations = {
-        "/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.Sonarr}";
-        };
+  lantian.localVhosts.sonarr = {
+    locations = {
+      "/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.Sonarr}";
       };
-
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
-      noIndex.enable = true;
-      accessibleBy = "private";
-    };
-    "sonarr.localhost" = {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
-
-      locations = {
-        "/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.Sonarr}";
-        };
-      };
-
-      noIndex.enable = true;
-      accessibleBy = "localhost";
     };
   };
 

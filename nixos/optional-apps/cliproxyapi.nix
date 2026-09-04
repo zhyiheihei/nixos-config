@@ -2,8 +2,6 @@
   pkgs,
   lib,
   LT,
-  config,
-  inputs,
   ...
 }:
 {
@@ -13,9 +11,7 @@
     wantedBy = [ "multi-user.target" ];
 
     serviceConfig = LT.serviceHarden // {
-      ExecStart =
-        lib.getExe
-          inputs.llm-agents.packages."${pkgs.stdenv.hostPlatform.system}".cli-proxy-api;
+      ExecStart = lib.getExe pkgs.llm-agents.cli-proxy-api;
       Restart = "always";
       RestartSec = "3";
 
@@ -33,30 +29,11 @@
   };
   users.groups.cliproxyapi.members = [ "nginx" ];
 
-  lantian.nginxVhosts = {
-    "cliproxyapi.${config.networking.hostName}.zhyi.xin" = {
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.CLIProxyAPI}";
-        proxyNoTimeout = true;
-        proxyOverrideHost = "localhost";
-      };
-
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
-      noIndex.enable = true;
-      accessibleBy = "private";
-    };
-    "cliproxyapi.localhost" = {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.CLIProxyAPI}";
-        proxyNoTimeout = true;
-        proxyOverrideHost = "localhost";
-      };
-
-      noIndex.enable = true;
-      accessibleBy = "localhost";
+  lantian.localVhosts.cliproxyapi = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.CLIProxyAPI}";
+      proxyNoTimeout = true;
+      proxyOverrideHost = "localhost";
     };
   };
 }

@@ -2,7 +2,6 @@
   pkgs,
   lib,
   LT,
-  config,
   ...
 }:
 let
@@ -29,26 +28,9 @@ in
     };
   };
 
-  lantian.nginxVhosts = {
-    "volume.${config.networking.hostName}.zhyi.xin" = {
-      locations."/" = {
-        proxyPass = "http://unix:/run/pipewire-volume-control/listen.sock";
-      };
-
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
-      noIndex.enable = true;
-      accessibleBy = "private";
-    };
-    "volume.localhost" = {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
-
-      locations."/" = {
-        proxyPass = "http://unix:/run/pipewire-volume-control/listen.sock";
-      };
-
-      noIndex.enable = true;
-      accessibleBy = "localhost";
+  lantian.localVhosts.volume = {
+    locations."/" = {
+      proxyPass = "http://unix:/run/pipewire-volume-control/listen.sock";
     };
   };
 }

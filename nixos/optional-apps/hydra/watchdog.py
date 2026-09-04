@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 import logging
+import os
 import subprocess
 import time
 
 import requests
 
-HYDRA_QUEUE_URL = "https://hydra.zhyi.xin/queue"
-HYDRA_STATUS_URL = "https://hydra.zhyi.xin/status"
+BASE_URL = os.environ["BASE_URL"]
+HYDRA_QUEUE_URL = f"{BASE_URL}/queue"
+HYDRA_STATUS_URL = f"{BASE_URL}/status"
 CONSECUTIVE_THRESHOLD = 5
 CHECK_INTERVAL = 60
 
@@ -18,7 +20,11 @@ log = logging.getLogger(__name__)
 
 
 def fetch_json(url: str) -> dict:
-    resp = requests.get(url, headers={"Accept": "application/json"}, timeout=30)
+    resp = requests.get(
+        url,
+        headers={"Accept": "application/json", "User-Agent": "hydra-watchdog"},
+        timeout=30,
+    )
     resp.raise_for_status()
     return resp.json()
 

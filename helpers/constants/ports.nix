@@ -29,8 +29,10 @@ rec {
     IPerf = 5201;
     mDNS = 5353;
     Bazarr = 6767;
+    OCFS2 = 7777;
     Radarr = 7878;
     ArchiveTeam = 8001;
+    Proxmox = 8006;
     JProxy = 8117;
     Waline = 8360;
     OneKVM = 8420;
@@ -133,17 +135,17 @@ rec {
     WGMesh.WebSocket = 13841;
     Ncps = 13851;
     IyuuPlus = 13878;
-    # 上游同号（13880）。本仓 LlamaCpp.Qwen3Reranker 亦为 13880，但其模块
-    # 当前无主机导入；若未来 llama-swap 与 llama-cpp-qwen3 同机启用需改端口。
+    # 上游 LlamaCpp 模块已删除（nixos/optional-apps/llama-cpp-qwen3*.nix），
+    # 本仓同步删除，LlamaSwap 独占 13880（上游同号）。
     LlamaSwap = 13880;
-    LlamaCpp.Qwen3Reranker = 13880;
-    LlamaCpp.Qwen3 = 13881;
-    LlamaCpp.Qwen3_6 = 13881;
     Actual = 13882;
     Wallos = 13883;
     MoviePilot.Frontend = 13890;
     MoviePilot.Backend = 13891;
     ElasticSearch = 13892;
+    PiWeb = 13893;
+    # 上游 OidcTester=13817 与本仓 WorkerVless2sub 冲突，顺延取 13894。
+    OidcTester = 13894;
     DN42Peerfinder = 13900;
     ADSB.RawInput = 13901;
     ADSB.RawOutput = 13902;

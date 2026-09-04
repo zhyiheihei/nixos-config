@@ -1,4 +1,10 @@
-{ pkgs, lib, config, osConfig, ... }:
+{
+  pkgs,
+  lib,
+  config,
+  osConfig,
+  ...
+}:
 let
   kcminitFonts = "${pkgs.kdePackages.plasma-workspace}/bin/kcminit kcm_fonts_init";
 in
@@ -18,16 +24,18 @@ in
   # root 也导入 client-apps，但没有 Plasma 会话，且其 kwinrc 无 Xwayland.Scale：
   # 若 root 的钩子跑到，会按默认 1.0 把 zhyi 已写入的 Xft.dpi 144 覆盖回 96。
   # 因此 hook 与服务都仅对非 root 用户生效。
-  home.activation.zz-fix-xwayland-dpi = lib.mkIf (config.home.username != "root") (lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    # 激活脚本 PATH 里没有 systemctl，需用全路径；systemctl --user 在无会话时
-    # 会失败，需吞掉退出码避免 set -e 使整个激活报 127。
-    sessionDisplay=$("/run/current-system/sw/bin/systemctl" --user show-environment 2>/dev/null | sed -n 's/^DISPLAY=//p' || true)
-    if [ -n "$sessionDisplay" ]; then
-      # home-manager.service 的 unit 环境带 QT_QPA_PLATFORM=offscreen，会让
-      # krdb::xftDpi 走非 Wayland 分支写 96，必须强制 wayland 平台。
-      DISPLAY=$sessionDisplay QT_QPA_PLATFORM=wayland ${kcminitFonts} || true
-    fi
-  '');
+  home.activation.zz-fix-xwayland-dpi = lib.mkIf (config.home.username != "root") (
+    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      # 激活脚本 PATH 里没有 systemctl，需用全路径；systemctl --user 在无会话时
+      # 会失败，需吞掉退出码避免 set -e 使整个激活报 127。
+      sessionDisplay=$("/run/current-system/sw/bin/systemctl" --user show-environment 2>/dev/null | sed -n 's/^DISPLAY=//p' || true)
+      if [ -n "$sessionDisplay" ]; then
+        # home-manager.service 的 unit 环境带 QT_QPA_PLATFORM=offscreen，会让
+        # krdb::xftDpi 走非 Wayland 分支写 96，必须强制 wayland 平台。
+        DISPLAY=$sessionDisplay QT_QPA_PLATFORM=wayland ${kcminitFonts} || true
+      fi
+    ''
+  );
 
   systemd.user.services.fix-xwayland-dpi = lib.mkIf (config.home.username != "root") {
     Unit = {
@@ -84,7 +92,6 @@ in
 
     configFile.kwinrc = {
       Compositing = {
-        AllowDirectScanout.value = false;
         GLCore = true;
         LatencyPolicy = "ExtremelyLow";
         OpenGLIsUnsafe = false;
@@ -108,7 +115,13 @@ in
         BlurStrength = 4;
         Brightness = 25;
         NoiseStrength = 0;
+        WindowClasses = lib.trim ''
+          mpv
+          firefox
+        '';
       };
+      # Disable corner activated actions
+      Effect-overview.BorderActivate = 9;
       # Disable wallpaper scrolling on workspace switch
       Effect-slide.SlideBackground = false;
     };

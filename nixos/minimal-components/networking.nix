@@ -55,6 +55,7 @@ in
 
     # Increase nftables max connections
     "net.nf_conntrack_max" = 131072;
+    "net.netfilter.nf_conntrack_max" = 131072;
 
     "net.ipv4.conf.all.forwarding" = lib.mkForce 1;
     "net.ipv4.conf.default.forwarding" = lib.mkForce 1;

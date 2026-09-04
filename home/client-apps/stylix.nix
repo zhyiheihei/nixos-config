@@ -9,6 +9,7 @@ _: {
         colorTheme.enable = true;
         profileNames = [ "zhyi" ];
       };
+      kde.useWallpaper = false;
     };
   };
 

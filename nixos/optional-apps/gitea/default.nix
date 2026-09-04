@@ -106,7 +106,7 @@ in
       };
       mailer = {
         ENABLED = true;
-        FROM = "postmaster@zhyi.xin";
+        FROM = config.programs.msmtp.accounts.default.from;
         PROTOCOL = "sendmail";
         SENDMAIL_PATH = lib.getExe pkgs.msmtp;
         SENDMAIL_ARGS = "--";

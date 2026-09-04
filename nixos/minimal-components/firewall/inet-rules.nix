@@ -140,9 +140,6 @@ let
       # Redirect SideStore requests
       ip daddr 10.7.0.1 ip daddr set ip saddr ip saddr set 10.7.0.1 notrack
   ''
-  + (lib.optionalString (config.services ? proxmox-ve && config.services.proxmox-ve.enable) ''
-    fib daddr type local tcp dport 443 redirect to :8006
-  '')
   + (lib.optionalString (config.lantian ? nginx-proxy && config.lantian.nginx-proxy.enable) ''
     # nginx whois & gopher server
     fib daddr type local tcp dport ${LT.portStr.Whois} dnat ip to ${config.lantian.netns.nginx-proxy.ipv4}:${LT.portStr.Whois}
@@ -253,6 +250,15 @@ let
       ${lib.optionalString (LT.this.hasTag LT.tags.lan-access) ''
         ip saddr @RESERVED_IPV4 return
         ip6 saddr @RESERVED_IPV6 return
+      ''}
+
+      # OCFS2 cluster traffic shares the WAN interface, so filter by source
+      # address: only private addresses may reach the O2CB port.
+      ${lib.optionalString (config.lantian.ocfs2.enable or false) ''
+        ip saddr @RESERVED_IPV4 tcp dport ${LT.portStr.OCFS2} accept
+        ip6 saddr @RESERVED_IPV6 tcp dport ${LT.portStr.OCFS2} accept
+        tcp dport ${LT.portStr.OCFS2} reject with tcp reset
+        udp dport ${LT.portStr.OCFS2} reject with icmpx type port-unreachable
       ''}
 
       # Block ports

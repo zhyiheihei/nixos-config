@@ -1,7 +1,14 @@
 { inputs, ... }:
 final: prev: {
-  never-gonna = inputs.never-gonna-rust.packages."${prev.stdenv.hostPlatform.system}".default;
+  audio-cpp-cuda = inputs.audio-cpp.packages."${prev.stdenv.hostPlatform.system}".cuda;
+  kwin-effects-better-blur-dx =
+    inputs.kwin-effects-better-blur-dx.packages."${prev.stdenv.hostPlatform.system}".default;
+  markdown-apa7th-docx =
+    inputs.markdown-apa7th-docx.packages."${prev.stdenv.hostPlatform.system}".default;
   nixfmt-rs = inputs.nixfmt-rs.packages."${prev.stdenv.hostPlatform.system}".default;
+  never-gonna = inputs.never-gonna-rust.packages."${prev.stdenv.hostPlatform.system}".default;
+  picoforge = inputs.picoforge.packages."${prev.stdenv.hostPlatform.system}".picoforge;
+  wine-tkg = inputs.nix-gaming.packages."${prev.stdenv.hostPlatform.system}".wine-tkg;
   # 上游 flake 版 ncps（nixpkgs 0.9.4 不认 attic/cachix 的非 hash NAR URL，
   # kalbasit/ncps#1329）。上游 go.mod 要求 go >= 1.26.6，本仓 nixpkgs 锁在
   # 1.26.5，用 go_1_27 覆盖 go / nativeBuildInputs / goModules。

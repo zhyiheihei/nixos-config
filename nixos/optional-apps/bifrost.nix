@@ -75,30 +75,11 @@ in
   };
   users.groups.ai-gateways.members = [ "nginx" ];
 
-  lantian.nginxVhosts = {
-    "bifrost.${config.networking.hostName}.zhyi.xin" = {
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.Bifrost}";
-        proxyNoTimeout = true;
-        proxyOverrideHost = "localhost";
-      };
-
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
-      noIndex.enable = true;
-      accessibleBy = "private";
-    };
-    "bifrost.localhost" = {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
-
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.Bifrost}";
-        proxyNoTimeout = true;
-        proxyOverrideHost = "localhost";
-      };
-
-      noIndex.enable = true;
-      accessibleBy = "localhost";
+  lantian.localVhosts.bifrost = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.Bifrost}";
+      proxyNoTimeout = true;
+      proxyOverrideHost = "localhost";
     };
   };
 }

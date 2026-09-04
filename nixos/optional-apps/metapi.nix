@@ -51,7 +51,7 @@
   };
   users.groups.metapi = { };
 
-  lantian.nginxVhosts."metapi.${config.networking.hostName}.zhyi.xin" = {
+  lantian.localVhosts.metapi = {
     locations = {
       "/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.Metapi}";
@@ -59,9 +59,5 @@
         proxyWebsockets = true;
       };
     };
-
-    accessibleBy = "private";
-    sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
-    noIndex.enable = true;
   };
 }

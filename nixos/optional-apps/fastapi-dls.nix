@@ -41,15 +41,12 @@
     };
   };
 
-  lantian.nginxVhosts."fastapi-dls.${config.networking.hostName}.zhyi.xin" = {
+  lantian.localVhosts."fastapi-dls" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:/run/fastapi-dls/fastapi-dls.sock";
       };
     };
-    sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
-    accessibleBy = "private";
-    noIndex.enable = true;
   };
 
   users.users.fastapi-dls = {

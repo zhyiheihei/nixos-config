@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  config,
   LT,
   ...
 }:
@@ -29,30 +28,11 @@
     };
   };
 
-  lantian.nginxVhosts = {
-    "peerbanhelper.${config.networking.hostName}.zhyi.xin" = {
-      locations = {
-        "/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.PeerBanHelper}";
-        };
+  lantian.localVhosts.peerbanhelper = {
+    locations = {
+      "/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.PeerBanHelper}";
       };
-
-      accessibleBy = "private";
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
-      noIndex.enable = true;
-    };
-    "peerbanhelper.localhost" = {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
-
-      locations = {
-        "/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.PeerBanHelper}";
-        };
-      };
-
-      noIndex.enable = true;
-      accessibleBy = "localhost";
     };
   };
 

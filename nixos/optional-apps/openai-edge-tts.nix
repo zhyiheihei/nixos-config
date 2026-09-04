@@ -1,7 +1,6 @@
 {
   pkgs,
   LT,
-  config,
   ...
 }:
 let
@@ -43,16 +42,12 @@ in
   };
   users.groups.openai-edge-tts = { };
 
-  lantian.nginxVhosts."openai-edge-tts.${config.networking.hostName}.zhyi.xin" = {
+  lantian.localVhosts."openai-edge-tts" = {
     locations = {
       "/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.OpenAIEdgeTTS}";
         proxyNoTimeout = true;
       };
     };
-
-    accessibleBy = "private";
-    sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
-    noIndex.enable = true;
   };
 }

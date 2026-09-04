@@ -21,16 +21,13 @@
     '';
   };
 
-  lantian.nginxVhosts."es.${config.networking.hostName}.zhyi.xin" = {
+  lantian.localVhosts.es = {
     locations = {
       "/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.ElasticSearch}";
         enableBasicAuth = true;
       };
     };
-    accessibleBy = "private";
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
-    noIndex.enable = true;
   };
 
   lantian.nginxVhosts."es-ingest.${config.networking.hostName}.zhyi.xin" = {

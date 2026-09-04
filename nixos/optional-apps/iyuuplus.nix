@@ -45,12 +45,12 @@ in
     path = with pkgs; [ gitMinimal ];
 
     preStart = ''
-      if [ ! -d .git ]; then
-        git init
-        git remote add origin https://github.com/ledccn/iyuuplus-dev.git
+      if [ -e .git ]; then
+        git fetch --all
+        git reset --hard origin/master
+      else
+        git clone https://github.com/ledccn/iyuuplus-dev.git .
       fi
-      git fetch --all
-      git reset --hard origin/master
 
       sed -E -i "s#'listen'.*#'listen' => 'http://127.0.0.1:${LT.portStr.IyuuPlus}',#g" config/server.php
       install -Dm644 ${config.sops.secrets.iyuu-env.path} .env
@@ -97,40 +97,16 @@ in
   };
   users.groups.iyuu.members = [ "nginx" ];
 
-  lantian.nginxVhosts = {
-    "iyuu.${config.networking.hostName}.zhyi.xin" = {
-      locations = {
-        "/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.IyuuPlus}";
-          proxyWebsockets = true;
-        };
-        "/app/d9422b72cffad23098ad301eea0f8419" = {
-          proxyPass = "http://127.0.0.1:3131";
-          proxyWebsockets = true;
-        };
+  lantian.localVhosts.iyuu = {
+    locations = {
+      "/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.IyuuPlus}";
+        proxyWebsockets = true;
       };
-
-      accessibleBy = "private";
-      sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
-      noIndex.enable = true;
-    };
-    "iyuu.localhost" = {
-      listenHTTP.enable = true;
-      listenHTTPS.enable = false;
-
-      locations = {
-        "/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.IyuuPlus}";
-          proxyWebsockets = true;
-        };
-        "/app/d9422b72cffad23098ad301eea0f8419" = {
-          proxyPass = "http://127.0.0.1:3131";
-          proxyWebsockets = true;
-        };
+      "/app/d9422b72cffad23098ad301eea0f8419" = {
+        proxyPass = "http://127.0.0.1:3131";
+        proxyWebsockets = true;
       };
-
-      noIndex.enable = true;
-      accessibleBy = "localhost";
     };
   };
 }

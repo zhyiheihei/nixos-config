@@ -90,30 +90,12 @@
       };
     };
 
-    lantian.nginxVhosts = {
-      "syncthing.${config.networking.hostName}.zhyi.xin" = {
-        locations = {
-          "/" = {
-            enableOAuth = true;
-            proxyPass = "http://127.0.0.1:${LT.portStr.Syncthing}";
-          };
+    lantian.localVhosts.syncthing = {
+      locations = {
+        "/" = {
+          enableOAuth = true;
+          proxyPass = "http://127.0.0.1:${LT.portStr.Syncthing}";
         };
-
-        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
-        noIndex.enable = true;
-      };
-      "syncthing.localhost" = {
-        listenHTTP.enable = true;
-        listenHTTPS.enable = false;
-
-        locations = {
-          "/" = {
-            proxyPass = "http://127.0.0.1:${LT.portStr.Syncthing}";
-          };
-        };
-
-        noIndex.enable = true;
-        accessibleBy = "localhost";
       };
     };
   };

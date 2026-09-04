@@ -15,7 +15,8 @@
     ./vhost-options
     ./vhost-tools
     ./vhost-um
-    ./vhosts.nix
+    ./vhosts-default.nix
+    ./vhosts-zhyi.nix
     ./whois-server.nix
     # keep-sorted end
   ];
