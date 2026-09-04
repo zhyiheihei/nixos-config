@@ -30,9 +30,11 @@ _: [
   "ai-api.zhyi.xin"
   "ai.zhyi.xin"
   "alert.zhyi.xin"
+  "at.zhyi.xin"
   "attic.zhyi.xin"
   "bitwarden.zhyi.xin"
   "cal.zhyi.xin"
+  "cloud.zhyi.xin"
   "couchdb.zhyi.xin"
   "dashboard.zhyi.xin"
   "git.zhyi.xin"
@@ -51,6 +53,7 @@ _: [
   "pb.zhyi.xin"
   "prometheus.zhyi.xin"
   "qnap.zhyi.xin"
+  "radicle.zhyi.xin"
   "rk-jellyfin.zhyi.xin"
   "s3.zhyi.xin"
   "stats.zhyi.xin"
@@ -60,15 +63,15 @@ _: [
 
   # Intentionally public without authentication
   # keep-sorted start
-  "volcengine.zhyi.xin"
   "flapalerted.zhyi.xin"
-  "greencloud-jp.zhyi.xin"
-  "hostdare.zhyi.xin"
-  "greencloud.zhyi.xin"
   "google.zhyi.xin"
-  "tencent.zhyi.xin"
+  "greencloud-jp.zhyi.xin"
+  "greencloud.zhyi.xin"
+  "hostdare.zhyi.xin"
   "lg.zhyi.dn42"
   "lg.zhyi.xin"
   "sub.zhyi.xin"
+  "tencent.zhyi.xin"
+  "volcengine.zhyi.xin"
   # keep-sorted end
 ]

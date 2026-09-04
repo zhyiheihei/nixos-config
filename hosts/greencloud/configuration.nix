@@ -35,9 +35,11 @@
     ../../nixos/optional-apps/plausible.nix
     ../../nixos/optional-apps/quassel.nix
     ../../nixos/optional-apps/radicale.nix
+    ../../nixos/optional-apps/radicle.nix
     ../../nixos/optional-apps/rsshub.nix
     ../../nixos/optional-apps/rsync-server-ci.nix
     ../../nixos/optional-apps/sublinkpro-nix.nix
+    ../../nixos/optional-apps/tranquil-pds.nix
     # Syncthing 节点已撤销（2026-09）：同步节点职责移交给 greencloud-jp
     # （1T 数据盘 + 常驻公网更合适）。
     ../../nixos/optional-apps/tg-bot-cleaner-bot
@@ -65,8 +67,7 @@
       baseURL = "https://ai-api.zhyi.xin/v1";
       models = {
         default = lib.unique (
-          lib.concatMap (provider: builtins.map (v: v.value) provider._models)
-            config.lantian.llm-providers
+          lib.concatMap (provider: builtins.map (v: v.value) provider._models) config.lantian.llm-providers
         );
         fetch = false;
       };
@@ -129,9 +130,8 @@
   # Hydra moved from pve-5700u to ml-builder on 2026-08-12, then to
   # ml-laptop on 2026-09-04 (ml-builder retirement batch). The common vhost
   # module keeps the upstream pve-epyc target; override only the backend here.
-  lantian.nginxVhosts."hydra.zhyi.xin".locations."/".proxyPass = lib.mkForce (
-    "http://${LT.hosts.ml-laptop.ltnet.IPv4}:${LT.portStr.Hydra}"
-  );
+  lantian.nginxVhosts."hydra.zhyi.xin".locations."/".proxyPass =
+    lib.mkForce "http://${LT.hosts.ml-laptop.ltnet.IPv4}:${LT.portStr.Hydra}";
 
   # Home Assistant is a public app for the mobile companion; greencloud
   # terminates TLS and proxies straight to the HA instance on opi5p over LTNET.
@@ -157,10 +157,8 @@
 
   # Match the user's local Firefox identity so anti-bot sites do not reject the
   # Miniflux fetcher as a non-browser client. Keep RSSHub on the same UA.
-  services.miniflux.config.HTTP_CLIENT_USER_AGENT =
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
-  services.rsshub.settings.UA =
-    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
+  services.miniflux.config.HTTP_CLIENT_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
+  services.rsshub.settings.UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
 
   # Keep the author's account automation units available, but leave them
   # dormant until this deployment has its own account-specific configuration.

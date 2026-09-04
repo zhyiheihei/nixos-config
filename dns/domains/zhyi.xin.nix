@@ -40,6 +40,19 @@ let
     }
     {
       recordType = "CNAME";
+      # Tranquil PDS（greencloud）；DID 文档走两级通配子域 <did>.at.zhyi.xin。
+      name = "at";
+      target = "greencloud.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "*.at";
+      target = "greencloud.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "attic";
       # atticd 自 greencloud 迁 greencloud-jp（2026-09），存储改本地盘
       target = "greencloud-jp.zhyi.xin.";
@@ -73,6 +86,13 @@ let
       recordType = "CNAME";
       name = "cal";
       target = "greencloud.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      # Nextcloud（greencloud-jp，Oracle Autonomous DB 远端库）。
+      name = "cloud";
+      target = "greencloud-jp.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -263,6 +283,13 @@ let
       name = "qnap";
       target = homeDdnsTarget;
       ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
+      # Radicle 节点 + Explorer（greencloud）。
+      name = "radicle";
+      target = "greencloud.zhyi.xin.";
+      ttl = "1h";
     }
     {
       recordType = "CNAME";

@@ -33,6 +33,11 @@ in
     # Gitea（自 greencloud 迁入，2026-08-29；模块自带 mysql 依赖）。
     ../../nixos/optional-apps/gitea
 
+    # Nextcloud（2026-09-04 自上游对齐启用）：数据库走 Oracle Autonomous
+    # DB（模块内固定连接串），OIDC 登录走 volcengine 的 Dex（client 见
+    # dex.nix，secret 见 common/dex.yaml 的 dex-nextcloud-secret）。
+    ../../nixos/optional-apps/nextcloud.nix
+
     # Syncthing 同步节点（自 greencloud 撤销后迁入，2026-09）：本机常驻公网、
     # 1T 数据盘，作为机群的常在线异地同步节点，配合家庭 NAS（opi5p）实现
     # Obsidian 知识库多端同步。GUI 里的设备/共享文件夹仍需手动对接

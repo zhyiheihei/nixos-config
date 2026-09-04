@@ -127,6 +127,14 @@ let
         redirectURIs = [ "https://nav.zhyi.xin/auth/callback" ];
       }
       {
+        id = "nextcloud";
+        name = "nextcloud";
+        secret = {
+          _secret = config.sops.secrets.dex-nextcloud-secret.path;
+        };
+        redirectURIs = [ "https://cloud.zhyi.xin/apps/oidc_login/oidc" ];
+      }
+      {
         id = "oauth-proxy";
         name = "OAuth2 Proxy";
         secret = {
@@ -138,6 +146,14 @@ let
           "https://*.zhyi.xin/oauth2/callback"
           "https://*.*.zhyi.xin/oauth2/callback"
         ];
+      }
+      {
+        id = "tranquil-pds";
+        name = "Tranquil PDS";
+        secret = {
+          _secret = config.sops.secrets.dex-tranquil-pds-secret.path;
+        };
+        redirectURIs = [ "https://at.zhyi.xin/oauth/sso/callback" ];
       }
       {
         id = "vaultwarden";
@@ -207,7 +223,9 @@ in
         "memos"
         "moviepilot"
         "navdash"
+        "nextcloud"
         "oauth2-proxy"
+        "tranquil-pds"
         "wallos"
         # keep-sorted end
       ]
