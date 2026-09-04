@@ -39,10 +39,12 @@ in
     # （模块 overrideDevices/overrideFolders = false）。
     ../../nixos/optional-apps/syncthing
 
-    # Attic 二进制缓存（自 greencloud 迁入，2026-09）。存储用公共模块默认
-    # 的 S3（vaults3.zhyi.xin:8443）：老数据 chunk 一直在 vaults3，且迁移
-    # 期间实测本机到 home-ddns 8443 恢复可达（曾短暂被墙，local 盘方案
-    # 会导致老 nar 全部 404，故放弃）。S3 凭据走 attic-credentials secret。
+    # Attic 二进制缓存（自 greencloud 迁入，2026-09）。S3 后端用本机
+    # VaultS3（s3.zhyi.xin，与 Gitea 同一实例；2026-09 初曾指向家中
+    # vaults3.zhyi.xin:8443，跨境大对象上传会被中间链路切断，CI
+    # push-cache 连锁失败，遂切回本机并新建数据库、弃用旧缓存）。
+    # atticd 的 S3 凭据改用本机实例统一凭据（见下方 atticd-env template），
+    # JWT 签名密钥仍来自 common/attic.yaml，现有上传 token 不受影响。
     ../../nixos/optional-apps/attic.nix
   ];
 
@@ -127,6 +129,23 @@ in
     group = "vaults3";
   };
 
+  # atticd 的 S3 连接凭据：改用本机 VaultS3 的统一凭据（与 Gitea 同一套），
+  # 不再用 common/attic.yaml 里指向家中实例的 AWS key；JWT 签名密钥仍取自
+  # attic-credentials，既有 attic token（CI 上传、fleet 只读）继续有效。
+  # 公共模块默认的 environmentFile 在此做主机级覆盖。
+  sops.templates.atticd-env = {
+    content = ''
+      AWS_ACCESS_KEY_ID=zhyi
+      AWS_SECRET_ACCESS_KEY=${config.sops.placeholder.default-pw}
+      ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64=${config.sops.placeholder.ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64}
+    '';
+    mode = "0400";
+    owner = "atticd";
+    group = "atticd";
+  };
+
+  services.atticd.environmentFile = lib.mkForce config.sops.templates.atticd-env.path;
+
   systemd.tmpfiles.settings.vaults3 = {
     "/nix/persistent/var/lib/vaults3".d = {
       mode = "0700";
@@ -167,6 +186,33 @@ in
         "/nix/persistent/var/lib/vaults3"
       ];
     };
+  };
+
+  # atticd 的 nix-cache 桶不会由 VaultS3 自动创建；用幂等 oneshot 保证
+  # 存在，atticd 排在其后再启动。
+  systemd.services.vaults3-init-nix-cache = {
+    description = "Ensure nix-cache bucket exists for atticd";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "vaults3.service" ];
+    requires = [ "vaults3.service" ];
+    serviceConfig = LT.serviceHarden // {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      DynamicUser = lib.mkForce false;
+      User = "vaults3";
+      Group = "vaults3";
+      EnvironmentFile = config.sops.templates.vaults3-credentials.path;
+      ExecStart = pkgs.writeShellScript "vaults3-init-nix-cache" ''
+        if ! ${vaults3Pkg}/bin/vaults3-cli bucket info nix-cache >/dev/null 2>&1; then
+          ${vaults3Pkg}/bin/vaults3-cli bucket create nix-cache
+        fi
+      '';
+    };
+  };
+
+  systemd.services.atticd = {
+    after = [ "vaults3-init-nix-cache.service" ];
+    wants = [ "vaults3-init-nix-cache.service" ];
   };
 
   lantian.nginxVhosts."s3.zhyi.xin" = {

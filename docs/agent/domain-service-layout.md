@@ -24,8 +24,9 @@
 - **家庭入站** 443 被运营商封锁时，外部入口统一 8443，router 直通到 OPI5P
   Nginx 8443（端口不变，nginx 在 443 与 8443 同时监听，见
   `hosts/opi5p/edge-vhosts.nix`）。
-- Attic 是例外：`attic.zhyi.xin` → volcengine 本机；`vaults3.zhyi.xin` 指向家庭
-  DDNS 的 S3 存储后端。
+- Attic 是例外：`attic.zhyi.xin` → volcengine 本机；S3 存储后端为
+  greencloud-jp 本机 VaultS3（`s3.zhyi.xin`；2026-09-04 前为家庭 DDNS 的
+  `vaults3.zhyi.xin`，因跨境大对象上传被中间链路切断而切换）。
 
 ## 3. 内网服务域名规范（新增私有服务必读）
 

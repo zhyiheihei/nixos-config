@@ -10,13 +10,21 @@
 Hydra (ml-builder) / 手动构建 (ml-builder)
   -> attic push zhyi
   -> Attic (greencloud-jp)
-  -> PostgreSQL + VaultS3 (home-ddns) bucket nix-cache
+  -> PostgreSQL + VaultS3 (greencloud-jp 本机, s3.zhyi.xin) bucket nix-cache
   -> 持有只读 token 的受管 Nix 主机
 ```
 
 - Attic 服务、Nginx vhost 与 S3 参数定义在
   [`nixos/optional-apps/attic.nix`](../../nixos/optional-apps/attic.nix)，由
   `hosts/greencloud-jp/configuration.nix` 导入（2026-09 自 greencloud 迁入）。
+- S3 后端 2026-09-04 自家中 VaultS3（vaults3.zhyi.xin:8443，home-ddns）切到
+  greencloud-jp 本机实例（s3.zhyi.xin）：跨境大对象上传会被中间链路切断
+  （CI push-cache 对 zcode 这类 1GB 闭包必然失败），且同机链路零出口流量。
+  当日弃用旧缓存并新建数据库；`zhyi`、`lantian` 两个 cache 按旧 keypair
+  重建（公钥不变，客户端无需改配置）。
+- atticd 的 S3 凭据改由 `hosts/greencloud-jp/configuration.nix` 的
+  `sops.templates.atticd-env` 提供（本机 VaultS3 统一凭据，与 Gitea 相同）；
+  JWT 签名密钥仍来自 `common/attic.yaml`。
 - Attic 只监听回环地址，由同机 Nginx 发布；外部数据面使用
   `https://attic.zhyi.xin/zhyi`（标准 443 端口）。
 - 缓存名 2026-09-03 自 `lantian` 改为 `zhyi`：服务端复制 cache 行并保留同一
@@ -39,7 +47,8 @@ Hydra (ml-builder) / 手动构建 (ml-builder)
 | --- | --- | --- | --- |
 | Attic fleet read token | `common/nix.yaml` 的 `nix-netrc` | 所有受管主机 | 仅 `pull lantian`、`pull zhyi` |
 | Attic upload token | `common/attic.yaml` 的 `attic-upload-key` | 仅 `ml-builder` | `pull/push lantian`、`pull/push zhyi` |
-| Attic JWT/S3 凭据 | `common/attic.yaml` 的 `attic-credentials` | 仅 `greencloud-jp` 的 `atticd` | 服务端管理与存储 |
+| Attic JWT 签名密钥 | `common/attic.yaml` 的 `attic-credentials` | 仅 `greencloud-jp` 的 `atticd` | 服务端管理与 token 签发 |
+| Attic S3 连接凭据 | `hosts/greencloud-jp/configuration.nix` 的 `sops.templates.atticd-env`（本机 VaultS3 统一凭据） | 仅 `greencloud-jp` 的 `atticd` | 对 s3.zhyi.xin 的对象读写 |
 | Cache public key | `helpers/constants/nix.nix` | 公开配置 | 只用于验证 NAR 签名 |
 
 Bearer token 识别的是“持有凭据者”，不是机器硬件本身。这里的“只有我的主机”是通过
