@@ -43,6 +43,7 @@
     ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/hydra
+    ../../nixos/client-apps/zcode.nix
     # ../../nixos/optional-apps/leigod-accelerator.nix
   ];
 
@@ -81,6 +82,10 @@
     schedule = "daily";
     persistentTimer = true;
   };
+
+  # Z.ai 官方 AI 编码桌面应用（GLM harness）：包与模块主体在 zhyi-packages，
+  # 本机只设开关，见 nixos/client-apps/zcode.nix。
+  lantian.zcode.enable = true;
 
   # 与作者 lt-hp-omen 逐字对齐的 HiDPI（grub/console 字体缩放）。
   # 2026-09-03：1.5 → 1.6，与 KWin Wayland 输出缩放（kscreen 里的 1.6）一致，
@@ -358,8 +363,7 @@
   # PCIe 地址由雷电拓扑决定，dock/USB-C 口不变则固定。
   services.tlp.settings = {
     # eGPU 运行时 PM 排除（见上方注释）
-    RUNTIME_PM_DENYLIST = lib.mkForce
-      "02:00.0 03:01.0 03:02.0 03:04.0 04:00.0 04:00.1 04:00.2 04:00.3";
+    RUNTIME_PM_DENYLIST = lib.mkForce "02:00.0 03:01.0 03:02.0 03:04.0 04:00.0 04:00.1 04:00.2 04:00.3";
 
     # AC 模式：高负载全力释放性能、低负载自动降频不发热。
     # governor 不能用公共模块的 performance（intel_pstate active 下恒定
@@ -410,14 +414,14 @@
     modulePath = "${pkgs.linux-pam}/lib/security/pam_exec.so";
     args = [
       "expose_authtok"
-      ("${pkgs.writeShellScript "pam-verify-local-pin" ''
+      "${pkgs.writeShellScript "pam-verify-local-pin" ''
         hash_file="/var/lib/lantian-local-pin/pin.sha256"
         [ -r "$hash_file" ] || exit 1
         input=$(head -c 256)
         [ -n "$input" ] || exit 1
         calc="$(printf %s "$input" | sha256sum | cut -d" " -f1)" || exit 1
         printf %s "$calc" | cmp -s - "$(cat "$hash_file")"
-      ''}")
+      ''}"
     ];
   };
 
