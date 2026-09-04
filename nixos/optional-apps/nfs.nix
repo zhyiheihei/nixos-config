@@ -11,6 +11,15 @@
     options nfsd nfs4_disable_idmapping=1
   '';
 
+  # nfsd.nix 虽设 boot.supportedFilesystems = [ "nfs" ]，但该版本会被
+  # tasks/filesystems.nix 按 fileSystems 推导的整值定义覆盖（合并不生效，
+  # 纯服务端没有 NFS 挂载点，nfs 被冲掉），导致 systemd.packages 不引入
+  # nfs-utils：vendor 的 proc-fs-nfsd.mount 缺失、/etc/nfs.conf（threads=64
+  # 等的载体）不生成。这里以更高优先级复刻同样的推导并强制加上 nfs。
+  boot.supportedFilesystems = lib.mkForce (
+    map (fs: fs.fsType) (lib.attrValues config.fileSystems) ++ [ "nfs" ]
+  );
+
   services.nfs.server = {
     enable = true;
     nproc = 64;
