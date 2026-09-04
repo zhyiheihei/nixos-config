@@ -22,6 +22,46 @@ let
       }
     else
       null;
+  # 块状 YAML 发射器：nixpkgs 的 lib.generators.toYAML 实为 toJSON，
+  # flow 风格会让 frigate 再转储 go2rtc 段时生成非法 YAML（详见下方模板
+  # 注释），这里自带最小块状实现。字符串/键一律双引号转义。
+  yamlQuote =
+    s: "\"" + builtins.replaceStrings [ "\\" "\"" ] [ "\\\\" "\\\"" ] s + "\"";
+  toYaml =
+    indent: v:
+    if lib.isString v then
+      yamlQuote v
+    else if lib.isBool v then
+      (if v then "true" else "false")
+    else if lib.isInt v || builtins.isFloat v then
+      toString v
+    else if lib.isList v then
+      if v == [ ] then
+        "[]"
+      else
+        lib.concatMapStringsSep "\n" (
+          item:
+          if lib.isAttrs item && item != { } then
+            "${indent}- " + lib.removePrefix "${indent}  " (toYaml "${indent}  " item)
+          else
+            "${indent}- " + toYaml "${indent}  " item
+        ) v
+    else if lib.isAttrs v then
+      if v == { } then
+        "{}"
+      else
+        lib.concatMapStringsSep "\n" (
+          k:
+          let
+            val = v.${k};
+          in
+          if (lib.isAttrs val || lib.isList val) && val != { } && val != [ ] then
+            "${indent}${yamlQuote k}:\n" + toYaml "${indent}  " val
+          else
+            "${indent}${yamlQuote k}: " + toYaml "${indent}  " val
+        ) (lib.attrNames v)
+    else
+      throw "frigate config: unsupported value ${toString v}";
 in
 {
   # 通用 Rockchip 专版 Frigate（官方 stable-rk 镜像，RKNN NPU 检测）。
@@ -193,10 +233,13 @@ in
       ) cfg.cameras
     );
 
-    # 整个 frigate.yml 由 sops 模板渲染（JSON 是合法 YAML），
-    # 密码占位符在解密时替换。
+    # 整个 frigate.yml 由 sops 模板渲染，必须用上方自制的块状 toYaml，
+    # 不能用 toJSON/lib.generators.toYAML（后者是 toJSON 别名）：frigate 的
+    # create_config.py 用 ruamel 加载后重新转储 go2rtc 段，JSON 的 flow 风格
+    # 被保留，含 ?/& 的 RTSP URL 不加引号直接破 YAML 语法，go2rtc 一条
+    # 流都加载不到（2026-09-04 实证）。
     sops.templates."frigate-config" = {
-      content = builtins.toJSON (
+      content = toYaml "" (
         {
           # 声明当前镜像的配置版本，避免 frigate 误认为 0.13 旧配置而每次启动都迁移。
           version = "0.17-0";
