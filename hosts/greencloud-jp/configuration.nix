@@ -33,35 +33,21 @@ in
     # Gitea（自 greencloud 迁入，2026-08-29；模块自带 mysql 依赖）。
     ../../nixos/optional-apps/gitea
 
-    # Nextcloud（2026-09-04 自上游对齐启用）：数据库用本机 MariaDB
-    # （与 Gitea 同实例，模块内 createLocally 建库、socket 免密认证；
-    # 上游 oci 类型连的是作者自己的 Oracle ADB，本机没有 Oracle）。
-    # OIDC 登录走 volcengine 的 Dex（client 见 dex.nix，secret 见
-    # common/dex.yaml 的 dex-nextcloud-secret）。
+    # Nextcloud：数据库用本机 MariaDB（上游 oci 类型连的是作者的 Oracle
+    # ADB），OIDC 走 volcengine 的 Dex。
     ../../nixos/optional-apps/nextcloud.nix
 
-    # Syncthing 同步节点（自 greencloud 撤销后迁入，2026-09）：本机常驻公网、
-    # 1T 数据盘，作为机群的常在线异地同步节点，配合家庭 NAS（opi5p）实现
-    # Obsidian 知识库多端同步。GUI 里的设备/共享文件夹仍需手动对接
-    # （模块 overrideDevices/overrideFolders = false）。
+    # Syncthing 同步节点（自 greencloud 移交，机群常在线异地端）。
     ../../nixos/optional-apps/syncthing
 
-    # Attic 二进制缓存（自 greencloud 迁入，2026-09）。S3 后端用本机
-    # VaultS3（s3.zhyi.xin，与 Gitea 同一实例；2026-09 初曾指向家中
-    # vaults3.zhyi.xin:8443，跨境大对象上传会被中间链路切断，CI
-    # push-cache 连锁失败，遂切回本机并新建数据库、弃用旧缓存）。
-    # atticd 用本机实例的专用 IAM key（vaults3-atticd，官方 API 创建，
-    # 见下方 sops.secrets.vaults3-atticd），JWT 签名密钥仍来自
-    # common/attic.yaml，现有上传 token 不受影响。
+    # Attic 二进制缓存（S3 后端为本机 VaultS3，详见 docs/agent/attic-s3-cache.md）。
     ../../nixos/optional-apps/attic.nix
   ];
 
-  # Syncthing 存储放 1T 数据盘；默认值 /nix/persistent/media 在 40G 系统盘
-  # 上放不下同步数据。
+  # Syncthing 存储放 1T 数据盘（默认值在 40G 系统盘上放不下）。
   lantian.syncthing.storage = "/data/syncthing";
 
-  # 私有知识库（Obsidian vault）固定目录，与 opi5p 上 Ignis 的 vault
-  # （/mnt/storage/media/Notes）同名，方便在 Syncthing 中对接同一共享文件夹。
+  # Obsidian vault 固定目录，与 opi5p Ignis vault 同名，方便 Syncthing 对接。
   systemd.tmpfiles.settings.syncthing."/data/syncthing/Notes"."d" = {
     mode = "755";
     user = "syncthing";
@@ -71,11 +57,8 @@ in
   # 本机是机群的异地备份目标，不再向外推送自身备份。
   lantian.backup.schedule = null;
 
-  # sftp-server.nix 默认 chroot 到 /nix/persistent/sftp-server（39G 系统盘），
-  # 备份机改到 1T 数据盘 /data。
-  # sshd 的 ChrootDirectory 要求整个路径 root 属主且不可被他人写，因此 home
-  # 本身 root 属主、数据写到内部 sftp 可写的 backups/restic 子目录
-  # （与 minimal-components/backup 的 restic root=/backups/restic 对齐）。
+  # sftp chroot 改到 1T 数据盘：ChrootDirectory 要求整条路径 root 属主，
+  # 故 home 本身 root 属主，数据写进内部 sftp 可写的 backups/restic 子目录。
   users.users.sftp = {
     home = lib.mkForce "/data/sftp-server";
     createHome = lib.mkForce false;
@@ -109,8 +92,7 @@ in
   # cn-accel 标签经 server-apps/v2ray.nix 启用）。
   lantian.nginxVhosts."greencloud-jp.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
-  # Gitea LFS/附件存储：原 router 上的 vaults3 已停摆（服务 inactive、数据盘
-  # 缺失），改指向本机 vaults3（s3.zhyi.xin，nginx 443 TLS）。
+  # Gitea LFS/附件存储指向本机 VaultS3（router 上的旧实例已停摆）。
   services.gitea.settings.storage = {
     MINIO_ENDPOINT = lib.mkForce "s3.zhyi.xin:443";
     MINIO_BUCKET = lib.mkForce "gitea";
@@ -137,13 +119,8 @@ in
     group = "vaults3";
   };
 
-  # atticd 的 S3 连接凭据：本机 VaultS3 上 atticd 专用的 IAM key
-  # （common/attic.yaml 的 vaults3-atticd；服务端用户/策略经 VaultS3
-  # 官方 API 创建，key-policy-atticd 限定 nix-cache 桶 s3:*，桶上另设
-  # 匿名 s3:GetObject 桶策略供 S3 直链下载）。JWT 签名密钥继续由公共
-  # 模块的 attic-credentials 提供，既有 attic token（CI 上传、fleet
-  # 只读）不受影响。systemd 按顺序读多个 EnvironmentFile，同名变量
-  # 后者覆盖前者：AWS_* 以 vaults3-atticd 为准。
+  # atticd 专用 IAM key（vaults3-atticd），经第二个 EnvironmentFile 覆盖
+  # 默认 AWS_*（同名变量后者生效）。
   sops.secrets.vaults3-atticd = {
     sopsFile = inputs.secrets + "/common/attic.yaml";
     owner = "atticd";
@@ -197,9 +174,8 @@ in
     };
   };
 
-  # atticd 的 nix-cache 桶不会由 VaultS3 自动创建；用幂等 oneshot 保证
-  # 存在，atticd 排在其后再启动。建桶走官方 S3 API（awscli SigV4，
-  # root 凭据；建桶是管理操作，不用 atticd 的专用 key）。
+  # nix-cache 桶不由 VaultS3 自动创建：幂等 oneshot 建桶（官方 S3 API、
+  # root 凭据），atticd 排在其后。
   systemd.services.vaults3-init-nix-cache = {
     description = "Ensure nix-cache bucket exists for atticd";
     wantedBy = [ "multi-user.target" ];
@@ -214,10 +190,13 @@ in
       EnvironmentFile = config.sops.templates.vaults3-credentials.path;
       ExecStart = pkgs.writeShellScript "vaults3-init-nix-cache" ''
         export PATH=${pkgs.awscli2}/bin:$PATH
-        if ! aws --endpoint-url http://127.0.0.1:9000 --region us-east-1 \
-          s3api head-bucket --bucket nix-cache >/dev/null 2>&1; then
-          aws --endpoint-url http://127.0.0.1:9000 --region us-east-1 \
-            s3api create-bucket --bucket nix-cache
+        # EnvironmentFile 里是 VaultS3 CLI 约定的 VAULTS3_* 变量名，
+        # awscli 需要 AWS_*：在此映射，凭据本身不变。
+        export AWS_ACCESS_KEY_ID="$VAULTS3_ACCESS_KEY"
+        export AWS_SECRET_ACCESS_KEY="$VAULTS3_SECRET_KEY"
+        export AWS_DEFAULT_REGION=us-east-1
+        if ! aws --endpoint-url http://127.0.0.1:9000 s3api head-bucket --bucket nix-cache >/dev/null 2>&1; then
+          aws --endpoint-url http://127.0.0.1:9000 s3api create-bucket --bucket nix-cache
         fi
       '';
     };
@@ -232,7 +211,6 @@ in
     locations."/" = {
       proxyPass = "http://127.0.0.1:9000";
       proxyWebsockets = true;
-      # S3 大对象上传不设上限；Host 默认透传 $host，SigV4 签名不受影响。
       extraConfig = ''
         client_max_body_size 0;
       '';
@@ -241,8 +219,7 @@ in
     noIndex.enable = true;
   };
 
-  # GreenCloud APAC 网络：DHCPv4 在该机房拿不到租约（2026-08-29 首启实测），
-  # v4/v6 均为静态；v4 网关与 v6 网关（onlink 子网路由器）来自救援环境实测。
+  # 该机房 DHCPv4 拿不到租约，v4/v6 均静态（网关为救援环境实测值）。
   systemd.network.networks.eth0 = {
     matchConfig.Name = "eth0";
     address = [
