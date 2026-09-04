@@ -19,6 +19,15 @@
 - **docker.m.daocloud.io**（镜像加速）：frigate/redroid 镜像拉取直连。
 - **GOPROXY**：ml-builder、opi5p 的 `environment.variables` 额外叠加
   `GOPROXY = "https://goproxy.cn,direct"`。
+- **nix FOD 拉取直连清单**（ml-builder）：对构建日志中全部 65 个拉取域名
+  逐一实测（`curl --noproxy`），50 个直连稳定（kde/gitlab.debian/fedora/
+  arch/gentoo 各镜像、hackage、crates.io、pythonhosted、kernel.org 等），
+  经出口代理反而被上游 403（invent.kde.org、KDE GitLab 反代出口 IP）、
+  502 或降到 KB/s；清单固化在 `hosts/ml-builder/configuration.nix` 的
+  `fetchDirectHosts`。github、`*.googlesource.com`、discord、
+  archive.torproject.org、download.gnome.org、patch-diff.githubusercontent.com
+  等直连不可达，仍走代理。更新方法：重跑构建 → 从日志提取
+  `trying https://` 域名 → 逐一探测直连 → 增删清单。
 
 ## 实现注意：helpers/default.nix 不走 callPackage
 

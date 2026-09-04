@@ -15,9 +15,67 @@ let
   # Store paths are 0444, so keep the matching public identity under /root/.ssh
   # with 0600 permissions for agent-backed second-hop deployments.
   macBookIdentity = "/root/.ssh/mac-book-ssh-identity.pub";
+  # nix FOD 拉取直连域名清单：这些域名从本机直连稳定，经出站代理反而被
+  # 上游 403/502 拒绝或降速到 KB/s（2026-09-05 对构建日志中全部 65 个拉取
+  # 域名逐一实测；github、*.googlesource.com、discord、torarchive 等被墙
+  # 域名不在其列，仍走代理）。清单维护方法见 docs/agent/outbound-proxy.md。
+  fetchDirectHosts = lib.concatStringsSep "," [
+    "api.k8slens.dev"
+    "archive.hadrons.org"
+    "cdn.kernel.org"
+    "codeberg.org"
+    "code.maralorn.de"
+    "code.videolan.org"
+    "cpan.metacpan.org"
+    "data.iana.org"
+    "deb.debian.org"
+    "download.cdn.mozilla.net"
+    "download.gimp.org"
+    "download.netsurf-browser.org"
+    "download.qt.io"
+    "download.samba.org"
+    "download.savannah.gnu.org"
+    "download.savannah.nongnu.org"
+    "downloads.cursor.com"
+    "downloads.sourceforge.net"
+    "downloads.xiph.org"
+    "download.videolan.org"
+    "files.pythonhosted.org"
+    "ftpmirror.gnu.org"
+    "ftp.nluug.nl"
+    "ftp.osuosl.org"
+    "git.alpinelinux.org"
+    "gitlab.alpinelinux.org"
+    "gitlab.archlinux.org"
+    "gitlab.com"
+    "gitlab.freedesktop.org"
+    "gitlab.gnome.org"
+    "gitlab.haskell.org"
+    "git.openldap.org"
+    "gitweb.gentoo.org"
+    "hackage.haskell.org"
+    "invent.kde.org"
+    "kristaps.bsd.lv"
+    "libbsd.freedesktop.org"
+    "luarocks.org"
+    "mirror.easyname.at"
+    "nodejs.org"
+    "registry.npmjs.org"
+    "salsa.debian.org"
+    "sources.archlinux.org"
+    "sources.debian.org"
+    "src.fedoraproject.org"
+    "static.crates.io"
+    "www.bytereef.org"
+    "www.ffado.org"
+    "www.kernel.org"
+    "www.oberhumer.com"
+  ];
   # 集群统一出站代理 + builder 特有 Go 模块代理。
   proxyEnvironment = LT.proxyEnvironment // {
     GOPROXY = "https://goproxy.cn,direct";
+    NO_PROXY = "${LT.proxyEnvironment.NO_PROXY},${fetchDirectHosts}";
+    no_proxy = "${LT.proxyEnvironment.NO_PROXY},${fetchDirectHosts}";
   };
 in
 {
