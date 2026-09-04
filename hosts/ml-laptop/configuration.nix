@@ -361,13 +361,17 @@
     RUNTIME_PM_DENYLIST = lib.mkForce
       "02:00.0 03:01.0 03:02.0 03:04.0 04:00.0 04:00.1 04:00.2 04:00.3";
 
-    # 笔记本解热能力有限：覆盖公共 client-components/tlp.nix 的 AC 策略。
-    # 原版 AC 用 performance governor 恒定最高频（负载 0.65 也飙 4.3GHz/70°C）；
-    # AC 改 schedutil 按负载动态调频（轻载自动降频、重载仍可 boost），
-    # 能效策略 balance_power、平台档 balanced。电池模式仍是 powersave，不变。
-    CPU_SCALING_GOVERNOR_ON_AC = lib.mkForce "schedutil";
-    CPU_ENERGY_PERF_POLICY_ON_AC = lib.mkForce "balance_power";
-    PLATFORM_PROFILE_ON_AC = lib.mkForce "balanced";
+    # AC 模式：高负载全力释放性能、低负载自动降频不发热。
+    # governor 不能用公共模块的 performance（intel_pstate active 下恒定
+    # 最高频，负载 0.65 也飙 4.3GHz/70°C），也不能用 schedutil（intel_pstate
+    # active 只暴露 performance/powersave，TLP 报 governor not available
+    # 后整段配置失效）；powersave 在 active 模式即 HWP 自动调频，配
+    # EPP=performance：重载最大 boost、轻载自动回落。平台档 performance：
+    # 风扇由 BIOS/EC 曲线控制（pwm1_enable=2），balanced 档高温也不拉满，
+    # 这是 Linux 侧唯一有效的风扇入口。电池模式仍是 powersave，不变。
+    CPU_SCALING_GOVERNOR_ON_AC = lib.mkForce "powersave";
+    CPU_ENERGY_PERF_POLICY_ON_AC = lib.mkForce "performance";
+    PLATFORM_PROFILE_ON_AC = lib.mkForce "performance";
   };
 
   services.udev.extraRules = ''
