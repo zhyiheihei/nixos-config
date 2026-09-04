@@ -6,16 +6,8 @@
   pkgs,
   ...
 }:
-let
-  # at.zhyi.xin 及其 DID 通配子域不在 acme/base-domains.nix 的机群通配
-  # （zhyi.xin / <host>.zhyi.xin）覆盖范围内，两级子域必须单独签发；
-  # 与 vhost 下方 sslCertificate = "zerossl-at.zhyi.xin" 对应。
-  acmeCommon = import ./acme/common.nix { };
-in
 {
   imports = [ ./postgresql.nix ];
-
-  security.acme.certs = acmeCommon.mkZeroSSLWildcardCert "at.zhyi.xin";
 
   sops.secrets.dex-tranquil-pds-secret.sopsFile = inputs.secrets + "/common/dex.yaml";
   sops.secrets.tranquil-pds-jwt-secret.sopsFile = inputs.secrets + "/tranquil-pds.yaml";
