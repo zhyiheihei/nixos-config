@@ -19,6 +19,7 @@
   boot.supportedFilesystems = lib.mkForce (
     map (fs: fs.fsType) (lib.attrValues config.fileSystems) ++ [ "nfs" ]
   );
+  boot.kernelModules = [ "nfsd" ];
 
   services.nfs.server = {
     enable = true;
@@ -48,12 +49,16 @@
     ];
     requires = [ "proc-fs-nfsd.mount" ];
     wants = [ "network-online.target" ];
+    # nfsdctl 依赖内核 nfsd generic netlink（部分内核/时序下解析失败），
+    # 保留 vendor unit 的 rpc.nfsd 兜底；path 提供 modprobe 供 nfsdctl 内部
+    # 加载模块用。
+    path = [ pkgs.kmod ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
       ExecStartPre = "-${pkgs.nfs-utils}/bin/exportfs -r";
-      ExecStart = "${pkgs.nfs-utils}/bin/nfsdctl autostart";
-      ExecStop = "${pkgs.nfs-utils}/bin/nfsdctl threads 0";
+      ExecStart = "${pkgs.runtimeShell} -c '${pkgs.nfs-utils}/bin/nfsdctl autostart || ${pkgs.nfs-utils}/bin/rpc.nfsd'";
+      ExecStop = "${pkgs.runtimeShell} -c '${pkgs.nfs-utils}/bin/nfsdctl threads 0 || ${pkgs.nfs-utils}/bin/rpc.nfsd 0'";
       ExecStopPost = [
         "${pkgs.nfs-utils}/bin/exportfs -au"
         "${pkgs.nfs-utils}/bin/exportfs -f"
