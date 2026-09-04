@@ -84,7 +84,7 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 | B1 | DNS | filebox.zhyi.xin | NXDOMAIN | ✅ | 仓库早已退役 filecodebox（2cb1f5a2），首页是旧部署的陈旧快照 | 随轮 3 部署 ml-laptop 首页重生成，条目消失 | 首页已不含 |
 | B2 | DNS | index.zhyi.xin | NXDOMAIN | ✅ | 同 B1（sun-panel 已从 dragon-q8b 移除 ff733028，模块成孤儿） | 同 B1 | 首页已不含 |
 | B3 | DNS | index-helper.zhyi.xin | NXDOMAIN | ✅ | 同 B2 | 同 B2 | 首页已不含 |
-| B4 | DNS | searx.zhyi.xin | NXDOMAIN | ✅ | 服务在 tencent（vhost 健康本机 200），LTNET 视图登记名 searx.tencent 与 vhost 名错位 | CNAME 改名 searx（轮 8，5be05741），CI 发布待 TTL | 待生效复测 |
+| B4 | DNS | searx.zhyi.xin | NXDOMAIN | ✅ | 服务在 tencent（vhost 健康本机 200），LTNET 视图登记名 searx.tencent 与 vhost 名错位 | CNAME 改名 searx（轮 8，5be05741），CI 发布 | 轮 8 后验证：解析到 tencent.ltnet，200 |
 | C1 | 证书 | matrix-federation.zhyi.xin | 证书 CN=snakeoil.local | ✅ | 配置正确：listenHTTPS.port=8448（Matrix federation 惯例端口），443 的 snakeoil 是设计使然 | 无需修复 | 轮 7：8448 返 404（federation 端点根路径正常行为） |
 | C2 | 证书 | vaults3.zhyi.xin | 证书 CN=snakeoil.local | ✅ | 配置正确： opi5p 上的 8443 兼容端点（router DNAT），443 落在 rock5c 无此 vhost | 无需修复 | 轮 7：8443 返 403（S3 未签名请求正常拒绝） |
 | C3 | 证书 | linkr.opi5p.zhyi.xin | 证书 CN=zhyi.xin，域名不匹配 | ✅ | 配置 bug：两级子域配了根域通配证书 zerossl-zhyi.xin | 改用机器通配 zerossl-opi5p.zhyi.xin（轮 7 一行修复，1024207bb） | 轮 7：证书验证通过，200 |
@@ -147,8 +147,14 @@ wallos、git(303)、fastapi-dls.rock5c(307)、bitmagnet.dragon-q8b(301)
 - **J1**：LE STAGING 测试证书属预期，确认结案
 
 **当前进度**：105 → 95 链接；已解决/结案 35 项，仅剩 A1-A4（等待开机，物理动作）。
+B4 复测确认：searx.zhyi.xin 解析到 tencent.ltnet 并返 200，全链路闭环。
+
 已知遗留批次：opi5p 边缘残留（jellyfin/tachidesk 指向旧目标）两份 vhost、
 prometheus scrape-configs.nix 的 exportarr 遗留目标（公共模块）。
+
+**环境变更**：ml-builder 已关机（2026-09-04 晚，用户关机）；colmena 部署与
+构建流程暂停，本机仓库已全部推送 origin（1c1c82f9），ml-builder 的
+/nix/src/nixos-config 停在 5be05741（缺轮 8 文档提交），待其上线后补同步。
 
 ### 轮 7 · 2026-09-04 · C 组（证书 ×3）诊断+修复（完成 ✅）
 
