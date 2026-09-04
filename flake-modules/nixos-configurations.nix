@@ -100,6 +100,6 @@ in
         modules = modulesFor n;
         specialArgs = specialArgsFor n;
       }
-    ) (lib.filterAttrs (n: _: !(lib.hasInfix "darwin" LT.hosts."${n}".system)) (builtins.readDir ../hosts));
+    ) (builtins.readDir ../hosts);
   };
 }

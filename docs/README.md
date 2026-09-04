@@ -35,7 +35,6 @@
 - [Orange Pi 5 Plus reDroid 适配](human/hardware/orangepi-5-plus-redroid.md)
 - [Radxa Rock 5C 适配](human/hardware/radxa-rock-5c.md)
 - [腾讯云 VPS 适配](human/hardware/tencent-cloud-vps.md)
-- [Mac mini（nix-darwin）接入与维护](human/hardware/macmini.md)
 
 ### 网络
 
@@ -71,7 +70,8 @@
 
 ### 迁移与对齐（进行中）
 
-- [2026-08-20 macmini darwin 闭包导入加速](human/migrations/macmini-darwin-import.md)
+已完成的迁移记录随对应主机退役一并归档（如 macmini 归档于同级
+`../host-archive` 仓库）。
 
 ## 历史归档
 

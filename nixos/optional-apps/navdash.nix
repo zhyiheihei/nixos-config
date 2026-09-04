@@ -138,101 +138,103 @@ let
   #
   # 主机根域（<host>.zhyi.xin / lab.<host>.zhyi.xin）是主机可达性/测试页，
   # 统一归到「基础设施与运维」，下面用 genAttrs 生成，避免手写重复。
-  serviceCategories =
-    {
-      # 公开（zhyi.xin）· 内容与通讯
-      "zhyi.xin" = "内容与通讯";
-      "lemmy.zhyi.xin" = "内容与通讯";
-      "rss.zhyi.xin" = "内容与通讯";
-      "cal.zhyi.xin" = "内容与通讯";
-      "element.zhyi.xin" = "内容与通讯";
-      "matrix.zhyi.xin" = "内容与通讯";
-      "matrix-client.zhyi.xin" = "内容与通讯";
-      "matrix-federation.zhyi.xin" = "内容与通讯";
-      "stats.zhyi.xin" = "内容与通讯";
-      "pb.zhyi.xin" = "内容与通讯";
-      "posts.zhyi.xin" = "内容与通讯";
-      "comments.zhyi.xin" = "内容与通讯";
-      "mail.zhyi.xin" = "内容与通讯";
-      "halo.volcengine.zhyi.xin" = "内容与通讯";
-      # 公开 · 身份链路
-      "login.zhyi.xin" = "身份链路";
-      "id.zhyi.xin" = "身份链路";
-      "bitwarden.zhyi.xin" = "身份链路";
-      # 公开 · AI 链路
-      "ai.zhyi.xin" = "AI 链路";
-      "ai-api.zhyi.xin" = "AI 链路";
-      "n8n.zhyi.xin" = "AI 链路";
-      "metapi.tencent.zhyi.xin" = "AI 链路";
-      "uni-api.hostdare.zhyi.xin" = "AI 链路";
-      # 公开 · 媒体链路
-      "books.zhyi.xin" = "媒体链路";
-      "immich.zhyi.xin" = "媒体链路";
-      "tachidesk.zhyi.xin" = "媒体链路";
-      "jellyfin.zhyi.xin" = "媒体链路";
-      "rk-jellyfin.zhyi.xin" = "媒体链路";
-      # 公开 · 效率工具
-      "tools.zhyi.xin" = "效率工具";
-      "api.zhyi.xin" = "效率工具";
-      "asf.zhyi.xin" = "效率工具";
-      "dsh.zhyi.xin" = "效率工具";
-      # 公开 · 基础设施与运维
-      "hydra.zhyi.xin" = "基础设施与运维";
-      "attic.zhyi.xin" = "基础设施与运维";
-      "git.zhyi.xin" = "基础设施与运维";
-      "netbox.zhyi.xin" = "基础设施与运维";
-      "dashboard.zhyi.xin" = "基础设施与运维";
-      "prometheus.zhyi.xin" = "基础设施与运维";
-      "alert.zhyi.xin" = "基础设施与运维";
-      "flapalerted.zhyi.xin" = "基础设施与运维";
-      "nav.zhyi.xin" = "基础设施与运维";
-      # 公开 · 存储与证书
-      "qnap.zhyi.xin" = "存储与证书";
-      "dav.zhyi.xin" = "存储与证书";
-      "ca.zhyi.xin" = "存储与证书";
-      "vaults3.zhyi.xin" = "存储与证书";
-      "google-ssl.zhyi.xin" = "存储与证书";
-      "letsencrypt-ssl.zhyi.xin" = "存储与证书";
-      "letsencrypt-test-ssl.zhyi.xin" = "存储与证书";
-      "zerossl.zhyi.xin" = "存储与证书";
-      # 私有 · 家庭服务
-      "ha.zhyi.xin" = "家庭服务";
-      "ha.opi5p.zhyi.xin" = "家庭服务";
-      "frigate.opi5p.zhyi.xin" = "家庭服务";
-      "syncthing.localhost" = "家庭服务";
-      # 私有 · 媒体与下载
-      "bt.router.zhyi.xin" = "媒体与下载";
-      "bt.opi5p.zhyi.xin" = "媒体与下载";
-      "pt.opi5p.zhyi.xin" = "媒体与下载";
-      "seedbox.opi5p.zhyi.xin" = "媒体与下载";
-      "peerbanhelper.opi5p.zhyi.xin" = "媒体与下载";
-      "bitmagnet.dragon-q8b.zhyi.xin" = "媒体与下载";
-      "moviepilot.rock5c.zhyi.xin" = "媒体与下载";
-      "radarr.rock5c.zhyi.xin" = "媒体与下载";
-      "sonarr.rock5c.zhyi.xin" = "媒体与下载";
-      "bazarr.rock5c.zhyi.xin" = "媒体与下载";
-      "jellyfin-backend.opi5p.zhyi.xin" = "媒体与下载";
-      "tachidesk-backend.opi5p.zhyi.xin" = "媒体与下载";
-      "handbrake-backend.opi5p.zhyi.xin" = "媒体与下载";
-      # 私有 · 效率工具与内容
-      "searx.tencent.zhyi.xin" = "效率工具与内容";
-      "searx.localhost" = "效率工具与内容";
-      "fastapi-dls.rock5c.zhyi.xin" = "效率工具与内容";
-      "rsshub.zhyi.xin" = "效率工具与内容";
-      "ignis.opi5p.zhyi.xin" = "效率工具与内容";
-      # 私有 · 基础设施与网络
-      "prometheus.tencent.zhyi.xin" = "基础设施与网络";
-      "pve-5700u.zhyi.xin" = "基础设施与网络";
-      "metacubexd.rock5c.zhyi.xin" = "基础设施与网络";
-      "openspeedtest.rock5c.zhyi.xin" = "基础设施与网络";
-      "hub.tencent.zhyi.xin" = "基础设施与网络";
-      "jproxy.opi5p.zhyi.xin" = "基础设施与网络";
-      "lg.zhyi.xin" = "基础设施与网络";
-      "ltnet.zhyi.xin" = "基础设施与网络";
-    }
-    // lib.genAttrs
-      (lib.flatten (lib.mapAttrsToList (h: _: [ "lab.${h}.zhyi.xin" "${h}.zhyi.xin" ]) LT.hosts))
-      (_: "基础设施与运维");
+  serviceCategories = {
+    # 公开（zhyi.xin）· 内容与通讯
+    "zhyi.xin" = "内容与通讯";
+    "lemmy.zhyi.xin" = "内容与通讯";
+    "rss.zhyi.xin" = "内容与通讯";
+    "cal.zhyi.xin" = "内容与通讯";
+    "element.zhyi.xin" = "内容与通讯";
+    "matrix.zhyi.xin" = "内容与通讯";
+    "matrix-client.zhyi.xin" = "内容与通讯";
+    "matrix-federation.zhyi.xin" = "内容与通讯";
+    "stats.zhyi.xin" = "内容与通讯";
+    "pb.zhyi.xin" = "内容与通讯";
+    "posts.zhyi.xin" = "内容与通讯";
+    "comments.zhyi.xin" = "内容与通讯";
+    "mail.zhyi.xin" = "内容与通讯";
+    "halo.volcengine.zhyi.xin" = "内容与通讯";
+    # 公开 · 身份链路
+    "login.zhyi.xin" = "身份链路";
+    "id.zhyi.xin" = "身份链路";
+    "bitwarden.zhyi.xin" = "身份链路";
+    # 公开 · AI 链路
+    "ai.zhyi.xin" = "AI 链路";
+    "ai-api.zhyi.xin" = "AI 链路";
+    "n8n.zhyi.xin" = "AI 链路";
+    "metapi.tencent.zhyi.xin" = "AI 链路";
+    "uni-api.hostdare.zhyi.xin" = "AI 链路";
+    # 公开 · 媒体链路
+    "books.zhyi.xin" = "媒体链路";
+    "immich.zhyi.xin" = "媒体链路";
+    "tachidesk.zhyi.xin" = "媒体链路";
+    "jellyfin.zhyi.xin" = "媒体链路";
+    "rk-jellyfin.zhyi.xin" = "媒体链路";
+    # 公开 · 效率工具
+    "tools.zhyi.xin" = "效率工具";
+    "api.zhyi.xin" = "效率工具";
+    "asf.zhyi.xin" = "效率工具";
+    "dsh.zhyi.xin" = "效率工具";
+    # 公开 · 基础设施与运维
+    "hydra.zhyi.xin" = "基础设施与运维";
+    "attic.zhyi.xin" = "基础设施与运维";
+    "git.zhyi.xin" = "基础设施与运维";
+    "netbox.zhyi.xin" = "基础设施与运维";
+    "dashboard.zhyi.xin" = "基础设施与运维";
+    "prometheus.zhyi.xin" = "基础设施与运维";
+    "alert.zhyi.xin" = "基础设施与运维";
+    "flapalerted.zhyi.xin" = "基础设施与运维";
+    "nav.zhyi.xin" = "基础设施与运维";
+    # 公开 · 存储与证书
+    "qnap.zhyi.xin" = "存储与证书";
+    "dav.zhyi.xin" = "存储与证书";
+    "ca.zhyi.xin" = "存储与证书";
+    "vaults3.zhyi.xin" = "存储与证书";
+    "google-ssl.zhyi.xin" = "存储与证书";
+    "letsencrypt-ssl.zhyi.xin" = "存储与证书";
+    "letsencrypt-test-ssl.zhyi.xin" = "存储与证书";
+    "zerossl.zhyi.xin" = "存储与证书";
+    # 私有 · 家庭服务
+    "ha.zhyi.xin" = "家庭服务";
+    "ha.opi5p.zhyi.xin" = "家庭服务";
+    "frigate.opi5p.zhyi.xin" = "家庭服务";
+    "syncthing.localhost" = "家庭服务";
+    # 私有 · 媒体与下载
+    "bt.router.zhyi.xin" = "媒体与下载";
+    "bt.opi5p.zhyi.xin" = "媒体与下载";
+    "pt.opi5p.zhyi.xin" = "媒体与下载";
+    "seedbox.opi5p.zhyi.xin" = "媒体与下载";
+    "peerbanhelper.opi5p.zhyi.xin" = "媒体与下载";
+    "bitmagnet.dragon-q8b.zhyi.xin" = "媒体与下载";
+    "moviepilot.rock5c.zhyi.xin" = "媒体与下载";
+    "radarr.rock5c.zhyi.xin" = "媒体与下载";
+    "sonarr.rock5c.zhyi.xin" = "媒体与下载";
+    "bazarr.rock5c.zhyi.xin" = "媒体与下载";
+    "jellyfin-backend.opi5p.zhyi.xin" = "媒体与下载";
+    "tachidesk-backend.opi5p.zhyi.xin" = "媒体与下载";
+    "handbrake-backend.opi5p.zhyi.xin" = "媒体与下载";
+    # 私有 · 效率工具与内容
+    "searx.tencent.zhyi.xin" = "效率工具与内容";
+    "searx.localhost" = "效率工具与内容";
+    "fastapi-dls.rock5c.zhyi.xin" = "效率工具与内容";
+    "rsshub.zhyi.xin" = "效率工具与内容";
+    "ignis.opi5p.zhyi.xin" = "效率工具与内容";
+    # 私有 · 基础设施与网络
+    "prometheus.tencent.zhyi.xin" = "基础设施与网络";
+    "pve-5700u.zhyi.xin" = "基础设施与网络";
+    "metacubexd.rock5c.zhyi.xin" = "基础设施与网络";
+    "openspeedtest.rock5c.zhyi.xin" = "基础设施与网络";
+    "hub.tencent.zhyi.xin" = "基础设施与网络";
+    "jproxy.opi5p.zhyi.xin" = "基础设施与网络";
+    "lg.zhyi.xin" = "基础设施与网络";
+    "ltnet.zhyi.xin" = "基础设施与网络";
+  }
+  // lib.genAttrs (lib.flatten (
+    lib.mapAttrsToList (h: _: [
+      "lab.${h}.zhyi.xin"
+      "${h}.zhyi.xin"
+    ]) LT.hosts
+  )) (_: "基础设施与运维");
 
   # 卡片上的「实时服务数据」widget。仅公开域可达、且有自管 API 的卡片挂
   # widget：前端把这些 vhost 卡片渲染成服务内部数据（immich 照片数、
@@ -250,10 +252,14 @@ let
   # （tencent 上 127.0.0.1:9090）拉取。仅登录可见（私有），挂在「基础设施
   # 与运维」功能域下；URL 指向 Grafana 监控大盘（与原 homepage 监控卡一致）。
   # 排除带 client 标签的主机（它们不开 node exporter，无数据可显示），
-  # 以及无 node exporter 数据的主机：macmini 是 macOS 无 node exporter；
-  # h28k/opi03/taishanpi 处于 bring-up（manualDeploy）阶段，node 抓取
-  # target 为 down，实测 CPU/内存查询返回空 result，卡片会显示误导性的 0%。
-  noNodeExporterHosts = [ "h28k" "macmini" "opi03" "taishanpi" ];
+  # 以及无 node exporter 数据的主机：h28k/opi03/taishanpi 处于
+  # bring-up（manualDeploy）阶段，node 抓取 target 为 down，实测 CPU/内存
+  # 查询返回空 result，卡片会显示误导性的 0%。
+  noNodeExporterHosts = [
+    "h28k"
+    "opi03"
+    "taishanpi"
+  ];
   monitoredHosts = lib.filterAttrs (
     n: v: !v.hasTag LT.tags.client && !(builtins.elem n noNodeExporterHosts)
   ) LT.hosts;
@@ -296,63 +302,241 @@ let
   # 任何外部图标 CDN；无品牌标的留空。
   quickEntries = [
     # VPS 供应商
-    { name = "火山引擎"; url = "https://www.volcengine.com"; icon = ""; brand = ""; category = "VPS 供应商"; }
-    { name = "腾讯云"; url = "https://cloud.tencent.com"; icon = "Tencent_cloud_A"; brand = ""; category = "VPS 供应商"; }
-    { name = "GreenCloud"; url = "https://greencloudvps.com"; icon = ""; brand = ""; category = "VPS 供应商"; }
-    { name = "HostDare"; url = "https://hostdare.com"; icon = ""; brand = ""; category = "VPS 供应商"; }
-    { name = "Google Cloud"; url = "https://cloud.google.com"; icon = "Google_cloud_A"; brand = "googlecloud"; category = "VPS 供应商"; }
+    {
+      name = "火山引擎";
+      url = "https://www.volcengine.com";
+      icon = "";
+      brand = "";
+      category = "VPS 供应商";
+    }
+    {
+      name = "腾讯云";
+      url = "https://cloud.tencent.com";
+      icon = "Tencent_cloud_A";
+      brand = "";
+      category = "VPS 供应商";
+    }
+    {
+      name = "GreenCloud";
+      url = "https://greencloudvps.com";
+      icon = "";
+      brand = "";
+      category = "VPS 供应商";
+    }
+    {
+      name = "HostDare";
+      url = "https://hostdare.com";
+      icon = "";
+      brand = "";
+      category = "VPS 供应商";
+    }
+    {
+      name = "Google Cloud";
+      url = "https://cloud.google.com";
+      icon = "Google_cloud_A";
+      brand = "googlecloud";
+      category = "VPS 供应商";
+    }
     # AI 与模型
-    { name = "DeepSeek"; url = "https://www.deepseek.com"; icon = "DeepSeek--深度求索--deepseek.com"; brand = "deepseek"; category = "AI 与模型"; }
-    { name = "OpenAI"; url = "https://api.openai.com"; icon = "Chatgpt--ChatGPT--openai.com"; brand = ""; category = "AI 与模型"; }
-    { name = "Ollama Cloud"; url = "https://ollama.com"; icon = ""; brand = "ollama"; category = "AI 与模型"; }
-    { name = "火山方舟"; url = "https://console.volcengine.com"; icon = ""; brand = ""; category = "AI 与模型"; }
-    { name = "Hugging Face"; url = "https://huggingface.co"; icon = ""; brand = "huggingface"; category = "AI 与模型"; }
+    {
+      name = "DeepSeek";
+      url = "https://www.deepseek.com";
+      icon = "DeepSeek--深度求索--deepseek.com";
+      brand = "deepseek";
+      category = "AI 与模型";
+    }
+    {
+      name = "OpenAI";
+      url = "https://api.openai.com";
+      icon = "Chatgpt--ChatGPT--openai.com";
+      brand = "";
+      category = "AI 与模型";
+    }
+    {
+      name = "Ollama Cloud";
+      url = "https://ollama.com";
+      icon = "";
+      brand = "ollama";
+      category = "AI 与模型";
+    }
+    {
+      name = "火山方舟";
+      url = "https://console.volcengine.com";
+      icon = "";
+      brand = "";
+      category = "AI 与模型";
+    }
+    {
+      name = "Hugging Face";
+      url = "https://huggingface.co";
+      icon = "";
+      brand = "huggingface";
+      category = "AI 与模型";
+    }
     # 开发与构建
-    { name = "GitHub"; url = "https://github.com"; icon = "Github_A"; brand = "github"; category = "开发与构建"; }
-    { name = "Cachix"; url = "https://cachix.org"; icon = ""; brand = ""; category = "开发与构建"; }
-    { name = "NUR"; url = "https://github.com/nix-community/NUR"; icon = ""; brand = ""; category = "开发与构建"; }
+    {
+      name = "GitHub";
+      url = "https://github.com";
+      icon = "Github_A";
+      brand = "github";
+      category = "开发与构建";
+    }
+    {
+      name = "Cachix";
+      url = "https://cachix.org";
+      icon = "";
+      brand = "";
+      category = "开发与构建";
+    }
+    {
+      name = "NUR";
+      url = "https://github.com/nix-community/NUR";
+      icon = "";
+      brand = "";
+      category = "开发与构建";
+    }
     # 域名与网络
-    { name = "Gcore"; url = "https://gcore.com"; icon = "Gcore_A"; brand = "gcore"; category = "域名与网络"; }
-    { name = "AliDNS"; url = "https://alidns.com"; icon = ""; brand = ""; category = "域名与网络"; }
-    { name = "DNSPod"; url = "https://www.dnspod.cn"; icon = ""; brand = ""; category = "域名与网络"; }
-    { name = "Cloudflare DNS"; url = "https://www.cloudflare.com/dns"; icon = ""; brand = "cloudflare"; category = "域名与网络"; }
+    {
+      name = "Gcore";
+      url = "https://gcore.com";
+      icon = "Gcore_A";
+      brand = "gcore";
+      category = "域名与网络";
+    }
+    {
+      name = "AliDNS";
+      url = "https://alidns.com";
+      icon = "";
+      brand = "";
+      category = "域名与网络";
+    }
+    {
+      name = "DNSPod";
+      url = "https://www.dnspod.cn";
+      icon = "";
+      brand = "";
+      category = "域名与网络";
+    }
+    {
+      name = "Cloudflare DNS";
+      url = "https://www.cloudflare.com/dns";
+      icon = "";
+      brand = "cloudflare";
+      category = "域名与网络";
+    }
     # 日志与监控
-    { name = "Axiom"; url = "https://www.axiom.co"; icon = ""; brand = ""; category = "日志与监控"; }
-    { name = "Telegram"; url = "https://telegram.org"; icon = ""; brand = "telegram"; category = "日志与监控"; }
+    {
+      name = "Axiom";
+      url = "https://www.axiom.co";
+      icon = "";
+      brand = "";
+      category = "日志与监控";
+    }
+    {
+      name = "Telegram";
+      url = "https://telegram.org";
+      icon = "";
+      brand = "telegram";
+      category = "日志与监控";
+    }
     # 邮件
-    { name = "AhaSend"; url = "https://ahasend.com"; icon = ""; brand = ""; category = "邮件"; }
-    { name = "MXRoute"; url = "https://mxroute.com"; icon = ""; brand = ""; category = "邮件"; }
+    {
+      name = "AhaSend";
+      url = "https://ahasend.com";
+      icon = "";
+      brand = "";
+      category = "邮件";
+    }
+    {
+      name = "MXRoute";
+      url = "https://mxroute.com";
+      icon = "";
+      brand = "";
+      category = "邮件";
+    }
     # 域名与网络（身份/隧道）
-    { name = "ZeroTier"; url = "https://www.zerotier.com"; icon = "Zerotier_A"; brand = "zerotier"; category = "域名与网络"; }
-    { name = "DN42"; url = "https://dn42.dev"; icon = ""; brand = ""; category = "域名与网络"; }
-    { name = "Metered TURN"; url = "https://www.metered.ca"; icon = ""; brand = ""; category = "域名与网络"; }
+    {
+      name = "ZeroTier";
+      url = "https://www.zerotier.com";
+      icon = "Zerotier_A";
+      brand = "zerotier";
+      category = "域名与网络";
+    }
+    {
+      name = "DN42";
+      url = "https://dn42.dev";
+      icon = "";
+      brand = "";
+      category = "域名与网络";
+    }
+    {
+      name = "Metered TURN";
+      url = "https://www.metered.ca";
+      icon = "";
+      brand = "";
+      category = "域名与网络";
+    }
     # 存储与镜像
-    { name = "QNAP"; url = "https://www.qnap.com"; icon = "Qnap_A"; brand = "qnap"; category = "存储与镜像"; }
-    { name = "DaoCloud"; url = "https://www.daocloud.io"; icon = ""; brand = ""; category = "存储与镜像"; }
-    { name = "jsDelivr"; url = "https://www.jsdelivr.net"; icon = ""; brand = "jsdelivr"; category = "存储与镜像"; }
+    {
+      name = "QNAP";
+      url = "https://www.qnap.com";
+      icon = "Qnap_A";
+      brand = "qnap";
+      category = "存储与镜像";
+    }
+    {
+      name = "DaoCloud";
+      url = "https://www.daocloud.io";
+      icon = "";
+      brand = "";
+      category = "存储与镜像";
+    }
+    {
+      name = "jsDelivr";
+      url = "https://www.jsdelivr.net";
+      icon = "";
+      brand = "jsdelivr";
+      category = "存储与镜像";
+    }
     # TLS 证书 CA
-    { name = "Let's Encrypt"; url = "https://letsencrypt.org"; icon = ""; brand = "letsencrypt"; category = "证书与安全"; }
-    { name = "ZeroSSL"; url = "https://zerossl.com"; icon = ""; brand = ""; category = "证书与安全"; }
+    {
+      name = "Let's Encrypt";
+      url = "https://letsencrypt.org";
+      icon = "";
+      brand = "letsencrypt";
+      category = "证书与安全";
+    }
+    {
+      name = "ZeroSSL";
+      url = "https://zerossl.com";
+      icon = "";
+      brand = "";
+      category = "证书与安全";
+    }
   ];
 
   # 快捷卡片：name 是标题，URL 行显示真实域名（highlight = 域名，suffix 空）。
   # host 留空——外部服务商没有「物理主机」概念，域名已在 URL 行展示，meta 行
   # 只保留状态点，避免重复。
-  quickEntrySet = map (q: let
-    hostname = builtins.head (builtins.match "https?://([^/]+).*" q.url);
-  in {
-    name = q.name;
-    url = q.url;
-    proto = "https://";
-    highlight = hostname;
-    suffix = "";
-    host = "";
-    access = "public";
-    group = "快捷";
-    icon = q.icon;
-    brand = q.brand;
-    category = q.category;
-  }) quickEntries;
+  quickEntrySet = map (
+    q:
+    let
+      hostname = builtins.head (builtins.match "https?://([^/]+).*" q.url);
+    in
+    {
+      inherit (q) name;
+      inherit (q) url;
+      proto = "https://";
+      highlight = hostname;
+      suffix = "";
+      host = "";
+      access = "public";
+      group = "快捷";
+      inherit (q) icon;
+      inherit (q) brand;
+      inherit (q) category;
+    }
+  ) quickEntries;
 
   # Split a hostname into the scheme/proto prefix, the subdomain label to
   # highlight, and the trailing domain suffix to dim. Longest matching suffix
@@ -366,13 +550,9 @@ let
       portSuffix = if e.port == null then "" else ":${e.port}";
       pattern = "(\\.${src}\\.zhyi\\.xin|\\.${src}\\.zhyi\\.cc|\\.zhyi\\.xin|\\.zhyi\\.cc|\\.localhost|zhyi\\.xin|zhyi\\.cc)$";
       parts = builtins.split pattern name;
-      # 语义分组：公开 = zhyi.xin（主公开域）；私有 = zhyi.xin / 
+      # 语义分组：公开 = zhyi.xin（主公开域）；私有 = zhyi.xin /
       # localhost（基础设施、主机名、内网）。前端按此分组，不再按物理主机。
-      group =
-        if lib.hasSuffix ".zhyi.xin" name || name == "zhyi.xin" then
-          "公开"
-        else
-          "私有";
+      group = if lib.hasSuffix ".zhyi.xin" name || name == "zhyi.xin" then "公开" else "私有";
     in
     if builtins.length parts == 1 then
       {
@@ -381,7 +561,7 @@ let
         highlight = name;
         suffix = "";
         host = e.src;
-        access = e.access;
+        inherit (e) access;
         icon = serviceIcons.${name} or "";
         brand = "";
         category = serviceCategories.${name} or "";
@@ -395,7 +575,7 @@ let
         highlight = builtins.elemAt parts 0;
         suffix = builtins.elemAt (builtins.elemAt parts 1) 0;
         host = e.src;
-        access = e.access;
+        inherit (e) access;
         icon = serviceIcons.${name} or "";
         brand = "";
         category = serviceCategories.${name} or "";
@@ -403,26 +583,23 @@ let
         metric_host = "";
       };
 
-  entrySet = lib.pipe allEntries [
-    (builtins.filter (e: !lib.hasPrefix "_" e.name))
-    (builtins.filter (e: !lib.hasInfix "*" e.name))
-    (builtins.filter (e: !lib.hasPrefix "www." e.name))
-    # .localhost entries are only kept from the current host (they are per-host)
-    (builtins.filter (e: !lib.hasSuffix ".localhost" e.name || e.src == thisHost))
-    # Not the redundant per-host top-level alias <host>.zhyi.xin
-    # (subdomains like <svc>.<host>.<domain> are kept, and the root domain
-    # zhyi.xin itself is kept)
-    (builtins.filter (
-      e:
-      !(
-        e.name == "${e.src}.zhyi.xin"
-        || e.name == "${e.src}.zhyi.xin"
-      )
-    ))
-    (builtins.map splitName)
-    (builtins.foldl' (acc: r: if builtins.any (x: x.url == r.url) acc then acc else acc ++ [ r ]) [ ])
-    (builtins.sort (a: b: a.url < b.url))
-  ] ++ quickEntrySet ++ monitorEntries;
+  entrySet =
+    lib.pipe allEntries [
+      (builtins.filter (e: !lib.hasPrefix "_" e.name))
+      (builtins.filter (e: !lib.hasInfix "*" e.name))
+      (builtins.filter (e: !lib.hasPrefix "www." e.name))
+      # .localhost entries are only kept from the current host (they are per-host)
+      (builtins.filter (e: !lib.hasSuffix ".localhost" e.name || e.src == thisHost))
+      # Not the redundant per-host top-level alias <host>.zhyi.xin
+      # (subdomains like <svc>.<host>.<domain> are kept, and the root domain
+      # zhyi.xin itself is kept)
+      (builtins.filter (e: !(e.name == "${e.src}.zhyi.xin" || e.name == "${e.src}.zhyi.xin")))
+      (builtins.map splitName)
+      (builtins.foldl' (acc: r: if builtins.any (x: x.url == r.url) acc then acc else acc ++ [ r ]) [ ])
+      (builtins.sort (a: b: a.url < b.url))
+    ]
+    ++ quickEntrySet
+    ++ monitorEntries;
 
   entriesJson = (pkgs.formats.json { }).generate "navdash-entries.json" {
     entries = entrySet;

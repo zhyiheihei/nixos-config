@@ -97,6 +97,14 @@
       url = "github:xddxdd/markdown-apa7th-docx";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # nixpkgs 的 ncps 0.9.4 不认 attic/cachix 的非 hash NAR URL（#1329，
+    # 2026-06-07 04cb40b 修复），改用上游 flake。go.mod 要求 go >= 1.26.6
+    # 而本仓 nixpkgs 锁在 1.26.5，由 overlay 用 go_1_27 覆盖（见
+    # overlays/60-non-flake-packages.nix），故 follow 本仓 nixpkgs。
+    ncps = {
+      url = "github:kalbasit/ncps";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     never-gonna-rust = {
       url = "github:xddxdd/never-gonna-rust";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -113,10 +121,6 @@
       url = "github:xddxdd/nix-cachyos-kernel/release";
       inputs.flake-compat.follows = "flake-compat";
       inputs.flake-parts.follows = "flake-parts";
-    };
-    nix-darwin = {
-      url = "github:LnL7/nix-darwin";
-      inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-gaming = {
       url = "github:fufexan/nix-gaming";
@@ -138,14 +142,6 @@
       url = "github:kaylorben/nixcord";
       inputs.flake-compat.follows = "flake-compat";
       inputs.flake-parts.follows = "flake-parts";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    # nixpkgs 的 ncps 0.9.4 不认 attic/cachix 的非 hash NAR URL（#1329，
-    # 2026-06-07 04cb40b 修复），改用上游 flake。go.mod 要求 go >= 1.26.6
-    # 而本仓 nixpkgs 锁在 1.26.5，由 overlay 用 go_1_27 覆盖（见
-    # overlays/60-non-flake-packages.nix），故 follow 本仓 nixpkgs。
-    ncps = {
-      url = "github:kalbasit/ncps";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nixfmt-rs = {
@@ -239,7 +235,6 @@
     flake-parts.lib.mkFlake { inherit inputs; } {
       imports = [
         ./flake-modules/commands
-        ./flake-modules/darwin-configurations.nix
         ./flake-modules/nixd.nix
         ./flake-modules/nixos-configurations.nix
         ./flake-modules/nixpkgs-options.nix
@@ -353,9 +348,11 @@
           }
           // lib.optionalAttrs (system == "x86_64-linux") (
             let
-              opi03RedroidKernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/opi03-redroid-kernel {
-                nixpkgsPath = inputs.nixpkgs.outPath;
-              };
+              opi03RedroidKernel =
+                inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/opi03-redroid-kernel
+                  {
+                    nixpkgsPath = inputs.nixpkgs.outPath;
+                  };
             in
             {
               # Use the locked, unpatched nixpkgs input for this isolated cross

@@ -19,9 +19,11 @@ let
       hasTLS = lib.any (l: lib.elem "ssl" (l.extraParameters or [ ])) existing;
     in
     if hasTLS then
-      cfg // {
+      cfg
+      // {
         listen = lib.mkForce (
-          existing ++ [
+          existing
+          ++ [
             {
               addr = "0.0.0.0";
               port = publicHttpsPort;
@@ -193,7 +195,10 @@ in
   # 无解，必须单独开子卷——snapshot 不递归进入子卷，EBUSY 与备份冗余
   # 两个问题同时消失，swapfile 也不需要进 resticIgnored。
   swapDevices = [
-    { device = "/nix/swap/swapfile"; size = 4096; }
+    {
+      device = "/nix/swap/swapfile";
+      size = 4096;
+    }
   ];
 
   # swapDevices 只激活已存在的文件；dd 镜像首启时 swapfile 不存在，
@@ -205,7 +210,10 @@ in
   systemd.services.opi5p-swapfile-bootstrap = {
     description = "Create /nix/swap subvolume and swapfile before swap.target when missing";
     wantedBy = [ "swap.target" ];
-    before = [ "swap.target" "nix-swapfile.swap" ];
+    before = [
+      "swap.target"
+      "nix-swapfile.swap"
+    ];
     requires = [ "nix.mount" ];
     after = [ "nix.mount" ];
     unitConfig = {
@@ -239,12 +247,16 @@ in
     enable = true;
     cameras = {
       bedroom = {
-        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-bedroom-pw"}@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        rtspUrl = "rtsp://admin:${
+          config.sops.placeholder."frigate-bedroom-pw"
+        }@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
         onvifHost = "192.168.0.104";
         zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
       };
       livingroom = {
-        rtspUrl = "rtsp://admin:${config.sops.placeholder."frigate-livingroom-pw"}@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        rtspUrl = "rtsp://admin:${
+          config.sops.placeholder."frigate-livingroom-pw"
+        }@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
         onvifHost = "192.168.0.115";
         zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
       };
@@ -264,7 +276,10 @@ in
       DevicePolicy = lib.mkForce "auto";
     };
   };
-  users.users.immich.extraGroups = [ "video" "render" ];
+  users.users.immich.extraGroups = [
+    "video"
+    "render"
+  ];
   services.udev.extraRules = ''
     KERNEL=="cma", MODE="0660", GROUP="video"
   '';
@@ -319,9 +334,7 @@ in
   ########################################
 
   # 让 8443 由 nginx 原生监听（router 直通到本机 8443，不再转换到 443）。
-  services.nginx.virtualHosts = lib.mkForce (
-    lib.mapAttrs (_: with8443) config.lantian.nginxVhosts
-  );
+  services.nginx.virtualHosts = lib.mkForce (lib.mapAttrs (_: with8443) config.lantian.nginxVhosts);
 
   networking.hosts."${LT.this.interconnect.IPv4}" = [
     "vaults3.zhyi.xin"
@@ -351,8 +364,8 @@ in
   # 所以 TLS 前沿必须落在 opi5p（而非原本只监听家内 443 的 rock5c）。
   # 后端沿用各服务现有 HTTP 中转 vhost，不回源公网 DNS，避免环路。
 
-  # Jellyfin 定格 rock5c（2026-09-04，原迁 macmini 方案废止：macmini 将
-  # 退役不承担服务）。opi5p 保持公网 TLS 前沿，回源 rock5c 的 jellyfin vhost
+  # Jellyfin 定格 rock5c（2026-09-04 决策）。opi5p 保持公网 TLS 前沿，
+  # 回源 rock5c 的 jellyfin vhost
   # （该 vhost 回源本机 unix socket；仅监听家内 443，故经 mesh IP 回源）。
   # 认证为 Jellyfin 自带登录，无 basicAuth。
   lantian.nginxVhosts."jellyfin.zhyi.xin" = {

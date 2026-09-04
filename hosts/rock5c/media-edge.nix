@@ -1,6 +1,5 @@
 {
   config,
-  lib,
   LT,
   ...
 }:
@@ -27,18 +26,22 @@ let
     peerbanhelper = "dragon-q8b";
     tachidesk = "dragon-q8b";
   };
-  mkProxyLocation = service:
-    if builtins.hasAttr service qbitPorts then {
-      proxyPass = "http://${LT.hosts.router.interconnect.IPv4}:${builtins.toString qbitPorts.${service}}";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-      allowCORS = true;
-    } else {
-      proxyPass = "https://${service}.${backendHost.${service} or "opi5p"}.zhyi.xin";
-      proxyOverrideHost = "${service}.${backendHost.${service} or "opi5p"}.zhyi.xin";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-    };
+  mkProxyLocation =
+    service:
+    if builtins.hasAttr service qbitPorts then
+      {
+        proxyPass = "http://${LT.hosts.router.interconnect.IPv4}:${builtins.toString qbitPorts.${service}}";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        allowCORS = true;
+      }
+    else
+      {
+        proxyPass = "https://${service}.${backendHost.${service} or "opi5p"}.zhyi.xin";
+        proxyOverrideHost = "${service}.${backendHost.${service} or "opi5p"}.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+      };
   mkEdgeVhosts = service: [
     {
       name = "${service}.localhost";
@@ -85,8 +88,7 @@ in
         noIndex.enable = true;
       };
       # MoviePilot container needs an HTTP-only Jellyfin API entry; Jellyfin
-      # stays on rock5c (2026-09-04 decision, previously proxied to macmini
-      # which is only powered on occasionally). This vhost keeps its stable
+      # stays on rock5c (2026-09-04 decision). This vhost keeps its stable
       # name so MoviePilot's --add-host continues to point at rock5c, and
       # proxies to the local jellyfin unix socket like the main vhost. The
       # `/Library/SelectableMediaFolders` rewrite is still needed by
