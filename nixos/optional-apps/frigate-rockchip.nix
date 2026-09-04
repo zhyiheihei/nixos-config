@@ -239,6 +239,9 @@ in
     # 被保留，含 ?/& 的 RTSP URL 不加引号直接破 YAML 语法，go2rtc 一条
     # 流都加载不到（2026-09-04 实证）。
     sops.templates."frigate-config" = {
+      # 模板变更时重启容器：create_config.py 只在启动时把 config.yml
+      # 转储成 /dev/shm/go2rtc.yaml 给 go2rtc，不重启不会生效。
+      restartUnits = [ "podman-frigate.service" ];
       content = toYaml "" (
         {
           # 声明当前镜像的配置版本，避免 frigate 误认为 0.13 旧配置而每次启动都迁移。
