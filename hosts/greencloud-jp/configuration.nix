@@ -33,9 +33,11 @@ in
     # Gitea（自 greencloud 迁入，2026-08-29；模块自带 mysql 依赖）。
     ../../nixos/optional-apps/gitea
 
-    # Nextcloud（2026-09-04 自上游对齐启用）：数据库走 Oracle Autonomous
-    # DB（模块内固定连接串），OIDC 登录走 volcengine 的 Dex（client 见
-    # dex.nix，secret 见 common/dex.yaml 的 dex-nextcloud-secret）。
+    # Nextcloud（2026-09-04 自上游对齐启用）：数据库用本机 MariaDB
+    # （与 Gitea 同实例，模块内 createLocally 建库、socket 免密认证；
+    # 上游 oci 类型连的是作者自己的 Oracle ADB，本机没有 Oracle）。
+    # OIDC 登录走 volcengine 的 Dex（client 见 dex.nix，secret 见
+    # common/dex.yaml 的 dex-nextcloud-secret）。
     ../../nixos/optional-apps/nextcloud.nix
 
     # Syncthing 同步节点（自 greencloud 撤销后迁入，2026-09）：本机常驻公网、
