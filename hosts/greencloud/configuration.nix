@@ -17,14 +17,10 @@
     ../../nixos/optional-apps/bird-lg-go.nix
     ../../nixos/optional-apps/byparr.nix
     ../../nixos/optional-apps/flapalerted.nix
-    # Gitea Actions runner：Gitea 服务在 greencloud-jp（性能弱不跑 CI），
-    # runner 留在本机（4 线程）指向 git.zhyi.xin；注册 token 随 DB 迁移仍有效。
+    # Gitea Actions runner：Gitea 在 greencloud-jp（性能弱不跑 CI），runner 留本机。
     ../../nixos/optional-apps/gitea-actions.nix
     ../../nixos/optional-apps/imapfilter.nix
     ../../nixos/optional-apps/lemmy.nix
-    # 2026-09-02 迁回：librechat/n8n 在 opi5p 从未部署成功（mongodb aarch64
-    # 无二进制缓存 OOM），旧数据（postgres n8n 库 + /var/db/mongodb）未动，
-    # 原位恢复即可。radicale-calendar-sync 留在 tencent。
     ../../nixos/optional-apps/librechat.nix
     ../../nixos/optional-apps/maddy.nix
     ../../nixos/optional-apps/matrix-synapse
@@ -40,8 +36,6 @@
     ../../nixos/optional-apps/rsync-server-ci.nix
     ../../nixos/optional-apps/sublinkpro-nix.nix
     ../../nixos/optional-apps/tranquil-pds.nix
-    # Syncthing 节点已撤销（2026-09）：同步节点职责移交给 greencloud-jp
-    # （1T 数据盘 + 常驻公网更合适）。
     ../../nixos/optional-apps/tg-bot-cleaner-bot
     ../../nixos/optional-apps/yggdrasil-alfis.nix
     ../../nixos/optional-apps/zerotierone-controller.nix
@@ -58,8 +52,6 @@
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
   ];
 
-  # UniAPI consolidated to hostdare (2026-08-14): LibreChat's upstream moves
-  # from the retired rock5c UniAPI to the public ai-api.zhyi.xin entry.
   services.librechat.settings.endpoints.custom = lib.mkForce [
     {
       name = "UniAPI";
@@ -73,10 +65,6 @@
       };
     }
   ];
-
-  # Attic 已迁 greencloud-jp（2026-09）：本机不再跑 atticd；
-  # postgres 里 atticd 库保留（导出后已传 jp，可作回滚数据源）。
-  # services.atticd.package = lib.mkForce pkgs.nur-xddxdd.lantianCustomized."attic-telnyx-compatible";
 
   networking.domain = lib.mkForce "zhyi.xin";
 
@@ -127,9 +115,7 @@
 
   lantian.nginxVhosts."greencloud.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
-  # Hydra moved from pve-5700u to ml-builder on 2026-08-12, then to
-  # ml-laptop on 2026-09-04 (ml-builder retirement batch). The common vhost
-  # module keeps the upstream pve-epyc target; override only the backend here.
+  # Hydra 现跑在 ml-laptop（公共 vhost 仍指上游 pve-epyc，此处仅覆写后端）。
   lantian.nginxVhosts."hydra.zhyi.xin".locations."/".proxyPass =
     lib.mkForce "http://${LT.hosts.ml-laptop.ltnet.IPv4}:${LT.portStr.Hydra}";
 

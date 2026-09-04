@@ -15,9 +15,7 @@ let
   # Store paths are 0444, so keep the matching public identity under /root/.ssh
   # with 0600 permissions for agent-backed second-hop deployments.
   macBookIdentity = "/root/.ssh/mac-book-ssh-identity.pub";
-  # 集群统一出站代理（LT.proxyEnvironment），叠加 builder 特有的
-  # Go 模块代理。Flake lock 的拉取在发起客户端侧，FOD fetch 走
-  # multi-user Nix daemon，两侧共用同一代理；内网服务由 bypass 直连。
+  # 集群统一出站代理 + builder 特有 Go 模块代理。
   proxyEnvironment = LT.proxyEnvironment // {
     GOPROXY = "https://goproxy.cn,direct";
   };
@@ -35,8 +33,6 @@ in
 
     # ../../nixos/optional-apps/llama-cpp.nix
     # ../../nixos/optional-apps/llama-cpp-qwen3_6.nix
-    # 2026-08-31 迁出：archiveteam → rock5c，clawemail/epic-awesome-gamer →
-    # dragon-q8b（本机回归纯构建机定位）。
     # ../../nixos/optional-apps/archiveteam.nix
     # ../../nixos/optional-apps/clawemail.nix
     # ../../nixos/optional-apps/epic-awesome-gamer
@@ -59,9 +55,7 @@ in
     mode = "0600";
   };
 
-  # Hydra is disabled here, but the distributed-builder client key it used to
-  # provision is still the one secrets/ssh/nix-builder.nix authorizes on every
-  # nix-builder host. Keep wiring it so nix-distributed can reach the builders.
+  # 该 key 同时是 nix-distributed 到各构建机的 SSH 凭据（hydra 已迁 ml-laptop）。
   sops.secrets.hydra-builder-ssh-privkey = {
     sopsFile = inputs.secrets + "/hydra.yaml";
     key = "hydra-ssh-privkey";
@@ -124,9 +118,8 @@ in
     connect-timeout = lib.mkForce 15;
   };
 
-  # Flake lock updates fetch some inputs in the invoking client, while
-  # fixed-output derivations fetch through the multi-user Nix daemon. Give
-  # both paths the same MetaCubeXD route and keep LAN services direct.
+  # 客户端与 nix-daemon 两侧共用同一代理（flake lock 拉取在客户端侧，
+  # FOD fetch 走 daemon），内网服务由 bypass 直连。
   environment.variables = proxyEnvironment;
   systemd.services.nix-daemon.environment = proxyEnvironment;
 
@@ -139,16 +132,6 @@ in
   # concurrency was capped. Use the full-RAM zram swap so a single linker can
   # survive.
   zramSwap.memoryPercent = lib.mkForce 100;
-  # SC8280XP kernel cross-build with 28-way GCC concurrency exhausts 56 GiB
-  # physical RAM faster than zram can compress.  曾配 64 GiB /nix/swapfile，
-  # 但 2026-08-31 起发现两个问题：swapfile 在 /nix 里会让
-  # backup-nix-persistent 的 btrfs 快照报 "Text file busy"；且 /nix 是
-  # sda2+sdb 双设备 btrfs，swapfile 无法保证落在单设备（内核拒收
-  # "swapfile must be on one device"，跨设备分布全凭分配运气）。
-  # 故移除磁盘 swap，仅保留 zram；如需磁盘 swap 建议加独立 swap 分区。
-  # swapDevices = [
-  #   { device = "/nix/swapfile"; size = 64 * 1024; }
-  # ];
 
   services.openssh.settings.MaxStartups = "64:30:128";
 

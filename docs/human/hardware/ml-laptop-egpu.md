@@ -141,9 +141,11 @@ ACS 移除（项目级 vfio.nix 按需注入）+ egpu-clock-lock 核心锁频 +
 D3cold 四层防护。残余：重度游戏日约 1-2 次掉卡，恢复 = 整机重启
 （或坞断电），全程约 2 分钟。
 
-进行中：`lantian.kernel = linux_6_12` 内核对照（排除 CachyOS 6.18
-thunderbolt 栈回归；NVIDIA 官方支持矩阵钉 6.12）。判定：6.12 下完整
-游戏会话不掉 → 保持覆写；仍掉 → 恢复默认内核，转以下选项：
+内核对照：`lantian.kernel = linux_6_12` 覆写已固化（2026-08-30 起，
+nixpkgs 官方 6.12 LTS；NVIDIA 官方支持矩阵钉 6.12，其 TB 栈久经 LTS 验证；
+lkca-6.12 满足 nvidia 595 的 signed module 要求，extraModulePackages 随
+kernelPackages 自动重编）。判定标准不变：6.12 下完整游戏会话不掉 →
+保持覆写（CachyOS 6.18 TB 栈回归）；仍掉 → 恢复默认内核，转以下选项：
 
 1. 换 Intel 认证 0.5m TB3 短线（链路误码会放大 reclocking 瞬间失联；
    枚举时出现过 `DROM data CRC32 mismatch`）
@@ -153,3 +155,8 @@ thunderbolt 栈回归；NVIDIA 官方支持矩阵钉 6.12）。判定：6.12 下
 关联：Discord 等 Chromium 应用的 Vulkan 视频管线会主动选中 eGPU 加重
 触发（线程 `[vkps] Update`），建议在 Discord 设置中关闭硬件加速（GUI
 操作，未纳入配置）。
+
+相关：Steam 启动包装按 eGPU 在位条件注入 PRIME 变量（拔 eGPU 后强制
+nvidia GLX 会卡死 Steam 自更新），见
+[ml-laptop.md](ml-laptop.md) 的「Steam 启动包装」；CDI generator 同样以
+`/proc/driver/nvidia/version` 为在位条件（Configuration.nix）。

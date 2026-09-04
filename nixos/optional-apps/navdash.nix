@@ -247,14 +247,8 @@ let
     "git.zhyi.xin" = "gitea";
   };
 
-  # 监控卡片：为每个受监控主机生成一张 prometheusmetric 卡片（node
-  # exporter CPU/内存/磁盘利用率），数据经 /api/metrics 从本机 Prometheus
-  # （tencent 上 127.0.0.1:9090）拉取。仅登录可见（私有），挂在「基础设施
-  # 与运维」功能域下；URL 指向 Grafana 监控大盘（与原 homepage 监控卡一致）。
-  # 排除带 client 标签的主机（它们不开 node exporter，无数据可显示），
-  # 以及无 node exporter 数据的主机：h28k/opi03/taishanpi 处于
-  # bring-up（manualDeploy）阶段，node 抓取 target 为 down，实测 CPU/内存
-  # 查询返回空 result，卡片会显示误导性的 0%。
+  # 监控卡片：每主机一张 prometheusmetric 卡片，仅登录可见；排除
+  # client 主机与尚无 node exporter 数据的主机（卡片会显示误导性 0%）。
   noNodeExporterHosts = [
     "h28k"
     "opi03"
@@ -550,8 +544,6 @@ let
       portSuffix = if e.port == null then "" else ":${e.port}";
       pattern = "(\\.${src}\\.zhyi\\.xin|\\.${src}\\.zhyi\\.cc|\\.zhyi\\.xin|\\.zhyi\\.cc|\\.localhost|zhyi\\.xin|zhyi\\.cc)$";
       parts = builtins.split pattern name;
-      # 语义分组：公开 = zhyi.xin（主公开域）；私有 = zhyi.xin /
-      # localhost（基础设施、主机名、内网）。前端按此分组，不再按物理主机。
       group = if lib.hasSuffix ".zhyi.xin" name || name == "zhyi.xin" then "公开" else "私有";
     in
     if builtins.length parts == 1 then
@@ -588,11 +580,7 @@ let
       (builtins.filter (e: !lib.hasPrefix "_" e.name))
       (builtins.filter (e: !lib.hasInfix "*" e.name))
       (builtins.filter (e: !lib.hasPrefix "www." e.name))
-      # .localhost entries are only kept from the current host (they are per-host)
       (builtins.filter (e: !lib.hasSuffix ".localhost" e.name || e.src == thisHost))
-      # Not the redundant per-host top-level alias <host>.zhyi.xin
-      # (subdomains like <svc>.<host>.<domain> are kept, and the root domain
-      # zhyi.xin itself is kept)
       (builtins.filter (e: !(e.name == "${e.src}.zhyi.xin" || e.name == "${e.src}.zhyi.xin")))
       (builtins.map splitName)
       (builtins.foldl' (acc: r: if builtins.any (x: x.url == r.url) acc then acc else acc ++ [ r ]) [ ])

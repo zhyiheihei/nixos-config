@@ -51,6 +51,17 @@ AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模
 工作流/脚本必须显式选择该模型或通过 `AI_MODEL` 注入，不能把其他厂商模型作为
 默认值固化到新链路。
 
+## 额度瀑布与渠道冷却（2026-09-03）
+
+- UniAPI 的 provider 排序即「额度瀑布」优先级：请求按 `_score` 升序依次
+  尝试，额度耗尽（429）的渠道由冷却机制自然沉底。
+- `preferences.cooldown_period = 300`（秒）：额度耗尽的渠道 5 分钟内不参与
+  无效探测，仍能在合理时间内感知周额度刷新。
+- n8n 有专用 key（secrets `uni-api-n8n-api-key`），`model` 锁定为
+  `glm_for_coding`（zhipu-coding 渠道），防止工作流漂移到其他计费渠道。
+- pi（ai-coding 客户端）直连 taotoken 的 OpenAI 兼容端点：taotoken 不是
+  pi 内置渠道，不走 UniAPI 汇聚。
+
 ## 服务职责与位置
 
 | 服务 | 主机 | 作用 | 上游或依赖 |

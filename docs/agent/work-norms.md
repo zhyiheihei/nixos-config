@@ -82,8 +82,9 @@
 
 ## 10. 主机级代理环境统一维护
 
-- 主机级代理统一在 `hosts/<host>/configuration.nix` 的 `proxyBypass` /
-  `proxyEnvironment` 中维护
+- 集群出站代理常量统一在 `helpers/proxy.nix`，规则与特例见
+  [`outbound-proxy.md`](outbound-proxy.md)；服务需要代理时引用
+  `LT.proxyEnvironment`，禁止内联拼 `socks5://`
 - 服务需要额外直连某个域名时，复用已有 bypass 字符串并追加域名，不要在其他文件
   复制一份 `NO_PROXY` 列表
 - 涉及公共模块（如 `ncps.nix`）的代理默认值有差异时，用主机级覆盖，并在提交信息

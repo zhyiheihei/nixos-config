@@ -263,7 +263,9 @@ SD 卡验证通过后，将系统刷入 NVMe 正式使用。
 1. **连 ml-builder 必须 `ssh -A`**（agent forwarding），否则 git 同步失败。
 2. **GCC 版本链**：默认 GCC 15 → 类型不兼容；GCC 13 → 交叉编译器构建失败；
    当前 GCC 14（gcc14Stdenv）。若 GCC 14 仍编译失败，需考虑其他方案。
-3. **swap 已固化**在 ml-builder 配置里，重启不丢，118G 总交换，j28 不会 OOM。
+3. **swap 已固化**在 ml-builder 配置里，重启不丢。后续（2026-08-31）磁盘
+   swapfile 已移除（btrfs 快照 EBUSY + 双设备问题），现仅 zram ~58G；j28
+   类交叉构建靠限并发（max-jobs=1）与 zram 兜底。
 4. **git 同步铁律**：本地改 → push origin → ml-builder `git pull --ff-only`。
    ml-builder 不能直接 push（无权限），需通过本地中转。
 5. **pahole 段错误根因是 BTF（已解决）**：vendored config 从 Armbian 引入了

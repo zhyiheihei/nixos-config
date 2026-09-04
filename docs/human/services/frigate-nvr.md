@@ -47,8 +47,24 @@
   任何带 RKNPU 的 RK 板（RK3566/3568/3588，如 lubancat1、r5c、rock5c）都可
   启用；每个摄像头只需在主机配置里加 `rtspUrl` + `onvifHost`，密码 key 为
   secrets `frigate.yaml` 中的 `<camera>-pw`。
-- `config.yml` 由 sops 模板渲染（JSON 即合法 YAML），摄像头密码在解密时
-  直接替换进文件，不落 Nix store。
+- `config.yml` 由 sops 模板渲染，摄像头密码在解密时直接替换进文件，
+  不落 Nix store。
+- **配置渲染必须用模块自制的块状 toYaml**：nixpkgs 的
+  `lib.generators.toYAML` 实为 `toJSON`，flow 风格会被保留——frigate 的
+  `create_config.py` 用 ruamel 加载 config.yml 后重新转储 go2rtc 段，
+  JSON flow 风格里含 `?`/`&` 的 RTSP URL 不加引号直接破 YAML 语法，
+  go2rtc 一条流都加载不到（2026-09-04 实证）。模板变更时自动重启容器
+  （`restartUnits`）：`create_config.py` 只在启动时把 config.yml 转储成
+  `/dev/shm/go2rtc.yaml`，不重启不生效。
+- sops 模板渲染结果是符号链接，容器内 /run 不同会断链，容器启动前由
+  `podman-frigate` 的 ExecStartPre 先删旧链接再装成真实文件；容器依赖
+  `sops-install-secrets.service`（注意服务名不是 sops-nix.service）。
+- 预设模型（`<model>-<soc>-v2.3.2-2.rknn`）由 nix `fetchurl` 预取并铺进
+  `model_cache/rknn_cache`，确定性、无运行时网络依赖；自定义路径模型
+  （含 `/`）不预取，运行时需自行就位。容器内**不配代理**（模型已预取、
+  RTSP/ONVIF 走内网；且 frigate 的 urllib 模型下载不认 socks5）。
+- `version = "0.17-0"` 显式声明配置版本，避免 frigate 误认为 0.13 旧配置
+  每次启动都迁移。
 - 为什么用官方镜像而不是 nixpkgs 原生包：nixpkgs frigate 依赖
   tensorflow-bin，aarch64 的 tensorflow/tf-keras 2.21 在任何可达缓存中都不
   存在（qemu 交叉编译又在 imports check 崩溃）；且 RKNN 需要 python 3.12
@@ -63,7 +79,7 @@
    登录；frigate 本体不设密码（`auth.enabled=false`，用户/角色由反代 header
    透传，`default_role=admin`）。
 2. 实时预览：Live 页签；历史回放：Recordings 页签按时间线回放。
-3. 检测：RKNN NPU 检测人/车等对象（YOLO-NAS），Events 页签筛选告警片段。
+3. 检测：RKNN NPU 检测（YOLO-NAS），当前只跟踪猫，Events 页签筛选告警片段。
 4. Home Assistant（同机 opi5p）：添加集成 → Frigate，URL 填
    `http://127.0.0.1:5000`（容器 api 端口），按 HA 提示提供 Frigate 用户/
    API key。不依赖 MQTT。
@@ -80,7 +96,7 @@
 | --- | --- |
 | 摄像头 Offline / 拉流失败 | 检查 RTSP 是否在乐橙 App 里开启（设备设置 → 本地接入/RTSP）；`journalctl -u podman-frigate -e` 看 ffmpeg 报错 |
 | 检测器报 rknn 错误 | 确认 `/dev/dri` 存在（rknpu 驱动）、`cat /sys/kernel/debug/rknpu/version` ≥ 0.9.2；模型在 `/config/model_cache/rknn_cache` |
-| 模型下载失败 | 容器网络走 router SOCKS5 代理（`systemctl show podman-frigate -p Environment` 核对）；`NO_PROXY` 未放行 github.com |
+| 模型下载失败 | 模型由 nix 预取（构建期），容器内不再联网下载；确认 `model_cache/rknn_cache/<model>-<soc>-v2.3.2-2.rknn` 存在 |
 | 录像为空 | `df -h /mnt/storage` 确认 NFS；容器内 `ls /media/frigate/recordings` |
 | Web UI 打不开 | `systemctl status podman-frigate nginx`；frigate web 应监听 127.0.0.1:8971 |
 | 401 | 摄像头用户名/密码错误；检查 `sops --decrypt frigate.yaml` 与 App 一致 |
@@ -113,13 +129,22 @@ Frigate 集成组件（frigate-hass 5.15.4，声明式打包）+ 本机 mosquitt
    URL `http://127.0.0.1:5000`（内部未认证端口，无需用户名/密码）
 
 添加后 HA 会获得：
-- **摄像头实体**（`camera.bedroom` / `camera.livingroom`，实时画面经 hass-web-proxy-lib 反代）
+- **摄像头实体**（`camera.bedroom` / `camera.livingroom`）：直播流来自模块
+  生成的同名 go2rtc restream（`rtsp://<host>:8554/<camera>`，host 网络），
+  缺了 HA 里只能看快照；实时画面经 hass-web-proxy-lib 反代
 - **猫检测传感器**（`binary_sensor.bedroom_cat` 等，走 MQTT 实时更新）
 - Frigate 事件/媒体浏览器集成
 
 ## 猫识别与跟踪
 
 - `objects.track = ["cat"]`（COCO labelmap 自带 cat 类），`filters.cat`：
-  `threshold 0.7`、`min_score 0.5`
-- 事件快照已开启（`snapshots.enabled`，保留 7 天），frigate Events 页签可按 cat 筛选
+  `threshold 0.7`（事件判定）、`min_score 0.5`（过滤低置信度）；要同时
+  跟踪人/车再加进 track 列表
+- 自定义分类「毛豆」：子标签方式（`classification.custom`），置信度 ≥0.8
+  的 cat 检测被打上毛豆子标签，HA 里可按子标签过滤
+- 事件快照已开启（`snapshots.enabled`，保留 7 天；HA 摄像头实体缩略图与
+  事件时间线用），frigate Events 页签可按 cat 筛选
 - RKNN NPU 检测（yolonas_s，rk3588 上约 25ms/帧）
+- PTZ 自动跟踪（ONVIF RelativeMove）选项保留但未启用：两台乐橙
+  （TA3R/DK2）实测不支持相对移动（云台物理不动、校准 slope≈0），只保留
+  手动 PTZ 与猫检测告警

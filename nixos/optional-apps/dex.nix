@@ -71,8 +71,6 @@ let
       {
         id = "home-assistant";
         name = "Home Assistant";
-        # 公共 client：无 secret，安全靠 redirect URI + PKCE
-        # （hass-oidc-auth 官方推荐方式）
         public = true;
         redirectURIs = [
           "https://ha.zhyi.xin/auth/oidc/callback"

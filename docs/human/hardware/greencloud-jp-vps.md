@@ -14,7 +14,7 @@
 | DNS | `greencloud-jp.zhyi.xin`（由 `dns/common/host-recs.nix` 自动生成） |
 | 磁盘 | `vda` 40G 系统盘（BIOS 三分区：bios_grub / ext4 `/boot` / btrfs `/nix`）；`vdb` 1T 数据盘（btrfs `/data`） |
 | host.nix | index 130，`ssh.ed25519` 指纹 `SHA256:GJ8IBWu9Q3aPIOaYm8uc62XlJQaPagPjQ+4dyxaZGgk`，`zerotier` = `f4ec4a081c` |
-| 角色 | 异地备份目标：SFTP（chroot `/data/sftp-server`，restic root `/backups/restic`）；S3 网关待部署 |
+| 角色 | 异地备份目标：SFTP（chroot `/data/sftp-server`，restic root `/backups/restic`）；S3 网关（VaultS3，`s3.zhyi.xin`，含 gitea LFS 桶与 attic `nix-cache` 桶）；Gitea（`git.zhyi.xin`，2026-08-29 自 greencloud 迁入）；Syncthing 同步节点（2026-09 自 greencloud 移交，`/data/syncthing`）；Attic 二进制缓存（2026-09 自 greencloud 迁入，S3 后端为本机 VaultS3）；Nextcloud（2026-09-04 启用，本机 MariaDB，OIDC 走 Dex） |
 
 ## 装机记录（2026-08-29）
 
@@ -103,11 +103,16 @@
 - 验证：Web explore 303/证书受信、SSH clone（git@git.zhyi.xin:zhyi/notes.git）
   返回 HEAD；私有仓库 HTTPS 提示凭据为预期行为。
 
+## Gitea Actions runner（2026-09 复核）
+
+Gitea 服务迁到本机后性能弱不跑 CI，runner 留在 greencloud（4 线程）指向
+`git.zhyi.xin`；注册 token 随 DB 迁移仍有效。
+
 ## 待办
 
 - [x] SFTP 登录端到端验证（2026-08-29，google 用 sops 解密的 sftp-privkey
       登录 `sftp@greencloud-jp.zhyi.xin:2222`：chroot 生效、`/backups` 可写、
       上传/读回/删除 roundtrip 通过）。
-- [ ] S3 网关选型与部署（Garage / MinIO，数据盘 `/data`）。
+- [x] S3 网关部署（2026-08-29 选型 VaultS3，见上文；非 Garage/MinIO）。
 - [ ] 决策是否把各服务器 `lantian.backup.sftpEndpoint` 从 `opi5p.zhyi.xin`
       切换到 `greencloud-jp.zhyi.xin`。

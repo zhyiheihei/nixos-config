@@ -24,7 +24,8 @@ flowchart LR
   QNAP["QNAP\n媒体、大文件、S3"]
 
   subgraph Public["公网节点"]
-    VOLCENGINE["volcengine\n身份 / Vaultwarden / Attic / Halo"]
+    VOLCENGINE["volcengine\n身份 / Vaultwarden / Halo"]
+    GJP["greencloud-jp\nGitea / Syncthing / Attic / VaultS3 / Nextcloud"]
     Colo["greencloud\n公网入口 / 协作 / AI 前端"]
     TENCENT["tencent\n公网入口 / DN42 / 监控中心"]
     HOSTDARE["hostdare\n公开 UniAPI / DN42（未验证）"]
@@ -54,7 +55,7 @@ flowchart LR
   Rock --> Provider
   HOSTDARE --> Provider
   Builder -->|"原生 ARM 回退"| OPI
-  VOLCENGINE -->|"Attic S3 数据面"| OPI
+  GJP -->|"Attic S3 数据面（本机 VaultS3）"| GJP
 ```
 
 ## 主机账本
@@ -70,7 +71,7 @@ flowchart LR
 | `ml-home-vm` | server | BIRD、WG/WSS、CoreDNS authoritative、Knot、PowerDNS Recursor、Nginx、Filebeat、exporters | 已退役（2026-08-03）：服务迁至 ROCK5C/OPI5P/PVE，备份端点已迁移 OPI5P |
 | `pve-5700u` | PVE 宿主 | Proxmox VE、VM 数据备份 | 运行，0 failed units；VM 数据备份迁移后复核通过 |
 | `hostdare` | 公网、DN42、`cn-accel` | server 公共基线、公开 UniAPI、V2Ray/OpenVPN 加速 | 公网和 LTNET 均不可达，运行态未验证 |
-| `volcengine` | 公网 server | Attic、Dex、Pocket ID、Vaultwarden、GLAuth、Halo、OAuth2 Proxy、MySQL、PostgreSQL、DNS/Nginx | 运行，0 failed units |
+| `volcengine` | 公网 server | Dex、Pocket ID、Vaultwarden、GLAuth、Halo、OAuth2 Proxy、MySQL、PostgreSQL、DNS/Nginx（Attic 已于 2026-09 迁至 greencloud-jp） | 运行，0 failed units |
 | `greencloud` | 公网、DN42、协作内容中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Plausible、ClickHouse、ZeroTier Controller 等（监控栈 2026-08-14 迁至 tencent） | 运行；OpenVPN 失败，系统 degraded |
 | `tencent` | 公网、DN42、监控中心 | 监控栈（Prometheus/Alertmanager/Blackbox/Grafana）、UniAPI、Metapi、SearXNG、hubproxy（监控栈 2026-08-14 自 greencloud 迁入） | 运行，0 failed units |
 | `google` | 公网、`cn-accel` | server 公共基线、V2Ray、Filebeat；声明中的日志汇聚后端当前不存在 | 运行；OpenVPN 失败，系统 degraded |
@@ -168,11 +169,13 @@ Ignis（web Obsidian，opi5p）直接读写 opi5p 上的 Documents 副本
 目标链路：
 
 ```text
-Hydra（ml-builder） -> ml-builder localhost（x86、大包、kvm/test）
-                    `-> opi5p（仅原生 ARM、单任务）
+Hydra（ml-laptop，2026-09-04 迁入） -> ml-builder（x86、大包、aarch64-cross）
+                                    `-> opi5p（仅原生 ARM、单任务）
+ml-laptop 本机保留 1 个构建槽（小构建/求值期 FOD）
 
-Nix clients -> Attic（volcengine） -> VaultS3（OPI5P -> QNAP）
-            `-> NCPS（opi5p:13851） -> 公共上游缓存
+Nix clients -> Attic（greencloud-jp，2026-09 自 volcengine 迁入）
+            |     `-> VaultS3（greencloud-jp 本机，s3.zhyi.xin）
+            `-> NCPS（dragon-q8b:13851，2026-08 自 opi5p 迁入） -> 公共上游缓存
 ```
 
 实机 substituter：
@@ -187,27 +190,47 @@ Nix clients -> Attic（volcengine） -> VaultS3（OPI5P -> QNAP）
 
 ### 家庭应用、数据与媒体链
 
-`opi5p` 仍是重状态家庭应用节点，`rock5c` 承接媒体播放层：
+`opi5p` 仍是重状态家庭应用节点与公网 TLS 前沿，`rock5c` 承接媒体播放层，
+`dragon-q8b` 承接下载消费类服务（2026-08-28 起自 opi5p 迁出，缓解其
+内存压力）：
 
 - 数据库与缓存（opi5p）：PostgreSQL、MySQL、Redis for Immich、Redis for SearXNG；
-- 家庭应用（opi5p）：Immich、Memos、Home Assistant、ArchiveBox、
-  SearXNG、Calibre COPS；RSS 阅读链为 greencloud 的 Miniflux/RSSHub，
+- 家庭应用（opi5p）：Immich、Home Assistant、ArchiveBox、SearXNG、
+  Calibre COPS；RSS 阅读链为 greencloud 的 Miniflux/RSSHub，
   ArchiveBox 承担无法订阅站点的归档；
 - 下载链路（router）：qBittorrent 单实例；
-- 下载消费方（opi5p）：Bitmagnet、PeerBanHelper、Tachidesk；
+- 下载消费方（dragon-q8b）：Bitmagnet、PeerBanHelper、Tachidesk、
+  Memos、Wallos、Resilio Sync 引擎、NCPS（均为 2026-08/09 自 opi5p 迁入）；
 - 媒体应用（rock5c）：MoviePilot、Jellyfin、HandBrake；
 - 字幕链路（rock5c）：ChineseSubFinder 直扫媒体目录
   （`/media/media-radarr`、`/media/media-sonarr`）下载简中字幕，
   MoviePilot SubtitleAssistant 插件负责事件触发式字幕补充；
-- 文件与设备（opi5p）：NCPS、Syncthing、SFTP、WebDAV、Samba、NFS/QNAP mount、
-  VaultS3 代理、CUPS、Avahi、ClamAV。
+- 文件与设备（opi5p）：Syncthing、SFTP、WebDAV、Samba、NFS/QNAP mount、
+  VaultS3 TLS 前沿、CUPS、Avahi、ClamAV。
+
+**跨机反代规则（2026-09-04 定稿）**：跨机 `-backend` 回源 vhost 模式已全面
+退役（jellyfin-backend/handbrake-backend/tachidesk-backend 均已撤除；上游
+作者没有该惯例）。家庭边缘的入口关系：
+
+- opi5p 是家宽公网唯一 TLS 前沿（WAN 443 被运营商封禁，router 把公网 8443
+  DNAT 直通 opi5p:8443，nginx 原生双监听 443/8443）；解析到 home-ddns 的
+  域名 TLS 必须落在 opi5p。
+- `jellyfin.zhyi.xin` 定格 rock5c（2026-09-04 决策）：opi5p 前沿经 mesh IP
+  回源 rock5c 的 jellyfin vhost（该 vhost 回源本机 unix socket）；
+  MoviePilot 专用 HTTP 入口 `jellyfin-api.rock5c.zhyi.xin` 同步保留。
+- `tachidesk.zhyi.xin`：边缘 rock5c 与前沿 opi5p 直连 dragon-q8b 机器域；
+  basicAuth 两层共用同一份 htpasswd。
+- `memos.zhyi.xin` / `wallos.zhyi.xin`：opi5p 前沿回源 dragon-q8b 内网 443。
+- 历史别名 `*.ml-home-vm.zhyi.xin` 不应再被当作实际后端。
 
 媒体文件仍在 NAS 上由 router、opi5p、rock5c 三机直接 NFS 挂载；MoviePilot
 写 `.nfo` 元数据，Jellyfin 保持只读。NAR、S3
 与 NAS 大流量仍不经 ROCK 5C 中转。
 
-PVE 保留不提供 ARM64 镜像的 ArchiveTeam、ClawEmail 和 Epic Awesome Gamer。
-ml-home-vm 已退役，旧 `*.ml-home-vm.zhyi.xin` 名称不应再被当作实际后端。
+ml-home-vm 已退役。原 ml-builder 上的 amd64-only 容器 2026-08/31 迁出：
+clawemail/epic-awesome-gamer 先迁 dragon-q8b 后因镜像仅 amd64 转迁
+tencent，archiveteam 经 rock5c 短暂中转后同批迁 tencent（2026-09-02，
+提交 690b0d26）；ml-builder 回归纯构建机定位。
 
 ### 协作、监控与日志链
 

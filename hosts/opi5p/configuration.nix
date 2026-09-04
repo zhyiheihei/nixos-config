@@ -69,16 +69,9 @@ in
   # Native builder & NCPS cache egress
   ########################################
 
-  # Fixed-output derivations execute on this native ARM builder. Route their
-  # source downloads through the same stable egress as ml-builder instead of
-  # relying on intermittent direct GitHub connectivity.
-  #
-  # 2026-08-29: 这些代理变量绝不喂给 nix-daemon（曾用
-  # `systemd.services.nix-daemon.environment = config.environment.variables`
-  # 全量灌入）。daemon 的出站 HTTP 经 router V2Ray 阻塞时连接不退，客户端
-  # 超时重连 → sshd/nix-daemon 连环孵化 → OOM 死循环（2TB NVMe 时代与本次
-  # SD 重装均复现；dragon/ml-builder 的 daemon 无代理故永不触发）。
-  # 代理只作用于交互 shell 与显式声明代理的服务。
+  # FOD 下载走统一出站代理。注意代理变量绝不喂给 nix-daemon（出站阻塞时
+  # 连接不退，sshd/nix-daemon 连环孵化 OOM，两代硬件均复现），详见
+  # docs/agent/outbound-proxy.md。
   environment.variables = LT.proxyEnvironment // {
     GOPROXY = "https://goproxy.cn,direct";
     NO_PROXY = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
@@ -178,20 +171,11 @@ in
     ];
   };
 
-  # 关闭 zram：16GB 内存跑十几个重负载服务时，zram 的 zstd 压缩/解压
-  # 让 kswapd0 吃满一个核（98.5% CPU），系统陷入 swap 风暴死亡螺旋
-  # （load 181、全系统 D 状态、SSH 断连）。zram 在内存充裕时是好东西，
-  # 但本机服务密度远超物理内存，zram 的 CPU 开销反而成了系统卡死的
-  # 直接元凶。改用 NVMe swap 文件（GT50 直写 1.8GB/s），swap 读写走
-  # 磁盘不吃 CPU，系统慢但不卡死；内存耗尽时 OOM killer 快速杀进程
-  # 释放内存，比 zram 压缩死循环健康得多。
+  # 关 zram 改 NVMe swapfile：服务密度超物理内存时 zram 压缩把 kswapd
+  # 吃满一核、陷入 swap 风暴（故事见 docs/human/hardware/orangepi-5-plus-redroid.md）。
+  # swapfile 在独立子卷 /nix/swap：btrfs 快照不递归进子卷，避开
+  # "Text file busy"（快照含活动 swapfile 会 EBUSY）。
   zramSwap.enable = lib.mkForce false;
-  # swapfile 必须放在独立子卷 /nix/swap 里：backup-nix-persistent 会对 /nix
-  # 做只读快照，而 btrfs 禁止快照含活动 swapfile 的子卷（EBUSY
-  # "Text file busy"，2026-08-30 实证）。本机 btrfs 没有任何子卷布局
-  #（persistent 是普通目录，snapshot -r /nix 会带上它），swapfile 挪路径
-  # 无解，必须单独开子卷——snapshot 不递归进入子卷，EBUSY 与备份冗余
-  # 两个问题同时消失，swapfile 也不需要进 resticIgnored。
   swapDevices = [
     {
       device = "/nix/swap/swapfile";
@@ -199,12 +183,8 @@ in
     }
   ];
 
-  # swapDevices 只激活已存在的文件；dd 镜像首启时 swapfile 不存在，
-  # swap 单元直接 failed（2026-08-29 实证：全机无 swap 兜底放大了 daemon
-  # 堆积的破坏）。镜像不带 4G 文件（浪费体积），首启按需创建。
-  # DefaultDependencies 必须关：默认隐式 After=basic.target 会构成
-  # swap.target → 本单元 → basic.target → sysinit.target → swap.target
-  # 排序环，systemd 直接删掉 swap.target（2026-08-30 NVMe 首启实证：swap 整轮没起）。
+  # 首启按需创建 swapfile（swapDevices 只激活已存在的文件）；
+  # DefaultDependencies 必须关，否则与 basic.target 构成排序环。
   systemd.services.opi5p-swapfile-bootstrap = {
     description = "Create /nix/swap subvolume and swapfile before swap.target when missing";
     wantedBy = [ "swap.target" ];
@@ -232,7 +212,7 @@ in
   };
 
   ########################################
-  # Frigate NVR（乐橙摄像头 ×2）—— 重装过渡期摘除，NVMe 落定后恢复
+  # Frigate NVR（乐橙摄像头 ×2）
   ########################################
 
   # 摄像头本地密码在 secrets/frigate.yaml（key: bedroom-pw / livingroom-pw），
@@ -262,11 +242,9 @@ in
   };
 
   ########################################
-  # Immich (Rockchip) —— 重装过渡期摘除，2026-08-30 随批次 2 恢复
+  # Immich (Rockchip)
   ########################################
 
-  # 注意：旧 NVMe 的 postgres（immich 库）随盘报废，本次为全新空库起点
-  #（照片本体在 NAS /mnt/storage/immich 未受影响）。
   systemd.services.immich-server = {
     path = [ pkgs.jellyfin-ffmpeg-rockchip ];
     serviceConfig = {
@@ -300,10 +278,6 @@ in
   ########################################
 
   # services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
-
-  # Resilio Sync 引擎已迁至 dragon-q8b（2026-08-28）；同步的数据本体仍
-  # 在 NAS（/mnt/storage/resilio/*）。本机 /nix/persistent/var/lib/resilio-sync
-  # 的 identity/索引随迁移拷走，确认 dragon 稳定后可删除回收空间。
 
   # lantian.ignis.enable = true;
   # lantian.ignis.vaultDir = "/mnt/storage/media/Documents";
@@ -362,10 +336,7 @@ in
   # 所以 TLS 前沿必须落在 opi5p（而非原本只监听家内 443 的 rock5c）。
   # 后端沿用各服务现有 HTTP 中转 vhost，不回源公网 DNS，避免环路。
 
-  # Jellyfin 定格 rock5c（2026-09-04 决策）。opi5p 保持公网 TLS 前沿，
-  # 回源 rock5c 的 jellyfin vhost
-  # （该 vhost 回源本机 unix socket；仅监听家内 443，故经 mesh IP 回源）。
-  # 认证为 Jellyfin 自带登录，无 basicAuth。
+  # Jellyfin 定格 rock5c：本机只做公网 TLS 前沿，经 mesh IP 回源。
   lantian.nginxVhosts."jellyfin.zhyi.xin" = {
     locations = {
       "/" = {
@@ -384,8 +355,7 @@ in
     noIndex.enable = true;
   };
 
-  # QNAP NAS 管理界面，与 opi5p 同网段，直接回源 NAS 自身。
-  # 认证与 rock5c 的 qnap.zhyi.xin 一致（无 basicAuth，QNAP 自带登录）。
+  # QNAP NAS 管理界面（同网段直回源，QNAP 自带登录）。
   lantian.nginxVhosts."qnap.zhyi.xin" = {
     locations = {
       "/" = {
@@ -399,9 +369,7 @@ in
     noIndex.enable = true;
   };
 
-  # Memos / Wallos 迁到 dragon-q8b（Qualcomm SC8280XP）。opi5p 保持公网
-  # 8443 TLS 前沿，回源 dragon-q8b 内网 443。（FileCodeBox / Sun Panel
-  # 曾同期迁出，2026-09-03 两者均已退役，vhost 一并删除。）
+  # Memos / Wallos：后端在 dragon-q8b，本机只做公网 TLS 前沿。
   lantian.nginxVhosts."memos.zhyi.xin" = {
     locations = {
       "/" = {
@@ -438,9 +406,8 @@ in
     noIndex.enable = true;
   };
 
-  # Tachidesk 迁至 dragon-q8b，opi5p 保持公网 8443 TLS 前沿，回源 dragon-q8b。
-  # basicAuth 在两层 nginx 上都启用（同一份 htpasswd，客户端只需输入一次），
-  # 满足 nginx-security 策略断言且不改变访问控制语义。
+  # Tachidesk：后端在 dragon-q8b；basicAuth 两层 nginx 同一份 htpasswd
+  # （客户端只需输入一次，满足 nginx-security 断言）。
   lantian.nginxVhosts."tachidesk.zhyi.xin" = {
     locations = {
       "/" = {
@@ -460,11 +427,8 @@ in
     noIndex.enable = true;
   };
 
-  # Linkr：家庭内网设备（固定 IP，mDNS 名 linkr-zhyi.local 不再使用——
-  # nginx 启动时即解析 proxyPass 主机名，mDNS 抖动会直接炸 nginx，且设备
-  # 已改用静态地址 192.168.0.42）。
-  # *.opi5p.zhyi.xin 的 DNS 通配记录本就指向本机 LTNET 地址，无公网解析，
-  # 无需新增记录。
+  # Linkr：家庭内网设备（固定 IP；不用 mDNS 名——nginx 启动即解析
+  # proxyPass 主机名，mDNS 抖动会炸 nginx）。
   lantian.nginxVhosts."linkr.opi5p.zhyi.xin" = {
     locations = {
       "/" = {
@@ -475,9 +439,7 @@ in
     };
 
     accessibleBy = "private";
-    # 两级子域不在 zerossl-zhyi.xin 通配范围内，须用 opi5p 机器通配证书
-    # （同 syncthing 模块的 zerossl-${hostName} 模式），否则浏览器报
-    # 证书主机名不匹配（2026-09-04 homepage 检查轮 7 修复）。
+    # 两级子域不在 zerossl-zhyi.xin 通配范围，须用本机通配证书。
     sslCertificate = "zerossl-opi5p.zhyi.xin";
     noIndex.enable = true;
   };

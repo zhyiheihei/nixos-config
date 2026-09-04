@@ -44,7 +44,7 @@ let
         };
         role = "admin";
       }
-      # n8n 专用 key：锁定 glm_for_coding（zhipu-coding 渠道）。
+      # n8n 专用 key，锁定 glm_for_coding
       {
         api = {
           _secret = config.sops.secrets."uni-api-n8n-api-key".path;
@@ -54,8 +54,6 @@ let
       }
     ];
 
-    # 300s：额度耗尽的渠道（429）减少无效探测，
-    # 仍能在合理时间内感知周额度刷新。
     preferences.cooldown_period = 300;
   };
 in

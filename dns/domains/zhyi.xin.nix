@@ -54,7 +54,7 @@ let
     {
       recordType = "CNAME";
       name = "attic";
-      # atticd 自 greencloud 迁 greencloud-jp（2026-09），存储改本地盘
+      # atticd 自 greencloud 迁 greencloud-jp（2026-09）
       target = "greencloud-jp.zhyi.xin.";
       ttl = "1h";
     }
@@ -90,7 +90,7 @@ let
     }
     {
       recordType = "CNAME";
-      # Nextcloud（greencloud-jp，Oracle Autonomous DB 远端库）。
+      # Nextcloud（greencloud-jp）。
       name = "cloud";
       target = "greencloud-jp.zhyi.xin.";
       ttl = "1h";
@@ -386,9 +386,7 @@ let
     }
     {
       recordType = "CNAME";
-      # 2026-09-04 自 searx.tencent 改名：vhost 名为 searx.zhyi.xin
-      # （searxng.nix，private ACL），LTNET 视图名字须与 vhost 一致，
-      # 否则 mesh 内解析不到（homepage 检查 B4）。
+      # LTNET 视图名须与 vhost 名（searx.zhyi.xin）一致，否则 mesh 内解析不到。
       name = "searx";
       target = "tencent.ltnet.zhyi.xin.";
       ttl = "1h";

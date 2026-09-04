@@ -19,8 +19,8 @@ let
     pt = LT.port.qBitTorrentPT.WebUI;
     seedbox = LT.port.qBitTorrentSeedbox.WebUI;
   };
-  # 边缘反代的后端所在主机。bitmagnet 于 2026-08-28、peerbanhelper 于
-  # 2026-08、tachidesk 于 2026-09-04 迁至 dragon-q8b；其余仍在 opi5p。
+  # 边缘反代后端所在主机（bitmagnet/peerbanhelper/tachidesk 在 dragon-q8b，
+  # 其余在 opi5p）。
   backendHost = {
     bitmagnet = "dragon-q8b";
     peerbanhelper = "dragon-q8b";
@@ -59,9 +59,7 @@ in
   lantian.nginxVhosts =
     builtins.listToAttrs (builtins.concatLists (map mkEdgeVhosts edgeServices))
     // {
-      # tachidesk 跑在 dragon-q8b（模块 vhost 与上游逐字对齐：
-      # tachidesk.zhyi.xin + basicAuth），边缘直连其机器域，不再经
-      # opi5p 的 tachidesk-backend 死跳（2026-09-04 撤除跨机 -backend）。
+      # tachidesk 后端在 dragon-q8b，边缘直连其机器域。
       "tachidesk.zhyi.xin" = {
         locations."/" = (mkProxyLocation "tachidesk") // {
           enableBasicAuth = true;
@@ -87,13 +85,8 @@ in
         accessibleBy = "localhost";
         noIndex.enable = true;
       };
-      # MoviePilot container needs an HTTP-only Jellyfin API entry; Jellyfin
-      # stays on rock5c (2026-09-04 decision). This vhost keeps its stable
-      # name so MoviePilot's --add-host continues to point at rock5c, and
-      # proxies to the local jellyfin unix socket like the main vhost. The
-      # `/Library/SelectableMediaFolders` rewrite is still needed by
-      # MoviePilot's media library scan to present the union of
-      # media-radarr/media-sonarr folders.
+      # MoviePilot 专用 HTTP-only Jellyfin API 入口（--add-host 指名依赖
+      # 此稳定域名；rewrite 供其媒体库扫描聚合 radarr/sonarr 目录）。
       "jellyfin-api.${config.networking.hostName}.zhyi.xin" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;

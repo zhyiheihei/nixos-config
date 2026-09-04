@@ -33,14 +33,9 @@
     ../../nixos/optional-apps/whisper-cpp.nix
 
     # 本机保留（上游 lt-hp-omen 列表之外的必要项）：
-    # - Sunshine：本机是 Moonlight 远程控制的目标设备，串流服务端必须有。
-    # - ncps-client：全仓各主机统一导入的局域网二进制缓存代理（ opi5p NCPS
-    #   单一入口），属构建基础设施而非应用；删掉会回退直连公网缓存，显著变慢。
-    # - leigod-accelerator：雷神加速器后台守护（官方无 Linux 桌面版，基于
-    #   SteamDeck 插件二进制移植，模块内注释有全部适配细节）。
-    # - hydra：CI 自 ml-builder 迁入（2026-09-04）；构建分发远端
-    #   （x86/aarch64-cross → ml-builder，aarch64 原生 → opi5p），
-    #   本机仅保留 1 个本地槽，见下方 max-jobs 与 buildMachines 覆盖。
+    # - Sunshine：Moonlight 串流服务端。
+    # - ncps-client：局域网二进制缓存代理接入。
+    # - hydra：CI（构建拓扑见 docs/agent/hydra-build-chain.md）。
     ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/hydra
@@ -48,20 +43,11 @@
     # ../../nixos/optional-apps/leigod-accelerator.nix
   ];
 
-  # Hydra evaluator（及其 fork 出的 nix fetch 子进程）直连 GitHub 拉 flake
-  # inputs 极慢（2026-09-04 实测求值长期卡在 fetch 阶段），给 evaluator
-  # unit 注入集群统一出站代理；不动公共模块 nixos/optional-apps/hydra。
-  # bypass 已含两个内网段：opi5p ncps substituter（192.168.0.66:13851，
-  # netrc 认证）与 LTNET 服务均直连。
+  # Hydra evaluator 直连 GitHub 拉 flake inputs 会长期卡死，注入出站代理。
   systemd.services.hydra-evaluator.environment = LT.proxyEnvironment;
 
-  # 构建拓扑：本机保留 1 个本地构建槽吸收小构建与求值期 FOD，避免
-  # builder 网络抖动时全部外派空转；host.nix 不打 nix-builder 标签，
-  # 故不对外通告本机。/etc/nix/machines（由 nix.buildMachines 生成）
-  # 仅含远端：ml-builder 条目额外通告 aarch64-cross——ARM 厂商内核
-  # 交叉构建带 requiredSystemFeatures = [ "aarch64-cross" ] 硬性要求，
-  # 不通告则 max-jobs 外无机器可接、直接失败。hydra 经
-  # /etc/nix/machines 分发，与本机 daemon 用同一份机器清单。
+  # 构建拓扑：本机仅 1 个本地槽、不对外通告（host.nix 无 nix-builder 标签），
+  # 详见 docs/agent/hydra-build-chain.md。
   nix.settings.max-jobs = 1;
   nix.buildMachines = lib.mkForce (
     let
@@ -89,9 +75,8 @@
   );
   services.hydra.buildMachinesFiles = lib.mkForce [ "/etc/nix/machines" ];
 
-  # 对齐 ml-builder 的 aarch64-cross 通告：四个 ARM 硬件内核包带
-  # requiredSystemFeatures = [ "aarch64-cross" ]，本地 daemon 必须声明该
-  # feature 才能在本机跑这些构建（binfmt 已由 client tag 启用）。
+  # 本地 daemon 声明 aarch64-cross，与 ml-builder 的通告对齐（ARM 内核
+  # 交叉构建带 requiredSystemFeatures 硬性要求）。
   nix.settings.extra-system-features = [ "aarch64-cross" ];
 
   # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。
@@ -125,13 +110,9 @@
     persistentTimer = true;
   };
 
-  # Z.ai 官方 AI 编码桌面应用（GLM harness）：包与模块主体在 zhyi-packages，
-  # 本机只设开关，见 nixos/client-apps/zcode.nix。
   lantian.zcode.enable = true;
 
-  # 与作者 lt-hp-omen 逐字对齐的 HiDPI（grub/console 字体缩放）。
-  # 2026-09-03：1.5 → 1.6，与 KWin Wayland 输出缩放（kscreen 里的 1.6）一致，
-  # 让 X11 应用（Xft.dpi = hidpi × 96）与 Wayland 原生应用视觉大小统一。
+  # HiDPI（1.6 与 KWin Wayland 输出缩放一致，X11/Wayland 视觉统一）。
   lantian.hidpi = 1.6;
 
   # 与上游 lt-hp-omen 逐字对齐：ROC 网络音频发送目标（pipewire-roc-sink 的
@@ -239,9 +220,8 @@
 
   virtualisation.waydroid.enable = true;
 
-  # waydroid 硬编码挂载 $XDG_RUNTIME_DIR/pulse/native，而本机 PipeWire 跑在
-  # 系统级（socket 在 /var/run/pulse/native），没有这个链接时 lxc 挂载失败、
-  # 容器无法启动。
+  # waydroid 硬编码挂载 $XDG_RUNTIME_DIR/pulse/native，而本机 PipeWire
+  # 跑在系统级（/var/run/pulse/native），缺链接则容器无法启动。
   systemd.user.tmpfiles.rules = [
     "L+ %t/pulse/native - - - - /var/run/pulse/native"
   ];
@@ -294,21 +274,10 @@
   systemd.services.nvidia-container-toolkit-cdi-generator.unitConfig.ConditionPathExists =
     "/proc/driver/nvidia/version";
 
-  # 内核对照实验（2026-08-30）：CachyOS lts-lto（6.18）的 thunderbolt/PCIe
-  # 热插拔栈在显存 reclocking 瞬间仍失联（锁核心频率只降低概率：完整游戏
-  # 会话 ~3.5h 必死一次，另有全程无 Xid 的静默死）。换 nixpkgs 官方 6.12
-  # LTS 内核做对照——NVIDIA 官方支持矩阵钉在 6.12，其 TB 栈久经 LTS 验证。
-  # 注意：lkca-6.12 = nvidia 595 需要的 signed module 支持；extraModulePackages
-  # 与外置模块（cryptodev/emperors-scepter 等）随 kernelPackages 自动重编。
-  # 若 6.12 下掉卡消失 → CachyOS 6.18 TB 栈回归，保持本覆写；若依旧 →
-  # 排除内核因素，恢复 lantian.kernel 默认值，下一步是坞固件/换线/报 upstream。
+  # nixpkgs 6.12 LTS 内核覆写（eGPU TB3 稳定性对照，见 ml-laptop eGPU 文档）。
   lantian.kernel = lib.mkForce pkgs.linuxKernel.packages.linux_6_12.kernel;
 
-  # eGPU 核心频率锁定：TB3 隧道在核心 P-state 切换瞬间（405↔7000MHz
-  # 跳变）易失联（Xid 79/109，完整游戏会话必触发）。锁 1500MHz 后完整
-  # 会话实测干净。1500MHz 是 Turing 的甜点档：游戏帧率损失约 10%，
-  # 空载功耗约 +10W（22W）。显存锁（-lmc）TB3 下驱动不支持，无法消除
-  # 显存切换，但实测已不致命。坞未接时 unit 条件不满足、自动跳过。
+  # eGPU 核心频率锁定 1500MHz（TB3 P-state 跳变失联的缓解，见 eGPU 文档）。
   systemd.services.egpu-clock-lock = {
     description = "Lock eGPU core clock to avoid TB3 P-state transition drops";
     wantedBy = [ "multi-user.target" ];
@@ -326,95 +295,27 @@
     '';
   };
 
-  # 雷电坞 eGPU（RTX 2080 Ti via TBT3 Oculink dock），仅本机。
-  #
-  # ==================== eGPU 排障终版结论（2026-08-29） ====================
-  #
-  # 症状一：Xid 79 "GPU has fallen off the bus"（空载/负载均可触发）
-  #   根因：vfio.nix 无条件注入的 pcie_acs_override 在雷电桥上伪造 ACS、
-  #   破坏隧道 PCIe 事务路由。已在项目级修复：仅直通设备非空才注入
-  #   （hardware/vfio.nix）。
-  #   残留触发源（两个，均已实测）：核心 P-state 切换瞬间（游戏菜单/
-  #   加载/退出时 405↔7000MHz 跳变）冲击 TB3 隧道——完整游戏会话在
-  #   250W/180W 限功下均会 Xid 79/109，锁核心 1500MHz 后完整会话干净
-  #   通过（16:44-17:20 实测，含进出菜单的显存切换）；Chromium 系应用
-  #   （Discord 实测）的 Vulkan 视频管线主动选 eGPU 也会触发。
-  #   缓解：下方 egpu-clock-lock 服务开机锁定核心频率；Discord 关闭
-  #   硬件加速（GUI 设置）。锁定需 nvidia-smi -pm 1 先行，显存锁 TB3
-  #   下驱动不支持（-lmc 报 not supported）。
-  #
-  # 症状二：游戏回落核显（535 降级期间出现，现已消除）
-  #   根因：535 的 Vulkan 缺 VK_KHR_load_store_op_none，Proton DXVK 3.x
-  #   将其列为硬性要求，2080 Ti 被判不合格（steam-1466860.log 实录）。
-  #   595 支持该扩展。已撤销降级回默认驱动，游戏由 DXVK/VKD3D 按最大
-  #   显存自动选 2080 Ti，无需任何过滤器/手动配置。
-  #
-  # 电源管理（保留，证据充分）：Xid 154 / "D3cold to D0 device
-  #   inaccessible" 由 TLP 对隧道上设备的运行时 PM 引起（finegrained 只
-  #   管 .0 功能，管不住 .2/.3 和上游桥）。以下四层防护全部保留：
-  #   TLP RUNTIME_PM_DENYLIST + udev 强制 power/control=on +
-  #   NVreg_DynamicPowerManagement=0 + finegrained=false。
-  #
-  # 恢复手段：掉线后软件无法救回（PCI remove/rescan、CTO 调整均实测
-  #   无效；勿在 RM 运行时改 GPU 端点 DevCtl2，会致 RmInitAdapter
-  #   0x22:0x56:774 全灭）。整机重启或坞断电重插可恢复。
-  #
-  # 已排除的其他假说：CTO 完成超时（根端口禁用后仍掉）；硬件本体
-  #   （Windows 同硬件零故障）；坞内交换芯片 DevCtl2（只读不可改）。
-  # ========================================================================
+  # 雷电坞 eGPU（RTX 2080 Ti via TBT3 Oculink dock）：完整排障记录、
+  # 根因结论与防护层级见 docs/human/hardware/ml-laptop-egpu.md。
   hardware.nvidia.powerManagement.finegrained = lib.mkForce false;
   hardware.nvidia.open = lib.mkForce false;
 
-  # DXVK/VKD3D 过滤器已撤销：535 缺 VK_KHR_load_store_op_none 时过滤器
-  # 只会让 DXVK 找不到任何设备而秒退；回 595 后 DXVK/VKD3D 默认选最大
-  # 显存设备，自动走 2080 Ti，无需任何干预。
-
-  # eGPU 经雷电 3 隧道连接，PCI 总线号由雷电拓扑决定。公共 prime.nix
-  # 硬编码 nvidiaBusId="PCI:1:0:0"（适用于 PCIe 直连 dGPU 如 lt-hp-omen），
-  # 但本机 eGPU 实际在 0000:04:00.0（PCI:4:0:0）。BusId 不匹配会导致
-  # X server PRIME offload 指向错误设备。
+  # eGPU 实际在 0000:04:00.0（总线号由雷电拓扑决定，公共 prime.nix 按
+  # PCIe 直连 dGPU 硬编码 PCI:1:0:0）。
   hardware.nvidia.prime.nvidiaBusId = lib.mkForce "PCI:4:0:0";
 
-  # RTD3 防护：DynamicPowerManagement=0 防 eGPU 被驱动打入 D3cold 后
-  # 唤醒失败（Xid 154，详见下方 TLP 段）。EnableGpuFirmware=0 禁 GSP
-  # 为保险项（其原始理论依据已被 ACS 结论推翻，无正/反实证），保留作
-  # 为稳定性回归时的第一个排查开关。
+  # RTD3 防护：关驱动内部电源管理防 D3cold 唤醒失败（Xid 154）。
   hardware.nvidia.moduleParams.nvidia.NVreg_DynamicPowerManagement = 0;
   hardware.nvidia.moduleParams.nvidia.NVreg_EnableGpuFirmware = 0;
 
-  # eGPU（RTX 2080 Ti via Thunderbolt 3 Oculink dock）运行时电源管理修复。
-  #
-  # 根因：公共 client-components/tlp.nix 的 RUNTIME_PM_ON_AC=auto 对所有
-  # PCIe 设备启用运行时 PM。eGPU 经雷电 3 链路连接，其附属功能（.2 USB
-  # xHCI、.3 UCSI）进入 D3cold 后无法经雷电线唤醒（dmesg 实测 "Unable to
-  # change power state from D3cold to D0, device inaccessible"），导致整卡
-  # 不可访问、NVRM Xid 154（Node Reboot Required）。hardware.nvidia.
-  # powerManagement.finegrained=mkForce false 只管 .0 VGA 功能的 RTD3，
-  # 管不住 TLP 对 .2/.3 的运行时 PM。上游 lt-hp-omen 的 dGPU 是 PCIe 直连，
-  # D3cold 唤醒无问题，故公共 tlp.nix 不做地址排除。
-  #
-  # 之前修复失败的根因：用了不存在的 TLP 选项名 PCIE_RUNTIME_PM_DENYLIST
-  # 和带 0000: 前缀的地址格式。TLP 1.10.2 的正确选项名是
-  # RUNTIME_PM_DENYLIST，地址格式同 lspci 第一列（不带 domain 前缀）。
-  #
-  # 修复两路：
-  # 1. TLP RUNTIME_PM_DENYLIST：排除 eGPU 全部 4 条功能 + 上游雷电桥
-  #    （03:02.0/03:04.0 已观测到 suspended）。
-  # 2. udev 兜底：强制 power/control=on，防止 nvidia powerManagement 的
-  #    bind udev 规则把 .0 设回 auto。udev KERNEL 用 sysfs 全名（带 0000:）。
-  # PCIe 地址由雷电拓扑决定，dock/USB-C 口不变则固定。
+  # TLP 运行时 PM 排除（eGPU 全部 4 条功能 + 上游雷电桥；D3cold 唤醒
+  # 失败即 Xid 154 的根因，见 eGPU 文档）。
   services.tlp.settings = {
-    # eGPU 运行时 PM 排除（见上方注释）
     RUNTIME_PM_DENYLIST = lib.mkForce "02:00.0 03:01.0 03:02.0 03:04.0 04:00.0 04:00.1 04:00.2 04:00.3";
 
-    # AC 模式：高负载全力释放性能、低负载自动降频不发热。
-    # governor 不能用公共模块的 performance（intel_pstate active 下恒定
-    # 最高频，负载 0.65 也飙 4.3GHz/70°C），也不能用 schedutil（intel_pstate
-    # active 只暴露 performance/powersave，TLP 报 governor not available
-    # 后整段配置失效）；powersave 在 active 模式即 HWP 自动调频，配
-    # EPP=performance：重载最大 boost、轻载自动回落。平台档 performance：
-    # 风扇由 BIOS/EC 曲线控制（pwm1_enable=2），balanced 档高温也不拉满，
-    # 这是 Linux 侧唯一有效的风扇入口。电池模式仍是 powersave，不变。
+    # AC 模式：governor powersave（intel_pstate active 下即 HWP 自动调频，
+    # performance/schedutil 均不可用）+ EPP performance + 平台档
+    # performance（Linux 侧唯一有效风扇入口），详见 ml-laptop 文档。
     CPU_SCALING_GOVERNOR_ON_AC = lib.mkForce "powersave";
     CPU_ENERGY_PERF_POLICY_ON_AC = lib.mkForce "performance";
     PLATFORM_PROFILE_ON_AC = lib.mkForce "performance";

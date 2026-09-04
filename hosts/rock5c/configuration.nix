@@ -5,7 +5,6 @@
   ...
 }:
 let
-  # 集群统一出站代理 + 本机特有豁免（m-team PT 域名直连）。
   proxyEnvironment = LT.proxyEnvironment // {
     NO_PROXY = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
     no_proxy = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
@@ -21,9 +20,6 @@ in
     # Phase 1 of the ml-home-vm split migration.  These services stay on the
     # ROCK 5C address until the edge role has been verified and cut over.
     ../../nixos/optional-apps/metacubexd.nix
-    # archiveteam 曾于 2026-08-31 自 ml-builder 迁入，但 warrior 镜像仅有
-    # amd64 变体，与 clawemail/epic 同款限制；2026-09-02 按同一决策迁至
-    # x86_64 的 tencent，本机不再承接。
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
 
     ./hardware-configuration.nix

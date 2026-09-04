@@ -4,9 +4,7 @@
   tags = with tags; [
     client
     lan-access
-    # 2026-09-05：本机跑 Hydra 并保留 1 个本地构建槽（max-jobs = 1），
-    # 但不打 nix-builder 标签——不对外通告为集群构建机，避免其他主机
-    # 的分布式构建派发到这台笔记本。
+    # 无 nix-builder：本机跑 Hydra（max-jobs = 1），但不对外通告为集群构建机。
   ];
   city = geo.cities."CN Ningbo";
   cpuThreads = 18;

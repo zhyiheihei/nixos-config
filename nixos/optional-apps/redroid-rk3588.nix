@@ -85,7 +85,6 @@
         systemd.services.podman-redroid = {
           wants = [ "network-online.target" ];
           after = [ "network-online.target" ];
-          # 镜像加速域名直连，其余按集群统一出站代理。
           environment = LT.proxyEnvironment // {
             NO_PROXY = "${LT.proxyBypass},docker.m.daocloud.io";
           };

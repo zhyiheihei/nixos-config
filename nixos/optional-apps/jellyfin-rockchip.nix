@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  LT,
   pkgs,
   utils,
   ...
@@ -111,11 +110,7 @@ in
         sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
-      # jellyfin-backend.opi5p.zhyi.xin HTTP-only 回源 vhost 已于 2026-09-04
-      # 撤除：它专为已退役的 ml-home-vm 前沿设计（上游无跨机 -backend 惯例，
-      # 对应物是 jellyfin.localhost），前沿退役后无任何消费者，且 mesh DNS
-      # 按名字模式把它解析到 opi5p 导致死链。jellyfin 定格 rock5c 后，
-      # 公网入口即上方 jellyfin.zhyi.xin（本机 unix socket 直连）。
+      # 上游对应物 jellyfin.localhost（跨机 -backend vhost 已撤除，见 fleet 文档）
       "jellyfin.localhost" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
@@ -133,22 +128,21 @@ in
     };
 
     systemd.services.jellyfin = netns.bind {
-      environment =
-        {
-          JELLYFIN_kestrel__socket = "true";
-          JELLYFIN_kestrel__socketPath = "/run/jellyfin/socket";
-          JELLYFIN_kestrel__socketPermissions = "0777";
-          # Home broadband filters inbound 443. The router exposes this TLS
-          # vhost publicly on 8443, matching the existing vaults3 pattern.
-          JELLYFIN_PublishedServerUrl = "https://jellyfin.zhyi.xin:8443";
-        }
-        // lib.optionalAttrs hasHdrToneMapping {
-          # ocl-icd does not discover hardware.graphics' vendor directory by
-          # itself. Point Jellyfin/FFmpeg at the pinned Armbian Mali runtime so
-          # the zero-copy RKMPP -> OpenCL -> RKMPP HDR path is available.
-          OCL_ICD_VENDORS = "${pkgs.libmali-rockchip-g610}/etc/OpenCL/vendors";
-          LD_LIBRARY_PATH = "${pkgs.libmali-rockchip-g610}/lib";
-        };
+      environment = {
+        JELLYFIN_kestrel__socket = "true";
+        JELLYFIN_kestrel__socketPath = "/run/jellyfin/socket";
+        JELLYFIN_kestrel__socketPermissions = "0777";
+        # Home broadband filters inbound 443. The router exposes this TLS
+        # vhost publicly on 8443, matching the existing vaults3 pattern.
+        JELLYFIN_PublishedServerUrl = "https://jellyfin.zhyi.xin:8443";
+      }
+      // lib.optionalAttrs hasHdrToneMapping {
+        # ocl-icd does not discover hardware.graphics' vendor directory by
+        # itself. Point Jellyfin/FFmpeg at the pinned Armbian Mali runtime so
+        # the zero-copy RKMPP -> OpenCL -> RKMPP HDR path is available.
+        OCL_ICD_VENDORS = "${pkgs.libmali-rockchip-g610}/etc/OpenCL/vendors";
+        LD_LIBRARY_PATH = "${pkgs.libmali-rockchip-g610}/lib";
+      };
       serviceConfig = {
         RuntimeDirectory = "jellyfin";
         # Rockchip MPP identifies the SoC through

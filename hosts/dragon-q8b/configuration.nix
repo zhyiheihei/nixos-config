@@ -12,8 +12,6 @@
     ./home-services.nix
     ./media-automation.nix
 
-    # 从 opi5p 迁入（2026-08-28）：ncps 缓存代理与 Resilio Sync 引擎。
-    # opi5p 侧同步移除（configuration.nix / media-center.nix）。
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/resilio-sync.nix
   ];
@@ -114,14 +112,9 @@
     requires = [ "mnt-storage.mount" ];
   };
 
-  # 关闭 zram（2026-08-28，与 opi5p 同款修复）：本机内存 8G，迁入 Resilio
-  # （~2.4G RSS）与 bitmagnet/postgres 后服务密度接近物理内存上限。zram 的
-  # zstd 压缩在内存吃满时让 kswapd 吃满一个核，陷入 swap 风暴死亡螺旋
-  # （opi5p 已实测 load 181）。改用 NVMe swap 文件兜底。
+  # 关 zram 改 NVMe swapfile（与 opi5p 同款：服务密度超物理内存后 zram
+  # 压缩致 swap 风暴）；swapfile 在独立子卷 /nix/swap，避免 /nix 快照 EBUSY。
   zramSwap.enable = lib.mkForce false;
-  # swapfile 移入独立子卷 /nix/swap（2026-09-01）：放在 /nix 下会让
-  # backup-nix-persistent 对 /nix 的 btrfs 快照报 "Text file busy"，
-  # 快照会跳过嵌套子卷，故 /nix/swap 不再阻碍每日备份。
   swapDevices = [
     {
       device = "/nix/swap/swapfile";
@@ -129,18 +122,13 @@
     }
   ];
 
-  # Resilio Sync 引擎从 opi5p 迁入（2026-08-28）。identity/索引状态
-  # （/var/lib/resilio-sync，4.4G）已 rsync 到本机持久盘；同步的文件夹
-  # 数据本体在 NAS（/mnt/storage/resilio/*，与 opi5p 同一 NFS share，
-  # 模块 bind 到 /sync 与 /downloads，数据库里的路径无需改动）。
+  # Resilio Sync 数据本体在 NAS（与 opi5p 同一 NFS share，数据库路径不变）。
   lantian.resilioSync = {
     dataDir = "/mnt/storage/resilio/data";
     downloadsDir = "/mnt/storage/resilio/downloads";
   };
 
-  # NCPS 上游（cache.nixos.org / attic 等）需走 router SOCKS5 出口；
-  # ncps.nix 模块只定义监听地址与缓存参数，代理环境在这里补齐
-  # （与 opi5p configuration.nix 的同名块一致）。
+  # NCPS 上游走统一出站代理（m-team 豁免）。
   systemd.services.ncps.environment = LT.proxyEnvironment // {
     NO_PROXY = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
     no_proxy = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";

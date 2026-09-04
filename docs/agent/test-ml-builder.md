@@ -77,6 +77,13 @@ journalctl -k --since "24 hours ago" | rg -i 'oom|ld.lld|killed process'
 若再次 OOM，先看内核日志中被杀的是不是单个 `ld.lld`/`cc1plus`，再决定是否
 降低并发或检查 zram；不要为了提速直接调大 `max-jobs`。
 
+磁盘 swapfile 的教训（2026-08-31 移除）：曾配 64 GiB `/nix/swapfile` 兜底
+SC8280XP 内核交叉构建，但它 (1) 让 backup-nix-persistent 的 btrfs 快照报
+"Text file busy"；(2) `/nix` 是 sda2+sdb 双设备 btrfs，swapfile 无法保证
+落在单设备（内核拒收 "swapfile must be on one device"）。已移除磁盘 swap，
+仅保留 zram；如需磁盘 swap 应加独立 swap 分区（opi5p 的做法是独立子卷，
+但那是单设备盘）。
+
 ## 作为远程 builder
 
 Hydra/PVE 通过 `nix-builder@ml-builder.zhyi.xin` 使用该机。连接失败时，在调度机

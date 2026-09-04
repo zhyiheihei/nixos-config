@@ -22,9 +22,8 @@ let
       }
     else
       null;
-  # 块状 YAML 发射器：nixpkgs 的 lib.generators.toYAML 实为 toJSON，
-  # flow 风格会让 frigate 再转储 go2rtc 段时生成非法 YAML（详见下方模板
-  # 注释），这里自带最小块状实现。字符串/键一律双引号转义。
+  # 自制块状 YAML 发射器：lib.generators.toYAML 实为 toJSON，flow 风格
+  # 会让 frigate 再转储 go2rtc 段时产出非法 YAML（详见 frigate-nvr 文档）。
   yamlQuote = s: "\"" + builtins.replaceStrings [ "\\" "\"" ] [ "\\\\" "\\\"" ] s + "\"";
   toYaml =
     indent: v:
@@ -233,28 +232,15 @@ in
       }) cfg.cameras
     );
 
-    # 整个 frigate.yml 由 sops 模板渲染，必须用上方自制的块状 toYaml，
-    # 不能用 toJSON/lib.generators.toYAML（后者是 toJSON 别名）：frigate 的
-    # create_config.py 用 ruamel 加载后重新转储 go2rtc 段，JSON 的 flow 风格
-    # 被保留，含 ?/& 的 RTSP URL 不加引号直接破 YAML 语法，go2rtc 一条
-    # 流都加载不到（2026-09-04 实证）。
     sops.templates."frigate-config" = {
-      # 模板变更时重启容器：create_config.py 只在启动时把 config.yml
-      # 转储成 /dev/shm/go2rtc.yaml 给 go2rtc，不重启不会生效。
       restartUnits = [ "podman-frigate.service" ];
       content = toYaml "" {
-        # 声明当前镜像的配置版本，避免 frigate 误认为 0.13 旧配置而每次启动都迁移。
         version = "0.17-0";
-        # 事件走本机 mosquitto（HA Frigate 集成的传感器靠它；回环匿名）。
         mqtt = {
           enabled = true;
           host = "127.0.0.1";
           port = 1883;
         };
-        # 认证交给上游 oauth2-proxy（Dex/Pocket ID），本体不设密码：
-        # 关闭 frigate 自带认证，用 header_map 从反代透传用户/角色。
-        # oauth2-proxy 的 enableOAuth 会注入 X-User（preferred_username）
-        # 与 X-Groups；单用户 zhyi 无组，default_role 兜底为 admin。
         auth.enabled = false;
         proxy = {
           header_map = {
@@ -264,8 +250,6 @@ in
           default_role = "admin";
         };
         database.path = "/config/frigate.db";
-        # 同名 go2rtc restream：frigate live 视图与 HA camera 实体
-        # （rtsp://<host>:8554/<name>）的直播流来源，缺了 HA 里只能看快照。
         go2rtc.streams = lib.mapAttrs (_: cam: [ cam.rtspUrl ]) cfg.cameras;
         detectors.rknn = {
           type = "rknn";
@@ -286,8 +270,6 @@ in
           alerts.retain.days = cfg.retentionDays;
           detections.retain.days = cfg.retentionDays;
         };
-        # 只跟踪猫（COCO labelmap 自带 cat 类）；min_score 过滤低置信度，
-        # threshold 用于事件判定。要同时跟踪人/车再加进 track 列表。
         objects = {
           track = [ "cat" ];
           filters.cat = {
@@ -295,8 +277,6 @@ in
             min_score = 0.5;
           };
         };
-        # 用户为自家猫"毛豆"配置的自定义分类：子标签方式，置信度 ≥0.8 的
-        # cat 检测会被打上毛豆子标签（HA 里可按子标签过滤）。
         classification.custom."毛豆" = {
           enabled = true;
           name = "毛豆";
@@ -306,7 +286,6 @@ in
             classification_type = "sub_label";
           };
         };
-        # 事件快照（HA 摄像头实体缩略图 + 事件时间线用）。
         snapshots = {
           enabled = true;
           retain.default = cfg.retentionDays;
@@ -351,9 +330,6 @@ in
           }
         ) cfg.cameras;
       };
-      # sops 渲染后这里是一个指向 /run/secrets/rendered/frigate-config 的
-      # 符号链接；容器内 /run 是容器自己的，链接会断，所以 podman-frigate
-      # 的 ExecStartPre 会把它复制成真实文件。
       path = "${cfg.configDir}/config.yml";
       owner = "root";
       group = "root";
@@ -401,10 +377,8 @@ in
       wants = [ "sops-install-secrets.service" ];
       serviceConfig.ExecStartPre = lib.mkBefore [
         (pkgs.writeShellScript "frigate-prepare" ''
-          # sops 模板渲染结果 → 真实 config.yml（容器内 /run 不同，符号链接会断）。
-          # sops 模板的 path 生成的是指向 /run/secrets/rendered/frigate-config 的
-          # 符号链接；install 默认"跟随链接写入"而不替换链接，会留下断链让 frigate
-          # 回退到向导 config.yaml，所以必须先删掉旧链接再装成真实文件。
+          # sops 模板渲染结果是符号链接（容器内 /run 不同会断链），
+          # 先删旧链接再装成真实文件。
           rm -f '${cfg.configDir}/config.yml'
           install -Dm644 /run/secrets/rendered/frigate-config '${cfg.configDir}/config.yml'
           # 预取的 RKNN 模型 → 模型缓存（frigate 按名查找，存在则跳过下载）。
@@ -414,7 +388,6 @@ in
           fi
         '')
       ];
-      # 镜像拉取走集群统一出站代理；镜像加速域名直连。
       environment = LT.proxyEnvironment // {
         NO_PROXY = "${LT.proxyBypass},docker.m.daocloud.io";
       };

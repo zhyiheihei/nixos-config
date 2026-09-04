@@ -478,6 +478,35 @@ container is recreated from the declarative configuration. The authoritative
 checks are the final 1280x720 bounds, `ROTATION_90` and a right-edge navigation
 frame.
 
+## Memory & swap (2026-08/09 rework)
+
+16 GiB RAM running 15+ heavyweight services (Frigate, Immich, HA, Postgres,
+bitmagnet, NCPS...) exceeds physical memory under load. Two hard lessons:
+
+- **zram is disabled on this host.** With memory nearly full, zram's zstd
+  compress/decompress pushed kswapd0 to a full core (98.5% CPU) and the box
+  entered a swap-storm death spiral (load 181, all tasks in D state, SSH
+  dropping). Disk swap (NVMe GT50, ~1.8 GB/s) keeps the system slow but
+  alive; at true exhaustion the OOM killer frees memory deterministically.
+  The same fix was applied to dragon-q8b after its Resilio/bitmagnet
+  migration. zram remains appropriate on ml-builder (memory-rich, compile
+  bursts) — this is per-host tuning, not a fleet-wide policy.
+- **The swapfile lives in a dedicated `/nix/swap` subvolume.** btrfs refuses
+  to snapshot a subvolume containing an active swapfile (EBUSY "Text file
+  busy"), and this host's `/nix` has no subvolume layout (persistent is a
+  plain directory, so `snapshot -r /nix` would include everything and
+  backup-nix-persistent would fail nightly). Snapshots do not recurse into
+  nested subvolumes, so `/nix/swap` solves EBUSY and backup redundancy at
+  once; the swapfile needs no resticIgnored entry.
+
+First-boot bootstrap: `swapDevices` only activates existing files, and the
+dd image ships no 4G swapfile, so `opi5p-swapfile-bootstrap` creates the
+subvolume + swapfile on demand before `swap.target`. Its
+`DefaultDependencies` must stay off — the implicit `After=basic.target`
+would form a swap.target → unit → basic.target → sysinit.target ordering
+cycle and systemd would drop swap.target entirely (observed on first NVMe
+boot: no swap at all).
+
 ## Rollback
 
 Keep the off-board 16 MiB SPI backup until repeated cold boots, networking,

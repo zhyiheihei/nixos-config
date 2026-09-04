@@ -44,10 +44,6 @@
           type = "s3";
           region = "us-east-1";
           bucket = "nix-cache";
-          # S3 后端与 atticd 同机（greencloud-jp 的 VaultS3，nginx TLS 443）。
-          # 用公网 endpoint 而非 loopback，保证 S3 直链下载的 presigned URL
-          # 对客户端可达。2026-09 前曾指向家中 vaults3（home-ddns 8443），
-          # 跨境大对象上传会被切断导致 CI push-cache 失败，已切回本机。
           endpoint = "https://s3.zhyi.xin";
         };
         # Disable chunking to use S3 direct download.

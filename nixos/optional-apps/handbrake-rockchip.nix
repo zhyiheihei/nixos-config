@@ -86,7 +86,5 @@
     };
   };
 
-  # handbrake-backend.opi5p.zhyi.xin HTTP-only 回源 vhost 已于 2026-09-04
-  # 撤除：它专为已退役的 ml-home-vm TLS 前沿设计，前沿退役后无任何消费者
-  # （上游无跨机 -backend 惯例）。手刹直连走本文件主 vhost。
+  # 跨机 -backend 回源 vhost 已撤除（上游无此惯例），直连走本文件主 vhost。
 }

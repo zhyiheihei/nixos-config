@@ -33,6 +33,15 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
    - username_claim：`preferred_username`
    - email_claim：`email`
 
+## Home Assistant 当前配置（2026-09-04）
+
+- 接入方式：hass-oidc-auth 插件（nixpkgs 现成包
+  `home-assistant-custom-components.auth_oidc`，勿自打包分叉），经 Dex。
+- Dex client `home-assistant` 是**公共 client（无 secret）**：安全性靠
+  redirect URI 白名单 + PKCE（hass-oidc-auth 官方推荐方式）。
+- 回调：`https://ha.zhyi.xin/auth/oidc/callback` 与
+  `https://ha.opi5p.zhyi.xin/auth/oidc/callback`。
+
 ## MoviePilot 当前配置
 
 - 插件：`OidcAuth`

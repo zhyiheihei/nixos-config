@@ -29,6 +29,13 @@ Hydra (ml-builder) / 手动构建 (ml-builder)
   覆盖 `AWS_*`；JWT 签名密钥仍来自 `common/attic.yaml`。
 - Attic 只监听回环地址，由同机 Nginx 发布；外部数据面使用
   `https://attic.zhyi.xin/zhyi`（标准 443 端口）。
+- S3 endpoint 用公网域名 `https://s3.zhyi.xin` 而非 loopback：S3 直链下载
+  （`Disable chunking` 后 NAR 由 S3 直接下发）的 presigned URL 必须对客户端
+  可达。nix-cache 桶不由 VaultS3 自动创建，由 greencloud-jp 上的幂等
+  oneshot（`vaults3-init-nix-cache`，官方 S3 API + root 凭据；建桶是管理
+  操作，不用 atticd 的专用 key）保证存在，atticd 排在其后再启动。nginx 的
+  `s3.zhyi.xin` vhost 设 `client_max_body_size 0`（大对象上传不设限），
+  Host 默认透传 `$host`，SigV4 签名不受反代影响。
 - 缓存名 2026-09-03 自 `lantian` 改为 `zhyi`：服务端复制 cache 行并保留同一
   keypair（公钥值不变，仅名字前缀变）；`lantian` 缓存保留作回滚。
 - `lantian` 已于 2026-07-30 切换为 private；匿名请求返回 `401`，不再提供公开

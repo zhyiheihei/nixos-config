@@ -1,7 +1,4 @@
-# 从 opi5p 迁入的 tachidesk + peerbanhelper。opi5p（RK3588/16G）同时跑
-# Frigate NVR、Immich、HA 等 15+ 服务，kswapd0 持续 80%+ CPU、load1 超 800，
-# 导致 ncps 和 node exporter 间歇性超时。dragon-q8b（SC8280XP/8G）当前
-# 负载 0.02，有充足余量承接这两个 Java/Podman 服务。
+# 从 opi5p 迁入的媒体下载服务（tachidesk/peerbanhelper/bitmagnet）。
 {
   lib,
   LT,
@@ -18,8 +15,6 @@ in
   imports = [
     ../../nixos/optional-apps/peerbanhelper.nix
     ../../nixos/optional-apps/tachidesk.nix
-    # bitmagnet 三件套从 opi5p 迁入（2026-08-28）；bitmagnet.nix 内部
-    # 引入 postgresql.nix，本机随之获得独立 postgres 实例。
     ../../nixos/optional-apps/bitmagnet.nix
   ];
 
@@ -56,8 +51,7 @@ in
       user = "root";
       group = "root";
     };
-    # bitmagnet 的 postgres 库（38 GiB，DHT 爬取元数据）写入密集，
-    # 目录仍为空时设 NOCOW，再由 postgres 初始化（与 opi5p 同款处理）。
+    # postgres 数据目录 NOCOW（写入密集，与 opi5p 同款）。
     "/nix/persistent/var/lib/postgresql" = {
       d = {
         mode = "0700";

@@ -37,6 +37,19 @@ Nix 求值期：optional-apps/navdash.nix
 `_` 开头/通配符/`www.`、`.localhost` 仅本机、去重、按 URL 排序），
 差异仅在输出形态与附加 `accessibleBy` 字段。
 
+## 卡片分组与监控卡片
+
+- **语义分组**：卡片按「公开 = `zhyi.xin`（主公开域）/ 私有 = `zhyi.xin`
+  内网与 `.localhost`」两层分组，前端在组内再按 `serviceCategories` 的
+  功能域（内容与通讯 / 身份链路 / AI 链路 / 媒体链路 / 基础设施与运维 /
+  存储与证书 / 家庭服务 / 媒体与下载 等）分子节；主机根域
+  （`<host>.zhyi.xin` / `lab.<host>.zhyi.xin`）统一归「基础设施与运维」。
+- **监控卡片**：每台受监控主机一张 prometheusmetric 卡片（node exporter
+  CPU/内存），数据经 `/api/metrics` 从 tencent 本机 Prometheus 拉取，
+  仅登录可见。排除带 `client` 标签的主机（不开 node exporter），以及
+  bring-up 阶段（manualDeploy）无抓取数据的主机（h28k/opi03/taishanpi）——
+  它们的查询返回空 result，卡片会显示误导性的 0%。
+
 ## 部署与维护
 
 - 模块：`nixos/optional-apps/navdash.nix`，启用开关
