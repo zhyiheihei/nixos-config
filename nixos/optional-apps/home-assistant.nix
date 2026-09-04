@@ -32,6 +32,8 @@
       pkgs.home-assistant-custom-components.xiaomi_home
       pkgs.dreame-vacuum
       pkgs.home-assistant-custom-components.frigate
+      # OIDC 登录插件，用 nixpkgs 现成包（勿自打包分叉）
+      pkgs.home-assistant-custom-components.auth_oidc
     ];
 
     # Frigate 集成依赖的 Web 代理库（camera 实体画面反代）。

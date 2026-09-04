@@ -69,6 +69,17 @@ let
         redirectURIs = [ "https://dashboard.zhyi.xin/login/generic_oauth" ];
       }
       {
+        id = "home-assistant";
+        name = "Home Assistant";
+        # 公共 client：无 secret，安全靠 redirect URI + PKCE
+        # （hass-oidc-auth 官方推荐方式）
+        public = true;
+        redirectURIs = [
+          "https://ha.zhyi.xin/auth/oidc/callback"
+          "https://ha.opi5p.zhyi.xin/auth/oidc/callback"
+        ];
+      }
+      {
         id = "immich";
         name = "Immich";
         secret = {
