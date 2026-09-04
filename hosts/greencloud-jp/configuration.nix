@@ -43,8 +43,9 @@ in
     # VaultS3（s3.zhyi.xin，与 Gitea 同一实例；2026-09 初曾指向家中
     # vaults3.zhyi.xin:8443，跨境大对象上传会被中间链路切断，CI
     # push-cache 连锁失败，遂切回本机并新建数据库、弃用旧缓存）。
-    # atticd 的 S3 凭据改用本机实例统一凭据（见下方 atticd-env template），
-    # JWT 签名密钥仍来自 common/attic.yaml，现有上传 token 不受影响。
+    # atticd 的 S3 凭据改用本机实例统一凭据（见下方
+    # atticd-s3-credentials template），JWT 签名密钥仍来自
+    # common/attic.yaml，现有上传 token 不受影响。
     ../../nixos/optional-apps/attic.nix
   ];
 
@@ -130,21 +131,24 @@ in
   };
 
   # atticd 的 S3 连接凭据：改用本机 VaultS3 的统一凭据（与 Gitea 同一套），
-  # 不再用 common/attic.yaml 里指向家中实例的 AWS key；JWT 签名密钥仍取自
-  # attic-credentials，既有 attic token（CI 上传、fleet 只读）继续有效。
-  # 公共模块默认的 environmentFile 在此做主机级覆盖。
-  sops.templates.atticd-env = {
+  # 不再用 common/attic.yaml 里指向家中实例的 AWS key。JWT 签名密钥继续由
+  # 公共模块的 attic-credentials 提供，既有 attic token（CI 上传、fleet
+  # 只读）不受影响。systemd 按顺序读多个 EnvironmentFile，同名变量后者
+  # 覆盖前者：模板放在 attic-credentials 之后，AWS_* 以本模板为准。
+  sops.templates.atticd-s3-credentials = {
     content = ''
       AWS_ACCESS_KEY_ID=zhyi
       AWS_SECRET_ACCESS_KEY=${config.sops.placeholder.default-pw}
-      ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64=${config.sops.placeholder.ATTIC_SERVER_TOKEN_HS256_SECRET_BASE64}
     '';
     mode = "0400";
     owner = "atticd";
     group = "atticd";
   };
 
-  services.atticd.environmentFile = lib.mkForce config.sops.templates.atticd-env.path;
+  systemd.services.atticd.serviceConfig.EnvironmentFile = lib.mkForce [
+    config.sops.secrets.attic-credentials.path
+    config.sops.templates.atticd-s3-credentials.path
+  ];
 
   systemd.tmpfiles.settings.vaults3 = {
     "/nix/persistent/var/lib/vaults3".d = {
