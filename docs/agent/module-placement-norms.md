@@ -12,6 +12,9 @@
 - `hosts/<host>/` 只负责 import、enable 选项、主机级覆盖和链路编排聚合。
 - 禁止在 `hosts/` 层直接定义通用服务模块；禁止在公共 `nixos/` 模块写死主机
   专属值。
+- 服务仅存在于单一主机时，允许放 `hosts/<host>/<name>.nix` 作为该主机私有
+  模块（如 greencloud-jp/attic.nix、volcengine/dex.nix、rock5c/media-edge.nix），
+  可不提供 options、导入即生效；对应的作者公共模块保持 exam 原版、不再导入。
 - 新增能力要独立成模块，不修改作者原版已有的公共模块。
 
 ## 2. 主机专属参数放哪里

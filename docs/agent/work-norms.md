@@ -47,9 +47,24 @@
 
 ## 4. 不动公共模块
 
-- `flake-modules/`（命令封装、配置生成）和公共 `nixos/optional-apps/*.nix` **不擅自修改**
+- `flake-modules/`（命令封装、配置生成）、公共 `nixos/optional-apps/*.nix`、
+  `home/client-apps/*.nix`、`overlays/*.nix` **不擅自修改**
 - 需要行为差异时：用主机级配置（`hosts/<host>/`）覆盖，或新建独立模块，或先问
 - 用户说"别动我公共模块"时立即停手
+- **修复类改动同属行为差异**：nixpkgs 回归规避（nfs-server unit 重写）、
+  上游 bug 补齐（ghostty dbus mask）不得直接写进公共模块；放独立模块或
+  主机层，注释注明"上游修复后可删"
+- **fork 大改的公共模块下沉到唯一使用主机**：某公共模块被 fork 重写且只有
+  一个主机导入时，把 fork 实现移到 `hosts/<host>/`（如 greencloud-jp/attic.nix、
+  volcengine/dex.nix），公共模块还原 exam 原版
+- **对齐上游提交要自证**：合并 exam 变更后，对每个被改公共文件跑
+  `diff <file> ../nixos-config-exam/<file>`，结果必须只剩 §3 认可替换；
+  对齐提交不得夹带行为改动，也不得把存量漂移顺手带回
+- **退役主机/功能时同步清理死配置**：删 macmini 时漏删了 `nixpkgs-stable`
+  死输入即教训；删除主机后检查 flake inputs、常量、专属模块的残余引用
+- **服务清单类差异跟随宿主走**：Dex staticClients、vhost、端口常量新增等
+  按主机实际服务写入对应层；`helpers/constants/*` 只做认可"硬性值"替换
+  （缓存名、域名、端口冲突顺延），不重构结构
 
 ## 5. 查官方/实际，不猜
 
