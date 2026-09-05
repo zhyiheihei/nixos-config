@@ -174,6 +174,12 @@ in
     # Five seconds is too short for GitHub archive redirects from this network,
     # even when the proxy is healthy.
     connect-timeout = lib.mkForce 15;
+    # max-jobs=auto（28）× cores=0（每构建内部不限线程）会让内核 LTO、
+    # wine、qtwebengine 等大件同时全速开跑，2026-09-05 构建 ml-2700 时
+    # 连续触发三轮 OOM（单轮 96 个派生被连环杀）。限 6 个并发构建、
+    # 每构建 28 线程，吞吐足够且内存峰值可控。
+    max-jobs = lib.mkForce 6;
+    cores = lib.mkForce 28;
   };
 
   # 客户端与 nix-daemon 两侧共用同一代理（flake lock 拉取在客户端侧，
