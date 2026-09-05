@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-# 共享路径与上游 exam 基线的漂移审计。基线见 docs/agent/upstream-baseline.md，
-# 判定规则与同步流程见 docs/agent/work-norms.md §3。
-# 用法: tools/exam-check [-v] [--strict] [--path SUBPATH]  |  tools/exam-check --print-paths
+# 上游 exam 对齐工具（agent 入口，自描述）：
+#   tools/exam-check          审计共享路径相对基线的漂移（默认动作）
+#   tools/exam-check log      查看基线以来上游增量
+#   tools/exam-check --help   完整用法与工作流
+# 基线见 docs/agent/upstream-baseline.md，流程见 docs/agent/work-norms.md §3。
 import argparse
 import difflib
 import os
@@ -202,13 +204,55 @@ def baseline_content(baseline, path):
     return git("show", f"{baseline}:{path}")
 
 
+def do_log(argv):
+    ap = argparse.ArgumentParser(
+        prog="tools/exam-check log",
+        description="查看 baseline..exam/master 的上游增量（共享路径）",
+        epilog="新增量落在 pristine 文件时直接 git checkout exam/master -- <path> 后做认可替换；\n"
+               "落在已接管文件（hosts/ 或 allowlist 内）时手动搬 patch；\n"
+               "同步完跑 tools/exam-check，绿后 bump docs/agent/upstream-baseline.md。",
+    )
+    ap.add_argument("--fetch", action="store_true", help="先 fetch exam（离线时跳过，用本地已有对象）")
+    ap.add_argument("--no-stat", action="store_true", help="只列提交，不显示文件级变更")
+    a = ap.parse_args(argv)
+    if a.fetch:
+        r = subprocess.run(["git", "-C", str(REPO), "fetch", "exam"], capture_output=True)
+        if r.returncode != 0:
+            print(f"警告: fetch 失败，使用本地已有对象（{r.stderr.decode(errors='replace').strip().splitlines()[-1] if r.stderr else '未知错误'}）")
+    baseline = load_baseline()
+    stat = [] if a.no_stat else ["--stat"]
+    out = git("log", "--oneline", *stat, f"{baseline}..exam/master", "--", *SHARED_PATHS)
+    text = out.decode(errors="replace").strip()
+    if not text:
+        print(f"无增量：exam/master 无 baseline {baseline[:12]} 之后共享路径上的新提交")
+        return
+    print(text)
+    print("\n同步提示：pristine 文件 git checkout exam/master -- <path> 后做认可替换；"
+          "接管文件（allowlist/hosts/）手动搬 patch；完成后 tools/exam-check，绿后 bump baseline。")
+
+
 def main():
-    ap = argparse.ArgumentParser()
+    argv = sys.argv[1:]
+    if argv and argv[0] == "log":
+        do_log(argv[1:])
+        return
+    if argv and argv[0] == "check":
+        argv = argv[1:]
+    ap = argparse.ArgumentParser(
+        prog="tools/exam-check",
+        description="共享路径与上游 exam 基线的漂移审计（agent 对齐工作流入口）",
+        epilog="常用工作流：\n"
+               "  git fetch exam\n"
+               "  tools/exam-check log          # 上游改了什么\n"
+               "  tools/exam-check              # 我们漂了多少（exit 0=绿，1=有未登记漂移，2=配置错误）\n"
+               "  tools/exam-check -v           # 漂移文件的归一化 diff\n"
+               "同步完成后 bump docs/agent/upstream-baseline.md 的 baseline。",
+    )
     ap.add_argument("-v", "--verbose", action="store_true", help="打印漂移文件的归一化 diff")
     ap.add_argument("--strict", action="store_true", help="忽略 allowlist，未清偿项按未登记漂移对待")
     ap.add_argument("--path", default="", help="只审计某子路径")
-    ap.add_argument("--print-paths", action="store_true", help="打印共享路径清单（供 Makefile exam-log 使用）")
-    args = ap.parse_args()
+    ap.add_argument("--print-paths", action="store_true", help="打印共享路径清单")
+    args = ap.parse_args(argv)
 
     if args.print_paths:
         print(" ".join(SHARED_PATHS))

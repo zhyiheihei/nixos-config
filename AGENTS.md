@@ -206,9 +206,9 @@ Home Manager 配置：
 模块分层与参数归属规则见 [`docs/agent/module-placement-norms.md`](docs/agent/module-placement-norms.md)；
 agent 必读工作规范见 [`docs/agent/work-norms.md`](docs/agent/work-norms.md)。
 
-跟进上游（exam）用 `make exam-log` / `make exam-check`，基线在
+跟进上游（exam）用 `tools/exam-check log` / `tools/exam-check`，基线在
 [`docs/agent/upstream-baseline.md`](docs/agent/upstream-baseline.md)；动共享路径前先跑
-`make exam-check` 确认基线绿，流程见 work-norms §3「上游同步流程」。
+`tools/exam-check` 确认基线绿，流程见 work-norms §3「上游同步流程」。
 
 ## 架构图
 
