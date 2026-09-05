@@ -7,7 +7,7 @@
 ## 当前结构
 
 ```text
-Hydra (ml-builder) / 手动构建 (ml-builder)
+Hydra (ml-laptop) / 手动构建 (ml-laptop)
   -> attic push zhyi
   -> Attic (greencloud-jp)
   -> PostgreSQL + VaultS3 (greencloud-jp 本机, s3.zhyi.xin) bucket nix-cache
@@ -36,15 +36,15 @@ Hydra (ml-builder) / 手动构建 (ml-builder)
   操作，不用 atticd 的专用 key）保证存在，atticd 排在其后再启动。nginx 的
   `s3.zhyi.xin` vhost 设 `client_max_body_size 0`（大对象上传不设限），
   Host 默认透传 `$host`，SigV4 签名不受反代影响。
-- 缓存名 2026-09-03 自 `lantian` 改为 `zhyi`：服务端复制 cache 行并保留同一
-  keypair（公钥值不变，仅名字前缀变）；`lantian` 缓存保留作回滚。
-- `lantian` 已于 2026-07-30 切换为 private；匿名请求返回 `401`，不再提供公开
-  substituter。
+- 缓存名 2026-09-03 自 `lantian` 改为 `zhyi`（复制 cache 行保留同一 keypair，
+  公钥值不变，仅名字前缀变）；`lantian` 曾保留作回滚，2026-09-05 全面转向
+  `zhyi` 后已删除，不再存在任何 lantian 引用。Hydra 与上传凭据均已从
+  `ml-builder` 迁到 `ml-laptop`。
 - S3 凭据与上传 token 只在私有 secrets 仓库的 `common/attic.yaml` 中以 SOPS 加密
   保存。修改它必须遵循 secrets 仓库的 `docs/sops-manual.md`。
 - 全体受管主机只通过 `common/nix.yaml` 的 `nix-netrc` 获得 `zhyi` 的读取权限。
-  上传凭据只部署到 `ml-builder`；Hydra 自动上传与手动上传都由它承担。2026-08-12
-  迁移后 `pve-5700u` 不再部署上传 token。
+  上传凭据只部署到 `ml-laptop`；Hydra 自动上传、`hydra-attic-repush` 定时补推
+  与手动上传都由它承担。
 - Hydra 在
   [`nixos/optional-apps/hydra/default.nix`](../../nixos/optional-apps/hydra/default.nix)
   中通过 post-build hook 上传成功构建的输出。不要同时在多台机器启用
@@ -55,7 +55,7 @@ Hydra (ml-builder) / 手动构建 (ml-builder)
 | 凭据 | 保存位置 | 部署范围 | 权限 |
 | --- | --- | --- | --- |
 | Attic fleet read token | `common/nix.yaml` 的 `nix-netrc` | 所有受管主机 | 仅 `pull lantian`、`pull zhyi` |
-| Attic upload token | `common/attic.yaml` 的 `attic-upload-key` | 仅 `ml-builder` | `pull/push lantian`、`pull/push zhyi` |
+| Attic upload token | `common/attic.yaml` 的 `attic-upload-key` | 仅 `ml-laptop` | `pull/push zhyi` |
 | Attic JWT 签名密钥 | `common/attic.yaml` 的 `attic-credentials` | 仅 `greencloud-jp` 的 `atticd` | 服务端管理与 token 签发 |
 | Attic S3 连接凭据 | `common/attic.yaml` 的 `vaults3-atticd`（VaultS3 专用 IAM key，限定 nix-cache 桶） | 仅 `greencloud-jp` 的 `atticd` | 对 s3.zhyi.xin nix-cache 桶的对象读写 |
 | Cache public key | `helpers/constants/nix.nix` | 公开配置 | 只用于验证 NAR 签名 |
@@ -97,9 +97,8 @@ curl --fail --netrc-file /run/secrets/nix-netrc \
 普通 `curl` 也不会自动使用 Nix 的 netrc，因此检查时必须显式指定
 `--netrc-file`。
 
-当前已验证 `ml-builder`、`router` 和 `opi5p` 的认证请求均返回 `200`；同一 URL
-的匿名请求返回 `401`。2026-08-12 后只有 `ml-builder` 存在
-`/run/secrets/attic-upload-key`。
+当前已验证 `ml-laptop`、`router` 和 `opi5p` 的认证请求均返回 `200`。只有
+`ml-laptop` 存在 `/run/secrets/attic-upload-key`。
 
 在 greencloud-jp 上：
 
@@ -195,7 +194,7 @@ Attic 与反代日志，不要因单个错误就清空数据库或 S3。
 
 ## 上传
 
-`ml-builder` 的 Hydra 会自动登录并上传，同一主机也保留手动上传凭据，不启用
+`ml-laptop` 的 Hydra 会自动登录并上传，同一主机也保留手动上传凭据，不启用
 `attic-watch-store`；这与作者默认不在构建机持续监视整个 Nix store 的做法一致。
 手动上传：
 
@@ -215,7 +214,7 @@ attic push zhyi ./result
 确认缓存写入中断时才手动补推。不要把“全量推送”理解为扫描并上传整块
 `/nix/store`：这会包含无关历史路径，也会放大并发上传问题。
 
-1. **构建并固定目标闭包**（在 `ml-builder` 上，用 out-link 保留系统根）：
+1. **构建并固定目标闭包**（在 `ml-laptop` 上，用 out-link 保留系统根）：
 
    ```bash
    cd /nix/src/nixos-config
@@ -237,7 +236,7 @@ attic push zhyi ./result
    ```
 
    需要补推 `.gcroots` 中的多个已验证根时用 `make push-cache`。不要启用
-   `attic-watch-store` 来替代这一步；当前 `ml-builder` 明确没有启用该服务。
+   `attic-watch-store` 来替代这一步；当前 `ml-laptop` 明确没有启用该服务。
 
 3. **验收与重试**：
 
