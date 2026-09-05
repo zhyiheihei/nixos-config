@@ -7,6 +7,7 @@
 {
   imports = [
     ../../nixos/optional-apps/nfs.nix
+    ../../nixos/optional-apps/nfs-server-regression-fix.nix
     ../../nixos/optional-apps/samba.nix
   ];
 
