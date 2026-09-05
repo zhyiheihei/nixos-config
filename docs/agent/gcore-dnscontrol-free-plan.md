@@ -34,10 +34,10 @@
 
 ## 发布流程
 
-在拥有 SOPS 解密 key 的 `ml-builder` 上运行：
+在拥有 SOPS 解密 key 的主控机 `ml-laptop` 上运行：
 
 ```bash
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 nix run .#dnscontrol -- preview
 ```
 

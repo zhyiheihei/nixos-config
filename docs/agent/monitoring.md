@@ -83,13 +83,12 @@ curl -fsS http://127.0.0.1:9090/api/v1/alerts \
 
 ## 变更与验证
 
-所有求值、构建和部署在 `ml-builder` 执行（见
+所有求值、构建和部署在本机 `ml-laptop`（主控机）执行（见
 [构建与部署](deployment.md)）。监控栈变更按 Colmena 流程构建并
 只部署 `tencent`：
 
 ```bash
-ssh -A -p 2222 root@ml-builder.zhyi.xin
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 nix run .#colmena -- build --on tencent
 nix run .#colmena -- apply --on tencent
 ```

@@ -151,7 +151,7 @@ journalctl -u atticd.service --since '30 minutes ago' --no-pager
 `/run/secrets/nix-netrc` 只能作为在线热修，重启后会丢失：
 
 ```bash
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 git pull --ff-only
 make all
 ```
@@ -219,7 +219,7 @@ attic push zhyi ./result
 1. **构建并固定目标闭包**（在 `ml-laptop` 上，用 out-link 保留系统根）：
 
    ```bash
-   cd /nix/src/nixos-config
+   cd ~/Documents/nixos/nixos-config
    HOST=rock5c
    nix build ".#nixosConfigurations.$HOST.config.system.build.toplevel" \
      --out-link "/root/cache-roots/$HOST"

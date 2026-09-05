@@ -37,7 +37,7 @@ pull；不要用 `rsync` 覆盖构建机的正式工作树。
 git push
 
 # ml-builder
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 git pull --ff-only
 ```
 
@@ -375,7 +375,7 @@ stat -c '%U:%G %a %n' /nix /nix/persistent
 
 ```bash
 ssh -p 2222 root@192.168.0.50
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 
 git status --short --branch
 git pull --ff-only
@@ -399,7 +399,7 @@ nix eval \
 
 ```bash
 tmux new -s r5c-build
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 
 nix build \
   .#nixosConfigurations.router.config.system.build.sdImage \
@@ -583,7 +583,7 @@ DDNS、监控和无线服务；涉及静态 `kernel-config` 的变更必须经�
 `/nix/src/nixos-config` 与 `/nix/src/nixos-config/result-router-r5c`。
 
 ```bash
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 nix build .#nixosConfigurations.router.config.system.build.sdImage \
   --out-link result-router-r5c --print-build-logs
 

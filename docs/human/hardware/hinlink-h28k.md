@@ -164,7 +164,7 @@ U-Boot 只更新 SD 卡 sector 64 处的 `u-boot-rockchip.bin` 区域（约 9 Mi
 在 `ml-builder` 的已提交工作树中先求值：
 
 ```bash
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 nix eval --raw \
   .#nixosConfigurations.h28k.config.system.build.sdImage.drvPath \
   --show-trace

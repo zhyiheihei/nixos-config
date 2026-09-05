@@ -110,7 +110,7 @@
 - 构建部署（ml-builder）：
 
   ```bash
-  cd /nix/src/nixos-config && git pull --ff-only
+  cd ~/Documents/nixos/nixos-config && git pull --ff-only
   nix run .#colmena -- build --on opi5p
   nix run .#colmena -- apply --on opi5p
   ```

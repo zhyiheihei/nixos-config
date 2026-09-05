@@ -231,8 +231,8 @@ SSH 登录成功
 # 本地
 git push
 
-# 构建机
-cd /nix/src/nixos-config
+# 主控机 ml-laptop
+cd ~/Documents/nixos/nixos-config
 git pull --ff-only
 ```
 

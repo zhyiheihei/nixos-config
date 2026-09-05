@@ -134,9 +134,9 @@ OPI5P Nginx（端口不变），OPI5P 在 `hosts/opi5p/configuration.nix` 中给
 TLS 的 vhost 追加 8443 监听，443 与 8443 同时服务同一套证书与路由。不要把
 `8443` 固化进 DNS 记录或内部服务配置（DNS 与回源 URL 一律用标准 443 结构）。
 
-Hydra 原定于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`，公网入口统一由 greencloud
-的 Nginx vhost 反代到 ml-builder 的 LTNET 地址。当前 Hydra 模块在 `ml-builder` 配置中
-被注释禁用（SC8280XP 内核 bring-up 期间内存压力冻结），待重新启用后恢复上述入口。
+Hydra 于 2026-08-12 迁到家庭 NAT 后的 `ml-builder`；2026-09-04 构建拓扑定稿后
+随构建链迁至 `ml-laptop`，公共 vhost `hydra.zhyi.xin` 在 greencloud 覆写后端指向
+ml-laptop 的 LTNET 地址，完整链路以 [`hydra-build-chain.md`](hydra-build-chain.md) 为准。
 不要把 Hydra 改回 pve-5700u 或改到 VOLCENGINE 来掩盖入口问题。
 
 ## 局域网覆盖

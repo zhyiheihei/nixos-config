@@ -6,7 +6,7 @@ SOPS、WireGuard、ZeroTier、引导和同步服务。
 ## 1. 基本原则
 
 - 本地 `nixos-config` 是配置基准；远端机器只拉取已提交配置或使用临时构建副本。
-- 构建和求值优先在 `ml-builder` 完成，不在低性能设备或个人电脑上构建。
+- 构建和求值在主控机 `ml-laptop` 完成（编译重活经 nix-distributed 派发），不在低性能设备上构建。
 - 先核对磁盘、网卡和 SSH host key，再执行任何格式化或安装命令。
 - secrets 必须先加密并验证，禁止把私钥或解密后的 YAML 提交到 Git。
 - 物理 client、server VM 和 PVE host 的磁盘布局不同，不得互相套用。
@@ -234,7 +234,7 @@ systemctl start rsync-nix-sync-servers.service
 1. 先提交并推送 `nixos-secrets`。
 2. 在主仓库更新 secrets flake input。
 3. 提交主机配置、必要的对端 peer 和 `flake.lock`。
-4. 在 `ml-builder` 重新构建。
+4. 在主控机重新构建。
 5. 最后再使用 Colmena 或 Makefile 中对应的标签目标批量部署。
 
 任何一步失败时，保留上一代 system profile 和 PVE 磁盘，不删除可启动代；先用

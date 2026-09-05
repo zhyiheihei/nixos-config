@@ -31,12 +31,12 @@ df -h /nix
 
 ## 缓存与 Git
 
-```bash
-cd /nix/src/nixos-config
-git pull --ff-only
+ml-builder 不再维护仓库克隆（2026-09-05 起）；其上的 `/nix/src/nixos-config`
+旧克隆仅作残留，无需 pull。主机级检查直接在 ml-builder 上执行：
 
+```bash
 nix show-config | grep -E '^(substituters|trusted-public-keys) ='
-curl -fsS https://attic.zhyi.xin/lantian/nix-cache-info
+curl -fsS https://attic.zhyi.xin/zhyi/nix-cache-info
 ```
 
 缓存 URL 和公钥以 `helpers/constants/nix.nix` 为准。若 Attic 不可达，先检查

@@ -4,13 +4,13 @@
 沿用作者的 Colmena 标签目标，不额外维护一份在线主机清单；同时保留 `help` 作为
 安全的默认目标。
 
-所有求值、构建和 Colmena 部署都在 `ml-builder` 执行，避免在本机或低配节点临时
-运行 Nix：
+所有求值、构建和 Colmena 部署都在本机 `ml-laptop`（主控机）执行，仓库位于
+`~/Documents/nixos/nixos-config`；编译重活由 nix-distributed 派给 ml-builder /
+opi5p，控制机上不需要其他主机存在仓库克隆：
 
 ```bash
-ssh -A -p 2222 root@ml-builder.zhyi.xin
-cd /nix/src/nixos-config
-git pull --ff-only
+cd ~/Documents/nixos/nixos-config
+git pull --ff-only   # 有远端改动时
 ```
 
 ## 常用命令

@@ -32,7 +32,7 @@ host key 时，不得执行分区步骤。
   `/nix/persistent/etc/ssh/ssh_host_ed25519_key`，同时用于服务器身份和 SOPS
   解密；其公钥写入 `host.nix`。
 
-如果复用已有 host key，先把私钥安全备份到 Bitwarden。允许在构建机上短期保存
+如果复用已有 host key，先把私钥安全备份到 Bitwarden。允许在主控机上短期保存
 一份 `0600` 权限的灾难恢复副本，但不得提交到 Git，安装验收后应删除该副本。
 
 ### 1.2 记录安装变量
@@ -214,10 +214,10 @@ blkid "$BOOT_DEV" "$NIX_DEV"
 把现场读取的 UUID 更新到
 `hosts/<hostname>/hardware-configuration.nix`，不要照抄其他机器的 UUID。
 
-更新仓库后，在构建机确认求值结果，而不只是阅读源码：
+更新仓库后，在主控机（ml-laptop）确认求值结果，而不只是阅读源码：
 
 ```bash
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 HOST=google
 
 nix eval --raw \
@@ -263,7 +263,7 @@ ssh-keygen -lf /mnt/nix/persistent/etc/ssh/ssh_host_ed25519_key.pub
 2. 按 secrets 仓库的 `docs/sops-manual.md` 加入 age recipient 并重新加密。
 3. 提交并推送 secrets。
 4. 更新主仓库 secrets input，提交并推送主仓库。
-5. 构建机 `git pull --ff-only`，确认使用同一个提交。
+5. 主控机 `git pull --ff-only`，确认使用同一个提交。
 
 ## 4. 情况一：已经挂载 NixOS ISO
 
@@ -285,10 +285,10 @@ ss -lntp | grep ':22 '
 
 先从管理端验证可以登录 ISO，再执行第 3 节的分区、挂载和 host key 步骤。
 
-### 4.2 在构建机生成系统闭包
+### 4.2 在主控机生成系统闭包
 
 ```bash
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 git pull --ff-only
 
 HOST=google
@@ -298,7 +298,7 @@ CLOSURE=$(nix build --no-link --print-out-paths \
 printf 'CLOSURE=%s\n' "$CLOSURE"
 ```
 
-先确认构建机上的闭包和全部引用存在，并把唯一的 store path 留作安装记录：
+先确认主控机上的闭包和全部引用存在，并把唯一的 store path 留作安装记录：
 
 ```bash
 test -x "$CLOSURE/bin/switch-to-configuration"
@@ -348,7 +348,7 @@ test -x "/mnt${CLOSURE}/bin/switch-to-configuration"
 
 ### 4.4 执行安装
 
-回到 NixOS ISO，把构建机输出的完整 store path 填入 `CLOSURE`：
+回到 NixOS ISO，把主控机输出的完整 store path 填入 `CLOSURE`：
 
 ```bash
 CLOSURE=/nix/store/<hash>-nixos-system-<hostname>-<version>
@@ -451,7 +451,7 @@ nix store ping --store local
 在 `ml-builder`：
 
 ```bash
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 git pull --ff-only
 
 HOST=google
@@ -728,7 +728,7 @@ ZeroTier `OK`、WireGuard 有近期 handshake、BIRD 为 `Established` 才表示
 冷启动验收完成后，才使用 Colmena 部署后续配置：
 
 ```bash
-cd /nix/src/nixos-config
+cd ~/Documents/nixos/nixos-config
 nix run .#colmena -- apply --on <hostname>
 ```
 

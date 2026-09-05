@@ -37,7 +37,7 @@ flowchart LR
     Rock["rock5c\n家庭边缘 / MetaCubeXD / 主 UniAPI"]
     OPI["opi5p\n应用 / 数据库 / 媒体 / NCPS"]
     PVE["pve-5700u\nPVE 宿主（仅虚拟化）"]
-    Builder["ml-builder\nHydra / 主构建机 / ARM 交叉构建"]
+    Builder["ml-builder\n主构建机 / ARM 交叉构建"]
     OldVM["ml-home-vm\n已离线（2026-08-03）"]
     Luban["lubancat1\n当前仅 server 基线"]
   end
@@ -67,7 +67,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | `router` | 家庭路由器 | PPPoE、NAT/防火墙、Kea DHCP、CoreDNS、DDNS、hostapd、mDNS、MiniUPnP、NMEA、V2Ray、NCPS client | 运行，0 failed units |
 | `ml-2700` | `client` | 桌面客户端；无专用服务器应用 | LAN 与 LTNET 均不可达，只确认声明 |
-| `ml-builder` | 主 `nix-builder`、Hydra、server | 单任务受限并发 x86 构建、ARM 交叉构建、Hydra、PostgreSQL、ArchiveTeam、ClawEmail、Epic Awesome Gamer、分布式 Nix、NCPS client；server 网络/DNS/监控基线 | 运行，0 failed units（2026-08-12 复核） |
+| `ml-builder` | 主 `nix-builder`、server | 单任务受限并发 x86 构建、ARM 交叉构建、PostgreSQL、ArchiveTeam、ClawEmail、Epic Awesome Gamer、分布式 Nix、NCPS client；server 网络/DNS/监控基线（Hydra 已于 2026-09-04 迁 ml-laptop） | 运行，0 failed units（2026-08-12 复核） |
 | `ml-home-vm` | server | BIRD、WG/WSS、CoreDNS authoritative、Knot、PowerDNS Recursor、Nginx、Filebeat、exporters | 已退役（2026-08-03）：服务迁至 ROCK5C/OPI5P/PVE，备份端点已迁移 OPI5P |
 | `pve-5700u` | PVE 宿主 | Proxmox VE、VM 数据备份 | 运行，0 failed units；VM 数据备份迁移后复核通过 |
 | `hostdare` | 公网、DN42、`cn-accel` | server 公共基线、公开 UniAPI、V2Ray/OpenVPN 加速 | 公网和 LTNET 均不可达，运行态未验证 |

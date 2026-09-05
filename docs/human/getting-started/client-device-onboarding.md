@@ -147,8 +147,8 @@
 ### 步骤 3：部署控制器
 
 ```bash
-# 在 ml-builder 上
-cd /nix/src/nixos-config
+# 在主控机 ml-laptop 上
+cd ~/Documents/nixos/nixos-config
 nix flake lock --update-input secrets
 sudo SSH_AUTH_SOCK=$SSH_AUTH_SOCK NIX_SSHOPTS='-F /dev/null -o StrictHostKeyChecking=no' \
   nix run .#colmena -- apply --on greencloud

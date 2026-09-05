@@ -77,7 +77,7 @@
 3. 故障修复必须 `systematic-debugging`，以日志/指标/数据流转为证据。
 4. 声称完成前必须跑验证（`make build`、`nix flake check`、审计命令、实际链路验证等），并引用输出。
 5. 构建只在 ml-builder；不并发压 opi5p；部署前先 build，apply 前确认主机范围。
-6. 每次改动完成立即提交，提交后按 `work-norms.md` 对齐三方。
+6. 每次改动完成立即提交，提交后 push origin（work-norms §1）。
 7. 新增/安装 skill 前用 `skill-installer` 阅读 SKILL.md，并用本文第 4 节做冲突检查；新建项目级 skill 用 `writing-skills`，且先证明无法用审计命令/文档覆盖。
 
 ## 6. 暂不推荐安装
@@ -98,5 +98,5 @@
 [ ] 命中 L：先出方案并等用户确认
 [ ] 命中 Debug：先做根因调查，再提修复
 [ ] 完成前跑验证并引用输出
-[ ] 提交并完成三方对齐
+[ ] 提交并 push origin
 ```
