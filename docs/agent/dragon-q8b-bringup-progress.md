@@ -463,8 +463,8 @@ clk_ignore_unused pd_ignore_unused console=ttyMSM0.115200n8 earlycon
 
 ### 关键认知纠正（读 `docs/agent/attic-s3-cache.md`）
 
-1. **attic 服务确实在 greencloud**，`nixos/optional-apps/attic.nix` 由
-   `hosts/greencloud/configuration.nix` 导入。之前没找到是查错了地方。
+1. **attic 服务确实在 greencloud**，现由主机级模块 `hosts/greencloud-jp/attic.nix`
+   导入（原 `nixos/optional-apps/attic.nix` 已还原为 exam 原版，不再被本仓导入）。之前没找到是查错了地方。
 2. **`nix-privkey` 根本不是 attic 的签名密钥**——文档明确：att 缓存签名
    私钥由服务端管理，客户端和上传端都不应持有。所以 attic push 会让 attic
    用自身密钥签名，opi5p 拉取时用 `lantian` 公钥校验——**完全绕开

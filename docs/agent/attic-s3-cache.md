@@ -14,9 +14,11 @@ Hydra (ml-laptop) / 手动构建 (ml-laptop)
   -> 持有只读 token 的受管 Nix 主机
 ```
 
-- Attic 服务、Nginx vhost 与 S3 参数定义在
-  [`nixos/optional-apps/attic.nix`](../../nixos/optional-apps/attic.nix)，由
-  `hosts/greencloud-jp/configuration.nix` 导入（2026-09 自 greencloud 迁入）。
+- Attic 服务、Nginx vhost 与 S3 参数定义在主机级模块
+  [`hosts/greencloud-jp/attic.nix`](../../hosts/greencloud-jp/attic.nix)，由
+  `hosts/greencloud-jp/configuration.nix` 导入（2026-09 自 greencloud 迁入；
+  上游 `nixos/optional-apps/attic.nix` 面向作者的 Telnyx 存储，本仓不导入，
+  保持与 exam 逐字对齐）。
 - S3 后端 2026-09-04 自家中 VaultS3（vaults3.zhyi.xin:8443，home-ddns）切到
   greencloud-jp 本机实例（s3.zhyi.xin）：跨境大对象上传会被中间链路切断
   （CI push-cache 对 zcode 这类 1GB 闭包必然失败），且同机链路零出口流量。

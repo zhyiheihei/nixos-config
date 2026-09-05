@@ -35,13 +35,13 @@ in
 
     # Nextcloud：数据库用本机 MariaDB（上游 oci 类型连的是作者的 Oracle
     # ADB），OIDC 走 volcengine 的 Dex。
-    ../../nixos/optional-apps/nextcloud.nix
+    ./nextcloud.nix
 
     # Syncthing 同步节点（自 greencloud 移交，机群常在线异地端）。
     ../../nixos/optional-apps/syncthing
 
     # Attic 二进制缓存（S3 后端为本机 VaultS3，详见 docs/agent/attic-s3-cache.md）。
-    ../../nixos/optional-apps/attic.nix
+    ./attic.nix
   ];
 
   # Syncthing 存储放 1T 数据盘（默认值在 40G 系统盘上放不下）。
