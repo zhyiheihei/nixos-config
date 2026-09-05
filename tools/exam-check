@@ -214,6 +214,17 @@ def baseline_content(baseline, path):
     return git("show", f"{baseline}:{path}")
 
 
+def do_diff(argv):
+    ap = argparse.ArgumentParser(
+        prog="tools/exam-check diff",
+        description="查看上游对某文件自基线以来的完整改动（移植移植 hunk 用）",
+    )
+    ap.add_argument("path", help="共享路径内的文件")
+    a = ap.parse_args(argv)
+    baseline = load_baseline()
+    print(git("diff", f"{baseline}..exam/master", "--", a.path).decode(errors="replace"), end="")
+
+
 def do_log(argv):
     ap = argparse.ArgumentParser(
         prog="tools/exam-check log",
@@ -249,6 +260,9 @@ def main():
     argv = sys.argv[1:]
     if argv and argv[0] == "log":
         do_log(argv[1:])
+        return
+    if argv and argv[0] == "diff":
+        do_diff(argv[1:])
         return
     if argv and argv[0] == "check":
         argv = argv[1:]
