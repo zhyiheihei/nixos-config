@@ -9,7 +9,7 @@
 }:
 let
   cfg = {
-    issuer = "https://login.lantian.pub";
+    issuer = "https://login.zhyi.xin";
     storage = {
       type = "postgres";
       config.host = "/run/postgresql";
@@ -30,7 +30,7 @@ let
         name = "Pocket ID";
         id = "ldap"; # Backwards compatibility
         config = {
-          issuer = "https://id.lantian.pub";
+          issuer = "https://id.zhyi.xin";
           scopes = [
             "email"
             "profile"
@@ -43,7 +43,7 @@ let
           clientSecret = {
             _secret = config.sops.secrets.dex-pocket-id-client-secret.path;
           };
-          redirectURI = "https://login.lantian.pub/callback";
+          redirectURI = "https://login.zhyi.xin/callback";
           insecureSkipEmailVerified = true;
           insecureEnableGroups = true;
           getUserInfo = true;
@@ -53,20 +53,12 @@ let
     staticClients = [
       # keep-sorted start block=yes
       {
-        id = "actual";
-        name = "Actual Budget";
-        secret = {
-          _secret = config.sops.secrets.dex-actual-secret.path;
-        };
-        redirectURIs = [ "https://actual.xuyh0120.win/openid/callback" ];
-      }
-      {
         id = "gitea";
         name = "Gitea";
         secret = {
           _secret = config.sops.secrets.dex-gitea-secret.path;
         };
-        redirectURIs = [ "https://git.lantian.pub/user/oauth2/Dex/callback" ];
+        redirectURIs = [ "https://git.zhyi.xin/user/oauth2/Dex/callback" ];
       }
       {
         id = "grafana";
@@ -74,7 +66,16 @@ let
         secret = {
           _secret = config.sops.secrets.dex-grafana-secret.path;
         };
-        redirectURIs = [ "https://dashboard.xuyh0120.win/login/generic_oauth" ];
+        redirectURIs = [ "https://dashboard.zhyi.xin/login/generic_oauth" ];
+      }
+      {
+        id = "home-assistant";
+        name = "Home Assistant";
+        public = true;
+        redirectURIs = [
+          "https://ha.zhyi.xin/auth/oidc/callback"
+          "https://ha.opi5p.zhyi.xin/auth/oidc/callback"
+        ];
       }
       {
         id = "immich";
@@ -83,9 +84,9 @@ let
           _secret = config.sops.secrets.dex-immich-secret.path;
         };
         redirectURIs = [
-          "https://immich.xuyh0120.win/auth/login"
-          "https://immich.xuyh0120.win/user-settings"
-          "https://immich.xuyh0120.win/api/oauth/mobile-redirect"
+          "https://immich.zhyi.xin/auth/login"
+          "https://immich.zhyi.xin/user-settings"
+          "https://immich.zhyi.xin/api/oauth/mobile-redirect"
           "app.immich:///oauth-callback"
         ];
       }
@@ -95,7 +96,33 @@ let
         secret = {
           _secret = config.sops.secrets.dex-librechat-secret.path;
         };
-        redirectURIs = [ "https://ai.xuyh0120.win/oauth/openid/callback" ];
+        redirectURIs = [ "https://ai.zhyi.xin/oauth/openid/callback" ];
+      }
+      {
+        id = "memos";
+        name = "Memos";
+        secret = {
+          _secret = config.sops.secrets.dex-memos-secret.path;
+        };
+        redirectURIs = [ "https://memos.opi5p.zhyi.xin/auth/callback" ];
+      }
+      {
+        id = "moviepilot";
+        name = "MoviePilot";
+        secret = {
+          _secret = config.sops.secrets.dex-moviepilot-secret.path;
+        };
+        redirectURIs = [
+          "https://moviepilot.rock5c.zhyi.xin/api/v1/plugin/OidcAuth/callback"
+        ];
+      }
+      {
+        id = "navdash";
+        name = "Navdash";
+        secret = {
+          _secret = config.sops.secrets.dex-navdash-secret.path;
+        };
+        redirectURIs = [ "https://nav.zhyi.xin/auth/callback" ];
       }
       {
         id = "nextcloud";
@@ -103,7 +130,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-nextcloud-secret.path;
         };
-        redirectURIs = [ "https://cloud.xuyh0120.win/apps/oidc_login/oidc" ];
+        redirectURIs = [ "https://cloud.zhyi.xin/apps/oidc_login/oidc" ];
       }
       {
         id = "oauth-proxy";
@@ -112,27 +139,11 @@ let
           _secret = config.sops.secrets.dex-oauth-proxy-secret.path;
         };
         redirectURIs = [
-          "https://*.lantian.pub/oauth2/callback"
-          "https://*.*.lantian.pub/oauth2/callback"
-          "https://*.xuyh0120.win/oauth2/callback"
-          "https://*.*.xuyh0120.win/oauth2/callback"
+          "https://*.zhyi.xin/oauth2/callback"
+          "https://*.*.zhyi.xin/oauth2/callback"
+          "https://*.zhyi.xin/oauth2/callback"
+          "https://*.*.zhyi.xin/oauth2/callback"
         ];
-      }
-      {
-        id = "oidc-tester";
-        name = "OIDC Tester";
-        secret = {
-          _secret = config.sops.secrets.dex-oidc-tester-secret.path;
-        };
-        redirectURIs = [ "https://oidc-tester.lantian.pub/oauth2/callback" ];
-      }
-      {
-        id = "open-webui";
-        name = "Open WebUI";
-        secret = {
-          _secret = config.sops.secrets.dex-open-webui-secret.path;
-        };
-        redirectURIs = [ "https://ai.xuyh0120.win/oauth/oidc/callback" ];
       }
       {
         id = "tranquil-pds";
@@ -140,15 +151,33 @@ let
         secret = {
           _secret = config.sops.secrets.dex-tranquil-pds-secret.path;
         };
-        # FIXME
-        redirectURIs = [ "https://at.lantian.pub/oauth/sso/callback" ];
+        redirectURIs = [ "https://at.zhyi.xin/oauth/sso/callback" ];
+      }
+      {
+        id = "vaultwarden";
+        name = "Vaultwarden";
+        secret = {
+          _secret = config.sops.secrets.dex-vaultwarden-secret.path;
+        };
+        redirectURIs = [
+          "https://bitwarden.zhyi.xin/sso-connector.html"
+          "bitwarden://sso-callback"
+        ];
+      }
+      {
+        id = "wallos";
+        name = "Wallos";
+        secret = {
+          _secret = config.sops.secrets.dex-wallos-secret.path;
+        };
+        redirectURIs = [ "https://wallos.opi5p.zhyi.xin/index.php" ];
       }
       # keep-sorted end
     ];
   };
 in
 {
-  imports = [ ./postgresql.nix ];
+  imports = [ ../../nixos/optional-apps/postgresql.nix ];
 
   sops.secrets = {
     glauth-bindpw = {
@@ -165,16 +194,39 @@ in
       owner = "dex";
       group = "dex";
     };
+    dex-vaultwarden-secret = {
+      sopsFile = inputs.secrets + "/common/dex.yaml";
+      owner = "dex";
+      group = "dex";
+      # Vaultwarden SSO reads this secret too, as its own service user.
+      mode = "0444";
+    };
   }
   // builtins.listToAttrs (
-    builtins.map (
-      f:
-      lib.nameValuePair "dex-${f.id}-secret" {
-        sopsFile = inputs.secrets + "/common/dex.yaml";
-        owner = "dex";
-        group = "dex";
-      }
-    ) cfg.staticClients
+    builtins.map
+      (
+        f:
+        lib.nameValuePair "dex-${f}-secret" {
+          sopsFile = inputs.secrets + "/common/dex.yaml";
+          owner = "dex";
+          group = "dex";
+        }
+      )
+      [
+        # keep-sorted start
+        "gitea"
+        "grafana"
+        "immich"
+        "librechat"
+        "memos"
+        "moviepilot"
+        "navdash"
+        "nextcloud"
+        "oauth2-proxy"
+        "tranquil-pds"
+        "wallos"
+        # keep-sorted end
+      ]
   );
 
   services.postgresql = {
@@ -213,12 +265,12 @@ in
   };
   users.groups.dex.members = [ "nginx" ];
 
-  lantian.nginxVhosts."login.lantian.pub" = {
+  lantian.nginxVhosts."login.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.Dex}";
     };
 
-    sslCertificate = "zerossl-lantian.pub";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

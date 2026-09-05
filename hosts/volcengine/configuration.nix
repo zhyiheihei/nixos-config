@@ -4,7 +4,7 @@
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
-    ../../nixos/optional-apps/dex.nix
+    ./dex.nix
     ../../nixos/optional-apps/glauth.nix
     ../../nixos/optional-apps/halo.nix
     ../../nixos/optional-apps/pocket-id.nix
