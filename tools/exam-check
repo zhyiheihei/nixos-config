@@ -250,7 +250,7 @@ def main():
     print(f"统计: = 一致 {len(same)} | ≈ 认可替换 {len(subst)} | + fork独有 {len(fork_only)} | − 上游独有 {len(upstream_only)} | !known 已登记 {len(known)} | ! 未登记漂移 {len(drift)}")
 
     if drift:
-        print("\n! 未登记漂移（处理：对齐 / 上抛 PR / 主机级接管，然后登记 allowlist 或修掉）:")
+        print("\n! 未登记漂移（处理：对齐上游 / 主机级接管，然后登记 allowlist 或修掉）:")
         for p in drift:
             print(f"  {p}")
     if known:
