@@ -186,15 +186,25 @@ def baseline_files(baseline, subpath):
 def worktree_files(subpath):
     found = set()
     for entry in SHARED_PATHS:
-        if subpath and not (entry == subpath or subpath.startswith(entry.rstrip("/") + "/") or entry.startswith(subpath.rstrip("/") + "/")):
-            continue
-        full = REPO / entry
+        # 计算该 entry 与 subpath 的相交审计根，避免子目录模式下误扫整个 entry
+        if subpath:
+            if entry == subpath:
+                audit_root = entry
+            elif subpath.startswith(entry.rstrip("/") + "/"):
+                audit_root = subpath
+            elif entry.startswith(subpath.rstrip("/") + "/"):
+                audit_root = entry
+            else:
+                continue
+        else:
+            audit_root = entry
+        full = REPO / audit_root
         if full.is_file():
-            found.add(entry)
+            found.add(audit_root)
         elif full.is_dir():
-            for root, _, files in os.walk(full):
+            for walk_root, _, files in os.walk(full):
                 for f in files:
-                    rel = str(Path(root, f).relative_to(REPO))
+                    rel = str(Path(walk_root, f).relative_to(REPO))
                     if not rel.startswith(EXCLUDES):
                         found.add(rel)
     return found
@@ -288,7 +298,12 @@ def main():
     fork_only = sorted(work_set - base_set)
     upstream_only = sorted(base_set - work_set)
 
-    stale_allow = [p for p in allow if p not in drift and p not in known]
+    scoped = args.path
+    stale_allow = [
+        p for p in allow
+        if p not in drift and p not in known
+        and (not scoped or p == scoped or p.startswith(scoped.rstrip("/") + "/"))
+    ]
 
     print(f"baseline {baseline[:12]} (docs/agent/upstream-baseline.md) | exam/master {exam_tip}")
     print(f"统计: = 一致 {len(same)} | ≈ 认可替换 {len(subst)} | + fork独有 {len(fork_only)} | − 上游独有 {len(upstream_only)} | !known 已登记 {len(known)} | ! 未登记漂移 {len(drift)}")
