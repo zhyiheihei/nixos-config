@@ -42,7 +42,7 @@
 | --- | --- |
 | 各 host `environment.variables` | 交互 shell 的代理（proxyBypass/proxyEnvironment 由 host 层维护） |
 | ml-builder `nix-daemon` | FOD fetch 走 daemon、flake lock 拉取走发起客户端，两侧共用同一代理；内网服务由 bypass 直连 |
-| dragon-q8b NCPS | 上游缓存（cache.nixos.org / attic）经 router SOCKS5 出口 |
+| dragon-q8b NCPS | 上游缓存（cache.nixos.org / attic）经 rock5c mihomo mixed 口出站（`http://rock5c:7892`；2026-09-05 起，替换间歇断流的 router SOCKS5） |
 | ml-laptop `hydra-evaluator` | evaluator（及其 fork 的 nix fetch 子进程）直连 GitHub 拉 flake inputs 实测长期卡死（2026-09-04），给 evaluator unit 注入代理；bypass 已含 opi5p ncps substituter 与 LTNET，均直连 |
 | frigate / redroid 容器 | 镜像拉取走代理 + 镜像加速域名直连 |
 

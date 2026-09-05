@@ -128,8 +128,15 @@
     downloadsDir = "/mnt/storage/resilio/downloads";
   };
 
-  # NCPS 上游走统一出站代理（m-team 豁免）。
+  # NCPS 上游代理：router V2Ray（LT.proxyEnvironment）在 2026-09-05 间歇性
+  # 断流，导致 NCPS 替代下载超时、全集群 substituter 退化。改走 rock5c 的
+  # metacubexd mihomo mixed 口（metacubexd.nix 里 MIXED_PORT=7892 且发布在
+  # rock5c LAN 地址上）。m-team 豁免照旧。
   systemd.services.ncps.environment = LT.proxyEnvironment // {
+    HTTP_PROXY = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
+    HTTPS_PROXY = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
+    http_proxy = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
+    https_proxy = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
     NO_PROXY = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
     no_proxy = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
   };
