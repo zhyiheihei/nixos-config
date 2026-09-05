@@ -1,0 +1,285 @@
+#!/usr/bin/env python3
+# 共享路径与上游 exam 基线的漂移审计。基线见 docs/agent/upstream-baseline.md，
+# 判定规则与同步流程见 docs/agent/work-norms.md §3。
+# 用法: tools/exam-check [-v] [--strict] [--path SUBPATH]  |  tools/exam-check --print-paths
+import argparse
+import difflib
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
+BASELINE_FILE = REPO / "docs/agent/upstream-baseline.md"
+ALLOWLIST_FILE = REPO / "tools/exam-check-allowlist"
+
+# 与上游 exam 对齐的路径；hosts/、dns/、docs/、Makefile、AGENTS.md 等为 fork 自有，不审。
+SHARED_PATHS = [
+    "flake.nix",
+    "nvfetcher.toml",
+    "flake-modules",
+    "helpers",
+    "home",
+    "nixos",
+    "overlays",
+    "patches",
+    "pkgs",
+    "tools",
+]
+# 共享路径内的例外：nvfetcher 生成物随各仓更新节奏漂移，无对齐意义。
+EXCLUDES = ("helpers/_sources/",)
+
+# 认可替换（顺序敏感，特例在前）。注意 lantian.* 选项前缀与 lantianCustomized
+# 是模块系统命名空间不是用户名，必须保持原样，故不用裸的 lantian→zhyi 规则。
+NORMALIZE = [
+    # 身份/显示名（gitea 站点名的 fork 译法与全局显示名不同，特例在前）
+    ("Lan Tian @ Git", "Zh Yi @ Git"),
+    ("Lan Tian's Git", "Zh Yi's Git"),
+    ("[\"Lan Tian\"]", "[\"Zh Yi\"]"),
+    ("Lan Tian", "Magic Flash"),
+    # 域名（含 dn42/neo 身份域）
+    ("lantian.pub", "zhyi.xin"),
+    ("xuyh0120.win", "zhyi.xin"),
+    ("lantian.cc", "zhyi.xin"),
+    ("ltn.pw", "zhyi.xin"),
+    ("lantian.dn42", "zhyi.dn42"),
+    ("lantian.neo", "zhyi.neo"),
+    # 用户名上下文（裸 lantian 不可全局替换，逐上下文枚举）
+    ("glauthUsers.lantian", "glauthUsers.zhyi"),
+    ("lantian:${glauthUsers", "zhyi:${glauthUsers"),
+    ('"lantian"', '"zhyi"'),
+    ("/ssh/lantian.nix", "/ssh/zhyi.nix"),
+    ("vhosts-lantian.nix", "vhosts-zhyi.nix"),
+    ("lantian1998", "zhyiheihei"),
+    ("dc=lantian,dc=pub", "dc=zhyi,dc=xin"),
+    ("givenname = \"Lan\"", "givenname = \"Zh\""),
+    ("sn = \"Tian\"", "sn = \"Yi\""),
+    ("lantian = {", "zhyi = {"),
+    ("@lantian:", "@zhyi:"),
+    ("users.users.lantian", "users.users.zhyi"),
+    ("profiles.lantian", "profiles.zhyi"),
+    ("force-user=lantian", "force-user=zhyi"),
+    ("force-group=lantian", "force-group=zhyi"),
+    ("per-user/lantian", "per-user/zhyi"),
+    ("/home/lantian", "/home/zhyi"),
+    ("CALDAV_USERNAME=lantian", "CALDAV_USERNAME=zhyi"),
+    ("Server: lantian/", "Server: zhyi/"),
+    # 时区与 ASN/ULA（work-norms §3）
+    ("America/Los_Angeles", "Asia/Shanghai"),
+    ("fdbc:f9dc:67ad:2547", "fdd8:1938:4e88:3712"),
+    ("fdbc:f9dc:67ad", "fdd8:1938:4e88"),
+    ("AS2547", "AS4242423712"),
+    ("4242422547", "4242423712"),
+    ("424242547", "4242423712"),
+    ("04242547", "04243712"),
+    ("4242422557", "4242423712"),
+    ("myASNAbbr = 2547", "myASNAbbr = 3712"),
+    ("fe80::2547", "fe80::3712"),
+    (", 2547,", ", 3712,"),
+    ("lantian_dn42", "zhyi_dn42"),
+    # 主机映射（docs/agent/hosts-overview.md「作者主机 → 本仓主机映射」，多对一取角色最近）
+    ("LT.hosts.lt-hp-omen", "LT.hosts.ml-laptop"),
+    ('"lt-hp-omen"', '"ml-laptop"'),
+    ("LT.hosts.lt-home-rdp", "LT.hosts.ml-builder"),
+    ('"lt-home-rdp"', '"ml-builder"'),
+    ("LT.hosts.pve-epyc", "LT.hosts.pve-5700u"),
+    ('"pve-epyc"', '"pve-5700u"'),
+    ("LT.hosts.lt-home-router", "LT.hosts.router"),
+    ('"lt-home-router"', '"router"'),
+    ("LT.hosts.lt-home-vm", "LT.hosts.rock5c"),
+    ('"lt-home-vm"', '"rock5c"'),
+    ("LT.hosts.lt-dell-wyse-thin", "LT.hosts.opi03"),
+    ('"lt-dell-wyse-thin"', '"opi03"'),
+    ("LT.hosts.lt-dell-wyse", "LT.hosts.ml-2700"),
+    ('"lt-dell-wyse"', '"ml-2700"'),
+    ("LT.hosts.lt-rpi4", "LT.hosts.lubancat1"),
+    ('"lt-rpi4"', '"lubancat1"'),
+    ("LT.hosts.lt-home-lte", "LT.hosts.h28k"),
+    ('"lt-home-lte"', '"h28k"'),
+    ("LT.hosts.pve-c3758", "LT.hosts.taishanpi"),
+    ('"pve-c3758"', '"taishanpi"'),
+    ("LT.hosts.pve-hp-z220-sff", "LT.hosts.opi5p"),
+    ('"pve-hp-z220-sff"', '"opi5p"'),
+    ("LT.hosts.alice", "LT.hosts.volcengine"),
+    ('"alice"', '"volcengine"'),
+    ("LT.hosts.zgocloud", "LT.hosts.volcengine"),
+    ('"zgocloud"', '"volcengine"'),
+    ("LT.hosts.buyvm", "LT.hosts.google"),
+    ('"buyvm"', '"google"'),
+    ("LT.hosts.oracle-vm1", "LT.hosts.google"),
+    ('"oracle-vm1"', '"google"'),
+    ("LT.hosts.oracle-vm2", "LT.hosts.google"),
+    ('"oracle-vm2"', '"google"'),
+    ("LT.hosts.bwg-lax", "LT.hosts.hostdare"),
+    ('"bwg-lax"', '"hostdare"'),
+    ("LT.hosts.virmach-ny1g", "LT.hosts.hostdare"),
+    ('"virmach-ny1g"', '"hostdare"'),
+    ("LT.hosts.virmach-ny6g", "LT.hosts.hostdare"),
+    ('"virmach-ny6g"', '"hostdare"'),
+    ("LT.hosts.colocrossing", "LT.hosts.greencloud"),
+    ('"colocrossing"', '"greencloud"'),
+    ("LT.hosts.terrahost", "LT.hosts.tencent"),
+    ('"terrahost"', '"tencent"'),
+    ("LT.hosts.v-ps-sea", "LT.hosts.tencent"),
+    ('"v-ps-sea"', '"tencent"'),
+    ("LT.hosts.azure-vm1", "LT.hosts.tencent"),
+    ('"azure-vm1"', '"tencent"'),
+    ("LT.hosts.azure-vm2", "LT.hosts.tencent"),
+    ('"azure-vm2"', '"tencent"'),
+    ("LT.hosts.azure-vm3", "LT.hosts.tencent"),
+    ('"azure-vm3"', '"tencent"'),
+    ("LT.hosts.oracle-vm-arm1", "LT.hosts.rock5c"),
+    ('"oracle-vm-arm1"', '"rock5c"'),
+]
+
+
+def git(*args):
+    r = subprocess.run(["git", "-C", str(REPO), *args], capture_output=True)
+    if r.returncode != 0:
+        die(f"git {' '.join(args)} 失败:\n{r.stderr.decode(errors='replace').strip()}")
+    return r.stdout
+
+
+def die(msg, code=2):
+    print(f"exam-check: {msg}", file=sys.stderr)
+    sys.exit(code)
+
+
+def load_baseline():
+    if not BASELINE_FILE.is_file():
+        die(f"缺少 {BASELINE_FILE.relative_to(REPO)}")
+    for line in BASELINE_FILE.read_text().splitlines():
+        if line.startswith("baseline:"):
+            return line.split(":", 1)[1].strip()
+    die(f"{BASELINE_FILE.relative_to(REPO)} 中没有 'baseline: <sha>' 行")
+
+
+def load_allowlist():
+    entries = {}
+    if not ALLOWLIST_FILE.is_file():
+        return entries
+    for raw in ALLOWLIST_FILE.read_text().splitlines():
+        if "#" in raw:
+            path, reason = raw.split("#", 1)
+            path = path.strip()
+            if path:
+                entries[path] = reason.strip()
+    return entries
+
+
+def normalize(data: bytes):
+    if b"\x00" in data:
+        return data
+    text = data.decode("utf-8", errors="surrogateescape")
+    for old, new in NORMALIZE:
+        text = text.replace(old, new)
+    return text
+
+
+def baseline_files(baseline, subpath):
+    out = git("ls-tree", "-r", "--name-only", "-z", baseline, "--", *([subpath] if subpath else SHARED_PATHS))
+    return {p for p in out.decode().split("\0") if p and not p.startswith(EXCLUDES)}
+
+
+def worktree_files(subpath):
+    found = set()
+    for entry in SHARED_PATHS:
+        if subpath and not (entry == subpath or subpath.startswith(entry.rstrip("/") + "/") or entry.startswith(subpath.rstrip("/") + "/")):
+            continue
+        full = REPO / entry
+        if full.is_file():
+            found.add(entry)
+        elif full.is_dir():
+            for root, _, files in os.walk(full):
+                for f in files:
+                    rel = str(Path(root, f).relative_to(REPO))
+                    if not rel.startswith(EXCLUDES):
+                        found.add(rel)
+    return found
+
+
+def baseline_content(baseline, path):
+    return git("show", f"{baseline}:{path}")
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-v", "--verbose", action="store_true", help="打印漂移文件的归一化 diff")
+    ap.add_argument("--strict", action="store_true", help="忽略 allowlist，未清偿项按未登记漂移对待")
+    ap.add_argument("--path", default="", help="只审计某子路径")
+    ap.add_argument("--print-paths", action="store_true", help="打印共享路径清单（供 Makefile exam-log 使用）")
+    args = ap.parse_args()
+
+    if args.print_paths:
+        print(" ".join(SHARED_PATHS))
+        return
+
+    baseline = load_baseline()
+    allow = load_allowlist()
+
+    try:
+        exam_tip = git("rev-parse", "--short", "exam/master").decode().strip()
+    except SystemExit:
+        exam_tip = "未 fetch（git fetch exam）"
+
+    base_set = baseline_files(baseline, args.path)
+    work_set = worktree_files(args.path)
+
+    same, subst, fork_only, upstream_only = [], [], [], []
+    drift, known = [], []
+
+    for path in sorted(base_set & work_set):
+        try:
+            base = baseline_content(baseline, path)
+        except SystemExit:
+            die(f"基线对象缺失（{baseline}:{path}），先 git fetch exam")
+        work = (REPO / path).read_bytes()
+        if base == work:
+            same.append(path)
+        elif normalize(base) == normalize(work):
+            subst.append(path)
+        else:
+            (known if (not args.strict and path in allow) else drift).append(path)
+
+    fork_only = sorted(work_set - base_set)
+    upstream_only = sorted(base_set - work_set)
+
+    stale_allow = [p for p in allow if p not in drift and p not in known]
+
+    print(f"baseline {baseline[:12]} (docs/agent/upstream-baseline.md) | exam/master {exam_tip}")
+    print(f"统计: = 一致 {len(same)} | ≈ 认可替换 {len(subst)} | + fork独有 {len(fork_only)} | − 上游独有 {len(upstream_only)} | !known 已登记 {len(known)} | ! 未登记漂移 {len(drift)}")
+
+    if drift:
+        print("\n! 未登记漂移（处理：对齐 / 上抛 PR / 主机级接管，然后登记 allowlist 或修掉）:")
+        for p in drift:
+            print(f"  {p}")
+    if known:
+        print("\n!known 已登记漂移（清债清单）:")
+        for p in known:
+            print(f"  {p}  # {allow.get(p, '')}")
+    if upstream_only:
+        print("\n− 上游独有（逐个决定：跟进来 / 确认不需要）:")
+        for p in upstream_only:
+            print(f"  {p}")
+    if stale_allow:
+        print("\nallowlist 失效条目（漂移已消除，请删除）:")
+        for p in stale_allow:
+            print(f"  {p}")
+    if args.verbose:
+        for p in drift + known:
+            base = normalize(baseline_content(baseline, p)).decode("utf-8", errors="surrogateescape").splitlines()
+            work = normalize((REPO / p).read_bytes()).decode("utf-8", errors="surrogateescape").splitlines()
+            diff = list(difflib.unified_diff(base, work, fromfile=f"baseline:{p}", tofile=f"worktree:{p}", lineterm=""))
+            print(f"\n{'=' * 20} {p}")
+            print("\n".join(diff[:120]) or "（无差异）")
+            if len(diff) > 120:
+                print(f"…（其余 {len(diff) - 120} 行省略）")
+
+    if drift:
+        print(f"\nexam-check: 存在 {len(drift)} 个未登记漂移，exit 1", file=sys.stderr)
+        sys.exit(1)
+    print("\nexam-check: 通过")
+
+
+if __name__ == "__main__":
+    main()

@@ -20,6 +20,8 @@ help: FORCE
 		'make clean          在 Hive 主机上运行 nixos-cleanup' \
 		'make update         更新全部 Flake inputs 和 nvfetcher' \
 		'make update-nur     只更新 nur-xddxdd input' \
+		'make exam-log       查看基线以来上游 exam 的增量提交' \
+		'make exam-check     审计共享路径相对上游基线的漂移（OPTS="-v" 看详情）' \
 		'make push-cache     将 .gcroots 中的闭包推送到 Attic'
 
 # no-op target, used as flag: make all ssh
@@ -89,6 +91,12 @@ update-nur: FORCE
 	@nix flake update nur-xddxdd
 
 push-cache: FORCE
-	@attic push lantian $(shell readlink -f .gcroots/*)
+	@attic push zhyi $(shell readlink -f .gcroots/*)
+
+exam-log: FORCE
+	@git log --oneline --stat $$(sed -n 's/^baseline: //p' docs/agent/upstream-baseline.md)..exam/master -- $$(tools/exam-check --print-paths)
+
+exam-check: FORCE
+	@tools/exam-check $(EXAM_CHECK_OPTS)
 
 FORCE: ;
