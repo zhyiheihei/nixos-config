@@ -15,13 +15,6 @@ let
 
       mkdir -p $out/share/systemd/user
       ln -sf /dev/null $out/share/systemd/user/app-com.mitchellh.ghostty.service
-
-      # 屏蔽包自带 dbus service（SystemdService= 会映射到上面已 mask 的
-      # unit，单实例启动报 "unit is masked"；上游 7027f0f2 漏了这环）
-      if [ -f ${config.programs.ghostty.package}/share/dbus-1/services/com.mitchellh.ghostty.service ]; then
-        mkdir -p $out/share/dbus-1/services
-        ln -sf /dev/null $out/share/dbus-1/services/com.mitchellh.ghostty.service
-      fi
     ''
   );
 in
