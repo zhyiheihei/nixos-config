@@ -225,10 +225,14 @@ def do_log(argv):
     ap.add_argument("--fetch", action="store_true", help="先 fetch exam（离线时跳过，用本地已有对象）")
     ap.add_argument("--no-stat", action="store_true", help="只列提交，不显示文件级变更")
     a = ap.parse_args(argv)
+    if subprocess.run(["git", "-C", str(REPO), "rev-parse", "--verify", "--quiet", "exam/master"], capture_output=True).returncode != 0:
+        die("exam/master 不存在：先 git remote add exam git@github.com:xddxdd/nixos-config && git fetch exam")
     if a.fetch:
         r = subprocess.run(["git", "-C", str(REPO), "fetch", "exam"], capture_output=True)
         if r.returncode != 0:
-            print(f"警告: fetch 失败，使用本地已有对象（{r.stderr.decode(errors='replace').strip().splitlines()[-1] if r.stderr else '未知错误'}）")
+            lines = r.stderr.decode(errors="replace").strip().splitlines()
+            detail = lines[-1] if lines else "未知错误"
+            print(f"警告: fetch 失败，使用本地已有对象（{detail}）")
     baseline = load_baseline()
     stat = [] if a.no_stat else ["--stat"]
     out = git("log", "--oneline", *stat, f"{baseline}..exam/master", "--", *SHARED_PATHS)
