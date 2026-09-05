@@ -78,6 +78,11 @@ in
     no_proxy = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
   };
 
+  # daemon 只补 GOPROXY（goproxy.cn 直连可达，不经 router 代理，不落入上
+  # 述 OOM 陷阱）：被分发到本机的 go-modules 类构建默认走 proxy.golang.org，
+  # 其 IPv6 从本网络不可达，远程构建必失败（2026-09-06 ncps go-modules）。
+  systemd.services.nix-daemon.environment.GOPROXY = "https://goproxy.cn,direct";
+
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.
   # Match ml-builder so a healthy private cache is not disabled prematurely.
