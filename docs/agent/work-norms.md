@@ -45,6 +45,18 @@
 - 复刻新增的能力（如 rss 链路自动化、immich-rockchip）要独立成模块，不污染作者原版文件
 - **磁盘/子卷布局同样要与作者对齐**，不止配置文件。主机级配置逐字对齐但底层磁盘结构不对齐，会导致依赖该结构的服务（如 `lantian.backup` 的 btrfs `subvolume snapshot`）配置通过、运行必失败。物理 client 的子卷布局基准见 `new-host-standard.md`；新主机接入或迁移前先核对子卷，再谈配置对齐
 
+### 上游同步流程（exam）
+
+- 一次性接线：`git remote add exam git@github.com:xddxdd/nixos-config && git fetch exam`
+- **动共享路径（`tools/exam-check --print-paths`，即 nixos/ home/ helpers/ overlays/
+  flake-modules/ 等）之前先 `make exam-check`**：基线必须绿（只有 `=`/`≈`/`!known`）。
+  否则自己的改动会和既有漂移混在一起，无法归因（2026-09-05 attic 六连提交的教训）
+- 同步上游五步：`git fetch exam` → `make exam-log` 看增量 → pristine 文件
+  `git checkout exam/master -- <path>` 后做认可替换 → fork 接管的文件手动搬 patch →
+  `make exam-check` 绿后更新 `docs/agent/upstream-baseline.md` 的 baseline 并提交
+- 认可替换的机器可读规则、漂移判定与清债清单（含每项原因）见 `tools/exam-check`
+  与 `tools/exam-check-allowlist`；能上抛上游的修复优先提 PR（合并后删条目）
+
 ## 4. 不动公共模块
 
 - `flake-modules/`（命令封装、配置生成）、公共 `nixos/optional-apps/*.nix`、
@@ -57,9 +69,8 @@
 - **fork 大改的公共模块下沉到唯一使用主机**：某公共模块被 fork 重写且只有
   一个主机导入时，把 fork 实现移到 `hosts/<host>/`（如 greencloud-jp/attic.nix、
   volcengine/dex.nix），公共模块还原 exam 原版
-- **对齐上游提交要自证**：合并 exam 变更后，对每个被改公共文件跑
-  `diff <file> ../nixos-config-exam/<file>`，结果必须只剩 §3 认可替换；
-  对齐提交不得夹带行为改动，也不得把存量漂移顺手带回
+- **对齐上游提交要自证**：合并 exam 变更后跑 `make exam-check`，共享路径不得出现
+  未登记的 `!` 漂移；对齐提交不得夹带行为改动，也不得把存量漂移顺手带回
 - **退役主机/功能时同步清理死配置**：删 macmini 时漏删了 `nixpkgs-stable`
   死输入即教训；删除主机后检查 flake inputs、常量、专属模块的残余引用
 - **服务清单类差异跟随宿主走**：Dex staticClients、vhost、端口常量新增等
