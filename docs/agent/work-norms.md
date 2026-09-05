@@ -55,7 +55,8 @@
   `git checkout exam/master -- <path>` 后做认可替换 → fork 接管的文件手动搬 patch →
   `make exam-check` 绿后更新 `docs/agent/upstream-baseline.md` 的 baseline 并提交
 - 认可替换的机器可读规则、漂移判定与清债清单（含每项原因）见 `tools/exam-check`
-  与 `tools/exam-check-allowlist`；能上抛上游的修复优先提 PR（合并后删条目）
+  与 `tools/exam-check-allowlist`；fork 侧修复不主动上抛上游（2026-09-05 定），
+  仅当上游独立修复同一问题、fork 补丁失去必要时才删条目并同步对齐
 
 ## 4. 不动公共模块
 

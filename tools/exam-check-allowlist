@@ -1,5 +1,6 @@
 # exam-check 已登记漂移清单（清债 backlog）。
-# 格式: <path> # <原因>；理由含"待上抛"的项优先提 PR 给上游，合并后删条目并修文件。
+# 格式: <path> # <原因>；fork 侧修复不主动上抛上游，仅当上游独立修复同一问题、
+# fork 补丁失去必要时才删条目并同步对齐。
 # 条目失效时 exam-check 会提示删除。
 flake-modules/nixos-configurations.nix # fork CUDA 裁剪 hook 与 darwin 退役（fork-only 能力，规范允许的独立扩展）
 flake.nix # fork inputs（secrets/zhyi-packages/ncps）、hydra jobs 剔除 apps、ARM 内核包
@@ -14,7 +15,7 @@ home/client-apps/ai-coding/default.nix # fork AI provider 链（uni-api/taotoken
 home/client-apps/dev-tools.nix # 追加 kubectl-ktop
 home/client-apps/firefox/default.nix # 扩展与搜索配置差异（zeroomega 等 fork 客户端选择）
 home/client-apps/git.nix # fork 签名 key
-home/client-apps/plasma.nix # Xwayland DPI 竞态修复（待上抛上游，7027f0f2 同族问题）
+home/client-apps/plasma.nix # Xwayland DPI 竞态修复（fork 自维护；上游独立修复后可对齐）
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
 nixos/client-components/grub-theme.nix # extraInstallCommands mkForce（主题安装 fork 化）
 nixos/common-apps/coredns.nix # fork 解析链重写（pdns/netns 差异，配合 server-apps/coredns）
@@ -25,10 +26,10 @@ nixos/common-apps/nginx/testssl.nix # google-test 测试站点移除
 nixos/common-apps/nginx/whois-server.nix # whois neo 别名移除（NeoNetwork 置空）
 nixos/common-apps/yggdrasil/default.nix # fork 节点 region 表与 peer 正则
 nixos/common-apps/yggdrasil/public-peers.json # fork peer 列表（运营性，随上游各自更新）
-nixos/hardware/nvidia/prime.nix # eGPU 条件 steam offload wrapper（待上抛：拔 eGPU 卡死修复）
-nixos/hardware/vfio.nix # ACS/IOMMU 条件注入（雷电 eGPU Xid 79 修复，待上抛）
+nixos/hardware/nvidia/prime.nix # eGPU 条件 steam offload wrapper（拔 eGPU 卡死修复，fork 自维护）
+nixos/hardware/vfio.nix # ACS/IOMMU 条件注入（雷电 eGPU Xid 79 修复，fork 自维护）
 nixos/minimal-apps/nginx-proxy.nix # neo ULA 移除（NeoNetwork 置空）
-nixos/minimal-apps/rsync-server.nix # --no-group 修复（2026-08-30 opi5p exit 23 实证，待上抛）
+nixos/minimal-apps/rsync-server.nix # --no-group 修复（2026-08-30 opi5p exit 23 实证，fork 自维护）
 nixos/minimal-components/backup/backup.nix # sftpEndpoint 选项化（备份端点迁 opi5p，lt-home-vm 退役）
 nixos/minimal-components/backup/common.nix # 同上 + storagebox 参数差异
 nixos/minimal-components/boot-params.nix # grubenv saved_entry 逻辑差异（fork 启动项管理）
@@ -44,9 +45,9 @@ nixos/optional-apps/acme/testssl.nix # google-test 站点移除
 nixos/optional-apps/asf.nix # 容器 net=host 改动
 nixos/optional-apps/attic-watch-store.nix # attic 缓存拓扑 fork 化（zhyi@attic.zhyi.xin）
 nixos/optional-apps/bird-lg-go.nix # lg neo 别名移除（NeoNetwork 置空）
-nixos/optional-apps/bitmagnet.nix # TMDB key placeholder 宽容处理（fork 改进，待上抛）
+nixos/optional-apps/bitmagnet.nix # TMDB key placeholder 宽容处理（fork 改进，自维护）
 nixos/optional-apps/calibre-cops.nix # copsVhost 重构（fork vhost 结构）
-nixos/optional-apps/elasticsearch.nix # es-ingest per-host vhost（fork 新能力，待评估是否上抛）
+nixos/optional-apps/elasticsearch.nix # es-ingest per-host vhost（fork 新能力，长期保留）
 nixos/optional-apps/gitea/default.nix # oauth2 自动注册 + MINIO 换 VaultS3（Dex 集成配套）
 nixos/optional-apps/glauth.nix # displayName Zh Yi + neo 监听移除
 nixos/optional-apps/grafana.nix # fork dashboard 供应链（dashboards.nix + datasource uid）
@@ -58,7 +59,7 @@ nixos/optional-apps/mysql.nix # Galera 副本清单差异（作者节点不存�
 nixos/optional-apps/ncps-client.nix # ncps 指向本仓 192.168.0.66（作者 .04）
 nixos/optional-apps/ncps.nix # 监听地址参数化（作者硬编码其 LAN IP）
 nixos/optional-apps/nix-distributed.nix # nixbuild.net 构建节点移除（fork 不用付费构建）
-nixos/optional-apps/plausible.nix # geonames 文件修复（greencloud 迁移后起不来，待上抛）
+nixos/optional-apps/plausible.nix # geonames 文件修复（greencloud 迁移后起不来，fork 自维护）
 nixos/optional-apps/prometheus/alertmanager.nix # ExecStartPre 实现变体（attrset 内联 vs writeShellScript，二选一对齐）
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）
