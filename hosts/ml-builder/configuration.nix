@@ -146,25 +146,20 @@ in
 
   networking.networkmanager.enable = lib.mkForce false;
 
-  # Nix places sandbox build trees under /var/cache/nix.  Keep those
-  # short-lived, write-heavy files in memory instead of the persistent Btrfs
-  # filesystem.  The size is an upper limit; tmpfs does not reserve 64 GiB at
-  # boot and may use swap under memory pressure.
-  fileSystems."/var/cache/nix" = {
-    device = "tmpfs";
-    fsType = "tmpfs";
-    options = [
-      "mode=0755"
-      "nodev"
-      "nosuid"
-      "size=64G"
-    ];
+  # Nix places sandbox build trees under the repo-wide build-dir
+  # (/var/cache/nix). On this box that tmpfs is lethal: big builds (electron
+  # V8, kernel LTO) fill it with tens of GB, tmpfs pages swap into zram under
+  # memory pressure, and the zstd reclaim storm soft-locked every CPU in
+  # kernel mode twice on 2026-09-05 (watchdog: soft lockup, nix-daemon,
+  # CPUs 93-100% system). Keep the mount for other users of the repo-wide
+  # default, but point this host's daemon at persistent disk instead.
+  nix.settings.build-dir = lib.mkForce "/nix/build-dir";
+  systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/nix/build-dir" ];
+  systemd.tmpfiles.settings.ml-builder-build-dir."/nix/build-dir"."d" = {
+    mode = "0755";
+    user = "root";
+    group = "root";
   };
-
-  # The repository-wide Nix setting uses build-dir=/var/cache/nix.  Make the
-  # mount ordering explicit so local, remote and Hydra-triggered builds cannot
-  # start against the underlying persistent directory.
-  systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/var/cache/nix" ];
 
   nix.settings = {
     # Centralize downloads on ml-builder. Remote build machines receive all
@@ -176,10 +171,10 @@ in
     connect-timeout = lib.mkForce 15;
     # max-jobs=auto（28）× cores=0（每构建内部不限线程）会让内核 LTO、
     # wine、qtwebengine 等大件同时全速开跑，2026-09-05 构建 ml-2700 时
-    # 连续触发三轮 OOM（单轮 96 个派生被连环杀）。限 6 个并发构建、
-    # 每构建 28 线程，吞吐足够且内存峰值可控。
-    max-jobs = lib.mkForce 6;
-    cores = lib.mkForce 28;
+    # 连续触发三轮 OOM（单轮 96 个派生被连环杀）。6 并发仍触发内核
+    # soft lockup（zram/tmpfs 回收风暴，构建目录已迁磁盘），再降到 2×16。
+    max-jobs = lib.mkForce 2;
+    cores = lib.mkForce 16;
   };
 
   # 客户端与 nix-daemon 两侧共用同一代理（flake lock 拉取在客户端侧，
