@@ -10,7 +10,6 @@
 #   os-release（内容镜像上游 fake_product_name/fake_os-release）；
 # - 启动前创建 dummy wlan0 并克隆真实网卡 MAC 作为设备标识。
 {
-  lib,
   pkgs,
   ...
 }:
@@ -33,10 +32,11 @@ let
 
   # 与上游 steamdeck_acc_monitor.sh 一致的设备标识逻辑：优先取无线/
   # 有线物理网卡的 MAC，取不到时退回 /etc/machine-id 派生的固定值。
+  # 上游发行版用可预测网卡名（wl*/en*），NixOS 主机常用 eth*，一并匹配。
   mkDummyWlan0 = pkgs.writers.writeDash "leigod-mk-dummy-wlan0" ''
     if ip link show wlan0 >/dev/null 2>&1; then exit 0; fi
     REAL_MAC=""
-    for addr in /sys/class/net/wl*/address /sys/class/net/en*/address; do
+    for addr in /sys/class/net/wl*/address /sys/class/net/en*/address /sys/class/net/eth*/address; do
       [ -f "$addr" ] || continue
       REAL_MAC=$(cat "$addr")
       [ -n "$REAL_MAC" ] && break
@@ -102,7 +102,10 @@ let
     };
 in
 {
-  boot.kernelModules = [ "dummy" "tun" ];
+  boot.kernelModules = [
+    "dummy"
+    "tun"
+  ];
 
   environment.systemPackages = [ leigod ];
 
