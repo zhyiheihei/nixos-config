@@ -81,6 +81,9 @@ let
   };
 in
 {
+  # 本机直接 apply-local 切换自身（不绕 SSH 自连；colmena 默认禁止）。
+  deployment.allowLocalDeployment = true;
+
   imports = [
     ../../nixos/server.nix
 
