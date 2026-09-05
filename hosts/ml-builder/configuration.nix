@@ -55,6 +55,7 @@ let
     "gitweb.gentoo.org"
     "hackage.haskell.org"
     "invent.kde.org"
+    "inbox.sourceware.org"
     "kristaps.bsd.lv"
     "libbsd.freedesktop.org"
     "luarocks.org"
