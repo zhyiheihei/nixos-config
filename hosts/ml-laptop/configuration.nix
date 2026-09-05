@@ -46,9 +46,10 @@
   # Hydra evaluator 直连 GitHub 拉 flake inputs 会长期卡死，注入出站代理。
   systemd.services.hydra-evaluator.environment = LT.proxyEnvironment;
 
-  # 构建拓扑：本机仅 1 个本地槽、不对外通告（host.nix 无 nix-builder 标签），
-  # 详见 docs/agent/hydra-build-chain.md。
-  nix.settings.max-jobs = 1;
+  # 构建拓扑：本机零本地编译（max-jobs = 0，求值期 FOD 亦全部外派，
+  # 遇慢镜像可能拖慢求值，属既定取舍）、不对外通告（host.nix 无
+  # nix-builder 标签），详见 docs/agent/hydra-build-chain.md。
+  nix.settings.max-jobs = 0;
   nix.buildMachines = lib.mkForce (
     let
       mk = n: maxJobs: features: {
@@ -64,7 +65,7 @@
       };
     in
     [
-      (mk "ml-builder" LT.hosts.ml-builder.cpuThreads [ "aarch64-cross" ])
+      (mk "ml-builder" 2 [ "aarch64-cross" ])
       (mk "ml-builder" 1 [
         "big-parallel"
         "aarch64-cross"
