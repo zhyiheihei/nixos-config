@@ -187,10 +187,6 @@ in
     {
       hostName = "localhost";
       system = "x86_64-linux";
-      platforms = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
       maxJobs = 6;
       speedFactor = 28;
       supportedFeatures = [
@@ -198,8 +194,15 @@ in
         "benchmark"
         "big-parallel"
         "kvm"
-        "aarch64-cross"
       ];
+      mandatoryFeatures = [ ];
+    }
+    {
+      hostName = "localhost";
+      system = "aarch64-linux";
+      maxJobs = 6;
+      speedFactor = 28;
+      supportedFeatures = [ "aarch64-cross" ];
       mandatoryFeatures = [ ];
     }
   ];
