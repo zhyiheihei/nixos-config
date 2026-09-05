@@ -68,6 +68,7 @@ let
     "static.crates.io"
     "www.bytereef.org"
     "www.ffado.org"
+    "www.freedesktop.org"
     "www.kernel.org"
     "www.oberhumer.com"
   ];
