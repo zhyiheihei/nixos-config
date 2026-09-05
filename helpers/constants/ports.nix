@@ -139,6 +139,7 @@ rec {
     # 本仓同步删除，LlamaSwap 独占 13880（上游同号）。
     LlamaSwap = 13880;
     Actual = 13882;
+    DLX = 13888;
     Wallos = 13883;
     MoviePilot.Frontend = 13890;
     MoviePilot.Backend = 13891;
