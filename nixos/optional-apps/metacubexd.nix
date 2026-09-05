@@ -48,6 +48,13 @@
         MIXED_PORT = "7892";
         TZ = config.time.timeZone;
         UI_DIST = "/app/ui-dist";
+        # The control server fetches subscription URLs with Node fetch, whose
+        # Happy Eyeballs aborts each attempt after 250ms. The podman bridge has
+        # no IPv6 route, and the IPv4 handshake to remote subscriptions
+        # (e.g. sub.zhyi.xin on a SG VPS) regularly exceeds 250ms, so every
+        # import failed with ETIMEDOUT -> HTTP 500. Try addresses sequentially
+        # with the OS timeout instead.
+        NODE_OPTIONS = "--no-network-family-autoselection";
       };
       environmentFiles = [ config.sops.templates.metacubexd-env.path ];
     };
