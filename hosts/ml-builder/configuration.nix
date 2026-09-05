@@ -173,11 +173,36 @@ in
     connect-timeout = lib.mkForce 15;
     # max-jobs=auto（28）× cores=0（每构建内部不限线程）会让内核 LTO、
     # wine、qtwebengine 等大件同时全速开跑，2026-09-05 构建 ml-2700 时
-    # 连续触发三轮 OOM（单轮 96 个派生被连环杀）。6 并发仍触发内核
-    # soft lockup（zram/tmpfs 回收风暴，构建目录已迁磁盘），再降到 2×16。
-    max-jobs = lib.mkForce 2;
+    # 连续触发三轮 OOM（单轮 96 个派生被连环杀）。根因是 tmpfs 构建目录
+    # + zram 回收风暴（见下方 build-dir 迁移）；迁磁盘后 6×16 全天稳定。
+    max-jobs = lib.mkForce 6;
     cores = lib.mkForce 16;
   };
+
+  # ml-builder 优先本地：localhost 条目须排在 buildMachines 首位（列表顺序
+  # 即调度优先级），x86_64 原生 + aarch64 经本机 QEMU binfmt；其余
+  # nix-builder 节点只作溢出。否则 nix 会把任务优先发给有空闲槽位的远程
+  # 机，本地大机器闲置、队列反而堆积（2026-09-06）。
+  nix.buildMachines = lib.mkBefore [
+    {
+      hostName = "localhost";
+      system = "x86_64-linux";
+      platforms = [
+        "x86_64-linux"
+        "aarch64-linux"
+      ];
+      maxJobs = 6;
+      speedFactor = 28;
+      supportedFeatures = [
+        "nixos-test"
+        "benchmark"
+        "big-parallel"
+        "kvm"
+        "aarch64-cross"
+      ];
+      mandatoryFeatures = [ ];
+    }
+  ];
 
   # 客户端与 nix-daemon 两侧共用同一代理（flake lock 拉取在客户端侧，
   # FOD fetch 走 daemon），内网服务由 bypass 直连。
