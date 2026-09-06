@@ -38,35 +38,37 @@ profiles 目录：
    没有 `198.18.0.0/15` 直连、ZeroTier 进程/9993 端口豁免等规则，进 TUN
    的 overlay 流量会被 GEOIP 落到 `MATCH → 代理`，经境外节点黑洞。
 
-## 修复方案（与仓库既有约定一致）
+## 修复方案（最小集）
 
 思路与 `docs/human/network/flclash-home-override.yaml`（FlClash 同款覆写）
-一致，分流规则与订阅模板 `nixos/optional-apps/sublinkpro/clash.yaml` 逐字
-对齐：
+一致。经实机逐项验证后收敛为两处，全部落在 Verge 全局 Merge 的 `dns` 段
+与全局 Script：
 
-- **fake-ip 池迁出**：`28.0.0.1/8`（未被本机任何路由前缀覆盖）。mihomo 启用
-  fake-ip 时 TUN 设备地址自动派生为池子首个 /30（实测 2.5.2 下显式
-  `inet4-address` 会被覆盖，Merge 中保留仅作非 fake-ip 场景兜底）。
+- **fake-ip 池迁出（Merge `dns.fake-ip-range: 28.0.0.1/8`）**：唯一必需的
+  地址修复。mihomo 启用 fake-ip 时 TUN 设备地址自动派生为池子首个 /30
+  （实测 `inet4-address` 字段在该模式下被忽略，故无需也不应再覆盖）。
 - **`+.zhyi.xin` 进 fake-ip-filter**：内网域名拿真实 LTNET IP 后交给内核，
   由主表路由直走 ZeroTier。mihomo 出站绑定物理网卡（auto-detect-interface）
   够不到 LTNET，绝不能让它经手内网连接。
-- **overlay 网段 route-exclude 兜底**：防上游 auto-route 行为变化。
-- **DNS 段对齐订阅模板**：`respect-rules` + geosite 分流 DoH
-  （国内 120.53.53.53/223.5.5.5，国外 Cloudflare/Google）。
-- **豁免规则前置（Script.js）**：`Merge.yaml` 的 `prepend-rules` 键实测被
-  Verge 原样透传、不合并进 `rules`（mihomo 忽略未知键），规则前置必须走
-  全局 Script。
+- **DNS 上游固定为国内 DoH（120.53.53.53 / 223.5.5.5）**。刻意**不用**
+  `respect-rules`：实测它会让部分查询回落到真实解析，被污染域名（google 系）
+  拿到假 IP 后以 IP 直连节点失败；全量 fake-ip 下被代理域名以**域名**交给
+  节点远程解析，对污染免疫，直连域名由 mihomo 走国内 DoH 解析（本身干净）。
+- **豁免规则前置（Script.js，仅 6 条）**：`Merge.yaml` 的 `prepend-rules`
+  键实测被 Verge 原样透传、不合并进 `rules`（mihomo 忽略未知键），规则前置
+  必须走全局 Script。只前置订阅没有的条目（zhyi.xin / zhyi.dn42 /
+  zerotier 进程 / 9993 端口 / 198.18.0.0/15 / fdd8::/48）；RFC1918 等私网
+  直连订阅已自带，不重复。
 
 ## 实机验证结论（ml-laptop，TUN 开启）
 
 | 项目 | 结果 |
 | ---- | ---- |
-| 国内直连（baidu） | 200，真实 IP 直连 |
-| 海外代理（google g204） | 204，走代理节点 |
+| 国内直连（baidu） | 200，直连稳定（多轮浸泡无抖动） |
+| 海外代理（google g204 / github / wikipedia） | 204/200，域名交节点远程解析，无污染 |
 | LTNET 网关/成员 ping | 正常，不经 TUN |
 | LAN（192.168.0.0/24） | 正常，不经 TUN |
 | 内网域名（`*.zhyi.xin`） | 返回真实 LTNET IP，内核直走 ZeroTier |
-| 发往 CoreDNS/LAN 的 DNS | 被劫持但安全应答，无 198.18 泄漏 |
 
 ## 已知限制
 

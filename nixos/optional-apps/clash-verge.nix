@@ -12,8 +12,8 @@ let
   }/.local/share/io.github.clash-verge-rev.clash-verge-rev";
   vergeProfilesDir = "${vergeDataDir}/profiles";
 
-  # LTNET / dn42 豁免规则，与订阅模板 nixos/optional-apps/sublinkpro/clash.yaml
-  # 的 rules 段逐字一致（作者为本网络设计的权威版本）。
+  # LTNET / dn42 豁免规则。只保留订阅（ACL4SSR 全量模板）里没有的条目：
+  # RFC1918/loopback/CGNAT/链路本地等私网直连订阅已自带，不再重复前置。
   ltnetRules = [
     "DOMAIN-SUFFIX,zhyi.xin,DIRECT"
     "DOMAIN-SUFFIX,zhyi.dn42,DIRECT"
@@ -21,48 +21,26 @@ let
     "DST-PORT,9993,DIRECT"
     "IP-CIDR,198.18.0.0/15,DIRECT,no-resolve"
     "IP-CIDR6,fdd8:1938:4e88::/48,DIRECT,no-resolve"
-    "IP-CIDR,127.0.0.0/8,DIRECT,no-resolve"
-    "IP-CIDR,10.0.0.0/8,DIRECT,no-resolve"
-    "IP-CIDR,172.16.0.0/12,DIRECT,no-resolve"
-    "IP-CIDR,192.168.0.0/16,DIRECT,no-resolve"
-    "IP-CIDR,100.64.0.0/10,DIRECT,no-resolve"
-    "IP-CIDR6,fc00::/7,DIRECT,no-resolve"
-    "IP-CIDR6,fe80::/10,DIRECT,no-resolve"
   ];
 
   scriptRules = lib.concatStringsSep "\n" (map (r: "    \"${r}\",") ltnetRules);
 
-  # Verge 全局 Merge：TUN/DNS 层面的网络适配。在 Verge 增强链中对每个订阅
-  # 深合并生效（实测 2.5.2 下 tun/dns 字段均存活）。
+  # Verge 全局 Merge：唯一的实质修改是 DNS 段。在 Verge 增强链中对每个订阅
+  # 深合并生效（实测 2.5.2 下 dns 字段存活；tun 段无需覆盖——TUN 设备地址由
+  # mihomo 从 fake-ip-range 自动派生，见下）。
   mergeYaml = pkgs.writeText "clash-verge-merge-ltnet.yaml" ''
     # LTNET / dn42 兼容层 —— 本文件由 NixOS 管理（勿在 Verge GUI 中编辑），
     # 修改请改 nixos/optional-apps/clash-verge.nix。部署后重启 Verge 或重新
     # 激活订阅生效；原理与排障见 docs/human/network/clash-verge-ltnet-compat.md。
-    tun:
-      # mihomo 默认 TUN 设备地址 198.18.0.1/30 落在 LTNET 198.18.0.0/15
-      # （ZeroTier 路由）内；mihomo 同时会在启用 fake-ip 时把设备地址派生为
-      # fake-ip-range 的首个 /30，故池子迁出后此地址仅作非 fake-ip 场景兜底。
-      inet4-address:
-        - 172.19.0.1/30
-      # 保险带：overlay 网段显式排除在 TUN 接管之外，防上游 auto-route 行为变化。
-      inet4-route-exclude-address:
-        - 198.18.0.0/15
-        - 10.0.0.0/8
-        - 172.16.0.0/12
-        - 192.168.0.0/16
-        - 100.64.0.0/10
-      inet6-route-exclude-address:
-        - fdd8:1938:4e88::/48
-        - fc00::/7
     dns:
       enable: true
-      ipv6: true
-      respect-rules: true
+      ipv6: false
       enhanced-mode: fake-ip
-      # 默认池 198.18.0.1/16 与 LTNET /15 完全重叠：sing-tun 会强制接管所有
-      # dport 53（包括发往本机 netns CoreDNS 的查询）并由 mihomo 应答，fake-ip
-      # 随后又被主表 ZeroTier 路由黑洞，TUN 一开全部域名连接超时。迁出至
-      # 28.0.0.0/8（未被本机任何路由前缀覆盖；与 FlClash 覆写 28.0.0.1/16 同思路）。
+      # 默认池 198.18.0.1/16 与 LTNET 198.18.0.0/15 完全重叠：TUN 开启后所有
+      # 域名解析被劫持应答为 fake-ip，该地址又撞上主表里 ZeroTier 的 /15 路由
+      # 被丢进隧道黑洞，导致整机断网。迁出至 28.0.0.0/8（未被本机任何路由
+      # 前缀覆盖；与 FlClash 覆写 28.0.0.1/16 同思路）。TUN 设备地址随池子
+      # 派生为 28.0.0.1/30，同步离开 LTNET。
       fake-ip-range: 28.0.0.1/8
       fake-ip-filter:
         - "*.lan"
@@ -81,13 +59,6 @@ let
       proxy-server-nameserver:
         - https://120.53.53.53/dns-query
         - https://223.5.5.5/dns-query
-      nameserver-policy:
-        "geosite:cn,private":
-          - https://120.53.53.53/dns-query
-          - https://223.5.5.5/dns-query
-        "geosite:geolocation-!cn":
-          - https://dns.cloudflare.com/dns-query
-          - https://dns.google/dns-query
   '';
 
   # Verge 全局 Script：规则前置必须走这里——实测 Merge 的 prepend-rules 键
