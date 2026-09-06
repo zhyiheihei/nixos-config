@@ -22,8 +22,6 @@
     ../../nixos/optional-apps/imapfilter.nix
     ../../nixos/optional-apps/lemmy.nix
     ../../nixos/optional-apps/librechat.nix
-    # 复刻上游私有 ltnet-scripts 管线：dn42 ROA + knot 主区文件（本机为 rsync 源站）
-    ./ltnet-scripts.nix
     ../../nixos/optional-apps/maddy.nix
     ../../nixos/optional-apps/matrix-synapse
     ../../nixos/optional-apps/miniflux.nix

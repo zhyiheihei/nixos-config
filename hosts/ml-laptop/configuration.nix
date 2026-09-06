@@ -11,6 +11,9 @@
 
     ./hardware-configuration.nix
 
+    # ltnet-scripts 管线投递端（复刻上游作者工作机角色：私有仓同步 + 推 rsync 源站）
+    ./ltnet-scripts-sync.nix
+
     # 与上游 lt-hp-omen 逐字对齐的 optional-apps 导入列表（含注释占位）。
     ../../nixos/optional-apps/audio-cpp.nix
     ../../nixos/optional-apps/byparr.nix
