@@ -27,7 +27,11 @@ in
     # configDir = "${config.xdg.configHome}/pi/agent";
     inherit context;
 
-    extraPackages = [ pkgs.nodejs ];
+    extraPackages = [
+      pkgs.nodejs
+      # pi-notify 依赖 notify-send 发桌面通知
+      pkgs.libnotify
+    ];
 
     models.providers = {
       linuxdo-hub = {
@@ -63,6 +67,14 @@ in
       defaultThinkingLevel = "high";
       showCacheMissNotices = true;
 
+      # https://github.com/weirongxu/pi-notify 桌面通知配置
+      # finishedThrottleSecs：5s 内的短任务不通知；unfocused 默认开（终端有焦点不发）
+      piNotify = {
+        enabled = true;
+        finished = true;
+        finishedThrottleSecs = 5;
+      };
+
       retry = {
         enabled = true;
         maxRetries = 3;
@@ -81,6 +93,7 @@ in
         "npm:@moguw/pi-session-migrate"
         "npm:@monotykamary/pi-tps"
         "npm:@narumitw/pi-langfuse"
+        "npm:@raidou/pi-notify"
         "npm:@rwese/pi-question"
         "npm:pi-btw"
         "npm:pi-codex-goal"
