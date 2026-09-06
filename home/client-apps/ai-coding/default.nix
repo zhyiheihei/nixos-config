@@ -140,7 +140,6 @@ in
   home.file.".pi/agent/extensions/nixos-command-guard.ts".source =
     ./extensions/nixos-command-guard.ts;
   home.file.".pi/agent/extensions/model-favorites.ts".source = ./extensions/model-favorites.ts;
-  home.file.".pi/agent/extensions/notify-sound.ts".source = ./extensions/notify-sound.ts;
   home.file.".pi/agent/extensions/subagent/config.json".text = builtins.toJSON {
     toolDescriptionMode = "compact";
     parallel = {
