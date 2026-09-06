@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+# Axiom 集中日志查询（dataset: nixos，filebeat 全量 journald）
+# 用法:
+#   log-query "['nixos'] | where ['systemd.unit']=='nginx.service' | filter message =~ '(?i)error' | limit 50"
+# 时间窗（可选）: AXIOM_START=2026-09-06T00:00:00Z AXIOM_END=... （默认最近 24 小时）
+# token: nixos-secrets/common/axiom-query.yaml 的 axiom-query-token 字段（sops 加密，
+#        在 Axiom 控制台创建有 query 权限的 token 后存入；ingest token 无读取权限）
+set -euo pipefail
+
+Q=${1:?用法: log-query '<APL>'}
+SECRET=~/Documents/nixos/nixos-secrets/common/axiom-query.yaml
+[ -f "$SECRET" ] || {
+  echo "缺少 $SECRET：在 Axiom 控制台建 query token，sops 加密写入（键名 axiom-query-token）后重试" >&2
+  exit 1
+}
+if command -v sops >/dev/null; then SOPS="sops"; else SOPS="nix shell nixpkgs#sops -c sops"; fi
+TOKEN=$($SOPS -d "$SECRET" | sed -n 's/^axiom-query-token:[[:space:]]*//p')
+[ -n "$TOKEN" ] || { echo "axiom-query.yaml 里没有 axiom-query-token 字段" >&2; exit 1; }
+
+BODY=$(jq -nc \
+  --arg q "$Q" \
+  --arg s "${AXIOM_START:-$(date -u -d '24 hours ago' +%FT%TZ)}" \
+  --arg e "${AXIOM_END:-$(date -u +%FT%TZ)}" \
+  '{apl: $q, startTime: $s, endTime: $e}')
+
+curl -sS -m 60 https://api.axiom.co/v1/datasets/nixos/query \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d "$BODY" |
+  jq 'if .matches then
+        {total: .matches.total, events: .matches.events}
+      elif .tables then
+        {tables: [.tables[] | {name, count: (.events | length), columns, events}]}
+      else . end'
