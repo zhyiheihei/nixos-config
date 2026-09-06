@@ -23,6 +23,7 @@
     ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/obs-studio.nix
     ../../nixos/optional-apps/opencl.nix
+    ../../nixos/optional-apps/pi-web.nix
     # ../../nixos/optional-apps/pipewire-noise-cancelling.nix
     ../../nixos/optional-apps/pipewire-roc-sink.nix
     # ../../nixos/optional-apps/qdrant.nix
@@ -42,6 +43,9 @@
     ../../nixos/client-apps/zcode.nix
     # ../../nixos/optional-apps/leigod-accelerator.nix
   ];
+
+  # 与上游 lt-hp-omen 对齐：pi-web 走 OAuth 登录（经 login.zhyi.xin）。
+  lantian.localVhosts.pi-web.locations."/".enableOAuth = true;
 
   # Hydra evaluator 直连 GitHub 拉 flake inputs 会长期卡死，注入出站代理。
   systemd.services.hydra-evaluator.environment = LT.proxyEnvironment;
