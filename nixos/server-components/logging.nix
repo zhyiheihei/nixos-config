@@ -40,7 +40,8 @@
     settings = {
       logging.level = "warning";
       output.elasticsearch = {
-        hosts = [ "https://api.axiom.co/v1/datasets/nixos/elastic" ];
+        # Axiom 2026-09 起关闭 9200 端口，filebeat 默认按 ES 惯例连 :9200 会超时，需显式钉 443
+        hosts = [ "https://api.axiom.co:443/v1/datasets/nixos/elastic" ];
         username = "axiom";
         password = {
           _secret = config.sops.secrets.filebeat-axiom-token.path;
