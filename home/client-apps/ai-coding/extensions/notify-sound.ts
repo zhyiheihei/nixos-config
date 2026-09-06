@@ -1,6 +1,7 @@
 // 通知扩展：pi 需要用户决策或一轮完成时发系统桌面通知
 import { execFile } from 'node:child_process';
 import type { ExtensionAPI } from '@earendil-works/pi-coding-agent';
+import type { AssistantMessage } from '@earendil-works/pi-ai';
 
 const DEBOUNCE_MS = 2000;
 
@@ -37,12 +38,27 @@ function notify(summary: string, body: string) {
 }
 
 export default function (pi: ExtensionAPI) {
+	// 最近一次 agent run 是否被手动终止（Esc/Ctrl+C）；在 agent_end 里检测，
+	// settled 时消费并复位。agent_settled 事件本身不带消息，只能在这里判。
+	let aborted = false;
+
 	// 阻塞式 UI 弹窗（提问/确认/输入框等）→ 需要决策
 	pi.on('ui_prompt_start', async event => {
 		notify('pi 需要你的决策', event.title ?? '有弹窗等待你处理');
 	});
-	// 一轮结束、pi 空闲等待用户输入
+	pi.on('agent_end', async event => {
+		// 倒序找最后一条 assistant 消息：手动终止时它的 stopReason 是 "aborted"
+		const last = [...(event.messages ?? [])].reverse().find(
+			(m): m is AssistantMessage => m.role === 'assistant',
+		);
+		aborted = last?.stopReason === 'aborted';
+	});
+	// 一轮结束、pi 空闲等待用户输入；手动终止不算完成，不通知
 	pi.on('agent_settled', async () => {
+		if (aborted) {
+			aborted = false;
+			return;
+		}
 		notify('pi 已完成', '一轮任务结束，等待你的下一步指令');
 	});
 }
