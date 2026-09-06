@@ -99,6 +99,18 @@ nix run .#colmena -- apply --on tencent
 只部署 `tencent`，等待一个 scrape interval 后再复核。LTNet、DNS、HTTPS
 入口或证书同步异常应在对应链路修复，不能放宽探针条件来掩盖。
 
+## 近期变更（2026-09-06）
+
+- 全舰队 filebeat 断链修复：Axiom 关闭 9200 后 7 台 server 一直连旧端口，
+  下午统一重新部署（filebeat7→8、删多余 CA 行，均对齐上游），9 台 server
+  全部钉 443 且无 ingest 错误。greencloud/volcengine 曾在 15:36-15:40 出现
+  一阵 _bulk 失败（疑似 9 台同时补发积压触发限流），已自愈，🟡 观察。
+- filebeat8 改 JSON 日志格式，巡检噪音过滤词从「cgroup stats」扩展为
+  「cgroup stats | NewModuleRegistry | Module directory not found」。
+- alertmanager 9 月 1 日引入的裸字符串 ExecStartPre 写法导致 unit 损坏，
+  tencent 的 TG 告警自当日 03:50 起停摆约 11 小时，已恢复上游
+  writeShellScript 形式（见 f9382ceda）。
+
 ## 近期变更（2026-08-14）
 
 - 监控栈（Prometheus/Alertmanager/Blackbox/Grafana + MariaDB）从 `greencloud`
