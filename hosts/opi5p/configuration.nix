@@ -56,6 +56,7 @@ in
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/one-kvm.nix
     ../../nixos/optional-apps/redroid-rk3588.nix
+    ../../nixos/optional-apps/ws-scrcpy.nix
     ../../nixos/optional-apps/resin.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
@@ -225,6 +226,11 @@ in
   # 注意：乐橙 App 里需关闭 RTSP 加密（TLS），否则 frigate 拉流失败。
   # One-KVM IP-KVM：板载 HDMI RX 采集 + Type-C OTG HID/MSD（详见 one-kvm.nix）
   lantian.one-kvm.enable = true;
+
+  # ws-scrcpy 网页版 scrcpy：浏览器镜像/控制 Android 设备（详见 ws-scrcpy.nix）。
+  # 目标设备：redroid（TCP adb）+ 手机无线 adb（启用后把手机 IP:5555 加进 adbHosts）。
+  lantian.ws-scrcpy.enable = true;
+  lantian.ws-scrcpy.adbHosts = [ "${LT.this.interconnect.IPv4}:5555" ];
 
   lantian.frigate = {
     enable = true;
