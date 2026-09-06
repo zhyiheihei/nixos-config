@@ -49,15 +49,17 @@ in
   features = {
     efiBootStub = true;
   };
-}).overrideAttrs (old: {
-  requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
-  name = "k";
-  configurePhase = builtins.replaceStrings
-    [
-      ''      make "''${makeFlags[@]}" oldconfig''
-    ]
-    [
-      ''      make "''${makeFlags[@]}" olddefconfig && make "''${makeFlags[@]}" oldconfig''
-    ]
-    (old.configurePhase or "");
-})
+}).overrideAttrs
+  (old: {
+    requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+    name = "k";
+    configurePhase =
+      builtins.replaceStrings
+        [
+          ''make "''${makeFlags[@]}" oldconfig''
+        ]
+        [
+          ''make "''${makeFlags[@]}" olddefconfig && make "''${makeFlags[@]}" oldconfig''
+        ]
+        (old.configurePhase or "");
+  })

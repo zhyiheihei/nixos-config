@@ -96,4 +96,3 @@ greencloud（新加坡 SG，`hosts/greencloud`，原 colocrossing 改名）上�
   matrix-synapse 的 `sync_partial_state_room`（hackint.org 部分状态同步，内存大户）。
   建议：关注 Synapse 状态压缩（`synapse-compress-state` 模块）、评估服务迁移或
   扩容 RAM；监控应覆盖内存水位告警。
-

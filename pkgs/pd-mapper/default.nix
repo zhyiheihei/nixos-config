@@ -19,7 +19,10 @@ stdenv.mkDerivation {
   };
 
   nativeBuildInputs = [ pkg-config ];
-  buildInputs = [ qrtr xz.dev ];
+  buildInputs = [
+    qrtr
+    xz.dev
+  ];
 
   installFlags = [ "prefix=$(out)" ];
 

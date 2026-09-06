@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Insert LCKFB 3.1-inch ST7701 panel into panel-sitronix-st7701.c"""
+
 import sys
 
 path = sys.argv[1]
 with open(path) as f:
     c = f.read()
 
-new_panel = '''
+new_panel = """
 static void lckfb_31inch_gip_sequence(struct st7701 *st7701)
 {
 	ST7701_WRITE(st7701, 0xEE, 0x42);
@@ -76,7 +77,7 @@ static const struct st7701_panel_desc lckfb_31inch_desc = {
 	.gip_sequence	= lckfb_31inch_gip_sequence,
 };
 
-'''
+"""
 
 anchor = "static const struct of_device_id st7701_dsi_of_match[]"
 assert anchor in c, "anchor not found"
