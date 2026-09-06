@@ -15,7 +15,7 @@
 
   services.filebeat = {
     enable = !(LT.this.hasTag LT.tags.low-ram);
-    package = pkgs.filebeat7;
+    package = pkgs.filebeat8;
     inputs = {
       journald = {
         type = "journald";
@@ -46,7 +46,6 @@
         password = {
           _secret = config.sops.secrets.filebeat-axiom-token.path;
         };
-        ssl.certificate_authorities = [ "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt" ];
         compression_level = 6;
         index = "beat-%{+yyyy.MM.dd}";
       };
