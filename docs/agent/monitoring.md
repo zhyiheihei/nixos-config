@@ -39,9 +39,12 @@ server 角色主机的全量 journald 发往 Axiom 托管端点（`api.axiom.co:
 i/o timeout，必须显式钉 443；`filebeat active` 不等于日志在落库，巡检要抽样
 `journalctl -u filebeat` 里的非 cgroup 错误。low-ram 主机与 client/minimal/pve
 角色不发日志，只有本机 journald（100M 上限，滚动即丢）。集中查询用
-`tools/log-query`（APL 语法，token 放 `nixos-secrets/common/axiom-query.yaml`，
-ingest token 无读取权限）。filebeat 每 30 秒一条 `error getting cgroup stats`
-是 filebeat7 自身噪音，不影响 ingest，巡检时过滤。
+`tools/log-query`（token 放 `nixos-secrets/common/axiom-query.yaml`，ingest token
+无读取权限；脚本默认走本地 socks5 代理，直连 axiom 被限速）。APL 要点：正则用
+`message matches regex '(?i)…'`（`=~` 无效）；endpoint 必须 `_apl?format=legacy`
+（旧 `/v1/datasets/<id>/query` 静默忽略 `where`，tabular 格式聚合恒为空）。
+filebeat8 每 30 秒一条 `error getting cgroup stats` / `NewModuleRegistry` 是自身
+噪音，不影响 ingest，巡检时过滤。
 
 ## 声明规则
 

@@ -1,10 +1,14 @@
 #!/usr/bin/env bash
 # Axiom 集中日志查询（dataset: nixos，filebeat 全量 journald）
 # 用法:
-#   log-query "['nixos'] | where ['systemd.unit']=='nginx.service' | filter message =~ '(?i)error' | limit 50"
+#   log-query "['nixos'] | where ['systemd.unit'] == 'nginx.service' and message contains 'error' | project _time, ['host.name'], message | limit 50"
+# APL 要点（实测 2026-09）:
+#   - 正则用 `message matches regex '(?i)pattern'`；`=~` 和裸 `matches` 无效
+#   - `where`/`project`/`limit` 均生效；聚合结果在 totals，原始事件在 events
+#   - 常用字段: ['systemd.unit'] ['host.name'] message _time ['log.syslog.facility']
 # 时间窗（可选）: AXIOM_START=2026-09-06T00:00:00Z AXIOM_END=... （默认最近 24 小时）
-# token: nixos-secrets/common/axiom-query.yaml 的 axiom-query-token 字段（sops 加密，
-#        在 Axiom 控制台创建有 query 权限的 token 后存入；ingest token 无读取权限）
+# token: nixos-secrets/common/axiom-query.yaml 的 axiom-query-token 字段（sops 加密；
+#        ingest token 无读取权限，query token 从 Axiom 控制台创建）
 set -euo pipefail
 
 Q=${1:?用法: log-query '<APL>'}
@@ -23,12 +27,22 @@ BODY=$(jq -nc \
   --arg e "${AXIOM_END:-$(date -u +%FT%TZ)}" \
   '{apl: $q, startTime: $s, endTime: $e}')
 
-curl -sS -m 60 https://api.axiom.co/v1/datasets/nixos/query \
+# gzip 压缩传输；api.axiom.co 直连被严重限速（~20KB/s），默认走本地代理
+# （规则同 GitHub 出网），AXIOM_PROXY=direct 可临时跳过。
+# 端点必须用 _apl?format=legacy：/v1/datasets/<id>/query 是旧流式搜索，
+# 会静默忽略 where；tabular 格式的聚合表恒为空，均不可用。
+PX=${AXIOM_PROXY:-socks5h://127.0.0.1:1080}
+[ "$PX" = direct ] && PX=
+curl -sS --compressed -m 180 ${PX:+-x "$PX"} "https://api.axiom.co/v1/datasets/_apl?format=legacy" \
   -H "Authorization: Bearer $TOKEN" \
   -H "Content-Type: application/json" \
   -d "$BODY" |
-  jq 'if .matches then
-        {total: .matches.total, events: .matches.events}
-      elif .tables then
-        {tables: [.tables[] | {name, count: (.events | length), columns, events}]}
-      else . end'
+  jq '{
+    scanned: .status.rowsExamined,
+    matched: .status.rowsMatched,
+    partial: .status.isPartial,
+    totals: (.buckets.totals // [] | map({group: .group, values: [.aggregations[] | "\(.op)=\(.value)"]}) | .[0:30]),
+    event_count: (.matches | length),
+    # 终端友好：超过 200 条只展示前 200，收窄请用 APL limit/时间窗
+    events: (.matches | map(.data + {_time: ._time}) | if length > 200 then .[0:200] + [{_truncated: "仅显示前 200 条"}] else . end)
+  }'
