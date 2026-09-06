@@ -342,18 +342,6 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
               domain = "19.198.in-addr.arpa";
               path = "ltnet-zones/19.198.in-addr.arpa";
             }
-            {
-              domain = "mnc001.mcc001.3gppnetwork.org";
-              path = "ltnet-zones/mnc001.mcc001.3gppnetwork.org";
-            }
-            {
-              domain = "mnc010.mcc315.3gppnetwork.org";
-              path = "ltnet-zones/mnc010.mcc315.3gppnetwork.org";
-            }
-            {
-              domain = "mnc999.mcc999.3gppnetwork.org";
-              path = "ltnet-zones/mnc999.mcc999.3gppnetwork.org";
-            }
           ]);
       };
     };

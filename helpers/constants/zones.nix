@@ -58,10 +58,6 @@ let
       "19.198.in-addr.arpa"
       "d.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa"
       "zhyi.dn42"
-      # Magic Flash Mobile VoLTE
-      "mnc001.mcc001.3gppnetwork.org"
-      "mnc010.mcc315.3gppnetwork.org"
-      "mnc999.mcc999.3gppnetwork.org"
     ];
     Others = [
       # Custom overrides
