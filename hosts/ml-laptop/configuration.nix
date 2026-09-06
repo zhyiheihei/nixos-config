@@ -120,6 +120,9 @@
 
   lantian.zcode.enable = true;
 
+  # 划词翻译（Ctrl+Alt+E），KDE Wayland 下经 crow 的 D-Bus 接口触发。
+  lantian.crow-translate.enable = true;
+
   # HiDPI（1.6 与 KWin Wayland 输出缩放一致，X11/Wayland 视觉统一）。
   lantian.hidpi = 1.6;
 

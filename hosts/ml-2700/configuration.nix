@@ -58,6 +58,9 @@
     persistentTimer = true;
   };
 
+  # 划词翻译（Ctrl+Alt+E），KDE Wayland 下经 crow 的 D-Bus 接口触发。
+  lantian.crow-translate.enable = true;
+
   # Host-level override (optional-apps/sunshine.nix is a public module, left
   # untouched): allow browser access to the Sunshine Web UI from LAN / LTNET,
   # otherwise CSRF protection blocks the pairing page. Comma-separated because
