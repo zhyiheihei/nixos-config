@@ -33,12 +33,15 @@ MoviePilot 无指标采集；qBittorrent、ChineseSubFinder 亦无 exporter。�
 [巡检手册](inspection-playbook.md)）。如需恢复指标采集（例如
 exportarr 或 textfile collector），先立项评估再接入，不得以删探针掩盖。
 
-Elasticsearch 日志链路与监控栈彼此独立。Filebeat 当前仍被声明为把日志发送到
-`es-ingest.google.zhyi.xin`，但 2026-08-03 审计确认 `hosts/google/configuration.nix`
-没有导入 Elasticsearch 模块，实机也没有 Elasticsearch unit 或容器。因此这条日志
-链目前不完整，不能把 Filebeat 的 `active` 当作日志已经成功落库。后续必须对照作者
-结构决定恢复 google Elasticsearch，或明确关闭/改写舰队 Filebeat 输出；不要在没有
-容量和持久化审计时把 Elasticsearch 临时塞入家庭 VM。
+日志链路与监控栈彼此独立：filebeat（`nixos/server-components/logging.nix`）把
+server 角色主机的全量 journald 发往 Axiom 托管端点（`api.axiom.co:443`，dataset
+`nixos`）。Axiom 2026-09 起关闭 9200 端口，filebeat 默认按 ES 惯例连 9200 会
+i/o timeout，必须显式钉 443；`filebeat active` 不等于日志在落库，巡检要抽样
+`journalctl -u filebeat` 里的非 cgroup 错误。low-ram 主机与 client/minimal/pve
+角色不发日志，只有本机 journald（100M 上限，滚动即丢）。集中查询用
+`tools/log-query`（APL 语法，token 放 `nixos-secrets/common/axiom-query.yaml`，
+ingest token 无读取权限）。filebeat 每 30 秒一条 `error getting cgroup stats`
+是 filebeat7 自身噪音，不影响 ingest，巡检时过滤。
 
 ## 声明规则
 
