@@ -48,6 +48,7 @@ in
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
     ../../nixos/optional-apps/asf.nix
     ../../nixos/optional-apps/calibre-cops.nix
+    ../../nixos/optional-apps/food-dashboard.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
     ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/ignis.nix
@@ -231,6 +232,14 @@ in
   # 目标设备：redroid（TCP adb）+ 手机无线 adb（启用后把手机 IP:5555 加进 adbHosts）。
   lantian.ws-scrcpy.enable = true;
   lantian.ws-scrcpy.adbHosts = [ "${LT.this.interconnect.IPv4}:5555" ];
+
+  # EPD 家庭食品存储看板：REST API + WebUI（内网私有，nginx food.opi5p.zhyi.xin）
+  # + 每日 0 点墨水屏推送 timer；BLE 推送 NRF_EPD 墨水屏（服务私有，不开公网）。
+  # 测试阶段免鉴权（tokenFile = null）；转生产时用 sops 提供 token 后取消注释。
+  lantian.food-dashboard = {
+    enable = true;
+    # tokenFile = config.sops.secrets."epd-dashboard/api-token".path;
+  };
 
   lantian.frigate = {
     enable = true;
