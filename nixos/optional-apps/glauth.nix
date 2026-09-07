@@ -44,6 +44,17 @@ let
         displayName = ["Zh Yi"]
 
     [[users]]
+      name = "maoda"
+      givenname = "Mao"
+      sn = "Da"
+      mail = "${glauthUsers.maoda.mail}"
+      uidnumber = 1001
+      primarygroup = 101
+      passbcrypt = "${hexdump glauthUsers.maoda.passBcrypt}"
+      [[users.customattributes]]
+        displayName = ["Mao Mao"]
+
+    [[users]]
       name = "serviceuser"
       mail = "serviceuser@example.com"
       uidnumber = 60000
@@ -58,6 +69,10 @@ let
     [[groups]]
       name = "admin"
       gidnumber = 100
+
+    [[groups]]
+      name = "users"
+      gidnumber = 101
 
     [[groups]]
       name = "svcaccts"
