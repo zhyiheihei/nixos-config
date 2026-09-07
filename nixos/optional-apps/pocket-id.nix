@@ -41,6 +41,9 @@
       SMTP_USER = config.programs.msmtp.accounts.default.user;
       SMTP_TLS = if config.programs.msmtp.accounts.default.tls_starttls then "starttls" else "tls";
       EMAIL_ONE_TIME_ACCESS_AS_ADMIN_ENABLED = true;
+      # 用户决策偏离上游：登录页允许邮箱验证码降级登录（不需 passkey）。
+      # 风险：能收该邮箱邮件的人即可进门，安全性由邮箱侧承担。
+      EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED_ENABLED = true;
 
       LDAP_ENABLED = true;
       LDAP_URL = "ldap://[fdd8:1938:4e88:3712::389]:${LT.portStr.LDAP}";
