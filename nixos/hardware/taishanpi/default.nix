@@ -17,12 +17,16 @@ let
   #  - CONFIG_DRM_PANEL_SITRONIX_ST7701 for the 3.1-inch MIPI panel
   #  - CONFIG_RTW88 + CONFIG_RTW88_USB for the USB Wi-Fi adapter
   #  - CONFIG_PWM_ROCKCHIP for the backlight PWM
+  #  - CONFIG_TOUCHSCREEN_EDT_FTC5X06 for the extension board touch panel
+  #  - CONFIG_BACKLIGHT_GP7101 for the extension board backlight
   taishanPiKernelConfigText =
     builtins.replaceStrings
       [
         "# CONFIG_DRM_PANEL_SITRONIX_ST7701 is not set"
         "# CONFIG_WLAN_VENDOR_REALTEK is not set"
         "CONFIG_ZRAM=m"
+        "# CONFIG_TOUCHSCREEN_GOODIX_BERLIN_I2C is not set"
+        "# CONFIG_BACKLIGHT_KTD253 is not set"
       ]
       [
         ''
@@ -44,6 +48,16 @@ let
           # CONFIG_ZRAM_DEF_COMP_LZORLE is not set
           CONFIG_ZRAM_DEF_COMP_ZSTD=y
           CONFIG_ZRAM_DEF_COMP="zstd"
+        ''
+        ''
+          # 3.1-inch extension board touch: FocalTech FT6236 at I2C addr 0x38.
+          CONFIG_TOUCHSCREEN_EDT_FTC5X06=m
+          # CONFIG_TOUCHSCREEN_GOODIX_BERLIN_I2C is not set
+        ''
+        ''
+          # GP7101 I2C-to-PWM backlight chip on the extension board.
+          CONFIG_BACKLIGHT_GP7101=m
+          # CONFIG_BACKLIGHT_KTD253 is not set
         ''
       ]
       (builtins.readFile ../nanopi-r5c/kernel-config);
@@ -79,6 +93,7 @@ let
       (old: {
         patches = (old.patches or [ ]) ++ [
           ../../../pkgs/taishanpi-kernel/st7701-panel-lckfb-31inch.patch
+          ../../../pkgs/taishanpi-kernel/gp7101-backlight.patch
         ];
       });
 

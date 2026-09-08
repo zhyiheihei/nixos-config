@@ -1,0 +1,101 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Backlight driver for the GP7101 I2C-to-PWM chip on the LCKFB Taishan Pi
+ * 3.1-inch panel extension board (RK3566).
+ *
+ * The chip exposes an 8-bit register (0x03) whose value is the PWM duty
+ * cycle (0-255); writing 0x02 switches it to 16-bit mode. Protocol per the
+ * LCKFB board documentation. The chip sits on the touch I2C bus (I2C1 on the
+ * Taishan Pi) and drives the extension board's own backlight circuit
+ * (SY7201ABC, 20 mA) - the board's onboard backlight circuit must not be
+ * used for this panel (110 mA would overdrive the 25 mA LEDs).
+ */
+
+#include <linux/backlight.h>
+#include <linux/i2c.h>
+#include <linux/module.h>
+#include <linux/of.h>
+
+/* 8-bit PWM control register: byte value = duty cycle (0-255) */
+#define GP7101_REG_CTRL_8	0x03
+
+struct gp7101_bl {
+	struct i2c_client *client;
+};
+
+static int gp7101_bl_update_status(struct backlight_device *bl)
+{
+	struct gp7101_bl *data = bl_get_data(bl);
+
+	return i2c_smbus_write_byte_data(data->client, GP7101_REG_CTRL_8,
+					 backlight_get_brightness(bl));
+}
+
+static const struct backlight_ops gp7101_bl_ops = {
+	.options = BL_CORE_SUSPENDRESUME,
+	.update_status = gp7101_bl_update_status,
+};
+
+static int gp7101_bl_probe(struct i2c_client *client)
+{
+	struct backlight_properties props = {};
+	struct gp7101_bl *data;
+	struct backlight_device *bl;
+	u32 max_brightness = 255, brightness = 255;
+
+	data = devm_kzalloc(&client->dev, sizeof(*data), GFP_KERNEL);
+	if (!data)
+		return -ENOMEM;
+
+	of_property_read_u32(client->dev.of_node, "max-brightness-levels",
+			     &max_brightness);
+	of_property_read_u32(client->dev.of_node, "default-brightness-level",
+			     &brightness);
+	max_brightness = clamp(max_brightness, 1, 255);
+	brightness = clamp(brightness, 0, max_brightness);
+
+	data->client = client;
+	i2c_set_clientdata(client, data);
+
+	props.type = BACKLIGHT_RAW;
+	props.max_brightness = max_brightness;
+	props.brightness = brightness;
+
+	bl = devm_backlight_device_register(&client->dev, "gp7101-backlight",
+					    &client->dev, data,
+					    &gp7101_bl_ops, &props);
+	if (IS_ERR(bl)) {
+		dev_err(&client->dev, "failed to register backlight\n");
+		return PTR_ERR(bl);
+	}
+
+	backlight_update_status(bl);
+
+	return 0;
+}
+
+static const struct i2c_device_id gp7101_bl_id[] = {
+	{ "gp7101-backlight" },
+	{ }
+};
+MODULE_DEVICE_TABLE(i2c, gp7101_bl_id);
+
+static const struct of_device_id gp7101_bl_of_match[] = {
+	{ .compatible = "gp7101-backlight" },
+	{ }
+};
+MODULE_DEVICE_TABLE(of, gp7101_bl_of_match);
+
+static struct i2c_driver gp7101_bl_driver = {
+	.driver = {
+		.name		= "gp7101-backlight",
+		.of_match_table	= gp7101_bl_of_match,
+	},
+	.probe		= gp7101_bl_probe,
+	.id_table	= gp7101_bl_id,
+};
+module_i2c_driver(gp7101_bl_driver);
+
+MODULE_AUTHOR("zhyi");
+MODULE_DESCRIPTION("GP7101 I2C PWM backlight driver");
+MODULE_LICENSE("GPL");
