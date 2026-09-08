@@ -1,5 +1,5 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:15.159381149 +0800
-+++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 04:51:11.384748196 +0800
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 05:43:47.618912445 +0800
 @@ -213,12 +213,16 @@
  
  	ST7701_WRITE(st7701, MIPI_DCS_SOFT_RESET, 0x00);
@@ -20,7 +20,7 @@
  
  	/* Command2, BK0 */
  	st7701_switch_cmd_bkx(st7701, true, 0);
-@@ -1383,8 +1387,122 @@
+@@ -1383,8 +1387,139 @@
  	mipi_dsi_detach(dsi);
  }
  
@@ -28,24 +28,21 @@
 +static void lckfb_31inch_gip_sequence(struct st7701 *st7701)
 +{
 +	/*
-+	 * Vendor LCKFB BSP sequence for the D310T9362V1 480x800 panel
-+	 * (tspi-rk3566-dsi-v10.dtsi), replayed in place: init_sequence()
-+	 * has switched to Command2 BK1 and programmed BK0/BK1 from desc
-+	 * (matching the vendor bytes); this re-applies the vendor values
-+	 * that the generic code computes differently and adds the vendor
-+	 * commands the generic code never sends.
++	 * Vendor sequence for the LCKFB 3.1-inch D310T9362V1 (ST7701S)
++	 * extension board, taken from the Canaan K230 SDK
++	 * (st7701_480x800_init), the only vendor tree driving this
++	 * commercial panel.  Uses ST7701S page 0x13 and RGB666 output.
 +	 */
-+	/* BK1 extras (vendor D1 11, 55 B0) */
-+	ST7701_WRITE(st7701, 0xD1, 0x11);
-+	ST7701_WRITE(st7701, 0x55, 0xB0);
++	/* page 0x13 */
++	st7701_switch_cmd_bkx(st7701, true, 0x13);
++	ST7701_WRITE(st7701, 0xEF, 0x08);
 +
-+	/* BK0: line count, porches, inversion, direction, gamma tables */
++	/* BK0: line count, porches, inversion, gamma */
 +	st7701_switch_cmd_bkx(st7701, true, 0);
 +	ST7701_WRITE(st7701, 0xC0, 0x63, 0x00);
-+	ST7701_WRITE(st7701, 0xC1, 0x09, 0x02);
-+	ST7701_WRITE(st7701, 0xC2, 0x37, 0x08);
-+	ST7701_WRITE(st7701, 0xC7, 0x00);
-+	ST7701_WRITE(st7701, 0xCC, 0x38);
++	ST7701_WRITE(st7701, 0xC1, 0x10, 0x02);
++	ST7701_WRITE(st7701, 0xC2, 0x31, 0x02);
++	ST7701_WRITE(st7701, 0xCC, 0x10);
 +	st7701->write_command(st7701, ST7701_CMD2_BK0_PVGAMCTRL,
 +			      st7701->desc->pv_gamma,
 +			      ARRAY_SIZE(st7701->desc->pv_gamma));
@@ -53,33 +50,54 @@
 +			      st7701->desc->nv_gamma,
 +			      ARRAY_SIZE(st7701->desc->nv_gamma));
 +
-+	/* BK1: gamma / source timing E0h-EFh (vendor block) */
++	/* BK1: power control + gamma / source timing */
 +	st7701_switch_cmd_bkx(st7701, true, 1);
++	ST7701_WRITE(st7701, 0xB0, 0x5D);
++	ST7701_WRITE(st7701, 0xB1, 0x62);
++	ST7701_WRITE(st7701, 0xB2, 0x82);
++	ST7701_WRITE(st7701, 0xB3, 0x80);
++	ST7701_WRITE(st7701, 0xB5, 0x42);
++	ST7701_WRITE(st7701, 0xB7, 0x85);
++	ST7701_WRITE(st7701, 0xB8, 0x20);
++	ST7701_WRITE(st7701, 0xC0, 0x09);
++	ST7701_WRITE(st7701, 0xC1, 0x78);
++	ST7701_WRITE(st7701, 0xC2, 0x78);
++	ST7701_WRITE(st7701, 0xD0, 0x88);
++	ST7701_WRITE(st7701, 0xEE, 0x42);
++	msleep(100);
 +	ST7701_WRITE(st7701, 0xE0, 0x00, 0x00, 0x02);
-+	ST7701_WRITE(st7701, 0xE1, 0x01, 0xA0, 0x03, 0xA0, 0x02, 0xA0,
-+		     0x04, 0xA0, 0x00, 0x44, 0x44);
-+	ST7701_WRITE(st7701, 0xE2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-+		     0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
++	ST7701_WRITE(st7701, 0xE1, 0x04, 0xA0, 0x06, 0xA0, 0x05, 0xA0,
++		     0x07, 0xA0, 0x00, 0x44, 0x44);
++	ST7701_WRITE(st7701, 0xE2, 0x00, 0x00, 0x33, 0x33, 0x01, 0xA0,
++		     0x00, 0x00, 0x01, 0xA0, 0x00, 0x00);
 +	ST7701_WRITE(st7701, 0xE3, 0x00, 0x00, 0x33, 0x33);
 +	ST7701_WRITE(st7701, 0xE4, 0x44, 0x44);
-+	ST7701_WRITE(st7701, 0xE5, 0x01, 0x26, 0xA0, 0xA0, 0x03, 0x28,
-+		     0xA0, 0xA0, 0x05, 0x2A, 0xA0, 0xA0, 0x07, 0x2C,
++	ST7701_WRITE(st7701, 0xE5, 0x0C, 0x30, 0xA0, 0xA0, 0x0E, 0x32,
++		     0xA0, 0xA0, 0x08, 0x2C, 0xA0, 0xA0, 0x0A, 0x2E,
 +		     0xA0, 0xA0);
 +	ST7701_WRITE(st7701, 0xE6, 0x00, 0x00, 0x33, 0x33);
 +	ST7701_WRITE(st7701, 0xE7, 0x44, 0x44);
-+	ST7701_WRITE(st7701, 0xE8, 0x02, 0x26, 0xA0, 0xA0, 0x04, 0x28,
-+		     0xA0, 0xA0, 0x06, 0x2A, 0xA0, 0xA0, 0x08, 0x2C,
++	ST7701_WRITE(st7701, 0xE8, 0x0D, 0x31, 0xA0, 0xA0, 0x0F, 0x33,
++		     0xA0, 0xA0, 0x09, 0x2D, 0xA0, 0xA0, 0x0B, 0x2F,
 +		     0xA0, 0xA0);
-+	ST7701_WRITE(st7701, 0xEB, 0x00, 0x01, 0xE4, 0xE4, 0x44, 0x00,
-+		     0x40);
-+	ST7701_WRITE(st7701, 0xED, 0xFF, 0xF7, 0x65, 0x4F, 0x0B, 0xA1,
-+		     0xCF, 0xFF, 0xFF, 0xFC, 0x1A, 0xB0, 0xF4, 0x56,
-+		     0x7F, 0xFF);
++	ST7701_WRITE(st7701, 0xEB, 0x00, 0x01, 0xE4, 0xE4, 0x44, 0x88,
++		     0x00);
++	ST7701_WRITE(st7701, 0xED, 0xFF, 0xF5, 0x47, 0x6F, 0x0B, 0xA1,
++		     0xA2, 0xBF, 0xFB, 0x2A, 0x1A, 0xB0, 0xF6, 0x74,
++		     0x5F, 0xFF);
++	ST7701_WRITE(st7701, 0xEF, 0x08, 0x08, 0x08, 0x40, 0x3F, 0x64);
 +
-+	/* Leave Command2 (vendor FF 77 01 00 00 00) and set DCS modes */
++	/* page 0x13 video-mode gate dance + wake + pixel format */
++	st7701_switch_cmd_bkx(st7701, true, 0x13);
++	ST7701_WRITE(st7701, 0xE8, 0x00, 0x0E);
 +	st7701_switch_cmd_bkx(st7701, false, 0);
-+	ST7701_WRITE(st7701, MIPI_DCS_SET_ADDRESS_MODE, 0x00);
-+	ST7701_WRITE(st7701, MIPI_DCS_SET_PIXEL_FORMAT, 0x55); /* RGB565 */
++	ST7701_WRITE(st7701, MIPI_DCS_EXIT_SLEEP_MODE, 0x00);
++	msleep(120);
++	st7701_switch_cmd_bkx(st7701, true, 0x13);
++	ST7701_WRITE(st7701, 0xE8, 0x00, 0x0C);
++	ST7701_WRITE(st7701, 0xE8, 0x00, 0x00);
++	st7701_switch_cmd_bkx(st7701, true, 0);
++	ST7701_WRITE(st7701, MIPI_DCS_SET_PIXEL_FORMAT, 0x50); /* RGB666 */
 +}
 +
 +static const struct drm_display_mode lckfb_31inch_mode = {
@@ -91,9 +109,9 @@
 +	.htotal		= 480 + 32 + 4 + 32,
 +
 +	.vdisplay	= 800,
-+	.vsync_start	= 800 + 9,
-+	.vsync_end	= 800 + 9 + 4,
-+	.vtotal		= 800 + 9 + 4 + 3,
++	.vsync_start	= 800 + 2,
++	.vsync_end	= 800 + 2 + 4,
++	.vtotal		= 800 + 2 + 4 + 16,
 +
 +	.width_mm	= 41,
 +	.height_mm	= 68,
@@ -104,38 +122,37 @@
 +};
 +
 +/*
-+ * BK0/BK1 register values below reproduce the vendor BSP bytes exactly:
-+ * B0 4D (Vop 4.5V), B1 60 (Vcom 1.3V), B2 07 (Vgh 15V), B5 47 (Vgl -9.51V),
-+ * B7 8A / B8 21 (power control), C1 78 / C2 78 (source timing), D0 88
-+ * (MIPI, EOT enabled).
++ * BK0/BK1 register values below reproduce the K230 SDK vendor bytes
++ * exactly: B0 5D (Vop 4.7V), B1 62 (Vcom 1.325V), B2 82 (Vgh 12.5V),
++ * B5 42 (Vgl -7.91V), B7 85 / B8 20 (power control), C1 78 / C2 78
++ * (source timing), D0 88 (MIPI, EOT enabled), C0 09 written in gip.
 + */
 +static const struct st7701_panel_desc lckfb_31inch_desc = {
 +	.mode		= &lckfb_31inch_mode,
 +	.lanes		= 2,
-+	.format		= MIPI_DSI_FMT_RGB565,
++	.format		= MIPI_DSI_FMT_RGB666,
 +	.panel_sleep_delay = 80,
 +
-+	.pv_gamma	= { 0x00, 0x11, 0x19, 0x0C, 0x10, 0x06, 0x07, 0x0A,
-+			    0x09, 0x22, 0x04, 0x10, 0x0E, 0x28, 0x30, 0x1C },
-+	.nv_gamma	= { 0x00, 0x12, 0x19, 0x0D, 0x10, 0x04, 0x06, 0x07,
-+			    0x08, 0x23, 0x04, 0x12, 0x11, 0x28, 0x30, 0x1C },
-+	.nlinv		= 0x07,
-+	.vop_uv		= 4500000,
-+	.vcom_uv	= 1300000,
-+	.vgh_mv		= 15000,
-+	.vgl_mv		= -9510,
++	.pv_gamma	= { 0xC0, 0x0C, 0x92, 0x0C, 0x10, 0x05, 0x02, 0x0D,
++			    0x07, 0x21, 0x04, 0x53, 0x11, 0x6A, 0x32, 0x1F },
++	.nv_gamma	= { 0xC0, 0x87, 0xCF, 0x0C, 0x10, 0x06, 0x00, 0x03,
++			    0x08, 0x1D, 0x06, 0x54, 0x12, 0xE6, 0xEC, 0x0F },
++	.nlinv		= 0x01,
++	.vop_uv		= 4700000,
++	.vcom_uv	= 1325000,
++	.vgh_mv		= 12500,
++	.vgl_mv		= -7910,
 +	.avdd_mv	= 6600,
-+	.avcl_mv	= -4600,
++	.avcl_mv	= -4400,
 +	.gamma_op_bias	= OP_BIAS_MIDDLE,
-+	.input_op_bias	= OP_BIAS_MIDDLE,
-+	.output_op_bias	= OP_BIAS_MIDDLE,
++	.input_op_bias	= OP_BIAS_MIN,
++	.output_op_bias	= OP_BIAS_MIN,
 +	.t2d_ns		= 1600,
 +	.t3d_ns		= 10400,
 +	.eot_en		= true,
 +
 +	.gip_sequence	= lckfb_31inch_gip_sequence,
-+};
-+
++}
 +
  static const struct of_device_id st7701_dsi_of_match[] = {
  	{ .compatible = "anbernic,rg-arc-panel", .data = &rg_arc_desc },
