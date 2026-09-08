@@ -71,7 +71,11 @@
 		compatible = "lckfb,3.1-inch-st7701";
 		reg = <0>;
 		backlight = <&gp7101_bl>;
-		reset-gpios = <&gpio3 RK_PC1 GPIO_ACTIVE_LOW>;
+		/* Mainline st7701 convention: logical 1 = released (physical
+		   high).  The vendor BSP's ACTIVE_LOW is raw-gpio notation; with
+		   ACTIVE_LOW the driver held the panel in reset through the
+		   whole init sequence (black screen). */
+		reset-gpios = <&gpio3 RK_PC1 GPIO_ACTIVE_HIGH>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&dsi1_rst_gpio>;
 		reset-delay-ms = <10>;
