@@ -277,7 +277,6 @@ in
     before = [ "sops-install-secrets.service" ];
     path = [
       pkgs.btrfs-progs
-      pkgs.gptfdisk
       pkgs.gnugrep
       pkgs.gnused
       pkgs.parted
@@ -292,14 +291,11 @@ in
       test -b "$nix_device"
       test -b "$disk"
       test -n "$partition"
-      current_end=$(sgdisk -i "$partition" "$disk" | sed -n 's/^Last sector: \([0-9][0-9]*\).*/\1/p')
-      usable_end=$(sgdisk -p "$disk" | sed -n 's/^First usable sector is [0-9][0-9]*, last usable sector is \([0-9][0-9]*\).*/\1/p')
-
-      if [ "$current_end" -lt "$usable_end" ]; then
-        sgdisk -e "$disk"
-        printf 'Yes\n' | parted ---pretend-input-tty "$disk" resizepart "$partition" 100%
-        partx -u "$disk"
-      fi
+      # The sd-image uses a DOS/MBR partition table, which sgdisk cannot
+      # parse (it silently produced garbage and skipped the resize). parted
+      # handles both MBR and GPT; it fails harmlessly when already at max.
+      parted ---pretend-input-tty "$disk" resizepart "$partition" 100% <<<Yes 2>/dev/null || true
+      partx -u "$disk" 2>/dev/null || true
 
       btrfs filesystem resize max /nix
     '';
