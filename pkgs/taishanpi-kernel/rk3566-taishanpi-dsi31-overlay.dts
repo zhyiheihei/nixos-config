@@ -23,6 +23,15 @@
 /dts-v1/;
 /plugin/;
 
+/*
+ * nixpkgs' apply_overlays.py matches an overlay against the base .dtb by the
+ * overlay root's `compatible`; without it the overlay is silently skipped.
+ * Values match the mainline rk3566-lckfb-tspi.dts root.
+ */
+/ {
+	compatible = "lckfb,tspi-rk3566", "rockchip,rk3566";
+};
+
 #include <dt-bindings/gpio/gpio.h>
 #include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/pinctrl/rockchip.h>
