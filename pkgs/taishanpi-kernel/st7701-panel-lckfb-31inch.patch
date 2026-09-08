@@ -1,6 +1,27 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:15.159381149 +0800
-+++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 07:45:24.084315692 +0800
-@@ -213,12 +213,16 @@
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 07:50:08.311039321 +0800
+@@ -33,6 +33,20 @@
+ #define ST7701_CMD2_BK0_INVSEL			0xC2 /* Inversion selection, Frame Rate Control */
+ 
+ /* Command2, BK1 commands */
++/*
++ * LCKFB 3.1-inch panel runtime tuning (module parameters, exposed at
++ * /sys/module/panel_sitronix_st7701/parameters/).  Re-probe the panel
++ * (unbind + rebind on the mipi-dsi bus) after changing a value.
++ */
++static int lckfb_format;	/* 0=RGB666 1=RGB666_PACKED 2=RGB888 */
++module_param(lckfb_format, int, 0644);
++static int lckfb_madctl = 0x08;	/* MADCTL: bit3 BGR */
++module_param(lckfb_madctl, int, 0644);
++static int lckfb_vop = 0x5D;	/* BK1 B0 source amplitude */
++module_param(lckfb_vop, int, 0644);
++static int lckfb_vcom = 0x62;	/* BK1 B1 VCOM */
++module_param(lckfb_vcom, int, 0644);
++
+ #define ST7701_CMD2_BK1_VRHS			0xB0 /* Vop amplitude setting */
+ #define ST7701_CMD2_BK1_VCOM			0xB1 /* VCOM amplitude setting */
+ #define ST7701_CMD2_BK1_VGHSS			0xB2 /* VGH Voltage setting */
+@@ -213,12 +227,16 @@
  
  	ST7701_WRITE(st7701, MIPI_DCS_SOFT_RESET, 0x00);
  
@@ -20,7 +41,28 @@
  
  	/* Command2, BK0 */
  	st7701_switch_cmd_bkx(st7701, true, 0);
-@@ -1383,8 +1387,141 @@
+@@ -1346,6 +1364,20 @@
+ 	dsi->format = st7701->desc->format;
+ 	dsi->lanes = st7701->desc->lanes;
+ 
++	if (st7701->desc->gip_sequence == lckfb_31inch_gip_sequence) {
++		switch (lckfb_format) {
++		case 1:
++			dsi->format = MIPI_DSI_FMT_RGB666_PACKED;
++			break;
++		case 2:
++			dsi->format = MIPI_DSI_FMT_RGB888;
++			break;
++		default:
++			dsi->format = MIPI_DSI_FMT_RGB666;
++			break;
++		}
++	}
++
+ 	err = mipi_dsi_attach(dsi);
+ 	if (err)
+ 		return dev_err_probe(&dsi->dev, err, "Failed to init MIPI DSI\n");
+@@ -1383,8 +1415,140 @@
  	mipi_dsi_detach(dsi);
  }
  
@@ -52,8 +94,8 @@
 +
 +	/* BK1: power control + gamma / source timing */
 +	st7701_switch_cmd_bkx(st7701, true, 1);
-+	ST7701_WRITE(st7701, 0xB0, 0x5D);
-+	ST7701_WRITE(st7701, 0xB1, 0x62);
++	ST7701_WRITE(st7701, 0xB0, lckfb_vop);
++	ST7701_WRITE(st7701, 0xB1, lckfb_vcom);
 +	ST7701_WRITE(st7701, 0xB2, 0x82);
 +	ST7701_WRITE(st7701, 0xB3, 0x80);
 +	ST7701_WRITE(st7701, 0xB5, 0x42);
@@ -98,8 +140,7 @@
 +	ST7701_WRITE(st7701, 0xE8, 0x00, 0x00);
 +	st7701_switch_cmd_bkx(st7701, true, 0);
 +	ST7701_WRITE(st7701, MIPI_DCS_SET_PIXEL_FORMAT, 0x50); /* RGB666 (panel DSI RX is 18-bit only) */
-+	/* BGR pixel order on this panel (red/blue swapped otherwise) */
-+	ST7701_WRITE(st7701, MIPI_DCS_SET_ADDRESS_MODE, 0x08);
++	ST7701_WRITE(st7701, MIPI_DCS_SET_ADDRESS_MODE, lckfb_madctl);
 +}
 +
 +static const struct drm_display_mode lckfb_31inch_mode = {
