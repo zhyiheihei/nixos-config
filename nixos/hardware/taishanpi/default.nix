@@ -9,8 +9,7 @@
 let
   # Keep kernel and U-Boot compiler processes native on ml-builder while they
   # emit aarch64 binaries. The board itself must not compile its own kernel.
-  crossPkgs =
-    self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
+  crossPkgs = self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
 
   # Start from the repository's already validated RK356x kernel baseline (the
   # same config used by LubanCat-1 and NanoPi R5C).  Taishan Pi specific
@@ -71,22 +70,28 @@ let
   # ST7701 panel support (driver patch) and the DSI overlay that wires the
   # panel to VP1.  The kernel builder already requires `big-parallel`, which
   # this repository advertises only on ml-builder.
-  taishanPiKernel = (crossPkgs.linuxManualConfig {
-    inherit (crossPkgs.linux_6_18) src version modDirVersion;
-    configfile = taishanPiKernelConfig;
-    config = taishanPiKernelConfigAttrs;
-  }).overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ../../../pkgs/taishanpi-kernel/st7701-panel-lckfb-31inch.patch ];
-  });
+  taishanPiKernel =
+    (crossPkgs.linuxManualConfig {
+      inherit (crossPkgs.linux_6_18) src version modDirVersion;
+      configfile = taishanPiKernelConfig;
+      config = taishanPiKernelConfigAttrs;
+    }).overrideAttrs
+      (old: {
+        patches = (old.patches or [ ]) ++ [
+          ../../../pkgs/taishanpi-kernel/st7701-panel-lckfb-31inch.patch
+        ];
+      });
 
   # Mainline U-Boot has no Taishan Pi defconfig; the generic RK3568 target
   # boots the same TPL/BL31 chain as Orange Pi 3B. Linux later receives the
   # mainline rk3566-lckfb-tspi DTB from extlinux (with the DSI overlay applied).
-  ubootTaishanPi = (crossPkgs.ubootOrangePi3B.override {
-    defconfig = "generic-rk3568_defconfig";
-  }).overrideAttrs (old: {
-    requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
-  });
+  ubootTaishanPi =
+    (crossPkgs.ubootOrangePi3B.override {
+      defconfig = "generic-rk3568_defconfig";
+    }).overrideAttrs
+      (old: {
+        requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+      });
 
   # The board has no battery-backed RTC. Preserve a recent epoch on the
   # persistent filesystem so TLS, SOPS logs and service ordering do not start
@@ -120,10 +125,13 @@ in
     initrd.kernelModules = lib.mkForce [ ];
     kernelModules = lib.mkForce [ ];
     extraModulePackages = lib.mkForce [ ];
+    # ttyS2 must stay the last console= so /dev/console (and thus systemd
+    # status/journal output) lands on the serial port during bring-up; the
+    # MIPI panel (tty0) is not visible while the panel chain is unverified.
     kernelParams = [
       "earlycon=uart8250,mmio32,0xfe660000"
-      "console=ttyS2,1500000n8"
       "console=tty0"
+      "console=ttyS2,1500000n8"
     ];
     supportedFilesystems = lib.mkForce [
       "btrfs"
