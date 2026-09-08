@@ -1,75 +1,104 @@
---- ksrc3/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-07-24 22:17:26.000000000 +0800
-+++ /tmp/st7701-modified.c	2026-08-03 19:55:43.074087996 +0800
-@@ -1383,8 +1383,80 @@
+--- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:15.159381149 +0800
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:45.554578531 +0800
+@@ -1383,8 +1383,109 @@
  	mipi_dsi_detach(dsi);
  }
  
 +
 +static void lckfb_31inch_gip_sequence(struct st7701 *st7701)
 +{
-+	ST7701_WRITE(st7701, 0xEE, 0x42);
++	/*
++	 * Vendor LCKFB BSP sequence for the D310T9362V1 480x800 panel
++	 * (tspi-rk3566-dsi-v10.dtsi).  init_sequence() already programmed
++	 * BK0 gamma/line/porch and BK1 power from desc, matching the vendor
++	 * bytes; this adds the parts the generic code cannot express.
++	 *
++	 * We are in Command2 BK1 here.
++	 */
 +	ST7701_WRITE(st7701, 0xE0, 0x00, 0x00, 0x02);
-+	ST7701_WRITE(st7701, 0xE1,
-+		    0x04, 0xA0, 0x06, 0xA0,
-+		    0x05, 0xA0, 0x07, 0xA0,
-+		    0x00, 0x44, 0x44);
-+	ST7701_WRITE(st7701, 0xE2,
-+		    0x00, 0x00, 0x33, 0x33,
-+		    0x01, 0xA0, 0x00, 0x00,
-+		    0x01, 0xA0, 0x00, 0x00);
++	ST7701_WRITE(st7701, 0xE1, 0x01, 0xA0, 0x03, 0xA0, 0x02, 0xA0,
++		     0x04, 0xA0, 0x00, 0x44, 0x44);
++	ST7701_WRITE(st7701, 0xE2, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++		     0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
 +	ST7701_WRITE(st7701, 0xE3, 0x00, 0x00, 0x33, 0x33);
 +	ST7701_WRITE(st7701, 0xE4, 0x44, 0x44);
-+	ST7701_WRITE(st7701, 0xE5,
-+		    0x0C, 0x30, 0xA0, 0xA0,
-+		    0x0E, 0x32, 0xA0, 0xA0,
-+		    0x08, 0x2C, 0xA0, 0xA0,
-+		    0x0A, 0x2E, 0xA0, 0xA0);
++	ST7701_WRITE(st7701, 0xE5, 0x01, 0x26, 0xA0, 0xA0, 0x03, 0x28,
++		     0xA0, 0xA0, 0x05, 0x2A, 0xA0, 0xA0, 0x07, 0x2C,
++		     0xA0, 0xA0);
 +	ST7701_WRITE(st7701, 0xE6, 0x00, 0x00, 0x33, 0x33);
 +	ST7701_WRITE(st7701, 0xE7, 0x44, 0x44);
-+	ST7701_WRITE(st7701, 0xE8,
-+		    0x0D, 0x31, 0xA0, 0xA0,
-+		    0x0F, 0x33, 0xA0, 0xA0,
-+		    0x09, 0x2D, 0xA0, 0xA0,
-+		    0x0B, 0x2F, 0xA0, 0xA0);
-+	ST7701_WRITE(st7701, 0xEB,
-+		    0x00, 0x01, 0xE4, 0xE4,
-+		    0x44, 0x88, 0x00);
-+	ST7701_WRITE(st7701, 0xED,
-+		    0xFF, 0xF5, 0x47, 0x6F,
-+		    0x0B, 0xA1, 0xA2, 0xBF,
-+		    0xFB, 0x2A, 0x1A, 0xB0,
-+		    0xF6, 0x74, 0x5F, 0xFF);
-+	ST7701_WRITE(st7701, 0xEF,
-+		    0x08, 0x08, 0x08, 0x40,
-+		    0x3F, 0x64);
++	ST7701_WRITE(st7701, 0xE8, 0x02, 0x26, 0xA0, 0xA0, 0x04, 0x28,
++		     0xA0, 0xA0, 0x06, 0x2A, 0xA0, 0xA0, 0x08, 0x2C,
++		     0xA0, 0xA0);
++	ST7701_WRITE(st7701, 0xEB, 0x00, 0x01, 0xE4, 0xE4, 0x44, 0x00,
++		     0x40);
++	ST7701_WRITE(st7701, 0xED, 0xFF, 0xF7, 0x65, 0x4F, 0x0B, 0xA1,
++		     0xCF, 0xFF, 0xFF, 0xFC, 0x1A, 0xB0, 0xF4, 0x56,
++		     0x7F, 0xFF);
++
++	/*
++	 * BK0 inversion: vendor C2 37 08.  RTNI=8 gives 640 PCLK/line,
++	 * safely above the 548-pixel line period the generic formula
++	 * would compute (544 PCLK < 548).
++	 */
++	st7701_switch_cmd_bkx(st7701, true, 0);
++	ST7701_WRITE(st7701, ST7701_CMD2_BK0_INVSEL, 0x37, 0x08);
++
++	ST7701_WRITE(st7701, MIPI_DCS_SET_ADDRESS_MODE, 0x00);
++	ST7701_WRITE(st7701, MIPI_DCS_SET_PIXEL_FORMAT, 0x55); /* RGB565 */
 +}
 +
++/* Vendor LCDTiming: 480x800, hfp 32 hs 4 hbp 32, vfp 9 vs 4 vbp 3. */
 +static const struct drm_display_mode lckfb_31inch_mode = {
-+	.clock		= 18480,
++	.clock		= 27000,
 +
-+	.hdisplay	= 800,
-+	.hsync_start	= 800 + 10,
-+	.hsync_end	= 800 + 10 + 10,
-+	.htotal		= 800 + 10 + 10 + 20,
++	.hdisplay	= 480,
++	.hsync_start	= 480 + 32,
++	.hsync_end	= 480 + 32 + 4,
++	.htotal		= 480 + 32 + 4 + 32,
 +
-+	.vdisplay	= 480,
-+	.vsync_start	= 480 + 16,
-+	.vsync_end	= 480 + 16 + 2,
-+	.vtotal		= 480 + 16 + 2 + 2,
++	.vdisplay	= 800,
++	.vsync_start	= 800 + 9,
++	.vsync_end	= 800 + 9 + 4,
++	.vtotal		= 800 + 9 + 4 + 3,
 +
-+	.width_mm	= 68,
-+	.height_mm	= 41,
++	.width_mm	= 41,
++	.height_mm	= 68,
 +
 +	.flags		= DRM_MODE_FLAG_NHSYNC | DRM_MODE_FLAG_NVSYNC,
 +
 +	.type		= DRM_MODE_TYPE_DRIVER | DRM_MODE_TYPE_PREFERRED,
 +};
 +
++/*
++ * BK0/BK1 register values below reproduce the vendor BSP bytes exactly:
++ * B0 4D (Vop 4.5V), B1 60 (Vcom 1.3V), B2 07 (Vgh 15V), B5 47 (Vgl -9.51V),
++ * B7 8A / B8 21 (power control), C1 78 / C2 78 (source timing), D0 88
++ * (MIPI, EOT enabled).
++ */
 +static const struct st7701_panel_desc lckfb_31inch_desc = {
 +	.mode		= &lckfb_31inch_mode,
 +	.lanes		= 2,
-+	.format		= MIPI_DSI_FMT_RGB888,
++	.format		= MIPI_DSI_FMT_RGB565,
 +	.panel_sleep_delay = 80,
++
++	.pv_gamma	= { 0x00, 0x11, 0x19, 0x0C, 0x10, 0x06, 0x07, 0x0A,
++			    0x09, 0x22, 0x04, 0x10, 0x0E, 0x28, 0x30, 0x1C },
++	.nv_gamma	= { 0x00, 0x12, 0x19, 0x0D, 0x10, 0x04, 0x06, 0x07,
++			    0x08, 0x23, 0x04, 0x12, 0x11, 0x28, 0x30, 0x1C },
++	.nlinv		= 0x07,
++	.vop_uv		= 4500000,
++	.vcom_uv	= 1300000,
++	.vgh_mv		= 15000,
++	.vgl_mv		= -9510,
++	.avdd_mv	= 6600,
++	.avcl_mv	= -4600,
++	.gamma_op_bias	= OP_BIAS_MIDDLE,
++	.input_op_bias	= OP_BIAS_MIDDLE,
++	.output_op_bias	= OP_BIAS_MIDDLE,
++	.t2d_ns		= 1600,
++	.t3d_ns		= 10400,
++	.eot_en		= true,
 +
 +	.gip_sequence	= lckfb_31inch_gip_sequence,
 +};

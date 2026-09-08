@@ -43,7 +43,8 @@
 
 &dsi1 {
 	status = "okay";
-	rockchip,lane-rate = <480>;
+	/* Vendor BSP value (tspi-rk3566-dsi-v10.dtsi). */
+	rockchip,lane-rate = <1000>;
 	#address-cells = <1>;
 	#size-cells = <0>;
 
