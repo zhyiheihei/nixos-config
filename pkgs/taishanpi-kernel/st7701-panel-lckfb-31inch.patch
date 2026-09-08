@@ -1,5 +1,5 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:15.159381149 +0800
-+++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 07:31:47.065055171 +0800
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 07:45:24.084315692 +0800
 @@ -213,12 +213,16 @@
  
  	ST7701_WRITE(st7701, MIPI_DCS_SOFT_RESET, 0x00);
@@ -132,7 +132,7 @@
 +static const struct st7701_panel_desc lckfb_31inch_desc = {
 +	.mode		= &lckfb_31inch_mode,
 +	.lanes		= 2,
-+	.format		= MIPI_DSI_FMT_RGB666_PACKED,
++	.format		= MIPI_DSI_FMT_RGB666,
 +	.panel_sleep_delay = 80,
 +
 +	.pv_gamma	= { 0xC0, 0x0C, 0x92, 0x0C, 0x10, 0x05, 0x02, 0x0D,
