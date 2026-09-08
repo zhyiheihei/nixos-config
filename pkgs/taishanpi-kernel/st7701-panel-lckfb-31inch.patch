@@ -1,6 +1,6 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:15.159381149 +0800
-+++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:45.554578531 +0800
-@@ -1383,8 +1383,109 @@
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 04:26:41.483111742 +0800
+@@ -1383,8 +1383,122 @@
  	mipi_dsi_detach(dsi);
  }
  
@@ -9,12 +9,32 @@
 +{
 +	/*
 +	 * Vendor LCKFB BSP sequence for the D310T9362V1 480x800 panel
-+	 * (tspi-rk3566-dsi-v10.dtsi).  init_sequence() already programmed
-+	 * BK0 gamma/line/porch and BK1 power from desc, matching the vendor
-+	 * bytes; this adds the parts the generic code cannot express.
-+	 *
-+	 * We are in Command2 BK1 here.
++	 * (tspi-rk3566-dsi-v10.dtsi), replayed in place: init_sequence()
++	 * has switched to Command2 BK1 and programmed BK0/BK1 from desc
++	 * (matching the vendor bytes); this re-applies the vendor values
++	 * that the generic code computes differently and adds the vendor
++	 * commands the generic code never sends.
 +	 */
++	/* BK1 extras (vendor D1 11, 55 B0) */
++	ST7701_WRITE(st7701, 0xD1, 0x11);
++	ST7701_WRITE(st7701, 0x55, 0xB0);
++
++	/* BK0: line count, porches, inversion, direction, gamma tables */
++	st7701_switch_cmd_bkx(st7701, true, 0);
++	ST7701_WRITE(st7701, 0xC0, 0x63, 0x00);
++	ST7701_WRITE(st7701, 0xC1, 0x09, 0x02);
++	ST7701_WRITE(st7701, 0xC2, 0x37, 0x08);
++	ST7701_WRITE(st7701, 0xC7, 0x00);
++	ST7701_WRITE(st7701, 0xCC, 0x38);
++	st7701->write_command(st7701, ST7701_CMD2_BK0_PVGAMCTRL,
++			      st7701->desc->pv_gamma,
++			      ARRAY_SIZE(st7701->desc->pv_gamma));
++	st7701->write_command(st7701, ST7701_CMD2_BK0_NVGAMCTRL,
++			      st7701->desc->nv_gamma,
++			      ARRAY_SIZE(st7701->desc->nv_gamma));
++
++	/* BK1: gamma / source timing E0h-EFh (vendor block) */
++	st7701_switch_cmd_bkx(st7701, true, 1);
 +	ST7701_WRITE(st7701, 0xE0, 0x00, 0x00, 0x02);
 +	ST7701_WRITE(st7701, 0xE1, 0x01, 0xA0, 0x03, 0xA0, 0x02, 0xA0,
 +		     0x04, 0xA0, 0x00, 0x44, 0x44);
@@ -36,19 +56,12 @@
 +		     0xCF, 0xFF, 0xFF, 0xFC, 0x1A, 0xB0, 0xF4, 0x56,
 +		     0x7F, 0xFF);
 +
-+	/*
-+	 * BK0 inversion: vendor C2 37 08.  RTNI=8 gives 640 PCLK/line,
-+	 * safely above the 548-pixel line period the generic formula
-+	 * would compute (544 PCLK < 548).
-+	 */
-+	st7701_switch_cmd_bkx(st7701, true, 0);
-+	ST7701_WRITE(st7701, ST7701_CMD2_BK0_INVSEL, 0x37, 0x08);
-+
++	/* Leave Command2 (vendor FF 77 01 00 00 00) and set DCS modes */
++	st7701_switch_cmd_bkx(st7701, false, 0);
 +	ST7701_WRITE(st7701, MIPI_DCS_SET_ADDRESS_MODE, 0x00);
 +	ST7701_WRITE(st7701, MIPI_DCS_SET_PIXEL_FORMAT, 0x55); /* RGB565 */
 +}
 +
-+/* Vendor LCDTiming: 480x800, hfp 32 hs 4 hbp 32, vfp 9 vs 4 vbp 3. */
 +static const struct drm_display_mode lckfb_31inch_mode = {
 +	.clock		= 27000,
 +
