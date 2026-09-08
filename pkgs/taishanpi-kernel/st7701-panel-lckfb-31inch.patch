@@ -1,5 +1,5 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:15.159381149 +0800
-+++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 05:43:47.618912445 +0800
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 05:54:46.538298551 +0800
 @@ -213,12 +213,16 @@
  
  	ST7701_WRITE(st7701, MIPI_DCS_SOFT_RESET, 0x00);
@@ -152,7 +152,7 @@
 +	.eot_en		= true,
 +
 +	.gip_sequence	= lckfb_31inch_gip_sequence,
-+}
++};
 +
  static const struct of_device_id st7701_dsi_of_match[] = {
  	{ .compatible = "anbernic,rg-arc-panel", .data = &rg_arc_desc },
