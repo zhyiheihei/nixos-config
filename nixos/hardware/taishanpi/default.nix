@@ -100,7 +100,7 @@ let
   # then the generic brcmfmac43430-sdio.txt; BT hcd as brcm/BCM43430A1.hcd.
   taishanPiFirmware = pkgs.runCommand "taishanpi-brcm-firmware" { } ''
     install -d $out/lib/firmware/brcm
-    install -m 0444 ${./brcm-firmware}/brcm/* $out/lib/firmware/brcm/
+    install -m 0444 ${../../../pkgs/taishanpi-kernel/brcm-firmware}/brcm/* $out/lib/firmware/brcm/
   '';
 
   # The board has no battery-backed RTC. Preserve a recent epoch on the
