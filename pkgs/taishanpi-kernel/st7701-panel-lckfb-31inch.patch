@@ -1,5 +1,5 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:15.159381149 +0800
-+++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 06:23:54.540919622 +0800
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 06:37:10.918978897 +0800
 @@ -213,12 +213,16 @@
  
  	ST7701_WRITE(st7701, MIPI_DCS_SOFT_RESET, 0x00);
@@ -97,7 +97,7 @@
 +	ST7701_WRITE(st7701, 0xE8, 0x00, 0x0C);
 +	ST7701_WRITE(st7701, 0xE8, 0x00, 0x00);
 +	st7701_switch_cmd_bkx(st7701, true, 0);
-+	ST7701_WRITE(st7701, MIPI_DCS_SET_PIXEL_FORMAT, 0x50); /* RGB666 */
++	ST7701_WRITE(st7701, MIPI_DCS_SET_PIXEL_FORMAT, 0x77); /* RGB888 */
 +	/* BGR pixel order on this panel (red/blue swapped otherwise) */
 +	ST7701_WRITE(st7701, MIPI_DCS_SET_ADDRESS_MODE, 0x08);
 +}
@@ -132,7 +132,7 @@
 +static const struct st7701_panel_desc lckfb_31inch_desc = {
 +	.mode		= &lckfb_31inch_mode,
 +	.lanes		= 2,
-+	.format		= MIPI_DSI_FMT_RGB666,
++	.format		= MIPI_DSI_FMT_RGB888,
 +	.panel_sleep_delay = 80,
 +
 +	.pv_gamma	= { 0xC0, 0x0C, 0x92, 0x0C, 0x10, 0x05, 0x02, 0x0D,
