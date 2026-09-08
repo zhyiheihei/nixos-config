@@ -37,6 +37,10 @@
 #include <dt-bindings/pinctrl/rockchip.h>
 #include <dt-bindings/soc/rockchip,vop2.h>
 
+&dsi_dphy1 {
+	status = "okay";
+};
+
 &dsi1 {
 	status = "okay";
 	rockchip,lane-rate = <480>;
@@ -99,7 +103,10 @@
 		reg = <0x38>;
 		interrupt-parent = <&gpio1>;
 		interrupts = <RK_PA0 IRQ_TYPE_EDGE_FALLING>;
-		reset-gpios = <&gpio1 RK_PA1 GPIO_ACTIVE_HIGH>;
+		/* FocalTech reset pin: pulled LOW to reset, per LCKFB's driver which
+		   drives 0 to assert and 1 to release (the BSP dtsi's ACTIVE_HIGH is
+			 written for raw-gpio semantics, not gpiod). */
+		reset-gpios = <&gpio1 RK_PA1 GPIO_ACTIVE_LOW>;
 		touchscreen-size-x = <480>;
 		touchscreen-size-y = <800>;
 	};
