@@ -206,8 +206,12 @@ in
 
   systemd.services.taishanpi-restore-clock = {
     description = "Restore Taishan Pi software clock";
+    # wantedBy = sysinit.target already makes this unit After sysinit.target;
+    # an explicit before = systemd-tmpfiles-setup.service (itself part of
+    # sysinit) self-deadlocks the ordering graph and systemd silently drops
+    # tmpfiles-setup on boot, leaving /home and /var/run missing (breaking
+    # nsncd, PAM login and home-manager). Do not reintroduce that ordering.
     wantedBy = [ "sysinit.target" ];
-    before = [ "systemd-tmpfiles-setup.service" ];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = restoreClock;
