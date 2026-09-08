@@ -12,7 +12,7 @@
   ];
   cpuThreads = 4;
   city = geo.cities."CN Ningbo";
-  zerotier = "59bd0f2f65";
+  zerotier = "e649a796a9";
 
   # Bring-up only via Wi-Fi; no wired NIC on this board.  Keep the board out
   # of bulk deployments until Wi-Fi, the MIPI panel and SSH are verified.
