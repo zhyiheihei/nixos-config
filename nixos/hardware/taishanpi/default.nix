@@ -93,6 +93,16 @@ let
         requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
       });
 
+  # Onboard AP6212 (BCM43430A1) Wi-Fi/BT module on SDIO. Upstream linux-firmware
+  # only carries the AP6212 nvram txt; the .bin/.hcd/clm_blob come from
+  # armbian/firmware (the proven source for this board family). The DTS names
+  # candidates: nvram is looked up as brcmfmac43430-sdio.lckfb,tspi-rk3566.txt,
+  # then the generic brcmfmac43430-sdio.txt; BT hcd as brcm/BCM43430A1.hcd.
+  taishanPiFirmware = pkgs.runCommand "taishanpi-brcm-firmware" { } ''
+    install -d $out/lib/firmware/brcm
+    install -m 0444 ${./brcm-firmware}/brcm/* $out/lib/firmware/brcm/
+  '';
+
   # The board has no battery-backed RTC. Preserve a recent epoch on the
   # persistent filesystem so TLS, SOPS logs and service ordering do not start
   # from the firmware timestamp after every complete power loss.
@@ -162,9 +172,7 @@ in
 
   hardware = {
     enableRedistributableFirmware = lib.mkForce false;
-    # The USB Wi-Fi adapter needs no extra firmware (rtw88 firmware is part of
-    # the kernel package via linux-firmware unless trimmed elsewhere).
-    firmware = lib.mkForce [ ];
+    firmware = lib.mkForce [ taishanPiFirmware ];
     wirelessRegulatoryDatabase = true;
     # Taishan Pi has no onboard wired Ethernet; only Wi-Fi is available.
     bluetooth.enable = false;
@@ -185,7 +193,7 @@ in
   };
 
   # No wired NIC: bring up Wi-Fi through networkmanager-free systemd-networkd.
-  # The USB adapter shows up as wlan0 via rtw88_usb. DHCP on wlan0 only.
+  # The onboard AP6212 shows up as wlan0 via brcmfmac (SDIO). DHCP on wlan0 only.
   systemd.network.networks."10-taishanpi-wlan" = {
     matchConfig.Name = "wlan0";
     networkConfig = {
