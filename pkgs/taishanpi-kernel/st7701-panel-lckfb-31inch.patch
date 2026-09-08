@@ -1,6 +1,26 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:15.159381149 +0800
-+++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 04:26:41.483111742 +0800
-@@ -1383,8 +1383,122 @@
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 04:51:11.384748196 +0800
+@@ -213,12 +213,16 @@
+ 
+ 	ST7701_WRITE(st7701, MIPI_DCS_SOFT_RESET, 0x00);
+ 
+-	/* We need to wait 5ms before sending new commands */
+-	msleep(5);
++	/*
++	 * The vendor BSP (LCKFB D310T9362V1) waits 120ms after soft reset
++	 * and after sleep-out; the generic 5ms/80ms left the panel unable
++	 * to latch the configuration sequence.
++	 */
++	msleep(120);
+ 
+ 	ST7701_WRITE(st7701, MIPI_DCS_EXIT_SLEEP_MODE, 0x00);
+ 
+-	msleep(st7701->sleep_delay);
++	msleep(120);
+ 
+ 	/* Command2, BK0 */
+ 	st7701_switch_cmd_bkx(st7701, true, 0);
+@@ -1383,8 +1387,122 @@
  	mipi_dsi_detach(dsi);
  }
  
