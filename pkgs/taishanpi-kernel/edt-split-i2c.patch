@@ -1,0 +1,59 @@
+--- a/drivers/input/touchscreen/edt-ft5x06.c	2026-09-09 01:50:01.955342208 +0800
++++ b/drivers/input/touchscreen/edt-ft5x06.c	2026-09-09 01:50:01.976342351 +0800
+@@ -157,6 +157,46 @@
+ 	.val_bits = 8,
+ };
+ 
++static int edt_ft5x06_split_write(void *context, const void *data,
++				  size_t count)
++{
++	struct i2c_client *client = context;
++	int ret;
++
++	ret = i2c_master_send(client, data, count);
++	if (ret == count)
++		return 0;
++	return ret < 0 ? ret : -EIO;
++}
++
++static int edt_ft5x06_split_read(void *context, const void *reg,
++				 size_t reg_size, void *val, size_t val_size)
++{
++	struct i2c_client *client = context;
++	int ret;
++
++	/*
++	 * Some FocalTech FT5x06-family clones (e.g. the FT6236 on the LCKFB
++	 * Taishan Pi 3.1-inch panel extension board) lock the I2C bus when
++	 * addressed with a repeated-start combined transaction.  Split the
++	 * register write and the data read into two separate transactions.
++	 */
++	ret = i2c_master_send(client, reg, reg_size);
++	if (ret != reg_size)
++		return ret < 0 ? ret : -EIO;
++
++	ret = i2c_master_recv(client, val, val_size);
++	if (ret != val_size)
++		return ret < 0 ? ret : -EIO;
++
++	return 0;
++}
++
++static const struct regmap_bus edt_ft5x06_split_regmap_bus = {
++	.write = edt_ft5x06_split_write,
++	.read = edt_ft5x06_split_read,
++};
++
+ static bool edt_ft5x06_ts_check_crc(struct edt_ft5x06_ts_data *tsdata,
+ 				    u8 *buf, int buflen)
+ {
+@@ -1155,7 +1195,8 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	tsdata->regmap = regmap_init_i2c(client, &edt_ft5x06_i2c_regmap_config);
++	tsdata->regmap = regmap_init(&client->dev, &edt_ft5x06_split_regmap_bus,
++				     client, &edt_ft5x06_i2c_regmap_config);
+ 	if (IS_ERR(tsdata->regmap)) {
+ 		dev_err(&client->dev, "regmap allocation failed\n");
+ 		return PTR_ERR(tsdata->regmap);
