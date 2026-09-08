@@ -1,5 +1,5 @@
 --- a/drivers/input/touchscreen/edt-ft5x06.c	2026-09-09 01:50:01.955342208 +0800
-+++ b/drivers/input/touchscreen/edt-ft5x06.c	2026-09-09 01:50:01.976342351 +0800
++++ b/drivers/input/touchscreen/edt-ft5x06.c	2026-09-09 02:13:26.109029302 +0800
 @@ -157,6 +157,46 @@
  	.val_bits = 8,
  };
@@ -47,7 +47,26 @@
  static bool edt_ft5x06_ts_check_crc(struct edt_ft5x06_ts_data *tsdata,
  				    u8 *buf, int buflen)
  {
-@@ -1155,7 +1195,8 @@
+@@ -929,8 +969,16 @@
+ 		strscpy(fw_version, rdbuf, 2);
+ 
+ 		error = regmap_bulk_read(tsdata->regmap, 0xA8, rdbuf, 1);
+-		if (error)
+-			return error;
++		if (error) {
++			/*
++			 * Some FT5x06-family clones do not implement the
++			 * FIRMID register and NACK accesses to it instead
++			 * of returning a value.  Treat as generic FT and
++			 * let probe continue with default register maps.
++			 */
++			rdbuf[0] = 0x00;
++			error = 0;
++		}
+ 
+ 		/* This "model identification" is not exact. Unfortunately
+ 		 * not all firmwares for the ft5x06 put useful values in
+@@ -1155,7 +1203,8 @@
  		return -ENOMEM;
  	}
  
