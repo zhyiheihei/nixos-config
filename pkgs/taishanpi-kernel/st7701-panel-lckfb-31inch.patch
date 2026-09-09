@@ -1,6 +1,6 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c
 +++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c
-@@ -33,6 +33,35 @@
+@@ -33,6 +33,41 @@
  #define ST7701_CMD2_BK0_INVSEL			0xC2 /* Inversion selection, Frame Rate Control */
  
  /* Command2, BK1 commands */
@@ -32,11 +32,17 @@
 +module_param(lckfb_cd, int, 0644);
 +static int lckfb_gip = 1;	/* 1 = bank-3 EF 08 prologue + E8 gate dance */
 +module_param(lckfb_gip, int, 0644);
++static int lckfb_c7 = 0x00;	/* BK0 C7 (SDIR x-direction): factory rotate0 0x04 */
++module_param(lckfb_c7, int, 0644);
++static int lckfb_55 = 0xB0;	/* BK1 0x55 (undocumented; factory alternatives 0x80 0x90) */
++module_param(lckfb_55, int, 0644);
++static int lckfb_d1 = 0x11;	/* BK1 D1 (MIPISET2, factory value) */
++module_param(lckfb_d1, int, 0644);
 +
  #define ST7701_CMD2_BK1_VRHS			0xB0 /* Vop amplitude setting */
  #define ST7701_CMD2_BK1_VCOM			0xB1 /* VCOM amplitude setting */
  #define ST7701_CMD2_BK1_VGHSS			0xB2 /* VGH Voltage setting */
-@@ -192,6 +221,8 @@
+@@ -192,6 +227,8 @@
  	return 0;
  }
  
@@ -45,7 +51,7 @@
  static void st7701_switch_cmd_bkx(struct st7701 *st7701, bool cmd2, u8 bkx)
  {
  	u8 val;
-@@ -213,12 +244,16 @@
+@@ -213,12 +250,16 @@
  
  	ST7701_WRITE(st7701, MIPI_DCS_SOFT_RESET, 0x00);
  
@@ -65,7 +71,7 @@
  
  	/* Command2, BK0 */
  	st7701_switch_cmd_bkx(st7701, true, 0);
-@@ -1341,11 +1376,33 @@
+@@ -1341,11 +1382,33 @@
  	if (!st7701->desc->lanes)
  		return dev_err_probe(&dsi->dev, -EINVAL, "This panel is not for MIPI DSI\n");
  
@@ -100,7 +106,7 @@
  	err = mipi_dsi_attach(dsi);
  	if (err)
  		return dev_err_probe(&dsi->dev, err, "Failed to init MIPI DSI\n");
-@@ -1383,8 +1440,176 @@
+@@ -1383,8 +1446,176 @@
  	mipi_dsi_detach(dsi);
  }
  
@@ -135,15 +141,15 @@
 +
 +	/* Command2, BK1: vendor power-on bits (D1/0x55 undocumented) */
 +	st7701_switch_cmd_bkx(st7701, true, 1);
-+	ST7701_WRITE(st7701, 0xD1, 0x11);
-+	ST7701_WRITE(st7701, 0x55, 0xB0);
++	ST7701_WRITE(st7701, 0xD1, lckfb_d1);
++	ST7701_WRITE(st7701, 0x55, lckfb_55);
 +
 +	/* Command2, BK0: line count, porches, frame control, gamma */
 +	st7701_switch_cmd_bkx(st7701, true, 0);
 +	ST7701_WRITE(st7701, 0xC0, 0x63, 0x00);
 +	ST7701_WRITE(st7701, 0xC1, 0x09, 0x02);
 +	ST7701_WRITE(st7701, 0xC2, 0x37, 0x08);
-+	ST7701_WRITE(st7701, 0xC7, 0x00);	/* SDIR: normal x-direction */
++	ST7701_WRITE(st7701, 0xC7, lckfb_c7);	/* SDIR: x-direction */
 +	ST7701_WRITE(st7701, 0xCC, lckfb_cc);	/* vendor 0x38 */
 +	if (lckfb_cd >= 0)
 +		ST7701_WRITE(st7701, 0xCD, lckfb_cd);
