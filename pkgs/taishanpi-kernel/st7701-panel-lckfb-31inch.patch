@@ -1,5 +1,5 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:15.159381149 +0800
-+++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 15:41:37.053904011 +0800
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 15:50:25.582348620 +0800
 @@ -33,6 +33,26 @@
  #define ST7701_CMD2_BK0_INVSEL			0xC2 /* Inversion selection, Frame Rate Control */
  
@@ -77,7 +77,7 @@
  	err = mipi_dsi_attach(dsi);
  	if (err)
  		return dev_err_probe(&dsi->dev, err, "Failed to init MIPI DSI\n");
-@@ -1383,8 +1423,142 @@
+@@ -1383,8 +1423,145 @@
  	mipi_dsi_detach(dsi);
  }
  
@@ -153,10 +153,13 @@
 +	st7701_switch_cmd_bkx(st7701, true, 3);
 +	ST7701_WRITE(st7701, 0xE8, 0x00, 0x0C);
 +	ST7701_WRITE(st7701, 0xE8, 0x00, 0x00);
-+	st7701_switch_cmd_bkx(st7701, true, 0);
-+	ST7701_WRITE(st7701, MIPI_DCS_SET_PIXEL_FORMAT, 0x50); /* RGB666 (panel DSI RX is 18-bit only) */
-+	/* MADCTL must be sent outside Command2 to take effect */
++	/*
++	 * 0x36/0x3A are MIPI DCS commands and only take effect in the
++	 * user command set: they must be sent after leaving Command2
++	 * (inside Command2 BKx the same opcodes are internal regs).
++	 */
 +	st7701_switch_cmd_bkx(st7701, false, 0);
++	ST7701_WRITE(st7701, MIPI_DCS_SET_PIXEL_FORMAT, 0x50); /* RGB666 */
 +	ST7701_WRITE(st7701, MIPI_DCS_SET_ADDRESS_MODE, lckfb_madctl);
 +}
 +
