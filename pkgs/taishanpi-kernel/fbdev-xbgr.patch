@@ -1,0 +1,18 @@
+--- a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c	2026-09-09 16:59:28.521023978 +0800
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c	2026-09-09 16:59:28.541024101 +0800
+@@ -198,7 +198,14 @@
+ 	if (ret)
+ 		goto err_kms_helper_poll_fini;
+ 
+-	drm_client_setup(drm_dev, NULL);
++	/*
++	 * The LCKFB 3.1-inch DSI panel has a physically G-R-B subpixel
++	 * arrangement (no chip-level R/G swap register exists).  Handing
++	 * fbdev an XBGR8888 buffer swaps the red and green bytes for the
++	 * console, compensating the panel.  This is a taishanpi-only
++	 * patch; upstream keeps NULL.
++	 */
++	drm_client_setup(drm_dev, drm_format_info(DRM_FORMAT_XBGR8888));
+ 
+ 	return 0;
+ err_kms_helper_poll_fini:
