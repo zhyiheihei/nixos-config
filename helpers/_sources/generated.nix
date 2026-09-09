@@ -185,15 +185,15 @@
   };
   nvidia-patch = {
     pname = "nvidia-patch";
-    version = "37653ea391d600bd0a43af4ca08e9bb5298f7edf";
+    version = "9e4f1cd723c89e58715de2d56c8cf8db2da4a34b";
     src = fetchFromGitHub {
       owner = "keylase";
       repo = "nvidia-patch";
-      rev = "37653ea391d600bd0a43af4ca08e9bb5298f7edf";
+      rev = "9e4f1cd723c89e58715de2d56c8cf8db2da4a34b";
       fetchSubmodules = false;
-      sha256 = "sha256-kboA0s8SubAHNvRNa6TMS//Xz97VpmdnH3rOhKODa+M=";
+      sha256 = "sha256-cJP4BL8cgvk539Qa+adnRHAxmqVrdk/4564fEK77aog=";
     };
-    date = "2026-09-04";
+    date = "2026-09-07";
   };
   open5gs = {
     pname = "open5gs";
@@ -256,15 +256,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "c6eb3206923173e023f95407c5f84afd875d8fe9";
+    version = "a52dee9e00ff33db2eaad678b636ae88b490b58e";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "c6eb3206923173e023f95407c5f84afd875d8fe9";
+      rev = "a52dee9e00ff33db2eaad678b636ae88b490b58e";
       fetchSubmodules = false;
-      sha256 = "sha256-4NuWt2RUuzwV0ZXFdEafyJg7/YoToogx2iHOPq45LDA=";
+      sha256 = "sha256-AJ9kGO84oaXMGB0Rwk0DAREtLvIO1QJvv78HnmQkKGE=";
     };
-    date = "2026-08-31";
+    date = "2026-09-07";
   };
   ulauncher-albert-calculate-anything = {
     pname = "ulauncher-albert-calculate-anything";
