@@ -1,6 +1,14 @@
 --- a/drivers/gpu/drm/rockchip/rockchip_drm_drv.c	2026-09-09 16:59:28.521023978 +0800
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c	2026-09-09 16:59:28.541024101 +0800
-@@ -198,7 +198,14 @@
++++ b/drivers/gpu/drm/rockchip/rockchip_drm_drv.c	2026-09-09 17:05:40.519325045 +0800
+@@ -20,6 +20,7 @@
+ #include <drm/clients/drm_client_setup.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_fbdev_dma.h>
++#include <drm/drm_fourcc.h>
+ #include <drm/drm_gem_dma_helper.h>
+ #include <drm/drm_of.h>
+ #include <drm/drm_probe_helper.h>
+@@ -198,7 +199,14 @@
  	if (ret)
  		goto err_kms_helper_poll_fini;
  
