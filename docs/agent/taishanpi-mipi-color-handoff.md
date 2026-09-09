@@ -157,6 +157,32 @@ C7=0x04+ML → (s1,s3,s2)✓；C7=0x04+BGR+ML → (s3,s1,s2)✓；0x55 三档无
 - 若 fbset 实验证明「行首偏移 2」，则偏移根源在这些等价路径的某处执行
   时序/窗口细节里（或面板个体），静态 diff 已到收益边界，转向动态实验。
 
+### F. fbset/DRM SRC_X 实验结果（2026-09-09 晚，**无效，本期关闭**）
+
+- 实验方法：fbset panning 被 DRM fbdev 拒绝（FBIOPAN_DISPLAY → ENOSPC，
+  新版 helper 不支持 pan）。改用 python 直打 DRM ioctl：设
+  DRM_CLIENT_CAP_UNIVERSAL_PLANES(2)+ATOMIC(3) 后，对 DSI primary plane
+  （plane 39, crtc 52, fb 59, legacy 下 SRC_* 属性被隐藏）用 MODE_ATOMIC
+  提交 SRC_X=2<<16，写入成功且读回确认。
+- 实验脚本已跑通的全部要点（下次可复用）：
+  - taishanpi SSH：`ssh -p 2222 root@198.18.0.127`（LTNET，192.168.0.136 会漂）
+  - DRM：/dev/dri/card1（conn 54=HDMI→crtc 51→plane 33；conn 57=DSI→crtc 52
+    →plane 39；plane 45=空闲 overlay；fbdev fb=59，1920×1080，DSI/HDMI 共享）
+  - legacy 客户端看不到 SRC_*/FB_ID/CRTC_ID，必须设 cap 后走 MODE_ATOMIC
+- **结果：SRC_X=2 后 MIPI 颜色无任何变化（仍 绿|蓝|红|白，HDMI 正确）**。
+  两种解释（未再细分）：a) rockchip 驱动未把 primary plane 的 src_x 应用到
+  VOP2 win 硬件寄存器；b) src_x 已生效但偏移发生在采样窗口之后的层级
+  （DW DSI 组包/PHY/面板内 latch），窗口平移被固定偏移重新吸收——但颜色
+  连反向(+1)都没出现，更像 a) 或「偏移在行字节对齐层面而非窗口层面」。
+- **结论：VOP/窗口层排除（至少作为修复点），下期候选方向：**
+  1. 读 VOP2 win 硬件寄存器（debugfs 设备寄存器 dump 或 devmem）确认 src_x
+     是否真写入硬件，区分 a/b；
+  2. DW DSI 层：burst 模式每行打包起始/字节对齐，与 BSP 的逐字节行为差异；
+  3. inno DPHY 两个已知差异（lane enable 全开、lane rate 自动算 vs 固定
+     1000Mbps）做实机对照实验；
+  4. 官方 buildroot update.img 对拍（仍是根因层的决定性实验）；
+  5. 若最终判定面板个体 → 换屏（立创售后）。
+
 ## 历史结论修正（防止误导）
 
 - 「面板物理 GRB 排列」：不准确。真实映射是 (s2,s3,s1) 类 3-循环相位族。
