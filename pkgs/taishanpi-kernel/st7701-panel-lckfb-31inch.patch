@@ -1,6 +1,6 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c
 +++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c
-@@ -33,6 +33,33 @@
+@@ -33,6 +33,35 @@
  #define ST7701_CMD2_BK0_INVSEL			0xC2 /* Inversion selection, Frame Rate Control */
  
  /* Command2, BK1 commands */
@@ -30,11 +30,13 @@
 +module_param(lckfb_e8first, int, 0644);
 +static int lckfb_cd = -1;	/* COLCTRL(0xCD) value in BK0; -1 = don't send */
 +module_param(lckfb_cd, int, 0644);
++static int lckfb_gip = 1;	/* 1 = bank-3 EF 08 prologue + E8 gate dance */
++module_param(lckfb_gip, int, 0644);
 +
  #define ST7701_CMD2_BK1_VRHS			0xB0 /* Vop amplitude setting */
  #define ST7701_CMD2_BK1_VCOM			0xB1 /* VCOM amplitude setting */
  #define ST7701_CMD2_BK1_VGHSS			0xB2 /* VGH Voltage setting */
-@@ -192,6 +219,8 @@
+@@ -192,6 +221,8 @@
  	return 0;
  }
  
@@ -43,7 +45,7 @@
  static void st7701_switch_cmd_bkx(struct st7701 *st7701, bool cmd2, u8 bkx)
  {
  	u8 val;
-@@ -213,12 +242,16 @@
+@@ -213,12 +244,16 @@
  
  	ST7701_WRITE(st7701, MIPI_DCS_SOFT_RESET, 0x00);
  
@@ -63,7 +65,7 @@
  
  	/* Command2, BK0 */
  	st7701_switch_cmd_bkx(st7701, true, 0);
-@@ -1346,6 +1379,20 @@
+@@ -1346,6 +1381,20 @@
  	dsi->format = st7701->desc->format;
  	dsi->lanes = st7701->desc->lanes;
  
@@ -84,7 +86,7 @@
  	err = mipi_dsi_attach(dsi);
  	if (err)
  		return dev_err_probe(&dsi->dev, err, "Failed to init MIPI DSI\n");
-@@ -1383,8 +1430,150 @@
+@@ -1383,8 +1432,176 @@
  	mipi_dsi_detach(dsi);
  }
  
@@ -103,6 +105,19 @@
 +	 * values are specific to this panel's COG wiring.  Driving this
 +	 * panel with a foreign sequence swaps the R and G channels.
 +	 */
++
++	/*
++	 * Bank-3 (page 0x13) 0xEF 0x08 prologue: present in the K230 SDK and
++	 * every mainline ST7701 vendor sequence that writes GIP E-registers
++	 * (rg_arc, rg28xx, dmt028), absent from the wiki transcription of
++	 * this panel's vendor sequence.  It appears to gate the E0-EE gate/
++	 * source mapping writes in BK1; without it the panel may run with
++	 * its default (channel-rotated) source mapping.  Runtime-tunable.
++	 */
++	if (lckfb_gip) {
++		st7701_switch_cmd_bkx(st7701, true, 3);
++		ST7701_WRITE(st7701, 0xEF, 0x08);
++	}
 +
 +	/* Command2, BK1: vendor power-on bits (D1/0x55 undocumented) */
 +	st7701_switch_cmd_bkx(st7701, true, 1);
@@ -158,6 +173,19 @@
 +	ST7701_WRITE(st7701, 0xED, 0xFF, 0xF7, 0x65, 0x4F, 0x0B, 0xA1,
 +		     0xCF, 0xFF, 0xFF, 0xFC, 0x1A, 0xB0, 0xF4, 0x56,
 +		     0x7F, 0xFF);
++
++	if (lckfb_gip) {
++		/* Video-mode gate dance, as in the K230/dmt028/rg28xx sequences */
++		st7701_switch_cmd_bkx(st7701, true, 3);
++		ST7701_WRITE(st7701, 0xE8, 0x00, 0x0E);
++		st7701_switch_cmd_bkx(st7701, false, 0);
++		ST7701_WRITE(st7701, MIPI_DCS_EXIT_SLEEP_MODE, 0x00);
++		msleep(120);
++		st7701_switch_cmd_bkx(st7701, true, 3);
++		ST7701_WRITE(st7701, 0xE8, 0x00, 0x0C);
++		msleep(10);
++		ST7701_WRITE(st7701, 0xE8, 0x00, 0x00);
++	}
 +
 +	/*
 +	 * 0x36/0x3A are MIPI DCS commands and only take effect in the
