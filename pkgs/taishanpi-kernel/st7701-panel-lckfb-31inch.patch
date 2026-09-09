@@ -1,6 +1,6 @@
 --- a/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 03:53:15.159381149 +0800
-+++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 07:56:05.495213299 +0800
-@@ -33,6 +33,22 @@
++++ b/drivers/gpu/drm/panel/panel-sitronix-st7701.c	2026-09-09 08:00:11.542719028 +0800
+@@ -33,6 +33,20 @@
  #define ST7701_CMD2_BK0_INVSEL			0xC2 /* Inversion selection, Frame Rate Control */
  
  /* Command2, BK1 commands */
@@ -18,11 +18,18 @@
 +static int lckfb_vcom = 0x62;	/* BK1 B1 VCOM */
 +module_param(lckfb_vcom, int, 0644);
 +
-+static void lckfb_31inch_gip_sequence(struct st7701 *st7701);
-+
  #define ST7701_CMD2_BK1_VRHS			0xB0 /* Vop amplitude setting */
  #define ST7701_CMD2_BK1_VCOM			0xB1 /* VCOM amplitude setting */
  #define ST7701_CMD2_BK1_VGHSS			0xB2 /* VGH Voltage setting */
+@@ -192,6 +206,8 @@
+ 	return 0;
+ }
+ 
++static void lckfb_31inch_gip_sequence(struct st7701 *st7701);
++
+ static void st7701_switch_cmd_bkx(struct st7701 *st7701, bool cmd2, u8 bkx)
+ {
+ 	u8 val;
 @@ -213,12 +229,16 @@
  
  	ST7701_WRITE(st7701, MIPI_DCS_SOFT_RESET, 0x00);
