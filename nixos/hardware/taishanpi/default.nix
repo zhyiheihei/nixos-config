@@ -96,7 +96,6 @@ let
           ../../../pkgs/taishanpi-kernel/gp7101-backlight.patch
           ../../../pkgs/taishanpi-kernel/edt-split-i2c.patch
           ../../../pkgs/taishanpi-kernel/dsi-rgb666-p888.patch
-          ../../../pkgs/taishanpi-kernel/fbdev-xbgr.patch
         ];
       });
 
