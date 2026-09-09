@@ -100,20 +100,62 @@ C7=0x04+ML → (s1,s3,s2)✓；C7=0x04+BGR+ML → (s3,s1,s2)✓；0x55 三档无
 
 ### D. 修正后的下一步（按性价比重排）
 
-1. **diff BSP VOP2 vs 主线 VOP2 的 VP1→DSI1 路径**（0 风险，最大嫌疑）。
-   BSP 源码：github.com/CmST0us/tspi-linux-sdk（5.10.198）的
-   `drivers/gpu/drm/rockchip/rockchip_drm_vop2.c`（+ vop2 寄存器表），对照
-   主线 6.18 同名文件。重点：RK3566 VP1 的 dsp ctrl/DATA_SWAP/输出模式映射、
-   win 起始、以及 `dsi-rgb666-p888.patch` 已踩过的 P666 位偏移是否在别的
-   参数上重演。
-2. **官方 buildroot 镜像对拍**（决定性，可确认 1 的结论）：泰山派=tspi，
+1. **fbset panning 验证实验（1 分钟，本轮新增，优先做）**：症状 = 每行数据
+   流恒定偏移 2 样本，fbdev 的 xoffset 可直接补偿。在 taishanpi 上：
+
+   ```bash
+   # 先画参考色条（左红|中绿|右蓝，XRGB8888 内存序 B,G,R,X）
+   python3 - <<'EOF'
+   w,h=480,800
+   def px(b,g,r): return bytes([b,g,r,255])
+   row=b''.join(px(0,0,255) if x<160 else px(0,255,0) if x<320 else px(255,0,0) for x in range(w))
+   open('/tmp/bars.raw','wb').write(row*h)
+   EOF
+   cat /tmp/bars.raw > /dev/fb0
+   # 三个状态各拍一张照（需 nix；无 nix 环境可用静态 fbset）
+   nix run nixpkgs#fbset -- -fb /dev/fb0 -xres 480 -yres 800 -vxres 488 -vyres 800 -xoffset 2
+   nix run nixpkgs#fbset -- -fb /dev/fb0 -xres 480 -yres 800 -vxres 488 -vyres 800 -xoffset 1
+   nix run nixpkgs#fbset -- -fb /dev/fb0 -xres 480 -yres 800 -vxres 488 -vyres 800 -xoffset 0
+   ```
+
+   预测（mod-3 模型）：xoffset=0 现状显示 绿|蓝|红；xoffset=2 显示 红|绿|蓝
+   （**修复**，右缘约 2/3 像素宽黑线）；xoffset=1 显示 蓝|红|绿（反向）。
+   若 xoffset=2 修复 →「行首偏移 2」实证，且 fbset panning 本身就是可用
+   workaround（systemd oneshot 持久化即可，需用户拍板）；若 fbset 在 drm
+   fbdev 上 no-op（pan 不生效），改用 modetest 设 plane SRC_X 属性验证。
+
+2. **diff BSP VOP2 vs 主线 VOP2 的 VP1→DSI1 路径**（本轮已做，结论见下）。
+
+3. **官方 buildroot 镜像对拍**（决定性，可确认根因层）：泰山派=tspi，
    `系统镜像/buildroot` 的 update.img 就是泰山派官方镜像，可直接 maskrom 刷
-   （先备份 eMMC 或接受重刷 NixOS，镜像在 git 里不丢）。官方系统+这块屏：
-   颜色正常 → 主线栈问题坐实；旋转 → 屏个体（概率已很低）。
-3. 若确认主线栈问题 → 找到具体寄存器/配置差异后做修复（可上游化则上游化）。
-4. 软件保底（若最终判定屏个体，概率低）：a) VOP2 win.src_x+2 行移位补偿
-   （真彩全内容修复，右缘 2 子像素黑线，属自造 hack 需用户拍板）；
-   b) fbcon palette 补偿（仅控制台 16 色）。palette 机制本身成立。
+   （先备份 eMMC 或接受重刷 NixOS）。官方系统+这块屏：颜色正常 → 主线栈
+   问题坐实；旋转 → 屏个体。
+
+### E. 2026-09-09 静态 diff 结果（BSP 5.10 vs 主线 6.18.45）
+
+已对比的文件：`rockchip_drm_vop2.c`/`rockchip_vop2_reg.c`、
+`dw-mipi-dsi-rockchip.c`、`dw-mipi-dsi.c`（DW 核心）、
+`phy-rockchip-inno-dsidphy.c`、`rk356x-base.dtsi`。源码缓存在
+`/tmp/vop2-diff/`（临时）。结论：
+
+- VOP2 VP 输出寄存器（DSP_CTRL 的 OUT_MODE/swap/dither、时序公式
+  hact_st=htotal-hsync_start、MIPI_CTRL/DUAL_CHANNEL_CTRL、DSP_IF_EN mux
+  与 DSP_IF_POL pin pol）语义与写入值完全一致。
+- DW 核心的 dpi_config/vertical/horizontal/line_timer/bw_config 逐行一致
+  （VID_MODE_CFG 的 BSP 位列表 == 主线 ENABLE_LOW_POWER=0x3f<<8）。
+- wrapper GRF（VO_CON2/3 lanecfg、SKEWCALHS 等清零）一致。
+- **实质差异仅两处，均无法解释干净的 mod-3 偏移**：
+  1. inno DPHY lane enable：BSP 按 lanes 只开所需 lane（2 lane →
+     CK+lane0+lane1），主线 6.18 无条件全开 lane0-3（注释 "Enable all
+     lanes on analog part"）。lane2/3 未接面板，理论上无害——但如果要在
+     实机上排除，可给主线打 BSP 行为补丁实测。
+  2. lane rate：BSP 由 `rockchip,lane-rate=<1000>` 直接定 PHY 速率；主线
+     无此属性，由 DW 核心按 mode 自动算（27MHz×24/2≈324Mbps），PHY timing
+     分档不同（1000 档 vs 400 档）。速率不影响字节序，理论上也不致旋转。
+- clk_pre 计算差异（BSP 除以 t_txbyteclkhs vs 主线除以 BITS_PER_BYTE）在
+  默认 8 UI 下结果相同，no-op。
+- 若 fbset 实验证明「行首偏移 2」，则偏移根源在这些等价路径的某处执行
+  时序/窗口细节里（或面板个体），静态 diff 已到收益边界，转向动态实验。
 
 ## 历史结论修正（防止误导）
 
