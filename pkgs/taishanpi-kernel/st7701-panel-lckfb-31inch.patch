@@ -65,7 +65,21 @@
  
  	/* Command2, BK0 */
  	st7701_switch_cmd_bkx(st7701, true, 0);
-@@ -1346,6 +1381,20 @@
+@@ -1341,11 +1376,33 @@
+ 	if (!st7701->desc->lanes)
+ 		return dev_err_probe(&dsi->dev, -EINVAL, "This panel is not for MIPI DSI\n");
+ 
++	/*
++	 * The ST7701S predates optional HS EoTp (DSI v1.1 era): the extra
++	 * EoTp bytes that mainline DW transmits (EOTP_TX_EN) shift the
++	 * panel's payload parsing by a fixed offset per line, rotating the
++	 * R/G/B samples.  The LCKFB vendor BSP (rk 5.10) keeps PCKHDL_CFG
++	 * at CRC|ECC|BTA without EOTP_TX and drives this exact panel with
++	 * a continuous clock; mirror that here.
++	 */
+ 	dsi->mode_flags = MIPI_DSI_MODE_VIDEO | MIPI_DSI_MODE_VIDEO_BURST |
+-			  MIPI_DSI_MODE_LPM | MIPI_DSI_CLOCK_NON_CONTINUOUS;
++			  MIPI_DSI_MODE_LPM | MIPI_DSI_MODE_NO_EOT_PACKET;
  	dsi->format = st7701->desc->format;
  	dsi->lanes = st7701->desc->lanes;
  
@@ -86,7 +100,7 @@
  	err = mipi_dsi_attach(dsi);
  	if (err)
  		return dev_err_probe(&dsi->dev, err, "Failed to init MIPI DSI\n");
-@@ -1383,8 +1432,176 @@
+@@ -1383,8 +1440,176 @@
  	mipi_dsi_detach(dsi);
  }
  
