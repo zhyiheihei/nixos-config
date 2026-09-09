@@ -1,0 +1,19 @@
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c	2026-09-09 08:56:49.290169841 +0800
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c	2026-09-09 08:56:49.315169993 +0800
+@@ -769,7 +769,15 @@
+ 		s->output_mode = ROCKCHIP_OUT_MODE_P888;
+ 		break;
+ 	case MIPI_DSI_FMT_RGB666:
+-		s->output_mode = ROCKCHIP_OUT_MODE_P666;
++		/*
++		 * RGB666 non-packed: the DW core transmits 18-bit loose
++		 * packets but samples 24-bit pixels on the DPI bus.  The
++		 * VOP2 P666 output mode drives only 18 bits per pixel,
++		 * which bit-shifts every channel (colors rotate).  Feed
++		 * the bus 24-bit pixels instead; the core drops the low
++		 * 2 bits of each component when packing.
++		 */
++		s->output_mode = ROCKCHIP_OUT_MODE_P888;
+ 		break;
+ 	case MIPI_DSI_FMT_RGB565:
+ 		s->output_mode = ROCKCHIP_OUT_MODE_P565;
