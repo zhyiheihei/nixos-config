@@ -20,6 +20,13 @@ UniAPI
     |                     |
 LibreChat / n8n          Metapi
 
+CLIProxyAPI（google，2026-09-10 接入）：Codex 订阅转 OpenAI 兼容 API，
+作为 UniAPI 的普通 OpenAI 类型 Provider（cliproxyapi 渠道，模型
+gpt-5.6-luna）；入口 https://cliproxyapi.google.zhyi.xin（private vhost，
+DNS CNAME 指向 google.ltnet 走 LTNET，对齐 n8n-bridge 模式）。设备码登录：
+在 google 上以 cliproxyapi 用户跑 cli-proxy-api --config
+/run/secrets/rendered/cliproxyapi-config --codex-device-login。
+
 AxonHub：模块保留，当前未部署
 ```
 

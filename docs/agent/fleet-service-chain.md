@@ -74,7 +74,7 @@ flowchart LR
 | `volcengine` | 公网 server | Dex、Pocket ID、Vaultwarden、GLAuth、Halo、OAuth2 Proxy、MySQL、PostgreSQL、DNS/Nginx（Attic 已于 2026-09 迁至 greencloud-jp） | 运行，0 failed units |
 | `greencloud` | 公网、DN42、协作内容中心 | 公网入口、ACME、Gitea、Matrix、邮件、RSS、NetBox、LibreChat、n8n、Metapi、Plausible、ClickHouse、ZeroTier Controller 等（监控栈 2026-08-14 迁至 tencent） | 运行；OpenVPN 失败，系统 degraded |
 | `tencent` | 公网、DN42、监控中心 | 监控栈（Prometheus/Alertmanager/Blackbox/Grafana）、UniAPI、Metapi、SearXNG、hubproxy（监控栈 2026-08-14 自 greencloud 迁入） | 运行，0 failed units |
-| `google` | 公网、`cn-accel` | server 公共基线、V2Ray、Filebeat；声明中的日志汇聚后端当前不存在 | 运行；OpenVPN 失败，系统 degraded |
+| `google` | 公网、`cn-accel` | server 公共基线、V2Ray、Filebeat、CLIProxyAPI（Codex 订阅转 API 网关，仅本机+私网 vhost）；声明中的日志汇聚后端当前不存在 | 运行；OpenVPN 失败，系统 degraded |
 | `opi5p` | server、原生 ARM 回退 builder | 数据库、家庭应用、下载自动化、NCPS、文件服务、打印、ClamAV、reDroid | 运行，0 failed units |
 | `rock5c` | server、家庭边缘 | 家庭 Nginx 入口、MetaCubeXD、Homepage、主 UniAPI、FastAPI-DLS、GLAuth、vlmcsd、媒体应用（MoviePilot/Jellyfin/HandBrake）、reDroid | 运行，0 failed units |
 | `lubancat1` | `low-ram` server | BIRD、WG/WSS、Yggdrasil、ZeroTier、CoreDNS、Nginx、exporters、Bluetooth | 运行，0 failed units；尚未迁入用户应用 |
