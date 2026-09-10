@@ -1,8 +1,10 @@
 # CLIProxyAPI：Codex 订阅转 OpenAI 兼容 API 网关（详见 router-for-me/CLIProxyAPI）。
 # 公共模块 nixos/optional-apps/cliproxyapi.nix 为作者原版，只提供 systemd 单元与
-# 本地 vhost；配置文件由本文件以 sops 模板渲染后复制进 StateDirectory。
+# 本地 vhost；配置文件由本文件以 sops 模板渲染并直读。
 # 服务仅部署于 google 主机，密钥在 nixos-secrets/common/cliproxyapi.yaml。
 {
+  lib,
+  pkgs,
   config,
   LT,
   inputs,
@@ -55,11 +57,10 @@
     '';
   };
 
-  systemd.services.cliproxyapi = {
-    preStart = ''
-      install -m 0400 -o cliproxyapi -g cliproxyapi ${config.sops.templates.cliproxyapi-config.path} /var/lib/cliproxyapi/config.yaml
-    '';
-  };
+  # preStart 复制方案需 chown（service 用户无权），改为直接以 --config 指向
+  # sops 模板渲染文件（owner=cliproxyapi 0400，secret 变更自动重启）。
+  systemd.services.cliproxyapi.serviceConfig.ExecStart =
+    lib.mkForce "${lib.getExe pkgs.llm-agents.cli-proxy-api} --config ${config.sops.templates.cliproxyapi-config.path}";
 
   # exam 模块默认用 zerossl 证书；google 主机统一用 lets-encrypt-zhyi.xin
   lantian.localVhosts.cliproxyapi.sslCertificate = "lets-encrypt-zhyi.xin";
