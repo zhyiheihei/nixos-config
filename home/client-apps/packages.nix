@@ -132,6 +132,7 @@ in
         quasselClient
         rar
         rustdesk
+        siyuan
         steam-run
         synadm
         tigervnc
