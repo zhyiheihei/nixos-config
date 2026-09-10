@@ -427,6 +427,12 @@ let
       target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";
     }
+    {
+      recordType = "CNAME";
+      name = "cliproxyapi.google";
+      target = "google.ltnet.zhyi.xin.";
+      ttl = "1h";
+    }
   ];
 in
 {
