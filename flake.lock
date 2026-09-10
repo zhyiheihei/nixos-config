@@ -1806,11 +1806,11 @@
         "treefmt-nix": "treefmt-nix_4"
       },
       "locked": {
-        "lastModified": 1788831484,
-        "narHash": "sha256-zMurYdt/uG9odo96Q8mq4iBpQIGrnQpHKLF4THbHV6s=",
+        "lastModified": 1789046627,
+        "narHash": "sha256-84GmPoeYmWVyP7bfR8rV2rAm7oxS/WdiqbZVrNZ6Rzg=",
         "owner": "zhyiheihei",
         "repo": "zhyi-packages",
-        "rev": "3bedb910f19aaabe456fbbc2683bebc788ce3c0e",
+        "rev": "ad1cc9306f7ed06324fda9f9385d512476d082cd",
         "type": "github"
       },
       "original": {

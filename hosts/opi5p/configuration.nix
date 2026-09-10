@@ -235,9 +235,14 @@ in
 
   # EPD 家庭食品存储看板：REST API + WebUI（内网私有，nginx food.opi5p.zhyi.xin）
   # + 每日 0 点墨水屏推送 timer；BLE 推送 NRF_EPD 墨水屏（服务私有，不开公网）。
+  # 日程栏接标准 CalDAV（cal.zhyi.xin，Radicale，只读）；密码用统一 default-pw。
   # 测试阶段免鉴权（tokenFile = null）；转生产时用 sops 提供 token 后取消注释。
   lantian.food-dashboard = {
     enable = true;
+    caldavUrl = "https://cal.zhyi.xin";
+    caldavUser = "zhyi";
+    caldavPasswordFile = config.sops.secrets.default-pw.path;
+    caldavCalendar = "/zhyi/calendar/";
     # tokenFile = config.sops.secrets."epd-dashboard/api-token".path;
   };
 
