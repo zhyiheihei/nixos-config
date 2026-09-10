@@ -62,6 +62,6 @@
   systemd.services.cliproxyapi.serviceConfig.ExecStart =
     lib.mkForce "${lib.getExe pkgs.llm-agents.cli-proxy-api} --config ${config.sops.templates.cliproxyapi-config.path}";
 
-  # exam 模块默认用 zerossl 证书；google 主机统一用 lets-encrypt-zhyi.xin
-  lantian.localVhosts.cliproxyapi.sslCertificate = "lets-encrypt-zhyi.xin";
+  # 注：vhost 证书用作者默认 zerossl-<host>.zhyi.xin（两层通配，覆盖
+  # cliproxyapi.google.zhyi.xin）；lets-encrypt-zhyi.xin 只有单层 *.zhyi.xin，不够。
 }
