@@ -16,10 +16,22 @@
       sopsFile = inputs.secrets + "/common/cliproxyapi.yaml";
       key = "management-key";
     };
-    "cliproxyapi-api-key-1".sopsFile = inputs.secrets + "/common/cliproxyapi.yaml";
-    "cliproxyapi-api-key-2".sopsFile = inputs.secrets + "/common/cliproxyapi.yaml";
-    "cliproxyapi-api-key-3".sopsFile = inputs.secrets + "/common/cliproxyapi.yaml";
-    "cliproxyapi-api-key-4".sopsFile = inputs.secrets + "/common/cliproxyapi.yaml";
+    "cliproxyapi-api-key-1" = {
+      sopsFile = inputs.secrets + "/common/cliproxyapi.yaml";
+      key = "api-key-1";
+    };
+    "cliproxyapi-api-key-2" = {
+      sopsFile = inputs.secrets + "/common/cliproxyapi.yaml";
+      key = "api-key-2";
+    };
+    "cliproxyapi-api-key-3" = {
+      sopsFile = inputs.secrets + "/common/cliproxyapi.yaml";
+      key = "api-key-3";
+    };
+    "cliproxyapi-api-key-4" = {
+      sopsFile = inputs.secrets + "/common/cliproxyapi.yaml";
+      key = "api-key-4";
+    };
   };
 
   sops.templates.cliproxyapi-config = {
