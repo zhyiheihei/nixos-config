@@ -20,7 +20,7 @@ in
     # First visit to the web UI runs the graphical installer; SQLite is
     # created automatically, no external MySQL needed.
     virtualisation.oci-containers.containers.lsky-pro = {
-      image = "0xxb/lsky-pro:latest";
+      image = "docker.io/0xxb/lsky-pro:latest";
       labels."io.containers.autoupdate" = "registry";
       ports = [ "127.0.0.1:${LT.portStr.LskyPro}:8000" ];
       volumes = [
