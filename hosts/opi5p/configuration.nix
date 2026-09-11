@@ -225,8 +225,23 @@ in
   # 摄像头本地密码在 secrets/frigate.yaml（key: bedroom-pw / livingroom-pw），
   # rtspUrl 里的 sops 占位符由 sops 模板渲染时替换为真实密码。
   # 注意：乐橙 App 里需关闭 RTSP 加密（TLS），否则 frigate 拉流失败。
-  # One-KVM IP-KVM：板载 HDMI RX 采集 + Type-C OTG HID/MSD（详见 one-kvm.nix）
+  # One-KVM IP-KVM：板载 HDMI RX 采集 + Type-C OTG HID/MSD（详见 one-kvm.nix）。
+  # 首启直接播种 app_config + 管理员，跳过 Web setup 向导（2026-09-11 用户决策）。
+  # 实测硬件：HDMI RX 采集 = /dev/video0（stream_hdmirx，分辨率源自适应）。
+  # 音频不启用：card0（rockchip-hdmiin）无 PCM 采集节点，板载 es8388 采的是
+  # 板载 codec 而非被控机音频。UDC 仅 fc000000.usb 一个，留空自动选。
+  # 管理密码复用全舰队 sops default-pw。视频 60fps 为用户指定默认值。
   lantian.one-kvm.enable = true;
+  lantian.one-kvm.initialConfig = {
+    enable = true;
+    settings = {
+      video = {
+        device = "/dev/video0";
+        fps = 60;
+      };
+      hid.backend = "otg";
+    };
+  };
 
   # ws-scrcpy 网页版 scrcpy：浏览器镜像/控制 Android 设备（详见 ws-scrcpy.nix）。
   # 目标设备：redroid（TCP adb）+ 手机无线 adb（启用后把手机 IP:5555 加进 adbHosts）。
