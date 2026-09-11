@@ -55,7 +55,6 @@ in
         };
         # Image entrypoint skips the web installer and auto-migrates when
         # this lock file exists.
-        "/var/lib/lsky-pro/installed.lock"."f" = { };
       };
     };
 
@@ -141,6 +140,65 @@ in
       '';
     };
 
+    # Fresh-deployment bootstrap: on an empty lsky database, drive the
+    # official install API (/install/verify then POST /install) so the app
+    # creates its own schema. We must NOT pre-create installed.lock here:
+    # the "already installed" auto-migrate path cannot boot on an empty DB
+    # (Laravel reads the settings table before migrations run).
+    # The installer creates installed.lock itself on success.
+    systemd.services.lsky-pro-install = {
+      description = "Bootstrap Lsky Pro schema via the official install API";
+      after = [
+        "mysql.service"
+        "podman-lsky-pro.service"
+        "sops-install-secrets.service"
+      ];
+      requiredBy = [ "podman-lsky-pro.service" ];
+      before = [ "lsky-pro-seed.service" ];
+      serviceConfig = LT.serviceHarden // {
+        Type = "oneshot";
+        RemainAfterExit = true;
+        Restart = "on-failure";
+        RestartSec = "10s";
+        TimeoutStartSec = "15min";
+      };
+      path = [
+        config.services.mysql.package
+        pkgs.curl
+        pkgs.jq
+      ];
+      script = ''
+        license_key=$(<${config.sops.secrets.lsky-license-key.path})
+        admin_password=$(<${config.sops.secrets.default-pw.path})
+
+        tables=$(mysql --protocol=socket --user=root -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'lsky'")
+        if [ "$tables" -gt 0 ]; then
+          exit 0
+        fi
+
+        # Wait for the container's install endpoint to come up.
+        for i in $(seq 1 60); do
+          curl -sf -m 3 http://127.0.0.1:13835/install >/dev/null && break
+          sleep 5
+        done
+
+        curl -sf -X POST http://127.0.0.1:13835/install/verify \
+          -H 'Content-Type: application/json' -H 'Accept: application/json' \
+          -d "$(jq -cn --arg k "$license_key" '{license_key:$k,app_url:"https://pic.zhyi.xin"}')"
+
+        out=$(curl -sfN -X POST http://127.0.0.1:13835/install \
+          -H 'Content-Type: application/json' -H 'Accept: text/plain' \
+          -d "$(jq -cn \
+            --arg k "$license_key" --arg p "$admin_password" \
+            '{app_name:"Zhyi Image Host",db_connection:"mysql",db_host:"10.88.0.1",db_port:"3306",db_database:"lsky",db_username:"lsky",db_password:$p,admin_username:"zhyi",admin_email:"zhyi@zhyi.cc",admin_password:$p,license_key:$k}')")
+        echo "$out" | tail -20
+        echo "$out" | grep -q "程序安装成功" || {
+          echo "install API did not report success" >&2
+          exit 1
+        }
+      '';
+    };
+
     # Public entry: pic.zhyi.xin, wildcard cert synced from greencloud.
     lantian.nginxVhosts."pic.zhyi.xin" = {
       locations."/" = {
@@ -202,6 +260,7 @@ in
       after = [
         "mysql.service"
         "podman-lsky-pro.service"
+        "lsky-pro-install.service"
         "sops-install-secrets.service"
       ];
       requires = [ "podman-lsky-pro.service" ];
