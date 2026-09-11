@@ -1,0 +1,18 @@
+diff --git a/drivers/media/platform/rockchip/hdmirx/rk_hdmirx.c b/drivers/media/platform/rockchip/hdmirx/rk_hdmirx.c
+--- a/drivers/media/platform/rockchip/hdmirx/rk_hdmirx.c
++++ b/drivers/media/platform/rockchip/hdmirx/rk_hdmirx.c
+@@ -2633,5 +2633,13 @@
+ 	q->allow_cache_hints = 1;
+ 	q->bidirectional = 1;
+ 	q->dma_attrs = DMA_ATTR_FORCE_CONTIGUOUS;
+-	q->gfp_flags = GFP_DMA32;
++	/*
++	 * Vendor sets GFP_DMA32, but on arm64 kernels where ZONE_DMA covers
++	 * the whole 0-4GB window (39-bit VA + 16GB DRAM layout), ZONE_DMA32
++	 * is empty (spanned/present/managed = 0).  Any vb2 buffer allocation
++	 * then fails immediately with ENOMEM and hdmirx capture never works
++	 * (this is why Armbian ships hdmirx disabled in DT).  GFP_DMA keeps
++	 * allocations inside ZONE_DMA, which also contains the CMA reserve.
++	 */
++	q->gfp_flags = GFP_DMA;
+ 	return vb2_queue_init(q);

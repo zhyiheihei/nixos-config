@@ -24,21 +24,21 @@ let
   # Do not use lib.hasInfix as a guard here: recursively scanning this very
   # large generated .config exhausts Nix's evaluator stack.
   opi5pKernelConfig = builtins.toFile "rk35xx-vendor-opi5p-config" (
-      builtins.replaceStrings
-        [
-          "# CONFIG_ARM64_VA_BITS_39 is not set"
-          "CONFIG_ARM64_VA_BITS_48=y"
-          "CONFIG_ARM64_VA_BITS=48"
-          "CONFIG_IPV6=m"
-        ]
-        [
-          "CONFIG_ARM64_VA_BITS_39=y"
-          "# CONFIG_ARM64_VA_BITS_48 is not set"
-          "CONFIG_ARM64_VA_BITS=39"
-          "CONFIG_IPV6=y"
-        ]
-        vendorKernelConfig
-    );
+    builtins.replaceStrings
+      [
+        "# CONFIG_ARM64_VA_BITS_39 is not set"
+        "CONFIG_ARM64_VA_BITS_48=y"
+        "CONFIG_ARM64_VA_BITS=48"
+        "CONFIG_IPV6=m"
+      ]
+      [
+        "CONFIG_ARM64_VA_BITS_39=y"
+        "# CONFIG_ARM64_VA_BITS_48 is not set"
+        "CONFIG_ARM64_VA_BITS=39"
+        "CONFIG_IPV6=y"
+      ]
+      vendorKernelConfig
+  );
 in
 (crossPkgs.callPackage (rk3588NixSource + "/pkgs/kernel/vendor.nix") {
   # Keep gnull's tested Armbian vendor-kernel packaging intact and replace
@@ -69,5 +69,10 @@ in
       # 启用板载 HDMI RX（hdmirx_ctrler），配合 256MB CMA 预留（vendor DT
       # reserved-memory 节点已就位）；驱动 CONFIG_VIDEO_ROCKCHIP_HDMIRX=y 已内置。
       ../../nixos/hardware/orangepi-5-plus/vendor-hdmirx.patch
+      # vendor 驱动硬编码 GFP_DMA32，但本内核（39-bit VA + 16GB）ZONE_DMA32
+      # 为空 zone，vb2 缓冲分配必 ENOMEM，hdmirx 采集完全不可用（Armbian
+      # 因此在 DT 里默认禁用 hdmirx）。改用 GFP_DMA（ZONE_DMA = 0-4GB，
+      # CMA 预留区在其中）。
+      ../../nixos/hardware/orangepi-5-plus/vendor-hdmirx-gfp-dma.patch
     ];
   })
