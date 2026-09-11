@@ -255,8 +255,8 @@ in
           # seed; everything else stays whatever the app created)
           upsert_setting() {
             {
-              echo "DELETE FROM settings WHERE \\`group\\` = '$1' AND name = '$2';"
-              echo "INSERT INTO settings (\\`group\\`, name, locked, payload, created_at, updated_at)"
+              echo "DELETE FROM settings WHERE \`group\` = '$1' AND name = '$2';"
+              echo "INSERT INTO settings (\`group\`, name, locked, payload, created_at, updated_at)"
               echo "  VALUES ('$1', '$2', 0, '$3', NOW(), NOW());"
             } | ${mysqlCmd}
           }
