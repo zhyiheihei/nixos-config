@@ -33,6 +33,10 @@ src.regex = "AGENT_VERSION = \"([0-9\\.]+)\""
 url.name = "peerfinder-agent.py"
 
 [dnscontrol-xddxdd]
+# pin 在 v4 版本（913a947）：v5 迁移后 gcore provider 用 LabelFromFQDNWithDot 处理
+# 不带尾点的 FQDN（gcore v2 API 实际返回格式），记录名被拼成 zhyi.xin.zhyi.xin，
+# preview 会报千条 DELETE/CREATE；上游 master 尚未修复。上游修复后取消 pinned。
+pinned = true
 fetch.github = "xddxdd/dnscontrol"
 src.git = "https://github.com/xddxdd/dnscontrol.git"
 

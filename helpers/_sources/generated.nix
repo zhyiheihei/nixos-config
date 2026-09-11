@@ -3,7 +3,6 @@
   fetchgit,
   fetchurl,
   fetchFromGitHub,
-  dockerTools,
 }:
 {
   airplanes-live-mcp = {
@@ -81,15 +80,15 @@
   };
   dnscontrol-xddxdd = {
     pname = "dnscontrol-xddxdd";
-    version = "aae5bfb1e5c2128cf3319ddb2388117f750c4dfa";
+    version = "913a94772c1ba09f3e5b623cd50d572951b9ea79";
     src = fetchFromGitHub {
       owner = "xddxdd";
       repo = "dnscontrol";
-      rev = "aae5bfb1e5c2128cf3319ddb2388117f750c4dfa";
+      rev = "913a94772c1ba09f3e5b623cd50d572951b9ea79";
       fetchSubmodules = false;
-      sha256 = "sha256-HTSYExYkuZok+UBiYGz23qS7IW9BDYd+bQsuVHMuBPw=";
+      sha256 = "sha256-wHMKwgEPSAw0GlS7euhvl/QQxIyPTd+fw+JcMqR6QlQ=";
     };
-    date = "2026-09-10";
+    date = "2026-08-08";
   };
   grafana-falconlogscale-datasource = {
     pname = "grafana-falconlogscale-datasource";

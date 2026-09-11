@@ -122,7 +122,7 @@
     },
     "dnscontrol-xddxdd": {
         "cargoLock": null,
-        "date": "2026-09-10",
+        "date": "2026-08-08",
         "extract": null,
         "name": "dnscontrol-xddxdd",
         "passthru": null,
@@ -134,12 +134,12 @@
             "name": null,
             "owner": "xddxdd",
             "repo": "dnscontrol",
-            "rev": "aae5bfb1e5c2128cf3319ddb2388117f750c4dfa",
-            "sha256": "sha256-HTSYExYkuZok+UBiYGz23qS7IW9BDYd+bQsuVHMuBPw=",
+            "rev": "913a94772c1ba09f3e5b623cd50d572951b9ea79",
+            "sha256": "sha256-wHMKwgEPSAw0GlS7euhvl/QQxIyPTd+fw+JcMqR6QlQ=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "aae5bfb1e5c2128cf3319ddb2388117f750c4dfa"
+        "version": "913a94772c1ba09f3e5b623cd50d572951b9ea79"
     },
     "grafana-falconlogscale-datasource": {
         "cargoLock": null,
