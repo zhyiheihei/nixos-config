@@ -68,10 +68,8 @@ in
         bitwarden-desktop
         brotli
         bzip2
-        cherry-studio
-        code-cursor
         colmena
-        ecapture
+        # ecapture
         exiftool
         feishin
         ffmpeg-full
@@ -106,6 +104,7 @@ in
         microcom
         microfetch
         moonlight-qt
+        nur-xddxdd.baidunetdisk
         nur-xddxdd.baidupcs-go
         nur-xddxdd.browseros
         nur-xddxdd.cardpointers-cli

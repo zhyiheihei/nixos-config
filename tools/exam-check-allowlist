@@ -17,7 +17,7 @@ home/client-apps/firefox/default.nix # 扩展与搜索配置差异（zeroomega �
 home/client-apps/git.nix # fork 签名 key
 home/client-apps/pi-web.nix # fork 主机 ml-laptop 接入 pi-web 门控（0a87bd745，主机名/用户名条件扩展）
 home/client-apps/plasma.nix # Xwayland DPI 竞态修复（fork 自维护；上游独立修复后可对齐）
-home/client-apps/packages.nix # fork 追加 cherry-studio/code-cursor/siyuan，ecapture 启用，svp 换 ml-laptop（个人软件选择）
+home/client-apps/packages.nix # fork 追加 siyuan/baidunetdisk，svp 换 ml-laptop（个人软件选择）
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
 nixos/client-components/grub-theme.nix # extraInstallCommands mkForce（主题安装 fork 化）
 nixos/common-apps/coredns.nix # fork 解析链重写（pdns/netns 差异，配合 server-apps/coredns）
