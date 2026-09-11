@@ -218,6 +218,25 @@ in
           upsert_setting app enable_site true
           upsert_setting app enable_registration false
           upsert_setting app guest_upload false
+
+          # --- outgoing mail driver: mirrors the fleet msmtp account
+          # (programs.msmtp in minimal-components/smtp.nix) the same way
+          # grafana/plausible/pocket-id consume it.
+          smtp_password=$(<${config.sops.secrets.smtp-pass.path})
+          mail_options=$(jq -cn \
+            --arg host "${config.programs.msmtp.accounts.default.host}" \
+            --arg port "${builtins.toString config.programs.msmtp.accounts.default.port}" \
+            --arg user "${config.programs.msmtp.accounts.default.user}" \
+            --arg pass "$smtp_password" \
+            --arg from "${config.programs.msmtp.accounts.default.from}" \
+            '{from_address:$from,from_name:"Zhyi Image Host",host:$host,port:$port,encryption:"starttls",username:$user,password:$pass}')
+          ${mysqlCmd} <<SQL
+          INSERT INTO drivers (type, name, intro, options, created_at, updated_at)
+            SELECT 'mail', 'AhaSend', 'fleet ahasend relay (msmtp account)', '$(esc_json "$mail_options")', NOW(), NOW()
+            WHERE NOT EXISTS (SELECT 1 FROM drivers WHERE type = 'mail');
+          UPDATE drivers SET name = 'AhaSend', intro = 'fleet ahasend relay (msmtp account)', options = '$(esc_json "$mail_options")', updated_at = NOW()
+            WHERE type = 'mail';
+          SQL
         '';
     };
 
