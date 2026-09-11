@@ -97,6 +97,13 @@ let
     }
     {
       recordType = "CNAME";
+      # Lsky Pro 图床（tencent）。
+      name = "pic";
+      target = "tencent.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "dashboard";
       target = "tencent.zhyi.xin.";
       ttl = "1h";

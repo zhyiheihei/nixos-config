@@ -51,6 +51,7 @@ _: [
   "n8n.zhyi.xin"
   "nav.zhyi.xin"
   "pb.zhyi.xin"
+  "pic.zhyi.xin"
   "prometheus.zhyi.xin"
   "qnap.zhyi.xin"
   "radicle.zhyi.xin"

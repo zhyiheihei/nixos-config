@@ -1,4 +1,4 @@
-{ lib, LT, ... }:
+{ LT, ... }:
 {
   imports = [
     ../../nixos/server.nix
@@ -12,6 +12,8 @@
     ../../nixos/optional-apps/prometheus
     ../../nixos/optional-apps/searxng.nix
     ../../nixos/optional-apps/clawemail.nix
+    # 2026-09-11 新增：Lsky Pro 图床（pic.zhyi.xin），官方 Docker 镜像。
+    ../../nixos/optional-apps/lsky-pro.nix
     # 2026-09-02 自 rock5c 迁入（warrior 镜像仅有 amd64 变体，aarch64 主机
     # 无法运行；与 clawemail 同一决策，见 690b0d26）。
     ../../nixos/optional-apps/archiveteam.nix
@@ -26,6 +28,9 @@
 
   # DSH web UI（dsh.zhyi.xin，Dex OIDC 登录，模型走 UniAPI）
   lantian.dsh-web.enable = true;
+
+  # Lsky Pro 图床（pic.zhyi.xin，官方 Docker 镜像）
+  lantian.lskyPro.enable = true;
 
   # 个人服务门户（nav.zhyi.xin，原生 OIDC 登录，卡片由求值期生成）
   lantian.navdash.enable = true;

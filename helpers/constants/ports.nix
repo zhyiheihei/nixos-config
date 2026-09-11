@@ -132,6 +132,7 @@ rec {
     Ignis = 13832;
     Navdash = 13833;
     Syncthing = 13834;
+    LskyPro = 13835;
     # EPD 家庭食品存储看板（zhyi-packages.epd-food-server）
     EpdFoodDashboard = 13836;
     Usque = 13840;
