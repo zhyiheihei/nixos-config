@@ -1,0 +1,15 @@
+# header_passthrough 的透传逻辑会先无条件删除 outgoing 头再仅在客户端
+# 带同名头时回填，导致 preferences.headers 里的静态兜底值（如 opencode.ai
+# Go 端点要求的 x-opencode-session）被自己删掉。改为只在客户端确实提供
+# 该头时才覆盖，否则保留静态兜底值。
+--- a/uni_api/providers/header_passthrough.py
++++ b/uni_api/providers/header_passthrough.py
+@@ -28,7 +28,7 @@
+     request_headers = getattr(http_request, "headers", None) if http_request is not None else None
+     for header_name in passthrough_names:
+-        _remove_header_case_insensitive(headers, header_name)
+         value = _get_header_case_insensitive(request_headers, header_name)
+         if value is not None and str(value) != "":
++            _remove_header_case_insensitive(headers, header_name)
+             headers[header_name] = str(value)
+ 

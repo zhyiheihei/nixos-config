@@ -64,7 +64,7 @@ nixos/optional-apps/plausible.nix # geonames 文件修复（greencloud 迁移后
 nixos/optional-apps/prometheus/alertmanager.nix # ExecStartPre 实现变体（attrset 内联 vs writeShellScript，二选一对齐）
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）
-nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控
+nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射 + header-fallback 补丁
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）
 nixos/optional-apps/zerotierone-controller.nix # relays null 过滤（fork 主机 zerotier 可为 null）
 nixos/optional-cron-jobs/testssl.nix # google-test 站点移除

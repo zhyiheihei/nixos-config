@@ -9,7 +9,13 @@
 }:
 let
   uni-api-patched = pkgs.nur-xddxdd.uni-api.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ../../patches/uni-api-fix-tool-parameters.patch ];
+    patches = (old.patches or [ ]) ++ [
+      ../../patches/uni-api-fix-tool-parameters.patch
+      # header_passthrough 会先无条件删除 outgoing 同名头，导致
+      # preferences.headers 静态兑底值被透传逻辑自己删掉（opencode.ai Go
+      # 端点要求 x-opencode-session 会话头）。补丁后仅客户端带该头时才覆盖。
+      ../../patches/uni-api-header-fallback.patch
+    ];
   });
 
   uniApiConfig = {
@@ -34,6 +40,9 @@ let
       })
       // (lib.optionalAttrs (v.engine != null) {
         inherit (v) engine;
+      })
+      // (lib.optionalAttrs (v._preferences != null) {
+        preferences = v._preferences;
       })
     ) (builtins.sort (a: b: a._score < b._score) config.lantian.llm-providers);
 
