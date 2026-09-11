@@ -21,11 +21,13 @@ in
 
   config = lib.mkIf cfg.enable {
     # Official Docker image (FrankenPHP + libvips, bundled queue/scheduler).
-    # Fully declarative bootstrap, no web installer: the data dir ships an
-    # installed.lock (image entrypoint then auto-runs migrations on boot),
-    # APP_KEY is generated on first preStart, and all runtime rows (site
-    # settings, S3 storage policy, admin account) are seeded idempotently
-    # by lsky-pro-seed.service below.
+    # Bootstrap mirrors halo.nix: container + MySQL provisioning, and a
+    # single oneshot (lsky-pro-setup) that drives the official install API
+    # on a fresh data dir and applies the declarative rows afterwards.
+    # Never pre-create /var/lib/lsky-pro/.env or installed.lock: the image
+    # entrypoint decides "already installed" by the existence of .env, and
+    # the auto-migrate path cannot boot on an empty DB (Laravel reads the
+    # settings table before migrations run).
     # Bridge networking with a published loopback port: the image's bundled
     # Caddyfile hardcodes listening on :8000 and does not read any port env,
     # and host networking would collide with bird-lgproxy-go on :8000.
@@ -41,40 +43,17 @@ in
       ];
     };
 
-    systemd.tmpfiles.settings = {
-      lsky-pro = {
-        "/var/lib/lsky-pro"."d" = {
-          mode = "755";
-          user = "root";
-          group = "root";
-        };
-        "/var/lib/lsky-pro/themes"."d" = {
-          mode = "755";
-          user = "root";
-          group = "root";
-        };
-        # Image entrypoint skips the web installer and auto-migrates when
-        # this lock file exists.
+    systemd.tmpfiles.settings.lsky-pro = {
+      "/var/lib/lsky-pro"."d" = {
+        mode = "755";
+        user = "root";
+        group = "root";
       };
-    };
-
-    # Write the installer-facing .env directly into the persistent data dir:
-    # the container mounts /var/lib/lsky-pro as /app/storage/app and reads
-    # .env from there. DB password is the fleet-wide default-pw secret;
-    # APP_KEY/APP_URL stay for the installer to fill (it only writes keys
-    # that are still empty/placeholder).
-    sops.templates.lsky-pro-env = {
-      content = ''
-        DB_CONNECTION=mysql
-        DB_HOST=10.88.0.1
-        DB_PORT=3306
-        DB_DATABASE=lsky
-        DB_USERNAME=lsky
-        DB_PASSWORD=${config.sops.placeholder.default-pw}
-      '';
-      # Owned by root: rendered at /run/secrets/rendered, copied into place
-      # by the preStart below.
-      mode = "0400";
+      "/var/lib/lsky-pro/themes"."d" = {
+        mode = "755";
+        user = "root";
+        group = "root";
+      };
     };
 
     sops.secrets = {
@@ -118,113 +97,8 @@ in
       };
     };
 
-    systemd.services.podman-lsky-pro = {
-      preStart = lib.mkAfter ''
-        mkdir -p /var/lib/lsky-pro
-        # Merge DB settings into the container-generated .env: keep any
-        # existing non-DB lines (APP_KEY etc.) from the installer, replace
-        # or append our DB_* directives.
-        envFile=/var/lib/lsky-pro/.env
-        touch "$envFile"
-        for key in DB_CONNECTION DB_HOST DB_PORT DB_DATABASE DB_USERNAME DB_PASSWORD; do
-          sed -i "/^$key=/d" "$envFile"
-        done
-        sed -i "/^# DB_/d" "$envFile"
-        cat ${config.sops.templates.lsky-pro-env.path} >> "$envFile"
-        # Fresh-deployment path (no web installer): Laravel refuses to boot
-        # without APP_KEY, so generate one into .env on first run.
-        if ! grep -q '^APP_KEY=.' "$envFile"; then
-          sed -i "/^APP_KEY=/d" "$envFile"
-          echo "APP_KEY=base64:$(${pkgs.openssl}/bin/openssl rand -base64 32)" >> "$envFile"
-        fi
-      '';
-    };
-
-    # Fresh-deployment bootstrap: on an empty lsky database, drive the
-    # official install API (/install/verify then POST /install) so the app
-    # creates its own schema. We must NOT pre-create installed.lock here:
-    # the "already installed" auto-migrate path cannot boot on an empty DB
-    # (Laravel reads the settings table before migrations run).
-    # The installer creates installed.lock itself on success.
-    systemd.services.lsky-pro-install = {
-      description = "Bootstrap Lsky Pro schema via the official install API";
-      after = [
-        "mysql.service"
-        "podman-lsky-pro.service"
-        "sops-install-secrets.service"
-      ];
-      requiredBy = [ "podman-lsky-pro.service" ];
-      before = [ "lsky-pro-seed.service" ];
-      serviceConfig = LT.serviceHarden // {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        Restart = "on-failure";
-        RestartSec = "10s";
-        TimeoutStartSec = "15min";
-      };
-      path = [
-        config.services.mysql.package
-        pkgs.curl
-        pkgs.jq
-      ];
-      script = ''
-        license_key=$(<${config.sops.secrets.lsky-license-key.path})
-        admin_password=$(<${config.sops.secrets.default-pw.path})
-
-        tables=$(mysql --protocol=socket --user=root -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'lsky'")
-        if [ "$tables" -gt 0 ]; then
-          exit 0
-        fi
-
-        # Wait for the container's install endpoint to come up.
-        for i in $(seq 1 60); do
-          curl -sf -m 3 http://127.0.0.1:13835/install >/dev/null && break
-          sleep 5
-        done
-
-        curl -sf -X POST http://127.0.0.1:13835/install/verify \
-          -H 'Content-Type: application/json' -H 'Accept: application/json' \
-          -d "$(jq -cn --arg k "$license_key" '{license_key:$k,app_url:"https://pic.zhyi.xin"}')"
-
-        out=$(curl -sfN -X POST http://127.0.0.1:13835/install \
-          -H 'Content-Type: application/json' -H 'Accept: text/plain' \
-          -d "$(jq -cn \
-            --arg k "$license_key" --arg p "$admin_password" \
-            '{app_name:"Zhyi Image Host",db_connection:"mysql",db_host:"10.88.0.1",db_port:"3306",db_database:"lsky",db_username:"lsky",db_password:$p,admin_username:"zhyi",admin_email:"zhyi@zhyi.cc",admin_password:$p,license_key:$k}')")
-        echo "$out" | tail -20
-        echo "$out" | grep -q "程序安装成功" || {
-          echo "install API did not report success" >&2
-          exit 1
-        }
-      '';
-    };
-
-    # Public entry: pic.zhyi.xin, wildcard cert synced from greencloud.
-    lantian.nginxVhosts."pic.zhyi.xin" = {
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.LskyPro}";
-        proxyWebsockets = true;
-        proxyNoTimeout = true;
-      };
-      sslCertificate = "lets-encrypt-zhyi.xin";
-      noIndex.enable = true;
-    };
-
-    # Provision the MySQL database/user up front; the web installer just
-    # fills in these values. mysql.nix binds MariaDB to 127.0.0.1; the relay
-    # unit exposes it to the container via the podman0 gateway, so the lsky
-    # user is granted access from the podman subnet (mirrors halo.nix's
-    # dedicated-user pattern but with the shared default-pw secret).
-    services.mysql.ensureDatabases = [ "lsky" ];
-    services.mysql.ensureUsers = [
-      {
-        name = "lsky";
-        ensurePermissions = {
-          "lsky.*" = "ALL PRIVILEGES";
-        };
-      }
-    ];
-
+    # Provision the database/user the installer will fill in (halo.nix
+    # pattern). The container connects from the podman subnet via the relay.
     systemd.services.lsky-pro-mysql-user = {
       description = "Grant lsky MySQL user access from the podman subnet";
       after = [
@@ -249,34 +123,29 @@ in
       '';
     };
 
-    # Idempotent declarative seeding of all runtime state the web installer
-    # would otherwise create: site settings, the S3 storage policy (dedicated
-    # VaultS3 IAM key from sops), the admin account (bcrypt of fleet
-    # default-pw) and its storage binding. Lsky Pro+ is closed-source, so
-    # rows are written straight to MariaDB (settings payload is JSON per its
-    # Laravel cast; users.password is PHP bcrypt).
-    systemd.services.lsky-pro-seed = {
-      description = "Seed Lsky Pro settings/storage/admin declaratively";
+    # On a fresh data dir, drive the official install API so the app creates
+    # its own schema, .env and admin account; then apply the declarative
+    # rows the install API cannot set (S3 storage policy, site toggles).
+    # Idempotent: skips both halves once the database is populated.
+    systemd.services.lsky-pro-setup = {
+      description = "Bootstrap and declaratively configure Lsky Pro";
       after = [
         "mysql.service"
         "podman-lsky-pro.service"
-        "lsky-pro-install.service"
         "sops-install-secrets.service"
       ];
-      requires = [ "podman-lsky-pro.service" ];
       requiredBy = [ "podman-lsky-pro.service" ];
-      # Tables may not exist yet on a fresh data dir (migrations run inside
-      # the container entrypoint); retry until they do.
       serviceConfig = LT.serviceHarden // {
         Type = "oneshot";
         RemainAfterExit = true;
         Restart = "on-failure";
         RestartSec = "10s";
+        TimeoutStartSec = "15min";
       };
       path = [
         config.services.mysql.package
+        pkgs.curl
         pkgs.jq
-        pkgs.php
       ];
       script =
         let
@@ -290,6 +159,30 @@ in
 
           esc() { printf %s "$1" | sed -e 's/\\/\\\\/g' -e "s/'/\\\\'/g"; }
           esc_json() { printf %s "$1" | sed -e 's/\\/\\\\\\/g' -e "s/'/\\\\'/g"; }
+
+          tables=$(mysql --protocol=socket --user=root -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = 'lsky'")
+          if [ "$tables" = 0 ]; then
+            # Wait for the container's install endpoint to come up.
+            for i in $(seq 1 60); do
+              curl -sf -m 3 http://127.0.0.1:13835/install >/dev/null && break
+              sleep 5
+            done
+
+            curl -sf -X POST http://127.0.0.1:13835/install/verify \
+              -H 'Content-Type: application/json' -H 'Accept: application/json' \
+              -d "$(jq -cn --arg k "$license_key" '{license_key:$k,app_url:"https://pic.zhyi.xin"}')"
+
+            out=$(curl -sfN -X POST http://127.0.0.1:13835/install \
+              -H 'Content-Type: application/json' -H 'Accept: text/plain' \
+              -d "$(jq -cn \
+                --arg k "$license_key" --arg p "$admin_password" \
+                '{app_name:"Zhyi Image Host",db_connection:"mysql",db_host:"10.88.0.1",db_port:"3306",db_database:"lsky",db_username:"lsky",db_password:$p,admin_username:"zhyi",admin_email:"zhyi@zhyi.cc",admin_password:$p}')")
+            echo "$out" | tail -20
+            echo "$out" | grep -q "程序安装成功" || {
+              echo "install API did not report success" >&2
+              exit 1
+            }
+          fi
 
           # --- storage policy: VaultS3 on greencloud-jp, path-style, no
           # prefix (Lsky builds the public URL from prefix but stores the
@@ -311,8 +204,8 @@ in
               );
           SQL
 
-          # --- site settings (only keys declared here are owned by the
-          # seed; everything else stays whatever the app created)
+          # --- site toggles (only keys declared here are owned by the
+          # seed; everything else stays whatever the installer created)
           upsert_setting() {
             {
               echo "DELETE FROM settings WHERE \`group\` = '$1' AND name = '$2';"
@@ -320,32 +213,23 @@ in
               echo "  VALUES ('$1', '$2', 0, '$3', NOW(), NOW());"
             } | ${mysqlCmd}
           }
-          upsert_setting app name '"Zhyi Image Host"'
-          upsert_setting app url '"https://pic.zhyi.xin"'
-          license_json="\"$(esc "$license_key")\""
-          upsert_setting app license_key "$license_json"
           upsert_setting app timezone '"Asia/Shanghai"'
           upsert_setting app locale '"zh_CN"'
-          upsert_setting app currency '"CNY"'
           upsert_setting app enable_site true
           upsert_setting app enable_registration false
           upsert_setting app guest_upload false
-
-          # --- initial admin: username zhyi, password = fleet default-pw
-          admin_hash=$(php -r 'echo password_hash($argv[1], PASSWORD_BCRYPT);' "$admin_password")
-          admin_id=$(${mysqlCmd} -N -e "SELECT id FROM users WHERE username = 'zhyi' LIMIT 1")
-          if [ -z "$admin_id" ]; then
-            {
-              echo "INSERT INTO users (avatar, name, username, email, password, location, url, company, company_title, tagline, bio, is_admin, status, email_verified_at, created_at, updated_at)"
-              echo "  VALUES (''', 'zhyi', 'zhyi', 'zhyi@zhyi.cc', '$(esc "$admin_hash")', ''', ''', ''', ''', ''', ''', 1, 'normal', NOW(), NOW(), NOW());"
-            } | ${mysqlCmd}
-          else
-            {
-              echo "UPDATE users SET password = '$(esc "$admin_hash")', email = 'zhyi@zhyi.cc', is_admin = 1, status = 'normal',"
-              echo "  email_verified_at = COALESCE(email_verified_at, NOW()), updated_at = NOW() WHERE id = $admin_id;"
-            } | ${mysqlCmd}
-          fi
         '';
+    };
+
+    # Public entry: pic.zhyi.xin, wildcard cert synced from greencloud.
+    lantian.nginxVhosts."pic.zhyi.xin" = {
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.LskyPro}";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+      };
+      sslCertificate = "lets-encrypt-zhyi.xin";
+      noIndex.enable = true;
     };
   };
 }
