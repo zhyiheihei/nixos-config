@@ -262,7 +262,8 @@ in
           }
           upsert_setting app name '"Zhyi Image Host"'
           upsert_setting app url '"https://pic.zhyi.xin"'
-          upsert_setting app license_key "'$(esc "$license_key")'"
+          license_json="\"$(esc "$license_key")\""
+          upsert_setting app license_key "$license_json"
           upsert_setting app timezone '"Asia/Shanghai"'
           upsert_setting app locale '"zh_CN"'
           upsert_setting app currency '"CNY"'
