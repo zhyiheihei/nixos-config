@@ -8,6 +8,7 @@
 }:
 let
   cfg = config.lantian.lskyPro;
+  glauthUsers = import (inputs.secrets + "/glauth-users.nix");
 in
 {
   options.lantian.lskyPro = {
@@ -176,7 +177,7 @@ in
               -H 'Content-Type: application/json' -H 'Accept: text/plain' \
               -d "$(jq -cn \
                 --arg k "$license_key" --arg p "$admin_password" \
-                '{app_name:"Zhyi Image Host",db_connection:"mysql",db_host:"10.88.0.1",db_port:"3306",db_database:"lsky",db_username:"lsky",db_password:$p,admin_username:"zhyi",admin_email:"zhyi@zhyi.cc",admin_password:$p}')")
+                '{app_name:"Zhyi Image Host",db_connection:"mysql",db_host:"10.88.0.1",db_port:"3306",db_database:"lsky",db_username:"lsky",db_password:$p,admin_username:"zhyi",admin_email:"${glauthUsers.zhyi.mail}",admin_password:$p}')")
             echo "$out" | tail -20
             echo "$out" | grep -q "程序安装成功" || {
               echo "install API did not report success" >&2
@@ -218,6 +219,11 @@ in
           upsert_setting app enable_site true
           upsert_setting app enable_registration false
           upsert_setting app guest_upload false
+
+          # --- keep the installer-created admin aligned with the declared
+          # identity (the install API only sets email on first install)
+          ${mysqlCmd} -N -e "SELECT COUNT(*) FROM users WHERE username = 'zhyi'" | grep -q '^0$' || \
+            ${mysqlCmd} -e "UPDATE users SET email = '${glauthUsers.zhyi.mail}' WHERE username = 'zhyi';"
 
           # --- outgoing mail driver: mirrors the fleet msmtp account
           # (programs.msmtp in minimal-components/smtp.nix) the same way
