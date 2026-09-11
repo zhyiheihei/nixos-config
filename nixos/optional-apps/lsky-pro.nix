@@ -182,6 +182,7 @@ in
         password=$(<${config.sops.secrets.default-pw.path})
         escaped_password=$(printf %s "$password" | sed -e 's/\\/\\\\/g' -e "s/'/\\\\'/g")
         mysql --protocol=socket --user=root <<SQL
+        CREATE DATABASE IF NOT EXISTS lsky CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
         CREATE USER IF NOT EXISTS 'lsky'@'10.88.%' IDENTIFIED BY '$escaped_password';
         ALTER USER 'lsky'@'10.88.%' IDENTIFIED BY '$escaped_password';
         GRANT ALL PRIVILEGES ON lsky.* TO 'lsky'@'10.88.%';
