@@ -137,6 +137,17 @@ in
           command = "uvx";
           args = [ "mcp-nixos" ];
         };
+        # 思源笔记：token 存在用户 workspace 的 conf.json 里，运行时读取，
+        # 用户在思源里重置 token 后无需改配置
+        siyuan = {
+          command = toString (
+            pkgs.writeShellScript "mcp-siyuan" ''
+              exec ${pkgs.nodejs}/bin/npx -y @porkll/siyuan-mcp stdio \
+                --token "$(${pkgs.jq}/bin/jq -r .api.token /home/zhyi/SiYuan/conf/conf.json)" \
+                --baseUrl http://127.0.0.1:6806
+            ''
+          );
+        };
         # keep-sorted end
       }
       // lib.optionalAttrs (config.networking.hostName == "lt-hp-omen") {
