@@ -21,60 +21,104 @@ let
       config.sops.secrets.default-pw.path;
 
   # argon2-cffi 与上游 Rust argon2 crate 同为 PHC 字符串格式，验证端只认
-  # 哈希串内自带的算法/参数，互操作无问题（lib.argon2 无 CLI，故用 python）。
-  hashEnv = pkgs.python3.withPackages (ps: [ ps.argon2-cffi ]);
+  # 哈希串自带的算法/参数，互操作无问题（lib.argon2 无 CLI，故用 python）。
+  # sqlite3/json 均为 python 标准库，播种无需额外 CLI 依赖。
+  seedScript =
+    pkgs.writers.writePython3 "one-kvm-seed"
+      {
+        libraries = [ pkgs.python3Packages.argon2-cffi ];
+        flakeIgnore = [
+          "E501"
+          "W292"
+        ];
+      }
+      ''
+        import argparse
+        import json
+        import os
+        import sqlite3
+        import sys
+        import uuid
 
-  seedScript = pkgs.writeShellScript "one-kvm-seed" ''
-    set -eu
-    sqlite3=${pkgs.sqlite}/bin/sqlite3
-    jq=${pkgs.jq}/bin/jq
-    sed=${pkgs.gnused}/bin/sed
-    tr=${pkgs.coreutils}/bin/tr
-    base64=${pkgs.coreutils}/bin/base64
-    head=${pkgs.coreutils}/bin/head
-    cat=${pkgs.coreutils}/bin/cat
-    mkdir=${pkgs.coreutils}/bin/mkdir
-    printfbin=${pkgs.coreutils}/bin/printf
+        import argon2
 
-    db="${cfg.dataDir}/one-kvm.db"
-    "$mkdir" -p "${cfg.dataDir}"
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--data-dir", required=True)
+        parser.add_argument("--username", required=True)
+        parser.add_argument("--password-file", required=True)
+        parser.add_argument("--defaults", required=True)
+        parser.add_argument("--settings", required=True)
+        args = parser.parse_args()
 
-    # 幂等：users 表已有行 = 已初始化，绝不覆盖已运行实例
-    if [ -f "$db" ] && [ "$("$sqlite3" "$db" "SELECT COUNT(*) FROM users;")" != "0" ]; then
-      exit 0
-    fi
+        os.makedirs(args.data_dir, exist_ok=True)
+        db_path = os.path.join(args.data_dir, "one-kvm.db")
+        conn = sqlite3.connect(db_path)
 
-    # 只建最小两表，其余表由容器启动时 CREATE TABLE IF NOT EXISTS 自动补齐
-    "$sqlite3" "$db" <<'EOF'
-    CREATE TABLE IF NOT EXISTS config (
-      key TEXT PRIMARY KEY,
-      value TEXT NOT NULL,
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-    CREATE TABLE IF NOT EXISTS users (
-      id TEXT PRIMARY KEY,
-      username TEXT NOT NULL UNIQUE,
-      password_hash TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-    EOF
+        # 幂等：users 表已有行 = 已初始化，绝不覆盖已运行实例
+        try:
+            if conn.execute("SELECT COUNT(*) FROM users").fetchone()[0] != 0:
+                sys.exit(0)
+        except sqlite3.OperationalError:
+            pass
 
-    base=$("$sqlite3" "$db" "SELECT value FROM config WHERE key='app_config';")
-    if [ -z "$base" ]; then
-      base=$("$cat" ${defaultsJSON})
-    fi
-    merged=$("$printfbin" '%s' "$base" | "$jq" -S --slurpfile ov ${pkgs.writeText "one-kvm-seed-settings.json" (builtins.toJSON cfg.initialConfig.settings)} '$ov[0] as $o | (. * $o) | .initialized = true')
+        # 只建最小两表，其余表由容器启动时 CREATE TABLE IF NOT EXISTS 自动补齐
+        conn.executescript(
+            """
+        CREATE TABLE IF NOT EXISTS config (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL,
+          updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+        CREATE TABLE IF NOT EXISTS users (
+          id TEXT PRIMARY KEY,
+          username TEXT NOT NULL UNIQUE,
+          password_hash TEXT NOT NULL,
+          created_at TEXT NOT NULL DEFAULT (datetime('now')),
+          updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+        """
+        )
 
-    esc=$("$printfbin" '%s' "$merged" | "$sed" "s/'/'''/g")
-    "$sqlite3" "$db" "INSERT INTO config (key,value,updated_at) VALUES ('app_config','$esc',datetime('now')) ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=datetime('now');"
+        row = conn.execute(
+            "SELECT value FROM config WHERE key = 'app_config'"
+        ).fetchone()
+        with open(args.defaults) as f:
+            base = json.loads(row[0]) if row else json.load(f)
+        with open(args.settings) as f:
+            settings = json.load(f)
 
-    pw=$("$tr" -d '\r\n' < ${passwordFile})
-    hash=$("$printfbin" '%s' "$pw" | ${hashEnv}/bin/python3 -c 'import sys,argon2; print(argon2.PasswordHasher().hash(sys.stdin.read()))')
-    uid=$(cat /proc/sys/kernel/random/uuid)
-    user=$("$printfbin" '%s' '${cfg.initialConfig.username}' | "$sed" "s/'/'''/g")
-    "$sqlite3" "$db" "INSERT INTO users (id,username,password_hash) VALUES ('$uid','$user','$hash');"
-  '';
+
+        def deep_merge(base, override):
+            if isinstance(base, dict) and isinstance(override, dict):
+                merged = dict(base)
+                for key, value in override.items():
+                    merged[key] = deep_merge(merged.get(key), value)
+                return merged
+            return override
+
+
+        merged = deep_merge(base, settings)
+        merged["initialized"] = True
+
+        conn.execute(
+            "INSERT INTO config (key, value, updated_at) VALUES ('app_config', ?, datetime('now')) "
+            "ON CONFLICT(key) DO UPDATE SET value = excluded.value, "
+            "updated_at = datetime('now')",
+            (json.dumps(merged),),
+        )
+
+        with open(args.password_file) as f:
+            password = f.read().rstrip("\r\n")
+        conn.execute(
+            "INSERT INTO users (id, username, password_hash) VALUES (?, ?, ?)",
+            (
+                str(uuid.uuid4()),
+                args.username,
+                argon2.PasswordHasher().hash(password),
+            ),
+        )
+        conn.commit()
+      '';
 in
 {
   # One-KVM（Rust 版）IP-KVM，silentwind0/one-kvm 官方容器镜像。
@@ -167,7 +211,16 @@ in
       # HDMI RX 设备节点需在内核枚举后出现（hdmirx probe 较慢）；
       # 初始化播种（initialConfig）须在容器首启前完成
       serviceConfig.ExecStartPre = lib.mkBefore (
-        lib.optional cfg.initialConfig.enable seedScript
+        lib.optional cfg.initialConfig.enable (
+          pkgs.writeShellScript "one-kvm-seed-run" ''
+            exec ${seedScript} \
+              --data-dir ${lib.escapeShellArg cfg.dataDir} \
+              --username ${lib.escapeShellArg cfg.initialConfig.username} \
+              --password-file ${lib.escapeShellArg passwordFile} \
+              --defaults ${defaultsJSON} \
+              --settings ${pkgs.writeText "one-kvm-seed-settings.json" (builtins.toJSON cfg.initialConfig.settings)}
+          ''
+        )
         ++ [
           (pkgs.writeShellScript "one-kvm-wait-video" ''
             # 等 hdmirx 的 video 节点就绪（最多 60s），没有也不阻塞——设备可能未接
