@@ -1,5 +1,6 @@
 {
   config,
+  pkgs,
   lib,
   LT,
   ...
@@ -21,21 +22,19 @@ in
     # Official Docker image (FrankenPHP + libvips, bundled queue/scheduler).
     # First visit to the web UI runs the graphical installer; the host MySQL
     # (MariaDB) is pre-provisioned below so the installer can use it directly.
-    # Host networking (same pattern as halo.nix): the container reaches the
-    # loopback-bound MySQL directly, and its own listener lands on host
-    # loopback at the registered port (env overrides the in-container listen
-    # port from 8000).
+    # Bridge networking with a published loopback port: the image's bundled
+    # Caddyfile hardcodes listening on :8000 and does not read any port env,
+    # and host networking would collide with bird-lgproxy-go on :8000.
+    # MariaDB binds 127.0.0.1 only, so the relay unit below forwards the
+    # podman0 gateway address to it for the container.
     virtualisation.oci-containers.containers.lsky-pro = {
       image = "docker.io/0xxb/lsky-pro:latest";
       labels."io.containers.autoupdate" = "registry";
+      ports = [ "127.0.0.1:${LT.portStr.LskyPro}:8000" ];
       volumes = [
         "/var/lib/lsky-pro:/app/storage/app"
         "/var/lib/lsky-pro/themes:/app/themes"
       ];
-      extraOptions = [ "--network=host" ];
-      environment = {
-        PORT = LT.portStr.LskyPro;
-      };
     };
 
     systemd.tmpfiles.settings = {
@@ -61,7 +60,7 @@ in
     sops.templates.lsky-pro-env = {
       content = ''
         DB_CONNECTION=mysql
-        DB_HOST=127.0.0.1
+        DB_HOST=10.88.0.1
         DB_PORT=3306
         DB_DATABASE=lsky
         DB_USERNAME=lsky
@@ -70,6 +69,32 @@ in
       # Owned by root: rendered at /run/secrets/rendered, copied into place
       # by the preStart below.
       mode = "0400";
+    };
+
+    # MariaDB (mysql.nix) binds 127.0.0.1 only; the container reaches it via
+    # the podman0 gateway address. Forward 10.88.0.1:3306 -> 127.0.0.1:3306
+    # on the host.
+    systemd.services.lsky-pro-mysql-relay = {
+      description = "Forward podman0 gateway :3306 to host MariaDB";
+      wantedBy = [ "podman-lsky-pro.service" ];
+      before = [ "podman-lsky-pro.service" ];
+      after = [
+        "mysql.service"
+        "network-online.target"
+      ];
+      wants = [ "network-online.target" ];
+      serviceConfig = LT.serviceHarden // {
+        Type = "simple";
+        Restart = "always";
+        RestartSec = "5";
+        ExecStart =
+          let
+            socatRelay = pkgs.writeShellScript "lsky-pro-mysql-relay" ''
+              exec ${pkgs.socat}/bin/socat TCP-LISTEN:3306,bind=10.88.0.1,reuseaddr,fork TCP:127.0.0.1:3306
+            '';
+          in
+          "${socatRelay}";
+      };
     };
 
     systemd.services.podman-lsky-pro = {
@@ -100,8 +125,10 @@ in
     };
 
     # Provision the MySQL database/user up front; the web installer just
-    # fills in these values. mysql.nix binds MariaDB to 127.0.0.1, which
-    # matches the host-network container.
+    # fills in these values. mysql.nix binds MariaDB to 127.0.0.1; the relay
+    # unit exposes it to the container via the podman0 gateway, so the lsky
+    # user is granted access from the podman subnet (mirrors halo.nix's
+    # dedicated-user pattern but with the shared default-pw secret).
     services.mysql.ensureDatabases = [ "lsky" ];
     services.mysql.ensureUsers = [
       {
@@ -111,5 +138,28 @@ in
         };
       }
     ];
+
+    systemd.services.lsky-pro-mysql-user = {
+      description = "Grant lsky MySQL user access from the podman subnet";
+      after = [
+        "mysql.service"
+        "sops-install-secrets.service"
+      ];
+      requires = [ "mysql.service" ];
+      before = [ "podman-lsky-pro.service" ];
+      requiredBy = [ "podman-lsky-pro.service" ];
+      path = [ config.services.mysql.package ];
+      serviceConfig.Type = "oneshot";
+      script = ''
+        password=$(<${config.sops.secrets.default-pw.path})
+        escaped_password=$(printf %s "$password" | sed -e 's/\\/\\\\/g' -e "s/'/\\\\'/g")
+        mysql --protocol=socket --user=root <<SQL
+        CREATE USER IF NOT EXISTS 'lsky'@'10.88.%' IDENTIFIED BY '$escaped_password';
+        ALTER USER 'lsky'@'10.88.%' IDENTIFIED BY '$escaped_password';
+        GRANT ALL PRIVILEGES ON lsky.* TO 'lsky'@'10.88.%';
+        FLUSH PRIVILEGES;
+        SQL
+      '';
+    };
   };
 }
