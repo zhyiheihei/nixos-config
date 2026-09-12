@@ -126,7 +126,7 @@
         "extract": null,
         "name": "dnscontrol-xddxdd",
         "passthru": null,
-        "pinned": false,
+        "pinned": true,
         "src": {
             "deepClone": false,
             "fetchSubmodules": false,
