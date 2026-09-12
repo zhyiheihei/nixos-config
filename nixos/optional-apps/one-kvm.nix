@@ -119,6 +119,94 @@ let
         )
         conn.commit()
       '';
+
+  # 0.2.6 镜像在冷启动路径初始化采集管线会死锁（状态卡 device_busy，
+  # mjpeg/h264 均如此，纯 Rust 层问题与驱动无关），上游 main 分支已修
+  # 但截至 v260802 未发版。启动后做一次「切到另一模式再切回」强制走
+  # 运行时路径重建管线即可解卡；等上游发布含修复的新镜像（autoupdate
+  # 自动跟进）后可移除此 workaround。
+  unstickScript = pkgs.writers.writePython3 "one-kvm-unstick" { } ''
+    import argparse
+    import http.cookiejar
+    import json
+    import sys
+    import time
+    import urllib.request
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--base-url", required=True)
+    parser.add_argument("--username", required=True)
+    parser.add_argument("--password-file", required=True)
+    args = parser.parse_args()
+
+    # 解卡失败不影响服务本身（上层 workaround，允许临时不可用）
+    try:
+        # 等 HTTP server 起来（app 监听早于 stream manager 就绪）
+        for _ in range(45):
+            try:
+                urllib.request.urlopen(args.base_url + "/api/setup", timeout=3)
+                break
+            except Exception:
+                time.sleep(2)
+        else:
+            sys.exit(0)
+
+        password = open(args.password_file).read().rstrip("\r\n")
+        opener = urllib.request.build_opener(
+            urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar())
+        )
+        body = json.dumps(
+            {"username": args.username, "password": password}
+        ).encode()
+        opener.open(
+            urllib.request.Request(
+                args.base_url + "/api/auth/login",
+                data=body,
+                headers={"Content-Type": "application/json"},
+            ),
+            timeout=5,
+        )
+
+        def status():
+            r = opener.open(
+                args.base_url + "/api/stream/status", timeout=5
+            )
+            return json.loads(r.read())
+
+        # 给启动死锁留出落定时间，再切 mjpeg 强制重建管线
+        time.sleep(5)
+
+        def switch(mode):
+            opener.open(
+                urllib.request.Request(
+                    args.base_url + "/api/stream/mode",
+                    data=json.dumps({"mode": mode}).encode(),
+                    headers={"Content-Type": "application/json"},
+                ),
+                timeout=30,
+            )
+
+        current = json.loads(
+            opener.open(args.base_url + "/api/stream/mode", timeout=5).read()
+        )["mode"]
+        # 冷启动初始化管线死锁：运行时模式切换不受影响，所以先切到另一
+        # 模式再切回目标（默认 mjpeg），强制走运行时路径重建管线
+        target = "mjpeg"
+        other = "h264" if current == "mjpeg" else "mjpeg"
+        switch(other)
+        for _ in range(30):
+            time.sleep(2)
+            if status().get("state") != "device_busy":
+                break
+        if other != target:
+            switch(target)
+            for _ in range(30):
+                time.sleep(2)
+                if status().get("state") != "device_busy":
+                    break
+    except Exception:
+        pass
+  '';
 in
 {
   # One-KVM（Rust 版）IP-KVM，silentwind0/one-kvm 官方容器镜像。
@@ -235,6 +323,17 @@ in
             done
           '')
         ]
+      );
+
+      # 冷启动死锁解卡（见 unstickScript 注释），须在容器起后跑；
+      # 解卡自身失败不影响服务（脚本内部吞异常）
+      serviceConfig.ExecStartPost = lib.mkIf cfg.initialConfig.enable (
+        pkgs.writeShellScript "one-kvm-unstick-run" ''
+          exec ${unstickScript} \
+            --base-url http://127.0.0.1:${LT.portStr.OneKVM} \
+            --username ${lib.escapeShellArg cfg.initialConfig.username} \
+            --password-file ${lib.escapeShellArg passwordFile}
+        ''
       );
     };
 

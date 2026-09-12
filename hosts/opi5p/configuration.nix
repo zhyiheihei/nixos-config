@@ -240,6 +240,10 @@ in
         fps = 60;
       };
       hid.backend = "otg";
+      # 0.2.6 镜像 WebRTC 模式冷启动初始化死锁（详见 one-kvm.nix
+      # unstickScript），默认用 mjpeg 模式（实测 1080p60 稳定）；
+      # 需要时在 Web 界面切 H264/WebRTC。
+      stream.mode = "mjpeg";
     };
   };
 
