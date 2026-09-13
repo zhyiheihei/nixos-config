@@ -1,7 +1,6 @@
 {
   LT,
   pkgs,
-  config,
   inputs,
   ...
 }:
@@ -28,12 +27,5 @@
         enableBasicAuth = true;
       };
     };
-  };
-
-  lantian.nginxVhosts."es-ingest.${config.networking.hostName}.zhyi.xin" = {
-    locations."/".proxyPass = "http://127.0.0.1:${LT.portStr.ElasticSearch}";
-    accessibleBy = "private";
-    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
-    noIndex.enable = true;
   };
 }

@@ -143,14 +143,11 @@ rec {
     # 本仓同步删除，LlamaSwap 独占 13880（上游同号）。
     LlamaSwap = 13880;
     Actual = 13882;
-    DLX = 13888;
     Wallos = 13883;
     MoviePilot.Frontend = 13890;
     MoviePilot.Backend = 13891;
     ElasticSearch = 13892;
     PiWeb = 13893;
-    # 上游 OidcTester=13817 与本仓 WorkerVless2sub 冲突，顺延取 13894。
-    OidcTester = 13894;
     DN42Peerfinder = 13900;
     ADSB.RawInput = 13901;
     ADSB.RawOutput = 13902;
