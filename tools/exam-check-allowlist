@@ -19,6 +19,7 @@ home/client-apps/pi-web.nix # fork 主机 ml-laptop 接入 pi-web 门控（0a87b
 home/client-apps/plasma.nix # Xwayland DPI 竞态修复（fork 自维护；上游独立修复后可对齐）
 home/client-apps/packages.nix # fork 追加 siyuan/baidunetdisk，svp 换 ml-laptop（个人软件选择）
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
+nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化（其余已 09-13 对齐上游 e00c2150）
 nixos/client-components/grub-theme.nix # extraInstallCommands mkForce（主题安装 fork 化）
 nixos/common-apps/coredns.nix # fork 解析链重写（pdns/netns 差异，配合 server-apps/coredns）
 nixos/common-apps/nginx/autoconfig.nix # 域名清单并入单域
