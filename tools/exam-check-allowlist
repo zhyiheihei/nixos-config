@@ -4,6 +4,7 @@
 # 条目失效时 exam-check 会提示删除。
 flake-modules/nixos-configurations.nix # fork CUDA 裁剪 hook 与 darwin 退役（fork-only 能力，规范允许的独立扩展）
 flake.nix # fork inputs（secrets/zhyi-packages/ncps）、hydra jobs 剔除 apps、ARM 内核包
+nvfetcher.toml # fork 保留 dnscontrol pin v4（上游 gcore LabelFromFQDNWithDot bug 未修，取消 pin 会让 DNS preview 报千条假修正）；ulauncher-cursor-projects 已按用户决策对齐移除
 helpers/cities.json # fork 主机地理位置数据
 helpers/constants/nix.nix # 缓存常量化：zhyi 缓存 + NUR 作者缓存（2026-09-05 用户批准的缓存拓扑）
 helpers/constants/ports.nix # fork 端口登记（OidcTester 13817 冲突顺延 13894 + fork 服务端口）
@@ -57,14 +58,13 @@ nixos/optional-apps/grafana.nix # fork dashboard 供应链（dashboards.nix + da
 nixos/optional-apps/homepage.nix # 单域正则简化（作者双域正则不适用）
 nixos/optional-apps/hydra/default.nix # atticLogin/上传 key 接 zhyi 缓存（Hydra 迁 ml-laptop 配套）
 nixos/optional-apps/maddy.nix # neo 域移除（NeoNetwork 置空）
-nixos/optional-apps/mongodb.nix # LibreChat 多架构镜像回退史与注释（fork 部署决策）
 nixos/optional-apps/mysql.nix # Galera 副本清单差异（作者节点不存在于本仓）
 nixos/optional-apps/ncps-client.nix # ncps 指向本仓 192.168.0.66（作者 .04）
 nixos/optional-apps/ncps.nix # 监听地址参数化（作者硬编码其 LAN IP）
 nixos/optional-apps/nix-distributed.nix # nixbuild.net 构建节点移除（fork 不用付费构建）
 nixos/optional-apps/plausible.nix # geonames 文件修复（greencloud 迁移后起不来，fork 自维护）
 nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮箱验证码降级登录（2026-09-07 用户决策偏离）
-nixos/optional-apps/prometheus/alertmanager.nix # ExecStartPre 实现变体（attrset 内联 vs writeShellScript，二选一对齐）
+nixos/optional-apps/prometheus/alertmanager.nix # 域名差异（alert.zhyi.xin + zerossl-zhyi.xin 证书）；ExecStartPre 已随上游 08-28 修复对齐
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）
 nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射 + header-fallback 补丁

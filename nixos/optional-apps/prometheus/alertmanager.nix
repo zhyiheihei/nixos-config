@@ -212,8 +212,10 @@
     port = LT.port.Prometheus.AlertManager;
     listenAddress = "127.0.0.1";
     webExternalUrl = "https://alert.zhyi.xin";
-    # genJqSecretsReplacementSnippet 与 checkConfig 不兼容
+
+    # Not compatible with genJqSecretsReplacementSnippet
     checkConfig = false;
+
     configuration = {
       global = {
         smtp_from = config.programs.msmtp.accounts.default.from;
@@ -254,6 +256,11 @@
             {
               bot_token_file = config.sops.secrets.telegram-bot-token.path;
               chat_id_file = config.sops.secrets.telegram-bot-chat-id.path;
+              message = lib.trim ''
+                {{ range .Alerts.Firing }}🔥 {{ .Labels.alertname }} - {{ .Labels.instance }} - {{ .Annotations.summary }}
+                {{ end }}{{ range .Alerts.Resolved }}✅ {{ .Labels.alertname }} - {{ .Labels.instance }} - {{ .Annotations.summary }}
+                {{ end }}
+              '';
             }
           ];
         }
