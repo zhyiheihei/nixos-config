@@ -20,7 +20,7 @@
     };
     image = lib.mkOption {
       type = lib.types.str;
-      default = "docker.io/redroid/redroid:12.0.0-latest";
+      default = "docker.io/redroid/redroid:13.0.0-latest";
     };
     dataDir = lib.mkOption {
       type = lib.types.str;
