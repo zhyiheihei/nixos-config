@@ -9617,7 +9617,13 @@ CONFIG_USB4=m
 #
 # Android
 #
-# CONFIG_ANDROID_BINDER_IPC is not set
+# redroid（Android 容器）需要 binder/ashmem；配方对齐 opi03-redroid-kernel。
+# ashmem 在新内核已废弃，12+ 镜像可用 memfd，但开了无害。
+CONFIG_ANDROID_BINDER_IPC=y
+CONFIG_ANDROID_BINDERFS=y
+CONFIG_ANDROID_BINDER_DEVICES="binder,hwbinder,vndbinder"
+# CONFIG_ANDROID_BINDER_IPC_SELFTEST is not set
+CONFIG_ASHMEM=y
 # end of Android
 
 CONFIG_LIBNVDIMM=m
