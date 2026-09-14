@@ -14,6 +14,7 @@
 
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/resilio-sync.nix
+    ../../nixos/optional-apps/redroid.nix
   ];
 
   boot.loader.grub.enable = lib.mkForce false;
