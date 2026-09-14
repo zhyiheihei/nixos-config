@@ -248,9 +248,13 @@ in
   };
 
   # ws-scrcpy 网页版 scrcpy：浏览器镜像/控制 Android 设备（详见 ws-scrcpy.nix）。
-  # 目标设备：redroid（TCP adb）+ 手机无线 adb（启用后把手机 IP:5555 加进 adbHosts）。
+  # 目标设备：dragon-q8b 的 redroid（TCP adb）+ 手机无线 adb（启用后把手机 IP:5555 加进 adbHosts）。
+  # 192.168.0.41 是尚未部署的待用 redroid 主机，先登记，设备起不来由 timer 自动重试。
   lantian.ws-scrcpy.enable = true;
-  lantian.ws-scrcpy.adbHosts = [ "${LT.this.interconnect.IPv4}:5555" ];
+  lantian.ws-scrcpy.adbHosts = [
+    "192.168.0.66:5555"
+    "192.168.0.41:5555"
+  ];
 
   # EPD 家庭食品存储看板：REST API + WebUI（内网私有，nginx food.opi5p.zhyi.xin）
   # + 每日 0 点墨水屏推送 timer；BLE 推送 NRF_EPD 墨水屏（服务私有，不开公网）。
