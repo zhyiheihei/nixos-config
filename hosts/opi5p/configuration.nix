@@ -248,10 +248,12 @@ in
   };
 
   # ws-scrcpy 网页版 scrcpy：浏览器镜像/控制 Android 设备（详见 ws-scrcpy.nix）。
-  # 目标设备：dragon-q8b 的 redroid（TCP adb）+ 手机无线 adb（启用后把手机 IP:5555 加进 adbHosts）。
-  # 192.168.0.41 是尚未部署的待用 redroid 主机，先登记，设备起不来由 timer 自动重试。
+  # 目标设备：opi5p 本机 redroid（rk3588）+ dragon-q8b redroid + 手机无线 adb
+  # （启用后把手机 IP:5555 加进 adbHosts）。192.168.0.41 是尚未部署的待用
+  # redroid 主机，先登记，设备起不来由 timer 自动重试。
   lantian.ws-scrcpy.enable = true;
   lantian.ws-scrcpy.adbHosts = [
+    "192.168.0.62:5555"
     "192.168.0.66:5555"
     "192.168.0.41:5555"
   ];
