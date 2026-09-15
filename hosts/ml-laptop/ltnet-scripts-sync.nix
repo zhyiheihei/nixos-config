@@ -26,6 +26,9 @@
       pkgs.curl
       pkgs.rsync
       pkgs.openssh
+      # sync.sh 的新鲜度校验用 jq 读 metadata.generated，缺失会导致
+      # 所有 ROA 端点被判过期、stayrtr 数据永久冻结（2026-09-15 巡检发现）
+      pkgs.jq
     ];
   };
 
