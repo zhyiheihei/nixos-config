@@ -88,6 +88,12 @@ in
         text/gemini gmi;
       }
 
+      # Hosts with many vhosts (media edge, ~1590 proxy_set_header) exceed
+      # nginx's default variables_hash; without this the master logs a warn
+      # and falls back to a suboptimal hash.
+      variables_hash_bucket_size 128;
+      variables_hash_max_size 8192;
+
       map $http_user_agent $is_not_healthcheck_user_agent {
         default                   1;
         "~*Blackbox\ Exporter"    0;
