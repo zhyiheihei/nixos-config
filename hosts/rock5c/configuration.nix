@@ -50,10 +50,14 @@ in
   lantian.jellyfinRockchip.soc = "rk3588";
 
   # Never scan an empty local directory when the direct NAS mount is absent.
+  # environment must merge (no mkForce) with jellyfin-rockchip's Kestrel unix
+  # socket env: a mkForce here silently dropped JELLYFIN_kestrel__socket on the
+  # 2026-09-06 deploy, nginx jellyfin vhosts 502'd and the service sat dead for
+  # 9 days.
   systemd.services.jellyfin = {
     after = [ "mnt-storage.mount" ];
     requires = [ "mnt-storage.mount" ];
-    environment = lib.mkForce proxyEnvironment;
+    environment = proxyEnvironment;
   };
 
   # MoviePilot container: PySocks resolves hostnames locally with socks5;
