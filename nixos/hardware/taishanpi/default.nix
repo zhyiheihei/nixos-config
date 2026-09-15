@@ -19,6 +19,9 @@ let
   #  - CONFIG_PWM_ROCKCHIP for the backlight PWM
   #  - CONFIG_TOUCHSCREEN_EDT_FTC5X06 for the extension board touch panel
   #  - CONFIG_BACKLIGHT_GP7101 for the extension board backlight
+  #  - CONFIG_USB_NET_QMI_WWAN + CONFIG_SND_USB_AUDIO for a miniPCIe 4G
+  #    modem (EG25-G class: QMI data + UAC voice, DTS patch enables GMAC1
+  #    RGMII + RTL8211F for the expansion board Ethernet)
   taishanPiKernelConfigText =
     builtins.replaceStrings
       [
@@ -27,6 +30,8 @@ let
         "CONFIG_ZRAM=m"
         "# CONFIG_TOUCHSCREEN_GOODIX_BERLIN_I2C is not set"
         "# CONFIG_BACKLIGHT_KTD253 is not set"
+        "# CONFIG_USB_NET_QMI_WWAN is not set"
+        "# CONFIG_SND_USB_AUDIO is not set"
       ]
       [
         ''
@@ -58,6 +63,14 @@ let
           # GP7101 I2C-to-PWM backlight chip on the extension board.
           CONFIG_BACKLIGHT_GP7101=m
           # CONFIG_BACKLIGHT_KTD253 is not set
+        ''
+        ''
+          # miniPCIe 4G modem (EG25-G class): QMI data NIC.
+          CONFIG_USB_NET_QMI_WWAN=m
+        ''
+        ''
+          # UAC voice sound card for the miniPCIe 4G modem.
+          CONFIG_SND_USB_AUDIO=m
         ''
       ]
       (builtins.readFile ../nanopi-r5c/kernel-config);
@@ -96,6 +109,7 @@ let
           ../../../pkgs/taishanpi-kernel/gp7101-backlight.patch
           ../../../pkgs/taishanpi-kernel/edt-split-i2c.patch
           ../../../pkgs/taishanpi-kernel/dsi-rgb666-p888.patch
+          ../../../pkgs/taishanpi-kernel/tspi-gmac1-expansion.patch
         ];
       });
 
