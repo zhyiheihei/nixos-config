@@ -219,14 +219,13 @@ let
 
   # Map home-LAN IPs to hostnames for devices without a DHCP lease (static
   # servers); DHCP leases remain the primary source for dynamic clients.
-  lanHostnames = lib.mapAttrs' (
-    n: v:
-    lib.nameValuePair v.interconnect.IPv4 (lib.removePrefix "_" n)
-  ) (
-    lib.filterAttrs (n: v: v.interconnect.IPv4 != null && v.interconnect.name == "home-lan") LT.hosts
-  ) // {
-    "192.168.0.40" = "qnap";
-  };
+  lanHostnames =
+    lib.mapAttrs' (n: v: lib.nameValuePair v.interconnect.IPv4 (lib.removePrefix "_" n)) (
+      lib.filterAttrs (n: v: v.interconnect.IPv4 != null && v.interconnect.name == "home-lan") LT.hosts
+    )
+    // {
+      "192.168.0.40" = "qnap";
+    };
 
   routerMetrics = pkgs.writeTextFile {
     name = "router-prometheus-metrics";
@@ -375,7 +374,8 @@ let
       for target in 223.5.5.5 119.29.29.29; do
         out_ping=$(ping -c 5 -q -W 1 "$target" 2>/dev/null | tail -3)
         loss=$(printf '%s\n' "$out_ping" | sed -n 's/.* \([0-9][0-9.]*\)% packet loss.*/\1/p' | head -1)
-        avg=$(printf '%s\n' "$out_ping" | sed -n 's/.*= \([0-9][0-9.]*\)\/[0-9.]*\/[0-9.]*\/[0-9.]*/\1/p' | head -1)
+        # 行尾必须吞掉单位后缀（iputils 输出 "... /0.104 ms"），否则 prom 文本格式把 ms 当 timestamp 解析失败，整个 textfile 被丢弃
+        avg=$(printf '%s\n' "$out_ping" | sed -n 's/.*= \([0-9][0-9.]*\)\/[0-9.]*\/[0-9.]*\/[0-9.]*.*/\1/p' | head -1)
         [ -n "$loss" ] && echo "router_quality_ping_loss_percent{target=\"$target\"} $loss"
         [ -n "$avg" ] && echo "router_quality_ping_rtt_ms{target=\"$target\"} $avg"
       done
@@ -413,6 +413,10 @@ in
     ../../nixos/common-apps/coredns.nix
     ../../nixos/common-apps/nginx/nginx.nix
     ../../nixos/common-apps/nginx/vhost-options/default.nix
+    # 与 exam pve-components/nginx.nix 同构的三件套：缺 vhosts-default 时
+    # _default_http 不存在，Prometheus 以 IP 为 Host 的 /metrics 抓取会掉进
+    # bt.localhost 被 localhost-only ACL 拒绝（403），nginx 监控链盲区
+    ../../nixos/common-apps/nginx/vhosts-default.nix
     ../../nixos/client-components/multicast-dns.nix
 
     ../../nixos/optional-apps/miniupnpd.nix
@@ -463,12 +467,14 @@ in
   # peer) and the whole home-LAN overlay stalls behind the missing controller
   # reachability. Re-derive the blacklist from the stock whitelist (netns
   # prefixes excluded, same as the module) plus "ppp".
-  services.zerotierone.localConf.settings.interfacePrefixBlacklist = lib.mkForce
-    (pkgs.callPackage ../../nixos/minimal-components/zerotier/whitelist_to_blacklist.nix { }
-      ((builtins.filter (v: v != "ns") (LT.constants.interfacePrefixes.WAN
-        ++ LT.constants.interfacePrefixes.LAN))
-        ++ [ "ppp" ])
-    );
+  services.zerotierone.localConf.settings.interfacePrefixBlacklist = lib.mkForce (
+    pkgs.callPackage ../../nixos/minimal-components/zerotier/whitelist_to_blacklist.nix { } (
+      (builtins.filter (v: v != "ns") (
+        LT.constants.interfacePrefixes.WAN ++ LT.constants.interfacePrefixes.LAN
+      ))
+      ++ [ "ppp" ]
+    )
+  );
 
   ########################################
   # v2ray
@@ -482,7 +488,10 @@ in
 
   systemd.services.v2ray = {
     description = "v2ray Daemon";
-    after = [ "network.target" "sops-install-secrets.service" ];
+    after = [
+      "network.target"
+      "sops-install-secrets.service"
+    ];
     requires = [ "sops-install-secrets.service" ];
     wantedBy = [ "multi-user.target" ];
     environment =
@@ -601,8 +610,7 @@ in
   lantian.nginxVhosts = {
     "bt.${config.networking.hostName}.zhyi.xin".locations."/".proxyPass =
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
-    "bt.localhost".locations."/".proxyPass =
-      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
+    "bt.localhost".locations."/".proxyPass = lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
   };
 
   systemd.tmpfiles.settings.qbittorrent-router = {
@@ -635,6 +643,38 @@ in
     ];
     serviceConfig.BindPaths = [ unifiedDownloadPath ];
     preStart = lib.mkAfter qbitPreStart;
+  };
+
+  ########################################
+  # miniupnpd watchdog
+  ########################################
+
+  # miniupnpd 在 PPPoE 重拨瞬间读到 ppp0 无地址后会永久卡死
+  # （journal：ext interface ppp0 has no IPv4 address / cannot get public IP
+  # address, stopping），之后所有 NAT-PMP/UPnP 添加永远返回 Network Failure，
+  # 守护进程自身无恢复逻辑（2026-09-15 巡检实锤）。上游模块假定静态 WAN，
+  # 主机级补一个自检看门狗：ppp0 有地址但自测映射失败即重启。
+  systemd.services.miniupnpd-watchdog = {
+    after = [
+      "miniupnpd.service"
+      "network-online.target"
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "miniupnpd-watchdog" ''
+        ${lib.getExe' pkgs.iproute2 "ip"} -4 addr show ppp0 | grep -q inet || exit 0
+        ${lib.getExe' pkgs.libnatpmp "natpmpc"} -g 192.168.0.1 -a 64004 64004 tcp 30 >/dev/null 2>&1 \
+          || systemctl restart miniupnpd.service
+      '';
+    };
+  };
+  systemd.timers.miniupnpd-watchdog = {
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "3min";
+      OnUnitActiveSec = "1min";
+      Unit = "miniupnpd-watchdog.service";
+    };
   };
 
   ########################################
