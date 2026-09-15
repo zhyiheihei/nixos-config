@@ -17,6 +17,11 @@ let
       ) LT.self.nixosConfigurations
     );
 
+  # LTNET targets run over lossy inter-city ZeroTier paths (home broadband
+  # <-> tencent); the default 10s timeout fails ~50-70% of scrapes. Give
+  # retransmits room to finish the response (timeout must stay below
+  # interval). Registered local deviation from exam: exam has no such
+  # parameter because its monitoring topology differs.
   scrapeByAttr =
     {
       jobName,
@@ -24,10 +29,16 @@ let
       port,
       attrPath,
       metricsPath ? "/metrics",
+      timeout ? null,
+      interval ? null,
     }:
     {
       job_name = jobName;
       metrics_path = metricsPath;
+    }
+    // lib.optionalAttrs (timeout != null) { scrape_timeout = timeout; }
+    // lib.optionalAttrs (interval != null) { scrape_interval = interval; }
+    // {
       static_configs = builtins.map (
         n:
         let
@@ -92,6 +103,10 @@ in
     (scrapeByAttr {
       jobName = "node";
       port = LT.port.Prometheus.NodeExporter;
+      # node responses are the largest (full textfile collector set) and the
+      # lossy ZT path needs the widest window.
+      timeout = "110s";
+      interval = "2m";
       attrPath = [
         "services"
         "prometheus"
