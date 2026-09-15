@@ -3,6 +3,7 @@
   fetchgit,
   fetchurl,
   fetchFromGitHub,
+  dockerTools,
 }:
 {
   airplanes-live-mcp = {
@@ -43,13 +44,13 @@
   };
   bosl2 = {
     pname = "bosl2";
-    version = "v2.0.754";
+    version = "v2.0.755";
     src = fetchFromGitHub {
       owner = "BelfrySCAD";
       repo = "BOSL2";
-      rev = "v2.0.754";
+      rev = "v2.0.755";
       fetchSubmodules = false;
-      sha256 = "sha256-g+Usz+R3+l6xfUleeFqqpgoD68+47Uvh8fldify25NQ=";
+      sha256 = "sha256-4LlMyXBXtSoy1FTAE9j7gmApDHYgtZZh/XnkzGUG2DE=";
     };
   };
   delegacy-rpz = {
@@ -255,15 +256,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "a52dee9e00ff33db2eaad678b636ae88b490b58e";
+    version = "5bc1a9928a6d1c9dc3c9136ea66d7e815b8440e0";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "a52dee9e00ff33db2eaad678b636ae88b490b58e";
+      rev = "5bc1a9928a6d1c9dc3c9136ea66d7e815b8440e0";
       fetchSubmodules = false;
-      sha256 = "sha256-AJ9kGO84oaXMGB0Rwk0DAREtLvIO1QJvv78HnmQkKGE=";
+      sha256 = "sha256-RB4BJl7ZtPggt9w+aQKPdY5G8HfZdr+LBPCNM5tNDuk=";
     };
-    date = "2026-09-07";
+    date = "2026-09-14";
   };
   ulauncher-albert-calculate-anything = {
     pname = "ulauncher-albert-calculate-anything";
