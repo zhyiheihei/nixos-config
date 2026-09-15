@@ -1,4 +1,10 @@
-{ LT, ... }:
+{
+  LT,
+  lib,
+  pkgs,
+  config,
+  ...
+}:
 {
   imports = [
     ../../nixos/server.nix
@@ -25,6 +31,29 @@
   ];
 
   lantian.hubproxy.enable = true;
+
+  # metapi 崩溃循环修复（2026-09-15 巡检）：nixpkgs 默认 nodejs 24.19.0 带上游
+  # 回归 nodejs/node#65446（ObjectWrap cleanup hook 回移植缺 registry），
+  # better-sqlite3 的 Statement 被 GC 析构即触发断言 ABRT，约每 3.5 分钟崩一次
+  # （journal：Assertion failed: (env) != nullptr）。上游 metapi Docker 实际
+  # 跑 node22，钉到 nodejs_22，nixpkgs 修复后可撤销。
+  # 注意 buildNpmPackage（extendMkDerivation 分层）下 metapi 的 nodejs 参数
+  # 只影响运行期 wrapper，原生模块编译头文件走 buildNpmPackage 的
+  # topLevelArgs（默认 pkgs.nodejs），必须两处同时覆盖，否则 dlopen ABI 不匹配。
+  systemd.services.metapi.script =
+    let
+      metapiNode22 = pkgs.nur-xddxdd.metapi.override {
+        nodejs = pkgs.nodejs_22;
+        buildNpmPackage = pkgs.buildNpmPackage.override {
+          nodejs = pkgs.nodejs_22;
+        };
+      };
+    in
+    lib.mkForce ''
+      export AUTH_TOKEN=$(cat ${config.sops.secrets.default-pw.path})
+      export PROXY_TOKEN=$(cat ${config.sops.secrets.metapi-admin-key.path})
+      exec ${lib.getExe metapiNode22}
+    '';
 
   # DSH web UI（dsh.zhyi.xin，Dex OIDC 登录，模型走 UniAPI）
   lantian.dsh-web.enable = true;
