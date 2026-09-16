@@ -19,7 +19,7 @@ home/client-apps/plasma.nix # Xwayland DPI 竞态修复（fork 自维护；上�
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
 nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化（其余已 09-15 对齐上游 8b1459117）
 nixos/client-components/grub-theme.nix # extraInstallCommands mkForce（主题安装 fork 化）
-nixos/common-apps/coredns.nix # fork 解析链重写（pdns/netns 差异，配合 server-apps/coredns）
+nixos/common-apps/coredns.nix # 仅保留 CN 主机 AliDNS/DNSPod 分支（docs/human/network/regional-dns.md 设计文档背书），其余结构对齐上游
 nixos/common-apps/nginx/autoconfig.nix # 域名清单并入单域
 nixos/common-apps/nginx/nginx.nix # gopher map 移除 neo（NeoNetwork 置空）
 nixos/common-apps/nginx/oauth2-proxy.nix # csrf cookie 对齐说明 + cookie 域清单差异
