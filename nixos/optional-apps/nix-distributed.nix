@@ -64,14 +64,13 @@ in
   config = {
     nix = {
       distributedBuilds = true;
-      buildMachines =
-        lib.flatten (
-          lib.filter (v: v != null) (
-            lib.mapAttrsToList mkBuildMachine (
-              lib.filterAttrs (n: v: v.hasTag LT.tags.nix-builder) LT.otherHosts
-            )
+      buildMachines = lib.flatten (
+        lib.filter (v: v != null) (
+          lib.mapAttrsToList mkBuildMachine (
+            lib.filterAttrs (n: v: v.hasTag LT.tags.nix-builder) LT.otherHosts
           )
-        );
+        )
+      );
     };
 
     # FIXME: hydra might be unable to handle duplicate entries
