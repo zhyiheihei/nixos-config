@@ -71,7 +71,7 @@ nixos/server-apps/powerdns-recursor.nix # neo zone 移除 + CN 公共递归分�
 nixos/server-components/logging.nix # 日志接 Axiom（filebeat→ES 兼容托管端）
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
 overlays/50-general.nix # mpv ffmpeg 私有包引用移除（fork 无该 secrets/pkg）
-overlays/60-non-flake-packages.nix # ncps 换上游 flake + go_1_27 + dbmate 垫片（kalbasit/ncps#1329）
+overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）
 nixos/optional-apps/dlx.nix  # skip: 2026-09-13 用户决策不启用（临时性服务），DLX 端口已从 ports.nix 移除
 nixos/optional-apps/oidc-tester.nix # skip: 2026-09-13 用户决策不启用（临时性调试服务），端口已移除
 nixos/optional-apps/epic-awesome-gamer/default.nix # skip: 依赖作者 secrets 仓 epic-awesome-gamer.yaml，fork 无凭据且不需要喜加一
