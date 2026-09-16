@@ -42,7 +42,6 @@ nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书�
 nixos/optional-apps/acme/common.nix # google-test 证书构造器移除
 nixos/optional-apps/acme/default.nix # DNS 商 gcore（bunny 为作者所用）、dnsPropagationCheck=false
 nixos/optional-apps/acme/testssl.nix # google-test 站点移除
-nixos/optional-apps/asf.nix # 容器 net=host 改动
 nixos/optional-apps/attic-watch-store.nix # attic 缓存拓扑 fork 化（zhyi@attic.zhyi.xin）
 nixos/optional-apps/bird-lg-go.nix # lg neo 别名移除（NeoNetwork 置空）
 nixos/optional-apps/bitmagnet.nix # TMDB key placeholder 宽容处理（fork 改进，自维护）
