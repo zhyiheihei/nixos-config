@@ -75,8 +75,10 @@ in
     # Fly.io
     flyctl
 
-    # FPGA
-    quartus-prime-lite
+    # FPGA。quartus-prime-lite 25.1std.0.1129 的 Intel 下载源已下架
+    # （akdlm 301→404、downloadmirror/848026 AccessDenied，2026-09-16 实测），
+    # FOD 无法获取，eval 通过但 build 必失败；上游换 URL 后恢复。
+    # quartus-prime-lite
 
     # Golang
     delve

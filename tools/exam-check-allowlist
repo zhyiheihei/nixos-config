@@ -90,3 +90,4 @@ dns/core/record-handlers.nix # NO_PURGE handler 保留（fork：迁移到 zhyi �
 home/client-apps/xilinx/default.nix # 上游 aaf24cde 引入 hidden-module da4fbe694da377db（作者 secrets 私有内容，fork secrets 仓无此文件），不采纳；其余已对齐
 nixos/minimal-components/environment.nix # journald 保持 extraConfig 旧写法：上游 settings.Journal 选项需更新的 nixpkgs（用户指示 flake.lock 不超过上游求值实际 rev），nixpkgs 升级后对齐 8ab46ae5
 home/client-apps/mpv.nix # anime4K 档位按 hostName==ml-2700 判断（fork 主机，加 low-gpu tag 会连带改变 plasma blur 行为，不用上游 tag 写法）
+home/client-apps/dev-tools.nix # quartus-prime-lite 注释掉：Intel 25.1std.0.1129 下载源已下架（akdlm 301→404、downloadmirror AccessDenied，2026-09-16 实测），FOD 无法获取；上游 1ee0e4aa9 引入时可用，上游换 URL 后恢复
