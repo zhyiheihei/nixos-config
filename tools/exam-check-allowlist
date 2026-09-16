@@ -2,7 +2,6 @@
 # 格式: <path> # <原因>；fork 侧修复不主动上抛上游，仅当上游独立修复同一问题、
 # fork 补丁失去必要时才删条目并同步对齐。
 # 条目失效时 exam-check 会提示删除。
-flake-modules/nixos-configurations.nix # fork CUDA 裁剪 hook 与 darwin 退役（fork-only 能力，规范允许的独立扩展）
 flake.nix # fork inputs（secrets/zhyi-packages/ncps）、hydra jobs 剔除 apps、ARM 内核包
 nvfetcher.toml # fork 保留 dnscontrol pin v4（上游 gcore LabelFromFQDNWithDot bug 未修，取消 pin 会让 DNS preview 报千条假修正）；ulauncher-cursor-projects 已按用户决策对齐移除
 helpers/cities.json # fork 主机地理位置数据
@@ -13,12 +12,10 @@ helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）
 helpers/host-options.nix # fork 选项：GPU 显存档位、NeoNetwork null、netns 默认值
 home/client-apps/ai-coding/default.nix # fork AI provider 链（uni-api/taotoken/zai）；上游 zcode/commandcode/secret-mask/jiti-cache 依赖作者 secrets 私有模块 09e0a4212f82100c，fork 不采纳；保留 pi-notify/libnotify 桌面通知
-home/client-apps/dev-tools.nix # 追加 kubectl-ktop
 home/client-apps/firefox/default.nix # 扩展与搜索配置差异（zeroomega 等 fork 客户端选择）
 home/client-apps/git.nix # fork 签名 key
 home/client-apps/pi-web.nix # fork 主机 ml-laptop 接入 pi-web 门控（0a87bd745，主机名/用户名条件扩展）
 home/client-apps/plasma.nix # Xwayland DPI 竞态修复（fork 自维护；上游独立修复后可对齐）
-home/client-apps/packages.nix # fork 追加 siyuan/baidunetdisk，svp 换 ml-laptop（个人软件选择）
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
 nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化（其余已 09-15 对齐上游 8b1459117）
 nixos/client-components/grub-theme.nix # extraInstallCommands mkForce（主题安装 fork 化）
@@ -29,7 +26,6 @@ nixos/common-apps/nginx/oauth2-proxy.nix # csrf cookie 对齐说明 + cookie 域
 nixos/common-apps/nginx/testssl.nix # google-test 测试站点移除
 nixos/common-apps/nginx/whois-server.nix # whois neo 别名移除（NeoNetwork 置空）
 nixos/common-apps/yggdrasil/default.nix # fork 节点 region 表与 peer 正则
-nixos/common-apps/yggdrasil/public-peers.json # fork peer 列表（运营性，随上游各自更新）
 nixos/hardware/nvidia/prime.nix # eGPU 条件 steam offload wrapper（拔 eGPU 卡死修复，fork 自维护）
 nixos/hardware/vfio.nix # ACS/IOMMU 条件注入（雷电 eGPU Xid 79 修复，fork 自维护）
 nixos/minimal-apps/nginx-proxy.nix # neo ULA 移除（NeoNetwork 置空）
@@ -63,7 +59,6 @@ nixos/optional-apps/ncps.nix # 监听地址参数化（作者硬编码其 LAN IP
 nixos/optional-apps/nix-distributed.nix # nixbuild.net 构建节点移除（fork 不用付费构建）
 nixos/optional-apps/plausible.nix # geonames 文件修复（greencloud 迁移后起不来，fork 自维护）
 nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮箱验证码降级登录（2026-09-07 用户决策偏离）
-nixos/optional-apps/prometheus/alertmanager.nix # 域名差异（alert.zhyi.xin + zerossl-zhyi.xin 证书）；ExecStartPre 已随上游 08-28 修复对齐
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）
 nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
@@ -89,6 +84,5 @@ patches/dlx-fingerprint.patch # skip: 同 dlx.nix，配套补丁
 dns/core/record-handlers.nix # NO_PURGE handler 保留（fork：迁移到 zhyi 域时保留上游/其他来源已管理记录，上游无此 handler）
 home/client-apps/xilinx/default.nix # 上游 aaf24cde 引入 hidden-module da4fbe694da377db（作者 secrets 私有内容，fork secrets 仓无此文件），不采纳；其余已对齐
 nixos/minimal-components/environment.nix # journald 保持 extraConfig 旧写法：上游 settings.Journal 选项需更新的 nixpkgs（用户指示 flake.lock 不超过上游求值实际 rev），nixpkgs 升级后对齐 8ab46ae5
-home/client-apps/mpv.nix # anime4K 档位按 hostName==ml-2700 判断（fork 主机，加 low-gpu tag 会连带改变 plasma blur 行为，不用上游 tag 写法）
 home/client-apps/dev-tools.nix # quartus-prime-lite 注释掉：Intel 25.1std.0.1129 下载源已下架（akdlm 301→404、downloadmirror AccessDenied，2026-09-16 实测），FOD 无法获取；上游 1ee0e4aa9 引入时可用，上游换 URL 后恢复
 home/client-apps/packages.nix # materialgram 移除：上游 NUR materialgram 6.7.7.1 的 0005 stories 补丁与源码冲突（Hunk#1 FAILED，包坏档），构建失败；上游 NUR 修复后恢复
