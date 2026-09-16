@@ -53,7 +53,7 @@ nixos/optional-apps/mysql.nix # Galera 副本清单差异（作者节点不存�
 nixos/optional-apps/ncps-client.nix # ncps 指向本仓 192.168.0.66（作者 .04）
 nixos/optional-apps/ncps.nix # 监听地址参数化（作者硬编码其 LAN IP）
 nixos/optional-apps/nix-distributed.nix # nixbuild.net 构建节点移除（fork 不用付费构建）
-nixos/optional-apps/plausible.nix # geonames 文件修复（greencloud 迁移后起不来，fork 自维护）
+nixos/optional-apps/plausible.nix # geonames.csv tmpfiles 软链：nixos-unstable 模块设 GEONAMES_SOURCE_FILE 但无生成机制，greencloud 迁移后实证起不来；上游（colocrossing）无此修复
 nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮箱验证码降级登录（2026-09-07 用户决策偏离）
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）
