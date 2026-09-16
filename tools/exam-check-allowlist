@@ -43,7 +43,7 @@ nixos/optional-apps/acme/default.nix # DNS 商 gcore（bunny 为作者所用）�
 nixos/optional-apps/acme/testssl.nix # google-test 站点移除
 nixos/optional-apps/attic-watch-store.nix # attic 缓存拓扑 fork 化（zhyi@attic.zhyi.xin）
 nixos/optional-apps/bird-lg-go.nix # lg neo 别名移除（NeoNetwork 置空）
-nixos/optional-apps/bitmagnet.nix # TMDB key placeholder 宽容处理（fork 改进，自维护）
+nixos/optional-apps/bitmagnet.nix # TMDB key 降级：secrets 仓 tmdb.yaml 即字面 placeholder，必须容错禁用 metadata 才能启动（上游作者有真 key 不需要）
 nixos/optional-apps/calibre-cops.nix # copsVhost 重构（fork vhost 结构）
 nixos/optional-apps/gitea/default.nix # oauth2 自动注册 + MINIO 换 VaultS3（Dex 集成配套）
 nixos/optional-apps/glauth.nix # displayName Zh Yi + neo 监听移除
