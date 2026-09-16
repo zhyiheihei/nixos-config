@@ -78,6 +78,5 @@ nixos/optional-apps/prometheus/storagebox.nix # skip: fork 不监控 storagebox�
 patches/dlx-fingerprint.patch # skip: 同 dlx.nix，配套补丁
 dns/core/record-handlers.nix # NO_PURGE handler 保留（fork：迁移到 zhyi 域时保留上游/其他来源已管理记录，上游无此 handler）
 home/client-apps/xilinx/default.nix # 上游 aaf24cde 引入 hidden-module da4fbe694da377db（作者 secrets 私有内容，fork secrets 仓无此文件），不采纳；其余已对齐
-nixos/minimal-components/environment.nix # journald 保持 extraConfig 旧写法：上游 settings.Journal 选项需更新的 nixpkgs（用户指示 flake.lock 不超过上游求值实际 rev），nixpkgs 升级后对齐 8ab46ae5
 home/client-apps/dev-tools.nix # quartus-prime-lite 注释掉：Intel 25.1std.0.1129 下载源已下架（akdlm 301→404、downloadmirror AccessDenied，2026-09-16 实测），FOD 无法获取；上游 1ee0e4aa9 引入时可用，上游换 URL 后恢复
 home/client-apps/packages.nix # materialgram 移除：上游 NUR materialgram 6.7.7.1 的 0005 stories 补丁与源码冲突（Hunk#1 FAILED，包坏档），构建失败；上游 NUR 修复后恢复
