@@ -13,6 +13,7 @@
   };
 
   imports = [
+    ./geo-scripted-servers.nix
     ./host-recs.nix
     ./nameservers.nix
     ./poem.nix
@@ -22,7 +23,7 @@
 
   config.common = rec {
     inherit (LT) hosts;
-    fallbackServer = LT.hosts.hostdare;
+    fallbackServer = LT.hosts.bwg-lax;
 
     apexRecords =
       _domain:

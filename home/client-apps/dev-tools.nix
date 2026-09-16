@@ -75,6 +75,9 @@ in
     # Fly.io
     flyctl
 
+    # FPGA
+    quartus-prime-lite
+
     # Golang
     delve
     go-outline
@@ -93,8 +96,8 @@ in
     # Kubernetes
     arkade
     faas-cli # OpenFaaS
-    kubectl-ktop
     kubectl
+    kubectl-ktop
     kubernetes-helm
     lens
 
@@ -174,7 +177,6 @@ in
     FLY_CONFIG_DIR = "${config.xdg.dataHome}/fly";
     NPM_CONFIG_CACHE = "${config.xdg.cacheHome}/npm";
     NPM_CONFIG_INIT_MODULE = "${config.xdg.configHome}/npm/config/npm-init.js";
-    NPM_CONFIG_TMP = "\${XDG_RUNTIME_DIR}/npm";
     OCI_CLI_CONFIG_FILE = "${config.xdg.configHome}/oci/config";
     OCI_CLI_RC_FILE = "${config.xdg.configHome}/oci/oci_cli_rc";
     RUSTUP_HOME = "${config.xdg.dataHome}/rustup";

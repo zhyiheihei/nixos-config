@@ -1,26 +1,16 @@
 { pkgs, lib, ... }:
 let
-  formatArg =
-    let
-      escapeArg = arg: "'${lib.replaceStrings [ "'" ] [ "'\\''" ] (toString arg)}'";
-    in
-    s:
-    if builtins.isString s then
-      escapeArg s
-    else if builtins.isAttrs s then
-      builtins.toJSON s
-    else
-      builtins.toString s;
-  formatName = name: reverse: if reverse then "REV(${formatArg name})" else (formatArg name);
+  formatName =
+    name: reverse: if reverse then "REV(${builtins.toJSON name})" else (builtins.toJSON name);
 
   record =
     recordType: args: params:
     let
       configString = builtins.concatStringsSep ", " (
         [ (formatName args.name args.reverse) ]
-        ++ (builtins.map formatArg params)
-        ++ (lib.optionals (args ? meta) (builtins.map formatArg [ args.meta ]))
-        ++ (lib.optional (args.ttl != null) "TTL(${formatArg (builtins.toString args.ttl)})")
+        ++ (builtins.map builtins.toJSON params)
+        ++ (lib.optionals (args ? meta) (builtins.map builtins.toJSON [ args.meta ]))
+        ++ (lib.optional (args.ttl != null) "TTL(${builtins.toJSON (builtins.toString args.ttl)})")
         ++ (lib.optional (args.cloudflare != null && args.cloudflare) "CF_PROXY_ON")
         ++ (lib.optional (args.cloudflare != null && !args.cloudflare) "CF_PROXY_OFF")
       );
@@ -33,6 +23,11 @@ in
     AAAA = args: record "AAAA" args [ args.address ];
     ALIAS = args: record "ALIAS" args [ args.target ];
     AUTO = args: if lib.hasInfix ":" args.address then AAAA args else A args;
+    BUNNY_DNS_SCRIPT =
+      args:
+      record "BUNNY_DNS_SCRIPT" args [
+        args.code
+      ];
     CAA =
       args:
       record "CAA" args [
@@ -55,6 +50,8 @@ in
         args.target
         args.modifiers
       ];
+    # fork：迁移到 zhyi.cc 时保留上游/其他来源已管理的记录，不做 NO_PURGE 全量清理
+    NO_PURGE = _: [ "NO_PURGE" ];
     IGNORE = args: record "IGNORE" args [ args.type ];
     MX =
       args:
@@ -62,7 +59,6 @@ in
         args.priority
         args.target
       ];
-    NO_PURGE = _: [ "NO_PURGE" ];
     NAMESERVER = args: record "NAMESERVER" args [ ];
     NAPTR =
       args:
@@ -102,62 +98,6 @@ in
         args.type
         args.value
       ];
-    SSHFP_RSA_SHA1 =
-      { pubkey, ... }@args:
-      SSHFP (
-        args
-        // {
-          algorithm = 1;
-          type = 1;
-          value = builtins.readFile (
-            pkgs.runCommandLocal "sshfp-rsa-sha1.txt" { } ''
-              echo ${formatArg pubkey} | cut -d' ' -f2 | base64 --decode | sha1sum | cut -d' ' -f1 | tr -d '\n' > $out
-            ''
-          );
-        }
-      );
-    SSHFP_RSA_SHA256 =
-      { pubkey, ... }@args:
-      SSHFP (
-        args
-        // {
-          algorithm = 1;
-          type = 2;
-          value = builtins.readFile (
-            pkgs.runCommandLocal "sshfp-rsa-sha256.txt" { } ''
-              echo ${formatArg pubkey} | cut -d' ' -f2 | base64 --decode | sha256sum | cut -d' ' -f1 | tr -d '\n' > $out
-            ''
-          );
-        }
-      );
-    SSHFP_ED25519_SHA1 =
-      { pubkey, ... }@args:
-      SSHFP (
-        args
-        // {
-          algorithm = 4;
-          type = 1;
-          value = builtins.readFile (
-            pkgs.runCommandLocal "sshfp-ed25519-sha1.txt" { } ''
-              echo ${formatArg pubkey} | cut -d' ' -f2 | base64 --decode | sha1sum | cut -d' ' -f1 | tr -d '\n' > $out
-            ''
-          );
-        }
-      );
-    SSHFP_ED25519_SHA256 =
-      { pubkey, ... }@args:
-      SSHFP (
-        args
-        // {
-          algorithm = 4;
-          type = 2;
-          value = builtins.readFile (
-            pkgs.runCommandLocal "sshfp-ed25519-sha256.txt" { } ''
-              echo ${formatArg pubkey} | cut -d' ' -f2 | base64 --decode | sha256sum | cut -d' ' -f1 | tr -d '\n' > $out
-            ''
-          );
-        }
-      );
     SVCB =
       args:
       record "SVCB" args [
@@ -174,5 +114,62 @@ in
         args.certificate
       ];
     TXT = args: record "TXT" args [ args.contents ];
+
+    SSHFP_RSA_SHA1 =
+      { pubkey, ... }@args:
+      SSHFP (
+        args
+        // {
+          algorithm = 1;
+          type = 1;
+          value = builtins.readFile (
+            pkgs.runCommandLocal "sshfp-rsa-sha1.txt" { } ''
+              echo ${builtins.toJSON pubkey} | cut -d' ' -f2 | base64 --decode | sha1sum | cut -d' ' -f1 | tr -d '\n' > $out
+            ''
+          );
+        }
+      );
+    SSHFP_RSA_SHA256 =
+      { pubkey, ... }@args:
+      SSHFP (
+        args
+        // {
+          algorithm = 1;
+          type = 2;
+          value = builtins.readFile (
+            pkgs.runCommandLocal "sshfp-rsa-sha256.txt" { } ''
+              echo ${builtins.toJSON pubkey} | cut -d' ' -f2 | base64 --decode | sha256sum | cut -d' ' -f1 | tr -d '\n' > $out
+            ''
+          );
+        }
+      );
+    SSHFP_ED25519_SHA1 =
+      { pubkey, ... }@args:
+      SSHFP (
+        args
+        // {
+          algorithm = 4;
+          type = 1;
+          value = builtins.readFile (
+            pkgs.runCommandLocal "sshfp-ed25519-sha1.txt" { } ''
+              echo ${builtins.toJSON pubkey} | cut -d' ' -f2 | base64 --decode | sha1sum | cut -d' ' -f1 | tr -d '\n' > $out
+            ''
+          );
+        }
+      );
+    SSHFP_ED25519_SHA256 =
+      { pubkey, ... }@args:
+      SSHFP (
+        args
+        // {
+          algorithm = 4;
+          type = 2;
+          value = builtins.readFile (
+            pkgs.runCommandLocal "sshfp-ed25519-sha256.txt" { } ''
+              echo ${builtins.toJSON pubkey} | cut -d' ' -f2 | base64 --decode | sha256sum | cut -d' ' -f1 | tr -d '\n' > $out
+            ''
+          );
+        }
+      );
   };
 }

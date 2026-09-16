@@ -12,7 +12,7 @@ helpers/constants/public-sites.nix # fork 子域清单（并入单域 zhyi.xin�
 helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）
 helpers/host-options.nix # fork 选项：GPU 显存档位、NeoNetwork null、netns 默认值
-home/client-apps/ai-coding/default.nix # fork AI provider 链（uni-api/taotoken/zai，memory: ai-coding 属 fork 自有配置）
+home/client-apps/ai-coding/default.nix # fork AI provider 链（uni-api/taotoken/zai）；上游 zcode/commandcode/secret-mask/jiti-cache 依赖作者 secrets 私有模块 09e0a4212f82100c，fork 不采纳；保留 pi-notify/libnotify 桌面通知
 home/client-apps/dev-tools.nix # 追加 kubectl-ktop
 home/client-apps/firefox/default.nix # 扩展与搜索配置差异（zeroomega 等 fork 客户端选择）
 home/client-apps/git.nix # fork 签名 key
@@ -20,7 +20,7 @@ home/client-apps/pi-web.nix # fork 主机 ml-laptop 接入 pi-web 门控（0a87b
 home/client-apps/plasma.nix # Xwayland DPI 竞态修复（fork 自维护；上游独立修复后可对齐）
 home/client-apps/packages.nix # fork 追加 siyuan/baidunetdisk，svp 换 ml-laptop（个人软件选择）
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
-nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化（其余已 09-13 对齐上游 e00c2150）
+nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化（其余已 09-15 对齐上游 8b1459117）
 nixos/client-components/grub-theme.nix # extraInstallCommands mkForce（主题安装 fork 化）
 nixos/common-apps/coredns.nix # fork 解析链重写（pdns/netns 差异，配合 server-apps/coredns）
 nixos/common-apps/nginx/autoconfig.nix # 域名清单并入单域
@@ -39,7 +39,7 @@ nixos/minimal-components/backup/common.nix # 同上 + storagebox 参数差异
 nixos/minimal-components/boot-params.nix # grubenv saved_entry 逻辑差异（fork 启动项管理）
 nixos/minimal-components/networking.nix # backupDNSServers 按 CN 国别分支（223.5.5.5 等）
 nixos/minimal-components/podman.nix # CN 区域镜像加速（hubproxy + daocloud 兜底）
-nixos/minimal-components/smtp.nix # fork 邮件账号；⚠ from=postmaster@zhyi.cc 疑似单域合并残留，待确认
+nixos/minimal-components/smtp.nix # fork 邮件账号；from=postmaster@zhyi.cc 已确认非残留：AhaSend 账户只登记 zhyi.cc（commit 3d880f3cc，zhyi.xin 会被 556 拒发），DNS TXT/DMARC 记录在 dns/common/records.nix ForwardEmail 块维护
 nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（storagebox 等备份端点）
 nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名
 nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书（对齐上游同款结构，值不同）
@@ -66,6 +66,7 @@ nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮
 nixos/optional-apps/prometheus/alertmanager.nix # 域名差异（alert.zhyi.xin + zerossl-zhyi.xin 证书）；ExecStartPre 已随上游 08-28 修复对齐
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）
+nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
 nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射 + header-fallback 补丁
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）
 nixos/optional-apps/zerotierone-controller.nix # relays null 过滤（fork 主机 zerotier 可为 null）
@@ -79,3 +80,13 @@ nixos/server-components/logging.nix # 日志接 Axiom（filebeat→ES 兼容托�
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
 overlays/50-general.nix # mpv ffmpeg 私有包引用移除（fork 无该 secrets/pkg）
 overlays/60-non-flake-packages.nix # ncps 换上游 flake + go_1_27 + dbmate 垫片（kalbasit/ncps#1329）
+nixos/optional-apps/dlx.nix  # skip: 2026-09-13 用户决策不启用（临时性服务），DLX 端口已从 ports.nix 移除
+nixos/optional-apps/oidc-tester.nix # skip: 2026-09-13 用户决策不启用（临时性调试服务），端口已移除
+nixos/optional-apps/epic-awesome-gamer/default.nix # skip: 依赖作者 secrets 仓 epic-awesome-gamer.yaml，fork 无凭据且不需要喜加一
+nixos/optional-apps/epic-awesome-gamer/fix.patch # skip: 同上，配套补丁
+nixos/optional-apps/prometheus/storagebox.nix # skip: fork 不监控 storagebox（备份端点为 opi5p sftp），default.nix 引用移除已登记
+patches/dlx-fingerprint.patch # skip: 同 dlx.nix，配套补丁
+dns/core/record-handlers.nix # NO_PURGE handler 保留（fork：迁移到 zhyi 域时保留上游/其他来源已管理记录，上游无此 handler）
+home/client-apps/xilinx/default.nix # 上游 aaf24cde 引入 hidden-module da4fbe694da377db（作者 secrets 私有内容，fork secrets 仓无此文件），不采纳；其余已对齐
+nixos/minimal-components/environment.nix # journald 保持 extraConfig 旧写法：上游 settings.Journal 选项需更新的 nixpkgs（用户指示 flake.lock 不超过上游求值实际 rev），nixpkgs 升级后对齐 8ab46ae5
+home/client-apps/mpv.nix # anime4K 档位按 hostName==ml-2700 判断（fork 主机，加 low-gpu tag 会连带改变 plasma blur 行为，不用上游 tag 写法）

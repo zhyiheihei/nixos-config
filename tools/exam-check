@@ -317,10 +317,19 @@ def main():
     upstream_only = sorted(base_set - work_set)
 
     scoped = args.path
+    # 上游独有（base 有而 work 无）也可登记「确认不需要」：带 skip: 前缀的条目
+    # 表示 fork 有意不采纳该上游文件，审计时不再提示。
+    skipped_upstream = sorted(
+        p for p in allow
+        if allow[p].startswith("skip: ") and p in base_set and p not in work_set
+        and (not scoped or p == scoped or p.startswith(scoped.rstrip("/") + "/"))
+    )
+    upstream_only = [p for p in upstream_only if p not in skipped_upstream]
     stale_allow = [
         p for p in allow
-        if p not in drift and p not in known
+        if p not in drift and p not in known and p not in skipped_upstream
         and (not scoped or p == scoped or p.startswith(scoped.rstrip("/") + "/"))
+        and p in base_set
     ]
 
     print(f"baseline {baseline[:12]} (docs/agent/upstream-baseline.md) | exam/master {exam_tip}")
@@ -335,9 +344,13 @@ def main():
         for p in known:
             print(f"  {p}  # {allow.get(p, '')}")
     if upstream_only:
-        print("\n− 上游独有（逐个决定：跟进来 / 确认不需要）:")
+        print("\n− 上游独有（逐个决定：跟进来 / 确认不需要，登记 allowlist 写 'skip: 原因'）:")
         for p in upstream_only:
             print(f"  {p}")
+    if skipped_upstream:
+        print("\nskip 已确认不需要的上游文件:")
+        for p in skipped_upstream:
+            print(f"  {p}  # {allow.get(p, '')}")
     if stale_allow:
         print("\nallowlist 失效条目（漂移已消除，请删除）:")
         for p in stale_allow:

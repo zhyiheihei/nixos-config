@@ -90,8 +90,18 @@ in
       builders-use-substitutes = true;
       connect-timeout = 5;
       # download-buffer-size = 1024 * 1024 * 1024;  # Removed in Lix
-      experimental-features = lib.mkForce "nix-command flakes auto-allocate-uids cgroups";
-      extra-experimental-features = lib.mkForce "nix-command flakes auto-allocate-uids cgroups";
+      experimental-features = lib.mkForce [
+        "nix-command"
+        "flakes"
+        "auto-allocate-uids"
+        "cgroups"
+      ];
+      extra-experimental-features = lib.mkForce [
+        "nix-command"
+        "flakes"
+        "auto-allocate-uids"
+        "cgroups"
+      ];
       fallback = true;
       keep-going = true;
       keep-outputs = true;
@@ -110,6 +120,13 @@ in
       # lazy-trees = true;
 
       substituters = [ "https://cache.nixos.org" ] ++ config.nix.settings.trusted-substituters;
+      system-features =
+        lib.optionals (LT.this.system == "x86_64-linux") [ "gccarch-x86-64" ]
+        ++ lib.optionals (LT.this.x86ArchLevel != null && LT.this.x86ArchLevel >= 2) [ "gccarch-x86-64-v2" ]
+        ++ lib.optionals (LT.this.x86ArchLevel != null && LT.this.x86ArchLevel >= 3) [ "gccarch-x86-64-v3" ]
+        ++ lib.optionals (LT.this.x86ArchLevel != null && LT.this.x86ArchLevel >= 4) [
+          "gccarch-x86-64-v4"
+        ];
       trusted-substituters = LT.constants.nix.substituters;
       inherit (LT.constants.nix) trusted-public-keys;
     };

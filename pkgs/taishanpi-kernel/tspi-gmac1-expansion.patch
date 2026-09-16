@@ -2,14 +2,16 @@ Enable GMAC1 for the LCKFB 39-pin expansion board (4G_HUB2.0_ET100_HS).
 
 The expansion board routes GMAC1 (RGMII, pinmux group m1) to an
 RTL8211F gigabit PHY; the vendor BSP ships this as
-tspi-rk3566-gmac1-v10.dtsi with default delaylines tx 0x19 / rx 0x06.
-Upstream keeps gmac1 disabled because the base board has no wired NIC.
+tspi-rk3566-gmac1-v10.dtsi Upstream keeps gmac1 disabled because the base board has no wired NIC.
+Delaylines: vendor defaults were unstable on this unit (30% loss under
+load); reboot-loop calibration found tx 0x2e / rx 0x0d clean. EEE must
+stay off: RTL8211F EEE interop causes chronic 1G link flaps.
 
 Signed-off-by: zhyi <zhyi@zhyi.cc>
 
 --- a/arch/arm64/boot/dts/rockchip/rk3566-lckfb-tspi.dts
 +++ b/arch/arm64/boot/dts/rockchip/rk3566-lckfb-tspi.dts
-@@ -708,5 +708,34 @@
+@@ -708,5 +708,39 @@
  };
  
 +&gmac1 {
@@ -28,8 +30,8 @@ Signed-off-by: zhyi <zhyi@zhyi.cc>
 +		     &gmac1m1_rx_bus2
 +		     &gmac1m1_rgmii_clk
 +		     &gmac1m1_rgmii_bus>;
-+	tx_delay = <0x19>;
-+	rx_delay = <0x06>;
++	tx_delay = <0x2e>;
++	rx_delay = <0x0d>;
 +	phy-handle = <&rgmii_phy0>;
 +	status = "okay";
 +};
@@ -38,6 +40,11 @@ Signed-off-by: zhyi <zhyi@zhyi.cc>
 +	rgmii_phy0: ethernet-phy@0 {
 +		compatible = "ethernet-phy-ieee802.3-c22";
 +		reg = <0x0>;
++		/* RTL8211F EEE interop: chronic 1G link flaps (26 lost-carrier
++		   events in a single boot before disabling) */
++		eee-broken-100m;
++		eee-broken-1000m;
++		eee-broken-gbit;
 +	};
 +};
 +

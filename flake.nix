@@ -176,8 +176,9 @@
     };
     preservation.url = "github:WilliButz/preservation/286737ba485f30c1687c833e66f5901a6c8dc019";
     proxmox-nixos = {
-      # url = "github:SaumonNet/proxmox-nixos";
-      url = "github:xddxdd/proxmox-nixos";
+      url = "github:SaumonNet/proxmox-nixos";
+      inputs.nixpkgs-stable.follows = "nixpkgs";
+      inputs.nixpkgs-libvncserver.follows = "nixpkgs";
       inputs.utils.follows = "flake-utils";
       inputs.flake-compat.follows = "flake-compat";
     };

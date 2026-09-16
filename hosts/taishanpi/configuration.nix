@@ -1,6 +1,5 @@
 {
   lib,
-  LT,
   pkgs,
   ...
 }:
@@ -71,6 +70,27 @@
       DHCP = "ipv4";
       IPv6AcceptRA = true;
     };
+  };
+
+  # 39pin 扩展板千兆口（GMAC1 + RTL8211F，DTS 补丁启用）。有线优先于
+  # Wi-Fi：RouteMetric 给 eth0 更低值，插线时走 eth，拔线自动回落 wlan。
+  # 链路有偶发闪断（FPC 排线信号完整性，稳定期完全健康）：DHCP 加快
+  # 重试节奏让租约在闪断间隙内收敛。MAC 固定（GMAC 无持久源，内核
+  # 每 boot 随机生成，router 的 ARP/租约表会被随机 MAC 刷屏）。
+  systemd.network.networks."09-taishanpi-eth" = {
+    matchConfig.Name = "eth0";
+    networkConfig = {
+      DHCP = "ipv4";
+      IPv6AcceptRA = true;
+    };
+    dhcpV4Config = {
+      RouteMetric = 100;
+    };
+  };
+
+  systemd.network.links."10-taishanpi-eth" = {
+    matchConfig.OriginalName = "eth0";
+    linkConfig.MACAddress = "3e:b9:d9:35:dc:7f";
   };
 
   networking.networkmanager.enable = lib.mkForce false;
