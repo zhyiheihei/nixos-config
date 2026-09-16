@@ -62,6 +62,14 @@ in
         UMASK = "022";
       };
       environmentFiles = [ config.sops.templates.openlist-env.path ];
+      # NFS 媒体盘上部分目录属主 syncthing（700，微信缓存等），NFS 客户端
+      # root 可越过（无 root_squash），非 root 进程不可读且 DAC_OVERRIDE
+      # 对非 root 无效 → 容器以 root 跑。数据目录 /opt/openlist/data 属主
+      # 已由 entrypoint 判定逻辑兼容（目录权限检查仅要求可写）。
+      extraOptions = [
+        "--cap-add=DAC_OVERRIDE"
+        "--user=0:0"
+      ];
       volumes = [
         "/var/lib/openlist:/opt/openlist/data"
       ]
