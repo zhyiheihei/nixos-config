@@ -60,7 +60,6 @@ nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（s
 nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
 nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射 + header-fallback 补丁
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）
-nixos/optional-apps/zerotierone-controller.nix # relays null 过滤（fork 主机 zerotier 可为 null）
 nixos/optional-cron-jobs/testssl.nix # google-test 站点移除
 nixos/pve-components/nginx.nix # per-host 证书策略（zerossl-<host> vs 上游统一域名证书）
 nixos/server-apps/bird/config/dn42.nix # neo 路由移除（NeoNetwork 置空）

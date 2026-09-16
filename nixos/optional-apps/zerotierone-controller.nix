@@ -1,5 +1,6 @@
 { LT, lib, ... }:
 let
+  # Target host MUST have DN42 connectivity
   defaultGatewayHost = LT.hosts.rock5c;
   managedIPv4Ranges = LT.constants.dn42.IPv4 ++ LT.constants.neonetwork.IPv4 ++ [ "198.18.0.0/15" ];
   managedIPv6Ranges =
@@ -46,9 +47,7 @@ in
         multicastLimit = 256;
         routes = ztRoutes;
         members = LT.zerotier.hosts;
-        relays = lib.filter (v: v != null) (
-          lib.mapAttrsToList (n: v: v.zerotier) (LT.hostsWithTag LT.tags.server)
-        );
+        relays = lib.mapAttrsToList (n: v: v.zerotier) (LT.hostsWithTag LT.tags.server);
       };
     };
   };
