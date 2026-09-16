@@ -50,6 +50,7 @@ _: [
   "memos.zhyi.xin"
   "n8n.zhyi.xin"
   "nav.zhyi.xin"
+  "openlist.zhyi.xin"
   "pb.zhyi.xin"
   "pic.zhyi.xin"
   "prometheus.zhyi.xin"

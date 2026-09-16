@@ -278,12 +278,17 @@ in
     https_proxy = "";
   };
 
-  # LAN/LTNET 私网入口，走 Dex SSO（共享 oauth2-proxy）；TaoSync 上游
-  # 警告不暴露公网，不发布公网 vhost。
-  lantian.localVhosts.openlist.locations."/" = {
-    proxyPass = "http://127.0.0.1:${LT.portStr.Openlist}";
-    proxyWebsockets = true;
-    enableOAuth = true;
+  # OpenList 公开服务（同 immich/jellyfin 走公网 8443 TLS 前沿，opi5p 是
+  # 家宽公网唯一 TLS 前沿），Dex OAuth 保护；TaoSync 上游警告不暴露
+  # 公网，保持 LTNET 私网。
+  lantian.nginxVhosts."openlist.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.Openlist}";
+      proxyWebsockets = true;
+      enableOAuth = true;
+    };
+    sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
+    noIndex.enable = true;
   };
   lantian.localVhosts.taosync.locations."/" = {
     proxyPass = "http://127.0.0.1:${LT.portStr.TaoSync}";

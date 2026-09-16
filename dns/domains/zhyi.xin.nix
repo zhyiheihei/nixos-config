@@ -104,6 +104,13 @@ let
     }
     {
       recordType = "CNAME";
+      # OpenList 网盘网关（opi5p，公网 8443 TLS 前沿）。
+      name = "openlist";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
       name = "dashboard";
       target = "tencent.zhyi.xin.";
       ttl = "1h";
