@@ -7,11 +7,6 @@
   ...
 }:
 let
-  prometheusDatasourceUid = "PBFA97CFB590B2093";
-
-  dashboardDir = import ./grafana/dashboards.nix {
-    inherit lib pkgs prometheusDatasourceUid;
-  };
 
   mkPlugin =
     pluginSrc:
@@ -48,11 +43,8 @@ in
 
     settings = {
       auth = {
+        oauth_auto_login = "true";
         oauth_allow_insecure_email_lookup = "true";
-      };
-      users = {
-        default_language = "zh-Hans";
-        default_theme = "dark";
       };
       "auth.anonymous" = {
         enabled = "false";
@@ -60,7 +52,6 @@ in
       "auth.generic_oauth" = {
         enabled = "true";
         name = "Dex";
-        auto_login = "true";
         allow_sign_up = "true";
         scopes = "openid profile email groups offline_access";
         auth_url = "https://login.zhyi.xin/auth";
@@ -73,11 +64,9 @@ in
         host = "/run/mysqld/mysqld.sock";
         user = "grafana";
       };
-      dashboards.default_home_dashboard_path = "${dashboardDir}/infrastructure-overview.json";
       log = {
         mode = "syslog";
-        # keep debug until user confirms all panels render data (d6af7598)
-        level = "debug";
+        level = "error";
       };
       server = {
         protocol = "socket";
@@ -96,45 +85,8 @@ in
         password = "$__file{${config.sops.secrets.smtp-pass.path}}";
         from_address = from;
       };
-    };
-
-    provision = {
-      enable = true;
-      datasources.settings = {
-        apiVersion = 1;
-        prune = true;
-        datasources = [
-          {
-            name = "Prometheus";
-            uid = prometheusDatasourceUid;
-            type = "prometheus";
-            access = "proxy";
-            url = "http://127.0.0.1:${LT.portStr.Prometheus.Daemon}";
-            isDefault = true;
-            editable = false;
-            jsonData = {
-              httpMethod = "POST";
-              timeInterval = "15s";
-            };
-          }
-        ];
-      };
-      dashboards.settings = {
-        apiVersion = 1;
-        providers = [
-          {
-            name = "zhyi-infrastructure";
-            orgId = 1;
-            folder = "基础设施";
-            folderUid = "zhyi-infrastructure";
-            type = "file";
-            disableDeletion = false;
-            editable = true;
-            allowUiUpdates = true;
-            updateIntervalSeconds = 30;
-            options.path = dashboardDir;
-          }
-        ];
+      unified_alerting = {
+        enabled = "true";
       };
     };
   };
@@ -159,7 +111,7 @@ in
     ];
   };
 
-  lantian.nginxVhosts."dashboard.zhyi.xin" = {
+  zhyi.nginxVhosts."dashboard.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:${config.services.grafana.settings.server.socket}";
@@ -170,7 +122,7 @@ in
       };
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 }

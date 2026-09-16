@@ -48,7 +48,6 @@ nixos/optional-apps/bitmagnet.nix # TMDB key placeholder 宽容处理（fork 改
 nixos/optional-apps/calibre-cops.nix # copsVhost 重构（fork vhost 结构）
 nixos/optional-apps/gitea/default.nix # oauth2 自动注册 + MINIO 换 VaultS3（Dex 集成配套）
 nixos/optional-apps/glauth.nix # displayName Zh Yi + neo 监听移除
-nixos/optional-apps/grafana.nix # fork dashboard 供应链（dashboards.nix + datasource uid）
 nixos/optional-apps/homepage.nix # 单域正则简化（作者双域正则不适用）
 nixos/optional-apps/hydra/default.nix # atticLogin/上传 key 接 zhyi 缓存（Hydra 迁 ml-laptop 配套）
 nixos/optional-apps/maddy.nix # neo 域移除（NeoNetwork 置空）
