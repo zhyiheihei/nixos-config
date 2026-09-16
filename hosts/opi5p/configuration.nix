@@ -55,12 +55,14 @@ in
     ../../nixos/optional-apps/immich-rockchip.nix
     ../../nixos/optional-apps/microsoft-rewards-script.nix
     ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/openlist.nix
     ../../nixos/optional-apps/one-kvm.nix
     ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/ws-scrcpy.nix
     ../../nixos/optional-apps/resin.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
+    ../../nixos/optional-apps/taosync.nix
     ../../nixos/optional-apps/webdav.nix
 
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
@@ -257,6 +259,30 @@ in
     "192.168.0.66:5555"
     "192.168.0.41:5555"
   ];
+
+  # OpenList + TaoSync 网盘备份链：Documents/Pictures 经 Syncthing 媒体盘
+  # 只读挂载，定时同步到百度网盘（仅新增模式，删除不传染）。
+  # 刷 token 走 OpenList 在线 API（外站）→ 出站代理；百度上传国内直连豁免。
+  lantian.openlist.enable = true;
+  lantian.taosync.enable = true;
+  systemd.services.podman-openlist.environment = LT.proxyEnvironment // {
+    NO_PROXY = "${LT.proxyBypass},.baidu.com,.baidubce.com";
+    no_proxy = "${LT.proxyBypass},.baidu.com,.baidubce.com";
+  };
+  systemd.services.podman-taosync.environment = LT.proxyEnvironment;
+
+  # LAN/LTNET 私网入口，走 Dex SSO（共享 oauth2-proxy）；TaoSync 上游
+  # 警告不暴露公网，不发布公网 vhost。
+  lantian.localVhosts.openlist.locations."/" = {
+    proxyPass = "http://127.0.0.1:${LT.portStr.Openlist}";
+    proxyWebsockets = true;
+    enableOAuth = true;
+  };
+  lantian.localVhosts.taosync.locations."/" = {
+    proxyPass = "http://127.0.0.1:${LT.portStr.TaoSync}";
+    proxyWebsockets = true;
+    enableOAuth = true;
+  };
 
   # EPD 家庭食品存储看板：REST API + WebUI（内网私有，nginx food.opi5p.zhyi.xin）
   # + 每日 0 点墨水屏推送 timer；BLE 推送 NRF_EPD 墨水屏（服务私有，不开公网）。

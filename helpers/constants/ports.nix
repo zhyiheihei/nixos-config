@@ -133,6 +133,8 @@ rec {
     Navdash = 13833;
     Syncthing = 13834;
     LskyPro = 13835;
+    Openlist = 13837;
+    TaoSync = 13838;
     # EPD 家庭食品存储看板（zhyi-packages.epd-food-server）
     EpdFoodDashboard = 13836;
     Usque = 13840;
