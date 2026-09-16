@@ -32,7 +32,6 @@ nixos/minimal-apps/nginx-proxy.nix # neo ULA 移除（NeoNetwork 置空）
 nixos/minimal-apps/rsync-server.nix # --no-group 修复（2026-08-30 opi5p exit 23 实证，fork 自维护）
 nixos/minimal-components/backup/backup.nix # sftpEndpoint 选项化（备份端点迁 opi5p，lt-home-vm 退役）
 nixos/minimal-components/backup/common.nix # 同上 + storagebox 参数差异
-nixos/minimal-components/boot-params.nix # grubenv saved_entry 逻辑差异（fork 启动项管理）
 nixos/minimal-components/networking.nix # backupDNSServers 按 CN 国别分支（223.5.5.5 等）
 nixos/minimal-components/podman.nix # CN 区域镜像加速（hubproxy + daocloud 兜底）
 nixos/minimal-components/smtp.nix # fork 邮件账号；from=postmaster@zhyi.cc 已确认非残留：AhaSend 账户只登记 zhyi.cc（commit 3d880f3cc，zhyi.xin 会被 556 拒发），DNS TXT/DMARC 记录在 dns/common/records.nix ForwardEmail 块维护
