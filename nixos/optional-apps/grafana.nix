@@ -111,7 +111,7 @@ in
     ];
   };
 
-  zhyi.nginxVhosts."dashboard.zhyi.xin" = {
+  lantian.nginxVhosts."dashboard.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://unix:${config.services.grafana.settings.server.socket}";
