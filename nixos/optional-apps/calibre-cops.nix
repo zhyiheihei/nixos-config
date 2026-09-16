@@ -6,33 +6,6 @@
 }:
 let
   calibreLibrary = config.services.calibre-cops.libraryPath;
-  copsVhost = {
-    root = pkgs.nur-xddxdd.calibre-cops;
-    locations = {
-      "/" = {
-        tryFiles = "$uri $uri/ /index.php$uri";
-        index = "index.php";
-        enableBasicAuth = true;
-      };
-      "/download/".extraConfig = ''
-        rewrite ^/download/(\d+)/(\d+)/.*\.(.*)$ /index.php/fetch/$2/$1/ignore.$3 last;
-        rewrite ^/download/(\d+)/.*\.(.*)$ /index.php/fetch/0/$1/ignore.$2 last;
-        break;
-      '';
-      "/view/".extraConfig = ''
-        rewrite ^/view/(\d+)/(\d+)/.*\.(.*)$ /index.php/inline/$2/$1/ignore.$3 last;
-        rewrite ^/view/(\d+)/.*\.(.*)$ /index.php/inline/0/$1/ignore.$2 last;
-        break;
-      '';
-      "\"${calibreLibrary}/\"".extraConfig = ''
-        alias "${calibreLibrary}/";
-        internal;
-      '';
-    };
-
-    phpfpmSocket = config.services.phpfpm.pools.calibre-cops.socket;
-    noIndex.enable = true;
-  };
 in
 {
   options.services.calibre-cops = {
@@ -70,25 +43,32 @@ in
     };
 
     lantian.nginxVhosts = {
-      "books.zhyi.xin" = copsVhost // {
-        sslCertificate = "lets-encrypt-zhyi.xin";
-      };
-      "books.localhost" = copsVhost // {
-        listenHTTP.enable = true;
-        listenHTTPS.enable = false;
-        locations = copsVhost.locations // {
-          "/" = copsVhost.locations."/" // { enableBasicAuth = false; };
-          "= /ping.php".extraConfig = ''
-            fastcgi_pass unix:${config.services.phpfpm.pools.calibre-cops.socket};
-            fastcgi_param SCRIPT_NAME /ping.php;
-            fastcgi_param SCRIPT_FILENAME /ping.php;
-            fastcgi_param REQUEST_URI /ping.php;
-            fastcgi_param REQUEST_METHOD $request_method;
-            fastcgi_param SERVER_PROTOCOL $server_protocol;
-            fastcgi_param REDIRECT_STATUS 200;
+      "books.zhyi.xin" = {
+        root = pkgs.nur-xddxdd.calibre-cops;
+        locations = {
+          "/" = {
+            tryFiles = "$uri $uri/ /index.php$uri";
+            index = "index.php";
+            enableBasicAuth = true;
+          };
+          "/download/".extraConfig = ''
+            rewrite ^/download/(\d+)/(\d+)/.*\.(.*)$ /index.php/fetch/$2/$1/ignore.$3 last;
+            rewrite ^/download/(\d+)/.*\.(.*)$ /index.php/fetch/0/$1/ignore.$2 last;
+            break;
+          '';
+          "/view/".extraConfig = ''
+            rewrite ^/view/(\d+)/(\d+)/.*\.(.*)$ /index.php/inline/$2/$1/ignore.$3 last;
+            rewrite ^/view/(\d+)/.*\.(.*)$ /index.php/inline/0/$1/ignore.$2 last;
+            break;
+          '';
+          "\"${calibreLibrary}/\"".extraConfig = ''
+            alias "${calibreLibrary}/";
+            internal;
           '';
         };
-        accessibleBy = "localhost";
+
+        phpfpmSocket = config.services.phpfpm.pools.calibre-cops.socket;
+        sslCertificate = "zerossl-zhyi.xin";
       };
     };
 
