@@ -269,7 +269,14 @@ in
     NO_PROXY = "${LT.proxyBypass},.baidu.com,.baidubce.com";
     no_proxy = "${LT.proxyBypass},.baidu.com,.baidubce.com";
   };
-  systemd.services.podman-taosync.environment = LT.proxyEnvironment;
+  # TaoSync 只连 OpenList（podman 网关 10.88.0.1），不出外站，无需代理；
+  # 且 requests 型 SOCKS 支持缺失会让它连本机引擎都报错。
+  systemd.services.podman-taosync.environment = {
+    HTTP_PROXY = "";
+    HTTPS_PROXY = "";
+    http_proxy = "";
+    https_proxy = "";
+  };
 
   # LAN/LTNET 私网入口，走 Dex SSO（共享 oauth2-proxy）；TaoSync 上游
   # 警告不暴露公网，不发布公网 vhost。

@@ -17,7 +17,9 @@ let
 
   # 登录失败时用 sops 当前密码重置 admin（OPENLIST_ADMIN_PASSWORD 只在首次
   # 初始化生效；sops 改密后旧 hash 对不上时走此分支）。
-  # /api/admin/user/update 需带完整 user 字段，admin role=2。
+  # /api/admin/user/update 需带完整 user 字段，admin role=2。permission
+  # 必须给足写类权限位（bit3 写内容/bit4 重命名/bit5 删除/bit6 移动等），
+  # 传 0 会导致 TaoSync 经 API 写网盘时被 403。
   adminIdScript = ''
     admin_id=$(curl -sf "http://127.0.0.1:${LT.portStr.Openlist}/api/admin/user/list" \
       -H "Authorization: $token" | jq -er '.data.content[] | select(.role == 2) | .id')
@@ -27,7 +29,7 @@ let
     curl -sf -X POST "http://127.0.0.1:${LT.portStr.Openlist}/api/admin/user/update" \
       -H "Authorization: $token" -H 'Content-Type: application/json' \
       -d "$(jq -cn --argjson id "$admin_id" --arg p "$admin_password" \
-        '{id:$id,username:"admin",password:$p,base_path:"/",role:2,disabled:false,permission:0}')" \
+        '{id:$id,username:"admin",password:$p,base_path:"/",role:2,disabled:false,permission:65535}')" \
       | jq -e '.code == 200' >/dev/null
   '';
 in

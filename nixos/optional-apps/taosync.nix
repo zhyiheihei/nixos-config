@@ -27,9 +27,13 @@ in
     virtualisation.oci-containers.containers.taosync = {
       image = "docker.io/dr34m/tao-sync:latest";
       labels."io.containers.autoupdate" = "registry";
-      ports = [ "127.0.0.1:${LT.portStr.TaoSync}:8023" ];
+      # host 网络：需直连本机 OpenList（127.0.0.1:Openlist）；
+      # bridge 下 loopback 发布的端口不可达。
+      extraOptions = [ "--net=host" ];
       environment = {
         TZ = config.time.timeZone;
+        # host 网络无端口映射，用官方 TAO_PORT 指到登记端口。
+        TAO_PORT = LT.portStr.TaoSync;
       };
       volumes = [ "/var/lib/taosync:/app/data" ];
     };
