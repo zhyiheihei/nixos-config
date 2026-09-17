@@ -65,16 +65,42 @@
   # NAS 媒体库直接由 NAS 导出，与 opi5p/rock5c 挂同一个 NFS share。
   boot.supportedFilesystems = [ "nfs" ];
 
+  # noauto + automount + bindfs _netdev：同 opi5p 修复（c72df01ca）。
+  # resilio 的 /sync、/downloads bindfs 挂在 NFS 之上，_netdev 归入
+  # remote-fs 链断 ordering cycle（dragon boot 日志实测 2 条环）。
   fileSystems."/mnt/storage" = {
     device = "192.168.0.40:/nixos";
     fsType = "nfs";
     options = [
       "_netdev"
       "noatime"
+      "noauto"
       "hard"
       "vers=4.1"
       "nconnect=16"
+      "x-systemd.automount"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.mount-timeout=5s"
     ];
+  };
+
+  # 共享 resilio-sync 模块不动，主机级覆盖断环。
+  fileSystems."/sync".options = lib.mkForce [
+    "bind"
+    "_netdev"
+  ];
+  fileSystems."/downloads".options = lib.mkForce [
+    "bind"
+    "_netdev"
+  ];
+
+  # automount 触发的 mount 失败不再撞 5 次/10s 限流，NAS 恢复后访问即自愈。
+  systemd.units."mnt-storage.mount" = {
+    overrideStrategy = "asDropin";
+    text = ''
+      [Unit]
+      StartLimitIntervalSec=0
+    '';
   };
 
   systemd.network.networks."10-dragon-q8b-lan" = {

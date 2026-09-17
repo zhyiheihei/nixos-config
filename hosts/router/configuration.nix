@@ -436,8 +436,9 @@ in
   ];
   environment.systemPackages = [ pkgs.nfs-utils ];
 
-  # Same QNAP export the other media hosts mount.  Router must stay up as the
-  # LAN gateway even when the NAS is down, so keep the mount non-fatal.
+  # noauto + automount：裸 mount 在 NAS 未就绪时失败且不重试，写法
+  # 对齐 exam lt-hp-omen（同 opi5p 修复，c72df01ca）。保留 nofail：
+  # router 是 LAN 网关，NAS 掉线也必须照常起来。
   fileSystems."/mnt/storage" = {
     device = "192.168.0.40:/nixos";
     fsType = "nfs";
@@ -445,10 +446,23 @@ in
       "_netdev"
       "nofail"
       "noatime"
+      "noauto"
       "hard"
       "vers=4.1"
       "nconnect=16"
+      "x-systemd.automount"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.mount-timeout=5s"
     ];
+  };
+
+  # automount 触发的 mount 失败不再撞 5 次/10s 限流，NAS 恢复后访问即自愈。
+  systemd.units."mnt-storage.mount" = {
+    overrideStrategy = "asDropin";
+    text = ''
+      [Unit]
+      StartLimitIntervalSec=0
+    '';
   };
 
   # Global wait-online is disabled by minimal networking; wait for the static
