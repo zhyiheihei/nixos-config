@@ -34,6 +34,13 @@ let
       backend = "immich.zhyi.xin";
       address = opiAddress;
     };
+    # OpenList 后端 vhost 在 opi5p（OAuth 在后端层），此处同 asf 模式前置
+    # 一层 OAuth：内网 443 入口经 router 兜底 DNAT 落到本机，缺失登记时
+    # 会被默认 server 的 snakeoil 证书拦住。
+    "openlist.zhyi.xin" = {
+      backend = "openlist.zhyi.xin";
+      address = opiAddress;
+    };
     "memos.zhyi.xin" = {
       backend = "memos.zhyi.xin";
       address = dragonAddress;
@@ -46,26 +53,20 @@ let
   mkFixedFrontend = frontend: cfg: {
     locations."/" =
       (mkBackend cfg.backend cfg.address)
-      // lib.optionalAttrs (
-        builtins.elem frontend [
-          "books.zhyi.xin"
-          "dav.zhyi.xin"
-        ]
-      ) { enableBasicAuth = true; }
-      // lib.optionalAttrs (
-        builtins.elem frontend [
-          "asf.zhyi.xin"
-        ]
-      ) { enableOAuth = true; };
+      // lib.optionalAttrs (builtins.elem frontend [
+        "books.zhyi.xin"
+        "dav.zhyi.xin"
+      ]) { enableBasicAuth = true; }
+      // lib.optionalAttrs (builtins.elem frontend [
+        "asf.zhyi.xin"
+        "openlist.zhyi.xin"
+      ]) { enableOAuth = true; };
     sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 in
 {
-  lantian.nginxVhosts =
-    lib.mapAttrs' (
-      frontend: cfg:
-      lib.nameValuePair frontend (mkFixedFrontend frontend cfg)
-    ) fixedFrontends
-    ;
+  lantian.nginxVhosts = lib.mapAttrs' (
+    frontend: cfg: lib.nameValuePair frontend (mkFixedFrontend frontend cfg)
+  ) fixedFrontends;
 }
