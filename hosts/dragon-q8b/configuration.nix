@@ -129,6 +129,17 @@
     downloadsDir = "/mnt/storage/resilio/downloads";
   };
 
+  # resilio 索引风暴防护（2026-09-16 断网排障结论）：rslsync 对 NFS 上海量
+  # git/SDK 小文件做全量索引时日志 500 行/秒、RSS 2.4G，把 8G 内存机器拖到
+  # swap 打满、整机假死 ping 不通（09-16 21:32 与 15:35 两次实证）；同时
+  # journald 全局 100M 限额下系统日志全被 resilio 日志冲掉，断网证据灭失。
+  # per-unit 日志限流 + 内存硬顶防复发；根治需把高频变动 git/SDK 目录移出同步。
+  systemd.services.resilio.serviceConfig = {
+    LogRateLimitIntervalSec = 30;
+    LogRateLimitBurst = 500;
+    MemoryMax = "3G";
+  };
+
   # NCPS 上游代理：router V2Ray（LT.proxyEnvironment）在 2026-09-05 间歇性
   # 断流，导致 NCPS 替代下载超时、全集群 substituter 退化。改走 rock5c 的
   # metacubexd mihomo mixed 口（metacubexd.nix 里 MIXED_PORT=7892 且发布在
