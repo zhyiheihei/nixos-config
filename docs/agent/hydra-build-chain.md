@@ -6,9 +6,9 @@
 
 ## 不变量
 
-- **2026-09-04 起 Hydra 跑在 `ml-laptop`**（自 ml-builder 迁入，见下文
-  「构建拓扑」），公共 vhost `hydra.zhyi.xin` 在 greencloud 覆写后端指向
-  ml-laptop 的 LTNET 地址。
+- **2026-09-17 起 Hydra 跑在 `opi5p`**（2026-09-04 曾自 ml-builder 迁入
+  ml-laptop，后为给工作机减负再迁 opi5p），公共 vhost `hydra.zhyi.xin` 在
+  greencloud 覆写后端指向 opi5p 的 LTNET 地址。
 - `ml-builder` 仍是唯一主构建机（28 vCPU / 58 GiB），也是唯一声明
   `big-parallel` 的主机；同时只跑 1 个 derivation，单任务不限核数
   （`cores = 0`），防止 2026-08-06 出现过的多任务 OOM。Hydra 迁走后本机
@@ -21,22 +21,27 @@
 - `maxJobs` 限制同时运行的 derivation 数；`cores` 限制单个 derivation 获得的
   并行度。两者不能互相替代。
 
-## 构建拓扑（2026-09-04 定稿，Hydra on ml-laptop）
+## 构建拓扑（2026-09-17 更新，Hydra on opi5p）
 
-- **ml-laptop 保留 1 个本地构建槽**（`nix.settings.max-jobs = 1`）：吸收
-  小构建与求值期 FOD，避免 builder 网络抖动时全部外派空转。
+- **opi5p 本机单槽**（`nix.settings.max-jobs = 1`）：Hydra 所在机，aarch64
+  原生构建走本机 daemon 单槽；生产节点（PostgreSQL/媒体/reDroid）保护
+  见下文 2026-08-02 事故。
+- **ml-laptop 零本地构建槽**（`nix.settings.max-jobs = 0`）：自身构建与
+  求值期 FOD 全部外派，工作机不承担编译。
 - **ml-laptop 不打 `nix-builder` 标签**：不对外通告本机为集群构建机，其他
   主机的分布式构建不派发到这台笔记本。
-- ml-laptop 的 `/etc/nix/machines`（由 `nix.buildMachines` 生成）仅含远端：
-  ml-builder 条目额外通告 `aarch64-cross`——ARM 厂商内核交叉构建带
-  `requiredSystemFeatures = [ "aarch64-cross" ]` 硬性要求，不通告则
-  max-jobs 外无机器可接、直接失败；opi5p 条目承接 aarch64 原生构建。
-  Hydra 与本机 daemon 共用这一份机器清单。
+- 各机的 `/etc/nix/machines`（由 `nix.buildMachines` 生成）：
+  ml-laptop 外派 x86 到 ml-builder（通告 `aarch64-cross`——ARM 厂商内核
+  交叉构建带 `requiredSystemFeatures = [ "aarch64-cross" ]` 硬性要求，
+  不通告则无机器可接、直接失败），aarch64 到 opi5p；
+  opi5p（Hydra 所在机）的机器表仅含 ml-builder 两条，aarch64 原生构建
+  走本机单槽，不自派发。
 - ml-builder 侧以 `nix.settings.extra-system-features = [ "aarch64-cross" ]`
   声明同款 feature，本地可跑交叉构建；ml-laptop 本地 daemon 也声明该
   feature（四个 ARM 硬件内核包带 requiredSystemFeatures）。
-- ml-laptop 的 hydra-evaluator unit 注入集群出站代理（直连 GitHub 拉
-  flake inputs 实测长期卡死），见 [outbound-proxy](outbound-proxy.md)。
+- Hydra 所在机的 hydra-evaluator unit 注入集群出站代理（直连 GitHub 拉
+  flake inputs 实测长期卡死；ml-laptop 时期即如此，迁 opi5p 后沿用），
+  见 [outbound-proxy](outbound-proxy.md)。
 - Hydra 已从 ml-builder 撤除；`secrets/hydra.yaml` 的
   `hydra-builder-ssh-privkey` 仍是 `nix-distributed` 到各构建机的 SSH 凭据，
   ml-builder 继续布线。
@@ -46,8 +51,8 @@
 | 节点 | 地址 | 架构 | 同时任务 | 单任务核心 | speed factor | 声明 feature | 角色 |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- |
 | `ml-builder` | `192.168.0.50` | `x86_64-linux` | 1 | 0（默认全核） | 28 | `aarch64-cross`, `big-parallel`；Hydra localhost 另有 `kvm,nixos-test,benchmark` | 唯一主构建机，大包和交叉构建 |
-| `opi5p` | `192.168.0.62` | `aarch64-linux` | 1 | 0（默认全核） | 8 | 无 | 必须执行 ARM 目标程序时的原生回退 |
-| `ml-laptop` | `192.168.0.55` | `x86_64-linux` | 1（仅本机） | — | — | `aarch64-cross`（本地 daemon） | Hydra 所在地；吸收小构建与求值期 FOD，不对外通告 |
+| `opi5p` | `192.168.0.62` | `aarch64-linux` | 1 | 0（默认全核） | 8 | 无 | Hydra 所在地；必须执行 ARM 目标程序时的原生回退 |
+| `ml-laptop` | `192.168.0.55` | `x86_64-linux` | 0 | — | — | `aarch64-cross`（本地 daemon） | 控制机；自身构建全外派，不跑 Hydra，不对外通告 |
 
 `speed factor` 只帮助 Nix 在同架构候选机之间排序，不是资源限制。真正的保护来自
 `nixBuilder.maxJobs`、目标机 `nix.settings.max-jobs` 和 `nix.settings.cores`。
@@ -56,18 +61,19 @@
 
 | 阶段 | 来源 | 去向 | 选择依据 | 结果 |
 | --- | --- | --- | --- | --- |
-| 求值与排队 | Hydra（`ml-builder`） | `/etc/nix/machines-with-localhost` | system、mandatory feature、可用槽位、speed factor | 选择实际 builder |
-| 普通 x86 构建 | Hydra | `ml-builder` localhost 单任务 | `x86_64-linux`，主机速度与槽位 | 构建输出进入 Nix store |
+| 求值与排队 | Hydra（`opi5p`） | `/etc/nix/machines` | system、mandatory feature、可用槽位、speed factor | 选择实际 builder |
+| 普通 x86 构建 | Hydra | `ml-builder`（远程 ssh，单任务） | `x86_64-linux`，主机速度与槽位 | 构建输出进入 Nix store |
 | ml-builder 本地发起 | ml-builder | x86 留在本机；原生 ARM 到 opi5p，QEMU 回退 | ml-builder 的机器表排除 PVE，保留 OPI5P | 不产生 PVE↔ml-builder 回路 |
-| 大型并行构建 | Hydra | `ml-builder` localhost | derivation 要求 `big-parallel` | 不占用 PVE/OPI 业务资源 |
+| 大型并行构建 | Hydra | `ml-builder`（远程 ssh） | derivation 要求 `big-parallel` | 不占用 PVE/OPI 业务资源 |
 | ARM 交叉构建 | Hydra 或 ml-builder | `ml-builder` | build platform 仍是 x86，并要求 `aarch64-cross` | 生成 ARM 产物但不执行 ARM 二进制 |
-| ARM 原生构建 | Hydra 或 ml-builder | `opi5p` | derivation 的 system 为 `aarch64-linux` | 单任务执行目标架构构建脚本 |
+| ARM 原生构建 | Hydra（本机单槽）或 ml-builder | `opi5p` | derivation 的 system 为 `aarch64-linux` | 单任务执行目标架构构建脚本 |
 | 构建后上传 | Hydra RunCommand | `https://attic.zhyi.xin/zhyi` | 成功输出路径 | 私有 Attic/S3 缓存 |
 | 客户端取缓存 | Nix 客户端 | 先 Attic，再 `opi5p:13851` 的 NCPS | substituter 顺序 | NCPS 只代理公共上游，不反代 Attic |
 
-Hydra 使用 `/etc/nix/machines-with-localhost`，因为它需要显式的 ml-builder localhost
-项；普通 `nix build` 使用 `/etc/nix/machines`。不要把 localhost 写入普通远程 builder
-文件，否则 Nix daemon 可能在持有输出锁时把任务递归派回自己。
+Hydra 与普通 `nix build` 共用 `/etc/nix/machines`（模块默认的
+`machines-with-localhost` 由 `services.hydra.buildMachinesFiles` 覆盖）。
+不要把 localhost 写入该文件，否则 Nix daemon 可能在持有输出锁时把任务
+递归派回自己；Hydra 所在机的原生构建由本机 daemon 槽位承接。
 
 2026-08-02 的实际故障中，Hydra 从 PVE 把 derivation 交给 ml-builder 后，ml-builder
 又把同一任务交回 PVE；两边各自持有输出锁并等待对方，表现为构建永久停在

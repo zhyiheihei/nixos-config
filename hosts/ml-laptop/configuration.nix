@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  inputs,
   LT,
   pkgs,
   ...
@@ -39,19 +40,15 @@
     # 本机保留（上游 lt-hp-omen 列表之外的必要项）：
     # - Sunshine：Moonlight 串流服务端。
     # - ncps-client：局域网二进制缓存代理接入。
-    # - hydra：CI（构建拓扑见 docs/agent/hydra-build-chain.md）。
+    # Hydra CI 已于 2026-09-17 迁往 opi5p（构建拓扑见 docs/agent/hydra-build-chain.md）。
     ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/hydra
     ../../nixos/client-apps/zcode.nix
     # ../../nixos/optional-apps/leigod-accelerator.nix
   ];
 
   # 与上游 lt-hp-omen 对齐：pi-web 走 OAuth 登录（经 login.zhyi.xin）。
   lantian.localVhosts.pi-web.locations."/".enableOAuth = true;
-
-  # Hydra evaluator 直连 GitHub 拉 flake inputs 会长期卡死，注入出站代理。
-  systemd.services.hydra-evaluator.environment = LT.proxyEnvironment;
 
   # 构建拓扑：本机零本地编译（max-jobs = 0，求值期 FOD 亦全部外派，
   # 遇慢镜像可能拖慢求值，属既定取舍）、不对外通告（host.nix 无
@@ -81,7 +78,15 @@
       (mk "opi5p" 1 [ "big-parallel" ])
     ]
   );
-  services.hydra.buildMachinesFiles = lib.mkForce [ "/etc/nix/machines" ];
+
+  # nix.buildMachines 引用的派发凭据原先由 hydra 模块声明；2026-09-17 Hydra
+  # 迁往 opi5p 后本机仍需它派发自身构建，改为本机直接声明（同密钥，同一
+  # secrets 仓条目）。
+  sops.secrets.hydra-builder-ssh-privkey = {
+    sopsFile = inputs.secrets + "/hydra.yaml";
+    key = "hydra-ssh-privkey";
+    mode = "0400";
+  };
 
   # 本地 daemon 声明 aarch64-cross，与 ml-builder 的通告对齐（ARM 内核
   # 交叉构建带 requiredSystemFeatures 硬性要求）。
@@ -445,4 +450,5 @@
   # （只编译 sm_75）不在本文件做：本仓库 pkgs 由 flake 在 NixOS 模块系统外
   # 构造后强制注入，nixpkgs.config.* 对包集不生效，实际开关是同目录的
   # cuda-capabilities.nix（flake-modules/nixos-configurations.nix 消费）。
+
 }

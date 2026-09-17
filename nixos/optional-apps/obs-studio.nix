@@ -7,10 +7,8 @@
       # keep-sorted start
       input-overlay
       looking-glass-obs
-      obs-dvd-screensaver
       obs-gstreamer
       obs-multi-rtmp
-      obs-mute-filter
       obs-noise
       obs-vkcapture
       wlrobs

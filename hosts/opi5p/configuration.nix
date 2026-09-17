@@ -51,6 +51,7 @@ in
     ../../nixos/optional-apps/food-dashboard.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
     ../../nixos/optional-apps/home-assistant.nix
+    ../../nixos/optional-apps/hydra
     ../../nixos/optional-apps/ignis.nix
     ../../nixos/optional-apps/immich-rockchip.nix
     ../../nixos/optional-apps/microsoft-rewards-script.nix
@@ -91,6 +92,44 @@ in
   # five-second default to complete its public TLS handshake from this board.
   # Match ml-builder so a healthy private cache is not disabled prematurely.
   nix.settings.connect-timeout = lib.mkForce 15;
+
+  # Hydra CI 自 2026-09-17 从 ml-laptop 迁入（构建拓扑见
+  # docs/agent/hydra-build-chain.md）。本机承接 aarch64 原生构建，单槽
+  # max-jobs=1（生产节点保护，见文档 2026-08-02 事故记录）；x86 与
+  # aarch64-cross 全部外派 ml-builder。
+  systemd.services.hydra-evaluator.environment = LT.proxyEnvironment;
+  # qemu binfmt 关闭时 minimal-components 不设 extra-platforms，而
+  # nix-distributed 生成 machines-with-localhost 时强制读取该属性；本机
+  # 纯 aarch64 原生构建，显式置空。
+  nix.settings.extra-platforms = lib.mkForce [ ];
+  nix.buildMachines = lib.mkForce (
+    let
+      mk = n: maxJobs: features: {
+        inherit (LT.hosts.${n}) system;
+        hostName = "${n}.zhyi.xin";
+        protocol = "ssh";
+        speedFactor = LT.hosts.${n}.cpuThreads;
+        sshKey = config.sops.secrets.hydra-builder-ssh-privkey.path;
+        sshUser = "nix-builder";
+        inherit maxJobs;
+        supportedFeatures = features;
+        mandatoryFeatures = [ ];
+      };
+    in
+    [
+      (mk "ml-builder" 2 [ "aarch64-cross" ])
+      (mk "ml-builder" 1 [
+        "big-parallel"
+        "aarch64-cross"
+      ])
+    ]
+  );
+  services.hydra.buildMachinesFiles = lib.mkForce [ "/etc/nix/machines" ];
+
+  # Hydra 产物每小时由 hydra-attic-repush 推到 attic（greencloud-jp），本地
+  # GC roots 只是 push 期间的保险钉，无需按上游默认留 7 天（曾在本机
+  # ml-laptop 上钉住 ~500G）。缩到 1 天：push 每小时重试仍有 ≥24 次成功机会。
+  services.fast-nix-gc.deleteOlderThan = lib.mkForce "1d";
 
   # This host is a native aarch64 builder; registering qemu binfmt emulators
   # is unnecessary and would only intercept native builds with slower paths.

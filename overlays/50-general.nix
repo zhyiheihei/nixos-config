@@ -1,5 +1,4 @@
-{ inputs, ... }:
-final: prev:
+_: final: prev:
 let
   sources = final.callPackage ../helpers/_sources/generated.nix { };
 in
@@ -77,7 +76,6 @@ rec {
       ctype
       curl
       dom
-      event
       exif
       ffi
       ftp

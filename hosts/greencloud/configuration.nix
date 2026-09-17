@@ -115,9 +115,9 @@
 
   lantian.nginxVhosts."greencloud.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
-  # Hydra 现跑在 ml-laptop（公共 vhost 仍指上游 pve-epyc，此处仅覆写后端）。
+  # Hydra 自 2026-09-17 跑在 opi5p（公共 vhost 仍指上游 pve-epyc，此处仅覆写后端）。
   lantian.nginxVhosts."hydra.zhyi.xin".locations."/".proxyPass =
-    lib.mkForce "http://${LT.hosts.ml-laptop.ltnet.IPv4}:${LT.portStr.Hydra}";
+    lib.mkForce "http://${LT.hosts.opi5p.ltnet.IPv4}:${LT.portStr.Hydra}";
 
   # Home Assistant is a public app for the mobile companion; greencloud
   # terminates TLS and proxies straight to the HA instance on opi5p over LTNET.
