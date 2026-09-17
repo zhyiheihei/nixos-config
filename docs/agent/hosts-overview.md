@@ -14,16 +14,16 @@
 | --- | ---: | --- | --- | --- |
 | `router` | 112 | 家庭路由器 | `192.168.0.1` | PPPoE、LAN 网关、DHCP、DNS、DDNS 与 qBittorrent 单实例。 |
 | `ml-2700` | 113 | `client` | `ml-2700.zhyi.xin` | 家庭客户端，LAN 地址 `192.168.0.53`。 |
-| `ml-builder` | 114 | `nix-builder` | `ml-builder.zhyi.xin` | 强构建机，28 vCPU；Hydra 与 x86-only 容器（ArchiveTeam/ClawEmail/Epic Awesome Gamer）自 2026-08-12 起运行于此。 |
+| `ml-builder` | 114 | `nix-builder` | `ml-builder.zhyi.xin` | 强构建机，28 vCPU；唯一主构建节点（`big-parallel`/`aarch64-cross`），Hydra 已于 2026-09-04 迁出（x86-only 容器同期迁出）。 |
 | `macmini` | ~~115~~ | aarch64-darwin / macOS | ~~`macmini.zhyi.xin`~~ | 已退役（2026-09-04）：主机定义与 nix-darwin 基础设施已从 flake 移除，最后配置归档于同级 `../../host-archive` 仓库；index 115 空出，LAN 地址 192.168.0.54 保留。 |
 | `ml-home-vm` | ~~115~~ | x86_64 / 家庭服务 VM | ~~`192.168.0.51`~~ | 已退役（2026-08-03）：应用迁至 ROCK5C/OPI5P/PVE，主机定义已从 flake 移除；`*.ml-home-vm.zhyi.xin` 服务别名由 ROCK 5C 继续承载。index 115 曾由 macmini 复用（后者 2026-09-04 退役，已空出）。 |
-| `pve-5700u` | 116 | PVE | `pve-5700u.zhyi.xin` | PVE 宿主（仅虚拟化）；Hydra 已随 2026-09-04 构建拓扑定稿迁至 ml-laptop。 |
+| `pve-5700u` | 116 | PVE | `pve-5700u.zhyi.xin` | PVE 宿主（仅虚拟化）；不参与任何 Nix 构建派发。 |
 | `hostdare` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.xin` 通配符公网入口。 |
-| `ml-laptop` | 118 | `client` | `ml-laptop.zhyi.xin` | 物理笔记本（对齐作者 lt-hp-omen）；LAN 地址 `192.168.0.55`；`manualDeploy`。 |
+| `ml-laptop` | 118 | `client` | `ml-laptop.zhyi.xin` | 物理笔记本（对齐作者 lt-hp-omen）；LAN 地址 `192.168.0.55`；`manualDeploy`；集群控制机（colmena/hydra-eval 源），自身构建全外派，不跑 Hydra。 |
 | `volcengine` | 119 | `server` / 公网入口 | `volcengine.zhyi.xin` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
 | `greencloud` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、协作内容链路与 ZeroTier controller（监控栈 2026-08-14 迁至 tencent）。 |
 | `google` | 121 | `server` / 公网入口 / 日志目标 | `35.212.152.140` | US VPS（GCP）；Filebeat 目标仍指向此机，但当前未部署 Elasticsearch，日志链待修复。 |
-| `opi5p` | 122 | RK3588 / reDroid / One-KVM | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。2026-09 启用板载 HDMI RX（vendor-hdmirx.patch）+ One-KVM IP-KVM 容器（lantian.one-kvm，Web :8080）。 |
+| `opi5p` | 122 | RK3588 / reDroid / One-KVM | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。2026-09 启用板载 HDMI RX（vendor-hdmirx.patch）+ One-KVM IP-KVM 容器（lantian.one-kvm，Web :8080）。2026-09-17 起 Hydra CI 所在地（见 docs/agent/hydra-build-chain.md）。 |
 | `rock5c` | 123 | RK3588 / 家庭边缘 | `192.168.0.64` | Radxa ROCK 5C；边缘代理、控制链、MetaCubeXD 与 reDroid。 |
 | `lubancat1` | 124 | RK3566 / `server` / `low-ram` | `192.168.0.65` | 原版 LubanCat-1（非 V2），2 GiB RAM、无 eMMC；server 基线已上线，尚未迁入用户应用。 |
 | `h28k` | 125 | RK3528 / 异地路由器（预部署） | WAN DHCP / LAN `192.168.30.1` | HINLINK H28K；双千兆口、Kea、CoreDNS 与 nftables NAT；SSH/SOPS/ZeroTier 身份已采集（ZeroTier node ID `368d3cf42b`，2026-08-15 修正），仍在家中 staging（临时 SSH 放行规则保留），待迁异地站点。 |
