@@ -27,7 +27,9 @@ let
       address = opiAddress;
     };
     "dav.zhyi.xin" = {
-      backend = "dav.zhyi.xin";
+      # 后端实际 vhost 名：opi5p 上 webdav 以 localVhost 生成 dav.opi5p.zhyi.xin，
+      # 公共名 dav.zhyi.xin 在 opi5p 不存在，指过去会在认证后 502。
+      backend = "dav.opi5p.zhyi.xin";
       address = opiAddress;
     };
     "immich.zhyi.xin" = {
@@ -44,6 +46,12 @@ let
     "memos.zhyi.xin" = {
       backend = "memos.zhyi.xin";
       address = dragonAddress;
+    };
+    # VaultS3 对外登记入口一直是 :8443（gitea MINIO_ENDPOINT），但 S3 API 根路径
+    # 403 无页面跳转，用户/面板从 443 进会撞死；同样前置一层补齐。
+    "vaults3.zhyi.xin" = {
+      backend = "vaults3.zhyi.xin";
+      address = opiAddress;
     };
     "wallos.zhyi.xin" = {
       backend = "wallos.zhyi.xin";

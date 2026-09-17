@@ -364,6 +364,19 @@ in
     enableOAuth = true;
   };
 
+  # dav.zhyi.xin 公共名补齐：webdav 模块的 localVhost 只生成
+  # dav.opi5p.zhyi.xin，公共名在 8443 无 vhost；rock5c 前置（内网 443）
+  # 也指到本公共名，这里代理同一个 webdav.sock，凭据同全舰队 htpasswd。
+  lantian.nginxVhosts."dav.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "http://unix:/run/webdav/webdav.sock";
+      proxyNoTimeout = true;
+      enableBasicAuth = true;
+    };
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
   # EPD 家庭食品存储看板：REST API + WebUI（内网私有，nginx food.opi5p.zhyi.xin）
   # + 每日 0 点墨水屏推送 timer；BLE 推送 NRF_EPD 墨水屏（服务私有，不开公网）。
   # 日程栏接标准 CalDAV（cal.zhyi.xin，Radicale，只读）；密码用统一 default-pw。
