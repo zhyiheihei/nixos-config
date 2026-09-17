@@ -91,13 +91,8 @@ in
   systemd.network.networks.eth0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     matchConfig.Name = "eth0";
+    gateway = [ "192.168.0.1" ];
     networkConfig.IPv6AcceptRA = "yes";
-    routes = [
-      {
-        Destination = "0.0.0.0/0";
-        Gateway = "192.168.0.1";
-      }
-    ];
   };
 
   networking.networkmanager.enable = lib.mkForce false;

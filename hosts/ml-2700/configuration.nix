@@ -101,6 +101,16 @@
     ];
   };
 
+  # automount 触发的 mount 失败不再撞 5 次/10s 限流（同 lubancat1/opi5p，
+  # 2453d5d96）：存储端离线恢复后访问即自愈。
+  systemd.units."mnt-share.mount" = {
+    overrideStrategy = "asDropin";
+    text = ''
+      [Unit]
+      StartLimitIntervalSec=0
+    '';
+  };
+
   boot.loader.grub = {
     efiSupport = true;
     device = "nodev";

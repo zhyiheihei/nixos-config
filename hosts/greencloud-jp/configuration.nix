@@ -232,6 +232,8 @@ in
       "45.159.48.76/24"
       "2403:71c0:2000:1253::a/64"
     ];
+    # 双栈全静态，显式关 RA 防机房意外下发第二条默认路由（同 tencent 写法）。
+    networkConfig.IPv6AcceptRA = "no";
     routes = [
       {
         Destination = "0.0.0.0/0";
