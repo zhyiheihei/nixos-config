@@ -168,17 +168,46 @@ in
 
   # Media library is exported directly by the NAS; mount the same share the
   # other media hosts use without routing through ml-home-vm.
+  # noauto + automount：直接 mount 会卷入 ordering cycle（本机 bindfs 共享
+  # 归 local-fs 却依赖 remote 挂载，与 network/local 链互相引用，systemd
+  # 每次开机打断环后网络等待被删，挂载在地址未就绪时失败且永不重试）。
+  # 写法对齐 exam lt-hp-omen 的 NAS 挂载；无 clientaddr（boot 早期地址未配
+  # 好会被 mount.nfs 拒绝）、无 idle-timeout（下方 bindfs 通过 requires
+  # 直接拉起本挂载，与 autofs 空闲卸载语义冲突）。
   fileSystems."/mnt/storage" = {
     device = "192.168.0.40:/nixos";
     fsType = "nfs";
     options = [
       "_netdev"
       "noatime"
+      "noauto"
       "hard"
       "vers=4.1"
       "nconnect=16"
+      "x-systemd.automount"
+      "x-systemd.device-timeout=5s"
+      "x-systemd.mount-timeout=5s"
     ];
   };
+
+  # NAS 掉线窗口内的容器访问会反复触发 mount，默认 5 次/10s 限流会让
+  # automount 连带永久 failed；解除限流后每次访问都是一次重试，NAS
+  # 恢复后自动接上。fileSystems 生成器产物用 asDropin 下发配置。
+  systemd.units."mnt-storage.mount" = {
+    overrideStrategy = "asDropin";
+    text = ''
+      [Unit]
+      StartLimitIntervalSec=0
+    '';
+  };
+
+  # syncthing 模块生成的 bindfs 挂在 /mnt/storage（remote 挂载）之上，
+  # 却默认归 local-fs.target，是 ordering cycle 的回边；_netdev 把它
+  # 归入 remote-fs 链断环。共享模块不动，主机级覆盖。
+  fileSystems."/run/syncthing-files".options = lib.mkForce [
+    "bind"
+    "_netdev"
+  ];
 
   # 关 zram 改 NVMe swapfile：服务密度超物理内存时 zram 压缩把 kswapd
   # 吃满一核、陷入 swap 风暴（故事见 docs/human/hardware/orangepi-5-plus-redroid.md）。
@@ -365,7 +394,7 @@ in
   # Home payloads storage locations
   ########################################
 
-  # services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
+  services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
 
   # lantian.ignis.enable = true;
   # lantian.ignis.vaultDir = "/mnt/storage/media/Documents";

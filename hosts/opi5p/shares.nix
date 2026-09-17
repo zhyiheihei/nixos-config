@@ -42,7 +42,10 @@
     "/run/sftp" = lib.mkForce {
       device = "/mnt/storage";
       fsType = "fuse.bindfs";
+      # _netdev：底层是 NFS remote 挂载，本挂载必须归 remote-fs 链，
+      # 否则 local-fs 成员依赖 remote 挂载必然成 ordering cycle。
       options = LT.constants.bindfsMountOptions' [
+        "_netdev"
         "force-user=sftp"
         "force-group=sftp"
         "perms=700"
@@ -55,7 +58,9 @@
     "/run/nfs/storage" = {
       device = "/mnt/storage";
       fsType = "fuse.bindfs";
+      # _netdev：同 /run/sftp，底层 NFS 之上的 bindfs 归 remote-fs 断环。
       options = LT.constants.bindfsMountOptions' [
+        "_netdev"
         "force-user=zhyi"
         "force-group=zhyi"
         "perms=700"
