@@ -101,6 +101,12 @@ in
     SERVE_DIRECT = lib.mkForce false;
   };
 
+  # git 裸仓本体迁 1T 数据盘（2026-09-17 故障复盘）：dooya SDK 裸仓 33G
+  # 把 39G 系统盘塞爆 → postgres 写失败 start-limit-hit 不重启 → attic
+  # 数据库连接 500 → 全舰队部署拉包失败。LFS/附件已在 VaultS3，裸仓同步
+  # 迁出；stateDir（配置/密钥/索引）仍留 /nix/persistent。
+  services.gitea.repositoryRoot = "/data/gitea/repositories";
+
   # VaultS3 S3 网关：数据放 1T 数据盘，仅监听 loopback，由 nginx 反代
   # s3.zhyi.xin（泛域名证书）。与 router 上的实例共用机群统一凭据约定。
   users.users.vaults3 = {
