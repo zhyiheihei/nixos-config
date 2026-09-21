@@ -152,7 +152,6 @@ let
     "pb.zhyi.xin" = "内容与通讯";
     "posts.zhyi.xin" = "内容与通讯";
     "comments.zhyi.xin" = "内容与通讯";
-    "mail.zhyi.xin" = "内容与通讯";
     "halo.volcengine.zhyi.xin" = "内容与通讯";
     # 公开 · 身份链路
     "login.zhyi.xin" = "身份链路";

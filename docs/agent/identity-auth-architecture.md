@@ -205,7 +205,7 @@ oauth2-proxy）**
 | UniAPI | `ai-api.zhyi.xin` | API key（`uni-api-admin-api-key`） |
 | Attic | `attic.zhyi.xin` | 上传 token |
 | MetaAPI | `metapi.tencent.zhyi.xin` | 应用口令 / token |
-| n8n OpenAI Bridge | `n8n-bridge.greencloud.zhyi.xin` | bearer token |
+| n8n OpenAI Bridge | `n8n.zhyi.xin` （`/v1/` location） | bearer token |
 | FastAPI-DLS | `fastapi-dls.rock5c.zhyi.xin` | 租约 token |
 | MetaCubeXD | `metacubexd.rock5c.zhyi.xin` | 控制 token |
 | PeerBanHelper | `peerbanhelper.opi5p.zhyi.xin` | API token |

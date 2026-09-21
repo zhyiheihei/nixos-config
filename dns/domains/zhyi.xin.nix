@@ -174,12 +174,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "hidden";
-      target = "greencloud.zhyi.xin.";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "hydra";
       target = "greencloud.zhyi.xin.";
       ttl = "1h";
@@ -224,12 +218,6 @@ let
       recordType = "CNAME";
       name = "login";
       target = "volcengine.zhyi.xin.";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
-      name = "mail";
-      target = "greencloud.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -433,12 +421,6 @@ let
       recordType = "CNAME";
       name = "archiveteam.tencent";
       target = "tencent.ltnet.zhyi.xin.";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
-      name = "n8n-bridge.greencloud";
-      target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
