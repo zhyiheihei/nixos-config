@@ -290,6 +290,11 @@
   systemd.services.nvidia-container-toolkit-cdi-generator.unitConfig.ConditionPathExists =
     "/proc/driver/nvidia/version";
 
+  # persistenced 同理：坞不在位时 nvidia 设备文件不存在，启动必失败并打
+  # start-limit-hit，每次开机刷一条 failed 单元。加同样的在位条件，不在位时
+  # skipped（非 failed）；在位时行为与上游一致。
+  systemd.services.nvidia-persistenced.unitConfig.ConditionPathExists = "/proc/driver/nvidia/version";
+
   # nixpkgs 6.12 LTS 内核覆写（eGPU TB3 稳定性对照，见 ml-laptop eGPU 文档）。
   lantian.kernel = lib.mkForce pkgs.linuxKernel.packages.linux_6_12.kernel;
 
