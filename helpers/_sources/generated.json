@@ -68,12 +68,12 @@
             "name": null,
             "owner": "BelfrySCAD",
             "repo": "BOSL2",
-            "rev": "v2.0.755",
-            "sha256": "sha256-4LlMyXBXtSoy1FTAE9j7gmApDHYgtZZh/XnkzGUG2DE=",
+            "rev": "v2.0.757",
+            "sha256": "sha256-M65go0RvnncQosBeR/XQfdGCVocSaNo3Siofg7o3Q3k=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "v2.0.755"
+        "version": "v2.0.757"
     },
     "delegacy-rpz": {
         "cargoLock": null,
