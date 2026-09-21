@@ -8,7 +8,10 @@ let
   sources = pkgs.callPackage ../../helpers/_sources/generated.nix { };
   dnscontrol = pkgs.buildGo127Module rec {
     inherit (sources.dnscontrol-xddxdd) pname version src;
-    vendorHash = "sha256-1MtLq6DWvjvTyLoOARju5ZlW/Q9J24L+Lcy0BdsW40k=";
+    # 2026-09-21：nixpkgs 前移后 go 工具链变化导致 go-modules FOD 确定性产出
+    # 与旧 vendorHash 失配（exam 同 hash 在我们 nixpkgs 锁下同样无法构建），
+    # 按 ml-builder 实测产出更新；上游/exam 后续跟进后可回退对齐。
+    vendorHash = "sha256-MhF/ZUPj3slDD9Pn3j4Gy0WT3iGHlF7o7sMjo6DS+y8=";
 
     ldflags = [
       "-s"
