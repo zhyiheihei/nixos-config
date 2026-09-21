@@ -30,6 +30,7 @@
 | `192.168.0.53` | `ml-2700` | 客户端 |
 | `192.168.0.54` | `macmini` | 已退役（2026-09-04）；地址保留 |
 | `192.168.0.55` | `ml-laptop` | 物理笔记本客户端 |
+| `192.168.0.56` | `chromebox` | x86_64 家庭 server（i7-8550U） |
 | `192.168.0.62` | `opi5p` | RK3588 应用与数据节点 |
 | `192.168.0.63` | `opi5p` (lan1) | 备用网口救援地址（lan0 主地址为 .62，无默认路由） |
 | `192.168.0.64` | `rock5c` | RK3588 边缘与控制节点 |
@@ -84,6 +85,7 @@ H28K 管理独立的 `192.168.30.0/24`，它不是家庭 `home-lan` 的扩展。
 | `tencent` | 128 | 无 | `7edc5323e0` | `198.18.0.128` | 公网 VPS；server mesh + DN42 + public-facing；监控栈 |
 | `dragon-q8b` | 129 | `192.168.0.66` | `095fd45400` | `198.18.0.129` | SC8280XP aarch64 server；server mesh 全互联 |
 | `greencloud-jp` | 130 | 无 | `f4ec4a081c` | `198.18.0.130` | JP 公网节点；server mesh + DN42 + cn-accel |
+| `chromebox` | 131 | `192.168.0.56` | `cea01154b5` | `198.18.0.131` | x86_64 家庭 server；server mesh 全互联 |
 | `molishanguang-macbook` | 200 | 无 | `174ea952dd` | `198.18.0.200` | 额外 ZeroTier 客户端；不参与 server mesh |
 
 ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index>`，IPv6 为 `fdd8:1938:4e88::<index>`。额外客户端的声明来源仍是 secrets 的 `zerotier-additional-hosts.nix`；上表只记录已授权的 Mac 固定分配。
@@ -96,7 +98,7 @@ ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index
 | --- | --- |
 | 私钥 | 每台启用 mesh 的主机从 `per-host/wg-priv/<hostname>.yaml` 由 SOPS 解密 |
 | 公钥 | 由 secrets 的 `wg-pubkey.nix` 提供；不在仓库文档中复制 |
-| 对等选择 | 当前 server mesh 由在线节点组成（`greencloud`、`hostdare`、`volcengine`、`google`、`tencent`、`dragon-q8b`、`greencloud-jp`、`opi5p`、`rock5c`、`lubancat1` 等）；`ml-home-vm` 已退役，不再参与 |
+| 对等选择 | 当前 server mesh 由在线节点组成（`greencloud`、`hostdare`、`volcengine`、`google`、`tencent`、`dragon-q8b`、`greencloud-jp`、`chromebox`、`opi5p`、`rock5c`、`lubancat1` 等）；`ml-home-vm` 已退役，不再参与 |
 | 端点选择 | 同一 `interconnect.name` 时走局域网；跨网段由 `wgEndpointFor` 选对端公网 IPv4（其次 IPv6）直连，无 WSS/TCP 封装层 |
 | 路由 | BIRD 通过每条 `wgmesh<peer-index>` 链路上的 IPv6 link-local iBGP 交换 LTNET、DN42 与附加路由 |
 | 可观察性 | WireGuard exporter 监听本机 LTNET IPv4；BIRD 配置见 `nixos/server-apps/bird/config/ltnet.nix` |
