@@ -15,7 +15,8 @@ home/client-apps/ai-coding/default.nix # fork AI provider 链（uni-api/taotoken
 home/client-apps/firefox/default.nix # 扩展与搜索配置差异（zeroomega 等 fork 客户端选择）
 home/client-apps/git.nix # fork 签名 key
 home/client-apps/pi-web.nix # fork 主机 ml-laptop 接入 pi-web 门控（0a87bd745，主机名/用户名条件扩展）
-home/client-apps/plasma.nix # Xwayland DPI 竞态修复（fork 自维护；上游独立修复后可对齐）
+flake-modules/commands/dnscontrol.nix # vendorHash 对齐 nixpkgs 前移后的 go 工具链产出（08b4c1694，exam 同 hash 在我们 nixpkgs 锁下同样不可构建；上游跟进后回退）
+nixos/common-apps/yggdrasil/public-peers.json # 内容已与 exam/master 一致；漂移因 baseline 钉 536ec582 而上游已前移（3c5ff36bc 等 3 提交待专项同步），bump baseline 后自然消除
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
 nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化（其余已 09-15 对齐上游 8b1459117）
 nixos/common-apps/coredns.nix # 仅保留 CN 主机 AliDNS/DNSPod 分支（docs/human/network/regional-dns.md 设计文档背书），其余结构对齐上游

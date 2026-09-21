@@ -1,70 +1,11 @@
 {
   pkgs,
   lib,
-  LT,
-  config,
   osConfig,
+  LT,
   ...
 }:
-let
-  kcminitFonts = "${pkgs.kdePackages.plasma-workspace}/bin/kcminit kcm_fonts_init";
-in
 {
-  # X11 应用（如 wechat-uos 的 QT_AUTO_SCREEN_SCALE_FACTOR）从 xrdb 的 Xft.dpi
-  # 取缩放，由 kcminit (kcm_fonts_init) 写入。登录时序竞争：plasma-kcminit 在
-  # KWin 创建 wayland-0 socket 之前启动，QGuiApplication 回退 xcb，
-  # krdb::xftDpi 走非 Wayland 分支读 kcmfonts forceFontDPI（默认 96），而非
-  # kwinrc Xwayland.Scale×96，导致 X11 应用不缩放。实测于 ml-laptop：
-  # 无 WAYLAND_DISPLAY 时 kcminit 写 96，有则写 144（本机 1.6 倍写 153）。
-  # 修复：登录后 plasma-workspace.target 就绪（wayland socket + DISPLAY 均已
-  # 就绪）时重跑一次。此外 stylix 的 autostart（stylix-kde-apply-plasma-theme，
-  # QT_QPA_PLATFORM=minimal 跑 plasma-apply-lookandfeel，内部触发 krdb）会在
-  # 完成时把 Xft.dpi 重置回 96（2026-09-15 实测复现），且 autostart app 与本
-  # 服务并行、完成时间不可控——本服务必须 After 它再重跑一次。另加
-  # home.activation 钩子处理中途 nixos-rebuild switch：该场景下
-  # stylixLookAndFeel（QT_QPA_PLATFORM=minimal）会把 Xft.dpi 重置回 96，且按
-  # 字母序排在 reloadSystemd 之后；钩子排序在 stylix 之后，从 systemd user
-  # manager 读会话 DISPLAY（激活脚本自身环境无此变量），会话未运行时跳过。
-  # root 也导入 client-apps，但没有 Plasma 会话，且其 kwinrc 无 Xwayland.Scale：
-  # 若 root 的钩子跑到，会按默认 1.0 把 zhyi 已写入的 Xft.dpi 153 覆盖回 96。
-  # 因此 hook 与服务都仅对非 root 用户生效。
-  home.activation.zz-fix-xwayland-dpi = lib.mkIf (config.home.username != "root") (
-    lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-      # 激活脚本 PATH 里没有 systemctl，需用全路径；systemctl --user 在无会话时
-      # 会失败，需吞掉退出码避免 set -e 使整个激活报 127。
-      sessionDisplay=$("/run/current-system/sw/bin/systemctl" --user show-environment 2>/dev/null | sed -n 's/^DISPLAY=//p' || true)
-      if [ -n "$sessionDisplay" ]; then
-        # home-manager.service 的 unit 环境带 QT_QPA_PLATFORM=offscreen，会让
-        # krdb::xftDpi 走非 Wayland 分支写 96，必须强制 wayland 平台。
-        DISPLAY=$sessionDisplay QT_QPA_PLATFORM=wayland ${kcminitFonts} || true
-      fi
-    ''
-  );
-
-  systemd.user.services.fix-xwayland-dpi = lib.mkIf (config.home.username != "root") {
-    Unit = {
-      Description = "Re-run kcminit fonts init to fix Xft.dpi race at login";
-      # stylix 的 autostart app（stylix-kde-apply-plasma-theme）以
-      # QT_QPA_PLATFORM=minimal 跑 plasma-apply-lookandfeel，完成时会经 krdb
-      # 把 Xft.dpi 重置回 96；必须在它之后重跑。autostart app 的 unit 名由
-      # systemd 生成（app-stylix\x2dactivate\x2dkde@autostart.service）。
-      After = [
-        "plasma-workspace.target"
-        "app-stylix\\x2dactivate\\x2dkde@autostart.service"
-      ];
-      PartOf = [ "graphical-session.target" ];
-    };
-
-    Service = {
-      Type = "oneshot";
-      ExecStart = kcminitFonts;
-    };
-
-    Install = {
-      WantedBy = [ "plasma-workspace.target" ];
-    };
-  };
-
   programs.okular = {
     enable = true;
     package = null;
