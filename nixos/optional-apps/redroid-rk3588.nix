@@ -37,6 +37,21 @@
   config = lib.mkIf config.lantian.redroid.enable (
     lib.mkMerge [
       {
+        # 聚合机器（bond0）的 interconnect IPv4 声明在 bond0.network，接口名
+        # 靠 matchConfig.Name 给出；动态解析实际声明该地址的命名接口，
+        # 单口/固定命名主机自动回落默认。主机显式设置优先。
+        lantian.redroid.lanInterface = lib.mkDefault (
+          let
+            addr = "${LT.this.interconnect.IPv4}/24";
+            named = lib.filterAttrs (_: n:
+              (n.matchConfig.Name or null) != null
+              && lib.elem addr (n.address or [ ])
+            ) config.systemd.network.networks;
+          in
+            if named == { } then "lan0" else (lib.head (lib.attrNames named))
+        );
+      }
+      {
         # Android's bpfloader requires this to remain writable/enabled. The common
         # hardening policy sets it to the irreversible value 1, which cannot be
         # changed back until reboot and makes every official reDroid image shut down.

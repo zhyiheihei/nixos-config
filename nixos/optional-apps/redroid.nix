@@ -35,6 +35,20 @@
   };
 
   config = lib.mkIf config.lantian.redroidSc8280xp.enable {
+    # 聚合机器（bond0）的 interconnect IPv4 声明在 bond0.network，接口名
+    # 靠 matchConfig.Name 给出；动态解析实际声明该地址的命名接口，
+    # 单口/固定命名主机自动回落默认。主机显式设置优先。
+    lantian.redroidSc8280xp.lanInterface = lib.mkDefault (
+      let
+        addr = "${LT.this.interconnect.IPv4}/24";
+        named = lib.filterAttrs (_: n:
+          (n.matchConfig.Name or null) != null
+          && lib.elem addr (n.address or [ ])
+        ) config.systemd.network.networks;
+      in
+        if named == { } then "eth0" else (lib.head (lib.attrNames named))
+    );
+
     # Android bpfloader requires this; common hardening policy forces it to 1
     # (irreversible until reboot) and kills official reDroid images.
     boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;

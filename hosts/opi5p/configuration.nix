@@ -455,10 +455,9 @@ in
   };
 
   ########################################
-  # reDroid（停用中）—— 模块导入已注释，配置一并摘除
+  # reDroid：lanInterface 由公共模块动态解析（聚合后自动命中 bond0）。
+  # 是否彻底停用待用户定夺。
   ########################################
-
-  # lantian.redroid.enable = lib.mkForce false;
 
   ########################################
   # Home payloads storage locations
