@@ -43,7 +43,10 @@
     };
   };
 
-  services.proxmox-ve.bridges = [ "br-lan" ];
+  services.proxmox-ve.bridges = [
+    "br-lan"
+    "br-lan1"
+  ];
   services.proxmox-ve.ipAddress = LT.this.interconnect.IPv4;
 
   networking.hosts = {
@@ -55,43 +58,12 @@
     "223.5.5.5"
   ];
 
-  # 双 2.5G 口（I226-V）做 active-backup 软聚合。历史：两块口曾是 Router VM
-  # 的 WAN/LAN 腿，但 VM 全部停机、br-wan 无承载，且交换机侧聚合组已满
-  # （.11 仅聚合1/聚合2）。桥接宿主上 TLB/ALB 会因源 MAC 固定导致交换机表
-  # 漂移，active-backup 是无交换机配合时唯一可靠模式：主备秒切、零环路。
-  # 写法对齐 ml-2700/opi5p：永久 MAC 绑 slave，bond MAC 钉 eth0 烧录地址。
-  # 本内核（lantian-cachy）不自动拉起 bonding 模块，需显式加载。
-  boot.kernelModules = [ "bonding" ];
-  systemd.network.netdevs.bond0 = {
-    netdevConfig = {
-      Kind = "bond";
-      Name = "bond0";
-      MACAddress = "1c:83:41:40:c0:7a";
-    };
-    bondConfig = {
-      Mode = "active-backup";
-      MIIMonitorSec = "100ms";
-    };
-  };
-
-  systemd.network.networks.eth0 = {
-    matchConfig.PermanentMACAddress = "1c:83:41:40:c0:7a";
-    networkConfig.Bond = "bond0";
-  };
-
-  systemd.network.networks.eth1 = {
-    matchConfig.PermanentMACAddress = "1c:83:41:40:c0:7b";
-    networkConfig.Bond = "bond0";
-  };
-
-  # bond0 整体挂在 br-lan 下，主机地址与 VM 接入不变。
-  systemd.network.networks.bond0 = {
-    matchConfig.Name = "bond0";
-    networkConfig.Bridge = "br-lan";
-    linkConfig.RequiredForOnline = "enslaved";
-  };
-
-  # LAN bridge: bond0 and VMs behind Router VM.
+  # 双 2.5G 口（I226-V）分段独立成桥：br-lan（eth0，主机地址+部分 VM）、
+  # br-lan1（eth1，重负载 VM 专用段）。目标是多 VM 并行时不互相抢带宽：
+  # 两段各占独立 2.5G 物理通道，跨段零抢占。单口桥结构上不可能成环，
+  # 交换机侧零依赖（历史：曾尝试 bond 软聚合，但 active-backup 无提速、
+  # TLB/ALB 在桥接宿主上会因源 MAC 固定导致交换机表漂移，均废弃；
+  # eth1 原为 Router VM 的 WAN 腿，VM 已全部停机无承载）。
   systemd.network.netdevs.br-lan = {
     netdevConfig = {
       Kind = "bridge";
@@ -99,11 +71,37 @@
     };
   };
 
+  systemd.network.netdevs.br-lan1 = {
+    netdevConfig = {
+      Kind = "bridge";
+      Name = "br-lan1";
+    };
+  };
+
+  systemd.network.networks.eth0 = {
+    matchConfig.Name = "eth0";
+    networkConfig.Bridge = "br-lan";
+    linkConfig.RequiredForOnline = "enslaved";
+  };
+
+  systemd.network.networks.eth1 = {
+    matchConfig.Name = "eth1";
+    networkConfig.Bridge = "br-lan1";
+    linkConfig.RequiredForOnline = "enslaved";
+  };
+
   systemd.network.networks.br-lan = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     gateway = [ "192.168.0.1" ];
     matchConfig.Name = "br-lan";
     networkConfig.IPv6AcceptRA = "yes";
+  };
+
+  # 纯 L2 段无 IP，需要 ConfigureWithoutCarrier 才会被 networkd 拉起。
+  systemd.network.networks.br-lan1 = {
+    matchConfig.Name = "br-lan1";
+    networkConfig.ConfigureWithoutCarrier = true;
+    linkConfig.RequiredForOnline = "no";
   };
 
   # pveproxy serves its own UI certificate.  The fleet ACME pipeline already
