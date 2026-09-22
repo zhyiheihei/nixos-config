@@ -103,8 +103,28 @@
     '';
   };
 
+  # 双 2.5G 网卡 802.3ad（LACP）聚合，对端为交换机 S1100W 的聚合2（端口 3-4）。
+  # 哈希策略 layer2+3 与 NAS 侧一致；部署时序：先 activate 本配置（bond 无
+  # LACP 伙伴会短暂全断），再在交换机 web 建 trunk 后恢复。
+  systemd.network.netdevs."10-bond0" = {
+    netdevConfig = {
+      Kind = "bond";
+      Name = "bond0";
+    };
+    bondConfig = {
+      Mode = "802.3ad";
+      TransmitHashPolicy = "layer2+3";
+      LACPTransmitRate = "fast";
+      MIIMonitorSec = "100ms";
+    };
+  };
+  systemd.network.networks."10-bond-slaves" = {
+    matchConfig.Name = "eth0 eth1";
+    networkConfig.Bond = "bond0";
+    linkConfig.RequiredForOnline = "no";
+  };
   systemd.network.networks."10-dragon-q8b-lan" = {
-    matchConfig.Name = "eth0";
+    matchConfig.Name = "bond0";
     address = [ "${LT.this.interconnect.IPv4}/24" ];
     networkConfig.IPv6AcceptRA = "yes";
     routes = [
@@ -118,7 +138,7 @@
 
   # NFS 媒体库挂载需要等物理网络就绪。通用策略禁用了全局 wait-online，
   # 这里启用按接口的实例。
-  systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@eth0.service" ];
+  systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@bond0.service" ];
 
   # 容器镜像加速：通过 tencent 上的 hubproxy（hub.tencent.zhyi.xin，走
   # ZeroTier/LTNET 隧道）拉取 docker.io 镜像，daocloud 作为后备。
