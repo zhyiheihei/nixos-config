@@ -25,7 +25,20 @@
   boot.kernelParams = [
     "amd_pstate=active"
     "amd_pstate.shared_mem=1"
+    # iGPU（1002:164c Vega 8 + 1002:1637 HDMI 音频）直通 Win11 VM：IOMMU 开启、
+    # 直通模式、vfio 早绑定（在 amdgpu 抢占前扣住设备）。
+    "amd_iommu=on"
+    "iommu=pt"
+    "vfio-pci.ids=1002:164c,1002:1637"
   ];
+  # lantian-cachy 内核缺 dm_thin_pool（local-lvm 薄池承载全部 VM 磁盘），
+  # 不加载则 VM 磁盘 LV 无法激活。
+  boot.kernelModules = [ "dm_thin_pool" ];
+  boot.extraModprobeConfig = ''
+    options vfio-pci ids=1002:164c,1002:1637
+    softdep amdgpu pre: vfio-pci
+    softdep snd_hda_intel pre: vfio-pci
+  '';
 
   boot.loader.grub = {
     efiSupport = true;
@@ -57,6 +70,10 @@
     "198.19.0.253"
     "223.5.5.5"
   ];
+
+  # 核显 VAAPI/OpenGL：供 VM/LXC 共享 /dev/dri/renderD128 做硬编解码。
+  hardware.graphics.enable = true;
+  hardware.graphics.extraPackages = [ pkgs.mesa.drivers ];
 
   # 双 2.5G 口（I226-V）分段独立成桥：br-lan（eth0，主机地址+部分 VM）、
   # br-lan1（eth1，重负载 VM 专用段）。目标是多 VM 并行时不互相抢带宽：
