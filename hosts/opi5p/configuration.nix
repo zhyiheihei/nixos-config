@@ -166,33 +166,40 @@ in
     linkConfig.Name = "lan1";
   };
 
-  # LACP bond across both onboard 2.5G ports; switch side is SKS3200-5E1X
-  # Trunk1 (UI Port4+Port5, LACP). MAC pinned to lan0's burned-in address so
-  # switch/ARP tables survive PCIe probe order changes across boots.
+  # 静态 XOR 双 2.5G 口聚合,交换机侧为 SKS3200-5E1X Trunk1(UI Port4+Port5,
+  # static)。该交换机的 LACP 协商从未完成(Aggregated 列始终为空),静态
+  # 聚合才有 Aggregated 状态,与 ml-2700 成功先例完全同款。MAC 钉在 lan1 的
+  # 烧录地址上,ARP/交换机表在重启与 PCIe 探测顺序变化后保持稳定。
+  # 注意:networks.bond0 必须带 matchConfig.Name ——否则空 [Match] 会歧义
+  # 匹配 lan0/lan1 并把 slave 从 bond 里抢走(boot 失联的直接根因)。
   systemd.network.netdevs.bond0 = {
     netdevConfig = {
       Kind = "bond";
       Name = "bond0";
-      MACAddress = "c0:74:2b:ff:5c:fd";
+      MACAddress = "c0:74:2b:ff:5c:fc";
     };
     bondConfig = {
-      Mode = "802.3ad";
-      MIIMonitorSec = "100ms";
-      LACPTransmitRate = "fast";
+      Mode = "balance-xor";
       TransmitHashPolicy = "layer3+4";
+      MIIMonitorSec = "100ms";
     };
   };
+
   systemd.network.networks.lan0 = {
     matchConfig.PermanentMACAddress = "c0:74:2b:ff:5c:fd";
     networkConfig.Bond = "bond0";
   };
+
   systemd.network.networks.lan1 = {
     matchConfig.PermanentMACAddress = "c0:74:2b:ff:5c:fc";
     networkConfig.Bond = "bond0";
   };
-  # LAN address lives on the bond; single default gateway preserved.
+
   systemd.network.networks.bond0 = {
+    matchConfig.Name = "bond0";
     address = [ "${LT.this.interconnect.IPv4}/24" ];
+    dns = [ "192.168.0.1" ];
+    domains = [ "zhyi.xin" ];
     networkConfig.IPv6AcceptRA = "yes";
     routes = [
       {
@@ -202,11 +209,6 @@ in
     ];
   };
   networking.networkmanager.enable = lib.mkForce false;
-
-  # The common network policy intentionally masks the global wait-online
-  # service. This host's NFS media mount must still wait for its physical LAN
-  # carrier, so enable systemd's scoped per-interface instance only.
-  systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@bond0.service" ];
 
   # Break the boot ordering cycle between yggdrasil (Before=network.target),
   # the NFS mnt-storage mount (After=network.target) and nix-daemon.socket

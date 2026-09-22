@@ -20,6 +20,7 @@ _: {
       "neo"
     ];
     LAN = [
+      "bond"
       "lan"
       "ns"
       "vboxnet"

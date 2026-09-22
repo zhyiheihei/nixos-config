@@ -103,29 +103,39 @@
     '';
   };
 
-  # 双 2.5G 网卡 802.3ad（LACP）聚合，对端为交换机 S1100W 的聚合2（端口 3-4）。
-  # 哈希策略 layer2+3 与 NAS 侧一致；部署时序：先 activate 本配置（bond 无
-  # LACP 伙伴会短暂全断），再在交换机 web 建 trunk 后恢复。
-  systemd.network.netdevs."10-bond0" = {
+  # 双 2.5G 口（TC956X PCIe 双口卡）接交换机 S1100W-8GT-1SX-SE（192.168.0.11）
+  # 聚合2（LACP，成员口 3-4）。交换机侧动态 LACP，与 opi5p 的 802.3ad 同款；
+  # 哈希 layer3+4、按永久 MAC 绑 slave、bond MAC 钉在 eth0 烧录地址上，均对齐
+  # ml-2700/opi5p 的 bond0 写法，重启后 ARP/交换机表保持稳定。
+  systemd.network.netdevs.bond0 = {
     netdevConfig = {
       Kind = "bond";
       Name = "bond0";
+      MACAddress = "88:12:4e:00:03:54";
     };
     bondConfig = {
       Mode = "802.3ad";
-      TransmitHashPolicy = "layer2+3";
+      TransmitHashPolicy = "layer3+4";
       LACPTransmitRate = "fast";
       MIIMonitorSec = "100ms";
     };
   };
-  systemd.network.networks."10-bond-slaves" = {
-    matchConfig.Name = "eth0 eth1";
+
+  systemd.network.networks.eth0 = {
+    matchConfig.PermanentMACAddress = "88:12:4e:00:03:54";
     networkConfig.Bond = "bond0";
-    linkConfig.RequiredForOnline = "no";
   };
-  systemd.network.networks."10-dragon-q8b-lan" = {
+
+  systemd.network.networks.eth1 = {
+    matchConfig.PermanentMACAddress = "88:12:4e:00:03:55";
+    networkConfig.Bond = "bond0";
+  };
+
+  systemd.network.networks.bond0 = {
     matchConfig.Name = "bond0";
     address = [ "${LT.this.interconnect.IPv4}/24" ];
+    dns = [ "192.168.0.1" ];
+    domains = [ "zhyi.xin" ];
     networkConfig.IPv6AcceptRA = "yes";
     routes = [
       {
