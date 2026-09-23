@@ -666,8 +666,20 @@ in
   # miniupnpd 在 PPPoE 重拨瞬间读到 ppp0 无地址后会永久卡死
   # （journal：ext interface ppp0 has no IPv4 address / cannot get public IP
   # address, stopping），之后所有 NAT-PMP/UPnP 添加永远返回 Network Failure，
-  # 守护进程自身无恢复逻辑（2026-09-15 巡检实锤）。上游模块假定静态 WAN，
-  # 主机级补一个自检看门狗：ppp0 有地址但自测映射失败即重启。
+  # 守护进程自身无恢复逻辑（2026-09-15 巡检实锤）。上游模块假定静态 WAN。
+  #
+  # 旧实现用 natpmpc 从本机自检映射，2026-09-23 实锤两层缺陷：探测包经 lo
+  # 出站被 NAT_POSTROUTING masquerade 改写源地址（firewall.nix 已对齐 exam
+  # 补回 lo 豁免），natpmpc 还会按 /proc/net/route 顺序绑定到非 LAN 接口，
+  # 二者都让 miniupnpd 判定 "not from a LAN" 丢弃，自检永久失败形成
+  # 2 分钟一次的重启循环（6 天 911 次），频繁重写 iptables 间歇性杀掉
+  # LTNET 的 UDP 路径。改为事件驱动：miniupnpd 启动时记录 WAN 地址，
+  # 看门狗只在地址变化时重启，稳定状态零动作。
+  systemd.services.miniupnpd.preStart = ''
+    ${lib.getExe' pkgs.iproute2 "ip"} -4 addr show ppp0 | ${lib.getExe' pkgs.gawk "awk"} "/inet /{print \$2; exit}" > /run/miniupnpd/wan-addr || true
+  '';
+  systemd.services.miniupnpd.serviceConfig.RuntimeDirectory = "miniupnpd";
+
   systemd.services.miniupnpd-watchdog = {
     after = [
       "miniupnpd.service"
@@ -676,9 +688,13 @@ in
     serviceConfig = {
       Type = "oneshot";
       ExecStart = pkgs.writeShellScript "miniupnpd-watchdog" ''
-        ${lib.getExe' pkgs.iproute2 "ip"} -4 addr show ppp0 | grep -q inet || exit 0
-        ${lib.getExe' pkgs.libnatpmp "natpmpc"} -g 192.168.0.1 -a 64004 64004 tcp 30 >/dev/null 2>&1 \
-          || systemctl restart miniupnpd.service
+        cur=$(${lib.getExe' pkgs.iproute2 "ip"} -4 addr show ppp0 2>/dev/null | ${lib.getExe' pkgs.gawk "awk"} "/inet /{print \$2; exit}")
+        [ -n "$cur" ] || exit 0
+        [ -f /run/miniupnpd/wan-addr ] || exit 0
+        started=$(cat /run/miniupnpd/wan-addr)
+        if [ "$started" != "$cur" ]; then
+          ${lib.getExe' pkgs.systemd "systemctl"} try-restart miniupnpd.service
+        fi
       '';
     };
   };

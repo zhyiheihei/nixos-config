@@ -88,7 +88,6 @@ let
     fi
   '';
 
-
   ipv4Set = name: value: ''
     set ${name} {
       type ipv4_addr
@@ -209,7 +208,11 @@ in
       type nat hook postrouting priority 105; policy accept;
 
       # Masquerade traffic leaving the LAN, including WAN and overlay networks.
-      meta nfproto ipv4 oifname != "br-lan" masquerade
+      # lo must stay exempt (same as exam's lt-home-router): masquerading
+      # locally-delivered packets rewrites their source address (observed as
+      # the ZT IP), which breaks local services that validate the sender,
+      # e.g. miniupnpd dropping NAT-PMP probes as "not from a LAN".
+      meta nfproto ipv4 oifname != "br-lan" oifname != "lo" masquerade
 
       # Masquerade DNATed (hairpin) traffic so return path goes through router
       meta nfproto ipv4 oifname "br-lan" ct status dnat masquerade
