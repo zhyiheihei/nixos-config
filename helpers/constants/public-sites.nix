@@ -73,6 +73,7 @@ _: [
   "lg.zhyi.dn42"
   "lg.zhyi.xin"
   "sub.zhyi.xin"
+  "tencent-cn.zhyi.xin"
   "tencent.zhyi.xin"
   "volcengine.zhyi.xin"
   # keep-sorted end
