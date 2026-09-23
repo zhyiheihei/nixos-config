@@ -10,6 +10,12 @@ let
     { target = "198.18.0.0/24"; }
     { target = "fdd8:1938:4e88::/64"; }
 
+    # GL-MT3600BE travel router LAN
+    {
+      target = "192.168.3.0/24";
+      via = "198.18.0.115";
+    }
+
     # Default routing to home router
     {
       target = "0.0.0.0/0";
