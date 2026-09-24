@@ -113,6 +113,18 @@ in
       }
     ];
   };
+  # api.themoviedb.org 被 DNS 污染（解析到 Facebook 段），Jellyfin 的 TMDB
+  # 元数据/图片刷新线程反复 Socket 超时，库扫描被拖慢——用户侧表现为
+  # MoviePilot 入库后 Jellyfin 长时间搜不到。jellyfin 服务虽注入了
+  # LT.proxyEnvironment，但 .NET 的默认环境代不理解 socks5:// scheme，
+  # 等于裸连污染 IP。实测直连 CloudFront 真实 IP 正常（401 为未带 key 的
+  # 预期响应），故在主机级固定 IP；/etc/hosts 被 netns rk-jellyfin 共享，
+  # native jellyfin 即时受益。IP 变更时重新用 DoH（走 router 代理）查询。
+  networking.hosts = {
+    "18.165.122.87" = [ "api.themoviedb.org" ];
+    "18.165.122.27" = [ "api.themoviedb.org" ];
+  };
+
   networking.networkmanager.enable = lib.mkForce false;
 
   # The common network policy intentionally masks the global wait-online
