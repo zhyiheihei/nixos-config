@@ -31,6 +31,23 @@ let
         };
         tag = "inbound";
       }
+      {
+        # .NET 应用（Jellyfin）不认 socks5:// 环境代理，只能用 http://
+        # scheme 的 HTTP CONNECT 代理；域名由 vless 出站端远端解析，
+        # 绕开 TMDB 等 DNS 污染。routing 规则与 inbound tag 无关，无需改。
+        listen = LT.this.interconnect.IPv4;
+        port = LT.port.V2Ray.HttpClient;
+        protocol = "http";
+        sniffing = {
+          destOverride = [
+            "http"
+            "tls"
+            "quic"
+          ];
+          enabled = true;
+        };
+        tag = "inbound-http";
+      }
     ];
     log = {
       access = "none";

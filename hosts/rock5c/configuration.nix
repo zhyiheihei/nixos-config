@@ -9,9 +9,13 @@ let
     NO_PROXY = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
     no_proxy = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
   };
-  # MoviePilot container: PySocks resolves hostnames locally with socks5;
-  # socks5h keeps GitHub/plugin traffic on the router proxy with remote DNS.
+  # MoviePilot 容器：PySocks 用 socks5 时本地解析域名，socks5h 让域名在
+  # router 代理解析，避开污染。
   moviepilotProxy = "socks5h://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+  # .NET 应用不认 socks5:// 环境代理（jellyfin 曾因此裸连被污染的
+  # api.themoviedb.org，元数据/图片刷新全部超时），只能走 router v2ray
+  # 的 HTTP CONNECT 入站，域名在出站端远端解析。
+  jellyfinProxy = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
 in
 {
   imports = [
@@ -72,7 +76,12 @@ in
   systemd.services.jellyfin = {
     after = [ "mnt-storage.mount" ];
     requires = [ "mnt-storage.mount" ];
-    environment = proxyEnvironment;
+    environment = proxyEnvironment // {
+      HTTP_PROXY = jellyfinProxy;
+      HTTPS_PROXY = jellyfinProxy;
+      http_proxy = jellyfinProxy;
+      https_proxy = jellyfinProxy;
+    };
   };
 
   # MoviePilot container: PySocks resolves hostnames locally with socks5;
@@ -113,18 +122,6 @@ in
       }
     ];
   };
-  # api.themoviedb.org 被 DNS 污染（解析到 Facebook 段），Jellyfin 的 TMDB
-  # 元数据/图片刷新线程反复 Socket 超时，库扫描被拖慢——用户侧表现为
-  # MoviePilot 入库后 Jellyfin 长时间搜不到。jellyfin 服务虽注入了
-  # LT.proxyEnvironment，但 .NET 的默认环境代不理解 socks5:// scheme，
-  # 等于裸连污染 IP。实测直连 CloudFront 真实 IP 正常（401 为未带 key 的
-  # 预期响应），故在主机级固定 IP；/etc/hosts 被 netns rk-jellyfin 共享，
-  # native jellyfin 即时受益。IP 变更时重新用 DoH（走 router 代理）查询。
-  networking.hosts = {
-    "18.165.122.87" = [ "api.themoviedb.org" ];
-    "18.165.122.27" = [ "api.themoviedb.org" ];
-  };
-
   networking.networkmanager.enable = lib.mkForce false;
 
   # The common network policy intentionally masks the global wait-online

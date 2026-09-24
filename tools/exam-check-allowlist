@@ -6,7 +6,7 @@ flake.nix # fork inputs（secrets/zhyi-packages/ncps）、hydra jobs 剔除 apps
 nvfetcher.toml # fork 保留 dnscontrol pin v4（上游 gcore LabelFromFQDNWithDot bug 未修，取消 pin 会让 DNS preview 报千条假修正）；ulauncher-cursor-projects 已按用户决策对齐移除
 helpers/cities.json # fork 主机地理位置数据
 helpers/constants/nix.nix # 缓存常量化：zhyi 缓存 + NUR 作者缓存（2026-09-05 用户批准的缓存拓扑）
-helpers/constants/ports.nix # fork 服务端口登记（单域 vhost 生态）；DLX/OidcTester 按用户 2026-09-13 决策移除（临时性服务不启用）
+helpers/constants/ports.nix # fork 服务端口登记（单域 vhost 生态 + V2Ray.HttpClient=1081 HTTP CONNECT 入站，供 .NET 应用/jellyfin 使用）；DLX/OidcTester 按用户 2026-09-13 决策移除（临时性服务不启用）
 helpers/constants/public-sites.nix # fork 子域清单（并入单域 zhyi.xin，无 google-test/ltn.pw）
 helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）
