@@ -24,6 +24,10 @@
     IPv6 = "2402:4e00:c032:6100:4678:c7be:842a:0";
   };
 
+  # Collected on first boot via zerotier-cli info (2026-09-24),
+  # authorized on the greencloud controller.
+  zerotier = "57fafdd1e1";
+
   # Server-role BIRD configuration consumes the region even without dn42.
   dn42.region = constants.dn42.region.Asia-E;
 }
