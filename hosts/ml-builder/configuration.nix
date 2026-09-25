@@ -139,6 +139,20 @@ in
   # survive.
   zramSwap.memoryPercent = lib.mkForce 100;
 
+  # 2026-09-25：多客户端（ml-laptop/opi5p 的并行部署会话）预算叠加时，
+  # 聚合内存峰值仍可能超出 58 GiB + zram 包络，进入回收风暴后整机冻结
+  # （当天两次失联）。earlyoom 在内存吃紧时杀掉最大的单个编译进程，
+  # 丢一个构建换整机存活；优先杀编译器/链接器，保护 nix 基础设施。
+  services.earlyoom = {
+    enable = true;
+    extraArgs = [
+      "--prefer"
+      "(cc1plus|cc1|clang|ld.lld|ld$|rustc|ninja)"
+      "--avoid"
+      "(^|/)(nix-daemon|nix-store|sshd|systemd)"
+    ];
+  };
+
   services.openssh.settings.MaxStartups = "64:30:128";
 
   environment.systemPackages = with pkgs; [

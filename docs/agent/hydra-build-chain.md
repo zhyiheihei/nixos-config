@@ -9,10 +9,13 @@
 - **2026-09-17 起 Hydra 跑在 `opi5p`**（2026-09-04 曾自 ml-builder 迁入
   ml-laptop，后为给工作机减负再迁 opi5p），公共 vhost `hydra.zhyi.xin` 在
   greencloud 覆写后端指向 opi5p 的 LTNET 地址。
-- `ml-builder` 仍是唯一主构建机（28 vCPU / 58 GiB），也是唯一声明
-  `big-parallel` 的主机；同时只跑 1 个 derivation，单任务不限核数
-  （`cores = 0`），防止 2026-08-06 出现过的多任务 OOM。Hydra 迁走后本机
-  回归纯构建机定位（archiveteam/clawemail/epic 容器同期迁出）。
+- `ml-builder` 仍是唯一主构建机（28 vCPU / 58 GiB + 100% zram），也是唯一声明
+  `big-parallel` 的主机。自身构建单额 6×16（`max-jobs = 6`、`cores = 16`，
+  2026-09-05 定型，取代 2026-08-06 事故前的多任务不限核策略）；远程派发的
+  构建同样走 ml-builder 的 nix.conf，单构建 `-j16` 由构建机侧强制。内存
+  兑底由 earlyoom 负责（2026-09-25 启用：超包络时杀掉最大的单个编译进程，
+  丢一个构建换整机存活），Hydra 迁走后本机回归纯构建机定位
+  （archiveteam/clawemail/epic 容器同期迁出）。
 - `pve-5700u` 是纯 Proxmox VE 宿主，不再运行 Hydra，也不再作为 Nix 回退 builder。
 - `opi5p` 首先是数据库、媒体和 reDroid 生产节点，只作为单任务原生 ARM 回退节点。
 - `rock5c`、Router 和其他业务主机不加入 `nix-builder`；`ml-home-vm` 已退役。
@@ -20,6 +23,16 @@
   下游，QEMU 只作远程构建关闭时的回退。PVE 不参与任何构建派发。
 - `maxJobs` 限制同时运行的 derivation 数；`cores` 限制单个 derivation 获得的
   并行度。两者不能互相替代。
+- **并发预算按会话独立计算**（2026-09-25 实锤）：每个 nix 客户端会话
+  （手动部署、subagent、Hydra evaluator）各自拿到 machines 表里满额的
+  `maxJobs`，互相不知道彼此的存在。远程构建的单构建并行度由构建机的
+  `nix.conf` 的 `cores` 决定（走 legacy ssh 的 `nix-store --serve`，
+  构建机自身设置生效），而非客户端。因此聚合负载 ≈
+  并行会话数 × 每会话槽位 × `-jcores`，任何一侧调整都要按这个公式
+  估算总量是否超出 ml-builder 的 6×16 稳定包络。
+- 多会话叠加的历史事故：2026-09-25 fleet 部署期间主会话 + 2 subagent
+  会话 + Hydra 同时派发，聚合 96+ 编译进程触发 zram 回收风暴、ml-builder
+  两次冻结失联；对策即上述「每客户端降为 1+1 槽 + earlyoom 兑底」。
 
 ## 构建拓扑（2026-09-17 更新，Hydra on opi5p）
 

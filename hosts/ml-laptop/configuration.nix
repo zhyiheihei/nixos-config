@@ -69,7 +69,11 @@
       };
     in
     [
-      (mk "ml-builder" 2 [ "aarch64-cross" ])
+      # ml-builder 通用槽 2→1（2026-09-25）：远程派发的并发预算在客户端
+      # machines 表，多会话（主会话 + subagent + Hydra）各自独立预算，
+      # 每会话 2 槽在并行会话叠加时聚合 6+ 派生 × -j16，超出 6×16 稳定
+      # 包络引发 OOM。降为每会话 1 槽，3 并行会话恰好回到包络。
+      (mk "ml-builder" 1 [ "aarch64-cross" ])
       (mk "ml-builder" 1 [
         "big-parallel"
         "aarch64-cross"

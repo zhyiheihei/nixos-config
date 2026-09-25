@@ -117,7 +117,10 @@ in
       };
     in
     [
-      (mk "ml-builder" 2 [ "aarch64-cross" ])
+      # ml-builder 通用槽 2→1（2026-09-25）：多客户端（Hydra + 手动部署）
+      # 预算叠加时超出 ml-builder 的 6×16 稳定包络引发 OOM，与 ml-laptop
+      # 同步收口。
+      (mk "ml-builder" 1 [ "aarch64-cross" ])
       (mk "ml-builder" 1 [
         "big-parallel"
         "aarch64-cross"
