@@ -51,6 +51,7 @@ NORMALIZE = [
     ("lantian:${glauthUsers", "zhyi:${glauthUsers"),
     ('"lantian"', '"zhyi"'),
     ("/ssh/lantian.nix", "/ssh/zhyi.nix"),
+    ("ssh lantian@", "ssh zhyi@"),
     ("vhosts-lantian.nix", "vhosts-zhyi.nix"),
     ("lantian1998", "zhyiheihei"),
     ("dc=lantian,dc=pub", "dc=zhyi,dc=xin"),
@@ -225,6 +226,71 @@ def do_diff(argv):
     print(git("diff", f"{baseline}..exam/master", "--", a.path).decode(errors="replace"), end="")
 
 
+def do_upstream(argv):
+    ap = argparse.ArgumentParser(
+        prog="tools/exam-check upstream",
+        description="工作树 vs exam/master 归一化对比（同步完成度自证；baseline 模式的补充）",
+    )
+    ap.add_argument("--path", default="", help="只对比某子路径")
+    ap.add_argument("-v", "--verbose", action="store_true", help="打印未对齐文件的归一化 diff")
+    a = ap.parse_args(argv)
+    allow = load_allowlist()
+    up = git("ls-tree", "-r", "--name-only", "-z", "exam/master", "--", *([a.path] if a.path else SHARED_PATHS))
+    up_set = {p for p in up.decode().split("\0") if p and not p.startswith(EXCLUDES)}
+    work_set = worktree_files(a.path)
+
+    same, subst, known, drift = [], [], [], []
+    for p in sorted(up_set & work_set):
+        try:
+            upb = git("show", f"exam/master:{p}")
+        except SystemExit:
+            die(f"exam/master 对象缺失（{p}），先 git fetch exam")
+        work = (REPO / p).read_bytes()
+        if upb == work:
+            same.append(p)
+        elif normalize(upb) == normalize(work):
+            subst.append(p)
+        elif p in allow:
+            known.append(p)
+        else:
+            drift.append(p)
+
+    skip_up = {p for p in allow if allow[p].startswith("skip: ")}
+    missing = sorted(p for p in up_set - work_set if p not in skip_up)
+    fork_only = sorted(work_set - up_set)
+
+    tip = git("rev-parse", "--short", "exam/master").decode().strip()
+    print(f"对比对象 exam/master {tip}（基线模式见 tools/exam-check）")
+    print(f"统计: = 一致 {len(same)} | ≈ 认可替换 {len(subst)} | fork独有 {len(fork_only)} | − 缺失 {len(missing)} | !known 已登记 {len(known)} | ! 未对齐 {len(drift)}")
+
+    if drift:
+        print("\n! 未对齐（checkout/搬 patch，或登记 allowlist）:")
+        for p in drift:
+            print(f"  {p}")
+    if missing:
+        print("\n− 缺失（跟进上游文件或登记 'skip: 原因'）:")
+        for p in missing:
+            print(f"  {p}")
+    if known:
+        print("\n!known 已登记差异（fork 决策）:")
+        for p in known:
+            print(f"  {p}  # {allow.get(p, '')}")
+    if a.verbose:
+        for p in drift:
+            base = normalize(git("show", f"exam/master:{p}")).splitlines()
+            work = normalize((REPO / p).read_bytes()).splitlines()
+            d = list(difflib.unified_diff(base, work, fromfile=f"exam/master:{p}", tofile=f"worktree:{p}", lineterm=""))
+            print(f"\n{'=' * 20} {p}")
+            print("\n".join(d[:120]) or "（无差异）")
+            if len(d) > 120:
+                print(f"…（其余 {len(d) - 120} 行省略）")
+
+    if drift or missing:
+        print(f"\nexam-check upstream: 未完全对齐（未对齐={len(drift)} 缺失={len(missing)}）", file=sys.stderr)
+        sys.exit(1)
+    print("\nexam-check upstream: 通过")
+
+
 def do_log(argv):
     ap = argparse.ArgumentParser(
         prog="tools/exam-check log",
@@ -258,6 +324,9 @@ def do_log(argv):
 
 def main():
     argv = sys.argv[1:]
+    if argv and argv[0] == "upstream":
+        do_upstream(argv[1:])
+        return
     if argv and argv[0] == "log":
         do_log(argv[1:])
         return

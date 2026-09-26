@@ -1,5 +1,15 @@
-{ lib, ... }:
 {
+  lib,
+  dn42,
+  neonetwork,
+  ...
+}:
+{
+  # Target host MUST have DN42 connectivity
+  defaultGatewayHostName = "rock5c";
+  defaultGatewayHostIPv4Routes = dn42.IPv4 ++ neonetwork.IPv4 ++ [ "198.18.0.0/15" ];
+  defaultGatewayHostIPv6Routes = dn42.IPv6 ++ neonetwork.IPv6 ++ [ "fdd8:1938:4e88::/48" ];
+
   forceX11WrapperArgs = builtins.concatStringsSep " " [
     "--set QT_QPA_PLATFORM xcb"
     "--set XDG_SESSION_TYPE x11"

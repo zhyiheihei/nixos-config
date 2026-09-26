@@ -37,8 +37,11 @@ let
       ;
     inherit matrixWellKnown;
     inherit nix;
-    inherit (ports) port portStr;
+    inherit (ports) port portStr portForwardOffset;
     inherit (misc)
+      defaultGatewayHostName
+      defaultGatewayHostIPv4Routes
+      defaultGatewayHostIPv6Routes
       forceX11WrapperArgs
       stateVersion
       tags

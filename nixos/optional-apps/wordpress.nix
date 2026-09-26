@@ -22,15 +22,15 @@ in
 
   services.wordpress = {
     webserver = "nginx";
-    sites."wp.zhyi.xin" = {
+    sites."wp.xuyh0120.win" = {
       database = {
         createLocally = true;
         name = "wordpress";
       };
       settings = {
         WPLANG = "zh_CN";
-        WP_SITEURL = "https://wp.zhyi.xin";
-        WP_HOME = "https://wp.zhyi.xin";
+        WP_SITEURL = "https://wp.xuyh0120.win";
+        WP_HOME = "https://wp.xuyh0120.win";
         DISABLE_WP_CRON = true; # wp-cron.php is triggered by a systemd timer instead
         EMPTY_TRASH_DAYS = 0;
         DISALLOW_FILE_EDIT = true;
@@ -44,7 +44,7 @@ in
           name = "language-zh_CN";
           src = pkgs.fetchurl {
             url = "https://zh.wordpress.org/wordpress-${pkgs.wordpress.version}-zh_CN.tar.gz";
-            sha256 = "sha256-oAzo/+6mEk4+CYXGN/a61An3GpnSfnfQka56HchhXsE=";
+            sha256 = "sha256-wUQWRTDqXjLkdmjj+pfGkWUhRlLVK3LVPVB7PhhWPZw=";
           };
           installPhase = "mkdir -p $out; cp -r ./wp-content/languages/* $out/";
         })
@@ -104,14 +104,14 @@ in
       User = "wordpress";
       Group = config.services.nginx.group;
       ReadWritePaths = [
-        config.services.wordpress.sites."wp.zhyi.xin".cacheDir
-        config.services.wordpress.sites."wp.zhyi.xin".uploadsDir
+        config.services.wordpress.sites."wp.xuyh0120.win".cacheDir
+        config.services.wordpress.sites."wp.xuyh0120.win".uploadsDir
       ];
     };
     # Reuse the php-fpm pool's PHP to guarantee the same extension set
-    path = [ config.services.phpfpm.pools."wordpress-wp.zhyi.xin".phpPackage ];
+    path = [ config.services.phpfpm.pools."wordpress-wp.xuyh0120.win".phpPackage ];
     script = ''
-      php ${config.services.wordpress.sites."wp.zhyi.xin".finalPackage}/share/wordpress/wp-cron.php
+      php ${config.services.wordpress.sites."wp.xuyh0120.win".finalPackage}/share/wordpress/wp-cron.php
     '';
   };
 
@@ -132,7 +132,7 @@ in
       "${pkgs.wordpressPackages.plugins.wp-fail2ban}/filters.d/wordpress-soft.conf";
   };
 
-  lantian.nginxVhosts."wp.zhyi.xin" = {
-    sslCertificate = "zerossl-zhyi.xin";
+  lantian.nginxVhosts."wp.xuyh0120.win" = {
+    sslCertificate = "zerossl-xuyh0120.win";
   };
 }

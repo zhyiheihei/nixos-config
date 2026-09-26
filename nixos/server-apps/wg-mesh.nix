@@ -83,7 +83,14 @@ in
           Destination = "::/0";
           Table = 10000 + v.index;
         }
-      ];
+      ]
+      ++ builtins.map (r: { Destination = r; }) v._routes
+      ++ lib.optionals (n == LT.defaultGatewayHostName && !config.services.bird.enable) (
+        # If BIRD is enabled then BGP handle these routes
+        builtins.map (r: { Destination = r; }) (
+          LT.defaultGatewayHostIPv4Routes ++ LT.defaultGatewayHostIPv6Routes
+        )
+      );
     }
   ) targetHosts;
 
