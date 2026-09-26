@@ -9,17 +9,17 @@
 let
   # Keep compiler processes native on ml-builder while they emit aarch64
   # binaries. H28K must not build its own kernel or U-Boot under qemu-user.
-  crossPkgs =
-    self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
+  crossPkgs = self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
 
-  # Linux 7.1 has the rk3528 PCIe node that the H28K board DTS requires;
+  # Linux 7.1 was removed from nixpkgs (EOL, 2026-09); the rk3528 PCIe node the
+  # H28K board DTS requires landed in 7.1, so track 7.2 (linux_latest) now.
   # 6.18 (the locked kernel this config used to carry) predates it, so the
   # board DTS could not compile there. The board DTS itself is still not in
   # any released kernel, so carry the patch accepted by the Rockchip
   # maintainer (commit 145d4af4b204e1fb565a498c6c8f801525cc0a4e) minus its
   # USB parts, which reference rk3528 nodes 7.1 does not have yet.
   h28kKernel = crossPkgs.linuxManualConfig {
-    inherit (crossPkgs.linux_7_1) src version modDirVersion;
+    inherit (crossPkgs.linux_7_2) src version modDirVersion;
     configfile = ../nanopi-r5c/kernel-config;
     kernelPatches = [
       {
