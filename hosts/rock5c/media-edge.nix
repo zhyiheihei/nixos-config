@@ -19,12 +19,10 @@ let
     pt = LT.port.qBitTorrentPT.WebUI;
     seedbox = LT.port.qBitTorrentSeedbox.WebUI;
   };
-  # 边缘反代后端所在主机（bitmagnet/peerbanhelper/tachidesk 在 dragon-q8b，
-  # 其余在 opi5p）。
   backendHost = {
-    bitmagnet = "dragon-q8b";
-    peerbanhelper = "dragon-q8b";
-    tachidesk = "dragon-q8b";
+    bitmagnet = "chromebox";
+    peerbanhelper = "chromebox";
+    tachidesk = "chromebox";
   };
   mkProxyLocation =
     service:
@@ -59,7 +57,6 @@ in
   lantian.nginxVhosts =
     builtins.listToAttrs (builtins.concatLists (map mkEdgeVhosts edgeServices))
     // {
-      # tachidesk 后端在 dragon-q8b，边缘直连其机器域。
       "tachidesk.zhyi.xin" = {
         locations."/" = (mkProxyLocation "tachidesk") // {
           enableBasicAuth = true;

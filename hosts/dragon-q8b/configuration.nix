@@ -10,10 +10,8 @@
 
     ./hardware-configuration.nix
     ./home-services.nix
-    ./media-automation.nix
 
     ../../nixos/optional-apps/ncps.nix
-    ../../nixos/optional-apps/resilio-sync.nix
     ../../nixos/optional-apps/redroid.nix
   ];
 
@@ -21,13 +19,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = lib.mkForce true;
 
-  # server 角色统一加 nofb/nomodeset/vga=normal（nixos/server-components/boot-params.nix），
-  # 但 nomodeset 会让 DRM 驱动拒绝 probe（日志表现 adev bind failed -19），
-  # GPU/DPU/DisplayPort 音频全部瘫痪。kernelParams 是追加合并没有单删语法，
-  # mkForce 手工重列又会把 root=fstab/nohibernate/lsm 等模块级参数全部顶掉
-  # （已在 2026-08-25 踩过：gpt-auto-root 超时进 emergency）。
-  # 此模块在本机只制 grub memtest/netboot.xyz（x86 专用，aarch64 全是空操作），
-  # 直接 disabledModules 禁掉最干净。
+  # nomodeset 会让 msm DRM 拒绝 probe（adev bind failed -19），且 kernelParams
+  # 只能追加、mkForce 重列会顶掉模块级参数，故 disabledModules 整块禁用。
   disabledModules = [ ../../nixos/server-components/boot-params.nix ];
 
   boot.kernelParams = [
@@ -35,15 +28,11 @@
     "pd_ignore_unused"
     "console=ttyMSM0,115200n8"
     "earlycon"
-    # msm 模块在 initrd 阶段加载，显式设置固件搜索路径（覆盖 udev 后期设置）。
     "firmware_class.path=/lib/firmware"
   ];
 
   hardware.enableRedistributableFirmware = true;
 
-  # 确保 initrd 包含 GPU 固件，msm 模块在 initrd 阶段 probe 时就要加载：
-  #   a660_sqe.fw / a660_gmu.bin — Adreno 690 SQE + GMU 固件
-  #   qcdxkmsuc8280.mbn — ZAP shader（Radxa dts 复用 LENOVO/21BX，SoC unfused）
   boot.initrd.extraFirmwarePaths = [
     "qcom/a660_sqe.fw.zst"
     "qcom/a660_gmu.bin.zst"
@@ -51,23 +40,15 @@
     "qcom/sc8280xp/qcdxkmsuc8280.mbn.zst"
   ];
 
-  # Qualcomm SC8280XP userspace packages.  qrtr for remoteproc diagnostics,
-  # alsa-ucm-conf for audio.
-  #
-  # rmtfs/pd-mapper NOT installed: this board has no modem (only adsp/cdsp
-  # remoteprocs, no rmtfs-mem node in DTB), rmtfs has nothing to serve.
   environment.systemPackages = with pkgs; [
     qrtr
     alsa-ucm-conf
     nfs-utils
   ];
 
-  # NAS 媒体库直接由 NAS 导出，与 opi5p/rock5c 挂同一个 NFS share。
   boot.supportedFilesystems = [ "nfs" ];
 
-  # noauto + automount + bindfs _netdev：同 opi5p 修复（c72df01ca）。
-  # resilio 的 /sync、/downloads bindfs 挂在 NFS 之上，_netdev 归入
-  # remote-fs 链断 ordering cycle（dragon boot 日志实测 2 条环）。
+  # noauto + automount：同 opi5p 修复（c72df01ca），archivebox 绑定 NFS。
   fileSystems."/mnt/storage" = {
     device = "192.168.0.40:/nixos";
     fsType = "nfs";
@@ -84,17 +65,6 @@
     ];
   };
 
-  # 共享 resilio-sync 模块不动，主机级覆盖断环。
-  fileSystems."/sync".options = lib.mkForce [
-    "bind"
-    "_netdev"
-  ];
-  fileSystems."/downloads".options = lib.mkForce [
-    "bind"
-    "_netdev"
-  ];
-
-  # automount 触发的 mount 失败不再撞 5 次/10s 限流，NAS 恢复后访问即自愈。
   systemd.units."mnt-storage.mount" = {
     overrideStrategy = "asDropin";
     text = ''
@@ -103,10 +73,6 @@
     '';
   };
 
-  # 双 2.5G 口（TC956X PCIe 双口卡）接交换机 S1100W-8GT-1SX-SE（192.168.0.11）
-  # 聚合2（LACP，成员口 3-4）。交换机侧动态 LACP，与 opi5p 的 802.3ad 同款；
-  # 哈希 layer3+4、按永久 MAC 绑 slave、bond MAC 钉在 eth0 烧录地址上，均对齐
-  # ml-2700/opi5p 的 bond0 写法，重启后 ARP/交换机表保持稳定。
   systemd.network.netdevs.bond0 = {
     netdevConfig = {
       Kind = "bond";
@@ -146,12 +112,9 @@
   };
   networking.networkmanager.enable = lib.mkForce false;
 
-  # NFS 媒体库挂载需要等物理网络就绪。通用策略禁用了全局 wait-online，
-  # 这里启用按接口的实例。
+  # 通用策略禁用全局 wait-online，NFS 挂载依赖按接口实例。
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@bond0.service" ];
 
-  # 容器镜像加速：通过 tencent 上的 hubproxy（hub.tencent.zhyi.xin，走
-  # ZeroTier/LTNET 隧道）拉取 docker.io 镜像，daocloud 作为后备。
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
     [[registry]]
     location = "docker.io"
@@ -163,14 +126,11 @@
     location = "docker.m.daocloud.io"
   '';
 
-  # ArchiveBox 绑定 NFS 媒体库，必须在挂载后启动。
   systemd.services.archivebox = {
     after = [ "mnt-storage.mount" ];
     requires = [ "mnt-storage.mount" ];
   };
 
-  # 关 zram 改 NVMe swapfile（与 opi5p 同款：服务密度超物理内存后 zram
-  # 压缩致 swap 风暴）；swapfile 在独立子卷 /nix/swap，避免 /nix 快照 EBUSY。
   zramSwap.enable = lib.mkForce false;
   swapDevices = [
     {
@@ -178,23 +138,6 @@
       size = 4096;
     }
   ];
-
-  # Resilio Sync 数据本体在 NAS（与 opi5p 同一 NFS share，数据库路径不变）。
-  lantian.resilioSync = {
-    dataDir = "/mnt/storage/resilio/data";
-    downloadsDir = "/mnt/storage/resilio/downloads";
-  };
-
-  # resilio 索引风暴防护（2026-09-16 断网排障结论）：rslsync 对 NFS 上海量
-  # git/SDK 小文件做全量索引时日志 500 行/秒、RSS 2.4G，把 8G 内存机器拖到
-  # swap 打满、整机假死 ping 不通（09-16 21:32 与 15:35 两次实证）；同时
-  # journald 全局 100M 限额下系统日志全被 resilio 日志冲掉，断网证据灭失。
-  # per-unit 日志限流 + 内存硬顶防复发；根治需把高频变动 git/SDK 目录移出同步。
-  systemd.services.resilio.serviceConfig = {
-    LogRateLimitIntervalSec = 30;
-    LogRateLimitBurst = 500;
-    MemoryMax = "3G";
-  };
 
   # NCPS 上游代理：router V2Ray（LT.proxyEnvironment）在 2026-09-05 间歇性
   # 断流，导致 NCPS 替代下载超时、全集群 substituter 退化。改走 rock5c 的

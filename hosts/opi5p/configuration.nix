@@ -595,13 +595,11 @@ in
     noIndex.enable = true;
   };
 
-  # Tachidesk：后端在 dragon-q8b；basicAuth 两层 nginx 同一份 htpasswd
-  # （客户端只需输入一次，满足 nginx-security 断言）。
   lantian.nginxVhosts."tachidesk.zhyi.xin" = {
     locations = {
       "/" = {
         enableBasicAuth = true;
-        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
+        proxyPass = "https://${LT.hosts.chromebox.interconnect.IPv4}";
         proxyOverrideHost = "tachidesk.zhyi.xin";
         proxyWebsockets = true;
         proxyNoTimeout = true;
