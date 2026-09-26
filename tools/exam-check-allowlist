@@ -15,13 +15,11 @@ home/client-apps/ai-coding/default.nix # fork AI provider 链（uni-api/taotoken
 home/client-apps/firefox/default.nix # 扩展与搜索配置差异（zeroomega 等 fork 客户端选择）
 home/client-apps/git.nix # fork 签名 key
 home/client-apps/pi-web.nix # fork 主机 ml-laptop 接入 pi-web 门控（0a87bd745，主机名/用户名条件扩展）
-flake-modules/commands/dnscontrol.nix # vendorHash 对齐 nixpkgs 前移后的 go 工具链产出（08b4c1694，exam 同 hash 在我们 nixpkgs 锁下同样不可构建；上游跟进后回退）
-nixos/common-apps/yggdrasil/public-peers.json # 内容已与 exam/master 一致；漂移因 baseline 钉 536ec582 而上游已前移（3c5ff36bc 等 3 提交待专项同步），bump baseline 后自然消除
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
-nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化（其余已 09-15 对齐上游 8b1459117）
+nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化 + browseros 门控 ml-laptop（上游 c7fd34b4 libvirt server 已随本次同步采纳）
 nixos/common-apps/coredns.nix # 仅保留 CN 主机 AliDNS/DNSPod 分支（docs/human/network/regional-dns.md 设计文档背书），其余结构对齐上游
 nixos/common-apps/nginx/autoconfig.nix # 域名清单并入单域
-nixos/common-apps/nginx/nginx.nix # gopher map 移除 neo（NeoNetwork 置空）
+nixos/common-apps/nginx/nginx.nix # gopher map 移除 neo（NeoNetwork 置空）+ user nginx nginx 指令（nginx #1388：root nginx -t 会把 temp 目录 chown 成编译默认 nobody，大 body 请求全 500）
 nixos/common-apps/nginx/oauth2-proxy.nix # csrf cookie 对齐说明 + cookie 域清单差异
 nixos/common-apps/nginx/testssl.nix # google-test 测试站点移除
 nixos/common-apps/nginx/whois-server.nix # whois neo 别名移除（NeoNetwork 置空）
@@ -35,7 +33,7 @@ nixos/minimal-components/backup/common.nix # 同上 + storagebox 参数差异
 nixos/minimal-components/networking.nix # backupDNSServers 按 CN 国别分支（223.5.5.5 等）
 nixos/minimal-components/podman.nix # CN 区域镜像加速（hubproxy + daocloud 兜底）
 nixos/minimal-components/smtp.nix # fork 邮件账号；from=postmaster@zhyi.cc 已确认非残留：AhaSend 账户只登记 zhyi.cc（commit 3d880f3cc，zhyi.xin 会被 556 拒发），DNS TXT/DMARC 记录在 dns/common/records.nix ForwardEmail 块维护
-nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（storagebox 等备份端点）
+nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（storagebox 等备份端点）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）+ sshd ExecStartPre 预建 /var/empty（/var 恢复后 sshd 起不来）
 nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名
 nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书（对齐上游同款结构，值不同）
 nixos/optional-apps/acme/common.nix # google-test 证书构造器移除
@@ -56,10 +54,10 @@ nixos/optional-apps/nix-distributed.nix # nixbuild.net 付费构建节点移除�
 nixos/optional-apps/plausible.nix # geonames.csv tmpfiles 软链：nixos-unstable 模块设 GEONAMES_SOURCE_FILE 但无生成机制，greencloud 迁移后实证起不来；上游（colocrossing）无此修复
 nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮箱验证码降级登录（2026-09-07 用户决策偏离）
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
-nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）
+nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
 nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
-nixos/optional-apps/zerotierone-controller.nix # relays null 过滤移除已对齐；defaultGatewayHost rock5c（上游 pve-epyc）为 DN42 网关角色映射特例，NORMALIZE 表按 pve-5700u 映射不适用本场景
-nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射 + header-fallback 补丁
+nixos/optional-apps/zerotierone-controller.nix # GL-MT3600BE 旅行路由器 LAN 路由（192.168.3.0/24 via 198.18.0.115，fork 独有拓扑）；defaultGatewayHost 已随上游收口到 LT 继承（rock5c 特例登记于 misc.nix 条目）
+nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射 + header-fallback 补丁；HOST/PORT env 与 custom-listen-host 补丁已随上游 03174835 同步（fix-tool-parameters 上游已修，fork 补丁移除）
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）
 nixos/optional-cron-jobs/testssl.nix # google-test 站点移除
 nixos/pve-components/nginx.nix # per-host 证书策略（zerossl-<host> vs 上游统一域名证书）
@@ -70,7 +68,7 @@ nixos/server-apps/powerdns-recursor.nix # neo zone 移除 + CN 公共递归分�
 nixos/server-components/logging.nix # 日志接 Axiom（filebeat→ES 兼容托管端）
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
 overlays/50-general.nix # mpv ffmpeg 私有包引用移除（fork 无该 secrets/pkg）
-overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）
+overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）+ ncps doCheck=false（Go TSan 在 qemu-user aarch64 下不可运行）
 nixos/optional-apps/dlx.nix  # skip: 2026-09-13 用户决策不启用（临时性服务），DLX 端口已从 ports.nix 移除
 nixos/optional-apps/oidc-tester.nix # skip: 2026-09-13 用户决策不启用（临时性调试服务），端口已移除
 nixos/optional-apps/epic-awesome-gamer/default.nix # skip: 依赖作者 secrets 仓 epic-awesome-gamer.yaml，fork 无凭据且不需要喜加一
@@ -81,3 +79,8 @@ dns/core/record-handlers.nix # NO_PURGE handler 保留（fork：迁移到 zhyi �
 home/client-apps/xilinx/default.nix # 上游 aaf24cde 引入 hidden-module da4fbe694da377db（作者 secrets 私有内容，fork secrets 仓无此文件），不采纳；其余已对齐
 home/client-apps/dev-tools.nix # quartus-prime-lite 注释掉：Intel 25.1std.0.1129 下载源已下架（akdlm 301→404、downloadmirror AccessDenied，2026-09-16 实测），FOD 无法获取；上游 1ee0e4aa9 引入时可用，上游换 URL 后恢复
 home/client-apps/packages.nix # materialgram 移除：上游 NUR materialgram 6.7.7.1 的 0005 stories 补丁与源码冲突（Hunk#1 FAILED，包坏档），构建失败；上游 NUR 修复后恢复
+helpers/constants/interface-prefixes.nix # bond 前缀（ba915668d：dragon-q8b bond0 对齐 ml-2700/opi5p 正典写法，ZeroTier 接口白名单放行 bond，fork 独有拓扑）
+nixos/common-apps/nginx/vhosts-lantian.nix # skip: fork 以自维护 vhosts-zhyi.nix 对应替代（vhost 集合按 zhyi 域重写，无 author 域名入口）
+helpers/constants/misc.nix # defaultGatewayHost=rock5c（上游 pve-epyc）：ltnet/dn42 默认网关主机映射特例，与 zerotier 条目同一决策；ULA 已替换为 fdd8 前缀
+home/client-apps/ai-coding/extensions/nixos-command-guard.ts # fork 规则增强：AGENTS.md 04-nixos 禁非 Nix 包管理器/make install，上游仅拦 / 与 /nix/store 单参数
+nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机为 0（f28facd0b 防构建机 OOM 收口），其余与上游一致
