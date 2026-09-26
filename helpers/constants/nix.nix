@@ -1,6 +1,5 @@
 { inputs, ... }:
 rec {
-  # 2026-09-03 自 lantian 改名 zhyi，keypair 不变（公钥值同，仅名字前缀变）。
   attic = {
     cacheName = "zhyi";
     url = "https://attic.zhyi.xin/zhyi";
