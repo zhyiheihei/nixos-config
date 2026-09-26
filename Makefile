@@ -14,8 +14,9 @@ help: FORCE
 		'make all-all-reboot 部署并重启 @non-local 主机' \
 		'make local          部署并切换当前主机' \
 		'make local-reboot   部署并重启当前主机' \
-		'在 all/all-all/servers 后加 ssh 后缀可用 ssh push 模式部署，' \
-		'避免目标机用旧配置自己拉缓存（如 make all ssh）' \
+		'CN 归属地主机（host.nix 的 city 为 geo.cities."CN …"）部署时由控制机' \
+		'本地构建后 ssh-ng push 闭包（不依赖目标机拉公共缓存）；非 CN 主机' \
+		'保持 colmena apply 原样（目标机自拉缓存）。ssh 后缀强制全部走 push。' \
 		'可通过 NIX_OPTS 传递 nix 选项（如 make all NIX_OPTS="--nix-option max-jobs 2"）' \
 		'make clean          在 Hive 主机上运行 nixos-cleanup' \
 		'make update         更新全部 Flake inputs 和 nvfetcher' \
@@ -29,16 +30,13 @@ ssh: FORCE
 NIX_OPTS ?=
 
 servers: FORCE
-	@if [ "$(filter ssh,$(MAKECMDGOALS))" ]; then $(MAKE) _deploy-tag TAG=@server; \
-	else nix run .#colmena -- apply --on @server $(NIX_OPTS); fi
+	@$(MAKE) _deploy-tag TAG=@server PUSH_ALL=$(filter ssh,$(MAKECMDGOALS))
 
 all: FORCE
-	@if [ "$(filter ssh,$(MAKECMDGOALS))" ]; then $(MAKE) _deploy-tag TAG=@default; \
-	else nix run .#colmena -- apply --on @default $(NIX_OPTS); fi
+	@$(MAKE) _deploy-tag TAG=@default PUSH_ALL=$(filter ssh,$(MAKECMDGOALS))
 
 all-all: FORCE
-	@if [ "$(filter ssh,$(MAKECMDGOALS))" ]; then $(MAKE) _deploy-tag TAG=@all; \
-	else nix run .#colmena -- apply --on @all $(NIX_OPTS); fi
+	@$(MAKE) _deploy-tag TAG=@all PUSH_ALL=$(filter ssh,$(MAKECMDGOALS))
 
 all-boot: FORCE
 	@nix run .#colmena -- apply boot --on @default $(NIX_OPTS)
@@ -65,15 +63,21 @@ local-reboot: FORCE
 	@nix run .#colmena -- apply --reboot --on $(shell cat /etc/hostname) $(NIX_OPTS)
 
 _deploy-tag: FORCE
+	@rm -f .gcroots/node-*
 	@nix run .#colmena -- build --on $(TAG) $(NIX_OPTS)
 	@for ROOT in .gcroots/node-*; do \
 		[ -L "$$ROOT" ] || continue; \
 		HOST=$$(echo $$ROOT | sed 's|\.gcroots/node-||'); \
 		FULL=$$(grep -m1 'hostname' hosts/$$HOST/host.nix | sed "s/.*\"\(.*\)\".*/\1/"); \
+		[ -n "$$FULL" ] || FULL="$$HOST.zhyi.xin"; \
 		RESULT=$$(readlink -f $$ROOT); \
 		echo "=== $$HOST ==="; \
-		nix copy --to "ssh-ng://$$FULL:2222" --no-check-sigs $$RESULT; \
-		ssh -p 2222 $$FULL "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"; \
+		if [ -n "$(PUSH_ALL)" ] || grep -q 'geo.cities."CN' hosts/$$HOST/host.nix; then \
+			nix copy --to "ssh-ng://$$FULL:2222" --no-check-sigs $$RESULT \
+				&& ssh -p 2222 $$FULL "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"; \
+		else \
+			nix run .#colmena -- apply --on $$HOST $(NIX_OPTS); \
+		fi; \
 		echo "=== $$HOST done ==="; \
 	done
 
