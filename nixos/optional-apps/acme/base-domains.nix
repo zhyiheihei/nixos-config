@@ -23,8 +23,7 @@ in
     (builtins.map mkLetsEncryptWildcardCert baseDomains)
     ++ (builtins.map mkZeroSSLWildcardCert baseDomains)
     ++ [
-      # ATproto PDS（tranquil-pds.nix：at.zhyi.xin 与 DID 通配子域），
-      # 同上游 base-domains 的 at.lantian.pub 条目。
+      # ATproto PDS
       (mkZeroSSLWildcardCert "at.zhyi.xin")
     ]
     ++ (builtins.map mkLetsEncryptWildcardCert hostSubdomains)
