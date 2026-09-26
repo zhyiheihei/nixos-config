@@ -209,7 +209,7 @@ deployment / hosts-overview / reference / inspection-playbook 等），不凭记
    （`make local` / `nix run .#colmena -- build/apply --on <host>`）、secrets 解密
    全部在本机执行；编译重活由 nix-distributed 自动派给 ml-builder / opi5p，
    不需要任何「交给别的机器准备」的流程。
-2. **SSH 端口一律 2222**：`ssh -p 2222 root@<host>.zhyi.cc`；nix copy / ssh-ng
+2. **SSH 端口一律 2222**：`ssh -p 2222 root@<host>.zhyi.xin`；nix copy / ssh-ng
    分发派生必须带 `NIX_SSHOPTS="-i <key> -p 2222"` 与完整 URL
    `ssh://<user>@<host>:2222`，否则撞上各主机 LTNET 口的 endlessh 无限挂起。
 3. **提交纪律**：改动完成后立即 conventional commit（中文说清「为什么」）并
