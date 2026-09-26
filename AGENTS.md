@@ -208,7 +208,9 @@ agent 必读工作规范见 [`docs/agent/work-norms.md`](docs/agent/work-norms.m
 
 跟进上游（exam）用 `tools/exam-check log` / `tools/exam-check`，基线在
 [`docs/agent/upstream-baseline.md`](docs/agent/upstream-baseline.md)；动共享路径前先跑
-`tools/exam-check` 确认基线绿，流程见 work-norms §3「上游同步流程」。
+`tools/exam-check` 确认基线绿，流程见 work-norms §3「上游同步流程」。对齐质量
+标准（人视角对齐：diff 零差异、禁止等价方案、注释写进文档不写代码）见
+work-norms §3「对齐质量标准」，对齐类改动逐条对照。
 
 ## 架构图
 
