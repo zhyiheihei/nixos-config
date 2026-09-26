@@ -49,6 +49,7 @@ let
         # （auto-detect-interface），够不到 LTNET，绝不能让它经手内网连接；
         # 真实 IP 交给内核后由主表路由直走 ZeroTier。
         - "+.zhyi.xin"
+        - "+.zhyi.cc"
         - localhost.ptlogin2.qq.com
       default-nameserver:
         - 223.5.5.5
