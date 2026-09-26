@@ -49,6 +49,9 @@ let
         # （auto-detect-interface），够不到 LTNET，绝不能让它经手内网连接；
         # 真实 IP 交给内核后由主表路由直走 ZeroTier。
         - "+.zhyi.xin"
+        # zhyi.cc 主域已在 gcore 托管且仍存活（apex A + lg.zhyi.cc + 邮件），
+        # 且 asn.zhyi.cc 是 LTNET 公网 ASN zone（ltnet-scripts/zones）；
+        # fake-ip 会把这些域交给 mihomo 代理出口，故保真实 IP 直连。
         - "+.zhyi.cc"
         - localhost.ptlogin2.qq.com
       default-nameserver:
