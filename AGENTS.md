@@ -199,12 +199,37 @@ Home Manager 配置：
 | `common-apps/`     | 通用应用配置             |
 | `non-client-apps/` | 非客户端应用配置         |
 
-## 操作指南与开发手册
+## Agent 操作铁律（pi 会话执行层）
 
-开发类改动（新增 flake 输入、添加模块/overlay、分配端口、常用命令、添加
-新主机）的详细步骤见 [`docs/agent/development-handbook.md`](docs/agent/development-handbook.md)；
-模块分层与参数归属规则见 [`docs/agent/module-placement-norms.md`](docs/agent/module-placement-norms.md)；
-agent 必读工作规范见 [`docs/agent/work-norms.md`](docs/agent/work-norms.md)。
+流程细则在 `docs/agent/`（development-handbook / work-norms / module-placement-norms /
+deployment / hosts-overview / reference / inspection-playbook 等），不凭记忆猜。
+以下是执行层硬规则：
+
+1. **本机就是主控机（ml-laptop，NixOS）**：nix 求值、构建（`make build`）、部署
+   （`make local` / `nix run .#colmena -- build/apply --on <host>`）、secrets 解密
+   全部在本机执行；编译重活由 nix-distributed 自动派给 ml-builder / opi5p，
+   不需要任何「交给别的机器准备」的流程。
+2. **SSH 端口一律 2222**：`ssh -p 2222 root@<host>.zhyi.cc`；nix copy / ssh-ng
+   分发派生必须带 `NIX_SSHOPTS="-i <key> -p 2222"` 与完整 URL
+   `ssh://<user>@<host>:2222`，否则撞上各主机 LTNET 口的 endlessh 无限挂起。
+3. **提交纪律**：改动完成后立即 conventional commit（中文说清「为什么」）并
+   push origin；用户未提交的改动绝不丢弃；提交前核对暂存区只含本会话文件
+   （pre-commit 会把暂存区里其他会话的改动一起卷进提交）。
+4. **secrets**：secrets 仓在 `~/Documents/nixos/nixos-secrets`（main 分支）；
+   sops 走 `nix run nixpkgs#sops`，明文永不提交；改完 push 后
+   `https_proxy=socks5h://127.0.0.1:1080 nix flake update secrets`
+   并提交主仓 `flake.lock`。
+5. **代理**：GitHub 等外站走 `https_proxy=socks5h://127.0.0.1:1080`
+   （curl/git/nix flake update 均适用）；家庭 LAN、LTNET（198.18.0.0/15）、
+   dn42、yggdrasil、自有域（zhyi.cc/zhyi.xin/zhyi.dn42）一律直连。
+6. **NixOS 纪律**：装软件只用 Nix，禁止 apt/brew；禁止 find / 等根目录搜索，
+   禁止把 /nix/store 作为命令参数（细则见 `home/client-apps/ai-coding/rules/04-nixos.md`）。
+7. **会话健康**：重复读已读文件 / 同一失败思路第 2 次重试 / 违反早期约束 /
+   遗忘早期决定，≥2 条信号即提议交接；失败 2 次必须换方案，禁第 3 次原样重试；
+   重探索子任务优先派 subagent。
+
+主机 index/IP/ZeroTier 对照 `docs/agent/hosts-overview.md`；域名体系与双入口结构
+对照 `docs/agent/domain-service-layout.md` 与 `docs/agent/fleet-service-chain.md`。
 
 跟进上游（exam）用 `tools/exam-check log` / `tools/exam-check`，基线在
 [`docs/agent/upstream-baseline.md`](docs/agent/upstream-baseline.md)；动共享路径前先跑
