@@ -50,7 +50,6 @@ in
         args.target
         args.modifiers
       ];
-    # fork：迁移到 zhyi.cc 时保留上游/其他来源已管理的记录，不做 NO_PURGE 全量清理
     NO_PURGE = _: [ "NO_PURGE" ];
     IGNORE = args: record "IGNORE" args [ args.type ];
     MX =

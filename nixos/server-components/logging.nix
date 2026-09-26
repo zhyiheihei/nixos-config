@@ -7,10 +7,6 @@
   ...
 }:
 {
-  # Log ingestion goes to Axiom (hosted, ES-compatible endpoint), matching the
-  # author's Humio Cloud design: filebeat -> managed ES-compatible ingest.
-  # Basic auth (username=axiom, password=token) is accepted by Axiom's bulk
-  # emulation endpoint (verified with a live 201 ingest).
   sops.secrets.filebeat-axiom-token.sopsFile = inputs.secrets + "/common/flebeat.yaml";
 
   services.filebeat = {
@@ -40,7 +36,6 @@
     settings = {
       logging.level = "warning";
       output.elasticsearch = {
-        # Axiom 2026-09 起关闭 9200 端口，filebeat 默认按 ES 惯例连 :9200 会超时，需显式钉 443
         hosts = [ "https://api.axiom.co:443/v1/datasets/nixos/elastic" ];
         username = "axiom";
         password = {

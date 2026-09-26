@@ -21,6 +21,10 @@ rec {
   filezilla = prev.filezilla.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/filezilla-override-pasv-ip-for-zero-ip.patch ];
   });
+  flashrom = prev.flashrom.overrideAttrs (old: {
+    # Fix dangling stack-local chip pointer in tests, from https://github.com/NixOS/nixpkgs/issues/558302#issuecomment-5552862912
+    patches = (old.patches or [ ]) ++ [ ../patches/flashrom-fix-dangling-mock-chip-pointer.patch ];
+  });
   handbrake = prev.handbrake.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.makeWrapper ];
     postFixup = ''
@@ -131,6 +135,13 @@ rec {
   radicle-node = prev.radicle-node.overrideAttrs (old: {
     # Radicle check fails with HPN SSH
     doCheck = false;
+  });
+  rustic = prev.rustic.overrideAttrs (old: {
+    # Patch vendored rustic_core dependency
+    # Stop tree workers after receiver closes, from https://github.com/rustic-rs/rustic_core/pull/546
+    postPatch = (old.postPatch or "") + ''
+      patch -d "$cargoDepsCopy"/source-registry-0/rustic_core-* -p1 < ${../patches/rustic-core-stop-tree-workers-after-receiver-closes.patch}
+    '';
   });
   ulauncher = prev.ulauncher.overrideAttrs (old: {
     nativeBuildInputs = old.nativeBuildInputs ++ (with prev; [ gobject-introspection ]);

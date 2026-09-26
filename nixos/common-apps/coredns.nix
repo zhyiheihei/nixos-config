@@ -92,7 +92,6 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
         defaultForwarder =
           if config.services.lancache.enable or false then
             forwardToLancache
-          # 国内直连 Google DoT 不可靠，CN 主机走 AliDNS/DNSPod（docs/human/network/regional-dns.md）
           else if LT.this.city.country == "CN" then
             forwardToAliDNS
           else if config.networking.networkmanager.enable then

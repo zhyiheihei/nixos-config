@@ -6,8 +6,6 @@
 }:
 
 {
-  # eGPU 在位时注入 PRIME offload 变量，不在位退回核显（拔 eGPU 后
-  # 强制 nvidia GLX 会卡死 Steam 自更新）；详见 ml-laptop eGPU 文档。
   environment.systemPackages = lib.mkAfter [
     (lib.hiPrio (
       pkgs.runCommand "steam-override" { nativeBuildInputs = [ pkgs.makeWrapper ]; } ''

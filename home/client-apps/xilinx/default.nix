@@ -3,7 +3,6 @@ let
   xilinxPkgs = pkgs.callPackage ./nix-xilinx.nix { };
 in
 {
-  # 上游 aaf24cdeb 的 hidden-module da4fbe694da377db 在 fork secrets 仓不存在，不采纳
   home.packages = [
     xilinxPkgs.model_composer
     xilinxPkgs.vitis

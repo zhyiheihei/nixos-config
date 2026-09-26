@@ -80,19 +80,15 @@ let
     (builtins.filter (e: !lib.hasInfix "*" e.name))
     (builtins.filter (e: !lib.hasPrefix "www." e.name))
     # Ends with .zhyi.xin, or .localhost
-    (builtins.filter (
-      e:
-      lib.hasSuffix ".zhyi.xin" e.name
-      || lib.hasSuffix ".localhost" e.name
-    ))
+    (builtins.filter (e: lib.hasSuffix ".zhyi.xin" e.name || lib.hasSuffix ".localhost" e.name))
     # .localhost entries are only kept from the current host (they are per-host)
     (builtins.filter (e: !lib.hasSuffix ".localhost" e.name || e.src == thisHost))
     # Not the redundant per-host top-level alias <host>.zhyi.xin
     # (subdomains like <svc>.<host>.<domain> are kept)
-    (builtins.filter (e: !(e.name == "${e.src}.zhyi.xin")))
+    (builtins.filter (e: e.name != "${e.src}.zhyi.xin"))
     (builtins.map splitName)
     (builtins.foldl' (acc: r: if builtins.any (x: x.url == r.url) acc then acc else acc ++ [ r ]) [ ])
-    (builtins.sort (a: b: a.url < b.url))
+    (builtins.sort (a: b: (a.highlight + a.suffix) < (b.highlight + b.suffix)))
   ];
 
   linksHtml = lib.concatMapStringsSep "\n" (r: ''

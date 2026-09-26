@@ -1,16 +1,10 @@
 { LT, lib, ... }:
 let
-  # Target host MUST have DN42 connectivity
-  defaultGatewayHost = LT.hosts.rock5c;
-  managedIPv4Ranges = LT.constants.dn42.IPv4 ++ LT.constants.neonetwork.IPv4 ++ [ "198.18.0.0/15" ];
-  managedIPv6Ranges =
-    LT.constants.dn42.IPv6 ++ LT.constants.neonetwork.IPv6 ++ [ "fdd8:1938:4e88::/48" ];
-
+  inherit (LT) defaultGatewayHost;
   ztRoutes = [
     { target = "198.18.0.0/24"; }
     { target = "fdd8:1938:4e88::/64"; }
 
-    # GL-MT3600BE travel router LAN
     {
       target = "192.168.3.0/24";
       via = "198.18.0.115";
@@ -36,11 +30,11 @@ let
   ++ (builtins.map (r: {
     target = r;
     via = defaultGatewayHost.ltnet.IPv4;
-  }) managedIPv4Ranges)
+  }) LT.defaultGatewayHostIPv4Routes)
   ++ (builtins.map (r: {
     target = r;
     via = defaultGatewayHost.ltnet.IPv6;
-  }) managedIPv6Ranges);
+  }) LT.defaultGatewayHostIPv6Routes);
 in
 {
   services.zerotierone.controller = {
