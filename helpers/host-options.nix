@@ -45,7 +45,6 @@
       default = 0;
     };
 
-    # 独立 GPU 显存（GB），llama-swap 据此选模型量化档位；无独显主机保持 0。
     vramGB = lib.mkOption {
       type = lib.types.int;
       default = 0;
@@ -169,8 +168,6 @@
       region = lib.mkOption { type = lib.types.int; };
     };
 
-    # NeoNetwork is not used (user has no NeoNetwork); keep the option null so
-    # all `!= null` guards disable NeoNetwork code paths.
     neonetwork = {
       IPv4 = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
@@ -250,6 +247,11 @@
     _routes6 = lib.mkOption {
       readOnly = true;
       default = builtins.filter (route: lib.hasInfix ":" route) config._routes;
+    };
+
+    _publiclyAccessible = lib.mkOption {
+      readOnly = true;
+      default = !config.firewalled && config.public.IPv4 != null;
     };
   };
 }

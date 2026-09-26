@@ -15,9 +15,6 @@ in
 {
   imports = [ (inputs.secrets + "/nixos-hidden-module/a7129082a691a699") ];
 
-  # 上游 d5409bc1 的 zcode 依赖作者 secrets 私有模块 09e0a4212f82100c，fork 无此模块，不采纳
-  # home.packages = [ pkgs.llm-agents.zcode ];
-
   programs.mcp = {
     enable = true;
     servers = osConfig.lantian.mcp.codingMcpServers or { };
@@ -34,7 +31,6 @@ in
 
     extraPackages = [
       pkgs.nodejs
-      # pi-notify 依赖 notify-send 发桌面通知
       pkgs.libnotify
     ];
 
@@ -42,6 +38,7 @@ in
       linuxdo-hub = {
         api = "openai-completions";
         baseUrl = "https://hub.linux.do/v1";
+        compat.supportsDeveloperRole = false;
       };
       uni-api = {
         api = "openai-completions";
@@ -72,8 +69,6 @@ in
       defaultThinkingLevel = "high";
       showCacheMissNotices = false;
 
-      # https://github.com/weirongxu/pi-notify 桌面通知配置
-      # finishedThrottleSecs：5s 内的短任务不通知；unfocused 默认开（终端有焦点不发）
       piNotify = {
         enabled = true;
         finished = true;
@@ -95,16 +90,19 @@ in
         # keep-sorted start
         "git:github.com/xddxdd/pi-model-discovery@v0.3.1"
         "npm:@cortexkit/pi-magic-context"
+        "npm:@fradser/pi-utils"
         "npm:@moguw/pi-session-migrate"
         "npm:@monotykamary/pi-tps"
-        "npm:@narumitw/pi-langfuse"
+        "npm:@narumitw/pi-usage"
         "npm:@raidou/pi-notify"
         "npm:@rwese/pi-question"
         "npm:pi-btw"
         "npm:pi-codex-goal"
         "npm:pi-commandcode-provider"
+        "npm:pi-copy-message"
         "npm:pi-fast-resume"
         "npm:pi-mcp-adapter"
+        "npm:pi-multi-pass"
         "npm:pi-ollama-cloud"
         "npm:pi-secret-mask"
         "npm:pi-simplify"
@@ -162,6 +160,8 @@ in
     ./extensions/nixos-command-guard.ts;
   home.file.".pi/agent/extensions/model-favorites.ts".source = ./extensions/model-favorites.ts;
   home.file.".pi/agent/extensions/last-model.ts".source = ./extensions/last-model.ts;
+  home.file.".pi/agent/extensions/sanitize-user-agent.ts".source =
+    ./extensions/sanitize-user-agent.ts;
   home.file.".pi/agent/extensions/pi-secret-mask/config.json".text = builtins.toJSON {
     mode = "auto";
     allowCommands = [ ];

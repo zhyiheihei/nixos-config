@@ -3,7 +3,7 @@
 
   inputs = {
     # Common libraries
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst";
     nixpkgs-multiverse.url = "github:fzakaria/nixpkgs-multiverse";
 
     flake-compat = {
@@ -96,10 +96,11 @@
       url = "github:xddxdd/markdown-apa7th-docx";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # nixpkgs 的 ncps 0.9.4 不认 attic/cachix 的非 hash NAR URL（#1329，
-    # 2026-06-07 04cb40b 修复），改用上游 flake。go.mod 要求 go >= 1.26.6
-    # 而本仓 nixpkgs 锁在 1.26.5，由 overlay 用 go_1_27 覆盖（见
-    # overlays/60-non-flake-packages.nix），故 follow 本仓 nixpkgs。
+    mcp-libvirt-vm-use = {
+      url = "github:xddxdd/mcp-libvirt-vm-use";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+    };
     ncps = {
       url = "github:kalbasit/ncps";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -139,14 +140,18 @@
     };
     nixcord = {
       url = "github:kaylorben/nixcord";
-      inputs.flake-compat.follows = "flake-compat";
-      inputs.flake-parts.follows = "flake-parts";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.nixpkgs-nixcord.follows = "nixpkgs";
+      inputs.home-manager.follows = "home-manager";
     };
     nixfmt-rs = {
       url = "github:Mic92/nixfmt-rs";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.treefmt-nix.follows = "treefmt-nix";
+    };
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
     nur = {
       url = "github:nix-community/NUR";

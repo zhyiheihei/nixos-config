@@ -145,8 +145,6 @@ in
             "mcp-nixos"
           ];
         };
-        # 思源笔记：token 存在用户 workspace 的 conf.json 里，运行时读取，
-        # 用户在思源里重置 token 后无需改配置
         siyuan = {
           command = toString (
             pkgs.writeShellScript "mcp-siyuan" ''
@@ -158,10 +156,15 @@ in
         };
         # keep-sorted end
       }
-      // lib.optionalAttrs (config.networking.hostName == "lt-hp-omen") {
+      // lib.optionalAttrs (config.networking.hostName == "ml-laptop") {
         browseros = {
           type = "streamable-http";
           url = "http://127.0.0.1:9000/mcp";
+        };
+      }
+      // lib.optionalAttrs config.virtualisation.libvirtd.enable {
+        libvirt = {
+          command = lib.getExe pkgs.mcp-libvirt;
         };
       };
 

@@ -8,12 +8,9 @@
   ...
 }:
 let
-  uni-api-patched = pkgs.nur-xddxdd.uni-api.overrideAttrs (old: {
+  uniApi = pkgs.nur-xddxdd.uni-api.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [
-      ../../patches/uni-api-fix-tool-parameters.patch
-      # header_passthrough 会先无条件删除 outgoing 同名头，导致
-      # preferences.headers 静态兑底值被透传逻辑自己删掉（opencode.ai Go
-      # 端点要求 x-opencode-session 会话头）。补丁后仅客户端带该头时才覆盖。
+      ../../patches/uni-api-custom-listen-host.patch
       ../../patches/uni-api-header-fallback.patch
     ];
   });
@@ -53,7 +50,6 @@ let
         };
         role = "admin";
       }
-      # n8n 专用 key，锁定 glm_for_coding
       {
         api = {
           _secret = config.sops.secrets."uni-api-n8n-api-key".path;
@@ -63,7 +59,7 @@ let
       }
     ];
 
-    preferences.cooldown_period = 300;
+    preferences.cooldown_period = 5;
   };
 in
 {
@@ -80,13 +76,13 @@ in
 
     environment = {
       DISABLE_DATABASE = "true";
-      UVICORN_HOST = "127.0.0.1";
-      UVICORN_PORT = LT.portStr.UniAPI;
+      HOST = "127.0.0.1";
+      PORT = LT.portStr.UniAPI;
     };
 
     script = ''
       ${utils.genJqSecretsReplacementSnippet uniApiConfig "api.yaml"}
-      exec ${lib.getExe uni-api-patched}
+      exec ${lib.getExe uniApi}
     '';
 
     postStart = ''

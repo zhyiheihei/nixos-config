@@ -27,6 +27,8 @@ rec {
     Quassel.Main = 4242;
     Yggdrasil.Alfis = 4244;
     Pipewire.TCP = 4713;
+    IPFS.API = 5001;
+    IPFS.Gateway = 5002;
     IPerf = 5201;
     mDNS = 5353;
     Bazarr = 6767;
@@ -136,14 +138,11 @@ rec {
     LskyPro = 13835;
     Openlist = 13837;
     TaoSync = 13838;
-    # EPD 家庭食品存储看板（zhyi-packages.epd-food-server）
     EpdFoodDashboard = 13836;
     Usque = 13840;
     WGMesh.WebSocket = 13841;
     Ncps = 13851;
     IyuuPlus = 13878;
-    # 上游 LlamaCpp 模块已删除（nixos/optional-apps/llama-cpp-qwen3*.nix），
-    # 本仓同步删除，LlamaSwap 独占 13880（上游同号）。
     LlamaSwap = 13880;
     Actual = 13882;
     Wallos = 13883;
@@ -160,6 +159,8 @@ rec {
     ADSB.MlatHubBeastInput = 13914;
     ADSB.MlatHubBeastOutput = 13915;
     ADSB.PlaneWatch = 13919;
+    Suricata.Redis = 13920;
+    Suricata.EveBox = 13921;
     ADSB.RawOutput978 = 13978;
     Asterisk.AudioSocket = 13980;
     Resin = 13995;
@@ -172,4 +173,10 @@ rec {
   };
 
   portStr = lib.mapAttrsRecursive (k: builtins.toString) port;
+
+  portForwardOffset = {
+    qBitTorrent = 0;
+    qBitTorrentPT = 1;
+    IPFS = 2;
+  };
 }

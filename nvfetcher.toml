@@ -11,10 +11,6 @@ fetch.url = "https://github.com/auto-novel/addon/releases/download/v$ver/addon-$
 src.github = "auto-novel/addon"
 src.prefix = "v"
 
-[bosl2]
-fetch.github = "BelfrySCAD/BOSL2"
-src.github = "BelfrySCAD/BOSL2"
-
 [delegacy-rpz]
 fetch.url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v$ver/rpz.delegacy.monostack.org.zone"
 src.webpage = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases"
@@ -39,6 +35,10 @@ url.name = "peerfinder-agent.py"
 pinned = true
 fetch.github = "xddxdd/dnscontrol"
 src.git = "https://github.com/xddxdd/dnscontrol.git"
+
+[evebox]
+fetch.github = "jasonish/evebox"
+src.github = "jasonish/evebox"
 
 [grafana-falconlogscale-datasource]
 fetch.url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v$ver/grafana-falconlogscale-datasource-$ver.zip"

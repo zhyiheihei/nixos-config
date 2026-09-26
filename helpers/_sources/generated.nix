@@ -42,17 +42,6 @@
       sha256 = "sha256-KgCa4bQ+i6Omb0XZMb+1zjKpQDEHS4SNpdxRv0cpneo=";
     };
   };
-  bosl2 = {
-    pname = "bosl2";
-    version = "v2.0.757";
-    src = fetchFromGitHub {
-      owner = "BelfrySCAD";
-      repo = "BOSL2";
-      rev = "v2.0.757";
-      fetchSubmodules = false;
-      sha256 = "sha256-M65go0RvnncQosBeR/XQfdGCVocSaNo3Siofg7o3Q3k=";
-    };
-  };
   delegacy-rpz = {
     pname = "delegacy-rpz";
     version = "2026090400";
@@ -91,12 +80,23 @@
     };
     date = "2026-08-08";
   };
+  evebox = {
+    pname = "evebox";
+    version = "0.28.0";
+    src = fetchFromGitHub {
+      owner = "jasonish";
+      repo = "evebox";
+      rev = "0.28.0";
+      fetchSubmodules = false;
+      sha256 = "sha256-+aXq665DeZlBHVrXRc2ubLsnuYhkZ7WahirCqrKxgVM=";
+    };
+  };
   grafana-falconlogscale-datasource = {
     pname = "grafana-falconlogscale-datasource";
-    version = "1.10.3";
+    version = "1.10.2";
     src = fetchurl {
-      url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.3/grafana-falconlogscale-datasource-1.10.3.zip";
-      sha256 = "sha256-DwV0m69bNncPrSa8RxycIE+V7vtRvGBZcTr+WeC8+eE=";
+      url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.2/grafana-falconlogscale-datasource-1.10.2.zip";
+      sha256 = "sha256-HLQz9x6D/NNJTpJQ/A0aWz6T6OhR6J/ftI2WkNz9zqk=";
     };
   };
   grafana-yesoreyeram-infinity-datasource = {
@@ -109,17 +109,17 @@
   };
   lobe-icons = {
     pname = "lobe-icons";
-    version = "329f378cbd1a88f45b60cd096b9111ce16f3ea39";
+    version = "2e76c48721e91b9aaa40803a0fa2eb8aca7399c4";
     src = fetchgit {
       url = "https://github.com/lobehub/lobe-icons.git";
-      rev = "329f378cbd1a88f45b60cd096b9111ce16f3ea39";
+      rev = "2e76c48721e91b9aaa40803a0fa2eb8aca7399c4";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-/JprQVc5nYEu+nbpbn0xRJMilZLRILp7dWd4tdgVB9c=";
+      sha256 = "sha256-4UIgV3DTvpoyXkywe3GYxY07fIouEKjzd6u+u4h6oBA=";
     };
-    date = "2026-09-24";
+    date = "2026-09-21";
   };
   lyrica-customized = {
     pname = "lyrica-customized";
@@ -185,15 +185,15 @@
   };
   nvidia-patch = {
     pname = "nvidia-patch";
-    version = "bf2965a1269639363e3d59148964583d3d027c73";
+    version = "b68d0ed0c19d20a2c336879be18804b08bb63e89";
     src = fetchFromGitHub {
       owner = "keylase";
       repo = "nvidia-patch";
-      rev = "bf2965a1269639363e3d59148964583d3d027c73";
+      rev = "b68d0ed0c19d20a2c336879be18804b08bb63e89";
       fetchSubmodules = false;
-      sha256 = "sha256-owI6rlCTjdzG50V3ZLXy7Be9MnrW/+rqdZyz++3q3io=";
+      sha256 = "sha256-gPDcYTAZRhxMl5Tb2SPoPmj/Jv38+5bPHoKMVFqlk6k=";
     };
-    date = "2026-09-24";
+    date = "2026-09-15";
   };
   open5gs = {
     pname = "open5gs";

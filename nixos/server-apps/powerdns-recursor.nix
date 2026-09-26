@@ -8,6 +8,16 @@
 let
   netns = config.lantian.netns.powerdns-recursor;
 
+  # repology.org answers with these addresses directly; they are server hosts, not nameservers,
+  # so the records are forced via RPZ local data instead of a forward zone
+  repologyRpz = pkgs.writeText "repology.rpz" ''
+    $TTL 300
+    @ IN SOA repology.rpz. root.repology.rpz. (1 3600 1200 604800 300)
+    @ IN NS localhost.
+    repology.org. IN A 92.63.176.157
+    repology.org. IN AAAA 2a03:6f01:1:2::f159
+  '';
+
   forwardZones =
     let
       authoritative =
@@ -20,7 +30,7 @@ let
             ];
           })
           # NeoNetwork is covered by fwd-dn42-interconnect
-          (with LT.constants.zones; (DN42 ++ CRXN ++ Meshname ++ Ltnet));
+          (with LT.constants.zones; (DN42 ++ OpenNIC ++ CRXN ++ Meshname ++ Ltnet));
 
       emercoin = builtins.map (k: {
         zone = k;
@@ -113,15 +123,11 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
     ];
     luaConfig =
       let
-        ntaRecords = lib.concatMapStringsSep "\n" (n: "addNTA(\"${n}\")") (
-          with LT.constants.zones;
-          (DN42 ++ Emercoin ++ CRXN ++ Meshname ++ YggdrasilAlfis ++ Ltnet ++ Others)
-          # Recursive forwarders can omit RRSIGs from these Cloudflare/Gcore-backed
-          # responses, so validating them again would return SERVFAIL.
-          ++ [ "m-team.cc" "zhyi.xin" ]
-        );
+        ntaRecords = lib.concatMapStringsSep "\n" (n: "addNTA(\"${n}\")") LT.constants.zones.all;
       in
       ''
+        rpzFile("${repologyRpz}")
+
         rpzFile("${LT.sources.delegacy-rpz.src}")
 
         ${ntaRecords}
@@ -130,13 +136,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
     serveRFC1918 = false;
     settings = {
       dnssec = {
-        # AliDNS/DNSPod omit root-zone RRSIGs, so domestic recursors must
-        # trust their recursive results instead of validating again.
-        validation =
-          if LT.this.city.country == "CN" then
-            "process-no-validate"
-          else
-            "validate";
+        validation = if LT.this.city.country == "CN" then "process-no-validate" else "validate";
       };
       incoming = {
         reuseport = true;
