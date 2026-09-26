@@ -31,10 +31,13 @@
    不进代理。
 6. **上游对齐**：上游 = `../nixos-config-exam`（作者原版），查看前先 git pull。
    对齐差异是默认动作：与我们不同 → 默认我们落后/改错，按上游改。只有三类例外：
-   ①硬性偏离（域名 zhyi.xin/zhyi.cc/moliy.site、用户名 zhyi）②审计文档登记的
-   C 类项 ③禁机械覆盖清单（hosts/硬件/IP/证书/secrets/生产拓扑）。动共享路径
-   （nixos/ home/ helpers/ overlays/ flake-modules/）之前先跑 `tools/exam-check`
-   确认基线绿。
+   ①硬性偏离（域名 zhyi.xin/zhyi.cc/moliy.site、用户名 zhyi）②`tools/
+   exam-check-allowlist` 登记 / `docs/agent/upstream-baseline.md` 认可的既有偏离
+   ③禁机械覆盖清单（hosts/硬件/IP/证书/secrets/生产拓扑）。对齐质量标准是
+   「人视角对齐：diff 零差异」——非认可偏离必须逐字复刻，禁止等价方案；注释、
+   日志一律写进 docs/agent/ 文档而非代码（work-norms §3「对齐质量标准」）。
+   动共享路径（nixos/ home/ helpers/ overlays/ flake-modules/）之前先跑
+   `tools/exam-check` 确认基线绿。
 7. **边界**：不动 flake-modules/ 与公共 nixos/optional-apps/*.nix（差异→主机级
    覆盖或先问）；用户说「别动」立即停手；UniAPI（hostdare）是唯一 AI Provider
    汇聚点，禁止反向配置。pi 扩展/配置统一走 home-manager
@@ -106,11 +109,16 @@ LibreChat）只能以 UniAPI 为上游，禁止反向配置成 UniAPI 的 Provid
 ## 域名细目（提交涉及域名/主机时必须对照）
 
 zhyi.xin：ai-api.zhyi.xin / login.zhyi.xin / git.zhyi.xin / attic.zhyi.xin(→
-greencloud-jp) / vaults3.zhyi.xin / dav.zhyi.xin / ha.zhyi.xin；跨主机私网服务
-如 n8n-bridge.greencloud.zhyi.xin、cliproxyapi.google.zhyi.xin。
+greencloud-jp) / s3.zhyi.xin(→greencloud-jp) / vaults3.zhyi.xin / dav.zhyi.xin /
+ha.zhyi.xin；家庭服务走 home-ddns CNAME 家族（asf / books / openlist / immich /
+jellyfin 等，双入口：rock5c 443 内网前置 + opi5p 8443 公网前置，见
+fleet-service-chain.md「家庭入站」）；跨主机私网服务如 n8n-bridge.greencloud.zhyi.xin、
+cliproxyapi.google.zhyi.xin。
 zhyi.cc 主机：router(112)、ml-builder(114)、pve-5700u(116)、hostdare(117)、
 volcengine(119)、greencloud(120)、google(121)、opi5p(122)、rock5c(123)、
-lubancat1(124)、h28k(125)、opi03(126)、taishanpi(127)、tencent(128)。
+lubancat1(124)、h28k(125)、opi03(126)、taishanpi(127)、tencent(128)、
+dragon-q8b(129)、greencloud-jp(130)、chromebox(131)、tencent-cn(132)；
+ml-2700(113)、ml-laptop(118) 为客户端。
 
 ## 权威文档
 
