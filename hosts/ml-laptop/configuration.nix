@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  inputs,
   LT,
   pkgs,
   ...
@@ -50,64 +49,9 @@
   # 与上游 lt-hp-omen 对齐：pi-web 走 OAuth 登录（经 login.zhyi.xin）。
   lantian.localVhosts.pi-web.locations."/".enableOAuth = true;
 
-  # 构建拓扑：本机零本地编译（max-jobs = 0，求值期 FOD 亦全部外派，
-  # 遇慢镜像可能拖慢求值，属既定取舍）、不对外通告（host.nix 无
-  # nix-builder 标签），详见 docs/agent/hydra-build-chain.md。
-  nix.settings.max-jobs = 0;
-  nix.buildMachines = lib.mkForce (
-    let
-      mk = n: maxJobs: features: {
-        inherit (LT.hosts.${n}) system;
-        hostName = "${n}.zhyi.xin";
-        protocol = "ssh";
-        speedFactor = LT.hosts.${n}.cpuThreads;
-        sshKey = config.sops.secrets.hydra-builder-ssh-privkey.path;
-        sshUser = "nix-builder";
-        inherit maxJobs;
-        supportedFeatures = features;
-        mandatoryFeatures = [ ];
-      };
-    in
-    [
-      # ml-builder 通用槽 2→1（2026-09-25）：远程派发的并发预算在客户端
-      # machines 表，多会话（主会话 + subagent + Hydra）各自独立预算，
-      # 每会话 2 槽在并行会话叠加时聚合 6+ 派生 × -j16，超出 6×16 稳定
-      # 包络引发 OOM。降为每会话 1 槽，3 并行会话恰好回到包络。
-      (mk "ml-builder" 1 [ "aarch64-cross" ])
-      (mk "ml-builder" 1 [
-        "big-parallel"
-        "aarch64-cross"
-      ])
-      # i686-linux（steam/nvidia x32 闭包）无处可派：ml-builder 以
-      # extra-platforms 接收本机原生 i686。
-      {
-        system = "i686-linux";
-        hostName = "ml-builder.zhyi.xin";
-        maxJobs = 1;
-        protocol = "ssh";
-        speedFactor = 1;
-        sshKey = config.sops.secrets.hydra-builder-ssh-privkey.path;
-        sshUser = "nix-builder";
-        supportedFeatures = [ ];
-        mandatoryFeatures = [ ];
-      }
-      (mk "opi5p" LT.hosts.opi5p.cpuThreads [ ])
-      (mk "opi5p" 1 [ "big-parallel" ])
-    ]
-  );
-
-  # nix.buildMachines 引用的派发凭据原先由 hydra 模块声明；2026-09-17 Hydra
-  # 迁往 opi5p 后本机仍需它派发自身构建，改为本机直接声明（同密钥，同一
-  # secrets 仓条目）。
-  sops.secrets.hydra-builder-ssh-privkey = {
-    sopsFile = inputs.secrets + "/hydra.yaml";
-    key = "hydra-ssh-privkey";
-    mode = "0400";
-  };
-
-  # 本地 daemon 声明 aarch64-cross，与 ml-builder 的通告对齐（ARM 内核
-  # 交叉构建带 requiredSystemFeatures 硬性要求）。
-  nix.settings.extra-system-features = [ "aarch64-cross" ];
+  # 构建拓扑与上游 lt-hp-omen 对齐：本机构建默认开启（nix-distributed 的
+  # machines-with-localhost 提供 localhost 兼容槽），远程派发由 nix-distributed
+  # 模块按 nix-builder 标签主机组自动生成。
 
   # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。
   # client 默认不启用 backup（enable 默认 hasTag server），此处显式启用。

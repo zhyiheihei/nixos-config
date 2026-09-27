@@ -39,15 +39,13 @@
 - **opi5p 本机单槽**（`nix.settings.max-jobs = 1`）：Hydra 所在机，aarch64
   原生构建走本机 daemon 单槽；生产节点（PostgreSQL/媒体/reDroid）保护
   见下文 2026-08-02 事故。
-- **ml-laptop 零本地构建槽**（`nix.settings.max-jobs = 0`）：自身构建与
-  求值期 FOD 全部外派，工作机不承担编译。
+- **ml-laptop 本机槽与远程派发并存**（2026-09-27 对齐上游 lt-hp-omen：
+  移除原 `max-jobs = 0` + `nix.buildMachines mkForce` 覆盖，改回
+  nix-distributed 模块生成的机器表 + `machines-with-localhost` 本机兼容槽）：
+  本机可承担零碎派生（如 i686 x32 闭包）避免依赖单一构建机连通性；
+  ARM 内核交叉构建仍由 ml-builder（aarch64-cross 通告）承接。
 - **ml-laptop 不打 `nix-builder` 标签**：不对外通告本机为集群构建机，其他
   主机的分布式构建不派发到这台笔记本。
-- 各机的 `/etc/nix/machines`（由 `nix.buildMachines` 生成）：
-  ml-laptop 外派 x86 到 ml-builder（通告 `aarch64-cross`——ARM 厂商内核
-  交叉构建带 `requiredSystemFeatures = [ "aarch64-cross" ]` 硬性要求，
-  不通告则无机器可接、直接失败），aarch64 到 opi5p；
-  opi5p（Hydra 所在机）的机器表仅含 ml-builder 两条，aarch64 原生构建
   走本机单槽，不自派发。
 - ml-builder 侧以 `nix.settings.extra-system-features = [ "aarch64-cross" ]`
   声明同款 feature，本地可跑交叉构建；ml-laptop 本地 daemon 也声明该
