@@ -29,6 +29,7 @@ let
     "DE" = [ "germany" ];
     "JP" = [ "japan" ];
     "NO" = [ "sweden" ];
+    "SG" = [ "singapore" ];
   };
 in
 {
@@ -50,7 +51,7 @@ in
 
         MulticastInterfaces = [
           {
-            Regex = "ztje7axwd2";
+            Regex = "zttalxbxtu";
             Beacon = true;
             Listen = true;
             Port = LT.port.Yggdrasil.Multicast;
