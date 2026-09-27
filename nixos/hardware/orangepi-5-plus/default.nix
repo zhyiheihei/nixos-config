@@ -211,7 +211,10 @@ in
     wantedBy = [ "multi-user.target" ];
     after = [ "nix.mount" ];
     requires = [ "nix.mount" ];
-    before = [ "sops-install-secrets.service" "podman-redroid.service" ];
+    before = [
+      "sops-install-secrets.service"
+      "podman-redroid.service"
+    ];
     path = [
       pkgs.btrfs-progs
       pkgs.gptfdisk

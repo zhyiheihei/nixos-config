@@ -273,10 +273,17 @@ in
 
   systemd.services.sublinkpro-seed = {
     description = "Seed SublinkPro overseas Xray nodes and unified subscription";
-    after = [ "podman-sublinkpro.service" "sops-install-secrets.service" ];
+    after = [
+      "podman-sublinkpro.service"
+      "sops-install-secrets.service"
+    ];
     requires = [ "podman-sublinkpro.service" ];
     wantedBy = [ "multi-user.target" ];
-    path = with pkgs; [ curl jq coreutils ];
+    path = with pkgs; [
+      curl
+      jq
+      coreutils
+    ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;

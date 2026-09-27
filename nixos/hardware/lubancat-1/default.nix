@@ -9,8 +9,7 @@
 let
   # Keep kernel and U-Boot compiler processes native on ml-builder while they
   # emit aarch64 binaries. The board itself must not compile its own kernel.
-  crossPkgs =
-    self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
+  crossPkgs = self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
 
   # Start from the repository's already validated RK356x kernel baseline.  It
   # keeps the Rockchip clock, pinctrl, PM-domain, RK809 regulator, SD/MMC,
@@ -78,30 +77,35 @@ let
   # identifies as RTL8822CU. Copy only the matching Wi-Fi/Bluetooth firmware;
   # retaining the complete linux-firmware package would dominate this 2 GiB
   # board's deliberately small closure.
-  rtl8822Firmware = crossPkgs.buildPackages.runCommand "lubancat1-rtl8822-firmware" {
-    requiredSystemFeatures = [ "aarch64-cross" ];
-  } ''
-    # linux-firmware contains no target binaries; reuse the target package
-    # already present in the image build while executing this copy on x86_64.
-    source=${pkgs.linux-firmware}/lib/firmware
-    mkdir -p "$out/lib/firmware/rtw88" "$out/lib/firmware/rtl_bt"
-    cp -L "$source/rtw88/rtw8822c_fw.bin" "$out/lib/firmware/rtw88/"
-    cp -L "$source/rtw88/rtw8822c_wow_fw.bin" "$out/lib/firmware/rtw88/"
-    cp -L "$source/rtl_bt/rtl8822cu_fw.bin" "$out/lib/firmware/rtl_bt/"
-    if test -e "$source/rtl_bt/rtl8822cu_config.bin"; then
-      cp -L "$source/rtl_bt/rtl8822cu_config.bin" "$out/lib/firmware/rtl_bt/"
-    fi
-  '';
+  rtl8822Firmware =
+    crossPkgs.buildPackages.runCommand "lubancat1-rtl8822-firmware"
+      {
+        requiredSystemFeatures = [ "aarch64-cross" ];
+      }
+      ''
+        # linux-firmware contains no target binaries; reuse the target package
+        # already present in the image build while executing this copy on x86_64.
+        source=${pkgs.linux-firmware}/lib/firmware
+        mkdir -p "$out/lib/firmware/rtw88" "$out/lib/firmware/rtl_bt"
+        cp -L "$source/rtw88/rtw8822c_fw.bin" "$out/lib/firmware/rtw88/"
+        cp -L "$source/rtw88/rtw8822c_wow_fw.bin" "$out/lib/firmware/rtw88/"
+        cp -L "$source/rtl_bt/rtl8822cu_fw.bin" "$out/lib/firmware/rtl_bt/"
+        if test -e "$source/rtl_bt/rtl8822cu_config.bin"; then
+          cp -L "$source/rtl_bt/rtl8822cu_config.bin" "$out/lib/firmware/rtl_bt/"
+        fi
+      '';
 
   # Mainline U-Boot has no LubanCat-1 defconfig. Its generic RK3568 target is
   # intentionally board-neutral and uses the same RK3566/RK3568 TPL and BL31
   # boot chain as Nixpkgs' Orange Pi 3B package. Linux later receives the exact
   # rk3566-lubancat-1 DTB from extlinux.
-  ubootLubanCat1 = (crossPkgs.ubootOrangePi3B.override {
-    defconfig = "generic-rk3568_defconfig";
-  }).overrideAttrs (old: {
-    requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
-  });
+  ubootLubanCat1 =
+    (crossPkgs.ubootOrangePi3B.override {
+      defconfig = "generic-rk3568_defconfig";
+    }).overrideAttrs
+      (old: {
+        requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+      });
 
   # The board has no battery-backed RTC. Preserve a recent epoch on the
   # persistent filesystem so TLS, SOPS logs and service ordering do not start

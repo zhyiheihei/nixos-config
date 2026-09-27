@@ -11,5 +11,8 @@
   ];
 
   registrars = [ ];
-  providers = [ "bind" "gcore" ];
+  providers = [
+    "bind"
+    "gcore"
+  ];
 }

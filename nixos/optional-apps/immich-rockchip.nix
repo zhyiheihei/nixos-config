@@ -1,5 +1,4 @@
 {
-  LT,
   config,
   lib,
   ...

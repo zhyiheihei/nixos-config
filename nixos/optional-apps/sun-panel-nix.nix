@@ -35,8 +35,7 @@
 
     # The packaged binary reads conf/conf.ini in the data dir, which already
     # listens on the same 3002 port the container used.
-    lantian.nginxVhosts."index.zhyi.xin".locations."/".proxyPass =
-      lib.mkForce "http://127.0.0.1:3002";
+    lantian.nginxVhosts."index.zhyi.xin".locations."/".proxyPass = lib.mkForce "http://127.0.0.1:3002";
     lantian.nginxVhosts."sun-panel.localhost".locations."/".proxyPass =
       lib.mkForce "http://127.0.0.1:3002";
   };

@@ -41,12 +41,11 @@
     lantian.redroidSc8280xp.lanInterface = lib.mkDefault (
       let
         addr = "${LT.this.interconnect.IPv4}/24";
-        named = lib.filterAttrs (_: n:
-          (n.matchConfig.Name or null) != null
-          && lib.elem addr (n.address or [ ])
+        named = lib.filterAttrs (
+          _: n: (n.matchConfig.Name or null) != null && lib.elem addr (n.address or [ ])
         ) config.systemd.network.networks;
       in
-        if named == { } then "eth0" else (lib.head (lib.attrNames named))
+      if named == { } then "eth0" else (lib.head (lib.attrNames named))
     );
 
     # Android bpfloader requires this; common hardening policy forces it to 1

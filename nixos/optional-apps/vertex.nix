@@ -1,4 +1,9 @@
-{ LT, config, lib, ... }:
+{
+  LT,
+  config,
+  lib,
+  ...
+}:
 {
   options.lantian.vertex.storage = lib.mkOption {
     type = lib.types.str;

@@ -13,8 +13,7 @@ let
   # toolchain instead: compiler processes run natively on x86_64 and emit
   # aarch64 objects.  The resulting kernel still has aarch64-linux as its host
   # platform and can be used by the otherwise unchanged system closure.
-  crossPkgs =
-    self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
+  crossPkgs = self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
 
   # NanoPi R5C and R5S share the RK3568 boot layout; select the board-specific
   # upstream defconfig while retaining the Nixpkgs U-Boot package structure.
@@ -36,21 +35,23 @@ let
   # upstream driver follows netif_get_num_default_rss_queues(), which halves
   # the physical core count (2 on this 4-core board); use all online CPUs so
   # each RTL8125 gets 4 RX queues.  TX stays at the driver's 2-queue cap.
-  r8125Module = (pkgs.nur-xddxdd.r8125.override {
-    inherit (crossPkgs) stdenv;
-    kernel = r5cKernel;
-  }).overrideAttrs (old: {
-    requiredSystemFeatures = [ "aarch64-cross" ];
-    postPatch = (old.postPatch or "") + ''
-      sed -i 's/^CONFIG_ASPM = y/CONFIG_ASPM = n/' src/Makefile
-      sed -i 's/^ENABLE_EEE = y/ENABLE_EEE = n/' src/Makefile
-      sed -i 's/^ENABLE_MULTIPLE_TX_QUEUE = n/ENABLE_MULTIPLE_TX_QUEUE = y/' src/Makefile
-      sed -i 's/^ENABLE_RSS_SUPPORT = n/ENABLE_RSS_SUPPORT = y/' src/Makefile
-      grep -q 'netif_get_num_default_rss_queues()' src/r8125_n.c \
-        || { echo "r8125 RSS queue call missing; queue patch would silently no-op" >&2; exit 1; }
-      sed -i 's/netif_get_num_default_rss_queues()/num_online_cpus()/' src/r8125_n.c
-    '';
-  });
+  r8125Module =
+    (pkgs.nur-xddxdd.r8125.override {
+      inherit (crossPkgs) stdenv;
+      kernel = r5cKernel;
+    }).overrideAttrs
+      (old: {
+        requiredSystemFeatures = [ "aarch64-cross" ];
+        postPatch = (old.postPatch or "") + ''
+          sed -i 's/^CONFIG_ASPM = y/CONFIG_ASPM = n/' src/Makefile
+          sed -i 's/^ENABLE_EEE = y/ENABLE_EEE = n/' src/Makefile
+          sed -i 's/^ENABLE_MULTIPLE_TX_QUEUE = n/ENABLE_MULTIPLE_TX_QUEUE = y/' src/Makefile
+          sed -i 's/^ENABLE_RSS_SUPPORT = n/ENABLE_RSS_SUPPORT = y/' src/Makefile
+          grep -q 'netif_get_num_default_rss_queues()' src/r8125_n.c \
+            || { echo "r8125 RSS queue call missing; queue patch would silently no-op" >&2; exit 1; }
+          sed -i 's/netif_get_num_default_rss_queues()/num_online_cpus()/' src/r8125_n.c
+        '';
+      });
   # Keep only the firmware requested by the installed MT7921/BT adapter and
   # RTL8125 NICs instead of retaining the complete linux-firmware package
   # (roughly 800 MiB) in every R5C system closure.

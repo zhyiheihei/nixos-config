@@ -1,4 +1,10 @@
-{ stdenv, lib, meson, ninja, fetchFromGitHub }:
+{
+  stdenv,
+  lib,
+  meson,
+  ninja,
+  fetchFromGitHub,
+}:
 
 # librga (Rockchip 2D Raster Graphic Acceleration) userland library.
 #

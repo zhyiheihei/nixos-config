@@ -72,10 +72,16 @@
     systemd.services.resilio = {
       description = "Resilio Sync";
       wantedBy = [ "multi-user.target" ];
-      after = [ "network-online.target" "sops-install-secrets.service" ];
+      after = [
+        "network-online.target"
+        "sops-install-secrets.service"
+      ];
       wants = [ "network-online.target" ];
       requires = [ "sops-install-secrets.service" ];
-      unitConfig.RequiresMountsFor = [ "/sync" "/downloads" ];
+      unitConfig.RequiresMountsFor = [
+        "/sync"
+        "/downloads"
+      ];
       serviceConfig = LT.networkToolHarden // {
         Type = "simple";
         User = "resilio-sync";
@@ -118,7 +124,10 @@
               && ${pkgs.coreutils}/bin/chmod 0600 "$CONF"
           '';
         StateDirectory = "resilio-sync";
-        ReadWritePaths = [ "/sync" "/downloads" ];
+        ReadWritePaths = [
+          "/sync"
+          "/downloads"
+        ];
         Environment = "HOME=${config.lantian.resilioSync.configDir}";
         Restart = "on-failure";
         RestartSec = 5;

@@ -22,7 +22,10 @@ in
   config = {
     systemd.services.qbittorrent-seedbox = {
       description = "qBittorrent seedbox client";
-      wants = [ "network-online.target" "mnt-storage.mount" ];
+      wants = [
+        "network-online.target"
+        "mnt-storage.mount"
+      ];
       after = [
         "local-fs.target"
         "network-online.target"

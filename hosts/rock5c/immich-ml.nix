@@ -11,5 +11,6 @@
   # load. Level 0 keeps real E RKNN errors while silencing that W RKNN noise.
   # The worker's model/image downloads are proxied via the router SOCKS5
   # endpoint defined in configuration.nix.
-  virtualisation.oci-containers.containers.immich-machine-learning-rknn.environment.RKNN_LOG_LEVEL = "0";
+  virtualisation.oci-containers.containers.immich-machine-learning-rknn.environment.RKNN_LOG_LEVEL =
+    "0";
 }

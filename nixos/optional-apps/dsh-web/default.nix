@@ -27,68 +27,68 @@ in
     };
     users.groups.dsh-web = { };
 
-  # 预建 DSH_HOME 布局；patch 文件用 C: 指令从 store 复制（每次 boot 幂等）
-  systemd.tmpfiles.rules = [
-    "d /var/lib/dsh 0750 dsh-web dsh-web -"
-    "d /var/lib/dsh/profiles 0750 dsh-web dsh-web -"
-    "d /var/lib/dsh/profiles/web 0750 dsh-web dsh-web -"
-    "C /var/lib/dsh/profiles/web/cordis.patch.yml - - - - ${cordisPatch}"
-  ];
+    # 预建 DSH_HOME 布局；patch 文件用 C: 指令从 store 复制（每次 boot 幂等）
+    systemd.tmpfiles.rules = [
+      "d /var/lib/dsh 0750 dsh-web dsh-web -"
+      "d /var/lib/dsh/profiles 0750 dsh-web dsh-web -"
+      "d /var/lib/dsh/profiles/web 0750 dsh-web dsh-web -"
+      "C /var/lib/dsh/profiles/web/cordis.patch.yml - - - - ${cordisPatch}"
+    ];
 
-  sops.secrets.dsh-credentials = {
-    sopsFile = inputs.secrets + "/common/dsh-web.yaml";
-    key = "UNIAPI_API_KEY";
-    owner = "dsh-web";
-    group = "dsh-web";
-    mode = "0600";
-  };
-
-  systemd.services.dsh-web = {
-    description = "DSH web UI（DeepSeek Harness web profile）";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-
-    # 包 wrapper 已内置 bash/pnpm_11/bubblewrap 到 PATH（含 Nix bash 终端 patch），
-    # 无需再经 systemd path 注入。
-
-    serviceConfig = LT.serviceHarden // {
-      ExecStart = "${dsh}/bin/dsh --profile web --host 127.0.0.1 --port ${LT.portStr.DSH} --trusted-host dsh.zhyi.xin";
-      # sops 落盘 /run/secrets/dsh-credentials 是单键值（key 提取），而 dsh 的
-      # credentials 文件要求完整映射；这里包装成 UNIAPI_API_KEY: <value> 写入
-      # DSH_HOME（dsh-web 写自己属主的目录，无需 chown；umask 077 → 0600）
-      ExecStartPre = pkgs.writeShellScript "dsh-credentials-setup" ''
-        umask 077
-        printf 'UNIAPI_API_KEY: %s\n' "$(cat ${config.sops.secrets.dsh-credentials.path})" > /var/lib/dsh/.credentials.yaml
-      '';
-      Restart = "always";
-      RestartSec = "3";
-
-      StateDirectory = "dsh";
-      WorkingDirectory = "/var/lib/dsh";
-      Environment = [ "DSH_HOME=/var/lib/dsh" ];
-
-      User = "dsh-web";
-      Group = "dsh-web";
-
-      # Node/V8 JIT 需要可写可执行内存页；llm-agents 系 node 服务惯例（见 picoclaw.nix）
-      MemoryDenyWriteExecute = false;
-    };
-  };
-
-  # 公开入口：dsh.zhyi.xin，Dex OIDC 登录（oauth2-proxy → login.zhyi.xin），
-  # 通配证书 lets-encrypt-zhyi.xin（greencloud 签发、rsync 同步到 tencent）。
-  # 注意：不能设 proxyOverrideHost——dsh 的 /api browser-trust 栅栏按 Host 头
-  # 校验（--trusted-host dsh.zhyi.xin），必须透传原始 Host。
-  lantian.nginxVhosts."dsh.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.DSH}";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-      enableOAuth = true;
+    sops.secrets.dsh-credentials = {
+      sopsFile = inputs.secrets + "/common/dsh-web.yaml";
+      key = "UNIAPI_API_KEY";
+      owner = "dsh-web";
+      group = "dsh-web";
+      mode = "0600";
     };
 
-    sslCertificate = "lets-encrypt-zhyi.xin";
-    noIndex.enable = true;
-  };
+    systemd.services.dsh-web = {
+      description = "DSH web UI（DeepSeek Harness web profile）";
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
+
+      # 包 wrapper 已内置 bash/pnpm_11/bubblewrap 到 PATH（含 Nix bash 终端 patch），
+      # 无需再经 systemd path 注入。
+
+      serviceConfig = LT.serviceHarden // {
+        ExecStart = "${dsh}/bin/dsh --profile web --host 127.0.0.1 --port ${LT.portStr.DSH} --trusted-host dsh.zhyi.xin";
+        # sops 落盘 /run/secrets/dsh-credentials 是单键值（key 提取），而 dsh 的
+        # credentials 文件要求完整映射；这里包装成 UNIAPI_API_KEY: <value> 写入
+        # DSH_HOME（dsh-web 写自己属主的目录，无需 chown；umask 077 → 0600）
+        ExecStartPre = pkgs.writeShellScript "dsh-credentials-setup" ''
+          umask 077
+          printf 'UNIAPI_API_KEY: %s\n' "$(cat ${config.sops.secrets.dsh-credentials.path})" > /var/lib/dsh/.credentials.yaml
+        '';
+        Restart = "always";
+        RestartSec = "3";
+
+        StateDirectory = "dsh";
+        WorkingDirectory = "/var/lib/dsh";
+        Environment = [ "DSH_HOME=/var/lib/dsh" ];
+
+        User = "dsh-web";
+        Group = "dsh-web";
+
+        # Node/V8 JIT 需要可写可执行内存页；llm-agents 系 node 服务惯例（见 picoclaw.nix）
+        MemoryDenyWriteExecute = false;
+      };
+    };
+
+    # 公开入口：dsh.zhyi.xin，Dex OIDC 登录（oauth2-proxy → login.zhyi.xin），
+    # 通配证书 lets-encrypt-zhyi.xin（greencloud 签发、rsync 同步到 tencent）。
+    # 注意：不能设 proxyOverrideHost——dsh 的 /api browser-trust 栅栏按 Host 头
+    # 校验（--trusted-host dsh.zhyi.xin），必须透传原始 Host。
+    lantian.nginxVhosts."dsh.zhyi.xin" = {
+      locations."/" = {
+        proxyPass = "http://127.0.0.1:${LT.portStr.DSH}";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        enableOAuth = true;
+      };
+
+      sslCertificate = "lets-encrypt-zhyi.xin";
+      noIndex.enable = true;
+    };
   };
 }

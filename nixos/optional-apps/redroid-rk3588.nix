@@ -43,12 +43,11 @@
         lantian.redroid.lanInterface = lib.mkDefault (
           let
             addr = "${LT.this.interconnect.IPv4}/24";
-            named = lib.filterAttrs (_: n:
-              (n.matchConfig.Name or null) != null
-              && lib.elem addr (n.address or [ ])
+            named = lib.filterAttrs (
+              _: n: (n.matchConfig.Name or null) != null && lib.elem addr (n.address or [ ])
             ) config.systemd.network.networks;
           in
-            if named == { } then "lan0" else (lib.head (lib.attrNames named))
+          if named == { } then "lan0" else (lib.head (lib.attrNames named))
         );
       }
       {

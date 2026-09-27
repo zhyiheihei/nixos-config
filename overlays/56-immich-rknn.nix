@@ -1,5 +1,4 @@
-{ inputs, ... }:
-final: prev: {
+_: final: prev: {
   # Rockchip NPU (rknpu) acceleration for Immich machine-learning, following
   # the official RKNN backend docs (rknpu driver >= 0.9.8 + -rknn deps):
   #   https://immich.app/docs/features/ml-hardware-acceleration
@@ -18,12 +17,10 @@ final: prev: {
       # this enhanced variant, keeping the `.override` chain intact for the
       # immich NixOS module (which calls immich-machine-learning.override { ... }).
       immich-machine-learning = pyprev.immich-machine-learning.overridePythonAttrs (old: {
-        dependencies =
-          (old.dependencies or [ ])
-          ++ [
-            pyfinal.rknn-toolkit-lite2
-            pyfinal.onnxruntime
-          ];
+        dependencies = (old.dependencies or [ ]) ++ [
+          pyfinal.rknn-toolkit-lite2
+          pyfinal.onnxruntime
+        ];
       });
     };
   };

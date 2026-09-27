@@ -1,5 +1,4 @@
-{ inputs, ... }:
-final: prev: {
+_: final: prev: {
   # Rockchip RK35 media stack: MPP + RGA userland libraries and a
   # jellyfin-ffmpeg with RKMPP/RKRGA enabled.  Keep the specialized FFmpeg
   # opt-in instead of replacing jellyfin-ffmpeg on every aarch64 host.

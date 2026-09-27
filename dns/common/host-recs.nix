@@ -416,6 +416,6 @@ in
             target = concatDomain "${ptrPrefix v}${n}" domain;
           }
         ]
-      ) (lib.filterAttrs (n: v: v.dn42.IPv4 != null) LT.hosts    );
+      ) (lib.filterAttrs (n: v: v.dn42.IPv4 != null) LT.hosts);
   };
 }

@@ -1,4 +1,3 @@
-{ inputs, ... }:
-final: prev: {
+_: final: prev: {
   dreame-vacuum = final.callPackage ../pkgs/dreame-vacuum { };
 }

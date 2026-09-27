@@ -12,8 +12,7 @@ let
 
   # U-Boot is target firmware, but all compiler processes should execute
   # natively on the dedicated x86_64 builder rather than on a small ARM node.
-  crossPkgs =
-    self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
+  crossPkgs = self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
   ubootOrangePiZero3 = crossPkgs.ubootOrangePiZero3.overrideAttrs (old: {
     requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
   });

@@ -44,29 +44,28 @@ in
     # Useless and breaks in FHS environment
     systemd-ssh-proxy.enable = false;
 
-    knownHosts =
-      (builtins.listToAttrs (
-        lib.flatten (
-          lib.mapAttrsToList (
-            n: v:
-            let
-              hostNames = [
-                "${n}.zhyi.xin"
-                "[${n}.zhyi.xin]:2222"
-                "${n}.zhyi.xin"
-                "[${n}.zhyi.xin]:2222"
-              ];
-            in
-            lib.optional (LT.hosts."${n}".ssh.ed25519 != null) {
-              name = "${n}-ed25519";
-              value = {
-                inherit hostNames;
-                publicKey = LT.hosts."${n}".ssh.ed25519;
-              };
-            }
-          ) LT.hosts
-        )
-      ));
+    knownHosts = builtins.listToAttrs (
+      lib.flatten (
+        lib.mapAttrsToList (
+          n: v:
+          let
+            hostNames = [
+              "${n}.zhyi.xin"
+              "[${n}.zhyi.xin]:2222"
+              "${n}.zhyi.xin"
+              "[${n}.zhyi.xin]:2222"
+            ];
+          in
+          lib.optional (LT.hosts."${n}".ssh.ed25519 != null) {
+            name = "${n}-ed25519";
+            value = {
+              inherit hostNames;
+              publicKey = LT.hosts."${n}".ssh.ed25519;
+            };
+          }
+        ) LT.hosts
+      )
+    );
   };
 
   services.openssh = {

@@ -42,11 +42,17 @@
   };
 
   systemd.services.halo-mysql-password = {
-    after = [ "mysql.service" "sops-install-secrets.service" ];
+    after = [
+      "mysql.service"
+      "sops-install-secrets.service"
+    ];
     requires = [ "mysql.service" ];
     before = [ "podman-halo.service" ];
     requiredBy = [ "podman-halo.service" ];
-    path = [ config.services.mysql.package pkgs.gnused ];
+    path = [
+      config.services.mysql.package
+      pkgs.gnused
+    ];
     serviceConfig.Type = "oneshot";
     script = ''
       password=$(<${config.sops.secrets.halo-mysql-password.path})
