@@ -48,8 +48,9 @@
   主机的分布式构建不派发到这台笔记本。
   走本机单槽，不自派发。
 - ml-builder 侧以 `nix.settings.extra-system-features = [ "aarch64-cross" ]`
-  声明同款 feature，本地可跑交叉构建；ml-laptop 本地 daemon 也声明该
-  feature（四个 ARM 硬件内核包带 requiredSystemFeatures）。
+  声明同款 feature，本地可跑交叉构建；ml-laptop 本地 daemon 不声明该
+  feature（四个 ARM 硬件内核包带 requiredSystemFeatures，固定外派
+  ml-builder，避免在笔记本上跑 ARM 交叉编译）。
 - Hydra 所在机的 hydra-evaluator unit 注入集群出站代理（直连 GitHub 拉
   flake inputs 实测长期卡死；ml-laptop 时期即如此，迁 opi5p 后沿用），
   见 [outbound-proxy](outbound-proxy.md)。
