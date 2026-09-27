@@ -11,10 +11,9 @@ helpers/constants/public-sites.nix # fork 子域清单（并入单域 zhyi.xin�
 helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）
 helpers/host-options.nix # fork 选项：GPU 显存档位、NeoNetwork null、netns 默认值
-home/client-apps/ai-coding/default.nix # fork AI provider 链（uni-api/taotoken/zai）；上游 zcode/commandcode/secret-mask/jiti-cache 依赖作者 secrets 私有模块 09e0a4212f82100c，fork 不采纳；保留 pi-notify/libnotify 桌面通知
-home/client-apps/firefox/default.nix # 扩展与搜索配置差异（zeroomega 等 fork 客户端选择）
-home/client-apps/git.nix # fork 签名 key
-home/client-apps/pi-web.nix # fork 主机 ml-laptop 接入 pi-web 门控（0a87bd745，主机名/用户名条件扩展）
+home/client-apps/ai-coding/default.nix # fork provider 链保留（taotoken/zai 为用户账号，上游 llama-swap 依赖作者私有服务部署）；piNotify/libnotify 桌面通知与 pi-multi-pass 保留；09e0a4212f82100c hidden-module 已复刻对齐
+home/client-apps/firefox/default.nix # zeroomega 扩展保留（用户浏览器配置）；其余已对齐（profile 名/ai 端点均为认可替换）
+home/client-apps/git.nix # 签名 key 为用户本人 GPG 指纹（结构零差异）
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
 nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化 + browseros 门控 ml-laptop（上游 c7fd34b4 libvirt server 已随本次同步采纳）
 nixos/common-apps/coredns.nix # 仅保留 CN 主机 AliDNS/DNSPod 分支（docs/human/network/regional-dns.md 设计文档背书），其余结构对齐上游
@@ -23,7 +22,6 @@ nixos/common-apps/nginx/nginx.nix # gopher map 移除 neo（NeoNetwork 置空）
 nixos/common-apps/nginx/oauth2-proxy.nix # csrf cookie 对齐说明 + cookie 域清单差异
 nixos/common-apps/nginx/testssl.nix # google-test 测试站点移除
 nixos/common-apps/nginx/whois-server.nix # whois neo 别名移除（NeoNetwork 置空）
-nixos/common-apps/yggdrasil/default.nix # fork 节点 region 表与 peer 正则
 nixos/hardware/nvidia/prime.nix # eGPU 条件 steam offload wrapper（拔 eGPU 卡死修复，fork 自维护）
 nixos/hardware/vfio.nix # ACS/IOMMU 条件注入（雷电 eGPU Xid 79 修复，fork 自维护）
 nixos/minimal-apps/nginx-proxy.nix # neo ULA 移除（NeoNetwork 置空）
@@ -76,9 +74,8 @@ nixos/optional-apps/epic-awesome-gamer/fix.patch # skip: 同上，配套补丁
 nixos/optional-apps/prometheus/storagebox.nix # skip: fork 不监控 storagebox（备份端点为 opi5p sftp），default.nix 引用移除已登记
 patches/dlx-fingerprint.patch # skip: 同 dlx.nix，配套补丁
 dns/core/record-handlers.nix # NO_PURGE handler 保留（fork：迁移到 zhyi 域时保留上游/其他来源已管理记录，上游无此 handler）
-home/client-apps/xilinx/default.nix # 上游 aaf24cde 引入 hidden-module da4fbe694da377db（作者 secrets 私有内容，fork secrets 仓无此文件），不采纳；其余已对齐
 home/client-apps/dev-tools.nix # quartus-prime-lite 注释掉：Intel 25.1std.0.1129 下载源已下架（akdlm 301→404、downloadmirror AccessDenied，2026-09-16 实测），FOD 无法获取；上游 1ee0e4aa9 引入时可用，上游换 URL 后恢复
-home/client-apps/packages.nix # materialgram 移除：上游 NUR materialgram 6.7.7.1 的 0005 stories 补丁与源码冲突（Hunk#1 FAILED，包坏档），构建失败；上游 NUR 修复后恢复
+home/client-apps/packages.nix # baidunetdisk/siyuan 为 fork 自有软件；materialgram 已恢复（NUR 7.0.5.1 补丁冲突已修复）
 helpers/constants/interface-prefixes.nix # bond 前缀（ba915668d：dragon-q8b bond0 对齐 ml-2700/opi5p 正典写法，ZeroTier 接口白名单放行 bond，fork 独有拓扑）
 nixos/common-apps/nginx/vhosts-lantian.nix # skip: fork 以自维护 vhosts-zhyi.nix 对应替代（vhost 集合按 zhyi 域重写，无 author 域名入口）
 helpers/constants/misc.nix # defaultGatewayHost=rock5c（上游 pve-epyc）：ltnet/dn42 默认网关主机映射特例，与 zerotier 条目同一决策；ULA 已替换为 fdd8 前缀
