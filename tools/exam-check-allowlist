@@ -57,7 +57,7 @@ nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
 nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
 nixos/optional-apps/zerotierone-controller.nix # GL-MT3600BE 旅行路由器 LAN 路由（192.168.3.0/24 via 198.18.0.115，fork 独有拓扑）；defaultGatewayHost 已随上游收口到 LT 继承（rock5c 特例登记于 misc.nix 条目）
-nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射 + header-fallback 补丁；HOST/PORT env 与 custom-listen-host 补丁已随上游 03174835 同步（fix-tool-parameters 上游已修，fork 补丁移除）
+nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射；HOST/PORT env 与 custom-listen-host 补丁已随上游 03174835 同步，fix-tool-parameters 与 header-fallback 补丁均已随上游移除（上游 1.7.276 Rust 重写，src/providers/request.rs 内建静态头兜底+客户端透传覆盖语义，2026-09-27）
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）
 nixos/optional-cron-jobs/testssl.nix # google-test 站点移除
 nixos/pve-components/nginx.nix # per-host 证书策略（zerossl-<host> vs 上游统一域名证书）

@@ -109,6 +109,9 @@ in
   };
 
   nix.settings = {
+    # ml-laptop 的 steam/nvidia x32 闭包需要 i686-linux 构建（nixpkgs 前移后
+    # 无缓存命中），本机 x86_64 原生可执行 i686。
+    extra-platforms = [ "i686-linux" ];
     # Centralize downloads on ml-builder. Remote build machines receive all
     # required inputs over the Nix store connection instead of independently
     # reaching external substituters through inconsistent network routes.

@@ -11,7 +11,6 @@ let
   uniApi = pkgs.nur-xddxdd.uni-api.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [
       ../../patches/uni-api-custom-listen-host.patch
-      ../../patches/uni-api-header-fallback.patch
     ];
   });
 

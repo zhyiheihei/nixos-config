@@ -78,6 +78,19 @@
         "big-parallel"
         "aarch64-cross"
       ])
+      # i686-linux（steam/nvidia x32 闭包）无处可派：ml-builder 以
+      # extra-platforms 接收本机原生 i686。
+      {
+        system = "i686-linux";
+        hostName = "ml-builder.zhyi.xin";
+        maxJobs = 1;
+        protocol = "ssh";
+        speedFactor = 1;
+        sshKey = config.sops.secrets.hydra-builder-ssh-privkey.path;
+        sshUser = "nix-builder";
+        supportedFeatures = [ ];
+        mandatoryFeatures = [ ];
+      }
       (mk "opi5p" LT.hosts.opi5p.cpuThreads [ ])
       (mk "opi5p" 1 [ "big-parallel" ])
     ]
