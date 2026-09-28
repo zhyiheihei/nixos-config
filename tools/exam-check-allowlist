@@ -82,3 +82,4 @@ nixos/common-apps/nginx/vhosts-lantian.nix # skip: fork 以自维护 vhosts-zhyi
 helpers/constants/misc.nix # defaultGatewayHost=rock5c（上游 pve-epyc）：ltnet/dn42 默认网关主机映射特例，与 zerotier 条目同一决策；ULA 已替换为 fdd8 前缀
 home/client-apps/ai-coding/extensions/nixos-command-guard.ts # fork 规则增强：AGENTS.md 04-nixos 禁非 Nix 包管理器/make install，上游仅拦 / 与 /nix/store 单参数
 nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机为 0（f28facd0b 防构建机 OOM 收口），其余与上游一致
+nixos/common-apps/yggdrasil/public-peers.json # peers 数据文件经 update.py 自动工作流维护（publicpeers.neilalexander.dev 源列表实时变化），fork bot 与上游 bot 同步时点不同，内容漂移无意义
