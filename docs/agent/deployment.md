@@ -1,8 +1,8 @@
 # 构建与部署
 
 `hosts/` 是可构建的自有 Colmena Hive，`hosts-exam/` 不参与构建和部署。`Makefile`
-沿用作者的 Colmena 标签目标，不额外维护一份在线主机清单；同时保留 `help` 作为
-安全的默认目标。
+与上游逐字对齐，仅保留两个登记偏移：CN 归属主机由控制机并行推闭包、求值
+分批串行（均见下）。
 
 所有求值、构建和 Colmena 部署都在本机 `ml-laptop`（主控机）执行，仓库位于
 `~/Documents/nixos/nixos-config`；编译重活由 nix-distributed 派给 ml-builder /
@@ -29,13 +29,15 @@ make build-default
 make build-x86
 ```
 
-`make servers`、`make all` 及其他 `apply` 目标是有状态变更操作。裸 `make` 只显示
-帮助；验证时明确使用 `make build`。
+`make servers`、`make all` 及其他 `apply` 目标是有状态变更操作；验证时明确使用
+`make build`。
 
-`make all` / `make all-all` / 带 `ssh` 后缀的部署在 Colmena 构建完成后并发分发：
-CN 归属主机（或 `ssh` 后缀时的全部主机）按 `PUSH_JOBS`（默认 4）并行
-`nix copy ssh-ng` push + switch，非 CN 主机合并为一次 `colmena apply`
-（colmena 内部并发）。任一主机失败时整体退出码非零，并在末尾汇总失败日志。
+`make servers` / `make all` / `make all-all` 走 `_deploy-tag` 通道（两个偏移的
+实现）：先按 `EVAL_CHUNK`（默认 2）台一批串行 `colmena build`（并发求值会打满
+32G 内存 OOM），随后 CN 归属主机按 `PUSH_JOBS`（默认 4）并行 `nix copy
+ssh-ng` push + switch，非 CN 主机合并为一次 `colmena apply`（其 Succeeded
+为真实部署完成）。任一主机失败时整体退出码非零；push 失败的主机在末尾
+汇总并打印各自日志（`.gcroots/deploy-<host>.log`）。
 
 ## 指定主机
 
