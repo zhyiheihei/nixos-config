@@ -62,4 +62,8 @@ in
           ''make "''${makeFlags[@]}" olddefconfig && make "''${makeFlags[@]}" oldconfig''
         ]
         (old.configurePhase or "");
+    # 同 rock5c-kernel：install 阶段竞态兑底；本内核 target=vmlinuz.efi。
+    postInstall = (old.postInstall or "") + ''
+      [ -e "$out/vmlinuz.efi" ] || cp "$buildRoot/arch/arm64/boot/vmlinuz.efi" "$out/vmlinuz.efi"
+    '';
   })

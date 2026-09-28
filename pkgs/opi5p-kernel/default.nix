@@ -75,4 +75,8 @@ in
       # CMA 预留区在其中）。
       ../../nixos/hardware/orangepi-5-plus/vendor-hdmirx-gfp-dma.patch
     ];
+    # 同 rock5c-kernel：install 阶段 Image 拷贝竞态兑底（详见该文件注释）。
+    postInstall = (old.postInstall or "") + ''
+      [ -e "$out/Image" ] || cp "$buildRoot/arch/arm64/boot/Image" "$out/Image"
+    '';
   })

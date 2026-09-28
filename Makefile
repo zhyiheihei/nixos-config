@@ -22,7 +22,8 @@ help: FORCE
 		'make update         更新全部 Flake inputs 和 nvfetcher' \
 		'make update-nur     只更新 nur-xddxdd input' \
 		'make push-cache     将 .gcroots 中的闭包推送到 Attic' \
-		'并发说明：分发阶段 CN 归属/ssh 后缀主机按 PUSH_JOBS（默认 4）并发 push；' \
+		'并发说明：求值按 EVAL_CHUNK（默认 2）台一批串行进行，避免并发求值打满内存；' \
+		'分发阶段 CN 归属/ssh 后缀主机按 PUSH_JOBS（默认 4）并发 push，' \
 		'非 CN 主机合并为一次 colmena apply（colmena 内部并发），两路同时执行。'
 
 # no-op target, used as flag: make all ssh
@@ -64,9 +65,22 @@ local: FORCE
 local-reboot: FORCE
 	@nix run .#colmena -- apply --reboot --on $(shell cat /etc/hostname) $(NIX_OPTS)
 
+PUSH_JOBS ?= 4
+EVAL_CHUNK ?= 2
+
 _deploy-tag: FORCE
 	@rm -f .gcroots/node-*
-	@nix run .#colmena -- build --on $(TAG) $(NIX_OPTS)
+	@mkdir -p .gcroots
+	@nix eval .#colmenaHive.deploymentConfig --apply \
+		'x: builtins.mapAttrs (n: v: builtins.concatStringsSep "," v.tags) x' > .gcroots/nodes.txt
+	@TAG_NAME=$$(echo $(TAG) | sed 's/^@//'); \
+		all_hosts=$$(python3 -c 'import json,sys; d=json.load(open(".gcroots/nodes.txt")); t=sys.argv[1]; print(" ".join(sorted(n for n,v in d.items() if t in v.split(","))))' "$$TAG_NAME"); \
+		[ -n "$$all_hosts" ] || { echo "no host matches $(TAG)"; exit 1; }; \
+		echo "=== 求值分批（每批 $(EVAL_CHUNK) 台串行）: $$all_hosts ==="; \
+		echo $$all_hosts | xargs -n $(EVAL_CHUNK) | while read PAIR; do \
+			nix run .#colmena -- build --on "$$(echo $$PAIR | tr ' ' ',')" $(NIX_OPTS) || exit 1; \
+		done; \
+		[ $$? -eq 0 ] || exit 1
 	@push_list=""; apply_list=""; \
 		for ROOT in .gcroots/node-*; do \
 			[ -L "$$ROOT" ] || continue; \

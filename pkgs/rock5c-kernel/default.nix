@@ -65,4 +65,13 @@ in
   (old: {
     requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
     patches = (old.patches or [ ]) ++ [ ../../nixos/hardware/rock-5c/vendor-fan-curve.patch ];
+    # nixpkgs 内核 install 走 ~/bin/installkernel（cp -av $2 $4）拷贝 Image，
+    # 实测与并行 make install 存在竞态：同一 drv 两次构建分别产出有/无
+    # Image 的 out（缺 Image 时 nixos-system 构建期 bootloader 检查失败：
+    # The bootloader cannot find the proper kernel image）。postInstall
+    # 显式兑底拷贝 buildRoot 中的 Image，保证输出确定。opi5p-kernel、
+    # sc8280xp-kernel 同款（sc8280xp 的 kernelFile 为 vmlinuz.efi）。
+    postInstall = (old.postInstall or "") + ''
+      [ -e "$out/Image" ] || cp "$buildRoot/arch/arm64/boot/Image" "$out/Image"
+    '';
   })
