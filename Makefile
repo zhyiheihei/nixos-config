@@ -57,10 +57,15 @@ _deploy-tag: FORCE
 	@TAG_NAME=$$(echo $(TAG) | sed 's/^@//'); \
 		all_hosts=$$(python3 -c 'import json,sys; d=json.load(open(".gcroots/nodes.txt")); t=sys.argv[1]; print(" ".join(sorted(n for n,v in d.items() if t in v.split(","))))' "$$TAG_NAME"); \
 		[ -n "$$all_hosts" ] || { echo "no host matches $(TAG)"; exit 1; }; \
+		rm -f .gcroots/build-failed; \
 		echo $$all_hosts | xargs -n $(EVAL_CHUNK) | while read PAIR; do \
-			nix run .#colmena -- build --on "$$(echo $$PAIR | tr ' ' ',')" || exit 1; \
-		done; \
-		[ $$? -eq 0 ] || exit 1
+			nix run .#colmena -- build --on "$$(echo $$PAIR | tr ' ' ',')" \
+				|| echo "$$PAIR" >> .gcroots/build-failed; \
+		done
+	@if [ -e .gcroots/build-failed ]; then \
+		echo "=== 构建失败的主机（未部署）: $$(cat .gcroots/build-failed | tr '\n' ' ') ==="; \
+	fi
+	@push_list=""
 	@push_list=""; apply_list=""; \
 		for ROOT in .gcroots/node-*; do \
 			[ -L "$$ROOT" ] || continue; \
