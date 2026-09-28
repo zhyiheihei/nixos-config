@@ -97,7 +97,7 @@ _push-host: FORCE
 	@FULL=$$(grep -m1 'hostname' hosts/$(HOST)/host.nix | sed "s/.*\"\(.*\)\".*/\1/"); \
 		[ -n "$$FULL" ] || FULL="$(HOST).zhyi.xin"; \
 		RESULT=$$(readlink -f .gcroots/node-$(HOST)); \
-		nix copy --to "ssh-ng://$$FULL:2222" --no-check-sigs $$RESULT \
-			&& ssh -p 2222 $$FULL "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"
+		nix copy --to "ssh-ng://root@$$FULL:2222" --no-check-sigs $$RESULT \
+			&& ssh -p 2222 root@$$FULL "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"
 
 FORCE: ;
