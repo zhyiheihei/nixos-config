@@ -223,7 +223,7 @@
     enable = true;
     port = LT.port.Prometheus.AlertManager;
     listenAddress = "127.0.0.1";
-    webExternalUrl = "https://alert.xuyh0120.win";
+    webExternalUrl = "https://alert.zhyi.xin";
 
     # Not compatible with genJqSecretsReplacementSnippet
     checkConfig = false;
@@ -286,7 +286,7 @@
     ''
   );
 
-  lantian.nginxVhosts."alert.xuyh0120.win" = {
+  lantian.nginxVhosts."alert.zhyi.xin" = {
     locations = {
       "/" = {
         enableOAuth = true;
@@ -294,7 +294,7 @@
       };
     };
 
-    sslCertificate = "zerossl-xuyh0120.win";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 }
