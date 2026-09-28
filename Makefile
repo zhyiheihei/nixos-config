@@ -21,7 +21,9 @@ help: FORCE
 		'make clean          在 Hive 主机上运行 nixos-cleanup' \
 		'make update         更新全部 Flake inputs 和 nvfetcher' \
 		'make update-nur     只更新 nur-xddxdd input' \
-		'make push-cache     将 .gcroots 中的闭包推送到 Attic'
+		'make push-cache     将 .gcroots 中的闭包推送到 Attic' \
+		'并发说明：分发阶段 CN 归属/ssh 后缀主机按 PUSH_JOBS（默认 4）并发 push；' \
+		'非 CN 主机合并为一次 colmena apply（colmena 内部并发），两路同时执行。'
 
 # no-op target, used as flag: make all ssh
 ssh: FORCE
@@ -65,21 +67,47 @@ local-reboot: FORCE
 _deploy-tag: FORCE
 	@rm -f .gcroots/node-*
 	@nix run .#colmena -- build --on $(TAG) $(NIX_OPTS)
-	@for ROOT in .gcroots/node-*; do \
-		[ -L "$$ROOT" ] || continue; \
-		HOST=$$(echo $$ROOT | sed 's|\.gcroots/node-||'); \
-		FULL=$$(grep -m1 'hostname' hosts/$$HOST/host.nix | sed "s/.*\"\(.*\)\".*/\1/"); \
-		[ -n "$$FULL" ] || FULL="$$HOST.zhyi.xin"; \
-		RESULT=$$(readlink -f $$ROOT); \
-		echo "=== $$HOST ==="; \
-		if [ -n "$(PUSH_ALL)" ] || grep -q 'geo.cities."CN' hosts/$$HOST/host.nix; then \
-			nix copy --to "ssh-ng://$$FULL:2222" --no-check-sigs $$RESULT \
-				&& ssh -p 2222 $$FULL "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"; \
-		else \
-			nix run .#colmena -- apply --on $$HOST $(NIX_OPTS); \
+	@push_list=""; apply_list=""; \
+		for ROOT in .gcroots/node-*; do \
+			[ -L "$$ROOT" ] || continue; \
+			HOST=$$(echo $$ROOT | sed 's|\.gcroots/node-||'); \
+			if [ -n "$(PUSH_ALL)" ] || grep -q 'geo.cities."CN' hosts/$$HOST/host.nix; then \
+				push_list="$$push_list $$HOST"; \
+			else \
+				apply_list="$$apply_list $$HOST"; \
+			fi; \
+		done; \
+		rm -f .gcroots/deploy-*; \
+		if [ -n "$$apply_list" ]; then \
+			echo "=== colmena apply:$${apply_list}（并发） ==="; \
+			( nix run .#colmena -- apply --on $$(echo $$apply_list | sed 's/ /,/g') $(NIX_OPTS) >.gcroots/deploy-colmena.log 2>&1; echo $$? >.gcroots/deploy-colmena.exit ) & \
 		fi; \
-		echo "=== $$HOST done ==="; \
-	done
+		if [ -n "$$push_list" ]; then \
+			echo "=== push 并发（PUSH_JOBS=$(PUSH_JOBS)）:$$push_list ==="; \
+			echo $$push_list | tr ' ' '\n' | xargs -P $(PUSH_JOBS) -I{} sh -c '\
+				$(MAKE) --no-print-directory _push-host HOST={} > .gcroots/deploy-{}.log 2>&1; \
+				echo $$? > .gcroots/deploy-{}.exit'; \
+		fi; \
+		wait; \
+		status=0; \
+		if [ -e .gcroots/deploy-colmena.exit ]; then \
+			if [ "$$(cat .gcroots/deploy-colmena.exit)" -ne 0 ]; then \
+				echo "=== colmena apply 失败 ==="; cat .gcroots/deploy-colmena.log; status=1; \
+			else echo "=== colmena apply done ==="; fi; \
+		fi; \
+		for HOST in $$push_list; do \
+			if [ "$$(cat .gcroots/deploy-$$HOST.exit 2>/dev/null)" -ne 0 ]; then \
+				echo "=== $$HOST 失败 ==="; cat .gcroots/deploy-$$HOST.log; status=1; \
+			else echo "=== $$HOST done ==="; fi; \
+		done; \
+		exit $$status
+
+_push-host: FORCE
+	@FULL=$$(grep -m1 'hostname' hosts/$(HOST)/host.nix | sed "s/.*\"\(.*\)\".*/\1/"); \
+		[ -n "$$FULL" ] || FULL="$(HOST).zhyi.xin"; \
+		RESULT=$$(readlink -f .gcroots/node-$(HOST)); \
+		nix copy --to "ssh-ng://$$FULL:2222" --no-check-sigs $$RESULT \
+			&& ssh -p 2222 $$FULL "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"
 
 
 clean: FORCE

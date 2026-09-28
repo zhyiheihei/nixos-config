@@ -32,6 +32,11 @@ make build-x86
 `make servers`、`make all` 及其他 `apply` 目标是有状态变更操作。裸 `make` 只显示
 帮助；验证时明确使用 `make build`。
 
+`make all` / `make all-all` / 带 `ssh` 后缀的部署在 Colmena 构建完成后并发分发：
+CN 归属主机（或 `ssh` 后缀时的全部主机）按 `PUSH_JOBS`（默认 4）并行
+`nix copy ssh-ng` push + switch，非 CN 主机合并为一次 `colmena apply`
+（colmena 内部并发）。任一主机失败时整体退出码非零，并在末尾汇总失败日志。
+
 ## 指定主机
 
 只处理某一台或少量主机时，直接使用 Colmena：
