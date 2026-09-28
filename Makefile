@@ -52,7 +52,7 @@ EVAL_CHUNK ?= 2
 _deploy-tag: FORCE
 	@rm -f .gcroots/node-*
 	@mkdir -p .gcroots
-	@nix eval .#colmenaHive.deploymentConfig --apply \
+	@nix eval --json .#colmenaHive.deploymentConfig --apply \
 		'x: builtins.mapAttrs (n: v: builtins.concatStringsSep "," v.tags) x' > .gcroots/nodes.txt
 	@TAG_NAME=$$(echo $(TAG) | sed 's/^@//'); \
 		all_hosts=$$(python3 -c 'import json,sys; d=json.load(open(".gcroots/nodes.txt")); t=sys.argv[1]; print(" ".join(sorted(n for n,v in d.items() if t in v.split(","))))' "$$TAG_NAME"); \
