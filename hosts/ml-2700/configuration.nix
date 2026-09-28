@@ -29,19 +29,23 @@
 
   # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。
   # client 默认不启用 backup（enable 默认 hasTag server），此处显式启用。
+  # 快照源必须是一个 btrfs subvolume。本仓标准装机布局不建 subvolume，
+  # /nix/persistent 为普通目录，原写法快照必然失败（备份从未跑通）。
+  # 改为快照整个 /nix 子卷，同 ml-laptop fd83c18ed；实际传输仍只入
+  # persistent 子目录（one-file-system 跳过 /nix/store 独立挂载点）。
   lantian.backup = {
     enable = true;
     resticRepos = [ "home" ];
     paths = {
       nix-persistent = lib.mkForce {
-        snapshotFrom = "/nix/persistent";
-        snapshotTo = "/nix/.snapshot-persistent";
-        backupPath = "/nix/.snapshot-persistent";
+        snapshotFrom = "/nix";
+        snapshotTo = "/nix/.snapshot";
+        backupPath = "/nix/.snapshot/persistent";
       };
       home = {
-        snapshotFrom = "/nix/persistent/home";
-        snapshotTo = "/nix/persistent/.snapshot-home";
-        backupPath = "/nix/persistent/.snapshot-home/zhyi";
+        snapshotFrom = "/nix";
+        snapshotTo = "/nix/.snapshot-home";
+        backupPath = "/nix/.snapshot-home/persistent/home/zhyi";
         ignored = ''
           .cache
           .cursor/extensions
