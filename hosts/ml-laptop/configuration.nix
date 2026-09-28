@@ -55,19 +55,26 @@
 
   # 与作者 lt-hp-omen 逐字对齐的整机 restic 备份（路径 lantian→zhyi）。
   # client 默认不启用 backup（enable 默认 hasTag server），此处显式启用。
+  # 快照源必须是一个 btrfs subvolume。本仓标准装机布局（安装指南 §2.1）
+  # 不建 subvolume，/nix 挂的是默认子卷、/nix/persistent 是普通目录，
+  # 快照 /nix/persistent 会报 Not a Btrfs subvolume，备份从未跑通过。
+  # 改为快照整个 /nix 子卷（上游服务器主机同款默认写法；one-file-system
+  # 会跳过 /nix/store 独立挂载点，实际传输仍只入 persistent 子目录）。
   lantian.backup = {
     enable = true;
     resticRepos = [ "home" ];
     paths = {
       nix-persistent = lib.mkForce {
-        snapshotFrom = "/nix/persistent";
-        snapshotTo = "/nix/.snapshot-persistent";
-        backupPath = "/nix/.snapshot-persistent";
+        snapshotFrom = "/nix";
+        snapshotTo = "/nix/.snapshot";
+        backupPath = "/nix/.snapshot/persistent";
       };
       home = {
-        snapshotFrom = "/nix/persistent/home";
-        snapshotTo = "/nix/persistent/.snapshot-home";
-        backupPath = "/nix/persistent/.snapshot-home/zhyi";
+        snapshotFrom = "/nix";
+        snapshotTo = "/nix/.snapshot-home";
+        backupPath = "/nix/.snapshot-home/persistent/home/zhyi";
+        # 仅备份 persistent/home/zhyi，剔除大目录。容器卷内 yuzu/Backups 等
+        # bindfs 挂载的内容由 nix-persistent 路径快照 /nix 时一并覆盖。
         ignored = ''
           .cache
           .cursor/extensions
