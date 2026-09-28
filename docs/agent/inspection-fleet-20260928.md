@@ -141,12 +141,12 @@
 
 ---
 
-## 汇总优先级（跨批次，仅排期未动手）
+## 汇总优先级（跨批次，已按机器处理，进展见文末「处理日志」）
 
-1. 🔴 rsync-nix-sync-servers 同步链（tencent nginx 起不来的直接前提条件；google/pve reload timeout 同源）。
-2. 🔴 tencent nginx 恢复（证书文件就位后 `systemctl start nginx`）。
-3. 🔴 备份链：opi5p `/run/sftp` 空视图 + 本机 btrfs 快照前置失败 + greencloud sftp timeout。
-4. 🟡 rock5c：TMDB 不通 + chinesesubfinder 持续报错；libvirtd / podman-byparr 本机异常。
+1. ~~🔴 rsync-nix-sync-servers 同步链~~ → 实测为跨境包损（CN/家庭 ↔ SG），无主机侧可修项，网络恢复自愈。
+2. 🔴 tencent nginx：已恢复运行 + 配置修复已提交，**待部署**（见处理日志）。
+3. 🔴 备份链：opi5p `/run/sftp` 已修复；本机/ml-2700 快照源配置已修待部署；greencloud sftp timeout 属跨境链路。
+4. 🟡 rock5c：TMDB 已自愈；chinesesubfinder 应用侧问题待用户决定。
 5. 🟡 ml-builder / taishanpi 离线，需人工确认（下电 or 携带外出）。
 6. 🟢 全部噪音项（udevd plugdev、samba-nmbd、mptcp、sshd 扫描、hydra linking）下轮巡检直接跳过。
 
@@ -204,3 +204,87 @@
 2. 🟡 libvirtd 启动后 2 分钟退出 status=1，需带日志现场重启验证。
 3. 🟡 podman-byparr 容器记录丢失，需重建容器或 `systemctl start` 验证。
 4. 🟢 udevd plugdev（u2f 规则）与 samba-nmbd 广播噪音，无需处理，下轮巡检直接按噪音跳过。
+
+---
+
+## 处理日志（2026-09-28 下午，按机器）
+
+前置：exam-check 清绿——`pkgs/libltnginx/resources/update.sh` 恢复上游原文
+（style 归一误伤）；`yggdrasil/public-peers.json` 登记 auto 工作流维护。
+commit 906116359。
+
+### ml-laptop
+
+- 🔴 backup-nix-persistent / backup-home：根因为本仓装机布局不建 btrfs
+  subvolume，`snapshotFrom=/nix/persistent` 的 subvolume snapshot 必然失败，
+  整机备份从未跑通。改为快照整个 /nix 子卷（fd83c18ed；ml-2700 同款
+  60bd20b19）——**待构建恢复后 make local 部署并手动验证**。
+- 🟡 libvirtd：15:10 的 failed 是 admin API 强制关停（"Make forcefull
+  daemon shutdown"）所致；virsh 连接正常、已重新拉起。socket 激活模式下
+  2 分钟空闲正常退出（Deactivated successfully），failed 状态非故障。
+- 🟢 podman-byparr：容器 Up、服务 active；10:15/14:11 两次失败为重建容器
+  瞬时错位，已恢复。
+- 🟢 smart-check 已恢复 Finished；podman-auto-update 未复现。
+
+### tencent
+
+- 🔴→已恢复 nginx：根因是 9-26 同步把 alertmanager vhost 的 fork 转换
+  （alert.zhyi.xin / zerossl-zhyi.xin）误伤还原成作者域
+  alert.xuyh0120.win / zerossl-xuyh0120.win，fork acme 不发该域证书，
+  nginx -t 失败宕机。已修回同款转换（0ed6e7233，exam-check ≈ 认可替换，
+  无需 allowlist）——**待部署**；部署前 nginx 靠运行期补链（把
+  zerossl-tencent 证书拷到临时目录）在跑，rsync --delete 会回收临时目录，
+  新配置部署前 nginx 若重启会再次失败，**部署优先级最高**。
+- whois.sock 报错：tencent 无 whois 服务单元，43 口链路半残；无单点可修，
+  观察。
+- grafana angular 插件拒载（piechart/worldmap）：上游 Grafana 13 行为，
+  面板需换类型，暂缓。
+
+### opi5p
+
+- 🔴→已修复 `/run/sftp` 空视图：重启 run-sftp.mount（记忆 #200 同款处置），
+  backups/restic 索引可见。
+- 🟡 跨境链路：greencloud↔opi5p ZeroTier 直连当前 100% 丢包（307ms）；
+  sftp/rsync/rustic 的 timeout 均为其受害者。凌晨定时任务会自动重试，
+  观察即可。
+
+### rock5c
+
+- 🟡 TMDB 不通已自愈（15:36–16:13 瞬断，16:24 起识别正常）。
+- 🟡 chinesesubfinder 持续失败（148 err/30min）：assrt token 有效、
+  api.assrt.net 可达，但应用持续调 `api.subtitle.best` 的 GetMediaInfo
+  失败（Message 空、subtitle_best 未启用）。镜像 2 年旧，疑 API 版本
+  不匹配。选项：① 拿 subtitle.best api_key 填入；② 关掉对应订阅源；
+  ③ 更新镜像。待用户决定。
+
+### ml-2700
+
+- 🔴→配置已修（60bd20b19），同款待部署。
+- 🟡 LTNET 口 2222 连接被 reset（LAN 正常，SSH 本体健康，待观察是否随
+  跨境/家庭网络状态恢复）。
+
+### google / pve-5700u
+
+- 🟢 nginx-config-reload timeout 为瞬时（reload 手动验证均 OK，nginx
+  active；pve 本就无 nginx-proxy 单元，非故障）。证书路径引用的均为
+  fork 有效证书，无上游域残留。
+
+### dragon-q8b / lubancat1 / greencloud-jp / hostdare / tencent-cn
+
+- 🟢 无可行动项（wallos 等为噪音归因）。
+
+### rsync-nix-sync-servers 链
+
+- greencloud rsyncd 本体健康（socket :873 接受连接、会话能 spawn）；
+- 会话 code 30 超时 / 客户端 code 10（daemon connection timeout）集中
+  在 CN/家庭 ↔ greencloud（SG）方向；US↔SG（google）全天正常。
+- 结论：跨境包损造成，无主机侧可修项；timer 每 10 分钟自重，网络恢复
+  后自愈。greencloud 的 rsyncd.service 别名链加载报错为上游模块
+  socket-activated 结构下的既有状态，会话仍正常 spawn，不动。
+
+### greencloud radicale
+
+- 🟡 LDAP（→volcengine glauth netns 3712::389）间歇超时：radicale 日内
+  22–36 次 errno110。实测 tencent→glauth 与 greencloud→glauth 均 100%
+  丢，volcengine 本机 netns 正常、BGP 正常导出、隧道握手存活——
+  volcengine netns 的外部转发路径问题，与跨境网络叠加，待观察。
