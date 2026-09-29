@@ -42,8 +42,11 @@
     ];
   };
 
+  # swapfile 移入独立子卷 /nix/swap（2026-09-01 dragon-q8b 同款先例）：
+  # 放在 /nix 下会让 backup-nix-persistent 对 /nix 的快照报
+  # "Text file busy"；快照跳过嵌套子卷，故 /nix/swap 不再阻碍每日备份。
   swapDevices = [
-    { device = "/nix/swapfile"; }
+    { device = "/nix/swap/swapfile"; }
   ];
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
