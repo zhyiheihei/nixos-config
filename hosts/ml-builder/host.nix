@@ -7,7 +7,6 @@
 {
   index = 114;
   tags = with tags; [
-    server
     lan-access
     nix-builder
   ];

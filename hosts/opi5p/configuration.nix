@@ -1,11 +1,165 @@
 {
   config,
+  inputs,
   lib,
   LT,
   pkgs,
+  utils,
   ...
 }:
 let
+  ########################################
+  # v2ray（全仓出站代理的统一入口，自 router 迁入）
+  ########################################
+
+  v2rayConf = {
+    inbounds = [
+      {
+        listen = LT.this.interconnect.IPv4;
+        port = LT.port.V2Ray.SocksClient;
+        protocol = "socks";
+        settings.udp = true;
+        sniffing = {
+          destOverride = [
+            "http"
+            "tls"
+            "quic"
+          ];
+          enabled = true;
+        };
+        tag = "inbound";
+      }
+      {
+        # .NET 应用（Jellyfin）不认 socks5:// 环境代理，只能用 http://
+        # scheme 的 HTTP CONNECT 代理；域名由 vless 出站端远端解析，
+        # 绕开 TMDB 等 DNS 污染。routing 规则与 inbound tag 无关，无需改。
+        listen = LT.this.interconnect.IPv4;
+        port = LT.port.V2Ray.HttpClient;
+        protocol = "http";
+        sniffing = {
+          destOverride = [
+            "http"
+            "tls"
+            "quic"
+          ];
+          enabled = true;
+        };
+        tag = "inbound-http";
+      }
+    ];
+    log = {
+      access = "none";
+      loglevel = "warning";
+    };
+    outbounds = [
+      {
+        protocol = "vless";
+        settings.vnext = [
+          {
+            address = LT.publicIPv4For "tencent";
+            port = 443;
+            users = [
+              {
+                id = {
+                  _secret = config.sops.secrets.v2ray-key.path;
+                };
+                encryption = "none";
+              }
+            ];
+          }
+        ];
+        streamSettings =
+          let
+            network = "xhttp";
+            security = "tls";
+            tlsSettings = {
+              serverName = "tencent.zhyi.xin";
+              fingerprint = "firefox";
+            };
+            xhttpSettings = {
+              host = "tencent.zhyi.xin";
+              path = "/ray";
+              xmux = {
+                maxConcurrency = 128;
+                hMaxRequestTimes = 86400;
+                hMaxReusableSecs = 86400;
+              };
+            };
+          in
+          {
+            inherit network security tlsSettings;
+            xhttpSettings = xhttpSettings // {
+              mode = "stream-up";
+              downloadSettings = {
+                address = LT.publicIPv4For "tencent";
+                port = 443;
+                inherit
+                  network
+                  security
+                  tlsSettings
+                  xhttpSettings
+                  ;
+              };
+            };
+          };
+        tag = "proxy";
+      }
+      {
+        protocol = "freedom";
+        settings.domainStrategy = "UseIPv4";
+        tag = "direct";
+      }
+      {
+        protocol = "blackhole";
+        settings.response.type = "none";
+        tag = "block";
+      }
+    ];
+    policy.levels."0" = {
+      connIdle = 86400;
+      downlinkOnly = 0;
+      uplinkOnly = 0;
+    };
+    routing = {
+      balancers = [ ];
+      domainStrategy = "IPOnDemand";
+      # Unmatched traffic uses the first outbound (`proxy`) by default. Newer
+      # Xray rejects an empty `field` rule as "no effective fields".
+      rules = [
+        {
+          outboundTag = "block";
+          protocol = [ "bittorrent" ];
+          type = "field";
+        }
+        {
+          domain = [
+            "geosite:category-ads"
+            "geosite:category-ads-all"
+          ];
+          outboundTag = "block";
+          type = "field";
+        }
+        {
+          domain = [
+            "geosite:private"
+            "geosite:cn"
+            "category-games@cn"
+          ];
+          outboundTag = "direct";
+          type = "field";
+        }
+        {
+          ip = [
+            "geoip:private"
+            "geoip:cn"
+          ];
+          outboundTag = "direct";
+          type = "field";
+        }
+      ];
+    };
+  };
+
   # 家庭宽带 WAN 443 被运营商封禁，公网 TLS 入口走 8443。nginx 的 vhost
   # 每 HTTPS 端口只能有一个，这里基于 lantian.nginxVhosts 重新生成
   # virtualHosts，给每个启用 TLS 的 vhost 追加 8443 监听（仅本主机生效）。
@@ -68,6 +222,76 @@ in
 
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
     ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
+  ];
+
+  ########################################
+  # v2ray
+  ########################################
+
+  sops.secrets = lib.genAttrs [ "v2ray-key" ] (_: {
+    sopsFile = inputs.secrets + "/common/v2ray.yaml";
+    owner = "v2ray";
+    group = "v2ray";
+  });
+
+  systemd.services.v2ray = {
+    description = "v2ray Daemon";
+    after = [
+      "network.target"
+      "sops-install-secrets.service"
+    ];
+    requires = [ "sops-install-secrets.service" ];
+    wantedBy = [ "multi-user.target" ];
+    environment =
+      let
+        assets = pkgs.symlinkJoin {
+          name = "v2ray-assets";
+          paths = with pkgs; [
+            v2ray-geoip
+            v2ray-domain-list-community
+          ];
+        };
+      in
+      {
+        V2RAY_LOCATION_ASSET = "${assets}/share/v2ray";
+        XRAY_LOCATION_ASSET = "${assets}/share/v2ray";
+      };
+    script = ''
+      rm -f /run/v2ray/v2ray.sock
+
+      ${utils.genJqSecretsReplacementSnippet v2rayConf "/run/v2ray/config.json"}
+
+      exec ${lib.getExe pkgs.xray} -config /run/v2ray/config.json
+    '';
+    serviceConfig = LT.serviceHarden // {
+      User = "v2ray";
+      Group = "v2ray";
+      RuntimeDirectory = "v2ray";
+      Restart = "always";
+      RestartSec = 5;
+    };
+  };
+
+  users.users.v2ray = {
+    group = "v2ray";
+    isSystemUser = true;
+  };
+  users.groups.v2ray = { };
+
+  # 家庭宽带到 greencloud 的 wgmesh UDP 被上游掐断（2026-10-01 排障定型：
+  # greencloud 收不到任何家庭侧 wg 包，VPS 间全部正常）。wg-mesh 给本机
+  # 钉死的 greencloud /32 内核路由会把流量引进死隧道，并经 BGP 泄漏毒化
+  # 全网选路（volcengine 曾因此绕道本机黑洞致证书同步中断）；去掉钉住，
+  # 让 198.18.0.0/24 的 ZeroTier 直连路由接管。
+  systemd.network.networks."wgmesh120".routes = lib.mkForce [
+    {
+      Destination = "0.0.0.0/0";
+      Table = 10000 + LT.hosts.greencloud.index;
+    }
+    {
+      Destination = "::/0";
+      Table = 10000 + LT.hosts.greencloud.index;
+    }
   ];
 
   ########################################

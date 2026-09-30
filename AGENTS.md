@@ -74,7 +74,7 @@ Flake 入口文件，定义了：
 | `dn42`           | DN42 节点                                                  |
 | `nix-builder`    | Nix 远程构建节点                                           |
 | `public-facing`  | 公网可访问节点（用于 Prometheus blackbox 监控等）          |
-| `server`         | 服务器配置                                                 |
+| `server`         | 服务器配置；同时门控 wgmesh/BGP mesh 成员资格与 backup 默认开启。2026-10-01 定：仅机房 VPS + opi5p（家庭内唯一）持有，其余家庭机走 ZeroTier 进 LTNET、backup 显式启用；统一出站代理入口为 opi5p（自 router 迁入） |
 | `ipv4-only`      | 仅 IPv4                                                    |
 | `ipv6-only`      | 仅 IPv6                                                    |
 | `lan-access`     | 局域网访问                                                 |

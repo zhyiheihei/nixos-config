@@ -9,9 +9,6 @@
   system = "aarch64-linux";
   tags = with tags; [
     lan-access
-    # 2026-08-31 aarch64 构建机切回 opi5p：dragon 8G 内存天花板，
-    # HA 构建期间 OOM 连环杀 rslsync/postgres/nix-daemon 实证。
-    server
   ];
   cpuThreads = 8;
   city = geo.cities."CN Ningbo";

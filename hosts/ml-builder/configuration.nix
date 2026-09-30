@@ -79,6 +79,10 @@ in
     ../../nixos/optional-apps/ncps-client.nix
   ];
 
+  # 摘除 server 标签后 backup 默认关闭，显式启用（同 ml-laptop 惯例）。
+  # 仅构建机，无构建任务时会关机，备份随之间歇运行。
+  lantian.backup.enable = true;
+
   # Only this machine advertises the native x86_64 toolchain used for
   # AArch64 cross builds. Ordinary x86_64 derivations remain distributable to
   # the other builders.

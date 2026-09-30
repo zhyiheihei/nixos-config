@@ -10,6 +10,9 @@
     ./hardware-configuration.nix
   ];
 
+  # 摘除 server 标签后 backup 默认关闭，显式启用（同 ml-laptop 惯例）。
+  lantian.backup.enable = true;
+
   # The first-boot DHCP inventory is complete. Keep the board outside the
   # router's dynamic .100-.249 pool and use the same static LAN layout as the
   # other physical infrastructure hosts.

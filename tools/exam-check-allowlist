@@ -83,3 +83,4 @@ helpers/constants/misc.nix # defaultGatewayHost=rock5c（上游 pve-epyc）：lt
 home/client-apps/ai-coding/extensions/nixos-command-guard.ts # fork 规则增强：AGENTS.md 04-nixos 禁非 Nix 包管理器/make install，上游仅拦 / 与 /nix/store 单参数
 nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机为 0（f28facd0b 防构建机 OOM 收口），其余与上游一致
 nixos/common-apps/yggdrasil/public-peers.json # peers 数据文件经 update.py 自动工作流维护（publicpeers.neilalexander.dev 源列表实时变化），fork bot 与上游 bot 同步时点不同，内容漂移无意义
+nixos/server-apps/wg-mesh.nix # targetHosts 额外要求本机为 server（家庭机退出 BGP mesh 走 ZeroTier，2026-10-01 用户决策；上游 wg-mesh 仅被 server 角色导入，行为等价。起因：家宽↔greencloud wgmesh UDP 被上游掐断，家庭节点钉住的 /32 内核路由经 BGP 泄漏毒化全网选路致证书发放中断）

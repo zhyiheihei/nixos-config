@@ -15,7 +15,8 @@ let
       LT.publicIPv6For name
     else
       null;
-  targetHosts = lib.filterAttrs (n: v: v.hasTag "server") LT.otherHosts;
+  targetHosts =
+    if LT.this.hasTag "server" then lib.filterAttrs (n: v: v.hasTag "server") LT.otherHosts else { };
 in
 {
   sops.secrets.wg-priv = {

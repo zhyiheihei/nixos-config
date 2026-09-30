@@ -1,6 +1,6 @@
 { hosts, portStr, ... }:
 let
-  outboundProxy = "socks5://${hosts.router.interconnect.IPv4}:${portStr.V2Ray.SocksClient}";
+  outboundProxy = "socks5://${hosts.opi5p.interconnect.IPv4}:${portStr.V2Ray.SocksClient}";
   proxyBypass = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,.zhyi.xin";
   proxyEnvironment = {
     HTTP_PROXY = outboundProxy;

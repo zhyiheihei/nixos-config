@@ -10,7 +10,6 @@
   tags = with tags; [
     lan-access
     low-ram
-    server
   ];
   cpuThreads = 4;
   city = geo.cities."CN Ningbo";

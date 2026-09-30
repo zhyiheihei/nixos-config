@@ -11,11 +11,11 @@ let
   };
   # MoviePilot 容器：PySocks 用 socks5 时本地解析域名，socks5h 让域名在
   # router 代理解析，避开污染。
-  moviepilotProxy = "socks5h://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
+  moviepilotProxy = "socks5h://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
   # .NET 应用不认 socks5:// 环境代理（jellyfin 曾因此裸连被污染的
   # api.themoviedb.org，元数据/图片刷新全部超时），只能走 router v2ray
   # 的 HTTP CONNECT 入站，域名在出站端远端解析。
-  jellyfinProxy = "http://${LT.hosts.router.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
+  jellyfinProxy = "http://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
 in
 {
   imports = [
@@ -31,6 +31,9 @@ in
     ./immich-ml.nix
     ./media-apps.nix
   ];
+
+  # 摘除 server 标签后 backup 默认关闭，显式启用（同 ml-laptop 惯例）。
+  lantian.backup.enable = true;
 
   # Align with opi5p: the NAS exports the media library directly; mount the
   # same share instead of routing media through another host.
