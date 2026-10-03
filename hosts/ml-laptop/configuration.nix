@@ -407,6 +407,17 @@
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
   };
 
+  # 不在家时经 ZeroTier 经 router 访问家庭 LAN。NixOS 主机 allowManaged=0，
+  # controller 下发的 managed route 不生效，只能本机显式声明；Metric 高于
+  # WLAN（600）/有线 DHCP 的直连路由，在家时不劫持 br-lan 直连路径。
+  systemd.network.networks."99-zerotier".routes = lib.mkAfter [
+    {
+      Destination = "192.168.0.0/24";
+      Gateway = LT.hosts.router.ltnet.IPv4;
+      Metric = 2048;
+    }
+  ];
+
   # vlmcsd 经 netns.kms 广播 anycast KMS 地址，netns.nix（公共模块）为每个
   # enableBird 的 netns 起 netns-bird-${name} 服务，硬设 User/Group=bird。但
   # bird 用户只在 server-apps/bird（server 角色专属）里创建，client 不导入

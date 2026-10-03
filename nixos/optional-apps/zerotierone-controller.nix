@@ -5,9 +5,18 @@ let
     { target = "198.18.0.0/24"; }
     { target = "fdd8:1938:4e88::/64"; }
 
+    # GL-MT3600BE 旅行路由器 LAN 路由（fork 独有拓扑）。
     {
       target = "192.168.3.0/24";
       via = "198.18.0.115";
+    }
+
+    # 家庭 LAN 路由（fork 独有拓扑）：allowManaged=1 的额外客户端
+    # （macbook 等）不在家时经 router 访问 192.168.0.0/24；NixOS 舰队
+    # allowManaged=0 不受影响，由各自主机配置自行声明。
+    {
+      target = "192.168.0.0/24";
+      via = LT.hosts.router.ltnet.IPv4;
     }
 
     # Default routing to home router
