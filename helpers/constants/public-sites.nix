@@ -1,4 +1,5 @@
-_: [
+{ lib, replacedHosts, ... }:
+[
   # Public static pages
   # keep-sorted start
   "_default_http"
@@ -78,3 +79,5 @@ _: [
   "volcengine.zhyi.xin"
   # keep-sorted end
 ]
+# 301 redirect vhosts for replaced old host names: serve no content, just redirect
+++ (lib.mapAttrsToList (n: _: "*.${n}.zhyi.xin") replacedHosts)

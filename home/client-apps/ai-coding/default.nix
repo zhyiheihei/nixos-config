@@ -1,9 +1,9 @@
 {
   pkgs,
-  lib,
-  config,
   osConfig,
   LT,
+  lib,
+  config,
   inputs,
   ...
 }:
@@ -20,7 +20,7 @@ in
 
   programs.mcp = {
     enable = true;
-    servers = osConfig.lantian.mcp.codingMcpServers or { };
+    servers = osConfig.lantian.mcp.mcpServers or { };
   };
 
   programs.pi-coding-agent = {
@@ -94,22 +94,21 @@ in
         "git:github.com/xddxdd/pi-model-discovery@v0.3.1"
         "npm:@cortexkit/pi-magic-context"
         "npm:@fradser/pi-utils"
+        "npm:@gamaraan/ask-tool"
+        "npm:@mjakl/pi-subagent"
         "npm:@moguw/pi-session-migrate"
         "npm:@monotykamary/pi-tps"
         "npm:@narumitw/pi-usage"
         "npm:@raidou/pi-notify"
-        "npm:@rwese/pi-question"
         "npm:pi-btw"
         "npm:pi-codex-goal"
         "npm:pi-commandcode-provider"
         "npm:pi-copy-message"
         "npm:pi-fast-resume"
-        "npm:pi-mcp-adapter"
         "npm:pi-multi-pass"
         "npm:pi-ollama-cloud"
         "npm:pi-secret-mask"
         "npm:pi-simplify"
-        "npm:pi-subagents"
         # keep-sorted end
       ];
     };
@@ -129,20 +128,17 @@ in
   '';
 
   home.file.".pi/agent/mcp.json".text = builtins.toJSON {
-    settings = {
-      directTools = true;
-      disableProxyTool = true;
-      # Disabled for extra logging to TUI
-      freezeDirectTools = false;
-      idleTimeout = 5;
-      mcpFooterStatus = "off";
-      requestTimeoutMs = 60000;
-      scriptMode = false;
-    };
+    mcpServers = lib.mapAttrs (_: server: server // { exposure = "direct"; }) (
+      osConfig.lantian.mcp.mcpServers or { }
+    );
   };
   home.file.".pi/agent/ollama-cloud.json".text = builtins.toJSON {
     webTools = false;
     usageStatus = true;
+  };
+  home.file.".pi/agent/ask-tool.json".text = builtins.toJSON {
+    notify = true;
+    timeoutSeconds = 300;
   };
   # https://github.com/cortexkit/magic-context/blob/master/CONFIGURATION.md
   home.file.".config/cortexkit/magic-context.jsonc".text = builtins.toJSON {
@@ -192,13 +188,5 @@ in
     };
     extraSecrets = [ ];
     customPatterns = [ ];
-  };
-  home.file.".pi/agent/extensions/subagent/config.json".text = builtins.toJSON {
-    toolDescriptionMode = "compact";
-    parallel = {
-      maxTasks = 100;
-      concurrency = 100;
-    };
-    maxSubagentSpawnsPerSession = 10000;
   };
 }

@@ -5,6 +5,17 @@
   ...
 }:
 {
+  lantian.firewall.presets.public-firewall.firewalledPorts =
+    lib.mkIf config.services.nfs.server.enable
+      [
+        111
+        2049
+        LT.port.NFS.LockD
+        LT.port.NFS.MountD
+        LT.port.NFS.StatD
+        20048
+      ];
+
   boot.extraModprobeConfig = ''
     options nfs nfs4_disable_idmapping=1
     options nfsd nfs4_disable_idmapping=1

@@ -23,6 +23,7 @@ in
 
   services.kubo = {
     enable = true;
+    localDiscovery = LT.this.interconnect.name != null;
     settings.Addresses = {
       API = [
         "/ip4/127.0.0.1/tcp/${LT.portStr.IPFS.API}"
@@ -51,7 +52,7 @@ in
     serviceConfig.Restart = "on-failure";
   };
 
-  users.users.lantian.extraGroups = [ config.services.kubo.group ];
+  users.users.zhyi.extraGroups = [ config.services.kubo.group ];
   users.users.nginx.extraGroups = [ config.services.kubo.group ];
 
   lantian.localVhosts = {

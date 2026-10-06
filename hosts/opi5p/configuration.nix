@@ -353,11 +353,6 @@ in
   );
   services.hydra.buildMachinesFiles = lib.mkForce [ "/etc/nix/machines" ];
 
-  # Hydra 产物每小时由 hydra-attic-repush 推到 attic（greencloud-jp），本地
-  # GC roots 只是 push 期间的保险钉，无需按上游默认留 7 天（曾在本机
-  # ml-laptop 上钉住 ~500G）。缩到 1 天：push 每小时重试仍有 ≥24 次成功机会。
-  services.fast-nix-gc.deleteOlderThan = lib.mkForce "1d";
-
   # This host is a native aarch64 builder; registering qemu binfmt emulators
   # is unnecessary and would only intercept native builds with slower paths.
   lantian.qemu-user-static-binfmt.enable = lib.mkForce false;

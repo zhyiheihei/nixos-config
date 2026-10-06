@@ -47,23 +47,9 @@
       url = "github:ipverse/country-ip-blocks";
       flake = false;
     };
-    fast-nix-gc = {
-      url = "github:Mic92/fast-nix-gc";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.treefmt-nix.follows = "treefmt-nix";
-    };
-    firefox-addons = {
-      url = "github:petrkozorezov/firefox-addons-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-utils.follows = "flake-utils";
-    };
     flat-flake = {
       url = "github:linyinfeng/flat-flake";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-compat.follows = "flake-compat";
-      inputs.flake-parts.follows = "flake-parts";
-      inputs.systems.follows = "systems";
-      inputs.treefmt-nix.follows = "treefmt-nix";
     };
     git-hooks = {
       url = "github:cachix/git-hooks.nix";
@@ -88,7 +74,6 @@
       url = "github:numtide/llm-agents.nix";
       inputs.flake-parts.follows = "flake-parts";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.rust-overlay.follows = "rust-overlay";
       inputs.systems.follows = "systems";
       inputs.treefmt-nix.follows = "treefmt-nix";
     };
@@ -124,10 +109,10 @@
     };
     nix-gaming = {
       url = "github:fufexan/nix-gaming";
-      inputs.flake-compat.follows = "flake-compat";
       inputs.flake-parts.follows = "flake-parts";
-      inputs.git-hooks.follows = "git-hooks";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-compat.follows = "flake-compat";
+      inputs.git-hooks.follows = "git-hooks";
     };
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
@@ -164,10 +149,10 @@
       inputs.flake-parts.follows = "flake-parts";
       inputs.nix-cachyos-kernel.follows = "nix-cachyos-kernel";
       inputs.nix-index-database.follows = "nix-index-database";
-      inputs.nixfmt-rs.follows = "nixfmt-rs";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.pre-commit-hooks-nix.follows = "git-hooks";
+      inputs.nixfmt-rs.follows = "nixfmt-rs";
       inputs.treefmt-nix.follows = "treefmt-nix";
+      inputs.pre-commit-hooks-nix.follows = "git-hooks";
     };
     picoforge = {
       url = "github:librekeys/picoforge";

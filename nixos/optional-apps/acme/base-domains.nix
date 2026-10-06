@@ -17,6 +17,10 @@ let
 
   activeHosts = lib.filterAttrs (_: host: host.zerotier != null) LT.hosts;
   hostSubdomains = lib.mapAttrsToList (n: _: "${n}.zhyi.xin") activeHosts;
+
+  # Wildcard certs for old host names, so the replacing host can serve
+  # 301 redirects on their subdomains (see vhost-replaced-hosts.nix)
+  replacedHostSubdomains = builtins.map (n: "${n}.zhyi.xin") (builtins.attrNames LT.replacedHosts);
 in
 {
   security.acme.certs = lib.mergeAttrsList (
@@ -28,5 +32,7 @@ in
     ]
     ++ (builtins.map mkLetsEncryptWildcardCert hostSubdomains)
     ++ (builtins.map mkZeroSSLWildcardCert hostSubdomains)
+    ++ (builtins.map mkLetsEncryptWildcardCert replacedHostSubdomains)
+    ++ (builtins.map mkZeroSSLWildcardCert replacedHostSubdomains)
   );
 }

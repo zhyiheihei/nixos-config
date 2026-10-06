@@ -119,14 +119,15 @@ in
         bgp_local_pref = 0;
       } else if (roa_check(roa_v4, net, bgp_path.last) = ROA_UNKNOWN) then {
         bgp_large_community.add(${community.LT_ROA_UNKNOWN});
-        # bgp_large_community.add(${community.LT_POLICY_NO_KERNEL});
-        # bgp_community.add(${community.NO_EXPORT});
-        # bgp_local_pref = 0;
+        bgp_large_community.add(${community.LT_POLICY_NO_KERNEL});
+        bgp_community.add(${community.NO_EXPORT});
+        bgp_local_pref = 0;
       }
 
       # Reduce flapping across DN42 network
       if (roa_check(roa_flap_v4, net, bgp_path.last) = ROA_INVALID) then {
         bgp_large_community.add(${community.LT_FLAP_BLOCK});
+        bgp_large_community.add(${community.LT_POLICY_NO_KERNEL});
         bgp_community.add(${community.NO_EXPORT});
         bgp_local_pref = 0;
       }
@@ -164,14 +165,15 @@ in
         bgp_local_pref = 0;
       } else if (roa_check(roa_v6, net, bgp_path.last) = ROA_UNKNOWN) then {
         bgp_large_community.add(${community.LT_ROA_UNKNOWN});
-        # bgp_large_community.add(${community.LT_POLICY_NO_KERNEL});
-        # bgp_community.add(${community.NO_EXPORT});
-        # bgp_local_pref = 0;
+        bgp_large_community.add(${community.LT_POLICY_NO_KERNEL});
+        bgp_community.add(${community.NO_EXPORT});
+        bgp_local_pref = 0;
       }
 
       # Reduce flapping across DN42 network
       if (roa_check(roa_flap_v6, net, bgp_path.last) = ROA_INVALID) then {
         bgp_large_community.add(${community.LT_FLAP_BLOCK});
+        bgp_large_community.add(${community.LT_POLICY_NO_KERNEL});
         bgp_community.add(${community.NO_EXPORT});
         bgp_local_pref = 0;
       }

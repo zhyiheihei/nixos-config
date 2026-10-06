@@ -103,6 +103,7 @@ in
         microcom
         microfetch
         moonlight-qt
+        ncdu
         nheko
         nur-xddxdd.baidunetdisk
         nur-xddxdd.baidupcs-go

@@ -12,7 +12,7 @@ let
     exa = {
       command = toString (
         pkgs.writeShellScript "mcp-exa" ''
-          exec ${pkgs.uv}/bin/uvx '--with=mcp<2' mcp-proxy \
+          exec ${lib.getExe pkgs.mcp-proxy} \
             -H Authorization "Bearer $(cat ${config.sops.secrets.mcp-exa-api-key.path})" \
             --transport streamablehttp \
             "https://mcp.exa.ai/mcp?tools=web_search_exa,web_fetch_exa,web_search_advanced_exa"
@@ -30,7 +30,7 @@ let
     tavily = {
       command = toString (
         pkgs.writeShellScript "mcp-tavily" ''
-          exec ${pkgs.uv}/bin/uvx '--with=mcp<2' mcp-proxy \
+          exec ${lib.getExe pkgs.mcp-proxy} \
             -H Authorization "Bearer $(cat ${config.sops.secrets.mcp-tavily-api-key.path})" \
             --transport streamablehttp \
             "https://mcp.tavily.com/mcp"
@@ -38,10 +38,8 @@ let
       );
     };
     time = {
-      command = "uvx";
+      command = lib.getExe pkgs.mcp-server-time;
       args = [
-        "--with=mcp<2"
-        "mcp-server-time"
         "--local-timezone=${config.time.timeZone}"
       ];
     };
@@ -51,14 +49,6 @@ in
 {
   options.lantian.mcp = {
     mcpServers = lib.mkOption {
-      type = lib.types.attrs;
-      default = config.lantian.mcp.codingMcpServers // config.lantian.mcp.toolMcpServers;
-    };
-    codingMcpServers = lib.mkOption {
-      type = lib.types.attrs;
-      default = { };
-    };
-    toolMcpServers = lib.mkOption {
       type = lib.types.attrs;
       default = { };
     };
@@ -110,7 +100,7 @@ in
       mode = "0444";
     };
 
-    lantian.mcp.codingMcpServers =
+    lantian.mcp.mcpServers =
       common
       // {
         # keep-sorted start block=yes
@@ -166,75 +156,74 @@ in
         libvirt = {
           command = lib.getExe pkgs.mcp-libvirt;
         };
-      };
-
-    lantian.mcp.toolMcpServers = common // {
-      # keep-sorted start block=yes
-      airplanes-live = {
-        command =
-          let
-            py = pkgs.python3.withPackages (ps: [
-              ps.mcp
-              ps.fastmcp
-              ps.httpx
-            ]);
-          in
-          toString (
-            pkgs.writeShellScript "mcp-airplanes-live" ''
-              exec ${py}/bin/python ${LT.sources.airplanes-live-mcp.src}/airplane_server.py
+      }
+      // {
+        # keep-sorted start block=yes
+        airplanes-live = {
+          command =
+            let
+              py = pkgs.python3.withPackages (ps: [
+                ps.mcp
+                ps.fastmcp
+                ps.httpx
+              ]);
+            in
+            toString (
+              pkgs.writeShellScript "mcp-airplanes-live" ''
+                exec ${py}/bin/python ${LT.sources.airplanes-live-mcp.src}/airplane_server.py
+              ''
+            );
+        };
+        akasha-terminal = {
+          type = "streamable-http";
+          url = "https://agent.zlb.ink/api/mcp/";
+        };
+        caldav = {
+          command = toString (
+            pkgs.writeShellScript "mcp-caldav" ''
+              export CALDAV_BASE_URL=https://cal.zhyi.xin
+              export CALDAV_USERNAME=zhyi
+              export CALDAV_PASSWORD=$(cat "${config.sops.secrets.default-pw.path}")
+              exec ${pkgs.nodejs}/bin/npx -y caldav-mcp
             ''
           );
-      };
-      akasha-terminal = {
-        type = "streamable-http";
-        url = "https://agent.zlb.ink/api/mcp/";
-      };
-      caldav = {
-        command = toString (
-          pkgs.writeShellScript "mcp-caldav" ''
-            export CALDAV_BASE_URL=https://cal.zhyi.xin
-            export CALDAV_USERNAME=zhyi
-            export CALDAV_PASSWORD=$(cat "${config.sops.secrets.default-pw.path}")
-            exec ${pkgs.nodejs}/bin/npx -y caldav-mcp
-          ''
-        );
-      };
-      flightaware = {
-        command = toString (
-          pkgs.writeShellScript "mcp-flightaware" ''
-            export AEROAPI_KEY=$(cat "${config.sops.secrets.mcp-flightaware-api-key.path}")
-            export HISHEL_CACHE_PATH=/tmp/mcp-flightaware-cache.db
-            exec ${pkgs.uv}/bin/uvx '--with=mcp<2' flightaware-mcp
-          ''
-        );
-      };
-      google-maps = {
-        command = toString (
-          pkgs.writeShellScript "mcp-google-maps" ''
-            export GOOGLE_MAPS_API_KEY=$(cat "${config.sops.secrets.mcp-google-maps-api-key.path}")
-            exec ${pkgs.nodejs}/bin/npx -y @modelcontextprotocol/server-google-maps
-          ''
-        );
-      };
-      national-park-service = {
-        command = toString (
-          pkgs.writeShellScript "mcp-national-park-service" ''
-            export NPS_API_KEY=$(cat "${config.sops.secrets.mcp-national-park-service-api-key.path}")
-            exec ${pkgs.nodejs}/bin/npx -y mcp-server-nationalparks
-          ''
-        );
-      };
-      weather = {
-        command = "npx";
-        args = [
-          "-y"
-          "@dangahagan/weather-mcp@latest"
-        ];
-        env = {
-          ENABLED_TOOLS = "full";
         };
+        flightaware = {
+          command = toString (
+            pkgs.writeShellScript "mcp-flightaware" ''
+              export AEROAPI_KEY=$(cat "${config.sops.secrets.mcp-flightaware-api-key.path}")
+              export HISHEL_CACHE_PATH=/tmp/mcp-flightaware-cache.db
+              exec ${pkgs.uv}/bin/uvx '--with=mcp<2' flightaware-mcp
+            ''
+          );
+        };
+        google-maps = {
+          command = toString (
+            pkgs.writeShellScript "mcp-google-maps" ''
+              export GOOGLE_MAPS_API_KEY=$(cat "${config.sops.secrets.mcp-google-maps-api-key.path}")
+              exec ${pkgs.nodejs}/bin/npx -y @modelcontextprotocol/server-google-maps
+            ''
+          );
+        };
+        national-park-service = {
+          command = toString (
+            pkgs.writeShellScript "mcp-national-park-service" ''
+              export NPS_API_KEY=$(cat "${config.sops.secrets.mcp-national-park-service-api-key.path}")
+              exec ${pkgs.nodejs}/bin/npx -y mcp-server-nationalparks
+            ''
+          );
+        };
+        weather = {
+          command = "npx";
+          args = [
+            "-y"
+            "@dangahagan/weather-mcp@latest"
+          ];
+          env = {
+            ENABLED_TOOLS = "full";
+          };
+        };
+        # keep-sorted end
       };
-      # keep-sorted end
-    };
   };
 }

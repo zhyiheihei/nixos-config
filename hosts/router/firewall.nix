@@ -27,21 +27,21 @@ let
     delete_flow_rules() {
       filter=$1
       handles=$(
-        ${nft} -a list chain inet lantian FILTER_FORWARD |
+        ${nft} -a list chain inet zhyi FILTER_FORWARD |
           grep 'flow add @f' |
           grep "$filter" |
           sed -n 's/.*# handle \([0-9][0-9]*\).*/\1/p' || true
       )
       for handle in $handles; do
-        ${nft} delete rule inet lantian FILTER_FORWARD handle "$handle"
+        ${nft} delete rule inet zhyi FILTER_FORWARD handle "$handle"
       done
     }
 
     ensure_flow_rule() {
       pattern=$1
       rule=$2
-      if ! ${nft} list chain inet lantian FILTER_FORWARD | grep -Fq "$pattern"; then
-        ${nft} insert rule inet lantian FILTER_FORWARD $rule comment "router-flowtable"
+      if ! ${nft} list chain inet zhyi FILTER_FORWARD | grep -Fq "$pattern"; then
+        ${nft} insert rule inet zhyi FILTER_FORWARD $rule comment "router-flowtable"
       fi
     }
 
@@ -56,17 +56,17 @@ let
     done
 
     rebuild=0
-    if ! ${nft} list flowtable inet lantian f >/dev/null 2>&1; then
+    if ! ${nft} list flowtable inet zhyi f >/dev/null 2>&1; then
       rebuild=1
-    elif ! ${nft} list flowtable inet lantian f | grep -q ppp0; then
+    elif ! ${nft} list flowtable inet zhyi f | grep -q ppp0; then
       # PPPoE redial recreates ppp0; a stale flowtable binding must be rebuilt.
       rebuild=1
     fi
 
     if [ "$rebuild" -eq 1 ]; then
       delete_flow_rules 'flow add @f'
-      if ${nft} list flowtable inet lantian f >/dev/null 2>&1; then
-        ${nft} delete flowtable inet lantian f
+      if ${nft} list flowtable inet zhyi f >/dev/null 2>&1; then
+        ${nft} delete flowtable inet zhyi f
       fi
       ${nft} -f /etc/nftables/flowtable.nft
       ensure_flow_rule 'iifname "ppp0" flow add @f' "$wan_rule"
@@ -74,13 +74,13 @@ let
     else
       # One-time migration: drop unowned flow-add rules, then reassert ours.
       unowned=$(
-        ${nft} -a list chain inet lantian FILTER_FORWARD |
+        ${nft} -a list chain inet zhyi FILTER_FORWARD |
           grep 'flow add @f' |
           grep -v 'router-flowtable' |
           sed -n 's/.*# handle \([0-9][0-9]*\).*/\1/p' || true
       )
       for handle in $unowned; do
-        ${nft} delete rule inet lantian FILTER_FORWARD handle "$handle"
+        ${nft} delete rule inet zhyi FILTER_FORWARD handle "$handle"
       done
       delete_flow_rules 'router-flowtable'
       ensure_flow_rule 'iifname "ppp0" flow add @f' "$wan_rule"
@@ -120,7 +120,7 @@ let
   ];
 in
 {
-  networking.nftables.tables.lantian.content = lib.mkForce ''
+  networking.nftables.tables.zhyi.content = lib.mkForce ''
     chain FILTER_INPUT {
       # Author's policy-accept recipe (lt-home-router): only explicit drops,
       # WAN ingress goes through PUBLIC_INPUT for the never-exposed ports.
@@ -245,7 +245,7 @@ in
   '';
 
   environment.etc."nftables/flowtable.nft".text = ''
-    add flowtable inet lantian f {
+    add flowtable inet zhyi f {
       hook ingress priority filter
       devices = { ppp0, br-lan }
     }

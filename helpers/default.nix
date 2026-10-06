@@ -30,6 +30,7 @@ let
       port
       portStr
       portForwardOffset
+      firewallPriorities
       tags
       interfacePrefixes
       defaultGatewayHostName
@@ -45,6 +46,7 @@ let
       neonetwork
       matrixWellKnown
       nix
+      replacedHosts
       ;
     geo = call ./geo.nix;
     proxy = import ./proxy.nix { inherit hosts portStr; };

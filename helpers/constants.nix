@@ -19,6 +19,8 @@ let
   bindfsOptions = call ./constants/bindfs-options.nix;
   networks = call ./constants/networks.nix;
   ports = call ./constants/ports.nix;
+  replacedHostsAttrs = call ./constants/replaced-hosts.nix;
+  firewall = call ./constants/firewall-priorities.nix;
   matrixWellKnown = call ./constants/matrix-well-known.nix;
   nix = call ./constants/nix.nix;
   misc = call ./constants/misc.nix;
@@ -33,11 +35,13 @@ let
       china-mainland
       dn42
       neonetwork
+      localHost
       reserved
       ;
     inherit matrixWellKnown;
     inherit nix;
     inherit (ports) port portStr portForwardOffset;
+    inherit (firewall) firewallPriorities;
     inherit (misc)
       defaultGatewayHostName
       defaultGatewayHostIPv4Routes
@@ -49,6 +53,7 @@ let
     inherit (interfacePrefixesAttrs) interfacePrefixes;
     inherit (zonesAttrs) zones;
     inherit publicSites;
+    inherit (replacedHostsAttrs) replacedHosts;
   };
 in
 result

@@ -50,5 +50,12 @@
         DynamicUser = true;
       };
     };
+
+    lantian.firewall.chains.PUBLIC_FORWARD.rules = lib.mkIf config.services.route-chain.enable [
+      {
+        priority = LT.firewallPriorities.preService;
+        text = ''oifname "route-chain" accept'';
+      }
+    ];
   };
 }

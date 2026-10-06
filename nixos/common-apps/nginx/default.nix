@@ -13,6 +13,8 @@
     ./vhost-lab.nix
     ./vhost-matrix-element
     ./vhost-options
+    # FIXME: reenable when ACME succeeded
+    # ./vhost-replaced-hosts.nix
     ./vhost-tools
     ./vhost-um
     ./vhosts-default.nix
