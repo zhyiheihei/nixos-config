@@ -62,6 +62,30 @@ jobs:
           commit_user_name: 'xddxdd-bot'
           commit_user_email: 'xddxdd-bot@users.noreply.github.com'
 
+      # zhyi-packages（EPD-Dashboard/vaults3 等运行时包的源头）是公开仓，
+      # 其自身每日自动跟进，但主仓 flake.lock 需要显式 update 才吃得到。
+      # 在 push 到 auto-update 分支之前先定向更新并带上构建门槛，
+      # 直接进 master；门槛只跑 x86_64 原生轻量包，aarch64 包
+      # （epd-food-server/ws-scrcpy）在 CI 无原生构建能力，风险由
+      # 下次部署时的构建暴露。
+      - name: Update zhyi-packages in master
+        run: |
+          nix flake update zhyi-packages
+
+          if git diff --quiet flake.lock; then
+            echo 'zhyi-packages 未更新，跳过'
+            exit 0
+          fi
+
+          rev=$(python3 -c "import json; print(json.load(open('flake.lock'))['nodes']['zhyi-packages']['locked']['rev'])")
+          nix build -L "github:zhyiheihei/zhyi-packages/$rev#vaults3" "github:zhyiheihei/zhyi-packages/$rev#hubproxy" "github:zhyiheihei/zhyi-packages/$rev#navdash"
+
+          git config user.name 'xddxdd-bot'
+          git config user.email 'xddxdd-bot@users.noreply.github.com'
+          git add flake.lock
+          git commit -m 'auto: update zhyi-packages' --no-verify
+          git push
+
       - name: Update flake inputs
         run: |
           cat > secrets.toml <<EOF
