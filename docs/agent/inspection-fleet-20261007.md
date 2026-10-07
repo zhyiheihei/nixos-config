@@ -141,24 +141,28 @@ Prometheus 抓取目标未清理**，造成约 24 个目标的永久 down。清�
 - 注意：greencloud 上 `pkill zerotier-one` 会连带杀掉控制器实例，处置该机 zt 时
   必须区分两个 unit（zerotierone / zerotierone-controller）。
 
-### 新发现问题 ②：zt v4 单播家庭↔机房方向不通（v6 正常，待专项排查）
+### 新发现问题 ②：zt v4 单播家庭↔机房方向不通（已定位：zt 1.16 上游缺陷，非运营商）
 
-- 证据链：underlay hello 双向流动、peer 握手全绿（版本/延迟齐全）、控制器成员表全部
-  authorized 且 ipAssignments 正确、flow rules 为 ACCEPT、全员 netconfRevision=37；
-  v4 echo 进入对端 tap（tcpdump 实证）但对端不回、双向 v4 单播静默；同组 v6
-  （fdd8::/48）全部秒通；ARP 广播帧可通（删静态 neigh 后能重新学习到 REACHABLE），
-  但紧随其后的 v4 单播依然 100% 丢。控制器重启前后行为一致。
-- 定性：zt 1.16.0 内部对 v4 单播的投递问题（v6 依赖 RFC4193 NDP 模拟所以幸存），
-  非配置问题，本会话不具备继续下钻的成本收益。
-- 影响面与规避：
-  - 备份链无碍：`opi5p.zhyi.xin` 解析优先返回 fdd8::122（v6），chromebox→opi5p:22
-    v6 实测通，当夜备份已验证路径。
-  - rock5c homepage 的 prometheus 读取当前 200（走公网入口，不依赖 zt v4）。
-  - 残余 28 个 down 目标中约 16 个为家庭机 exporter（v4 zt 不达）+ ml-builder/
-    taishanpi/h28k/opi03 离线组 + google/hostdare knot（LTNET 抖动）。
-- 待办选项（需用户拍板）：① 专项排查 zt v4（开 daemon debug 日志、必要时降级验证
-  1.12/1.14 行为）；② 家庭机 exporter 从 tencent 抓取目标中显式豁免（登记偏离）；
-  ③ 维持现状观察上游 zt 版本。
+- 排查过程排除了：控制器配置/成员表（rules=ACCEPT、全员 authorized、rev 一致）、
+  防火墙（两端均无 zt 相关 drop）、密钥/身份（握手全绿带版本与延迟）、revision 失配、
+  ghost 成员占用地址。
+- **syscall 级证据**（rock5c strace zerotier-one + /proc/net/udp fd 映射）：v4 套接字
+  （fd14 :9993 / fd15 :63242）只发出 28/59 字节 hello，v4 echo 帧入 tap 后从未被
+  emit；全部虚拟帧（194/152/71B）只从 v6 套接字发出。v6 幸存靠 RFC4193 NDP 模拟
+  与偶然健康的 preferred v6 路径。
+- **运行商因素排除**：纯 LAN 的 rock5c↔opi5p 同样复现（包不出内网）；跨境直连握手
+  37-46ms 健康（家宽 UDP 出站/打洞正常）；family↔family 全通、含 opi5p/VPS 的对全
+  断，与运营商路径特征无关。
+- **上逛缺陷家族**（zerotier/ZeroTierOne）：#2368（1.14.1 起「显示直连但流量不通」，
+  同症状）、#2573（1.16.x 反复断连，用户降级 1.14.2 解决）、#2593（Linux 1.16 UPnP
+  路径处理异常、Windows 正常）、#2585（1.16.1 peers.d 负缓存卡死）。
+- 已部署缓解：① 家庭机（去 mesh 四台）portMappingEnabled 关闭（登记 allowlist），
+  消除发夹 NAT 垃圾路径；② 关键路径验证走 v6：备份链（opi5p.zhyi.xin AAAA 优先）
+  chromebox→opi5p:22 实测通；rock5c homepage prometheus 走公网入口 200。
+- 残余影响：家庭机 ↔ opi5p/VPS 的 v4 zt 单播间歇不可用（对端 restart 后短暂恢复，
+  preferred 落到 ephemeral 探测路径后复死）；家庭机互连正常；无关键业务依赖。
+- 待用户拍板的根治选项：① 舰队（或仅家庭机）pin zerotierone 1.14.2（多人验证的
+  稳定版，登记偏离）；② 等上游修复后跟随；③ 向上游报告（附本次 syscall 证据）。
 
 ### 其他当次处置
 
