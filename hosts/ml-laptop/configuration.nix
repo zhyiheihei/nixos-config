@@ -22,6 +22,7 @@
     ../../nixos/optional-apps/homepage.nix
     ../../nixos/optional-apps/libvirt
     ../../nixos/optional-apps/llama-cpp.nix
+    ../../nixos/optional-apps/llama-swap.nix
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/obs-studio.nix
@@ -46,8 +47,16 @@
     # ../../nixos/optional-apps/leigod-accelerator.nix
   ];
 
-  # 与上游 lt-hp-omen 对齐：pi-web 走 OAuth 登录（经 login.zhyi.xin）。
-  lantian.localVhosts.pi-web.locations."/".enableOAuth = true;
+  # 与上游 lt-hp-omen 对齐：lab/llama-swap/pi-web 本地 vhost 均走 OAuth。
+  lantian.localVhosts = {
+    lab.locations."/".enableOAuth = true;
+    llama-swap.locations."/".enableOAuth = true;
+    pi-web.locations."/".enableOAuth = true;
+  };
+
+  # HF 拉模型（nomic-embed-code 等）CN 直连不通，主机级注入出站代理；
+  # NO_PROXY 已含 127.0.0.1，不影响 llama-swap↔llama-server 本机回环。
+  systemd.services.llama-swap.environment = LT.proxyEnvironment;
 
   # 构建拓扑与上游 lt-hp-omen 对齐：本机构建默认开启（nix-distributed 的
   # machines-with-localhost 提供 localhost 兼容槽），远程派发由 nix-distributed

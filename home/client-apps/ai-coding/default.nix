@@ -32,10 +32,7 @@ in
     # configDir = "${config.xdg.configHome}/pi/agent";
     inherit context;
 
-    extraPackages = [
-      pkgs.nodejs
-      pkgs.libnotify
-    ];
+    extraPackages = [ pkgs.nodejs ];
 
     models.providers = {
       linuxdo-hub = {
@@ -72,12 +69,6 @@ in
       defaultThinkingLevel = "high";
       showCacheMissNotices = false;
 
-      piNotify = {
-        enabled = true;
-        finished = true;
-        finishedThrottleSecs = 5;
-      };
-
       retry = {
         enabled = true;
         maxRetries = 3;
@@ -99,7 +90,6 @@ in
         "npm:@moguw/pi-session-migrate"
         "npm:@monotykamary/pi-tps"
         "npm:@narumitw/pi-usage"
-        "npm:@raidou/pi-notify"
         "npm:pi-btw"
         "npm:pi-codex-goal"
         "npm:pi-commandcode-provider"

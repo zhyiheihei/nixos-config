@@ -12,7 +12,7 @@ helpers/constants/public-sites.nix # fork 子域清单（并入单域 zhyi.xin�
 helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）
 helpers/host-options.nix # fork 选项：GPU 显存档位、NeoNetwork null、netns 默认值
-home/client-apps/ai-coding/default.nix # fork provider 链保留（taotoken/zai-coding 为用户账号，上游 llama-swap/ollama-cloud 依赖作者私有服务部署）+ piNotify/libnotify 桌面通知（@raidou/pi-notify）+ dreamer/historian 模型 uni-api（上游为 ollama-cloud）；上游 7670cca48/384f0b5e4/911060c39/63deb3b70/45b5c0982 及 3c9861199 消费端 mcpServers 改名均已随 bdf587f4e→723a83fc2 同步
+home/client-apps/ai-coding/default.nix # fork provider 链保留（taotoken/zai-coding 为用户账号，上游 llama-swap/ollama-cloud 依赖作者私有服务部署）+ dreamer/historian 模型 uni-api（上游为 ollama-cloud；pi-notify 桌面通知 2026-10-07 实测无用已对齐移除，crashes.json 均其 state-store 锁死锁）；上游 7670cca48/384f0b5e4/911060c39/63deb3b70/45b5c0982 及 3c9861199 消费端 mcpServers 改名均已随 bdf587f4e→723a83fc2 同步
 home/client-apps/firefox/default.nix # zeroomega 扩展保留（用户浏览器配置）：addons.json/update.py 各追加 zeroomega 条目（AMO slug 直取，随 update.py 工作流维护）；其余已对齐（profile 名/ai 端点均为认可替换）
 home/client-apps/firefox/addons/addons.json # 末尾追加 zeroomega 条目（见 firefox/default.nix 条目）
 home/client-apps/firefox/addons/update.py # SLUGS 列表追加 zeroomega（否则下次运行会从 addons.json 抹掉该扩展）
