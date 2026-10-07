@@ -111,6 +111,64 @@ Prometheus 抓取目标未清理**，造成约 24 个目标的永久 down。清�
 | pve-5700u | 🟢 | failed 无；上轮 acme/reload 问题消失 |
 | ml-laptop（本机） | 🟢 | 10-6 11:15 重启；failed 无；两个备份单元今晨 Finished（9-28 btrfs 修复生效）；err 10190 全为已知噪音（udevd plugdev 8268 + samba-nmbd 1617） |
 
+## 处理日志（2026-10-07 下午）
+
+### tencent-cn LTNET 修复 ✅
+
+- 根因：wgmesh132 的 netdev 在 tencent/hostdare/volcengine/google 四台的 `/etc/systemd/network`
+  里已存在，但 systemd-networkd 自 9-21 起未重载，接口从未创建；tencent-cn 的 /32 路由指向
+  从未握手的 wgmesh128 形成非对称黑洞。密钥核对无误（对端 pubkey 与本地 wg-priv 推导一致）。
+- 处置：四台 `networkctl reload` → wgmesh132 全部建立，tencent↔tencent-cn 31ms；
+  tencent-cn 对 hostdare/volcengine/google/greencloud/greencloud-jp/opi5p 握手全建。
+- 验证：Prometheus 上 tencent-cn 5 个目标全部 up（此前自接入起全 down）；node exporter
+  直接抓取 200。
+- 注意：switch 不会让 networkd 自动加载新增 netdev，后续新主机接入 mesh 后需
+  `networkctl reload` 或重启 networkd/主机。
+
+### mesh 退出收尾（10-1 决定的运行时落地）✅
+
+- tencent + rock5c + chromebox + dragon-q8b + lubancat1 五台已部署当前 HEAD：
+  家庭机 wgmesh 全部消失、tencent 抓取清单收敛（down 41→28，up 107→120）。
+- greencloud/greencloud-jp/hostdare/volcengine/google/tencent-cn/opi5p 的
+  wgmesh1{14,23,24,29,31} 陈旧 peer 留待下次常规部署自然清除（无流量、无危害）。
+
+### 新发现问题 ①：greencloud zerotierone 无法启动（已修复）
+
+- zt 重启波次触发 1.16.0 迁移守卫：`FATAL: an old controller.db exists in
+  /var/lib/zerotier-one`。该 db 为 0 表空壳（真控制器状态在独立的
+  `/var/lib/zerotier-one-controller`，greencloud 同时跑着控制器实例，监听 9994）。
+- 已归档为 `controller.db.legacy-bak-20261007` 并启动，成员 + 控制器双 active。
+- 注意：greencloud 上 `pkill zerotier-one` 会连带杀掉控制器实例，处置该机 zt 时
+  必须区分两个 unit（zerotierone / zerotierone-controller）。
+
+### 新发现问题 ②：zt v4 单播家庭↔机房方向不通（v6 正常，待专项排查）
+
+- 证据链：underlay hello 双向流动、peer 握手全绿（版本/延迟齐全）、控制器成员表全部
+  authorized 且 ipAssignments 正确、flow rules 为 ACCEPT、全员 netconfRevision=37；
+  v4 echo 进入对端 tap（tcpdump 实证）但对端不回、双向 v4 单播静默；同组 v6
+  （fdd8::/48）全部秒通；ARP 广播帧可通（删静态 neigh 后能重新学习到 REACHABLE），
+  但紧随其后的 v4 单播依然 100% 丢。控制器重启前后行为一致。
+- 定性：zt 1.16.0 内部对 v4 单播的投递问题（v6 依赖 RFC4193 NDP 模拟所以幸存），
+  非配置问题，本会话不具备继续下钻的成本收益。
+- 影响面与规避：
+  - 备份链无碍：`opi5p.zhyi.xin` 解析优先返回 fdd8::122（v6），chromebox→opi5p:22
+    v6 实测通，当夜备份已验证路径。
+  - rock5c homepage 的 prometheus 读取当前 200（走公网入口，不依赖 zt v4）。
+  - 残余 28 个 down 目标中约 16 个为家庭机 exporter（v4 zt 不达）+ ml-builder/
+    taishanpi/h28k/opi03 离线组 + google/hostdare knot（LTNET 抖动）。
+- 待办选项（需用户拍板）：① 专项排查 zt v4（开 daemon debug 日志、必要时降级验证
+  1.12/1.14 行为）；② 家庭机 exporter 从 tencent 抓取目标中显式豁免（登记偏离）；
+  ③ 维持现状观察上游 zt 版本。
+
+### 其他当次处置
+
+- router miniupnpd：13:09 重启后 NAT-PMP add 全部恢复（nft 表 28 条映射、rock5c:42593
+  已在实际转发）。根因仍未知（wedge 发生在 10-6 10:18，早于 15:56 的 PPPoE 重拨），
+  看门狗只覆盖地址变化场景，扩展自检方案待用户决定（记忆 #197 明确否决 natpmpc
+  探测式，勿回退）。
+- 本机 zt restart 试图超时但老进程未死、服务 active，无影响；后续对本机 zt 操作注意
+  systemctl stop 可能挂起。
+
 ## 慢性噪音清单（下轮直接跳过）
 
 gopher/whois 6 台 VPS 告警（8-23 起：fork 服务 banner 为 zhyi 而探针 expect 仍是上游
