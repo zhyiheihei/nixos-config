@@ -35,7 +35,7 @@ nixos/minimal-components/networking.nix # backupDNSServers 按 CN 国别分支�
 nixos/minimal-components/podman.nix # CN 区域镜像加速（hubproxy + daocloud 兜底）
 nixos/minimal-components/smtp.nix # fork 邮件账号；from=postmaster@zhyi.cc 已确认非残留：AhaSend 账户只登记 zhyi.cc（commit 3d880f3cc，zhyi.xin 会被 556 拒发），DNS TXT/DMARC 记录在 dns/common/records.nix ForwardEmail 块维护
 nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（storagebox 等备份端点）+ backup sftp 两后端 Match AddressFamily inet6（LTNET v4 数据面 CN↔家宽间歇单向黑洞，v6 稳定；opendal-sftp v4 connect 挂死不回退）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）+ sshd ExecStartPre 预建 /var/empty（/var 恢复后 sshd 起不来）
-nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名
+nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名；portMappingEnabled 额外要求 server 标签（2026-10-07 zt 专项排查）：去 mesh 家庭机开 NAT-PMP 映射会在 miniupnpd 注册映射，内网对端经发夹 NAT 学到 192.168.0.1:临时端口的垃圾路径，映射一换（miniupnpd 重启/重拨）路径即死但仍 preferred，zt 虚拟帧只走 preferred 导致 v4 单播全灭（v6 走 RFC4193 NDP 模拟幸存）；机房 VPS 本就 _publiclyAccessible=false，仅家庭 server（opi5p）保留映射
 nixos/common-apps/yggdrasil/default.nix # regionMappings.SG 与 ZT 接口正则为 fork 舰队事实值（greencloud=SG；接口名与作者网络不同）；peers 内容经 update.py 工作流维护
 nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书（对齐上游同款结构，值不同）
 nixos/optional-apps/acme/common.nix # google-test 证书构造器移除
@@ -58,7 +58,6 @@ nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
 nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
-nixos/optional-apps/qbittorrent.nix # user 认可替换（services.qbittorrent.user lantian→zhyi）：NORMALIZE 未覆盖该裸 user= 上下文，router 上无 lantian 用户致 qbittorrent.service 循环失败（2026-10-07 修复入库）
 nixos/optional-apps/zerotierone-controller.nix # GL-MT3600BE 旅行路由器 LAN 路由（192.168.3.0/24 via 198.18.0.115，fork 独有拓扑）+ 家庭 LAN 路由（192.168.0.0/24 via router，供 allowManaged=1 额外客户端异地访问，2026-10-03）；defaultGatewayHost 已随上游收口到 LT 继承（rock5c 特例登记于 misc.nix 条目）
 nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射；HOST/PORT env 与 custom-listen-host 补丁已随上游 03174835 同步，fix-tool-parameters 与 header-fallback 补丁均已随上游移除（上游 1.7.276 Rust 重写，src/providers/request.rs 内建静态头兜底+客户端透传覆盖语义，2026-09-27）
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）

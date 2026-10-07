@@ -51,7 +51,7 @@ in
           with LT.constants.interfacePrefixes; (builtins.filter (v: v != "ns") (WAN ++ LAN))
         );
         softwareUpdate = "disable";
-        portMappingEnabled = !LT.this._publiclyAccessible;
+        portMappingEnabled = !LT.this._publiclyAccessible && LT.this.hasTag LT.tags.server;
         allowTcpFallbackRelay = false;
       };
     };
