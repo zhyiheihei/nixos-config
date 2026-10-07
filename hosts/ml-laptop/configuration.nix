@@ -54,9 +54,40 @@
     pi-web.locations."/".enableOAuth = true;
   };
 
-  # HF 拉模型（nomic-embed-code 等）CN 直连不通，主机级注入出站代理；
-  # NO_PROXY 已含 127.0.0.1，不影响 llama-swap↔llama-server 本机回环。
-  systemd.services.llama-swap.environment = LT.proxyEnvironment;
+  # 脱离 NVIDIA 运行时依赖（2026-10-07 用户要求）：125H 的 Arc iGPU 走
+  # Vulkan 后端跑 embedding，模型 qwen3-embedding-4b Q8_0（4.3GB）。
+  # 两个 CN 现实约束：① llama.cpp 0.4.x 的 HF 下载走 cpp-httplib，不认
+  # 代理环境变量，--hf-repo 在 CN 不可用，模型必须落盘本地 -m 指定
+  # （ModelScope 直连下载，sha256 b60ae5ce…已核验）；② 代理注入因此一并
+  # 移除。上游 models 为 CUDA llama-server（nomic-embed-code 7B），主机级
+  # 整体覆盖；回退路径：llama-cpp 去掉 vulkanSupport 并 -ngl 0 即纯 CPU。
+  services.llama-swap.settings = lib.mkForce {
+    globalTTL = 600;
+    healthCheckTimeout = 600;
+    models = {
+      "qwen3-embedding-4b" = {
+        name = "Qwen3 Embedding 4B";
+        cmd = ''
+          ${lib.getExe' (pkgs.llama-cpp.override { vulkanSupport = true; }) "llama-server"} \
+          -m /nix/persistent/var/lib/llama-models/Qwen3-Embedding-4B-Q8_0.gguf \
+          --port ''${PORT} --host 127.0.0.1 \
+          --embeddings --pooling last -ngl 99 \
+          --ctx-size 8192 --batch-size 2048 --ubatch-size 2048
+        '';
+      };
+    };
+    routing.router.settings.groups.single = {
+      swap = true;
+      exclusive = true;
+      members = [ "qwen3-embedding-4b" ];
+    };
+  };
+
+  # Vulkan 访问 iGPU 渲染节点
+  systemd.services.llama-swap.serviceConfig.SupplementaryGroups = [
+    "render"
+    "video"
+  ];
 
   # 构建拓扑与上游 lt-hp-omen 对齐：本机构建默认开启（nix-distributed 的
   # machines-with-localhost 提供 localhost 兼容槽），远程派发由 nix-distributed

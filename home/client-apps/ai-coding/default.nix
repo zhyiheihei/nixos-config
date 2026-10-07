@@ -140,7 +140,9 @@ in
     sidekick.model = "uni-api/glm-5.3-flash";
     embedding = {
       provider = "openai-compatible";
-      model = "nomic-embed-code";
+      # fork：配 ml-laptop 主机级 Vulkan iGPU 覆盖（脱离 NVIDIA），
+      # 模型名须与其 models 一致
+      model = "qwen3-embedding-4b";
       endpoint = "http://127.0.0.1:${LT.portStr.LlamaSwap}/v1";
     };
   };
