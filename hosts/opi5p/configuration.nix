@@ -206,6 +206,7 @@ in
     ../../nixos/optional-apps/frigate-rockchip.nix
     ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/hydra
+    ../../nixos/optional-apps/i2pd.nix
     ../../nixos/optional-apps/ignis.nix
     ../../nixos/optional-apps/immich-rockchip.nix
     ../../nixos/optional-apps/microsoft-rewards-script.nix
@@ -218,6 +219,7 @@ in
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/taosync.nix
+    ../../nixos/optional-apps/tor.nix
     ../../nixos/optional-apps/webdav.nix
 
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix

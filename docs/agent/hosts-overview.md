@@ -17,22 +17,22 @@
 | `ml-builder` | 114 | `nix-builder` | `ml-builder.zhyi.xin` | 强构建机，28 vCPU；唯一主构建节点（`big-parallel`/`aarch64-cross`），Hydra 已于 2026-09-04 迁出（x86-only 容器同期迁出）。仅构建机，无构建任务时会关机。 |
 | `macmini` | ~~115~~ | aarch64-darwin / macOS | ~~`macmini.zhyi.xin`~~ | 已退役（2026-09-04）：主机定义与 nix-darwin 基础设施已从 flake 移除，最后配置归档于同级 `../../host-archive` 仓库；index 115 空出，LAN 地址 192.168.0.54 保留。 |
 | `ml-home-vm` | ~~115~~ | x86_64 / 家庭服务 VM | ~~`192.168.0.51`~~ | 已退役（2026-08-03）：应用迁至 ROCK5C/OPI5P/PVE，主机定义已从 flake 移除；`*.ml-home-vm.zhyi.xin` 服务别名由 ROCK 5C 继续承载。index 115 曾由 macmini 复用（后者 2026-09-04 退役，已空出）。 |
-| `pve-5700u` | 116 | PVE | `pve-5700u.zhyi.xin` | PVE 宿主（仅虚拟化）；不参与任何 Nix 构建派发。 |
+| `pve-5700u` | 116 | PVE | `pve-5700u.zhyi.xin` | PVE 宿主（仅虚拟化）；不参与任何 Nix 构建派发。2026-10-08 用户定：仅作 PVE 宿主，不使用时人工关机（节能），新服务不再迁入。 |
 | `hostdare` | 117 | `server` / DN42 / 公网入口 | `36.50.85.113` | JP VPS；`zhyi.xin` 通配符公网入口。 |
 | `ml-laptop` | 118 | `client` | `ml-laptop.zhyi.xin` | 物理笔记本（对齐作者 lt-hp-omen）；LAN 地址 `192.168.0.55`；`manualDeploy`；集群控制机（colmena/hydra-eval 源），自身构建全外派，不跑 Hydra。 |
 | `volcengine` | 119 | `server` / 公网入口 | `volcengine.zhyi.xin` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
-| `greencloud` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、协作内容链路与 ZeroTier controller（监控栈 2026-08-14 迁至 tencent）。 |
+| `greencloud` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、协作内容链路与 ZeroTier controller（监控栈 2026-08-14 迁至 tencent）；2026-10-08 起另承载 fastpit（posts.zhyi.xin，对齐上游 colocrossing）。 |
 | `google` | 121 | `server` / 公网入口 / 日志目标 | `35.212.152.140` | US VPS（GCP）；Filebeat 目标仍指向此机，但当前未部署 Elasticsearch，日志链待修复。 |
-| `opi5p` | 122 | RK3588 / reDroid / One-KVM | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。2026-09 启用板载 HDMI RX（vendor-hdmirx.patch）+ One-KVM IP-KVM 容器（lantian.one-kvm，Web :8080）。2026-09-17 起 Hydra CI 所在地（见 docs/agent/hydra-build-chain.md）。家庭内唯一保留 `server` 标签的机器（备份 SFTP 端点 + 全仓统一出站代理入口），2026-10-01 定。 |
+| `opi5p` | 122 | RK3588 / reDroid / One-KVM | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。2026-09 启用板载 HDMI RX（vendor-hdmirx.patch）+ One-KVM IP-KVM 容器（lantian.one-kvm，Web :8080）。2026-09-17 起 Hydra CI 所在地（见 docs/agent/hydra-build-chain.md）。家庭内唯一保留 `server` 标签的机器（备份 SFTP 端点 + 全仓统一出站代理入口），2026-10-01 定；2026-10-08 起另承担 i2pd/Tor 匿名出口（对齐上游 pve-epyc）。 |
 | `rock5c` | 123 | RK3588 / 家庭边缘 | `192.168.0.64` | Radxa ROCK 5C；边缘代理、控制链、MetaCubeXD 与 reDroid。2026-10-01 起 LTNET 走 ZeroTier（已退出 wgmesh/BGP mesh，见 wg-mesh 漂移登记）。 |
 | `lubancat1` | 124 | RK3566 / `low-ram` | `192.168.0.65` | 原版 LubanCat-1（非 V2），2 GiB RAM、无 eMMC；server 角色基线已上线，尚未迁入用户应用；2026-10-01 摘除 `server` 标签退出 mesh（其 ZeroTier 当前失联，待修）。 |
 | `h28k` | 125 | RK3528 / 异地路由器（预部署） | WAN DHCP / LAN `192.168.30.1` | HINLINK H28K；双千兆口、Kea、CoreDNS 与 nftables NAT；SSH/SOPS/ZeroTier 身份已采集（ZeroTier node ID `368d3cf42b`，2026-08-15 修正），仍在家中 staging（临时 SSH 放行规则保留），待迁异地站点。 |
 | `opi03` | 126 | H618 / reDroid 实验设备 | DHCP（未固定） | Orange Pi Zero 3；本地 Android 镜像和硬件加速仍在开发，尚未完成正式网络身份与实机验收。 |
 | `taishanpi` | 127 | RK3566 / 带起中 | `192.168.0.136`（Wi-Fi DHCP）/ LTNET `198.18.0.127` | LCKFB Taishan Pi（泰山派）；板载 AP6212 Wi-Fi 已通（SDIO + 自带固件，见 `pkgs/taishanpi-kernel/brcm-firmware/`）；eMMC 独立引导，SD 可拔；ZT node `e649a796a9`；串口 ttyS2 1500000；MIPI 屏未验证，`manualDeploy` 保持。 |
 | `tencent` | 128 | `server` / 公网入口 / DN42 | `tencent.zhyi.xin` | 腾讯云首尔 VPS（2C/4G，AS132203）；DN42 节点、cn-accel 出口、监控中心（Prometheus/Grafana 自 greencloud 迁入，2026-08-14）；2026-08-13 重装完成，host key/ZeroTier 已回填，LTNET mesh 已接入。 |
-| `dragon-q8b` | 129 | SC8280XP / 家庭服务机 | `192.168.0.66` | Radxa Dragon Q8B（SC8280XP aarch64，8G RAM）；2026-08-28 起承载 bitmagnet/peerbanhelper/tachidesk/archivebox/memos 等（自 opi5p 迁入）；2026-10-01 摘除 `server` 标签退出 mesh。 |
+| `dragon-q8b` | 129 | SC8280XP / 家庭服务机 | `192.168.0.66` | Radxa Dragon Q8B（SC8280XP aarch64，8G RAM）；2026-08-28 起自 opi5p 迁入家庭服务，2026-09 下载链（bitmagnet/peerbanhelper/tachidesk/resilio）再迁 chromebox 减负；现承载 archivebox/memos/wallos + NCPS + reDroid，2026-10-08 新增 IPFS（kubo，tnl-buyvm netns）与 PicoClaw 助理网关；2026-10-01 摘除 `server` 标签退出 mesh。 |
 | `greencloud-jp` | 130 | `server` / DN42 / 异地备份 / `cn-accel` 出口 / S3 网关 / Gitea / Syncthing | `45.159.48.76` | GreenCloud 东京存储 VPS（2C/3G + 1T 数据盘，IIJ 线路）；SFTP 备份端点 + storagebox 双备份仓库；S3 网关（`s3.zhyi.xin`，含 gitea LFS 桶）；cn-accel 出口（订阅内 🇯🇵 日本 GreenCloud JP）；Gitea 自 greencloud 迁入（2026-08-29，`git.zhyi.xin`）；Syncthing 同步节点自 greencloud 移交（2026-09，存储 `/data/syncthing`，知识库 vault `/data/syncthing/Notes`）；v4 静态（该机房 DHCPv4 拿不到租约）；接入记录见 [greencloud-jp](../human/hardware/greencloud-jp-vps.md)。 |
-| `chromebox` | 131 | `lan-access` | `192.168.0.56` | x86_64 迷你主机（i7-8550U / 9.6G / KIOXIA 465.8G NVMe）；UEFI + GRUB EFI，btrfs 三子卷；2026-09-21 从 NixOS ISO 接入（ZeroTier `cea01154b5`，LTNET `198.18.0.131`）；尚未迁入用户应用；2026-10-01 摘除 `server` 标签退出 mesh。 |
+| `chromebox` | 131 | `lan-access` | `192.168.0.56` | x86_64 迷你主机（i7-8550U / 9.6G / KIOXIA 465.8G NVMe）；UEFI + GRUB EFI，btrfs 三子卷；2026-09-21 从 NixOS ISO 接入（ZeroTier `cea01154b5`，LTNET `198.18.0.131`）；2026-09 起承载下载消费链（Bitmagnet/PeerBanHelper/Tachidesk/ClamAV/Resilio + QNAP NFS，自 dragon-q8b 迁入，92e7ed0e7）；2026-10-01 摘除 `server` 标签退出 mesh。 |
 | `tencent-cn` | 132 | `server` / 公网入口 | `123.206.117.194` | 腾讯云 CN VPS（2C，IPv6 静态 /128）；2026-09-23 接入，`public-facing` + server mesh 成员（ZeroTier `57faffd1e1`，LTNET `198.18.0.132`）；尚未迁入用户应用。 |
 
 家庭局域网地址、MAC 与 DHCP 边界以 [网络参照的 LAN 分配](reference.md#家庭-lan-静态分配)

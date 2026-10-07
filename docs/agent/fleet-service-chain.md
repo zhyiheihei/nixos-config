@@ -157,8 +157,9 @@ Ignis（web Obsidian，opi5p）直接读写 opi5p 上的 Documents 副本
   分发内；nginx 层走 oauth2-proxy（Dex SSO）。详见
   [`../human/services/ignis.md`](../human/services/ignis.md)。
 - 公开天线：`~/Documents/Blog` 已于 2026-08-20 删除（远端仓库不存在，唯一副本
-  永久丢失）；公开路线暂停。pyison（posts.zhyi.xin）与 Waline
-  评论（comments.zhyi.xin）已于 2026-08-15 退役，不再部署。
+  永久丢失）；公开路线暂停。pyison 与 Waline 评论（comments.zhyi.xin）已于
+  2026-08-15 退役；posts.zhyi.xin 现由 fastpit 提供（上游以 fastpit 替代
+  pyison，2026-10-08 对齐部署到 greencloud，DNS CNAME posts → greencloud）。
 - 知识输入：RSSHub/Miniflux（greencloud）、ArchiveBox/Memos（opi5p）。
 - AI 关联：详见
   [`../human/infrastructure/ai-knowledge-chain-integration.md`](../human/infrastructure/ai-knowledge-chain-integration.md)；
@@ -199,14 +200,21 @@ Nix clients -> Attic（greencloud-jp，2026-09 自 volcengine 迁入）
   Calibre COPS；RSS 阅读链为 greencloud 的 Miniflux/RSSHub，
   ArchiveBox 承担无法订阅站点的归档；
 - 下载链路（router）：qBittorrent 单实例；
-- 下载消费方（dragon-q8b）：Bitmagnet、PeerBanHelper、Tachidesk、
-  Memos、Wallos、Resilio Sync 引擎、NCPS（均为 2026-08/09 自 opi5p 迁入）；
+- 下载消费方（dragon-q8b）：Memos、Wallos、NCPS（2026-08/09 自 opi5p 迁入）
+  + IPFS 节点 kubo（tnl-buyvm netns 内，2026-10-08 接入）与个人助理网关
+  PicoClaw（2026-10-08 接入）；Bitmagnet、PeerBanHelper、Tachidesk、
+  Resilio Sync 引擎、ClamAV 已于 2026-09 迁 chromebox（92e7ed0e7）；
+- 下载消费方（chromebox）：Bitmagnet、PeerBanHelper、Tachidesk、ClamAV、
+  Resilio Sync 引擎 + QNAP NFS 挂载（2026-09 自 dragon-q8b 迁入减负）；
 - 媒体应用（rock5c）：MoviePilot、Jellyfin、HandBrake；
 - 字幕链路（rock5c）：ChineseSubFinder 直扫媒体目录
   （`/media/media-radarr`、`/media/media-sonarr`）下载简中字幕，
   MoviePilot SubtitleAssistant 插件负责事件触发式字幕补充；
 - 文件与设备（opi5p）：Syncthing、SFTP、WebDAV、Samba、NFS/QNAP mount、
-  VaultS3 TLS 前沿、CUPS、Avahi、ClamAV。
+  VaultS3 TLS 前沿、CUPS、Avahi、ClamAV；
+- 匿名出口（opi5p）：i2pd（I2P HTTP/SOCKS 代理，4444/4447）与 Tor SOCKS
+  （9050），2026-10-08 对齐上游 pve-epyc 接入，随统一出站代理入口角色；
+- 公共服务（greencloud）：fastpit（posts.zhyi.xin，2026-10-08 接入）；
 
 **跨机反代规则（2026-09-04 定稿）**：跨机 `-backend` 回源 vhost 模式已全面
 退役（jellyfin-backend/handbrake-backend/tachidesk-backend 均已撤除；上游

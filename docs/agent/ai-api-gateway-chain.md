@@ -18,7 +18,7 @@ UniAPI 的 Provider，否则会形成请求循环、重复计费或无法诊断�
 UniAPI
     ^                     ^
     |                     |
-LibreChat / n8n          Metapi
+LibreChat / n8n / PicoClaw   Metapi
 
 CLIProxyAPI（google，2026-09-10 接入）：Codex 订阅转 OpenAI 兼容 API，
 作为 UniAPI 的普通 OpenAI 类型 Provider（cliproxyapi 渠道，模型
@@ -66,6 +66,9 @@ AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模
   无效探测，仍能在合理时间内感知周额度刷新。
 - n8n 有专用 key（secrets `uni-api-n8n-api-key`），`model` 锁定为
   `glm_for_coding`（zhipu-coding 渠道），防止工作流漂移到其他计费渠道。
+- picoclaw 有专用 key（secrets `uni-api-picoclaw-api-key`），`model` 锁定为
+  `gpt-5.6-luna`（cliproxyapi 渠道）；网关运行在 dragon-q8b，config.json 由
+  主机级 seed 单元在开机时拼装（根分区 tmpfs，见 hosts/dragon-q8b/picoclaw-config.nix）。
 - pi（ai-coding 客户端）直连 taotoken 的 OpenAI 兼容端点：taotoken 不是
   pi 内置渠道，不走 UniAPI 汇聚。
 
@@ -78,6 +81,7 @@ AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模
 | n8n | `greencloud` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
 | n8n OpenAI Bridge | `greencloud` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
 | Metapi | `tencent` | 可选元聚合网关、站点/账户/模型路由管理；唯一站点指向 hostdare UniAPI | `ai-api.zhyi.xin`；SQLite 状态目录（自 greencloud 迁移） |
+| PicoClaw | `dragon-q8b` | 个人助理网关（本地 127.0.0.1:18790） | `ai-api.zhyi.xin`，专用 key 锁 `gpt-5.6-luna`；secrets `uni-api-picoclaw-api-key` |
 | AxonHub | 未部署 | 仓库保留可选模块，但当前没有 host import 或运行 unit | 部署前需重新确认 PostgreSQL、Redis 与上游契约 |
 | Qdrant | 未部署 | 仓库保留模块，无 host import、无实机 unit | 若启用需先规范为独立 options 模块并核验 embeddings |
 

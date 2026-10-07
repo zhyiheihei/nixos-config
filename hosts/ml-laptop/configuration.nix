@@ -15,7 +15,6 @@
     ./ltnet-scripts-sync.nix
 
     # 与上游 lt-hp-omen 逐字对齐的 optional-apps 导入列表（含注释占位）。
-    ../../nixos/optional-apps/audio-cpp.nix
     ../../nixos/optional-apps/byparr.nix
     ../../nixos/optional-apps/clash-verge.nix
     # ../../nixos/optional-apps/clamav.nix

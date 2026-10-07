@@ -16,6 +16,7 @@
     ../../nixos/optional-apps/bepasty.nix
     ../../nixos/optional-apps/bird-lg-go.nix
     ../../nixos/optional-apps/byparr.nix
+    ../../nixos/optional-apps/fastpit.nix
     ../../nixos/optional-apps/flapalerted.nix
     # Gitea Actions runner：Gitea 在 greencloud-jp（性能弱不跑 CI），runner 留本机。
     ../../nixos/optional-apps/gitea-actions.nix

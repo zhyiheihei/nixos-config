@@ -14,6 +14,7 @@
   "lab.zhyi.xin"
   "letsencrypt-ssl.zhyi.xin"
   "letsencrypt-test-ssl.zhyi.xin"
+  "posts.zhyi.xin"
   "sip.zhyi.xin"
   "stage1.whois.local"
   "stage2.whois.local"

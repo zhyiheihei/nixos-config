@@ -10,8 +10,11 @@
 
     ./hardware-configuration.nix
     ./home-services.nix
+    ./picoclaw-config.nix
 
+    ../../nixos/optional-apps/kubo.nix
     ../../nixos/optional-apps/ncps.nix
+    ../../nixos/optional-apps/picoclaw.nix
     ../../nixos/optional-apps/redroid.nix
   ];
 

@@ -56,6 +56,13 @@ let
         model = [ "glm_for_coding" ];
         role = "admin";
       }
+      {
+        api = {
+          _secret = config.sops.secrets."uni-api-picoclaw-api-key".path;
+        };
+        model = [ "gpt-5.6-luna" ];
+        role = "admin";
+      }
     ];
 
     preferences.cooldown_period = 5;

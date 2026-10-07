@@ -276,6 +276,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "posts";
+      target = "greencloud.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "prometheus";
       target = "tencent.zhyi.xin.";
       ttl = "1h";
