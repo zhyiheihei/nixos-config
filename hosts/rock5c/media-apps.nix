@@ -1,9 +1,25 @@
 {
   lib,
+  pkgs,
   ...
 }:
 let
   activationMarker = "/nix/persistent/var/lib/media-apps/ready";
+  # CR WEB-DL 的中文字幕轨样式引用 Trebuchet MS/Arial 等拉丁字体（无 CJK
+  # 字形），客户端直接渲染文本字幕会出方框（胆大党 E13+ 实测）。提供
+  # 服务端回退字体：jassub 网页播放器经 /FallbackFont/Fonts 拉取（Jellyfin
+  # 只收 ttf/otf/woff 且总量限 20MB，故用单区 SC OTF 而非全 CJK ttc），
+  # 烧录路径走系统 fontconfig。
+  jellyfinFallbackFont = pkgs.fetchurl {
+    urls = [
+      "https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@Sans2.004/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf"
+      "https://raw.githubusercontent.com/notofonts/noto-cjk/Sans2.004/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf"
+    ];
+    hash = "sha256-LHYlT2/Def3fzgp+hPtThbsTXT45kpT27rZoDQNlt0s=";
+  };
+  fallbackFontsDir = pkgs.runCommand "noto-sans-cjk-sc-fallback" { } ''
+    install -Dm644 ${jellyfinFallbackFont} $out/share/fonts/opentype/noto-cjk/NotoSansCJKsc-Regular.otf
+  '';
   # 老的 *arr 四件套（sonarr/radarr/bazarr/prowlarr）及 decluttarr、exportarr
   # 已被 MoviePilot 链路完全替代，模块 import 于 2026-09-04 撤除（死链 vhost
   # 一并消失，homepage 同步不再列出）。回滚 = git revert 本提交重新加回
@@ -39,10 +55,19 @@ in
   # v3.0.3/v3.0.0 on disk, so disabling updates loses nothing.
   virtualisation.oci-containers.containers.moviepilot.environment.AUTO_UPDATE_RESOURCE = "false";
 
-  systemd.tmpfiles.settings.media-apps."/nix/persistent/var/lib/media-apps"."d" = {
-    mode = "0700";
-    user = "root";
-    group = "root";
+  fonts.packages = [ fallbackFontsDir ];
+
+  systemd.tmpfiles.settings.media-apps = {
+    "/nix/persistent/var/lib/media-apps"."d" = {
+      mode = "0700";
+      user = "root";
+      group = "root";
+    };
+    "/var/lib/jellyfin/fonts"."L+" = {
+      argument = "${fallbackFontsDir}/share/fonts/opentype/noto-cjk";
+      user = "jellyfin";
+      group = "jellyfin";
+    };
   };
 
   systemd.services = lib.mkMerge [
