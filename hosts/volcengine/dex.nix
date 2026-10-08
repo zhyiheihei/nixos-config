@@ -104,7 +104,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-memos-secret.path;
         };
-        redirectURIs = [ "https://memos.opi5p.zhyi.xin/auth/callback" ];
+        redirectURIs = [ "https://memos.zhyi.xin/auth/callback" ];
       }
       {
         id = "moviepilot";

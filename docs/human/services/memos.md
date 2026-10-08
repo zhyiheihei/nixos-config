@@ -1,7 +1,8 @@
 # Memos 服务接入（SSO / 存储 / 通知 / AI）
 
-Memos 运行在 `opi5p`，入口为 `https://memos.opi5p.zhyi.xin`，容器固定
-`neosmemo/memos:0.29.1`，数据目录挂载宿主机的 `/var/lib/memos`（NVMe 持久盘）。
+Memos 运行在 `dragon-q8b`（原生 nixpkgs 包 `memos`，0.30.0），数据目录
+`/nix/persistent/srv/memos`。入口是 `https://memos.zhyi.xin`：443 由 `rock5c`
+前置、8443 由 `opi5p` 前置，两处都回源 `dragon-q8b` 的内网 443。
 应用内的 SSO、AI Provider、通知和附件存储都通过 Memos 官方 HTTP API 配置，
 不直接修改 Memos 数据库。
 
@@ -14,7 +15,7 @@ Memos 运行在 `opi5p`，入口为 `https://memos.opi5p.zhyi.xin`，容器固�
 | --- | --- |
 | Dex client id | `memos` |
 | Dex client secret | `common/dex.yaml` 的 `dex-memos-secret` |
-| 回调 | `https://memos.opi5p.zhyi.xin/auth/callback` |
+| 回调 | `https://memos.zhyi.xin/auth/callback` |
 | authorization endpoint | `https://login.zhyi.xin/auth` |
 | token endpoint | `https://login.zhyi.xin/token` |
 | userinfo endpoint | `https://login.zhyi.xin/userinfo` |
@@ -31,7 +32,7 @@ Settings → Linked Identities 里完成绑定，之后即可用 Dex 登录。
 
 ## 存储
 
-- 容器数据：`/var/lib/memos:/var/opt/memos`，数据库仍在本机 NVMe 持久盘。
+- 数据：`/nix/persistent/srv/memos`（dragon-q8b 持久盘），数据库为 SQLite。
 - 应用内附件：走私有 VaultS3，`storage_type=S3`，bucket `memos`，
   模板 `assets/{timestamp}_{filename}`，单文件上限 64 MiB。
 - S3 endpoint：`https://vaults3.zhyi.xin`（opi5p 本机 TLS 前端），
@@ -39,7 +40,7 @@ Settings → Linked Identities 里完成绑定，之后即可用 Dex 登录。
 - 凭据：VaultS3 IAM 用户 `memos` 的专用 access key/secret，策略只允许
   `arn:aws:s3:::memos` 与 `arn:aws:s3:::memos/*`，明文只存在于 secrets 仓库的
   `common/memos.yaml`（SOPS 加密），部署后由 `memos-s3-access-key` /
-  `memos-s3-secret-key` 注入 opi5p。
+  `memos-s3-secret-key` 注入 dragon-q8b。
 - bucket 通过 VaultS3 官方 CLI 创建（`vaults3-cli bucket create memos`），
   独立凭据通过 VaultS3 官方 API `POST /api/v1/keys` 创建（自动生成 IAM 用户与
   bucket 范围策略），不要直接修改 VaultS3 数据库。bucket 只接受认证访问，
@@ -71,9 +72,9 @@ Memos 的 AI Provider 指向 Metapi，而不是直接指向 UniAPI：
 | endpoint | `https://metapi.tencent.zhyi.xin/v1` |
 | API key | `uni-api/keys.yaml` 的 `uni-api-admin-api-key` |
 
-`metapi.tencent.zhyi.xin` 是 private vhost（2026-08-14 自 greencloud 迁移）。opi5p 已声明
-hosts 映射 `198.18.0.120`，容器同时使用 `--add-host` 指向同一地址，保证 Memos
-和运维脚本都能走 LTNET 直连。不要把这个 endpoint 改成公网入口或 UniAPI
+`metapi.tencent.zhyi.xin` 是 private vhost（2026-08-14 自 greencloud 迁移）。dragon-q8b
+已声明 hosts 映射 `198.18.0.120`，原生服务直接走该地址，保证 Memos 和运维脚本
+都能走 LTNET 直连。不要把这个 endpoint 改成公网入口或 UniAPI
 之外的网关，也不要让 Metapi 反向成为 UniAPI Provider。
 
 AI 功能中选择的模型统一使用 OpenCode Go 的 DeepSeek V4 Flash；Memos 页面里的
@@ -95,7 +96,7 @@ Memos 既可作为 AI 写回目标，也可作为 AI 收件箱：
 
 ## 官方 API 配置脚本
 
-部署 Nix 变更后，在 opi5p 上创建一个 Memos Personal Access Token
+部署 Nix 变更后，在 dragon-q8b（或 `https://memos.zhyi.xin`）上创建一个 Memos Personal Access Token
 （Settings → Access Tokens），然后运行：
 
 ```bash
@@ -118,6 +119,7 @@ bash tools/memos/configure-memos.sh
 ## 验证
 
 ```bash
+# 在 dragon-q8b 上执行
 curl -fsS http://127.0.0.1:13819/api/v1/identity-providers/dex-memos | jq
 curl -fsS http://127.0.0.1:13819/api/v1/instance/settings/AI | jq
 curl -fsS http://127.0.0.1:13819/api/v1/instance/settings/NOTIFICATION | jq

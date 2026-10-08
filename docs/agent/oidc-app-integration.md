@@ -56,7 +56,7 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
 
 - 接入方式：Memos 原生 OAuth2（OIDC Discovery 由 Dex 提供）。
 - Dex client：`id=memos`，回调
-  `https://memos.opi5p.zhyi.xin/auth/callback`，与 Memos 登录页的
+  `https://memos.zhyi.xin/auth/callback`，与 Memos 登录页的
   `/auth/callback` 完全一致。
 - OAuth2 端点：`https://login.zhyi.xin/auth`、
   `https://login.zhyi.xin/token`、`https://login.zhyi.xin/userinfo`。

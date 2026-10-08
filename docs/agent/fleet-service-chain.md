@@ -327,7 +327,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | ArchiveBox | `https://archivebox.opi5p.zhyi.xin` | Dex OAuth |
 | WebDAV（webdev） | `https://dav.zhyi.xin` | Basic Auth |
 | QNAP NAS | `https://qnap.zhyi.xin` | 应用管理 |
-| Memos | `https://memos.opi5p.zhyi.xin` | Dex OIDC / 应用登录 |
+| Memos | `https://memos.zhyi.xin` | Dex OIDC / 应用登录 |
 | Ignis | `https://ignis.opi5p.zhyi.xin` | Dex SSO（nginx oauth2-proxy） |
 | 主机资源 / NAS 存储 | 见 Homepage `12 · 私有 · 监控` | Prometheus 只读 |
 

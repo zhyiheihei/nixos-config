@@ -90,7 +90,7 @@ LDAP bind（`cn=serviceuser,dc=zhyi,dc=xin`），凭据即用户目录里的密�
 | `grafana` | Grafana | dashboard.zhyi.xin |
 | `immich` | Immich | immich.zhyi.xin |
 | `librechat` | LibreChat | ai.zhyi.xin |
-| `memos` | Memos | memos.opi5p.zhyi.xin |
+| `memos` | Memos | memos.zhyi.xin |
 | `moviepilot` | MoviePilot | moviepilot.rock5c.zhyi.xin |
 | `oauth-proxy` | oauth2-proxy | 所有 `enableOAuth` vhost 共用 |
 | `vaultwarden` | Vaultwarden | bitwarden.zhyi.xin |
@@ -152,7 +152,7 @@ staticClients 与 LDAP 消费者。模块存在但**没有被任何主机导入*
 | LibreChat | `ai.zhyi.xin` | `librechat` |
 | Gitea（登录页强制跳 Dex） | `git.zhyi.xin` | `gitea` |
 | Grafana | `dashboard.zhyi.xin` | `grafana` |
-| Memos | `memos.opi5p.zhyi.xin` | `memos` |
+| Memos | `memos.zhyi.xin` | `memos` |
 | MoviePilot | `moviepilot.rock5c.zhyi.xin` | `moviepilot` |
 | Vaultwarden（SSO 可跳 Dex，主密码仍自身） | `bitwarden.zhyi.xin` | `vaultwarden` |
 
