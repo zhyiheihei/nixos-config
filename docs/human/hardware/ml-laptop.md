@@ -54,15 +54,18 @@ lxc 挂载失败、容器无法启动。
 `L+ /etc/waydroid-extra/images` 软链回去。镜像升级需手动重下该目录两个
 img（waydroid 本地镜像模式不走 OTA）。
 
-## waydroid ARM 兼容（libhoudini）
+## waydroid ARM 兼容（libndk，2026-10-08 自 libhoudini 切换）
 
-原生镜像仅 x86_64/x86（abilist 无 ARM）。2026-10-08 用 waydroid_script
-（casualsnek，官方文档推荐）装 libhoudini（Android 13 分支，supremegamers
-vendor_intel_proprietary_houdini @2f8f088，md5 校验）：文件全落在
-/var/lib/waydroid/overlay/system（持久卷），含 binfmt_misc 注册、
-abilist 改写、ARM 运行库。已用 ARM64 busybox 实测转译执行成功。
-重装/升级镜像到非 Android 13 版本时需重跑 script 的 libhoudini 对应
-分支；waydroid init -f 会清 overlay，同样需重装。
+原生镜像仅 x86_64/x86（abilist 无 ARM）。ARM 转译层经 waydroid_script
+（casualsnek，官方文档推荐）装在 /var/lib/waydroid/overlay/system
+（持久卷）。现为 libndk（Google ndk_translation，Android 13 分支
+@68734c5），对纯 ARM64 游戏比 houdini 快；已用 ARM64 busybox 实测转译
+执行成功。切换/重装注意：binfmt_misc 注册表是内核全局状态，跨容器重启
+持久存在——卸载 houdini 换 libndk 后，残留条目仍指向已删的 houdini
+runner 导致 ARM exec 报 ENOENT、ndk 同名条目注册不进去；需在容器内
+`echo -1 > /proc/sys/fs/binfmt_misc/{arm_exe,arm_dyn,arm64_exe,arm64_dyn}`
+注销后重注册（或宿主重启）。反向切换同理。GPU 渲染已确认硬加速
+（容器 Mesa 26 直连 MTL iGPU）；游戏卡顿主因是转译层 CPU 开销。
 
 ## 已知问题：surfaceflinger 重 GPU 负载下崩溃
 
