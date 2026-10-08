@@ -64,8 +64,24 @@ img（waydroid 本地镜像模式不走 OTA）。
 持久存在——卸载 houdini 换 libndk 后，残留条目仍指向已删的 houdini
 runner 导致 ARM exec 报 ENOENT、ndk 同名条目注册不进去；需在容器内
 `echo -1 > /proc/sys/fs/binfmt_misc/{arm_exe,arm_dyn,arm64_exe,arm64_dyn}`
-注销后重注册（或宿主重启）。反向切换同理。GPU 渲染已确认硬加速
-（容器 Mesa 26 直连 MTL iGPU）；游戏卡顿主因是转译层 CPU 开销。
+注销后重注册（或宿主重启）。反向切换同理。
+
+## waydroid 国内网络：captive portal 探测点
+
+GPU 渲染已确认硬加速（容器 Mesa 26 直连 MTL iGPU）；游戏卡顿主因是
+转译层 CPU 开销。另一坑：纯净镜像默认探测 google，GFW 环境下校验必
+败，网络带 PARTIAL_CONNECTIVITY 标记，腾讯系登录 SDK 检查网络有效性，
+表现为扫码登录/加载卡住。2026-10-08 修复（设置存 data 分区持久）：
+```
+waydroid shell -- settings put global captive_portal_http_url \
+  http://connect.rom.miui.com/generate_204
+waydroid shell -- settings put global captive_portal_https_url \
+  https://connect.rom.miui.com/generate_204
+waydroid shell -- settings put global captive_portal_fallback_url \
+  http://connect.rom.miui.com/generate_204
+```
+改完需重启容器重校验；验收标准 = dumpsys connectivity 无
+PARTIAL_CONNECTIVITY、logcat isCaptivePortal isSuccessful()=true。
 
 ## 已知问题：surfaceflinger 重 GPU 负载下崩溃
 
