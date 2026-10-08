@@ -2,7 +2,8 @@
 
 > 最后核对：2026-08-15（对照作者原版 `nixos-config-exam`）。
 > 本文描述身份链的静态架构；新增 OIDC 应用的**操作步骤**见
-> [OIDC 应用接入规范](oidc-app-integration.md)，运行态账本见
+> [OIDC 应用接入规范](oidc-app-integration.md)，新增/删改用户的规范与流程见
+> [新增用户规范与流程](user-provisioning.md)，运行态账本见
 > [全主机服务归属与链路](fleet-service-chain.md)。
 
 ## 一句话总结
@@ -99,7 +100,7 @@ LDAP bind（`cn=serviceuser,dc=zhyi,dc=xin`），凭据即用户目录里的密�
 
 | 资产 | 位置 | 说明 |
 | --- | --- | --- |
-| 用户目录（明文） | secrets `glauth-users.nix` | `zhyi`（uid 1000）、`serviceuser`（bind）、各服务账号；只含 bcrypt/mail 等非敏感字段 |
+| 用户目录（明文） | secrets `glauth-users.nix` | `zhyi`（uid 1000，admin 组）、`maoda`（1001）、`xiaoliu`（1002）、`laozhou`（1003）、`serviceuser`（bind）；只含 bcrypt/mail 等非敏感字段 |
 | glauth 服务凭据（加密） | secrets `common/glauth.yaml` | glauth 进程使用的敏感字段 |
 | Dex 客户端密钥 | secrets `common/dex.yaml` | 每个 staticClient 一个 `dex-<id>-secret` |
 | Pocket ID | secrets `pocket-id.yaml` | 加密密钥 + Dex 对接凭据 |
@@ -320,7 +321,9 @@ SMTP（AhaSend/Maddy，SMTP AUTH）、SFTP（SSH 公钥）、Samba（账号）�
 2. `volcengine` 与 `rock5c` 的 glauth 是**两个独立实例**，用户数据不同步；迁移或
    排障时不能当作同一个进程。
 3. 改用户密码/增删用户：编辑 secrets `glauth-users.nix`，bump secrets 输入后
-   部署对应 glauth 主机；BasicAuth 的 htpasswd 会在构建时自动重新生成。
+   部署对应 glauth 主机；BasicAuth 的 htpasswd 会在构建时自动重新生成。完整
+   规范（编号分配、哈希格式、两台实例、验证命令、常见坑）见
+   [新增用户规范与流程](user-provisioning.md)。
 4. 认证优先级：Passkey（Pocket ID）> LDAP 密码 > BasicAuth；三者共用同一
    用户存储，不存在"另一套账号"。
 5. 不要把任一网关（oauth2-proxy 之外的自建代理）反向接到身份链上绕过认证；

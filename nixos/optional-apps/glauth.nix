@@ -55,6 +55,28 @@ let
         displayName = ["Mao Mao"]
 
     [[users]]
+      name = "xiaoliu"
+      givenname = "Xiao"
+      sn = "Liu"
+      mail = "${glauthUsers.xiaoliu.mail}"
+      uidnumber = 1002
+      primarygroup = 101
+      passbcrypt = "${hexdump glauthUsers.xiaoliu.passBcrypt}"
+      [[users.customattributes]]
+        displayName = ["Xiao Liu"]
+
+    [[users]]
+      name = "laozhou"
+      givenname = "Lao"
+      sn = "Zhou"
+      mail = "${glauthUsers.laozhou.mail}"
+      uidnumber = 1003
+      primarygroup = 101
+      passbcrypt = "${hexdump glauthUsers.laozhou.passBcrypt}"
+      [[users.customattributes]]
+        displayName = ["Lao Zhou"]
+
+    [[users]]
       name = "serviceuser"
       mail = "serviceuser@example.com"
       uidnumber = 60000

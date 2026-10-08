@@ -202,7 +202,8 @@ Home Manager 配置：
 ## Agent 操作铁律（pi 会话执行层）
 
 流程细则在 `docs/agent/`（development-handbook / work-norms / module-placement-norms /
-deployment / hosts-overview / reference / inspection-playbook 等），不凭记忆猜。
+deployment / hosts-overview / reference / inspection-playbook / user-provisioning 等），
+不凭记忆猜。
 以下是执行层硬规则：
 
 1. **本机就是主控机（ml-laptop，NixOS）**：nix 求值、构建（`make build`）、部署

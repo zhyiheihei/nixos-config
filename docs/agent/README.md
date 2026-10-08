@@ -29,7 +29,7 @@
 | 网络参照 | [`reference.md`](reference.md)（含家庭 LAN 静态分配） |
 | 构建缓存 | [`attic-s3-cache.md`](attic-s3-cache.md)、[`hydra-build-chain.md`](hydra-build-chain.md) |
 | 出站代理 | [`outbound-proxy.md`](outbound-proxy.md) |
-| 身份与认证 | [`identity-auth-architecture.md`](identity-auth-architecture.md)、[`oidc-app-integration.md`](oidc-app-integration.md) |
+| 身份与认证 | [`identity-auth-architecture.md`](identity-auth-architecture.md)、[`oidc-app-integration.md`](oidc-app-integration.md)、[`user-provisioning.md`](user-provisioning.md) |
 | DNS 发布 | [`gcore-dnscontrol-free-plan.md`](gcore-dnscontrol-free-plan.md) |
 | 监控 | [`monitoring.md`](monitoring.md) |
 | 服务位置 | [`fleet-service-chain.md`](fleet-service-chain.md) |
