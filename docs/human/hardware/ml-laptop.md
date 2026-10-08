@@ -54,6 +54,16 @@ lxc 挂载失败、容器无法启动。
 `L+ /etc/waydroid-extra/images` 软链回去。镜像升级需手动重下该目录两个
 img（waydroid 本地镜像模式不走 OTA）。
 
+## waydroid ARM 兼容（libhoudini）
+
+原生镜像仅 x86_64/x86（abilist 无 ARM）。2026-10-08 用 waydroid_script
+（casualsnek，官方文档推荐）装 libhoudini（Android 13 分支，supremegamers
+vendor_intel_proprietary_houdini @2f8f088，md5 校验）：文件全落在
+/var/lib/waydroid/overlay/system（持久卷），含 binfmt_misc 注册、
+abilist 改写、ARM 运行库。已用 ARM64 busybox 实测转译执行成功。
+重装/升级镜像到非 Android 13 版本时需重跑 script 的 libhoudini 对应
+分支；waydroid init -f 会清 overlay，同样需重装。
+
 ## Sunshine
 
 - 全栈固定核显（Intel）：eGPU 不驱任何显示器，而该版 Sunshine 的 nvenc
