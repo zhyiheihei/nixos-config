@@ -43,6 +43,17 @@ waydroid 硬编码挂载 `$XDG_RUNTIME_DIR/pulse/native`，而本机 PipeWire �
 系统级（socket 在 `/var/run/pulse/native`），缺这个用户级 tmpfiles 链接时
 lxc 挂载失败、容器无法启动。
 
+## waydroid 系统镜像持久化
+
+根分区是 tmpfs，而 waydroid.cfg（在持久的 /var/lib/waydroid）写死
+`images_path = /etc/waydroid-extra/images`（waydroid init 的本地镜像模式，
+`system_ota = None`）。镜像放 /etc 的话重启即丢：2026-09-01 init 后当天
+可用，09-25 重启后容器 mount system.img 失败，应用即开即闪退。
+2026-10-08 修复：镜像（lineage 20.0-20260927 system+vendor，OTA sha256
+校验）落 `/nix/persistent/waydroid/images`，主机级 tmpfiles 规则
+`L+ /etc/waydroid-extra/images` 软链回去。镜像升级需手动重下该目录两个
+img（waydroid 本地镜像模式不走 OTA）。
+
 ## Sunshine
 
 - 全栈固定核显（Intel）：eGPU 不驱任何显示器，而该版 Sunshine 的 nvenc

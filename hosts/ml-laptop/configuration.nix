@@ -249,6 +249,14 @@
     "L+ %t/pulse/native - - - - /var/run/pulse/native"
   ];
 
+  # waydroid 系统镜像持久化：根分区是 tmpfs，而 waydroid.cfg 写死的
+  # images_path /etc/waydroid-extra/images 每次重启被清空，容器 mount
+  # system.img 失败、session 起不来（2026-10-08 诊断）。镜像落在
+  # /nix/persistent/waydroid/images，启动时软链回去。
+  systemd.tmpfiles.rules = [
+    "L+ /etc/waydroid-extra/images - - - - /nix/persistent/waydroid/images"
+  ];
+
   services.usbmuxd.enable = true;
   systemd.services.usbmuxd.serviceConfig.Restart = "always";
 
