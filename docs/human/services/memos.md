@@ -20,15 +20,34 @@ Memos 运行在 `dragon-q8b`（原生 nixpkgs 包 `memos`，0.30.0），数据�
 | token endpoint | `https://login.zhyi.xin/token` |
 | userinfo endpoint | `https://login.zhyi.xin/userinfo` |
 | scopes | `openid profile email groups` |
-| identifier 字段 | `preferred_username`（限定 `^zhyi$`） |
+| identifier 字段 | `preferred_username`（不设过滤） |
 
 Dex 已确认支持 PKCE `S256`，Memos 登录页会正常发起授权码 + PKCE 流程。
 Memos 公网 vhost 不再叠加 OAuth2 Proxy，避免“先过一层 Dex、再登录 Memos”
 的双重登录。
 
-Memos 的 SSO 首次登录默认会创建 UUID 用户，不会自动绑定既有 `zhyi` 账号。
-要让 `zhyi` 直接复用，先在 Memos 内用密码登录一次，在
-Settings → Linked Identities 里完成绑定，之后即可用 Dex 登录。
+Memos 的 SSO 首次登录默认会新建本地账号，不会自动绑定同名既有账号。
+既有 `zhyi` 需先在 Settings → Linked Identities 绑定一次，之后即可用 Dex 登录。
+
+## 账号自动接纳
+
+实例已按「账号体系里的新账号自动建号」配置，两项都在 Memos 实例设置里
+（运行态数据，不在 Nix 配置中）：
+
+| 设置 | 值 | 作用 |
+| --- | --- | --- |
+| Identity Provider `identifier_filter` | 空 | 取消 `^zhyi$` 限制，接受 Dex 返回的任意 identifier |
+| Instance GENERAL `disallow_user_registration` | `false` | 允许首次 SSO 登录自动建号 |
+
+效果：只要账号能经 Dex 认证（`login.zhyi.xin` → Pocket ID → glauth LDAP），
+首次登录 Memos 会自动创建本地用户，角色为 `USER`（`zhyi` 保持 `ADMIN`）。
+Pocket ID 的 LDAP 搜索过滤器已排除 `svcaccts` 组，所以 `serviceuser` 进不来，
+只有人工账号会被接纳。
+
+两处都通过官方 API 调整：PATCH `/api/v1/identity-providers/dex-memos`（掩码
+`identifier_filter`）与 PATCH `/api/v1/instance/settings/GENERAL`（掩码
+`generalSetting.disallowUserRegistration`）。注意 Identity Provider 的 update
+mask 必须用 snake_case 字段名，用 camelCase 会触发 Memos 的 SQL 报错。
 
 ## 存储
 

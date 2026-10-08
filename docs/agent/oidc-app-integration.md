@@ -60,10 +60,10 @@ Dex 后端使用 Pocket ID（`id.zhyi.xin`）作为身份连接器。
   `/auth/callback` 完全一致。
 - OAuth2 端点：`https://login.zhyi.xin/auth`、
   `https://login.zhyi.xin/token`、`https://login.zhyi.xin/userinfo`。
-- field mapping：`identifier=preferred_username`、`email=email`，
-  identifier filter 为 `^zhyi$`。
-- Memos 首次 SSO 登录会创建新用户；既有 `zhyi` 需在
-  Settings → Linked Identities 绑定一次，之后才能直接免密登录。
+- field mapping：`identifier=preferred_username`、`email=email`，不设
+  identifier filter。
+- 实例允许自动建号（`disallow_user_registration=false`）：账号体系里的新账号
+  首次 SSO 登录即自动创建 Memos 用户；既有 `zhyi` 已绑定，直接免密登录。
 - 完整存储/通知/AI 配置见 [`docs/services/memos.md`](../human/services/memos.md)。
 
 ## 运行状态（2026-08-09）
