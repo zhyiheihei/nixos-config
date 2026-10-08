@@ -64,6 +64,16 @@ abilist 改写、ARM 运行库。已用 ARM64 busybox 实测转译执行成功�
 重装/升级镜像到非 Android 13 版本时需重跑 script 的 libhoudini 对应
 分支；waydroid init -f 会清 overlay，同样需重装。
 
+## 已知问题：surfaceflinger 重 GPU 负载下崩溃
+
+上游已知不稳定性（waydroid issue #1647 同签名，open 无修复）：重 GPU
+负载（游戏类应用）下 surfaceflinger 崩在 HWC2 present 路径，Android
+init 自动拉起 SF 并重启 zygote，前台应用被连带杀掉、表现为黑窗。
+2026-09-01（composer HAL 空指针 + SF abort）与 2026-10-08（SF SEGV）
+tombstone 同族，非本地配置/ARM 转译引入；宿主 GPU（Intel iGPU
+renderD128）无异常。低频（五周三例），重新打开应用即可恢复；镜像更新
+时留意上游修复。
+
 ## Sunshine
 
 - 全栈固定核显（Intel）：eGPU 不驱任何显示器，而该版 Sunshine 的 nvenc
