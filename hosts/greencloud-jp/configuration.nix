@@ -201,25 +201,9 @@ in
         export AWS_ACCESS_KEY_ID="$VAULTS3_ACCESS_KEY"
         export AWS_SECRET_ACCESS_KEY="$VAULTS3_SECRET_KEY"
         export AWS_DEFAULT_REGION=us-east-1
-        try_head() {
-          aws --endpoint-url http://127.0.0.1:9000 s3api head-bucket --bucket nix-cache
-        }
-        # 开机竞态：vaults3.service 就绪早于内部数据索引加载完，
-        # 此时 head-bucket 会被误判 4xx 不存在，紧接的 create-bucket
-        # 反而报 BucketAlreadyExists（2026-10-08 greencloud-jp 面板
-        # 重启后实例）。先重试再决断，桶确实存在即成功。
-        i=0
-        while [ "$i" -lt 6 ]; do
-          if try_head >/dev/null 2>&1; then
-            exit 0
-          fi
-          sleep 5
-          i=$((i + 1))
-        done
-        if ! try_head >/dev/null 2>&1; then
+        if ! aws --endpoint-url http://127.0.0.1:9000 s3api head-bucket --bucket nix-cache >/dev/null 2>&1; then
           aws --endpoint-url http://127.0.0.1:9000 s3api create-bucket --bucket nix-cache
         fi
-        try_head
       '';
     };
   };
