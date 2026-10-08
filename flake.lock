@@ -1803,11 +1803,11 @@
         "treefmt-nix": "treefmt-nix_5"
       },
       "locked": {
-        "lastModified": 1791432274,
-        "narHash": "sha256-c2BNOXhTx3pPnf0RHhDhsjmO53BGXlaWI+5fGaAz3mU=",
+        "lastModified": 1791433118,
+        "narHash": "sha256-SC5/Sookv+34tFqGXamNhqmgM4N/kbuRshAHhVDgoRo=",
         "owner": "zhyiheihei",
         "repo": "zhyi-packages",
-        "rev": "e31b0c8f2012cfbe8d45faeba068d77649e5eb27",
+        "rev": "a5328c66f50f80aad98fbf2cfe183286e907618d",
         "type": "github"
       },
       "original": {
