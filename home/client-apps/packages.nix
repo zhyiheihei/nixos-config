@@ -70,6 +70,14 @@ let
         }"
     '';
   };
+
+  # 本机（Intel 核显 + GStreamer 1.28 + KWin Wayland）上 waylandsink 会把画面
+  # 渲染成彩色横条纹；用同一条管线源换 1080p SMPTE 彩条本地复现：waylandsink
+  # 花屏、xvimagesink 正常（上游 issue #541 同因）。显式钉死 sink，
+  # autovideosink 按排名虽然也会落到 xvimagesink，但不依赖排名变化。
+  mac-display = pkgs.writeShellScriptBin "mac-display" ''
+    exec ${uxplay-with-plugins}/bin/uxplay -n ml-laptop -vs xvimagesink -vsync no "$@"
+  '';
 in
 {
   imports = [ inputs.nix-index-database.homeModules.nix-index ];
@@ -184,6 +192,7 @@ in
         nur-xddxdd.svp_4_6
         # AirPlay 接收端：Mac 把本机当副屏用（docs/human/hardware/ml-laptop.md）。
         uxplay-with-plugins
+        mac-display
       ]
     );
 

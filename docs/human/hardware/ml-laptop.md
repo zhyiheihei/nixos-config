@@ -109,17 +109,25 @@ UxPlay 当 AirPlay 接收端，Mac 在「控制中心 → 屏幕镜像」里选 
 （macOS 26 也可在「系统设置 → 显示器」里看到它，点显示器名按「用作」选扩展/镜像），
 然后选「扩展」而不是镜像。两边只需在同一 LAN（mDNS 多播可达）。
 
-本机启动（KDE Wayland；`-n` 决定 Mac 菜单里显示的名字）：
+本机启动（KDE Wayland）：
 
 ```bash
-uxplay -n ml-laptop -vs waylandsink -vsync no     # 排查时加 -d 1 打日志
+mac-display    # = uxplay -n ml-laptop -vs xvimagesink -vsync no，余下参数透传
 ```
 
-- 包在 `home/client-apps/packages.nix` 的 `uxplay-with-plugins`（只装
-  ml-laptop）。会话里的 `GST_PLUGIN_SYSTEM_PATH_1_0` 只有 core/base/good，
-  缺 h264/h265 解析解码、libav 与 waylandsink，裸跑会黑屏；wrapper 把
-  uxplay 自身引用的六个插件闭包钉进启动环境（2026-10-09 实测
-  `waylandsink`/`avdec_h264`/`vah264dec`/`h264parse`/`avdec_aac` 均可见）。
+- 包在 `home/client-apps/packages.nix`（launcher `mac-display` +
+  `uxplay-with-plugins`，只装 ml-laptop）。会话里的
+  `GST_PLUGIN_SYSTEM_PATH_1_0` 只有 core/base/good，缺 h264/h265 解析解码、
+  libav 与显示 sink，裸跑会黑屏；wrapper 把 uxplay 自身引用的六个插件闭包
+  钉进启动环境（2026-10-09 实测 `waylandsink`/`xvimagesink`/`avdec_h264`/
+  `vah264dec`/`h264parse`/`avdec_aac` 均可见）。
+- **sink 不能用 waylandsink**（2026-10-09 定型）：本机 Intel 核显 +
+  GStreamer 1.28 + KWin Wayland 上它把画面渲染成彩色横条纹（AirPlay 连接、
+  解码、取包全部正常，坏在最后一跳）。用 uxplay 同一条管线、源换 1080p
+  SMPTE 彩条本地复现：waylandsink 花屏，xvimagesink 正常；上游 issue #541
+  （Intel HD 620 + GStreamer 1.28「Video Output is messy」）同因同解。
+  本机 sink 排名 xvimagesink(256) > glimagesink(128) > waylandsink(64)，
+  launcher 显式钉死不依赖排名。要试其它 sink：`mac-display -vs glimagesink`。
 - 默认向客户端请求 1920x1080@60；要更清晰可 `-s 2560x1600@60`（超 1080p
   走 h265，必要时加 `-h265`；`vah265dec`/`h265parse` 已验证可用）。`-fs`
   直接全屏，运行时 F11 / Alt+Enter 也可切。
