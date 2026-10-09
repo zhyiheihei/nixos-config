@@ -112,8 +112,11 @@ UxPlay 当 AirPlay 接收端，Mac 在「控制中心 → 屏幕镜像」里选 
 本机启动（KDE Wayland）：
 
 ```bash
-mac-display    # = uxplay -n ml-laptop -vs xvimagesink -vsync no，余下参数透传
+mac-display    # = uxplay -n ml-laptop -vs xvimagesink -vsync no -fs -s 2880x1800@60 -fps 60 -h265
 ```
+
+余下参数透传（`-s`/`-fps` 这类值选项写在后面会覆盖默认；`-h265` 是开关
+去不掉，要退回 h264 低分辨率直接跑裸命令，见下）。
 
 - 包在 `home/client-apps/packages.nix`（launcher `mac-display` +
   `uxplay-with-plugins`，只装 ml-laptop）。会话里的
@@ -128,10 +131,15 @@ mac-display    # = uxplay -n ml-laptop -vs xvimagesink -vsync no，余下参数�
   （Intel HD 620 + GStreamer 1.28「Video Output is messy」）同因同解。
   本机 sink 排名 xvimagesink(256) > glimagesink(128) > waylandsink(64)，
   launcher 显式钉死不依赖排名。要试其它 sink：`mac-display -vs glimagesink`。
-- 默认向客户端请求 1920x1080@60；要更清晰可 `-s 2560x1600@60`（超 1080p
-  走 h265，必要时加 `-h265`；`vah265dec`/`h265parse` 已验证可用）。`-fs`
-  直接全屏，运行时 F11 / Alt+Enter 也可切。
-- 日志判读：正常启动会打印两条 audio pipeline、h264 video pipeline、
+- 默认本机原生分辨率 2880x1800@60 + 全屏（`-fs`，F11/Alt+Enter 退出）+
+  `-fps 60`（不加默认只给 30fps）+ `-h265`（超 1080p 必须 h265）。若 macOS
+  拒绝 h265/高分导致连不上或黑屏，退回：`uxplay -n ml-laptop -vs
+  xvimagesink -vsync no -s 1920x1080@60`。
+- 硬解：decodebin 按排名自动选 `vah264dec`/`vah265dec`（排名 257 >
+  avdec 256），不用配；实测 2880x1800@60 纯解码硬解 12% CPU、软解 432%
+  （四个核），整条管线硬解下约 0.9 核。别用 GST_PLUGIN_FEATURE_RANK 把
+  avdec 顶上去。h265 经完整管线（硬解→RGB→Xv）本地渲染已验证无损。
+- 日志判读：正常启动会打印两条 audio pipeline、h264/h265 video pipeline、
   `Initialized GStreamer video renderer` 和 `advertised AirPlay service with
   Features code = 0x...`；之后没有任何输出 = 客户端根本没连上来，问题在
   发现/入口，不在本机。Mac 真的连上时会继续出现 `raop_rtp_mirror starting

@@ -75,8 +75,12 @@ let
   # 渲染成彩色横条纹；用同一条管线源换 1080p SMPTE 彩条本地复现：waylandsink
   # 花屏、xvimagesink 正常（上游 issue #541 同因）。显式钉死 sink，
   # autovideosink 按排名虽然也会落到 xvimagesink，但不依赖排名变化。
+  # 默认本机原生分辨率 + 全屏 + 60fps + h265（>1080p 必须 h265）；硬解靠
+  # decodebin 排名（vah264dec/vah265dec=257 > avdec=256）自然选中，实测
+  # 2880x1800@60 纯解码硬解 12% CPU vs 软解 432%，别动排名。
   mac-display = pkgs.writeShellScriptBin "mac-display" ''
-    exec ${uxplay-with-plugins}/bin/uxplay -n ml-laptop -vs xvimagesink -vsync no "$@"
+    exec ${uxplay-with-plugins}/bin/uxplay -n ml-laptop -vs xvimagesink -vsync no \
+      -fs -s 2880x1800@60 -fps 60 -h265 "$@"
   '';
 in
 {
