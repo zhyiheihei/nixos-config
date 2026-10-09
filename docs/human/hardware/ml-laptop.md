@@ -105,23 +105,36 @@ renderD128）无异常。低频（五周三例），重新打开应用即可恢�
 ## 作为 Mac 副屏（AirPlay 接收端）
 
 MacBook Air（`molishanguangs-MacBook-Air-89.local`）不用装任何软件：本机跑
-UxPlay 当 AirPlay 接收端，Mac 用自带的「控制中心 → 屏幕镜像 → ml-laptop →
-使用为独立显示器」扩展桌面。两边只需在同一 LAN（mDNS 多播可达）。
+UxPlay 当 AirPlay 接收端，Mac 在「控制中心 → 屏幕镜像」里选 `ml-laptop@ml-laptop`
+（macOS 26 也可在「系统设置 → 显示器」里看到它，点显示器名按「用作」选扩展/镜像），
+然后选「扩展」而不是镜像。两边只需在同一 LAN（mDNS 多播可达）。
 
 本机启动（KDE Wayland；`-n` 决定 Mac 菜单里显示的名字）：
 
 ```bash
-uxplay -n ml-laptop -vs waylandsink -vsync no
+uxplay -n ml-laptop -vs waylandsink -vsync no     # 排查时加 -d 1 打日志
 ```
 
 - 包在 `home/client-apps/packages.nix` 的 `uxplay-with-plugins`（只装
   ml-laptop）。会话里的 `GST_PLUGIN_SYSTEM_PATH_1_0` 只有 core/base/good，
   缺 h264/h265 解析解码、libav 与 waylandsink，裸跑会黑屏；wrapper 把
-  uxplay 自身引用的六个插件闭包钉进启动环境（2026-10-11 实测
+  uxplay 自身引用的六个插件闭包钉进启动环境（2026-10-09 实测
   `waylandsink`/`avdec_h264`/`vah264dec`/`h264parse`/`avdec_aac` 均可见）。
-- 默认向客户端请求 1920x1080@60；要更清晰可 `-s 2560x1600@60`（超过 1080p
-  走 h265，必要时加 `-h265`）。`-fs` 直接全屏，运行时 F11 / Alt+Enter 也可切。
-- 音频默认从本机放（PipeWire 的 pulse 兼容口）。断开在 Mac 控制中心里停止镜像。
+- 默认向客户端请求 1920x1080@60；要更清晰可 `-s 2560x1600@60`（超 1080p
+  走 h265，必要时加 `-h265`；`vah265dec`/`h265parse` 已验证可用）。`-fs`
+  直接全屏，运行时 F11 / Alt+Enter 也可切。
+- 日志判读：正常启动会打印两条 audio pipeline、h264 video pipeline、
+  `Initialized GStreamer video renderer` 和 `advertised AirPlay service with
+  Features code = 0x...`；之后没有任何输出 = 客户端根本没连上来，问题在
+  发现/入口，不在本机。Mac 真的连上时会继续出现 `raop_rtp_mirror starting
+  mirroring` 以及 bus message。
+- 音频默认从本机放（PipeWire 的 pulse 兼容口）。断开在 Mac 侧停止镜像。
+- Mac 侧看不到设备时，在 Mac 的终端跑 `dns-sd -B _airplay._tcp`（系统自带）
+  看它到底收没收到 Bonjour 广播：列得出 `ml-laptop@ml-laptop` 而菜单/显示器
+  设置里没有 = macOS 侧的问题；列不出 = mDNS 未到达 Mac（先查两台是否同网段）。
+- 上游不旧也不停维（2026-10-09 查）：最新 release v1.73.7（2026-09-04）就是
+  nixpkgs 里这个版本，master 到 2026-10-05 还有提交，维护者 fduncanh 在
+  issue #458 实测 macOS 26 Tahoe（M4 Mac mini）能正常镜像到 UxPlay。
 - AirPlay 串流适合文档/终端/参考窗口，不适合游戏。要低延迟高画质走下面的备选。
 
 ### 备选：Sunshine(macOS) + Moonlight + BetterDisplay
