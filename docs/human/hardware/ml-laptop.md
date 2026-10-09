@@ -101,3 +101,33 @@ renderD128）无异常。低频（五周三例），重新打开应用即可恢�
   `capture=kms` 跳过探测循环；KMS 命中的就是核显侧 HDMI-A-1 输出。
 - `csrf_allowed_origins` 在主机层放行 LAN/LTNET 地址（公共模块
   sunshine.nix 不动）：否则 CSRF 防护挡住配对页。
+
+## 作为 Mac 副屏（AirPlay 接收端）
+
+MacBook Air（`molishanguangs-MacBook-Air-89.local`）不用装任何软件：本机跑
+UxPlay 当 AirPlay 接收端，Mac 用自带的「控制中心 → 屏幕镜像 → ml-laptop →
+使用为独立显示器」扩展桌面。两边只需在同一 LAN（mDNS 多播可达）。
+
+本机启动（KDE Wayland；`-n` 决定 Mac 菜单里显示的名字）：
+
+```bash
+uxplay -n ml-laptop -vs waylandsink -vsync no
+```
+
+- 包在 `home/client-apps/packages.nix` 的 `uxplay-with-plugins`（只装
+  ml-laptop）。会话里的 `GST_PLUGIN_SYSTEM_PATH_1_0` 只有 core/base/good，
+  缺 h264/h265 解析解码、libav 与 waylandsink，裸跑会黑屏；wrapper 把
+  uxplay 自身引用的六个插件闭包钉进启动环境（2026-10-11 实测
+  `waylandsink`/`avdec_h264`/`vah264dec`/`h264parse`/`avdec_aac` 均可见）。
+- 默认向客户端请求 1920x1080@60；要更清晰可 `-s 2560x1600@60`（超过 1080p
+  走 h265，必要时加 `-h265`）。`-fs` 直接全屏，运行时 F11 / Alt+Enter 也可切。
+- 音频默认从本机放（PipeWire 的 pulse 兼容口）。断开在 Mac 控制中心里停止镜像。
+- AirPlay 串流适合文档/终端/参考窗口，不适合游戏。要低延迟高画质走下面的备选。
+
+### 备选：Sunshine(macOS) + Moonlight + BetterDisplay
+
+Mac 侧装 sunshine（`brew tap LizardByte/homebrew && brew install sunshine`）与
+BetterDisplay；用 BetterDisplay 建虚拟显示器，把它的 `CGDirectDisplayID` 填进
+Sunshine 配置的 `output_name_unix`；本机已装 `moonlight-qt`，连上 Mac 后选
+Desktop。延迟与画质优于 AirPlay（走 VideoToolbox 硬编），代价是 Mac 侧要装两个
+第三方件并手工建虚拟显示器。
