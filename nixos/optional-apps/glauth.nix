@@ -77,6 +77,17 @@ let
         displayName = ["Lao Zhou"]
 
     [[users]]
+      name = "laocai"
+      givenname = "Lao"
+      sn = "Cai"
+      mail = "${glauthUsers.laocai.mail}"
+      uidnumber = 1004
+      primarygroup = 101
+      passbcrypt = "${hexdump glauthUsers.laocai.passBcrypt}"
+      [[users.customattributes]]
+        displayName = ["Lao Cai"]
+
+    [[users]]
       name = "serviceuser"
       mail = "serviceuser@example.com"
       uidnumber = 60000
