@@ -7,6 +7,7 @@
     ./alertmanager.nix
     ./blackbox-exporter.nix
     ./periodic-tasks.nix
+    ./rules.nix
     ./scrape-configs.nix
   ];
 

@@ -27,6 +27,7 @@ in
     # ROCK 5C address until the edge role has been verified and cut over.
     ../../nixos/optional-apps/metacubexd.nix
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
+    ./moviepilot-watchdog.nix
 
     ./hardware-configuration.nix
     ./home-edge.nix
