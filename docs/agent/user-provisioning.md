@@ -139,6 +139,9 @@ nix shell nixpkgs#openldap -c ldapsearch -x -H ldap://198.19.0.38:389 \
 `ldapwhoami` 会报 `Protocol Error`——glauth 不支持 Who Am I 扩展操作，改用
 `ldapsearch` 看返回码。
 
+注意 `-y` 密码文件**不能带末尾换行**（`awk`/`grep` 重定向会多出 `\n`，导致密码
+多个字节 bind 报 49）；生成时用 `printf '%s' "$var" > file`，不要用 `echo`。
+
 ### 6. Pocket ID 同步
 
 Pocket ID 启动后几秒同步一次，之后每小时（本机是 `:11`）同步一次，管理界面
