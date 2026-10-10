@@ -117,6 +117,27 @@ AI 链与知识链通过各服务官方 API 连接，禁止用“共享数据库
   SOPS；公网 vhost 前的 OAuth 是否放行 API key 需实机验证，必要时走
   `127.0.0.1` 通道。
 
+## LibreChat 的 MCP 接入
+
+`greencloud` 的 LibreChat 通过主机级/隐藏模块（`nixos-secrets` 的
+`nixos-hidden-module/<hash>`）注入 MCP 服务器：`home-assistant`（stdio，脚本内
+`cat` 出 sops secret 当环境变量）与 `moviepilot`（streamable-http）。
+
+MoviePilot 侧走的是 **v3 自带的 MCP 服务** `https://moviepilot.rock5c.zhyi.xin/api/v1/mcp`
+（`X-API-KEY` 或 `?apikey=` 认证，token 存在 `common/moviepilot.yaml`）。此前用的
+PyPI 包 `moviepilot-mcp` 只实现 v1 接口（媒体详情用 `tmdb:123` 且不带 `media_source`），
+对 v3 一律 422，工具每次调用都失败，模型会反复重试到
+LangGraph `recursion limit of 50` 报错——遇到这个报错先查是不是某个 MCP 工具在持续失败。
+
+两个容易踩的坑：
+
+- `librechat.yaml` 的 `mcpServers.<name>.headers` 值**不会**在启动阶段展开 `${VAR}`
+  （`processMCPEnv` 的展开只在连接期跑，启动期探测拿不到），于是本地 MCP 会 401、
+  被误判成需要 OAuth（日志 `OAuth Required: true`）。`url` 字段在配置加载时就会展开，
+  所以 token 放到 `?apikey=${VAR}` 上，并显式 `requiresOAuth = false`。
+- `moviepilot.rock5c.zhyi.xin` 在舰队内解析到 LTNET ULA，LibreChat 的 MCP SSRF
+  保护默认拒绝私网地址，需要在 `mcpSettings.allowedAddresses` 里按 `host:port` 放行。
+
 ## 官方 API 出处
 
 | 服务 | 官方文档 |
@@ -162,6 +183,7 @@ greencloud，Metapi 迁移后作为备份保留；tencent 上的 `/var/lib/metap
 | `uni-api/providers/` 与 `uni-api/apis/` | 外部 Provider URL、API key 与模型映射 | 只在私有 secrets 仓库按 SOPS 规范维护 |
 | `uni-api/` Provider 注册表 | LibreChat 模型列表与 UniAPI Provider 配置 | 与 UniAPI 配置一起维护 |
 | `librechat.yaml` 与 `common/dex.yaml` | LibreChat 会话、JWT、凭据加密与 OIDC client secret | 只通过 SOPS secret 文件注入 |
+| `common/moviepilot.yaml` 的 `moviepilot-api-token` | LibreChat 接 MoviePilot v3 MCP | 只通过 SOPS 注入 LibreChat 进程环境，不写进 librechat.yaml |
 | `n8n.yaml` | n8n runner/API 认证 | Bridge 只读取其所需的 token，不能输出或复制到普通配置 |
 
 轮换 `uni-api-admin-api-key` 的正确顺序：
