@@ -51,7 +51,7 @@ curl -sS "http://127.0.0.1:9090/api/v1/query" --data-urlencode 'query=<指标>' 
   peerbanhelper / tachidesk，以及 rock5c 上 moviepilot / jellyfin / handbrake
   均 running（仅入口；bitmagnet/peerbanhelper/tachidesk 于 2026-08-28 自 opi5p 迁至 dragon-q8b，opi5p 仅保留 8443 TLS 前沿回源）
 - **日志（重点）**：
-  - **moviepilot**：`无法获取下载地址` / `触发站点流控` → 站点限流或索引异常；`没有找到可整理的媒体文件` → 确认下载路径为 `/mnt/storage/downloads` 且非隐藏目录
+  - **moviepilot**：`无法获取下载地址` / `触发站点流控` → 站点限流或索引异常；`没有找到可整理的媒体文件` → 确认下载路径为 `/mnt/storage/downloads` 且非隐藏目录；BrushFlow 刷流停摆排查（2026-10-10 实锤）：日志刷屏「已有操作执行中，本轮检查跳过」是 brush/check 同刻触发的良性锁竞争，不是故障；真故障是 BrushFlow **全局动态删种启用时会设计性短路任务级按条件删种**（`_run_check` 里 `need_delete_hashes = []`），且任务 `disksize` 保种上限会压住做种池天花板——全局阈值若高于该天花板则永不触发，删种停摆 + 任务池顶满后新增全部被拒，形成死锁。核对：qBittorrent brush 分类总体积 vs 全局阈值（应落在 `下限-上限` 区间内震荡）、BrushFlow 任务 runs 里 brush 的 reason_counts 是否刷屏「预计做种体积超过任务保种上限」。修复入口：`POST /api/v1/plugin/BrushFlow/settings`（`X-API-KEY: $API_TOKEN`，token 在 `/nix/persistent/var/lib/moviepilot/app.env`），当前全局阈值 `700-750`；任务删种条件（ratio/促销过期/不活跃分钟）作为动态删种优先级参与
   - **jellyfin**：WS 断开/请求取消 = 客户端行为（🟢）
 - **监控指标**：MoviePilot 日志中的订阅搜索/下载/整理成功率；qBittorrent 任务数、上传/下载速度；SubtitleAssistant 源状态
 - **数据流转**：`ls /mnt/storage/downloads`（有新下载）、`df -h /mnt/storage`（NAS 挂载健康，<90%）、Jellyfin 媒体库可播放
