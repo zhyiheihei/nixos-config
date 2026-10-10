@@ -30,7 +30,7 @@
       UI_CONFIG_DISABLED = true;
       ANALYTICS_DISABLED = true;
 
-      APP_NAME = "Magic Flash @ Login";
+      APP_NAME = "Magic Flash Login";
       EMAILS_VERIFIED = true;
       ALLOW_OWN_ACCOUNT_EDIT = false;
       DISABLE_ANIMATIONS = true;

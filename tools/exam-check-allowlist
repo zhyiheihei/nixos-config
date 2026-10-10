@@ -54,7 +54,7 @@ nixos/optional-apps/ncps-client.nix # ncps 指向本仓 192.168.0.66（作者 .0
 nixos/optional-apps/ncps.nix # 监听地址参数化（作者硬编码其 LAN IP）
 nixos/optional-apps/nix-distributed.nix # nixbuild.net 付费构建节点移除（fork 无账号），x86_64 构建机额外通告 aarch64-cross 承接三个 vendor 内核交叉构建（rock5c/opi5p/sc8280xp-kernel 的 requiredSystemFeature；上游靠 nixbuild.net 兜底无此需求），其余结构对齐上游
 nixos/optional-apps/plausible.nix # geonames.csv tmpfiles 软链：nixos-unstable 模块设 GEONAMES_SOURCE_FILE 但无生成机制，greencloud 迁移后实证起不来；上游（colocrossing）无此修复
-nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮箱验证码降级登录（2026-09-07 用户决策偏离）
+nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮箱验证码降级登录（2026-09-07 用户决策偏离）；APP_NAME 去掉 @（2026-10-10 用户决策）：裸 @ 在 From 显示名违反 RFC 5322，AhaSend/KumoMTA 严格解析回 421 technical difficulties，Pocket ID v2.15.0 修复（pocket-id/pocket-id#1484），本仓 nixpkgs 锁随 exam 在 dc5d91f8 只到 2.14.0；nixpkgs 含 ≥2.15.0 后恢复原名并删本条
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
 nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
