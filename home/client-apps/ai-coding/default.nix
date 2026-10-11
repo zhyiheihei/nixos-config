@@ -20,7 +20,7 @@ in
 
   programs.mcp = {
     enable = true;
-    servers = osConfig.lantian.mcp.mcpServers or { };
+    servers = osConfig.lantian.mcp.codingMcpServers or { };
   };
 
   programs.pi-coding-agent = {
@@ -43,19 +43,6 @@ in
       uni-api = {
         api = "openai-completions";
         baseUrl = "https://ai-api.zhyi.xin/v1";
-      };
-      taotoken = {
-        api = "openai-completions";
-        baseUrl = "https://taotoken.net/api/v1";
-        models = [
-          {
-            id = "glm_for_coding";
-            reasoning = true;
-            contextWindow = 200000;
-            maxTokens = 131072;
-            compat.supportsDeveloperRole = false;
-          }
-        ];
       };
     };
 
@@ -86,7 +73,6 @@ in
         "npm:@cortexkit/pi-magic-context"
         "npm:@fradser/pi-utils"
         "npm:@gamaraan/ask-tool"
-        "npm:@mjakl/pi-subagent"
         "npm:@moguw/pi-session-migrate"
         "npm:@monotykamary/pi-tps"
         "npm:@narumitw/pi-usage"
@@ -95,10 +81,12 @@ in
         "npm:pi-commandcode-provider"
         "npm:pi-copy-message"
         "npm:pi-fast-resume"
+        "npm:pi-mcp-adapter"
         "npm:pi-multi-pass"
         "npm:pi-ollama-cloud"
         "npm:pi-secret-mask"
         "npm:pi-simplify"
+        "npm:pi-subagents"
         # keep-sorted end
       ];
     };
@@ -108,7 +96,7 @@ in
   # and the first pi launch after boot recompiles ~400 modules (~14 s).
   # Symlink the cache to a persistent location; verified:
   # cold 14.4 s -> warm 1.8 s, and with the symlink warm stays 1.8 s.
-  home.activation.link-jiti-cache = lib.optionalString (config.home.username == "zhyi") ''
+  home.activation.link-jiti-cache = lib.optionalString (config.home.username == "lantian") ''
     mkdir -p "$HOME/.cache/jiti"
     # jiti may have created a real directory before this link existed
     if [ -d /tmp/jiti ] && [ ! -L /tmp/jiti ]; then
@@ -118,9 +106,16 @@ in
   '';
 
   home.file.".pi/agent/mcp.json".text = builtins.toJSON {
-    mcpServers = lib.mapAttrs (_: server: server // { exposure = "direct"; }) (
-      osConfig.lantian.mcp.mcpServers or { }
-    );
+    settings = {
+      directTools = true;
+      disableProxyTool = true;
+      # Disabled for extra logging to TUI
+      freezeDirectTools = false;
+      idleTimeout = 5;
+      mcpFooterStatus = "off";
+      requestTimeoutMs = 60000;
+      scriptMode = false;
+    };
   };
   home.file.".pi/agent/ollama-cloud.json".text = builtins.toJSON {
     webTools = false;
@@ -135,13 +130,11 @@ in
     enabled = true;
     auto_update = false;
     allow_home_project = true;
-    historian.pi.model = "uni-api/glm-5.3-flash";
-    dreamer.pi.model = "uni-api/glm-5.3-flash";
-    sidekick.model = "uni-api/glm-5.3-flash";
+    historian.pi.model = "uni-api/deepseek-v4.1-flash";
+    dreamer.pi.model = "uni-api/deepseek-v4.1-flash";
+    sidekick.model = "uni-api/deepseek-v4.1-flash";
     embedding = {
       provider = "openai-compatible";
-      # fork：配 ml-laptop 主机级 Vulkan iGPU 覆盖（脱离 NVIDIA），
-      # 模型名须与其 models 一致
       model = "qwen3-embedding-4b";
       endpoint = "http://127.0.0.1:${LT.portStr.LlamaSwap}/v1";
     };
@@ -180,5 +173,13 @@ in
     };
     extraSecrets = [ ];
     customPatterns = [ ];
+  };
+  home.file.".pi/agent/extensions/subagent/config.json".text = builtins.toJSON {
+    toolDescriptionMode = "compact";
+    parallel = {
+      maxTasks = 100;
+      concurrency = 100;
+    };
+    maxSubagentSpawnsPerSession = 10000;
   };
 }
