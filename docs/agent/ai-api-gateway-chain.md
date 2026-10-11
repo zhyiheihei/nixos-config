@@ -138,6 +138,23 @@ LangGraph `recursion limit of 50` 报错——遇到这个报错先查是不是�
 - `moviepilot.rock5c.zhyi.xin` 在舰队内解析到 LTNET ULA，LibreChat 的 MCP SSRF
   保护默认拒绝私网地址，需要在 `mcpSettings.allowedAddresses` 里按 `host:port` 放行。
 
+同一个隐藏模块还给「影视助手」挂了 MoviePilot 自带的 skill：MoviePilot v3 仓库的
+README 的 `## Agent` 一节说明其它智能体导入其 `skills/` 目录即可获得操作能力，
+因此用 `fetchFromGitHub` 按 rev 固定后通过 `DEPLOYMENT_SKILLS_DIR` 挂成只读的
+部署型 skill（文章本节所说的“部署型 skill”）。两个必须知道的约束：
+
+- **Skills 只在 agents 端点上生效**：skill catalog 注入、`$` 手动调用、
+  always-apply 与 skill 工具的解析全在 agents 链路（`packages/api/src/agents/skills.ts`、
+  `api/server/controllers/agents/*`），自定义端点（如 UniAPI）只把
+  `manualSkills` 当界面元数据存一下。所以影视助手的 preset 端点从 `UniAPI` 改成了
+  `agents`（模型仍是 UniAPI 提供的 `deepseek-v4.1-flash`）。
+- **frontmatter 严格校验**：部署型 skill 的 frontmatter 只允许白名单键
+  （name/description/allowed-tools/version/…），出现 `authors`、`credentials`、
+  `allowed-api-operations` 这类未识别键或数字型 `version` 会**直接让服务拒绝启动**。
+  上游 skills/ 三者都有，因此在构建期用 `librechat-skills/normalize-skill-frontmatter.py`
+  归一化（re-export secrets 时该目录一起进 store）。升级 MoviePilot skills 时
+  只改 rev + hash。
+
 ## 官方 API 出处
 
 | 服务 | 官方文档 |
