@@ -48,12 +48,24 @@ in
   virtualisation.oci-containers.containers.moviepilot.image =
     lib.mkForce "docker.io/jxxghp/moviepilot-v3:latest";
 
-  # v3's resource auto-update (curl_cffi download of user.sites.v3.bin /
-  # sites.cpython-*.so) crashes the backend with SIGSEGV on this 8 GiB host
-  # (2026-08-13, reproduced 3x at the same step even with memory headroom;
-  # core dump then also fails to allocate). Resources are already at
-  # v3.0.3/v3.0.0 on disk, so disabling updates loses nothing.
-  virtualisation.oci-containers.containers.moviepilot.environment.AUTO_UPDATE_RESOURCE = "false";
+  # v3's resource auto-update (download of user.sites.v3.bin /
+  # sites.cpython-*.so) crashed the backend with SIGSEGV on this 8 GiB host
+  # in the v3.0.3 era (2026-08-13, reproduced 3x at the same step even with
+  # memory headroom). Re-verified on v3.1.3 (2026-10-11): a full download of
+  # the 3.0.19 index resources (834 KB + 3.4 MB) completes in a separate
+  # process with 5.8 GiB available memory and no crash, so auto-update is
+  # re-enabled to receive upstream site-definition fixes automatically (the
+  # PTTime search_area fix, upstream issue #6953, only ships via resources).
+  virtualisation.oci-containers.containers.moviepilot.environment.AUTO_UPDATE_RESOURCE = "true";
+
+  # v3 的 can_restart() 要求 is_docker()（即容器内存在 /.dockerenv）成立，
+  # 而 podman 只创建 /run/.containerenv；官方镜像内 supervisord 配置/二进制/
+  # 套接字其实都在，缺的只是这个标记文件，导致站点资源更新被拒
+  #（「当前运行环境不支持升级操作」）。补挂一个空文件，使 issue #6953 这类
+  # 只随站点资源下发的修复能通过应用内更新机制到达。
+  virtualisation.oci-containers.containers.moviepilot.volumes = lib.mkAfter [
+    "${pkgs.writeText "dockerenv" ""}:/.dockerenv:ro"
+  ];
 
   fonts.packages = [ fallbackFontsDir ];
 
