@@ -188,4 +188,19 @@ in
     };
   };
 
+  # 2026-10-11：Jellyfin 全库元数据刷新叠加 rkmpp 硬解转码（DRM GEM 缓冲计入
+  # Shmem），把 8 GiB 内存和 4 GiB zram swap 一起吃满；swappiness=180 下内核
+  # 只换页不肯杀进程，01:25→03:10 后进入回收风暴，10:50 起整机活锁到断电。
+  # earlyoom 在内存与 swap 同时吃紧时先杀转码/推理进程，丢一次转码换整机存活
+  # （做法同 ml-builder 的编译机收尾）。
+  services.earlyoom = {
+    enable = true;
+    extraArgs = [
+      "--prefer"
+      "(jellyfin-ffmpeg|jellyfin|ffmpeg|immich|python3?|ghb)"
+      "--avoid"
+      "(nix-daemon|nix-store|sshd|systemd|nginx|bird|knotd|pdns|zerotier|mihomo|podman)"
+    ];
+  };
+
 }

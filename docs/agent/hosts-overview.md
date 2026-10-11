@@ -24,7 +24,7 @@
 | `greencloud` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、协作内容链路与 ZeroTier controller（监控栈 2026-08-14 迁至 tencent）；2026-10-08 起另承载 fastpit（posts.zhyi.xin，对齐上游 colocrossing）。 |
 | `google` | 121 | `server` / 公网入口 / 日志目标 | `35.212.152.140` | US VPS（GCP）；Filebeat 目标仍指向此机，但当前未部署 Elasticsearch，日志链待修复。 |
 | `opi5p` | 122 | RK3588 / reDroid / One-KVM | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。2026-09 启用板载 HDMI RX（vendor-hdmirx.patch）+ One-KVM IP-KVM 容器（lantian.one-kvm，Web :8080）。2026-09-17 起 Hydra CI 所在地（见 docs/agent/hydra-build-chain.md）。家庭内唯一保留 `server` 标签的机器（备份 SFTP 端点 + 全仓统一出站代理入口），2026-10-01 定；2026-10-08 起另承担 i2pd/Tor 匿名出口（对齐上游 pve-epyc）。 |
-| `rock5c` | 123 | RK3588 / 家庭边缘 | `192.168.0.64` | Radxa ROCK 5C；边缘代理、控制链、MetaCubeXD 与 reDroid。2026-10-01 起 LTNET 走 ZeroTier（已退出 wgmesh/BGP mesh，见 wg-mesh 漂移登记）。 |
+| `rock5c` | 123 | RK3588 / 家庭边缘 | `192.168.0.64` | Radxa ROCK 5C；边缘代理、控制链、MetaCubeXD 与 reDroid。2026-10-01 起 LTNET 走 ZeroTier（已退出 wgmesh/BGP mesh，见 wg-mesh 漂移登记）。2026-10-11 启用 earlyoom：Jellyfin 全库刷新叠加 rkmpp 硬解转码（DRM GEM 计入 Shmem）吃满 8 GiB + 4 GiB zram，无 OOM kill 下整机回收风暴活锁到断电。 |
 | `lubancat1` | 124 | RK3566 / `low-ram` | `192.168.0.65` | 原版 LubanCat-1（非 V2），2 GiB RAM、无 eMMC；server 角色基线已上线，尚未迁入用户应用；2026-10-01 摘除 `server` 标签退出 mesh（其 ZeroTier 当前失联，待修）。 |
 | `h28k` | 125 | RK3528 / 异地路由器（预部署） | WAN DHCP / LAN `192.168.30.1` | HINLINK H28K；双千兆口、Kea、CoreDNS 与 nftables NAT；SSH/SOPS/ZeroTier 身份已采集（ZeroTier node ID `368d3cf42b`，2026-08-15 修正），仍在家中 staging（临时 SSH 放行规则保留），待迁异地站点。 |
 | `opi03` | 126 | H618 / reDroid 实验设备 | DHCP（未固定） | Orange Pi Zero 3；本地 Android 镜像和硬件加速仍在开发，尚未完成正式网络身份与实机验收。 |
