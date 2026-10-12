@@ -52,15 +52,23 @@
 - **动共享路径（`tools/exam-check --print-paths`，即 nixos/ home/ helpers/ overlays/
   flake-modules/ 等）之前先 `tools/exam-check`**：基线必须绿（只有 `=`/`≈`/`!known`）。
   否则自己的改动会和既有漂移混在一起，无法归因（2026-09-05 attic 六连提交的教训）
-- 同步上游六步：`git fetch exam` → `tools/exam-check log` 看增量 →
-  **`tools/exam-check structure` 先过上游的结构变更（新增/删除/改名）：该加的加、该删的删、
-  该改名的 `git mv`**（改名会让同路径内容比对失效，必须先过结构再搬内容）→ pristine 文件
-  `git checkout exam/master -- <path>` 后做认可替换 → fork 接管的文件手动搬 patch →
-  `tools/exam-check` 绿后更新 `docs/agent/upstream-baseline.md` 的 baseline 并提交
-- **结构审计**：`tools/exam-check structure` 以 `git diff --name-status -M baseline..exam/master`
-  为准，逐条核验 A/D/R 是否已跟进（已并入默认输出，未跟进即 exit 1）。`diff` 子命令对改名
-  自动配对（改名前后路径皆可）；`upstream` 子命令会单列「上游改名未跟进」。有意不采纳的
-  上游文件在 allowlist 写 `skip: 原因`；fork 自己的改名写进 `tools/exam-check` 的 NORMALIZE
+- **路线一（2026-10-12 起）：用真 fork merge 紧跟上游，不再逐文件拷贝。**
+  1. 一次性接线：`tools/setup-merge-driver`（写 merge driver / rerere / renameLimit；
+     `.gitattributes` 已把 `* merge=normalize` 入库）
+  2. `git fetch exam && git merge exam/master`——rename/新增/删除由 git 按树自动跟随，
+     「上游值 vs 我的环境值」由 merge driver 先跑 NORMALIZE 再合并，不算冲突
+  3. `tools/post-merge-env <merge 前的 commit>`——删掉上游带进来的本仓永不采纳路径
+     （上游主机目录/域名文件按 merge 前树动态判定，allowlist 的 `skip:` 亦生效），
+     其余内容再过一遍 NORMALIZE
+  4. 逐台 `nix eval` 主机 toplevel 必须全绿；`tools/exam-check upstream` 的
+     未对齐/缺失/改名未跟进必须为 0（只剩 `!known` 登记偏离）
+  5. 更新 `docs/agent/upstream-baseline.md` 的 baseline 并提交
+- **merge 后必须复核**：driver 与 post-merge-env 只做机械替换，两处需要人看——
+  ① 双方在同一位置各自新增同一段代码时 git 会插入两份（用 `nix eval` 的
+  duplicate attribute 报错定位）；② 上游新代码可能依赖本仓尚未跟进的输入版本
+  （如 nixpkgs 的包/插件），此时先回退该项并在 allowlist 登记
+- 旧拷贝式流程的审计工具仍在：`tools/exam-check structure`（A/D/R 未跟进）、
+  `diff`（改名自动配对）、`upstream`（改名未跟进）——用作 merge 的补充核验
 - 认可替换的机器可读规则、漂移判定与清债清单（含每项原因）见 `tools/exam-check`
   与 `tools/exam-check-allowlist`；fork 侧修复不主动上抛上游（2026-09-05 定），
   仅当上游独立修复同一问题、fork 补丁失去必要时才删条目并同步对齐
