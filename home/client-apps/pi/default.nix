@@ -25,7 +25,9 @@ in
 
   programs.pi-coding-agent = {
     enable = true;
-    package = pkgs.llm-agents.pi;
+    package = pkgs.llm-agents.pi.override {
+      useBun = false;
+    };
     # # Not implemented correctly in home manager
     # configDir = "${config.xdg.configHome}/pi/agent";
     inherit context;
@@ -79,7 +81,6 @@ in
 
       packages = [
         # keep-sorted start
-        "git:github.com/xddxdd/pi-model-discovery@v0.3.1"
         "npm:@cortexkit/pi-magic-context"
         "npm:@fradser/pi-utils"
         "npm:@gamaraan/ask-tool"

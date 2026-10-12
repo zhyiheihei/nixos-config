@@ -88,7 +88,7 @@ nixos/common-apps/yggdrasil/public-peers.json # peers 数据文件经 update.py 
 nixos/server-apps/wg-mesh.nix # targetHosts 额外要求本机为 server（家庭机退出 BGP mesh 走 ZeroTier，2026-10-01 用户决策；上游 wg-mesh 仅被 server 角色导入，行为等价。起因：家宽↔greencloud wgmesh UDP 被上游掐断，家庭节点钉住的 /32 内核路由经 BGP 泄漏毒化全网选路致证书发放中断）
 nixos/optional-apps/mtranserver/models.json # update.py auto 工作流维护（同 yggdrasil public-peers.json 惯例）：模型清单随上游 moz translations 数据刷新，哈希/URL 与上游快照自然漂移
 nixos/optional-apps/attic.nix # fork：attic 用 nur-xddxdd.lantianCustomized.attic-telnyx-compatible 包
-overlays/52-old-packages.nix # fork：zerotierone 固定 1.14.2（工作树既有改动）
+overlays/52-old-packages.nix # fork：zerotierone 固定 1.14.2（1.16.0 家宽↔VPS v4 unicast 失效，上游 #2573 多人验证 1.14.2 稳定；诊断与决策见 docs/agent/inspection-fleet-20261007.md）
 nixos/hardware/xilinx.nix # skip: 上游依赖作者 secrets 私有 hidden-module da4fbe694da377db，fork 不采纳
 nixos/common-apps/nginx/vhost-options/helpers.nix # fork：nginx vhost-options 保留本仓直接 443 方案（未采纳上游 stream SNI 共享 socket 重构）
 nixos/common-apps/nginx/vhost-options/vhost-options.nix # 同上
@@ -100,3 +100,7 @@ overlays/54-proxmox-customize.nix # 同上
 overlays/55-cuda-pascal.nix # 同上
 nixos/optional-apps/grafana.nix # fork：grafana 插件表与本仓 nixpkgs 锁版本配套（未采纳上游新增 loki 插件，待 nixpkgs 更新）
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
+nixos/optional-apps/librechat.nix # fork：librechat 仍走自建 uni-api（上游已迁 ai-api/cliproxyapi，涉及 secrets 与服务迁移，待定）
+nixos/optional-apps/n8n/n8n-openai-bridge.nix # 同上
+nixos/optional-apps/cliproxyapi.nix # fork：保留本仓原生 systemd 单元（hosts/google 依赖 cliproxyapi.service），未采纳上游 docker 容器化
+patches/colmena-verbose-single-node.patch # fork：单节点 apply 强制 verbose（上游版无 n_targets == 1 分支）

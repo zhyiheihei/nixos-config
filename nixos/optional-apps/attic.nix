@@ -73,7 +73,7 @@
   };
 
   lantian.nginxVhosts = {
-    "attic.xuyh0120.win" = {
+    "attic.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://[::1]:${LT.portStr.Attic}";
@@ -81,7 +81,7 @@
         };
       };
 
-      sslCertificate = "zerossl-xuyh0120.win";
+      sslCertificate = "zerossl-zhyi.xin";
       noIndex.enable = true;
     };
   };

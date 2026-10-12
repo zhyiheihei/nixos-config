@@ -15,7 +15,7 @@ rec {
     "https://nix-gaming.cachix.org"
     "https://comfyui.cachix.org"
     "https://cache.numtide.com"
-    "https://lab.pve-epyc.xuyh0120.win/nix-static-file-cache"
+    "https://lab.pve-epyc.zhyi.xin/nix-static-file-cache"
   ];
   trusted-public-keys = [
     attic.publicKey
