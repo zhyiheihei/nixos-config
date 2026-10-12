@@ -9,7 +9,7 @@
 }:
 let
   cfg = {
-    issuer = "https://login.lantian.pub";
+    issuer = "https://login.zhyi.xin";
     storage = {
       type = "postgres";
       config.host = "/run/postgresql";
@@ -30,7 +30,7 @@ let
         name = "Pocket ID";
         id = "ldap"; # Backwards compatibility
         config = {
-          issuer = "https://id.lantian.pub";
+          issuer = "https://id.zhyi.xin";
           scopes = [
             "email"
             "profile"
@@ -43,7 +43,7 @@ let
           clientSecret = {
             _secret = config.sops.secrets.dex-pocket-id-client-secret.path;
           };
-          redirectURI = "https://login.lantian.pub/callback";
+          redirectURI = "https://login.zhyi.xin/callback";
           insecureSkipEmailVerified = true;
           insecureEnableGroups = true;
           getUserInfo = true;
@@ -58,7 +58,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-actual-secret.path;
         };
-        redirectURIs = [ "https://actual.xuyh0120.win/openid/callback" ];
+        redirectURIs = [ "https://actual.zhyi.xin/openid/callback" ];
       }
       {
         id = "gitea";
@@ -66,7 +66,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-gitea-secret.path;
         };
-        redirectURIs = [ "https://git.lantian.pub/user/oauth2/Dex/callback" ];
+        redirectURIs = [ "https://git.zhyi.xin/user/oauth2/Dex/callback" ];
       }
       {
         id = "grafana";
@@ -74,7 +74,15 @@ let
         secret = {
           _secret = config.sops.secrets.dex-grafana-secret.path;
         };
-        redirectURIs = [ "https://dashboard.xuyh0120.win/login/generic_oauth" ];
+        redirectURIs = [ "https://dashboard.zhyi.xin/login/generic_oauth" ];
+      }
+      {
+        id = "hydra";
+        name = "Hydra";
+        secret = {
+          _secret = config.sops.secrets.dex-hydra-secret.path;
+        };
+        redirectURIs = [ "https://hydra.zhyi.xin/oidc-callback/dex" ];
       }
       {
         id = "immich";
@@ -83,9 +91,9 @@ let
           _secret = config.sops.secrets.dex-immich-secret.path;
         };
         redirectURIs = [
-          "https://immich.xuyh0120.win/auth/login"
-          "https://immich.xuyh0120.win/user-settings"
-          "https://immich.xuyh0120.win/api/oauth/mobile-redirect"
+          "https://immich.zhyi.xin/auth/login"
+          "https://immich.zhyi.xin/user-settings"
+          "https://immich.zhyi.xin/api/oauth/mobile-redirect"
           "app.immich:///oauth-callback"
         ];
       }
@@ -95,7 +103,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-librechat-secret.path;
         };
-        redirectURIs = [ "https://ai.xuyh0120.win/oauth/openid/callback" ];
+        redirectURIs = [ "https://ai.zhyi.xin/oauth/openid/callback" ];
       }
       {
         id = "nextcloud";
@@ -103,7 +111,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-nextcloud-secret.path;
         };
-        redirectURIs = [ "https://cloud.xuyh0120.win/apps/oidc_login/oidc" ];
+        redirectURIs = [ "https://cloud.zhyi.xin/apps/oidc_login/oidc" ];
       }
       {
         id = "oauth-proxy";
@@ -112,10 +120,10 @@ let
           _secret = config.sops.secrets.dex-oauth-proxy-secret.path;
         };
         redirectURIs = [
-          "https://*.lantian.pub/oauth2/callback"
-          "https://*.*.lantian.pub/oauth2/callback"
-          "https://*.xuyh0120.win/oauth2/callback"
-          "https://*.*.xuyh0120.win/oauth2/callback"
+          "https://*.zhyi.xin/oauth2/callback"
+          "https://*.*.zhyi.xin/oauth2/callback"
+          "https://*.zhyi.xin/oauth2/callback"
+          "https://*.*.zhyi.xin/oauth2/callback"
         ];
       }
       {
@@ -124,7 +132,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-oidc-tester-secret.path;
         };
-        redirectURIs = [ "https://oidc-tester.lantian.pub/oauth2/callback" ];
+        redirectURIs = [ "https://oidc-tester.zhyi.xin/oauth2/callback" ];
       }
       {
         id = "open-webui";
@@ -132,7 +140,7 @@ let
         secret = {
           _secret = config.sops.secrets.dex-open-webui-secret.path;
         };
-        redirectURIs = [ "https://ai.xuyh0120.win/oauth/oidc/callback" ];
+        redirectURIs = [ "https://ai.zhyi.xin/oauth/oidc/callback" ];
       }
       {
         id = "tranquil-pds";
@@ -141,7 +149,7 @@ let
           _secret = config.sops.secrets.dex-tranquil-pds-secret.path;
         };
         # FIXME
-        redirectURIs = [ "https://at.lantian.pub/oauth/sso/callback" ];
+        redirectURIs = [ "https://at.zhyi.xin/oauth/sso/callback" ];
       }
       # keep-sorted end
     ];
@@ -213,12 +221,12 @@ in
   };
   users.groups.dex.members = [ "nginx" ];
 
-  lantian.nginxVhosts."login.lantian.pub" = {
+  lantian.nginxVhosts."login.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.Dex}";
     };
 
-    sslCertificate = "zerossl-lantian.pub";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
 }

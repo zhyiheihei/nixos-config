@@ -1,7 +1,7 @@
 # Zhyi's NixOS Configuration
 
 This repository is my personal NixOS configuration, adapted from
-[xddxdd/nixos-config](https://github.com/xddxdd/nixos-config), Lan Tian's
+[xddxdd/nixos-config](https://github.com/xddxdd/nixos-config), Magic Flash's
 NixOS configuration repository.
 
 The original project structure, module layout, and many shared components come

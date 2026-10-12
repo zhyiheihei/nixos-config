@@ -52,4 +52,27 @@ in
       minimum = 600;
     };
   };
+
+  common.soa = {
+    DN42 = {
+      recordType = "SOA";
+      name = "@";
+      nameserver = "ns-anycast.zhyi.dn42.";
+      email = "lantian.zhyi.dn42.";
+      refresh = 360;
+      retry = 600;
+      expire = 604800;
+      minimum = 600;
+    };
+    NeoNetwork = {
+      recordType = "SOA";
+      name = "@";
+      nameserver = "ns-anycast.zhyi.neo.";
+      email = "lantian.zhyi.neo.";
+      refresh = 360;
+      retry = 600;
+      expire = 604800;
+      minimum = 600;
+    };
+  };
 }

@@ -12,6 +12,9 @@ all: FORCE
 all-all: FORCE
 	@$(MAKE) _deploy-tag TAG=@all
 
+all-all: FORCE
+	@nix run .#colmena -- apply --on @all
+
 all-boot: FORCE
 	@nix run .#colmena -- apply boot --on @default
 

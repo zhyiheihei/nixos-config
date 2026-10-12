@@ -17,6 +17,11 @@ in
   };
 
   config = {
+    systemd.services.phpfpm-calibre-cops.unitConfig.RequiresMountsFor = [
+      (LT.escapeMountPath calibreLibrary)
+    ];
+    systemd.services.nginx.unitConfig.RequiresMountsFor = [ (LT.escapeMountPath calibreLibrary) ];
+
     services.phpfpm.pools.calibre-cops = {
       phpPackage = pkgs.php.withExtensions (
         { enabled, all }:

@@ -11,6 +11,12 @@
 {
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
+  # 580 driver is the last one that supports P40
+  hardware.nvidia = {
+    package = lib.mkForce config.boot.kernelPackages.nvidiaPackages.legacy_580;
+    open = lib.mkForce false;
+  };
+
   boot.initrd.availableKernelModules = [
     "nvme"
     "xhci_pci"

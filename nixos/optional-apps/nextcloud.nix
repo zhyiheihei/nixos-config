@@ -35,14 +35,14 @@
     };
     config = {
       adminpassFile = config.sops.secrets.default-pw.path;
-      adminuser = "lantian";
+      adminuser = "zhyi";
       dbtype = "oci";
       dbhost = "";
       dbname = "(description=(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1521)(host=adb.ap-tokyo-1.oraclecloud.com))(connect_data=(service_name=ufjybiswtxi7xyl_lantianfree_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))";
       dbuser = "admin";
       dbpassFile = config.sops.secrets.remote-db-pw.path;
     };
-    hostName = "cloud.xuyh0120.win";
+    hostName = "cloud.zhyi.xin";
     https = true;
     webfinger = true;
 
@@ -71,13 +71,13 @@
       "integrity.check.disabled" = true;
       maintenance_window_start = 1;
 
-      mail_domain = "lantian.pub";
+      mail_domain = "zhyi.xin";
       mail_smtpmode = "sendmail";
       mail_sendmailmode = "pipe";
 
       allow_user_to_change_display_name = false;
       lost_password_link = "disabled";
-      oidc_login_provider_url = "https://login.lantian.pub";
+      oidc_login_provider_url = "https://login.zhyi.xin";
       oidc_login_end_session_redirect = false;
       oidc_login_client_id = "nextcloud";
       oidc_login_auto_redirect = true;
@@ -109,9 +109,9 @@
     RestartSec = 5;
   };
 
-  lantian.nginxVhosts."cloud.xuyh0120.win" = {
+  lantian.nginxVhosts."cloud.zhyi.xin" = {
     # Nextcloud sends "X-Robots-Tag: none" itself, no need for noIndex
-    sslCertificate = "zerossl-xuyh0120.win";
+    sslCertificate = "zerossl-zhyi.xin";
     enableCommonLocationOptions = false;
     enableCommonVhostOptions = false;
   };

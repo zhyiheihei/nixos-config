@@ -1,4 +1,9 @@
-{ pkgs, LT, ... }:
+{
+  config,
+  pkgs,
+  LT,
+  ...
+}:
 {
   systemd.services.rsgain-cloudmusic = {
     path = [
