@@ -86,7 +86,6 @@ helpers/constants/misc.nix # defaultGatewayHost=rock5c（上游 pve-epyc）：lt
 nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机为 0（f28facd0b 防构建机 OOM 收口），非 nix-builder 分支随上游 d10db560f client?10:180
 nixos/common-apps/yggdrasil/public-peers.json # peers 数据文件经 update.py 自动工作流维护（publicpeers.neilalexander.dev 源列表实时变化），fork bot 与上游 bot 同步时点不同，内容漂移无意义
 nixos/server-apps/wg-mesh.nix # targetHosts 额外要求本机为 server（家庭机退出 BGP mesh 走 ZeroTier，2026-10-01 用户决策；上游 wg-mesh 仅被 server 角色导入，行为等价。起因：家宽↔greencloud wgmesh UDP 被上游掐断，家庭节点钉住的 /32 内核路由经 BGP 泄漏毒化全网选路致证书发放中断）
-nixos/optional-apps/mtranserver/models.json # update.py auto 工作流维护（同 yggdrasil public-peers.json 惯例）：模型清单随上游 moz translations 数据刷新，哈希/URL 与上游快照自然漂移
 nixos/optional-apps/attic.nix # fork：attic 用 nur-xddxdd.lantianCustomized.attic-telnyx-compatible 包
 overlays/52-old-packages.nix # fork：zerotierone 固定 1.14.2（1.16.0 家宽↔VPS v4 unicast 失效，上游 #2573 多人验证 1.14.2 稳定；诊断与决策见 docs/agent/inspection-fleet-20261007.md）
 nixos/hardware/xilinx.nix # skip: 上游依赖作者 secrets 私有 hidden-module da4fbe694da377db，fork 不采纳
