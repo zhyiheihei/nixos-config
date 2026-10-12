@@ -326,7 +326,7 @@ in
 
       # Remove stale node names from earlier host renames (jpvm/usvm/colocrossing).
       stale_ids=$(curl_auth "$api/api/v1/nodes/get" \
-        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="jpvm" or .LinkName=="usvm" or .LinkName=="colocrossing") | .ID] | join(" ")')
+        | ${pkgs.jq}/bin/jq -r '[.data[] | select(.LinkName=="jpvm" or .LinkName=="usvm" or .LinkName=="greencloud") | .ID] | join(" ")')
       for stale_id in $stale_ids; do
         curl_auth -X DELETE "$api/api/v1/nodes/delete?id=$stale_id" || true
       done

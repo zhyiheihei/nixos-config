@@ -30,7 +30,7 @@ in
       XDG_CONFIG_HOME = "/var/lib/strata/config";
       CUDA_DEVICE_ORDER = "PCI_BUS_ID";
       CUDA_VISIBLE_DEVICES = "0";
-      STRATA_ALLOWED_HOSTS = "strata.${config.networking.hostName}.xuyh0120.win,strata.localhost";
+      STRATA_ALLOWED_HOSTS = "strata.${config.networking.hostName}.zhyi.xin,strata.localhost";
     };
 
     # The package wrapper copies into runtime/strata but does not create its parent.

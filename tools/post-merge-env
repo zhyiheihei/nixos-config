@@ -1,0 +1,86 @@
+#!/usr/bin/env python3
+# merge 后环境层。用法： tools/post-merge-env <merge 前的 commit>
+#
+# 做两件事：
+# 1. 删掉上游带进来的、本仓永不采纳的路径——上游主机目录（NORMALIZE 已把它们
+#    映射成本仓主机）与上游域名文件，以及 allowlist 里登记为 skip: 的文件。
+#    「本仓自己的主机/域名」以 merge 前的 commit 为准，所以不需要维护清单。
+# 2. 把其余内容过一遍 NORMALIZE，让上游值变成我的环境值。
+#    tools/ 与 docs/ 排除——tools/exam-check 本身就是 NORMALIZE 表的定义。
+import importlib.machinery
+import importlib.util
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
+TOOL = REPO / "tools/exam-check"
+SKIP = ("tools/", "docs/", ".github/", ".git/")
+
+
+def load():
+    loader = importlib.machinery.SourceFileLoader("exam_check_env", str(TOOL))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    mod = importlib.util.module_from_spec(spec)
+    loader.exec_module(mod)
+    return mod
+
+
+M = load()
+
+
+def git(*args):
+    return subprocess.run(
+        ["git", "-C", str(REPO), *args], capture_output=True, check=True
+    ).stdout.decode(errors="surrogateescape")
+
+
+def main():
+    if len(sys.argv) != 2:
+        print(__doc__.strip().splitlines()[1].strip(), file=sys.stderr)
+        return 2
+    before = sys.argv[1]
+
+    our_hosts = {
+        p.split("/", 2)[1] for p in git("ls-tree", "-r", "--name-only", before, "--", "hosts/").splitlines()
+    }
+    our_domains = {
+        p.rsplit("/", 1)[1]
+        for p in git("ls-tree", "-r", "--name-only", before, "--", "dns/domains/").splitlines()
+    }
+    skip = {p for p, r in M.load_allowlist().items() if r.startswith("skip: ")}
+
+    removed, changed = [], 0
+    for p in git("ls-files", "-z").split("\0"):
+        if not p:
+            continue
+        drop = (
+            (p.startswith("hosts/") and p.split("/")[1] not in our_hosts)
+            or (p.startswith("dns/domains/") and p.rsplit("/", 1)[1] not in our_domains)
+            or p in skip
+        )
+        if drop:
+            subprocess.run(["git", "-C", str(REPO), "rm", "-q", "-f", "--", p], check=True)
+            removed.append(p)
+            continue
+        if p.startswith(SKIP):
+            continue
+        f = REPO / p
+        if not f.is_file():
+            continue
+        data = f.read_bytes()
+        if b"\x00" in data:
+            continue
+        text = data.decode("utf-8", errors="surrogateescape")
+        new = text
+        for old, val in M.NORMALIZE:
+            new = new.replace(old, val)
+        if new != text:
+            f.write_bytes(new.encode("utf-8", errors="surrogateescape"))
+            changed += 1
+    print(f"post-merge-env: 删除 {len(removed)} 个不采纳路径，归一化 {changed} 个文件")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

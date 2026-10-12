@@ -36,6 +36,7 @@
       CapabilityBoundingSet = [ "CAP_DAC_OVERRIDE" ];
     };
     unitConfig = {
+      RequiresMountsFor = config.systemd.services.rsgain-cloudmusic.serviceConfig.ReadWritePaths;
       OnFailure = "notify-email@%n.service";
     };
   };

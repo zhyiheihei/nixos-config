@@ -158,7 +158,7 @@ if __name__ == "__main__":
             "nix-cachyos-kernel": "https://github.com/xddxdd/nix-cachyos-kernel.git",
             "nix-xanmod-kernel": "https://github.com/xddxdd/nix-xanmod-kernel.git",
         }
-        if event.project == "lantian" and event.jobset in kernel_repos:
+        if event.project == "zhyi" and event.jobset in kernel_repos:
             logging.info("Checking if all builds are complete")
             evals = JobsetEvals.from_api(event.project, event.jobset)
             eval = evals.find_by_build_id(event.build)
@@ -197,7 +197,7 @@ if __name__ == "__main__":
             for _ in range(3):
                 try:
                     subprocess.run(
-                        ["attic", "push", "lantian", *output_paths],
+                        ["attic", "push", "zhyi", *output_paths],
                         check=True,
                         timeout=600,
                     )

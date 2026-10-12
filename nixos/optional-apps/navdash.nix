@@ -49,7 +49,7 @@ let
     (entriesFrom thisHost ownVhosts)
     ++ lib.flatten (
       lib.mapAttrsToList (
-        n: v: entriesFrom n (lib.attrByPath [ "lantian" "nginxVhosts" ] { } v.config)
+        n: v: entriesFrom n (lib.attrByPath [ "zhyi" "nginxVhosts" ] { } v.config)
       ) otherConfigs
     );
 

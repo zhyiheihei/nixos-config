@@ -95,6 +95,7 @@
     };
 
     lantian.localVhosts.syncthing = {
+      accessibleBy = "public";
       locations = {
         "/" = {
           enableOAuth = true;

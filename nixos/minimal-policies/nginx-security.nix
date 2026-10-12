@@ -24,7 +24,7 @@
       {
         assertion =
           # Prevent lt-hp-omen from exposing to private LAN without auth
-          !builtins.elem config.networking.hostName [ "lt-hp-omen" ]
+          !builtins.elem config.networking.hostName [ "ml-laptop" ]
           || v.locations."/".enableOAuth or false
           || v.locations."/".enableBasicAuth or false;
         message = "${n} is LAN accessible without authentication";

@@ -8,7 +8,7 @@
     credentials.RENOVATE_TOKEN = config.sops.secrets.renovate-token.path;
     settings = {
       platform = "gitea";
-      endpoint = "https://git.lantian.pub/";
+      endpoint = "https://git.zhyi.xin/";
       autodiscover = true;
       binarySource = "global";
       onboarding = true;

@@ -1,4 +1,9 @@
-_: {
+{
+  config,
+  LT,
+  ...
+}:
+{
   services.webdav = {
     enable = true;
     user = "zhyi";

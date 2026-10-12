@@ -27,7 +27,7 @@
 
   services.nextcloud = {
     enable = true;
-    package = pkgs.nextcloud34;
+    package = pkgs.nextcloud35;
     autoUpdateApps.enable = true;
     caching = {
       apcu = true;
@@ -48,7 +48,7 @@
 
     appstoreEnable = false;
     extraApps = {
-      inherit (pkgs.nextcloud34Packages.apps)
+      inherit (pkgs.nextcloud35Packages.apps)
         calendar
         checksum
         contacts

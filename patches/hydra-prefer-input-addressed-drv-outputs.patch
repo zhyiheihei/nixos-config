@@ -1,4 +1,4 @@
-From: Lan Tian <b980120@hotmail.com>
+From: Magic Flash <b980120@hotmail.com>
 Subject: [PATCH] hydra-queue-runner: prefer .drv output paths for input-addressed derivations
 
 The queue runner resolves a derivation's inputs from its build history

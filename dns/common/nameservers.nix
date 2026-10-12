@@ -44,19 +44,6 @@ in
     DN42 = {
       recordType = "SOA";
       name = "@";
-      nameserver = "ns1.zhyi.dn42.";
-      email = "molishanguang.outlook.com.";
-      refresh = 360;
-      retry = 600;
-      expire = 604800;
-      minimum = 600;
-    };
-  };
-
-  common.soa = {
-    DN42 = {
-      recordType = "SOA";
-      name = "@";
       nameserver = "ns-anycast.zhyi.dn42.";
       email = "lantian.zhyi.dn42.";
       refresh = 360;

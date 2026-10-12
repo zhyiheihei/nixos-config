@@ -61,7 +61,7 @@ in
       CACHE_MAX_AGE = "3650d";
 
       ## Set the timezone for the docker containers, useful for correct timestamps on logs (default Europe/London)
-      ## Formatted as tz database names. Example: Europe/Oslo or America/Los_Angeles
+      ## Formatted as tz database names. Example: Europe/Oslo or Asia/Shanghai
       TZ = config.time.timeZone;
     };
 
