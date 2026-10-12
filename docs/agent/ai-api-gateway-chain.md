@@ -69,7 +69,7 @@ AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模
 - picoclaw 有专用 key（secrets `uni-api-picoclaw-api-key`），`model` 锁定为
   `gpt-5.6-luna`（cliproxyapi 渠道）；网关运行在 dragon-q8b，config.json 由
   主机级 seed 单元在开机时拼装（根分区 tmpfs，见 hosts/dragon-q8b/picoclaw-config.nix）。
-- pi（ai-coding 客户端）直连 taotoken 的 OpenAI 兼容端点：taotoken 不是
+- pi 客户端直连 taotoken 的 OpenAI 兼容端点：taotoken 不是
   pi 内置渠道，不走 UniAPI 汇聚。
 
 ## 服务职责与位置

@@ -1,0 +1,372 @@
+#!/usr/bin/env python3
+# tools/exam-check 的回归测试（纯 stdlib unittest，无外部依赖）。
+# 在临时 git 仓库上做端到端验证：main=工作树，exam/master=上游，覆盖 A/D/R/skip/
+# EXCLUDES/norm_path/改名配对/退出码/幂等。运行： tools/exam-check-test [-v]
+import contextlib
+import importlib.machinery
+import importlib.util
+import io
+import subprocess
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest import mock
+
+TOOL = Path(__file__).resolve().parent / "exam-check"
+
+
+def _load():
+    loader = importlib.machinery.SourceFileLoader("exam_check_ut", str(TOOL))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    mod = importlib.util.module_from_spec(spec)
+    loader.exec_module(mod)
+    return mod
+
+
+M = _load()
+
+
+def run(fn, *args):
+    """调用会打印/退出的工具函数，返回 (stdout, stderr, exit_code)。"""
+    out, err, code = io.StringIO(), io.StringIO(), None
+    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        try:
+            fn(*args)
+        except SystemExit as e:
+            code = e.code
+    return out.getvalue(), err.getvalue(), code
+
+
+def run_main(args=()):
+    with mock.patch.object(sys, "argv", ["exam-check", *args]):
+        return run(M.main)
+
+
+class Fixture:
+    """只含共享路径子集的临时 git 仓库。"""
+
+    def __init__(self, root):
+        self.root = Path(root)
+        self.git("init", "-q", "-b", "main")
+        self.git("config", "user.email", "t@example.com")
+        self.git("config", "user.name", "t")
+        self.sha = None
+
+    def git(self, *args, check=True):
+        return subprocess.run(
+            ["git", "-C", str(self.root), *args], check=check, capture_output=True
+        )
+
+    def write(self, files):
+        for p, data in files.items():
+            fp = self.root / p
+            if data is None:
+                fp.unlink(missing_ok=True)
+                continue
+            fp.parent.mkdir(parents=True, exist_ok=True)
+            fp.write_bytes(data)
+
+    def commit(self, files, msg):
+        self.write(files)
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", msg)
+        return self.git("rev-parse", "HEAD").stdout.decode().strip()
+
+    def bind(self, baseline, allow=(), shared=("home",)):
+        M.REPO = self.root
+        M.SHARED_PATHS = list(shared)
+        M.EXCLUDES = ("home/_sources/",)
+        M.BASELINE_FILE = self.root / "docs/agent/upstream-baseline.md"
+        M.BASELINE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        M.BASELINE_FILE.write_text(f"baseline: {baseline}\n")
+        M.ALLOWLIST_FILE = self.root / "tools/exam-check-allowlist"
+        M.ALLOWLIST_FILE.parent.mkdir(parents=True, exist_ok=True)
+        M.ALLOWLIST_FILE.write_text("".join(f"{p} # {r}\n" for p, r in allow))
+
+    def scenario(self, base, exam, work, allow=(), shared=("home",)):
+        self.sha = self.commit(base, "baseline")
+        self.git("checkout", "-q", "-b", "exam/master")
+        self.commit(exam, "exam")
+        self.git("checkout", "-q", "main")
+        self.write(work)
+        self.bind(self.sha, allow, shared)
+        return self.sha
+
+
+class Base(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.fx = Fixture(self._tmp.name)
+
+    def structure(self, subpath=""):
+        return M.structure_report(self.fx.sha, M.load_allowlist(), subpath)
+
+    def msgs(self, subpath=""):
+        return [r[3] for r in self.structure(subpath)]
+
+
+class UnitParse(unittest.TestCase):
+    def test_all_statuses(self):
+        raw = b"R100\x00o\x00n\x00A\x00a\x00D\x00d\x00M\x00m\x00C075\x00s\x00t\x00"
+        self.assertEqual(
+            M.parse_name_status(raw),
+            [("R", "o", "n"), ("A", "a", None), ("D", "d", None), ("M", "m", None), ("C", "s", "t")],
+        )
+
+    def test_empty(self):
+        self.assertEqual(M.parse_name_status(b""), [])
+
+    def test_binary_normalize_passthrough(self):
+        self.assertEqual(M.normalize(b"\x00\x01\x02"), b"\x00\x01\x02")
+
+
+class UnitNormPath(unittest.TestCase):
+    def test_recognized_replacements(self):
+        self.assertEqual(
+            M.norm_path("nixos/common-apps/nginx/vhosts-lantian.nix"),
+            "nixos/common-apps/nginx/vhosts-zhyi.nix",
+        )
+        self.assertEqual(
+            M.norm_path("home/client-apps/ssh/lantian.nix"), "home/client-apps/ssh/zhyi.nix"
+        )
+        self.assertEqual(
+            M.norm_path("home/non-client-apps/per-user/lantian/x"),
+            "home/non-client-apps/per-user/zhyi/x",
+        )
+
+    def test_noop(self):
+        self.assertEqual(
+            M.norm_path("home/client-apps/pi/default.nix"), "home/client-apps/pi/default.nix"
+        )
+
+
+class StructureAdded(Base):
+    def test_unapplied_then_applied(self):
+        self.fx.scenario({"home/a.nix": b"a\n"}, {"home/new.nix": b"n\n"}, {"home/a.nix": b"a\n"})
+        self.assertEqual(self.msgs(), ["未新增 home/new.nix"])
+        self.fx.write({"home/new.nix": b"n\n"})
+        self.assertEqual(self.msgs(), [])
+
+    def test_exit_code_and_message(self):
+        self.fx.scenario({"home/a.nix": b"a\n"}, {"home/new.nix": b"n\n"}, {})
+        out, _, code = run(M.do_structure, [])
+        self.assertEqual(code, 1)
+        self.assertIn("未新增 home/new.nix", out)
+
+    def test_skip_exempts(self):
+        self.fx.scenario(
+            {"home/a.nix": b"a\n"}, {"home/new.nix": b"n\n"}, {}, allow=[("home/new.nix", "skip: 不采纳")]
+        )
+        self.assertEqual(self.msgs(), [])
+
+
+class StructureDeleted(Base):
+    def test_unapplied_then_applied(self):
+        self.fx.scenario({"home/old.nix": b"x\n"}, {"home/old.nix": None}, {})
+        self.assertEqual(self.msgs(), ["未删除 home/old.nix"])
+        self.fx.write({"home/old.nix": None})
+        self.assertEqual(self.msgs(), [])
+
+
+class StructureRenamed(Base):
+    def test_unapplied_then_applied(self):
+        self.fx.scenario(
+            {"home/old.nix": b"x\n"}, {"home/old.nix": None, "home/new.nix": b"x\n"}, {"home/old.nix": b"x\n"}
+        )
+        self.assertEqual(self.msgs(), ["未改名 home/old.nix -> home/new.nix"])
+        self.fx.write({"home/old.nix": None, "home/new.nix": b"x\n"})
+        self.assertEqual(self.msgs(), [])
+
+    def test_partial_new_missing(self):
+        self.fx.scenario(
+            {"home/old.nix": b"x\n"}, {"home/old.nix": None, "home/new.nix": b"x\n"}, {"home/old.nix": None}
+        )
+        self.assertEqual(self.msgs(), ["未改名 home/old.nix -> home/new.nix"])
+
+    def test_low_similarity_degrades_to_add_delete(self):
+        content = b"a" * 200 + b"\n"
+        self.fx.scenario(
+            {"home/x.nix": content},
+            {"home/x.nix": None, "home/y.nix": b"b" * 5000 + b"\n"},
+            {"home/x.nix": content},
+        )
+        self.assertEqual(sorted(self.msgs()), sorted(["未删除 home/x.nix", "未新增 home/y.nix"]))
+
+
+class StructureNormPath(Base):
+    def test_recognized_path_replacement(self):
+        self.fx.scenario(
+            {"home/a.nix": b"a\n"}, {"home/vhosts-lantian.nix": b"v\n"}, {"home/vhosts-zhyi.nix": b"v\n"}
+        )
+        self.assertEqual(self.msgs(), [])
+
+
+class StructureExcludes(Base):
+    def test_excluded_path_ignored(self):
+        self.fx.scenario({"home/_sources/s.json": b"{}\n"}, {"home/_sources/s.json": None}, {})
+        self.assertEqual(self.msgs(), [])
+
+
+class StructureScoping(Base):
+    def test_subpath_limits_scope(self):
+        self.fx.scenario(
+            {"home/a.nix": b"a\n", "helpers/b.nix": b"b\n"},
+            {"home/new.nix": b"n\n", "helpers/new2.nix": b"n\n"},
+            {},
+            shared=("home", "helpers"),
+        )
+        self.assertEqual(self.msgs("home"), ["未新增 home/new.nix"])
+        self.assertEqual(self.msgs("helpers"), ["未新增 helpers/new2.nix"])
+
+
+class DiffCmd(Base):
+    def test_rename_paired_from_either_side(self):
+        self.fx.scenario(
+            {"home/old.nix": b"x\n"}, {"home/old.nix": None, "home/new.nix": b"x\ny\n"}, {"home/old.nix": b"x\n"}
+        )
+        out, _, _ = run(M.do_diff, ["home/old.nix"])
+        self.assertIn("rename from home/old.nix", out)
+        self.assertIn("rename to home/new.nix", out)
+        out2, _, _ = run(M.do_diff, ["home/new.nix"])
+        self.assertIn("rename from home/old.nix", out2)
+
+    def test_plain_modify(self):
+        self.fx.scenario({"home/a.nix": b"x\n"}, {"home/a.nix": b"x\ny\n"}, {"home/a.nix": b"x\n"})
+        out, _, _ = run(M.do_diff, ["home/a.nix"])
+        self.assertIn("+y", out)
+
+
+class BaselineMode(Base):
+    def test_followed_rename_not_reported_as_upstream_only(self):
+        self.fx.scenario(
+            {"home/old.nix": b"x\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\n"},
+        )
+        out, err, code = run_main()
+        self.assertIsNone(code, f"unexpected exit {code}: {err}")
+        self.assertNotIn("home/old.nix", out)
+        self.assertIn("= 一致 1", out)
+
+    def test_content_drift_detected_across_rename(self):
+        self.fx.scenario(
+            {"home/old.nix": b"x\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\nY\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\nZ\n"},
+        )
+        out, _, code = run_main()
+        self.assertEqual(code, 1)
+        self.assertIn("home/new.nix", out)
+
+    def test_allowlisted_drift_is_known(self):
+        self.fx.scenario(
+            {"home/old.nix": b"x\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\nY\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\nZ\n"},
+            allow=[("home/new.nix", "登记差异")],
+        )
+        out, _, code = run_main()
+        self.assertIsNone(code)
+        self.assertIn("!known", out)
+
+    def test_strict_ignores_allowlist(self):
+        self.fx.scenario(
+            {"home/old.nix": b"x\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\nY\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\nZ\n"},
+            allow=[("home/new.nix", "登记差异")],
+        )
+        _, _, code = run_main(["--strict"])
+        self.assertEqual(code, 1)
+
+
+class UpstreamMode(Base):
+    def test_rename_not_followed_reported(self):
+        self.fx.scenario(
+            {"home/old.nix": b"x\n"}, {"home/old.nix": None, "home/new.nix": b"x\n"}, {"home/old.nix": b"x\n"}
+        )
+        out, _, code = run(M.do_upstream, [])
+        self.assertEqual(code, 1)
+        self.assertIn("改名未跟进", out)
+        self.assertIn("home/new.nix -> home/old.nix", out)
+
+    def test_rename_followed_clean(self):
+        self.fx.scenario(
+            {"home/old.nix": b"x\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\n"},
+        )
+        out, err, code = run(M.do_upstream, [])
+        self.assertIsNone(code, f"unexpected exit {code}: {out}{err}")
+
+
+class Stability(Base):
+    def test_repeated_structure_runs_identical(self):
+        self.fx.scenario({"home/a.nix": b"a\n"}, {"home/a.nix": b"a2\n", "home/new.nix": b"n\n"}, {})
+        first = self.msgs()
+        self.assertTrue(first)
+        for _ in range(3):
+            self.assertEqual(self.msgs(), first)
+
+    def test_idempotent_main_output(self):
+        self.fx.scenario({"home/a.nix": b"a\n"}, {"home/new.nix": b"n\n"}, {})
+        outs = {run_main()[0] for _ in range(3)}
+        self.assertEqual(len(outs), 1)
+
+
+class CliDispatch(Base):
+    def setUp(self):
+        super().setUp()
+        self.fx.scenario({"home/a.nix": b"a\n"}, {"home/a.nix": b"a2\n"}, {"home/a.nix": b"a3\n"})
+
+    def test_print_paths(self):
+        out, _, _ = run_main(["--print-paths"])
+        self.assertEqual(out.strip(), "home")
+
+    def test_structure_subcommand(self):
+        out, _, code = run_main(["structure"])
+        self.assertIsNone(code)
+        self.assertIn("已全部跟进", out)
+
+    def test_diff_subcommand(self):
+        out, _, _ = run_main(["diff", "home/a.nix"])
+        self.assertIn("+a2", out)
+
+    def test_upstream_subcommand(self):
+        out, _, _ = run_main(["upstream"])
+        self.assertIn("对比对象", out)
+
+    def test_verbose(self):
+        out, _, code = run_main(["-v"])
+        self.assertEqual(code, 1)
+        self.assertIn("====", out)
+
+    def test_log_no_stat(self):
+        out, _, code = run(M.do_log, ["--no-stat"])
+        self.assertIsNone(code)
+        self.assertIn("exam", out)
+
+    def test_log_missing_exam_ref(self):
+        self.fx.git("branch", "-D", "exam/master")
+        _, err, code = run(M.do_log, [])
+        self.assertEqual(code, 2)
+        self.assertIn("exam/master 不存在", err)
+
+
+class Errors(Base):
+    def test_missing_baseline_exits_2(self):
+        orig_repo, orig_base = M.REPO, M.BASELINE_FILE
+        self.addCleanup(
+            lambda: (setattr(M, "REPO", orig_repo), setattr(M, "BASELINE_FILE", orig_base))
+        )
+        M.REPO = self.fx.root
+        M.BASELINE_FILE = self.fx.root / "docs/agent/upstream-baseline.md"
+        _, err, code = run(M.load_baseline)
+        self.assertEqual(code, 2)
+        self.assertIn("缺少", err)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

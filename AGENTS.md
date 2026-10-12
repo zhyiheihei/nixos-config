@@ -224,7 +224,7 @@ deployment / hosts-overview / reference / inspection-playbook / user-provisionin
    （curl/git/nix flake update 均适用）；家庭 LAN、LTNET（198.18.0.0/15）、
    dn42、yggdrasil、自有域（zhyi.cc/zhyi.xin/zhyi.dn42）一律直连。
 6. **NixOS 纪律**：装软件只用 Nix，禁止 apt/brew；禁止 find / 等根目录搜索，
-   禁止把 /nix/store 作为命令参数（细则见 `home/client-apps/ai-coding/rules/04-nixos.md`）。
+   禁止把 /nix/store 作为命令参数（细则见 `home/client-apps/pi/rules/04-nixos.md`）。
 7. **会话健康**：重复读已读文件 / 同一失败思路第 2 次重试 / 违反早期约束 /
    遗忘早期决定，≥2 条信号即提议交接；失败 2 次必须换方案，禁第 3 次原样重试；
    重探索子任务优先派 subagent。

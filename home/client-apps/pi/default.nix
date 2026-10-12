@@ -25,9 +25,7 @@ in
 
   programs.pi-coding-agent = {
     enable = true;
-    package = pkgs.llm-agents.pi.override {
-      useBun = false;
-    };
+    package = pkgs.llm-agents.pi;
     # # Not implemented correctly in home manager
     # configDir = "${config.xdg.configHome}/pi/agent";
     inherit context;
@@ -35,32 +33,24 @@ in
     extraPackages = [ pkgs.nodejs ];
 
     models.providers = {
-      linuxdo-hub = {
-        api = "openai-completions";
-        baseUrl = "https://hub.linux.do/v1";
-        compat.supportsDeveloperRole = false;
-      };
       uni-api = {
         api = "openai-completions";
         baseUrl = "https://ai-api.zhyi.xin/v1";
       };
-      taotoken = {
-        api = "openai-completions";
-        baseUrl = "https://taotoken.net/api/v1";
-        models = [
-          {
-            id = "glm_for_coding";
-            reasoning = true;
-            contextWindow = 200000;
-            maxTokens = 131072;
-            compat.supportsDeveloperRole = false;
-          }
-        ];
-      };
     };
 
     settings = {
+      # Enable all built-in tools on top of the defaults (read/bash/edit/write);
+      # codemode and tool_search are built-in extensions, off by default.
+      defaultTools = [
+        "+grep"
+        "+find"
+        "+ls"
+        "+codemode"
+        "+tool_search"
+      ];
       quietStartup = true;
+      tuiMode = "regular";
       collapseChangelog = true;
       enableInstallTelemetry = false;
       enableAnalytics = false;
@@ -68,6 +58,13 @@ in
       defaultModel = "glm-5.3-flash";
       defaultThinkingLevel = "high";
       showCacheMissNotices = false;
+
+      steeringMode = "all";
+      followUpMode = "all";
+      doubleEscapeAction = "tree";
+      treeFilterMode = "user-only";
+
+      compaction.enabled = false; # Handled by magic context plugin
 
       retry = {
         enabled = true;
@@ -92,7 +89,6 @@ in
         "npm:@narumitw/pi-usage"
         "npm:pi-btw"
         "npm:pi-codex-goal"
-        "npm:pi-commandcode-provider"
         "npm:pi-copy-message"
         "npm:pi-fast-resume"
         "npm:pi-multi-pass"

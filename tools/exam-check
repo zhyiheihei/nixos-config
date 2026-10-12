@@ -179,6 +179,59 @@ def normalize(data: bytes):
     return text
 
 
+def norm_path(p):
+    """路径级认可替换（vhosts-lantian.nix→vhosts-zhyi.nix 等），供结构审计配对。"""
+    for old, new in NORMALIZE:
+        p = p.replace(old, new)
+    return p
+
+
+def parse_name_status(out):
+    toks = [t for t in out.decode("utf-8", errors="surrogateescape").split("\0") if t]
+    ops, i = [], 0
+    while i < len(toks):
+        code = toks[i][0]
+        if code in ("R", "C"):
+            ops.append((code, toks[i + 1], toks[i + 2]))
+            i += 3
+        else:
+            ops.append((code, toks[i + 1], None))
+            i += 2
+    return ops
+
+
+def tree_ops(rev, subpath=""):
+    """rev 相对工作树（rev 为 <base>..<tip> 时为两提交间）的 A/D/R 清单。"""
+    paths = [subpath] if subpath else SHARED_PATHS
+    return parse_name_status(git("diff", "--name-status", "-M", "-z", rev, "--", *paths))
+
+
+def structure_report(baseline, allow, subpath=""):
+    """上游自 baseline 以来的新增/删除/改名是否已跟进（路径过 NORMALIZE + skip 豁免）。"""
+    skipped = {p for p, r in allow.items() if r.startswith("skip: ")}
+    unapplied = []
+    for code, old, new in tree_ops(f"{baseline}..exam/master", subpath):
+        if old.startswith(EXCLUDES) or (new and new.startswith(EXCLUDES)):
+            continue
+        nold = norm_path(old)
+        if code == "A":
+            if nold in skipped or (REPO / nold).exists():
+                continue
+            unapplied.append((code, old, new, f"未新增 {nold}"))
+        elif code == "D":
+            if nold in skipped or not (REPO / nold).exists():
+                continue
+            unapplied.append((code, old, new, f"未删除 {nold}"))
+        elif code == "R":
+            nnew = norm_path(new)
+            if nnew in skipped or nold in skipped:
+                continue
+            if (REPO / nnew).exists() and not (REPO / nold).exists():
+                continue
+            unapplied.append((code, old, new, f"未改名 {nold} -> {nnew}"))
+    return unapplied
+
+
 def baseline_files(baseline, subpath):
     out = git("ls-tree", "-r", "--name-only", "-z", baseline, "--", *([subpath] if subpath else SHARED_PATHS))
     return {p for p in out.decode().split("\0") if p and not p.startswith(EXCLUDES)}
@@ -218,12 +271,19 @@ def baseline_content(baseline, path):
 def do_diff(argv):
     ap = argparse.ArgumentParser(
         prog="tools/exam-check diff",
-        description="查看上游对某文件自基线以来的完整改动（移植移植 hunk 用）",
+        description="查看上游对某文件自基线以来的完整改动（改名前后路径皆可，rename 自动配对）",
     )
-    ap.add_argument("path", help="共享路径内的文件")
+    ap.add_argument("path", help="共享路径内的文件（改名前后皆可）")
     a = ap.parse_args(argv)
     baseline = load_baseline()
-    print(git("diff", f"{baseline}..exam/master", "--", a.path).decode(errors="replace"), end="")
+    paths = [a.path]
+    for code, old, new in tree_ops(f"{baseline}..exam/master"):
+        if code == "R" and (
+            a.path in (old, new) or norm_path(a.path) in (norm_path(old), norm_path(new))
+        ):
+            paths = [old, new]
+            break
+    print(git("diff", f"{baseline}..exam/master", "--", *paths).decode(errors="replace"), end="")
 
 
 def do_upstream(argv):
@@ -258,6 +318,11 @@ def do_upstream(argv):
     skip_up = {p for p in allow if allow[p].startswith("skip: ")}
     missing = sorted(p for p in up_set - work_set if p not in skip_up)
     fork_only = sorted(work_set - up_set)
+    renamed = [
+        (old, new)
+        for code, old, new in tree_ops("exam/master", a.path)
+        if code == "R" and norm_path(old) != norm_path(new)
+    ]
 
     tip = git("rev-parse", "--short", "exam/master").decode().strip()
     print(f"对比对象 exam/master {tip}（基线模式见 tools/exam-check）")
@@ -275,6 +340,10 @@ def do_upstream(argv):
         print("\n!known 已登记差异（fork 决策）:")
         for p in known:
             print(f"  {p}  # {allow.get(p, '')}")
+    if renamed:
+        print("\n! 上游改名未跟进（上游路径 → 本仓路径）:")
+        for old, new in renamed:
+            print(f"  {old} -> {new}")
     if a.verbose:
         for p in drift:
             base = normalize(git("show", f"exam/master:{p}")).splitlines()
@@ -285,10 +354,35 @@ def do_upstream(argv):
             if len(d) > 120:
                 print(f"…（其余 {len(d) - 120} 行省略）")
 
-    if drift or missing:
-        print(f"\nexam-check upstream: 未完全对齐（未对齐={len(drift)} 缺失={len(missing)}）", file=sys.stderr)
+    if drift or missing or renamed:
+        print(
+            f"\nexam-check upstream: 未完全对齐（未对齐={len(drift)} 缺失={len(missing)} 改名未跟进={len(renamed)}）",
+            file=sys.stderr,
+        )
         sys.exit(1)
     print("\nexam-check upstream: 通过")
+
+
+def do_structure(argv):
+    ap = argparse.ArgumentParser(
+        prog="tools/exam-check structure",
+        description="上游自基线以来的结构变更（新增/删除/改名）跟进审计",
+    )
+    ap.add_argument("--path", default="", help="只审计某子路径")
+    a = ap.parse_args(argv)
+    baseline = load_baseline()
+    allow = load_allowlist()
+    unapplied = structure_report(baseline, allow, a.path)
+    tip = git("rev-parse", "--short", "exam/master").decode().strip()
+    print(f"baseline {baseline[:12]} | exam/master {tip}")
+    if not unapplied:
+        print("上游结构变更（新增/删除/改名）已全部跟进")
+        return
+    print("\n! 上游结构变更未跟进（新增/删除/改名）:")
+    for code, old, new, msg in unapplied:
+        print(f"  [{code}] {msg}")
+    print(f"\nexam-check structure: {len(unapplied)} 项未跟进，exit 1", file=sys.stderr)
+    sys.exit(1)
 
 
 def do_log(argv):
@@ -297,6 +391,7 @@ def do_log(argv):
         description="查看 baseline..exam/master 的上游增量（共享路径）",
         epilog="新增量落在 pristine 文件时直接 git checkout exam/master -- <path> 后做认可替换；\n"
                "落在已接管文件（hosts/ 或 allowlist 内）时手动搬 patch；\n"
+               "先跑 tools/exam-check structure 过新增/删除/改名（A/D/R），再搬内容；\n"
                "同步完跑 tools/exam-check，绿后 bump docs/agent/upstream-baseline.md。",
     )
     ap.add_argument("--fetch", action="store_true", help="先 fetch exam（离线时跳过，用本地已有对象）")
@@ -333,6 +428,9 @@ def main():
     if argv and argv[0] == "diff":
         do_diff(argv[1:])
         return
+    if argv and argv[0] == "structure":
+        do_structure(argv[1:])
+        return
     if argv and argv[0] == "check":
         argv = argv[1:]
     ap = argparse.ArgumentParser(
@@ -341,7 +439,8 @@ def main():
         epilog="常用工作流：\n"
                "  git fetch exam\n"
                "  tools/exam-check log          # 上游改了什么\n"
-               "  tools/exam-check              # 我们漂了多少（exit 0=绿，1=有未登记漂移，2=配置错误）\n"
+               "  tools/exam-check structure    # 上游新增/删除/改名是否已跟进（A/D/R）\n"
+               "  tools/exam-check              # 我们漂了多少（含结构审计；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
                "  tools/exam-check -v           # 漂移文件的归一化 diff\n"
                "同步完成后 bump docs/agent/upstream-baseline.md 的 baseline。",
     )
@@ -366,24 +465,47 @@ def main():
     base_set = baseline_files(baseline, args.path)
     work_set = worktree_files(args.path)
 
+    # 上游自 baseline 的结构变更：R 需把基线路径映射到工作树期望路径，D 不再比对，
+    # A 进入期望集。否则跟随改名后同路径比对全断，旧路径被误报为「上游独有」。
+    ops = tree_ops(f"{baseline}..exam/master", args.path)
+    rmap = {}
+    for code, old, new in ops:
+        if code == "R":
+            rmap[old] = new
+        elif code == "D":
+            rmap[old] = None
+
     same, subst, fork_only, upstream_only = [], [], [], []
     drift, known = [], []
+    expected = set()
 
-    for path in sorted(base_set & work_set):
+    for path in sorted(base_set):
+        mapped = rmap.get(path, path)
+        if mapped is None:
+            upstream_only.append(path)
+            continue
+        ep = norm_path(mapped)
+        expected.add(ep)
+        if ep not in work_set:
+            upstream_only.append(path)
+            continue
         try:
             base = baseline_content(baseline, path)
         except SystemExit:
             die(f"基线对象缺失（{baseline}:{path}），先 git fetch exam")
-        work = (REPO / path).read_bytes()
+        work = (REPO / ep).read_bytes()
         if base == work:
-            same.append(path)
+            same.append(ep)
         elif normalize(base) == normalize(work):
-            subst.append(path)
+            subst.append(ep)
         else:
-            (known if (not args.strict and path in allow) else drift).append(path)
+            (known if (not args.strict and ep in allow) else drift).append(ep)
 
-    fork_only = sorted(work_set - base_set)
-    upstream_only = sorted(base_set - work_set)
+    for code, old, new in ops:
+        if code == "A":
+            expected.add(norm_path(old))
+
+    fork_only = sorted(work_set - expected)
 
     scoped = args.path
     # 上游独有（base 有而 work 无）也可登记「确认不需要」：带 skip: 前缀的条目
@@ -398,7 +520,7 @@ def main():
         p for p in allow
         if p not in drift and p not in known and p not in skipped_upstream
         and (not scoped or p == scoped or p.startswith(scoped.rstrip("/") + "/"))
-        and p in base_set
+        and (p in expected or p in base_set)
     ]
 
     print(f"baseline {baseline[:12]} (docs/agent/upstream-baseline.md) | exam/master {exam_tip}")
@@ -424,18 +546,26 @@ def main():
         print("\nallowlist 失效条目（漂移已消除，请删除）:")
         for p in stale_allow:
             print(f"  {p}")
+    struct_unapplied = structure_report(baseline, allow, args.path)
+    if struct_unapplied:
+        print("\n! 上游结构变更未跟进（新增/删除/改名，逐个 checkout/mv 或登记 skip）:")
+        for code, old, new, msg in struct_unapplied:
+            print(f"  [{code}] {msg}")
     if args.verbose:
         for p in drift + known:
-            base = normalize(baseline_content(baseline, p)).decode("utf-8", errors="surrogateescape").splitlines()
-            work = normalize((REPO / p).read_bytes()).decode("utf-8", errors="surrogateescape").splitlines()
+            base = normalize(baseline_content(baseline, p)).splitlines()
+            work = normalize((REPO / p).read_bytes()).splitlines()
             diff = list(difflib.unified_diff(base, work, fromfile=f"baseline:{p}", tofile=f"worktree:{p}", lineterm=""))
             print(f"\n{'=' * 20} {p}")
             print("\n".join(diff[:120]) or "（无差异）")
             if len(diff) > 120:
                 print(f"…（其余 {len(diff) - 120} 行省略）")
 
-    if drift:
-        print(f"\nexam-check: 存在 {len(drift)} 个未登记漂移，exit 1", file=sys.stderr)
+    if drift or struct_unapplied:
+        print(
+            f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项，exit 1",
+            file=sys.stderr,
+        )
         sys.exit(1)
     print("\nexam-check: 通过")
 

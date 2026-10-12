@@ -3,20 +3,19 @@
 # fork 补丁失去必要时才删条目并同步对齐。
 # 条目失效时 exam-check 会提示删除。
 flake.nix # fork inputs（secrets/zhyi-packages/ncps）、hydra jobs 剔除 apps、ARM 内核包
-flake-modules/commands/dnscontrol.nix # vendorHash 对应 fork pin 的 dnscontrol v4 913a947 + 本机 nixpkgs go 版本下的 vendor 树（2026-10-08 随 go 更新重算；上游值随其 auto-update 的 v5 源走）；gcore LabelFromFQDNWithDot bug 未修必须 pin，上游修复后随对齐取消
 nvfetcher.toml # fork 保留 dnscontrol pin v4（上游 gcore LabelFromFQDNWithDot bug 未修，取消 pin 会让 DNS preview 报千条假修正）；ulauncher-cursor-projects 已按用户决策对齐移除
 helpers/cities.json # fork 主机地理位置数据
 helpers/constants/nix.nix # 缓存常量化：zhyi 缓存 + NUR 作者缓存（2026-09-05 用户批准的缓存拓扑）
 helpers/constants/ports.nix # fork 服务端口登记（单域 vhost 生态 + V2Ray.HttpClient=1081 HTTP CONNECT 入站，供 .NET 应用/jellyfin 使用）；DLX/OidcTester 按用户 2026-09-13 决策移除（临时性服务不启用）
-helpers/constants/public-sites.nix # fork 子域清单（并入单域 zhyi.xin，无 google-test/zhyi.xin）
+helpers/constants/public-sites.nix # fork 子域清单（并入单域 zhyi.xin，无 google-test/ltn.pw）
 helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）
 helpers/host-options.nix # fork 选项：GPU 显存档位、NeoNetwork null、netns 默认值
-home/client-apps/ai-coding/default.nix # fork provider 链保留（taotoken/zai-coding 为用户账号，上游 llama-swap/ollama-cloud 依赖作者私有服务部署）+ dreamer/historian 模型 uni-api（上游为 ollama-cloud；pi-notify 桌面通知 2026-10-07 实测无用已对齐移除，crashes.json 均其 state-store 锁死锁）+ embedding 模型 qwen3-embedding-4b（上游 nomic-embed-code 需 CUDA，配 ml-laptop 主机级 Vulkan iGPU 覆盖脱离 NVIDIA，模型落盘 /nix/persistent 由 ModelScope 下载，见 hosts/ml-laptop/configuration.nix）；上游 7670cca48/384f0b5e4/911060c39/63deb3b70/45b5c0982 及 3c9861199 消费端 mcpServers 改名均已随 bdf587f4e→723a83fc2 同步
-home/client-apps/firefox/default.nix # zeroomega 扩展保留（用户浏览器配置）：addons.json/update.py 各追加 zeroomega 条目（AMO slug 直取，随 update.py 工作流维护）；其余已对齐（profile 名/ai 端点均为认可替换）
-home/client-apps/firefox/addons/addons.json # 末尾追加 zeroomega 条目（见 firefox/default.nix 条目）
-home/client-apps/firefox/addons/update.py # SLUGS 列表追加 zeroomega（否则下次运行会从 addons.json 抹掉该扩展）
-home/client-apps/git.nix # 签名 key 为用户本人 GPG 指纹（结构零差异）
+home/client-apps/pi/default.nix # 唯一无法对齐项：模型/供应商不同（fork 用 uni-api=zhyi.xin、defaultProvider zai-coding-cn、magic-context 三组件 uni-api、embedding qwen3-embedding-4b 走 ml-laptop llama-swap；上游为 uni-api=xuyh0120.win / ollama-cloud / nomic-embed-code）
+home/client-apps/firefox/default.nix # 扩展与搜索配置差异（zeroomega 等 fork 客户端选择）
+home/client-apps/git.nix # fork 签名 key
+home/client-apps/pi-web.nix # fork 主机 ml-laptop 接入 pi-web 门控（0a87bd745，主机名/用户名条件扩展）
+nixos/common-apps/yggdrasil/public-peers.json # 漂移因 baseline 钉 536ec582 而上游已前移（3c5ff36bc 等 3 提交待专项同步），bump baseline 后自然消除
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
 nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化 + browseros 门控 ml-laptop（上游 c7fd34b4 libvirt server 已随本次同步采纳）
 nixos/common-apps/coredns.nix # 仅保留 CN 主机 AliDNS/DNSPod 分支（docs/human/network/regional-dns.md 设计文档背书），其余结构对齐上游
@@ -25,18 +24,18 @@ nixos/common-apps/nginx/nginx.nix # gopher map 移除 neo（NeoNetwork 置空）
 nixos/common-apps/nginx/oauth2-proxy.nix # csrf cookie 对齐说明 + cookie 域清单差异
 nixos/common-apps/nginx/testssl.nix # google-test 测试站点移除
 nixos/common-apps/nginx/whois-server.nix # whois neo 别名移除（NeoNetwork 置空）
+nixos/common-apps/yggdrasil/default.nix # fork 节点 region 表与 peer 正则
 nixos/hardware/nvidia/prime.nix # eGPU 条件 steam offload wrapper（拔 eGPU 卡死修复，fork 自维护）
 nixos/hardware/vfio.nix # ACS/IOMMU 条件注入（雷电 eGPU Xid 79 修复，fork 自维护）
 nixos/minimal-apps/nginx-proxy.nix # neo ULA 移除（NeoNetwork 置空）
 nixos/minimal-apps/rsync-server.nix # --no-group 修复（2026-08-30 opi5p exit 23 实证，fork 自维护）
-nixos/minimal-components/backup/backup.nix # sftpEndpoint 选项化（备份端点迁 opi5p，lt-home-vm 退役）
+nixos/minimal-components/backup/backup.nix # sftpEndpoint 选项化（备份端点迁 opi5p）
 nixos/minimal-components/backup/common.nix # 同上 + storagebox 参数差异
 nixos/minimal-components/networking.nix # backupDNSServers 按 CN 国别分支（223.5.5.5 等）
 nixos/minimal-components/podman.nix # CN 区域镜像加速（hubproxy + daocloud 兜底）
 nixos/minimal-components/smtp.nix # fork 邮件账号；from=postmaster@zhyi.cc 已确认非残留：AhaSend 账户只登记 zhyi.cc（commit 3d880f3cc，zhyi.xin 会被 556 拒发），DNS TXT/DMARC 记录在 dns/common/records.nix ForwardEmail 块维护
-nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（storagebox 等备份端点）+ backup sftp 两后端 Match AddressFamily inet6（LTNET v4 数据面 CN↔家宽间歇单向黑洞，v6 稳定；opendal-sftp v4 connect 挂死不回退）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）+ sshd ExecStartPre 预建 /var/empty（/var 恢复后 sshd 起不来）
-nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名；portMappingEnabled 额外要求 server 标签（2026-10-07 zt 专项排查）：去 mesh 家庭机开 NAT-PMP 映射会在 miniupnpd 注册映射，内网对端经发夹 NAT 学到 192.168.0.1:临时端口的垃圾路径，映射一换（miniupnpd 重启/重拨）路径即死但仍 preferred，zt 虚拟帧只走 preferred 导致 v4 单播全灭（v6 走 RFC4193 NDP 模拟幸存）；机房 VPS 本就 _publiclyAccessible=false，仅家庭 server（opi5p）保留映射
-nixos/common-apps/yggdrasil/default.nix # regionMappings.SG 与 ZT 接口正则为 fork 舰队事实值（greencloud=SG；接口名与作者网络不同）；peers 内容经 update.py 工作流维护
+nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（storagebox 等备份端点）
+nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名
 nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书（对齐上游同款结构，值不同）
 nixos/optional-apps/acme/common.nix # google-test 证书构造器移除
 nixos/optional-apps/acme/default.nix # DNS 商 gcore（bunny 为作者所用）、dnsPropagationCheck=false
@@ -52,17 +51,16 @@ nixos/optional-apps/maddy.nix # neo 域移除（NeoNetwork 置空）
 nixos/optional-apps/mysql.nix # Galera 副本清单差异（作者节点不存在于本仓）
 nixos/optional-apps/ncps-client.nix # ncps 指向本仓 192.168.0.66（作者 .04）
 nixos/optional-apps/ncps.nix # 监听地址参数化（作者硬编码其 LAN IP）
-nixos/optional-apps/nix-distributed.nix # nixbuild.net 付费构建节点移除（fork 无账号），x86_64 构建机额外通告 aarch64-cross 承接三个 vendor 内核交叉构建（rock5c/opi5p/sc8280xp-kernel 的 requiredSystemFeature；上游靠 nixbuild.net 兜底无此需求），其余结构对齐上游
+nixos/optional-apps/nix-distributed.nix # nixbuild.net 付费构建节点移除（fork 无账号；aarch64 由 opi5p nix-builder 覆盖），其余结构对齐上游
 nixos/optional-apps/plausible.nix # geonames.csv tmpfiles 软链：nixos-unstable 模块设 GEONAMES_SOURCE_FILE 但无生成机制，greencloud 迁移后实证起不来；上游（colocrossing）无此修复
-nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮箱验证码降级登录（2026-09-07 用户决策偏离）；APP_NAME 去掉 @（2026-10-10 用户决策）：裸 @ 在 From 显示名违反 RFC 5322，AhaSend/KumoMTA 严格解析回 421 technical difficulties，Pocket ID v2.15.0 修复（pocket-id/pocket-id#1484），本仓 nixpkgs 锁随 exam 在 dc5d91f8 只到 2.14.0；nixpkgs 含 ≥2.15.0 后恢复原名并删本条
+nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮箱验证码降级登录（2026-09-07 用户决策偏离）
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
-nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
+nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）
 nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
-nixos/optional-apps/zerotierone-controller.nix # GL-MT3600BE 旅行路由器 LAN 路由（192.168.3.0/24 via 198.18.0.115，fork 独有拓扑）+ 家庭 LAN 路由（192.168.0.0/24 via router，供 allowManaged=1 额外客户端异地访问，2026-10-03）；defaultGatewayHost 已随上游收口到 LT 继承（rock5c 特例登记于 misc.nix 条目）
-nixos/optional-apps/uni-api.nix # n8n/picoclaw 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射；HOST/PORT env 与 custom-listen-host 补丁已随上游 03174835 同步，fix-tool-parameters 与 header-fallback 补丁均已随上游移除（上游 1.7.276 Rust 重写，src/providers/request.rs 内建静态头兜底+客户端透传覆盖语义，2026-09-27）
+nixos/optional-apps/zerotierone-controller.nix # GL-MT3600BE 旅行路由器 LAN 路由（192.168.3.0/24 via 198.18.0.115，fork 独有拓扑）；defaultGatewayHost 已随上游收口到 LT 继承（rock5c 特例登记于 misc.nix 条目）
+nixos/optional-apps/uni-api.nix # n8n 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射 + header-fallback 补丁；HOST/PORT env 与 custom-listen-host 补丁已随上游 03174835 同步（fix-tool-parameters 上游已修，fork 补丁移除）
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）
 nixos/optional-cron-jobs/testssl.nix # google-test 站点移除
-nixos/pve-components/nginx.nix # per-host 证书策略（zerossl-<host> vs 上游统一域名证书）
 nixos/server-apps/bird/config/dn42.nix # neo 路由移除（NeoNetwork 置空）
 nixos/server-apps/bird/config/sys.nix # neo 前缀移除（NeoNetwork 置空）
 nixos/server-apps/coredns.nix # DNSSEC 签名序号漂移（运营性，随各自 zone 重签）
@@ -70,7 +68,7 @@ nixos/server-apps/powerdns-recursor.nix # neo zone 移除 + CN 公共递归分�
 nixos/server-components/logging.nix # 日志接 Axiom（filebeat→ES 兼容托管端）
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
 overlays/50-general.nix # mpv ffmpeg 私有包引用移除（fork 无该 secrets/pkg）
-overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）+ ncps doCheck=false（Go TSan 在 qemu-user aarch64 下不可运行）
+overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）
 nixos/optional-apps/dlx.nix  # skip: 2026-09-13 用户决策不启用（临时性服务），DLX 端口已从 ports.nix 移除
 nixos/optional-apps/oidc-tester.nix # skip: 2026-09-13 用户决策不启用（临时性调试服务），端口已移除
 nixos/optional-apps/epic-awesome-gamer/default.nix # skip: 依赖作者 secrets 仓 epic-awesome-gamer.yaml，fork 无凭据且不需要喜加一
@@ -78,13 +76,10 @@ nixos/optional-apps/epic-awesome-gamer/fix.patch # skip: 同上，配套补丁
 nixos/optional-apps/prometheus/storagebox.nix # skip: fork 不监控 storagebox（备份端点为 opi5p sftp），default.nix 引用移除已登记
 patches/dlx-fingerprint.patch # skip: 同 dlx.nix，配套补丁
 dns/core/record-handlers.nix # NO_PURGE handler 保留（fork：迁移到 zhyi 域时保留上游/其他来源已管理记录，上游无此 handler）
+home/client-apps/xilinx/default.nix # 上游 aaf24cde 引入 hidden-module da4fbe694da377db（作者 secrets 私有内容，fork secrets 仓无此文件），不采纳；其余已对齐
 home/client-apps/dev-tools.nix # quartus-prime-lite 注释掉：Intel 25.1std.0.1129 下载源已下架（akdlm 301→404、downloadmirror AccessDenied，2026-09-16 实测），FOD 无法获取；上游 1ee0e4aa9 引入时可用，上游换 URL 后恢复
-home/client-apps/packages.nix # baidunetdisk/siyuan 为 fork 自有软件；materialgram 已恢复（NUR 7.0.5.1 补丁冲突已修复）
+home/client-apps/packages.nix # materialgram 移除：上游 NUR materialgram 6.7.7.1 的 0005 stories 补丁与源码冲突（Hunk#1 FAILED，包坏档），构建失败；上游 NUR 修复后恢复
 helpers/constants/interface-prefixes.nix # bond 前缀（ba915668d：dragon-q8b bond0 对齐 ml-2700/opi5p 正典写法，ZeroTier 接口白名单放行 bond，fork 独有拓扑）
 nixos/common-apps/nginx/vhosts-lantian.nix # skip: fork 以自维护 vhosts-zhyi.nix 对应替代（vhost 集合按 zhyi 域重写，无 author 域名入口）
 helpers/constants/misc.nix # defaultGatewayHost=rock5c（上游 pve-epyc）：ltnet/dn42 默认网关主机映射特例，与 zerotier 条目同一决策；ULA 已替换为 fdd8 前缀
-home/client-apps/ai-coding/extensions/nixos-command-guard.ts # fork 规则增强：AGENTS.md 04-nixos 禁非 Nix 包管理器/make install，上游仅拦 / 与 /nix/store 单参数
-nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机为 0（f28facd0b 防构建机 OOM 收口），非 nix-builder 分支随上游 d10db560f client?10:180
-nixos/common-apps/yggdrasil/public-peers.json # peers 数据文件经 update.py 自动工作流维护（publicpeers.neilalexander.dev 源列表实时变化），fork bot 与上游 bot 同步时点不同，内容漂移无意义
-nixos/server-apps/wg-mesh.nix # targetHosts 额外要求本机为 server（家庭机退出 BGP mesh 走 ZeroTier，2026-10-01 用户决策；上游 wg-mesh 仅被 server 角色导入，行为等价。起因：家宽↔greencloud wgmesh UDP 被上游掐断，家庭节点钉住的 /32 内核路由经 BGP 泄漏毒化全网选路致证书发放中断）
-nixos/optional-apps/mtranserver/models.json # update.py auto 工作流维护（同 yggdrasil public-peers.json 惯例）：模型清单随上游 moz translations 数据刷新，哈希/URL 与上游快照自然漂移
+nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机为 0（f28facd0b 防构建机 OOM 收口），其余与上游一致

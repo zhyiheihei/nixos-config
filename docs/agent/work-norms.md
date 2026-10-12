@@ -52,9 +52,15 @@
 - **动共享路径（`tools/exam-check --print-paths`，即 nixos/ home/ helpers/ overlays/
   flake-modules/ 等）之前先 `tools/exam-check`**：基线必须绿（只有 `=`/`≈`/`!known`）。
   否则自己的改动会和既有漂移混在一起，无法归因（2026-09-05 attic 六连提交的教训）
-- 同步上游五步：`git fetch exam` → `tools/exam-check log` 看增量 → pristine 文件
+- 同步上游六步：`git fetch exam` → `tools/exam-check log` 看增量 →
+  **`tools/exam-check structure` 先过上游的结构变更（新增/删除/改名）：该加的加、该删的删、
+  该改名的 `git mv`**（改名会让同路径内容比对失效，必须先过结构再搬内容）→ pristine 文件
   `git checkout exam/master -- <path>` 后做认可替换 → fork 接管的文件手动搬 patch →
   `tools/exam-check` 绿后更新 `docs/agent/upstream-baseline.md` 的 baseline 并提交
+- **结构审计**：`tools/exam-check structure` 以 `git diff --name-status -M baseline..exam/master`
+  为准，逐条核验 A/D/R 是否已跟进（已并入默认输出，未跟进即 exit 1）。`diff` 子命令对改名
+  自动配对（改名前后路径皆可）；`upstream` 子命令会单列「上游改名未跟进」。有意不采纳的
+  上游文件在 allowlist 写 `skip: 原因`；fork 自己的改名写进 `tools/exam-check` 的 NORMALIZE
 - 认可替换的机器可读规则、漂移判定与清债清单（含每项原因）见 `tools/exam-check`
   与 `tools/exam-check-allowlist`；fork 侧修复不主动上抛上游（2026-09-05 定），
   仅当上游独立修复同一问题、fork 补丁失去必要时才删条目并同步对齐
