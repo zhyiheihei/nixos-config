@@ -1,0 +1,11 @@
+#!/bin/sh
+# 一次性接线：让 git 用环境层（NORMALIZE）做 merge，并开启冲突解法复用。
+# 每个 clone 跑一次（.git/config 不进版本库）。
+set -e
+cd "$(git rev-parse --show-toplevel)"
+git config merge.normalize.name "NORMALIZE environment layer"
+git config merge.normalize.driver "python3 tools/merge-normalize.py %O %A %B %L %P"
+git config rerere.enabled true
+git config merge.renameLimit 20000
+git config diff.renameLimit 20000
+echo "merge driver / rerere 已配置"
