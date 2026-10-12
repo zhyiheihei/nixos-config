@@ -104,3 +104,6 @@ nixos/optional-apps/librechat.nix # fork：librechat 仍走自建 uni-api（上�
 nixos/optional-apps/n8n/n8n-openai-bridge.nix # 同上
 nixos/optional-apps/cliproxyapi.nix # fork：保留本仓原生 systemd 单元（hosts/google 依赖 cliproxyapi.service），未采纳上游 docker 容器化
 patches/colmena-verbose-single-node.patch # fork：单节点 apply 强制 verbose（上游版无 n_targets == 1 分支）
+nixos/optional-apps/uni-api.nix # skip: fork 仍自建 uni-api（上游已删并迁 cliproxyapi；服务迁移待用户决定）
+nixos/optional-apps/metapi.nix # skip: uni-api 配套（上游已删）
+patches/uni-api-custom-listen-host.patch # skip: 自建 uni-api 的 listen host 补丁（上游已删）
