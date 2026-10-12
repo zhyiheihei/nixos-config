@@ -335,7 +335,7 @@ in
         hostName = "${n}.zhyi.xin";
         protocol = "ssh";
         speedFactor = LT.hosts.${n}.cpuThreads;
-        sshKey = config.sops.secrets.hydra-builder-ssh-privkey.path;
+        sshKey = config.sops.secrets.hydra-ssh-privkey.path;
         sshUser = "nix-builder";
         inherit maxJobs;
         supportedFeatures = features;

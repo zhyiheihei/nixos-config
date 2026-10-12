@@ -17,6 +17,15 @@
   丢一个构建换整机存活），Hydra 迁走后本机回归纯构建机定位
   （archiveteam/clawemail/epic 容器同期迁出）。
 - `pve-5700u` 是纯 Proxmox VE 宿主，不再运行 Hydra，也不再作为 Nix 回退 builder。
+- **2026-10-12：Hydra 派发改走 gRPC**（跟随上游与新 nixpkgs）。新 nixpkgs 的
+  队列器不再读 `/etc/nix/machines`（`services.hydra.buildMachinesFiles` 已移除），
+  改由构建机主动连队列器：`opi5p` 跑本机 `services.hydra-builder`（127.0.0.1 级），
+  `ml-builder` 跑远程 `services.hydra-builder`，`queueRunnerAddr` 指向
+  `opi5p` 的 LTNET 地址与 `LT.portStr.Hydra.QueueRunnerGRPC`（队列器 gRPC 因此
+  绑在 LTNET 而非上游默认的 127.0.0.1）。两边的共享凭据是 `hydra.yaml` 的
+  `hydra-queue-runner-token`。`/etc/nix/machines*` 仍服务普通 `nix build`
+  （nix-distributed），与 Hydra 的队列无关。Hydra 同期还接上了 Dex OIDC 登录
+  （client `hydra`，`dex-hydra-secret`）与 `/ws` 实时构建日志。
 - `opi5p` 首先是数据库、媒体和 reDroid 生产节点，只作为单任务原生 ARM 回退节点。
 - `rock5c`、Router 和其他业务主机不加入 `nix-builder`；`ml-home-vm` 已退役。
 - 构建派发图必须是有向无环图：派发表排除 PVE，保留 OPI5P 作为原生 ARM
@@ -54,9 +63,11 @@
 - Hydra 所在机的 hydra-evaluator unit 注入集群出站代理（直连 GitHub 拉
   flake inputs 实测长期卡死；ml-laptop 时期即如此，迁 opi5p 后沿用），
   见 [outbound-proxy](outbound-proxy.md)。
-- Hydra 已从 ml-builder 撤除；`secrets/hydra.yaml` 的
-  `hydra-builder-ssh-privkey` 仍是 `nix-distributed` 到各构建机的 SSH 凭据，
-  ml-builder 继续布线。
+- Hydra 已从 ml-builder 撤除；`secrets/hydra.yaml` 的 `hydra-ssh-privkey` 仍是
+  `nix-distributed` 到各构建机的 SSH 凭据，也是 hydra-evaluator 拉私有 flake
+  输入的 key（上游同名 secret，fork 的
+  `hydra-builder-ssh-privkey` 别名已随对齐取消）；`hydra-queue-runner-token`
+  则是 Hydra 队列器与 gRPC 构建机之间的共享凭据。
 
 ## 节点表
 
@@ -73,19 +84,19 @@
 
 | 阶段 | 来源 | 去向 | 选择依据 | 结果 |
 | --- | --- | --- | --- | --- |
-| 求值与排队 | Hydra（`opi5p`） | `/etc/nix/machines` | system、mandatory feature、可用槽位、speed factor | 选择实际 builder |
-| 普通 x86 构建 | Hydra | `ml-builder`（远程 ssh，单任务） | `x86_64-linux`，主机速度与槽位 | 构建输出进入 Nix store |
+| 求值与排队 | Hydra（`opi5p`） | gRPC 构建机（`services.hydra-builder`） | 构建机注册时上报的 system 与 feature | 选择实际 builder |
+| 普通 x86 构建 | Hydra | `ml-builder`（gRPC 远程构建机） | `x86_64-linux` 且有空槽 | 构建输出进入 Nix store |
 | ml-builder 本地发起 | ml-builder | x86 留在本机；原生 ARM 到 opi5p，QEMU 回退 | ml-builder 的机器表排除 PVE，保留 OPI5P | 不产生 PVE↔ml-builder 回路 |
-| 大型并行构建 | Hydra | `ml-builder`（远程 ssh） | derivation 要求 `big-parallel` | 不占用 PVE/OPI 业务资源 |
+| 大型并行构建 | Hydra | `ml-builder`（gRPC） | 构建机上报的 `big-parallel` | 不占用 PVE/OPI 业务资源 |
 | ARM 交叉构建 | Hydra 或 ml-builder | `ml-builder` | build platform 仍是 x86，并要求 `aarch64-cross` | 生成 ARM 产物但不执行 ARM 二进制 |
-| ARM 原生构建 | Hydra（本机单槽）或 ml-builder | `opi5p` | derivation 的 system 为 `aarch64-linux` | 单任务执行目标架构构建脚本 |
+| ARM 原生构建 | Hydra（本机 gRPC 构建机）或 ml-builder | `opi5p` | derivation 的 system 为 `aarch64-linux` | 单任务执行目标架构构建脚本 |
 | 构建后上传 | Hydra RunCommand | `https://attic.zhyi.xin/zhyi` | 成功输出路径 | 私有 Attic/S3 缓存 |
 | 客户端取缓存 | Nix 客户端 | 先 Attic，再 `opi5p:13851` 的 NCPS | substituter 顺序 | NCPS 只代理公共上游，不反代 Attic |
 
-Hydra 与普通 `nix build` 共用 `/etc/nix/machines`（模块默认的
-`machines-with-localhost` 由 `services.hydra.buildMachinesFiles` 覆盖）。
-不要把 localhost 写入该文件，否则 Nix daemon 可能在持有输出锁时把任务
-递归派回自己；Hydra 所在机的原生构建由本机 daemon 槽位承接。
+普通 `nix build` 仍走 `/etc/nix/machines`（模块默认的 `machines-with-localhost`），
+Hydra 的队列则完全走 gRPC，两者互不影响：改 `nixBuilder.maxJobs` 只影响前者，
+Hydra 的并发由构建机上报的槽位与队列器调度决定。不要把 localhost 写入机器表，
+否则 Nix daemon 可能在持有输出锁时把任务递归派回自己。
 
 2026-08-02 的实际故障中，Hydra 从 PVE 把 derivation 交给 ml-builder 后，ml-builder
 又把同一任务交回 PVE；两边各自持有输出锁并等待对方，表现为构建永久停在
@@ -132,6 +143,17 @@ swap 一度用掉 16 GiB。ml-builder 专用于构建，但仍需要限制同时
 
    ml-builder 的两条命令都必须看不到 `pve-5700u`；`machines-with-localhost` 应同时
    看到 `opi5p` 与 `localhost`。PVE 上不应再存在 `/etc/nix/machines*` 构建派发表。
+   这一条只适用于普通 `nix build`；Hydra 的队列改看 gRPC 构建机：
+
+   ```bash
+   # opi5p（队列器 + 本机构建机）
+   systemctl status hydra-queue-runner.service hydra-builder.service
+   # ml-builder（远程构建机）
+   systemctl status hydra-builder.service
+   journalctl -u hydra-builder.service -n 30
+   ```
+
+   队列器日志与 Hydra Web UI 的 Machines 页应同时列出 opi5p 与 ml-builder。
 
 4. 用一个受控构建验证 OPI5P；期间检查：
 

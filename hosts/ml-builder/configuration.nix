@@ -2,6 +2,8 @@
   lib,
   pkgs,
   LT,
+  inputs,
+  config,
   ...
 }:
 let
@@ -91,6 +93,22 @@ in
   # Follow the author's qemu-user-static-binfmt setup: let this x86_64 box
   # also build aarch64 derivations locally via QEMU.
   lantian.qemu-user-static-binfmt.enable = true;
+
+  # Hydra 构建机（gRPC）：新 nixpkgs 的队列器不再读 /etc/nix/machines，
+  # 改由构建机主动连队列器（services.hydra-builder，队列器在 opi5p）。
+  # 本机是舰队唯一 x86_64 主构建机，不接上则 Hydra 只剩 opi5p 本地槽。
+  sops.secrets.hydra-queue-runner-token = {
+    sopsFile = inputs.secrets + "/hydra.yaml";
+    mode = "0440";
+    owner = "hydra-builder";
+    group = "hydra";
+  };
+
+  services.hydra-builder = {
+    enable = true;
+    authorizationFile = config.sops.secrets.hydra-queue-runner-token.path;
+    queueRunnerAddr = "http://${LT.hosts.opi5p.ltnet.IPv4}:${LT.portStr.Hydra.QueueRunnerGRPC}";
+  };
 
   systemd.network.networks.eth0 = {
     address = [ "${LT.this.interconnect.IPv4}/24" ];
