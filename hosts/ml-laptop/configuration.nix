@@ -3,6 +3,7 @@
   lib,
   LT,
   pkgs,
+  inputs,
   ...
 }:
 {
@@ -45,6 +46,16 @@
     ../../nixos/client-apps/zcode.nix
     # ../../nixos/optional-apps/leigod-accelerator.nix
   ];
+
+  # pi 的 CLIProxyAPI 插件凭据：owner 设为 zhyi，供 home activation 读取后
+  # 写入 ~/.pi/agent/cliproxyapi.json（密钥不能进 nix store，只能这样落地）。
+  sops.secrets.pi-ai-api-key = {
+    sopsFile = inputs.secrets + "/ai-api.yaml";
+    key = "ai-api-key";
+    owner = "zhyi";
+    group = "users";
+    mode = "0400";
+  };
 
   # 与上游 lt-hp-omen 对齐：lab/llama-swap/pi 本地 vhost 均走 OAuth。
   lantian.localVhosts = {

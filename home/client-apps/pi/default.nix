@@ -49,7 +49,7 @@ in
       collapseChangelog = true;
       enableInstallTelemetry = false;
       enableAnalytics = false;
-      defaultProvider = "zai-coding-cn";
+      defaultProvider = "cliproxyapi";
       defaultModel = "glm-5.3-flash";
       defaultThinkingLevel = "high";
       showCacheMissNotices = false;
@@ -117,6 +117,19 @@ in
     webTools = false;
     usageStatus = true;
   };
+  # pi 的 CLIProxyAPI 插件（@router-for-me/pi-cliproxyapi-provider）默认连
+  # 127.0.0.1:8317，这里把端点指向本仓新的 ai-api（google 上的 CLIProxyAPI）；
+  # 凭据优先取环境变量、其次 ~/.pi/agent/cliproxyapi.json、再其次 /login。
+  # 密钥不能进 store，故用 activation 写文件（owner 0600），插件后续可自行改写。
+  home.sessionVariables.CLIPROXYAPI_BASE_URL = "https://ai-api.zhyi.xin";
+  home.activation.pi-cliproxyapi = lib.mkIf (osConfig.sops.secrets ? "pi-ai-api-key") ''
+    mkdir -p "$HOME/.pi/agent"
+    printf '{"baseUrl":"https://ai-api.zhyi.xin","apiKey":"%s"}\n' \
+      "$(cat ${osConfig.sops.secrets."pi-ai-api-key".path})" \
+      > "$HOME/.pi/agent/cliproxyapi.json"
+    chmod 600 "$HOME/.pi/agent/cliproxyapi.json"
+  '';
+
   home.file.".pi/agent/ask-tool.json".text = builtins.toJSON {
     notify = true;
     timeoutSeconds = 300;
@@ -126,12 +139,14 @@ in
     enabled = true;
     auto_update = false;
     allow_home_project = true;
-    historian.pi.model = "zai-coding-cn/glm-5.3-flash";
-    dreamer.pi.model = "zai-coding-cn/glm-5.3-flash";
-    sidekick.model = "zai-coding-cn/glm-5.3-flash";
+    historian.pi.model = "cliproxyapi/glm-5.3-flash";
+    dreamer.pi.model = "cliproxyapi/glm-5.3-flash";
+    sidekick.model = "cliproxyapi/glm-5.3-flash";
     embedding = {
       provider = "openai-compatible";
-      model = "nomic-embed-code";
+      # fork：配 ml-laptop 主机级 Vulkan iGPU 覆盖（脱离 NVIDIA），
+      # 模型名须与其 models 一致
+      model = "qwen3-embedding-4b";
       endpoint = "http://127.0.0.1:${LT.portStr.LlamaSwap}/v1";
     };
   };

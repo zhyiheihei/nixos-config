@@ -57,15 +57,21 @@
 
   services.librechat.settings.endpoints.custom = lib.mkForce [
     {
-      name = "UniAPI";
-      apiKey = "\${UNI_API_KEY}";
+      name = "Magic Flash";
+      apiKey = "\${AI_API_KEY}";
       baseURL = "https://ai-api.zhyi.xin/v1";
       # glm-5.3-flash 实际上下文为 1M；LibreChat 未设置时按默认 30400 预算裁剪，
       # 91 个 MCP 工具定义（约 43K token）就足以把全部消息裁剪为空（empty_messages 报错）
       maxContextTokens = 1000000;
       models = {
         default = lib.unique (
-          lib.concatMap (provider: builtins.map (v: v.value) provider._models) config.lantian.llm-providers
+          lib.concatMap (
+            provider:
+            (builtins.map (v: v.value) provider._models)
+            ++ lib.optionals (provider.modelJsonFile != null) (
+              builtins.attrNames (lib.importJSON provider.modelJsonFile)
+            )
+          ) config.lantian.llm-providers
         );
         fetch = false;
       };
