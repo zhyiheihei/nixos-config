@@ -88,10 +88,5 @@ nixos/server-apps/wg-mesh.nix # targetHosts 额外要求本机为 server（家�
 nixos/optional-apps/attic.nix # fork：attic 用 nur-xddxdd.lantianCustomized.attic-telnyx-compatible 包
 overlays/52-old-packages.nix # fork：zerotierone 固定 1.14.2（1.16.0 家宽↔VPS v4 unicast 失效，上游 #2573 多人验证 1.14.2 稳定；诊断与决策见 docs/agent/inspection-fleet-20261007.md）
 nixos/hardware/xilinx.nix # skip: 上游依赖作者 secrets 私有 hidden-module da4fbe694da377db，fork 不采纳
-nixos/common-apps/nginx/vhost-options/helpers.nix # fork：nginx vhost-options 保留本仓直接 443 方案（未采纳上游 stream SNI 共享 socket 重构）
-nixos/common-apps/nginx/vhost-options/vhost-options.nix # 同上
-nixos/common-apps/nginx/vhost-hydra-proxy.nix # 同上
-nixos/optional-apps/pi-web.nix # fork：pi-web vhost 名保留 pi-web（未采纳上游 pi 改名，涉及 DNS/前置）
-home/client-apps/pi-web.nix # 同上（PI_WEB_ALLOWED_HOSTS=pi-web.localhost 配套）
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
 patches/colmena-verbose-single-node.patch # fork：单节点 apply 强制 verbose（上游版无 n_targets == 1 分支）

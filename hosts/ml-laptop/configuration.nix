@@ -46,11 +46,11 @@
     # ../../nixos/optional-apps/leigod-accelerator.nix
   ];
 
-  # 与上游 lt-hp-omen 对齐：lab/llama-swap/pi-web 本地 vhost 均走 OAuth。
+  # 与上游 lt-hp-omen 对齐：lab/llama-swap/pi 本地 vhost 均走 OAuth。
   lantian.localVhosts = {
     lab.locations."/".enableOAuth = true;
     llama-swap.locations."/".enableOAuth = true;
-    pi-web.locations."/".enableOAuth = true;
+    pi.locations."/".enableOAuth = true;
   };
 
   # 脱离 NVIDIA 运行时依赖（2026-10-07 用户要求）：125H 的 Arc iGPU 走

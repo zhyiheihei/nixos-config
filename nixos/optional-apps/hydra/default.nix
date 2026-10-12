@@ -55,7 +55,7 @@ in
 
   environment.etc."hydra/post-build".source = pkgs.writeShellScript "post-build" ''
     export PATH="${path}:$PATH"
-    export HYDRA_URL="http://${LT.this.ltnet.IPv4}:${LT.portStr.Hydra}"
+    export HYDRA_URL="http://${LT.this.ltnet.IPv4}:${LT.portStr.Hydra.WebUI}"
 
     jq . "$HYDRA_JSON"
     exec ${lib.getExe' py "python3"} ${./post-build.py} "$HYDRA_JSON"
@@ -70,7 +70,7 @@ in
     hydraURL = "https://hydra.zhyi.xin";
     listenHost = LT.this.ltnet.IPv4;
     notificationSender = "postmaster@zhyi.xin";
-    port = LT.port.Hydra;
+    port = LT.port.Hydra.WebUI;
     useSubstitutes = true;
 
     maxServers = 10;
@@ -85,6 +85,15 @@ in
 
       max_output_size = 21474836480
       allow_import_from_derivation = true
+
+      # 构建日志实时流（对齐上游）：监听 LTNET，由 vhost 的 /ws 反代
+      ws = {
+        bind = {
+          address = "${LT.this.ltnet.IPv4}";
+          port = ${toString LT.port.Hydra.WebSocket};
+        };
+      };
+      ws_endpoint = wss://hydra.zhyi.xin/ws
     '';
   };
 
