@@ -164,6 +164,23 @@ Prometheus 抓取目标未清理**，造成约 24 个目标的永久 down。清�
 - 待用户拍板的根治选项：① 舰队（或仅家庭机）pin zerotierone 1.14.2（多人验证的
   稳定版，登记偏离）；② 等上游修复后跟随；③ 向上游报告（附本次 syscall 证据）。
 
+### zt 版本 pin 落地（2026-10-12，用户选 ①）✅
+
+- 实现：`overlays/52-old-packages.nix` 对 1.16.0 派生式 `overrideAttrs` 换
+  `version`/`src`/`cargoDeps`，并置空 `patches`（1.16 两个补丁只改 make-mac.mk，
+  1.14.2 树上打不上，Linux 舰队不需要）；偏离已在 `tools/exam-check-allowlist` 登记。
+- 为何不用 multiverse 钉旧 nixpkgs：nixos-25.11 已 EOL，cache.nixos.org 已 GC 该修订
+  路径（实测 `at "2025-11-02-b3d51a0365f6"` 的 hello/libxcrypt 在 cache 与 NCPS 均
+  404），x86_64 要现建 57 个、aarch64 要现建 298 个派生（含 gcc/binutils bootstrap），
+  且 cargo vendor FOD 同样不在缓存。overrideAttrs 依赖全来自当前 nixpkgs（可替代），
+  实测只需构建 zerotierone 本体。
+- 构建注意：`cargo-deps-vendor-staging` 是 FOD，需在构建沙箱内拉 GitHub/crates.io；
+  本机 nix-daemon 无代理，直连会超时/连接重置。已在沙箱外用
+  `ALL_PROXY=socks5h://192.168.0.62:1080` 跑 `fetch-cargo-vendor-util
+  create-vendor-staging`，再把结果 `nix-store --add-fixed --recursive sha256` 进 store，
+  对应 hash 已写进派生式（构建机无需重复拉取）。
+- 验证：`zerotier-one -v` = 1.14.2。
+
 ### 其他当次处置
 
 - router miniupnpd：13:09 重启后 NAT-PMP add 全部恢复（nft 表 28 条映射、rock5c:42593
