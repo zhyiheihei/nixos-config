@@ -10,6 +10,8 @@
   imports = [
     ../../nixos/server.nix
 
+    (inputs.secrets + "/llm-providers.nix")
+
     ./hardware-configuration.nix
 
     ../../nixos/optional-apps/acme

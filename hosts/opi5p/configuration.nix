@@ -353,7 +353,6 @@ in
       ])
     ]
   );
-  services.hydra.buildMachinesFiles = lib.mkForce [ "/etc/nix/machines" ];
 
   # This host is a native aarch64 builder; registering qemu binfmt emulators
   # is unnecessary and would only intercept native builds with slower paths.

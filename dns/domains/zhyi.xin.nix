@@ -17,7 +17,7 @@ let
     {
       recordType = "CNAME";
       name = "ai-api";
-      target = "hostdare.zhyi.xin.";
+      target = "google.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -401,12 +401,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "metapi.tencent";
-      target = "tencent.ltnet.zhyi.xin.";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "hub.tencent";
       target = "tencent.ltnet.zhyi.xin.";
       ttl = "1h";
@@ -431,7 +425,7 @@ let
     }
     {
       recordType = "CNAME";
-      name = "cliproxyapi.google";
+      name = "cliproxyapi";
       target = "google.ltnet.zhyi.xin.";
       ttl = "1h";
     }

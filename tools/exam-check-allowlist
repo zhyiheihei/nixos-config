@@ -12,7 +12,7 @@ helpers/constants/public-sites.nix # fork 子域清单（并入单域 zhyi.xin�
 helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）
 helpers/host-options.nix # fork 选项：GPU 显存档位、NeoNetwork null、netns 默认值
-home/client-apps/pi/default.nix # 唯一无法对齐项：模型/供应商不同（fork 用 uni-api=zhyi.xin、defaultProvider zai-coding-cn、magic-context 三组件 uni-api、embedding qwen3-embedding-4b 走 ml-laptop llama-swap；上游为 uni-api=xuyh0120.win / ollama-cloud / nomic-embed-code）
+home/client-apps/pi/default.nix # 唯一无法对齐项：模型/供应商不同（fork 用 cliproxyapi(ai-api.zhyi.xin)、defaultProvider zai-coding-cn、magic-context 三组件 embedding qwen3-embedding-4b 走 ml-laptop llama-swap；上游为 ollama-cloud / nomic-embed-code）
 home/client-apps/firefox/default.nix # zeroomega 扩展保留（用户浏览器配置）：addons.json/update.py 各追加 zeroomega 条目（AMO slug 直取，随 update.py 工作流维护）；其余已对齐（profile 名/ai 端点均为认可替换）
 home/client-apps/firefox/addons/addons.json # 末尾追加 zeroomega 条目（见 firefox/default.nix 条目）
 home/client-apps/firefox/addons/update.py # SLUGS 列表追加 zeroomega（否则下次运行会从 addons.json 抹掉该扩展）
@@ -59,7 +59,6 @@ nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
 nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
 nixos/optional-apps/zerotierone-controller.nix # GL-MT3600BE 旅行路由器 LAN 路由（192.168.3.0/24 via 198.18.0.115，fork 独有拓扑）+ 家庭 LAN 路由（192.168.0.0/24 via router，供 allowManaged=1 额外客户端异地访问，2026-10-03）；defaultGatewayHost 已随上游收口到 LT 继承（rock5c 特例登记于 misc.nix 条目）
-nixos/optional-apps/uni-api.nix # n8n/picoclaw 专用 key + hostName==tencent vhost 门控 + _preferences 渠道级头透传映射；HOST/PORT env 与 custom-listen-host 补丁已随上游 03174835 同步，fix-tool-parameters 与 header-fallback 补丁均已随上游移除（上游 1.7.276 Rust 重写，src/providers/request.rs 内建静态头兜底+客户端透传覆盖语义，2026-09-27）
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）
 nixos/optional-cron-jobs/testssl.nix # google-test 站点移除
 nixos/pve-components/nginx.nix # per-host 证书策略（zerossl-<host> vs 上游统一域名证书）
@@ -94,15 +93,5 @@ nixos/common-apps/nginx/vhost-options/vhost-options.nix # 同上
 nixos/common-apps/nginx/vhost-hydra-proxy.nix # 同上
 nixos/optional-apps/pi-web.nix # fork：pi-web vhost 名保留 pi-web（未采纳上游 pi 改名，涉及 DNS/前置）
 home/client-apps/pi-web.nix # 同上（PI_WEB_ALLOWED_HOSTS=pi-web.localhost 配套）
-overlays/01-proxmox.nix # fork：overlay 与本仓 nixpkgs 锁版本配套，未采纳上游新版
-overlays/54-proxmox-customize.nix # 同上
-overlays/55-cuda-pascal.nix # 同上
-nixos/optional-apps/grafana.nix # fork：grafana 插件表与本仓 nixpkgs 锁版本配套（未采纳上游新增 loki 插件，待 nixpkgs 更新）
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
-nixos/optional-apps/librechat.nix # fork：librechat 仍走自建 uni-api（上游已迁 ai-api/cliproxyapi，涉及 secrets 与服务迁移，待定）
-nixos/optional-apps/n8n/n8n-openai-bridge.nix # 同上
-nixos/optional-apps/cliproxyapi.nix # fork：保留本仓原生 systemd 单元（hosts/google 依赖 cliproxyapi.service），未采纳上游 docker 容器化
 patches/colmena-verbose-single-node.patch # fork：单节点 apply 强制 verbose（上游版无 n_targets == 1 分支）
-nixos/optional-apps/uni-api.nix # skip: fork 仍自建 uni-api（上游已删并迁 cliproxyapi；服务迁移待用户决定）
-nixos/optional-apps/metapi.nix # skip: uni-api 配套（上游已删）
-patches/uni-api-custom-listen-host.patch # skip: 自建 uni-api 的 listen host 补丁（上游已删）

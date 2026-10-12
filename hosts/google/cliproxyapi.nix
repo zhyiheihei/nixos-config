@@ -1,6 +1,6 @@
 # CLIProxyAPI：Codex 订阅转 OpenAI 兼容 API 网关（详见 router-for-me/CLIProxyAPI）。
-# 公共模块 nixos/optional-apps/cliproxyapi.nix 为作者原版，只提供 systemd 单元与
-# 本地 vhost；配置文件由本文件以 sops 模板渲染并直读。
+# 公共模块 nixos/optional-apps/cliproxyapi.nix 提供 podman 容器与 vhost；
+# 配置文件由本文件以 sops 模板渲染到容器挂载点 /var/lib/cliproxyapi/config.yaml。
 # 服务仅部署于 google 主机，密钥在 nixos-secrets/common/cliproxyapi.yaml。
 {
   lib,
@@ -36,16 +36,19 @@
     };
   };
 
+  # 容器内监听 0.0.0.0:8317（宿主侧经 LT.portStr.CLIProxyAPI 端口映射进来）；
+  # auth-dir 与 plugins 用容器内的挂载点路径。
   sops.templates.cliproxyapi-config = {
-    owner = "cliproxyapi";
-    group = "cliproxyapi";
+    path = "/var/lib/cliproxyapi/config.yaml";
+    owner = "root";
+    group = "root";
     mode = "0400";
-    restartUnits = [ "cliproxyapi.service" ];
+    restartUnits = [ "podman-cliproxyapi.service" ];
     content = ''
       # CLIProxyAPI 配置，由 sops 模板渲染，不要手工编辑运行时副本。
-      host: "127.0.0.1"
-      port: ${LT.portStr.CLIProxyAPI}
-      auth-dir: "/var/lib/cliproxyapi/auths"
+      host: "0.0.0.0"
+      port: 8317
+      auth-dir: "/root/.cli-proxy-api"
       remote-management:
         allow-remote: false
         secret-key: "${config.sops.placeholder."cliproxyapi-management-key"}"
@@ -56,12 +59,4 @@
         - "${config.sops.placeholder."cliproxyapi-api-key-4"}"
     '';
   };
-
-  # preStart 复制方案需 chown（service 用户无权），改为直接以 --config 指向
-  # sops 模板渲染文件（owner=cliproxyapi 0400，secret 变更自动重启）。
-  systemd.services.cliproxyapi.serviceConfig.ExecStart =
-    lib.mkForce "${lib.getExe pkgs.llm-agents.cli-proxy-api} --config ${config.sops.templates.cliproxyapi-config.path}";
-
-  # 注：vhost 证书用作者默认 zerossl-<host>.zhyi.xin（两层通配，覆盖
-  # cliproxyapi.google.zhyi.xin）；lets-encrypt-zhyi.xin 只有单层 *.zhyi.xin，不够。
 }

@@ -34,13 +34,6 @@ in
 
     extraPackages = [ pkgs.nodejs ];
 
-    models.providers = {
-      uni-api = {
-        api = "openai-completions";
-        baseUrl = "https://ai-api.zhyi.xin/v1";
-      };
-    };
-
     settings = {
       # Enable all built-in tools on top of the defaults (read/bash/edit/write);
       # codemode and tool_search are built-in extensions, off by default.
@@ -88,6 +81,7 @@ in
         "npm:@moguw/pi-session-migrate"
         "npm:@monotykamary/pi-tps"
         "npm:@narumitw/pi-usage"
+        "npm:@router-for-me/pi-cliproxyapi-provider"
         "npm:pi-btw"
         "npm:pi-codex-goal"
         "npm:pi-copy-message"
@@ -132,14 +126,12 @@ in
     enabled = true;
     auto_update = false;
     allow_home_project = true;
-    historian.pi.model = "uni-api/glm-5.3-flash";
-    dreamer.pi.model = "uni-api/glm-5.3-flash";
-    sidekick.model = "uni-api/glm-5.3-flash";
+    historian.pi.model = "zai-coding-cn/glm-5.3-flash";
+    dreamer.pi.model = "zai-coding-cn/glm-5.3-flash";
+    sidekick.model = "zai-coding-cn/glm-5.3-flash";
     embedding = {
       provider = "openai-compatible";
-      # fork：配 ml-laptop 主机级 Vulkan iGPU 覆盖（脱离 NVIDIA），
-      # 模型名须与其 models 一致
-      model = "qwen3-embedding-4b";
+      model = "nomic-embed-code";
       endpoint = "http://127.0.0.1:${LT.portStr.LlamaSwap}/v1";
     };
   };

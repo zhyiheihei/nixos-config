@@ -6,8 +6,8 @@
   ...
 }:
 {
-  sops.secrets."uni-api-picoclaw-api-key" = {
-    sopsFile = inputs.secrets + "/uni-api/keys.yaml";
+  sops.secrets."ai-api-key" = {
+    sopsFile = inputs.secrets + "/ai-api.yaml";
     owner = "zhyi";
     group = "zhyi";
   };
@@ -25,7 +25,7 @@
       install -d -m700 -o zhyi -g zhyi /home/zhyi/.picoclaw
       if [ ! -f /home/zhyi/.picoclaw/config.json ] || ! grep -q gpt-5.6-luna /home/zhyi/.picoclaw/config.json; then
         ${lib.getExe pkgs.jq} -n --arg key "$(cat ${
-          config.sops.secrets."uni-api-picoclaw-api-key".path
+          config.sops.secrets."ai-api-key".path
         })" '{
           version: 3,
           agents: {defaults: {model_name: "gpt-5.6-luna", workspace: "~/.picoclaw/workspace", restrict_to_workspace: true}},

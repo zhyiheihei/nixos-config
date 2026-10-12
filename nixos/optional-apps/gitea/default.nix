@@ -69,7 +69,6 @@ in
         LEVEL = "Error";
       };
       server = {
-        DOMAIN = "git.zhyi.xin";
         LANDING_PAGE = "explore";
         PROTOCOL = "http+unix";
         ROOT_URL = "https://git.zhyi.xin/";

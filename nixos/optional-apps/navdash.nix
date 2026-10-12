@@ -120,11 +120,9 @@ let
     "letsencrypt-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "letsencrypt-test-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "login.zhyi.xin" = "Authelia_A";
-    "metapi.tencent.zhyi.xin" = "ChatGPT_B--ChatGPT";
     "nav.zhyi.xin" = "Homepage_C";
     "pt.opi5p.zhyi.xin" = "qBittorrent_A--BT下载器--qdnas-s";
     "tools.zhyi.xin" = "Ittools_A";
-    "uni-api.hostdare.zhyi.xin" = "Chatgpt--ChatGPT--openai.com";
     "zerossl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "zhyi.xin" = "BlogProject--博客项目";
   };
@@ -161,8 +159,6 @@ let
     "ai.zhyi.xin" = "AI 链路";
     "ai-api.zhyi.xin" = "AI 链路";
     "n8n.zhyi.xin" = "AI 链路";
-    "metapi.tencent.zhyi.xin" = "AI 链路";
-    "uni-api.hostdare.zhyi.xin" = "AI 链路";
     # 公开 · 媒体链路
     "books.zhyi.xin" = "媒体链路";
     "immich.zhyi.xin" = "媒体链路";

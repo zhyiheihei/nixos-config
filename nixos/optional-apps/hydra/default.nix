@@ -71,7 +71,6 @@ in
     listenHost = LT.this.ltnet.IPv4;
     notificationSender = "postmaster@zhyi.xin";
     port = LT.port.Hydra;
-    buildMachinesFiles = [ "/etc/nix/machines-with-localhost" ];
     useSubstitutes = true;
 
     maxServers = 10;
