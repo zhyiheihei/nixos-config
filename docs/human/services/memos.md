@@ -81,23 +81,23 @@ mask 必须用 snake_case 字段名，用 camelCase 会触发 Memos 的 SQL 报�
 Memos 0.29.1 的实例通知只提供 SMTP；用户级 Webhook 可用于其他通道，
 需要时通过官方 `UserWebhook` API 创建。
 
-## AI（Metapi）
+## AI（ai-api）
 
-Memos 的 AI Provider 指向 Metapi，而不是直接指向 UniAPI：
+Memos 的 AI Provider 直接指向公开 AI 入口 `ai-api.zhyi.xin`（后端是 `google` 上的
+CLIProxyAPI；2026-10-12 前经由 metapi → uni-api 两跳，两者已随上游退役）：
 
 | 项 | 值 |
 | --- | --- |
 | Provider type | `OPENAI` |
-| endpoint | `https://metapi.tencent.zhyi.xin/v1` |
-| API key | `uni-api/keys.yaml` 的 `uni-api-admin-api-key` |
+| endpoint | `https://ai-api.zhyi.xin/v1` |
+| API key | `ai-api.yaml` 的 `ai-api-key` |
 
-`metapi.tencent.zhyi.xin` 是 private vhost（2026-08-14 自 greencloud 迁移）。dragon-q8b
-已声明 hosts 映射 `198.18.0.120`，原生服务直接走该地址，保证 Memos 和运维脚本
-都能走 LTNET 直连。不要把这个 endpoint 改成公网入口或 UniAPI
-之外的网关，也不要让 Metapi 反向成为 UniAPI Provider。
+该入口是 key 鉴权的公开 vhost，Memos 所在主机直连即可，不需要 LTNET 中转。
+不要把这个 endpoint 改成其他网关，也不要把 `ai-api.zhyi.xin` 反向配成网关自己的
+上游渠道（会成环）。
 
 AI 功能中选择的模型统一使用 OpenCode Go 的 DeepSeek V4 Flash；Memos 页面里的
-模型列表来自 Metapi，实际模型名使用 UniAPI 别名
+模型列表来自该入口的 `/v1/models`，模型名使用网关侧别名
 `deepseek-v4-flash:opencode-go`。
 
 ## AI 读取与整理（官方 API）
@@ -128,7 +128,7 @@ bash tools/memos/configure-memos.sh
 脚本会幂等配置：
 
 1. 创建/更新 Dex OAuth2 Identity Provider。
-2. 更新 `instance/settings/AI`（Metapi Provider）。
+2. 更新 `instance/settings/AI`（OpenAI 兼容 Provider，指向 `ai-api.zhyi.xin`）。
 3. 更新 `instance/settings/NOTIFICATION`（现有 SMTP）。
 4. 更新 `instance/settings/STORAGE`（LOCAL 附件存储）。
 5. 打印最终配置用于核对。

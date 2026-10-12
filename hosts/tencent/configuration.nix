@@ -31,7 +31,7 @@
 
   lantian.hubproxy.enable = true;
 
-  # DSH web UI（dsh.zhyi.xin，Dex OIDC 登录，模型走 UniAPI）
+  # DSH web UI（dsh.zhyi.xin，Dex OIDC 登录，模型走 ai-api.zhyi.xin）
   lantian.dsh-web.enable = true;
 
   # Lsky Pro 图床（pic.zhyi.xin，官方 Docker 镜像）

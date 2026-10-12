@@ -6,95 +6,69 @@
 
 ## 设计边界
 
-`UniAPI` 是唯一的 Provider 汇聚点。外部 Provider 的 URL、密钥和模型映射只由私有
-secrets 仓库的 `uni-api/` 导入。其他网关只能以本机 UniAPI 为上游，不能再反向作为
-UniAPI 的 Provider，否则会形成请求循环、重复计费或无法诊断的失败。
+`CLIProxyAPI` 是唯一的 Provider 汇聚点，也是公开入口 `ai-api.zhyi.xin` 的后端
+（2026-10-12 起；上游 `f8be2aefe` 退役 uni-api/metapi，由 CLIProxyAPI 接管，
+本仓跟随）。外部 Provider 的 URL、密钥与模型清单只由私有 secrets 仓库的
+`llm-providers/` 定义，在主仓由 `hosts/google/cliproxyapi.nix` 生成网关的
+`openai-compatibility` 段落（密钥用 sops 占位符注入，明文不进 store）。
 
 ```text
-外部 Provider
+外部 Provider（zhipu-coding / opencode-go / opencode-go-2 / linuxdo-hub / ollama-cloud）
     ^
-    |  Provider key、模型映射（私有 secrets/uni-api）
+    |  base-url、密钥、模型清单（私有 secrets/llm-providers）
     |
-UniAPI
-    ^                     ^
-    |                     |
-LibreChat / n8n / PicoClaw   Metapi
-
-CLIProxyAPI（google，2026-09-10 接入）：Codex 订阅转 OpenAI 兼容 API，
-作为 UniAPI 的普通 OpenAI 类型 Provider（cliproxyapi 渠道，模型
-gpt-5.6-luna）；入口 https://cliproxyapi.google.zhyi.xin（private vhost，
-DNS CNAME 指向 google.ltnet 走 LTNET，对齐 n8n-bridge 模式）。设备码登录：
-在 google 上以 cliproxyapi 用户跑 cli-proxy-api --config
-/run/secrets/rendered/cliproxyapi-config --codex-device-login。
-
-AxonHub：模块保留，当前未部署
+CLIProxyAPI（google，容器，127.0.0.1:${LT.portStr.CLIProxyAPI}）
+    ^                     ^                     ^
+    |                     |                     |
+ai-api.zhyi.xin      cliproxyapi.zhyi.xin   Codex 订阅（OAuth 登录，auth 目录）
+（公开，key 鉴权）    （private，管理界面）
+    ^
+    |
+LibreChat / n8n OpenAI Bridge / PicoClaw / Memos / pi 客户端
 ```
 
-应用调用路径与管理网关是并列关系，不是需要逐层穿透的串联关系：
+Codex 订阅部分不来自 `llm-providers`：它由容器 auth 目录里的 OAuth 登录
+（设备码流程，登录后在 `cliproxyapi.zhyi.xin` 的管理界面完成）提供，模型形如
+`gpt-5.6-luna`。两条来源在 `/v1/models` 上合并展示。
 
-```text
-LibreChat   ──────────────────────> hostdare UniAPI ─> Provider
-Metapi      ──────────────────────> hostdare UniAPI ─> Provider
-hostdare UniAPI ─> n8n OpenAI Bridge (greencloud) ─> n8n 工作流
-```
+`AxonHub`、`Qdrant` 模块仍保留在仓库，但没有被任何 host 导入，不属于当前运行链路。
 
-自 2026-08-14 起，UniAPI 全项目收敛为**唯一一份**，运行在 `hostdare`（网络质量
-较好）；公开入口为 `ai-api.zhyi.xin`（完全公开，key 鉴权，对应作者原版的
-`ai-api.<domain>` 公开模式；原 `ai-api.zhyi.xin` 已移除）。LibreChat、n8n 和
-n8n OpenAI Bridge 运行在 `greencloud`；Metapi 运行在 `tencent`（SQLite 状态从
-greencloud 迁移）。LibreChat 与 Metapi 都使用 `https://ai-api.zhyi.xin/v1`。
-UniAPI 通过 LTNET 回调 greencloud 上的 n8n Bridge
-（`https://n8n-bridge.greencloud.zhyi.xin/v1`）。
+## 渠道与模型清单
 
-`AxonHub` 模块仍保留在仓库，但当前没有被任何 host 导入，实机也没有
-`axonhub.service`。它是未部署候选，不属于当前运行链路。
-
-`Qdrant` 模块同样只保留在仓库（与作者原版一致），当前没有任何 host import；
-它不是当前 AI 链的一部分，向量检索相关方案见
-[`../human/infrastructure/ai-knowledge-chain-integration.md`](../human/infrastructure/ai-knowledge-chain-integration.md)。
-
-AI 链内统一使用 OpenCode Go 的 DeepSeek V4 Flash，UniAPI 上的精确模型别名为
-`deepseek-v4-flash:opencode-go`（2026-08-12 实机 `/v1/models` 核验存在）。新增
-工作流/脚本必须显式选择该模型或通过 `AI_MODEL` 注入，不能把其他厂商模型作为
-默认值固化到新链路。
-
-## 额度瀑布与渠道冷却（2026-09-03）
-
-- UniAPI 的 provider 排序即「额度瀑布」优先级：请求按 `_score` 升序依次
-  尝试，额度耗尽（429）的渠道由冷却机制自然沉底。
-- `preferences.cooldown_period = 300`（秒）：额度耗尽的渠道 5 分钟内不参与
-  无效探测，仍能在合理时间内感知周额度刷新。
-- n8n 有专用 key（secrets `uni-api-n8n-api-key`），`model` 锁定为
-  `glm_for_coding`（zhipu-coding 渠道），防止工作流漂移到其他计费渠道。
-- picoclaw 有专用 key（secrets `uni-api-picoclaw-api-key`），`model` 锁定为
-  `gpt-5.6-luna`（cliproxyapi 渠道）；网关运行在 dragon-q8b，config.json 由
-  主机级 seed 单元在开机时拼装（根分区 tmpfs，见 hosts/dragon-q8b/picoclaw-config.nix）。
-- pi 客户端直连 taotoken 的 OpenAI 兼容端点：taotoken 不是
-  pi 内置渠道，不走 UniAPI 汇聚。
+- 渠道按 `llm-providers` 的 `_score` 升序排列，`openai-compatibility` 的顺序即
+  生成顺序；额度耗尽的渠道由上游自身的冷却机制处理。
+- CLIProxyAPI **不做模型自动发现**：每个渠道的模型清单必须显式给出，取自
+  `llm-providers/apis/*.json`（`modelJsonFile`）或 provider 内的 `_models`。
+  上游渠道新增模型时，重新抓取该渠道的 `/v1/models` 覆盖对应 JSON。
+  当前清单：zhipu-coding 11、opencode-go 38、opencode-go-2 38、linuxdo-hub 19、
+  ollama-cloud 18，合计 124 个模型（2026-10-12 实机核验）。
+- 生成 `openai-compatibility` 时必须排除 `cliproxyapi` 自身渠道——它就是本端点，
+  写进去会形成请求回环。`llm-providers/providers/cliproxyapi.nix` 的存在只是给
+  LibreChat 的模型清单用。
+- 各消费方的 key 统一是 `ai-api.yaml` 的 `ai-api-key`（`llm-providers` 里的
+  渠道密钥是给网关出站用的，与消费方 key 不同）。
 
 ## 服务职责与位置
 
 | 服务 | 主机 | 作用 | 上游或依赖 |
 | --- | --- | --- | --- |
-| UniAPI | `hostdare`（唯一） | Provider 注册表、模型别名与 OpenAI 兼容 API；公开入口 `ai-api.zhyi.xin` | 私有 `uni-api/` secrets |
-| LibreChat | `greencloud` | 交互式 AI 前端，使用 Dex OIDC 登录 | `ai-api.zhyi.xin`（`services.librechat.settings.endpoints.custom` 主机级覆盖） |
+| CLIProxyAPI | `google`（唯一） | Provider 汇聚与 OpenAI 兼容 API；公开入口 `ai-api.zhyi.xin`，管理入口 `cliproxyapi.zhyi.xin`（private） | 私有 `llm-providers/` secrets；`common/cliproxyapi.yaml` 的网关密钥 |
+| LibreChat | `greencloud` | 交互式 AI 前端，使用 Dex OIDC 登录 | `ai-api.zhyi.xin`（`services.librechat.settings.endpoints.custom` 主机级覆盖），key 取 `ai-api.yaml` |
 | n8n | `greencloud` | 自动化工作流 | PostgreSQL；工作流可调用 Bridge |
-| n8n OpenAI Bridge | `greencloud` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露给 UniAPI | n8n API；UniAPI key |
-| Metapi | `tencent` | 可选元聚合网关、站点/账户/模型路由管理；唯一站点指向 hostdare UniAPI | `ai-api.zhyi.xin`；SQLite 状态目录（自 greencloud 迁移） |
-| PicoClaw | `dragon-q8b` | 个人助理网关（本地 127.0.0.1:18790） | `ai-api.zhyi.xin`，专用 key 锁 `gpt-5.6-luna`；secrets `uni-api-picoclaw-api-key` |
-| AxonHub | 未部署 | 仓库保留可选模块，但当前没有 host import 或运行 unit | 部署前需重新确认 PostgreSQL、Redis 与上游契约 |
-| Qdrant | 未部署 | 仓库保留模块，无 host import、无实机 unit | 若启用需先规范为独立 options 模块并核验 embeddings |
+| n8n OpenAI Bridge | `greencloud` | 把标记为 `n8n-openai-bridge` 的工作流作为模型暴露 | n8n API；`ai-api-key` |
+| PicoClaw | `dragon-q8b` | 个人助理网关（本地 127.0.0.1:18790） | `ai-api.zhyi.xin`，key 取 `ai-api.yaml` |
+| pi | `ml-laptop` | 本地 coding agent | 官方插件 `@router-for-me/pi-cliproxyapi-provider` 连 `ai-api.zhyi.xin` |
+| AxonHub / Qdrant | 未部署 | 仓库保留可选模块，无 host import 或运行 unit | 部署前需重新确认上游契约 |
+| uni-api / metapi | 已退役 | 2026-10-12 随上游移除，职责由 CLIProxyAPI 接管 | — |
 
 核心实现位置：
 
-- [`nixos/optional-apps/uni-api.nix`](../../nixos/optional-apps/uni-api.nix)
+- [`nixos/optional-apps/cliproxyapi.nix`](../../nixos/optional-apps/cliproxyapi.nix)（容器与 vhost）
+- [`hosts/google/cliproxyapi.nix`](../../hosts/google/cliproxyapi.nix)（配置渲染与渠道生成）
 - [`nixos/optional-apps/librechat.nix`](../../nixos/optional-apps/librechat.nix)
 - [`nixos/optional-apps/n8n/n8n-openai-bridge.nix`](../../nixos/optional-apps/n8n/n8n-openai-bridge.nix)
-- [`nixos/optional-apps/axonhub.nix`](../../nixos/optional-apps/axonhub.nix)
-- [`nixos/optional-apps/metapi.nix`](../../nixos/optional-apps/metapi.nix)
+- [`home/client-apps/pi/default.nix`](../../home/client-apps/pi/default.nix)
 - [`hosts/greencloud/configuration.nix`](../../hosts/greencloud/configuration.nix)
-- [`hosts/rock5c/home-edge.nix`](../../hosts/rock5c/home-edge.nix)
-- [`hosts/hostdare/configuration.nix`](../../hosts/hostdare/configuration.nix)
 
 ## 与知识链的连接
 
@@ -107,11 +81,10 @@ AI 链与知识链通过各服务官方 API 连接，禁止用“共享数据库
 - LibreChat 只读知识源：只能通过官方 REST/MCP 接 Gitea、Memos、Miniflux；
   新增 MCP 用主机级编排或独立模块注入，不修改公共 `mcp-servers.nix`。
 - n8n 自动化：工作流的 AI 调用走公开入口 **`https://ai-api.zhyi.xin/v1`**
-  （2026-08-15 起全消费者统一走 ai-api，与 LibreChat/Metapi 一致；此前一度改指
-  Metapi 后回退）。Gitea/Memos/Miniflux/Syncthing 均走官方 API。n8n OpenAI Bridge 的
-  方向是“工作流作为模型被 UniAPI 调用”；n8n 通过 ai-api 调用普通 Provider 模型
-  没问题，但**禁止调用会绕回自己 Bridge 的模型**（UniAPI → Bridge → n8n 即成回环）。
-- Memos AI：保持 Metapi → UniAPI 的既有路径；Memos 读写集成走
+  （全消费者统一走 ai-api）。Gitea/Memos/Miniflux/Syncthing 均走官方 API。n8n OpenAI Bridge 的
+  方向是“工作流作为模型被网关调用”；n8n 通过 ai-api 调用普通 Provider 模型
+  没问题，但**禁止调用会绕回自己 Bridge 的模型**（网关 → Bridge → n8n 即成回环）。
+- Memos AI：走 `ai-api.zhyi.xin`，key 取 `ai-api.yaml`；Memos 读写集成走
   `/api/v1/memos` 与 `/memos.api.v1.*`，PAT 进 SOPS。
 - Syncthing：事件/状态查询走 `/rest/events`、`/rest/db/status`，API key 进
   SOPS；公网 vhost 前的 OAuth 是否放行 API key 需实机验证，必要时走
@@ -145,9 +118,9 @@ README 的 `## Agent` 一节说明其它智能体导入其 `skills/` 目录即�
 
 - **Skills 只在 agents 端点上生效**：skill catalog 注入、`$` 手动调用、
   always-apply 与 skill 工具的解析全在 agents 链路（`packages/api/src/agents/skills.ts`、
-  `api/server/controllers/agents/*`），自定义端点（如 UniAPI）只把
-  `manualSkills` 当界面元数据存一下。所以影视助手的 preset 端点从 `UniAPI` 改成了
-  `agents`（模型仍是 UniAPI 提供的 `deepseek-v4.1-flash`）。
+  `api/server/controllers/agents/*`），自定义端点只把
+  `manualSkills` 当界面元数据存一下。所以影视助手的 preset 端点从自定义端点改成了
+  `agents`（模型仍是 ai-api 提供的 `deepseek-v4.1-flash`）。
 - **frontmatter 严格校验**：部署型 skill 的 frontmatter 只允许白名单键
   （name/description/allowed-tools/version/…），出现 `authors`、`credentials`、
   `allowed-api-operations` 这类未识别键或数字型 `version` 会**直接让服务拒绝启动**。
@@ -159,11 +132,11 @@ README 的 `## Agent` 一节说明其它智能体导入其 `skills/` 目录即�
 
 | 服务 | 官方文档 |
 | --- | --- |
-| UniAPI | `https://github.com/yym68686/uni-api` |
+| CLIProxyAPI | `https://github.com/router-for-me/CLIProxyAPI` |
 | LibreChat | `https://www.librechat.ai/docs` |
 | n8n | `https://docs.n8n.io/api/` |
 | n8n OpenAI Bridge | `https://github.com/xddxdd/n8n-openai-bridge` |
-| Metapi | `https://github.com/cita-777/metapi` |
+| pi 的 CLIProxyAPI 插件 | `https://www.npmjs.com/package/@router-for-me/pi-cliproxyapi-provider` |
 | AxonHub | `https://github.com/looplj/axonhub` |
 | Qdrant | `https://api.qdrant.tech/api-reference/` |
 | Gitea | `https://docs.gitea.com/development/api-usage` |
@@ -172,109 +145,80 @@ README 的 `## Agent` 一节说明其它智能体导入其 `skills/` 目录即�
 | ArchiveBox | `https://docs.archivebox.io/dev/` |
 | Memos | `https://github.com/usememos/memos`（`proto/gen/openapi.yaml`） |
 
-## 已完成的运行态初始化
-
-作者公开的 Nix 模块只声明服务、数据库和反向代理；Metapi 的上游渠道、账户及路由
-是应用数据库中的运行态数据，不能通过重新 `switch` 自动重建。AxonHub 若以后重新
-部署，同样遵守这一边界。
-
-当前已经完成以下初始化，记录日期为 2026-07-21：
-
-- Metapi：有一个名为 `UniAPI` 的 `openai` 站点，指向
-  `https://ai-api.zhyi.xin`；有一个对应的 API-key 账户；已执行官方的模型刷新与路由
-  重建。
-- 2026-07-21 的历史记录显示，当时 Metapi 与曾部署的 AxonHub 均识别到 `162` 个
-  模型。该数字随 Provider 注册表改变，不是配置常量；AxonHub 当前已经不在运行链路。
-- Metapi 的管理口令是 `default-pw`，其下游 `PROXY_TOKEN` 使用
-  `uni-api-admin-api-key`。这是当前模块的作者式全局 secrets 约定。
-
-不要删除可能保留的 AxonHub PostgreSQL/Redis 历史数据或 `/var/lib/metapi`（位于
-greencloud，Metapi 迁移后作为备份保留；tencent 上的 `/var/lib/metapi` 是 2026-08-14
-从 greencloud 拷贝的运行态），除非明确要废弃相应网关；否则会丢失运行态初始化和应用内管理数据。
-
 ## Secrets 与密钥边界
 
 | 位置 | 用途 | 规则 |
 | --- | --- | --- |
-| `uni-api/keys.yaml` 的 `uni-api-admin-api-key` | UniAPI 管理 API；n8n Bridge 客户端；Metapi 下游代理；重新部署时的 AxonHub 上游访问 | 不输出、不提交明文；轮换时同步更新当前实际部署的应用内上游凭据 |
-| `uni-api/providers/` 与 `uni-api/apis/` | 外部 Provider URL、API key 与模型映射 | 只在私有 secrets 仓库按 SOPS 规范维护 |
-| `uni-api/` Provider 注册表 | LibreChat 模型列表与 UniAPI Provider 配置 | 与 UniAPI 配置一起维护 |
+| `ai-api.yaml` 的 `ai-api-key` | 消费方（LibreChat、n8n Bridge、PicoClaw、Memos、pi）访问 `ai-api.zhyi.xin` | 不输出、不提交明文；轮换时同步更新各消费方（Nix 侧只引用 sops 路径，无需改代码） |
+| `common/cliproxyapi.yaml` | 网关自身的 `management-key` 与 4 个 `api-key-*`（`ai-api-key` 取的是 `api-key-1`） | 只在私有 secrets 仓库按 SOPS 规范维护 |
+| `llm-providers/providers/` 与 `llm-providers/apis/` | 外部 Provider URL、API key 与模型清单 | 同上；密钥由主仓生成 `openai-compatibility` 时以 sops 占位符注入 |
 | `librechat.yaml` 与 `common/dex.yaml` | LibreChat 会话、JWT、凭据加密与 OIDC client secret | 只通过 SOPS secret 文件注入 |
 | `common/moviepilot.yaml` 的 `moviepilot-api-token` | LibreChat 接 MoviePilot v3 MCP | 只通过 SOPS 注入 LibreChat 进程环境，不写进 librechat.yaml |
 | `n8n.yaml` | n8n runner/API 认证 | Bridge 只读取其所需的 token，不能输出或复制到普通配置 |
 
-轮换 `uni-api-admin-api-key` 的正确顺序：
+轮换 `ai-api-key`（消费方 key）的正确顺序：
 
-1. 在构建机的私有 secrets 仓库按其 SOPS 文档加密更新 key。
-2. 部署 `rock5c` 与 `hostdare`，确认两台 UniAPI 的 `/v1/models` 均可认证；hostdare 不可达
-   时不能假定轮换已经完成。
-3. 在 Metapi 的 `UniAPI` API-key 账户中更新上游 key；只有重新部署 AxonHub 后才
-   更新其 channel。
-4. 重新刷新 Metapi 模型并重建路由，再做下面的健康检查。
-
-不要为了轮换 key 直接编辑 AxonHub PostgreSQL 或 Metapi SQLite；使用各自的管理 UI 或
-官方 API。
+1. 在私有 secrets 仓库按其 SOPS 文档加密更新 `ai-api.yaml`；如果同时换网关侧的
+   `api-key-1`，两者保持一致。
+2. 部署 `google`（网关）与各消费方主机（`greencloud`、`dragon-q8b`、`ml-laptop`）。
+3. 用下面的健康检查确认模型列表可认证；任一消费方取到 401 说明该主机没部署到。
 
 ## 维护规则
 
-- **不要改主调用路径。** LibreChat 的自定义 UniAPI endpoint 使用
-  `https://ai-api.zhyi.xin/v1`，后端即 hostdare；n8n Bridge 作为 `lantian.llm-providers`
-  的 `n8n` Provider 被 UniAPI 通过 `https://n8n-bridge.greencloud.zhyi.xin/v1` 调用。两者都
-  不能改为 AxonHub 或 Metapi，除非明确迁移整个调用契约并单独验证。
-- **不要制造回环。** 禁止将 `axonhub.*`、`metapi.*` 或 `ai-api.zhyi.xin` 配成 UniAPI
-  的 Provider；禁止给 Metapi/AxonHub 再添加指向自身的上游。
-- **不重复保存外部 Provider 凭据。** Metapi 当前只保存对 UniAPI 的凭据；
-  AxonHub 若重新部署也只能这样配置。新增外部 Provider 时优先更新 `uni-api/`
-  secrets，而不是分别塞入多个网关。
-- **保留私有访问边界。** `metapi.tencent.zhyi.xin` 是 private vhost（迁移前为
-  `metapi.greencloud.zhyi.xin`）；未来重新部署的 `axonhub.*` 也必须保持 private。
-  公开 API 入口由 `ai-api.zhyi.xin` 的 hostdare UniAPI 承担。
-- **不把运行态当 Nix 声明。** Nix 负责服务存在和 secret 文件挂载；应用内 channel、
-  account、route、管理员、工作流等数据由各自数据库持久化和备份。
+- **不要改主调用路径。** 消费方统一走 `https://ai-api.zhyi.xin/v1`，后端即
+  `google` 上的 CLIProxyAPI；不得改指 AxonHub 或其他网关，除非明确迁移整个调用契约
+  并单独验证。
+- **不要制造回环。** 禁止把 `cliproxyapi` 自身或 `ai-api.zhyi.xin` 配成
+  `openai-compatibility` 的渠道（主仓生成时已显式排除）。
+- **不重复保存外部 Provider 凭据。** 新增外部 Provider 时只更新
+  `llm-providers/`，不要往别处塞。
+- **保留私有访问边界。** `cliproxyapi.zhyi.xin` 是管理入口，保持 private；
+  公开 API 入口只由 `ai-api.zhyi.xin` 承担。
+- **模型清单要跟着上游走。** 清单是静态烘焙的，渠道换模型后必须重新抓取
+  `apis/*.json` 并部署 `google`，否则新模型不会出现在 `/v1/models`。
+- **不把运行态当 Nix 声明。** Nix 负责容器、配置渲染与 secret 文件挂载；Codex
+  订阅的 OAuth 登录态在 `/var/lib/cliproxyapi/auth`，属运行态，不进 Nix。
 
 ## 健康检查
 
-以下命令在 `tencent` 以 root 执行；只验证，不打印密钥：
+以下命令在 `google` 以 root 执行；只验证，不打印密钥：
 
 ```bash
-# metapi 在 tencent；librechat/n8n/n8n-openai-bridge 仍在 greencloud
-systemctl is-active metapi
+systemctl is-active podman-cliproxyapi
 
-curl -fsS \
-  -H "Authorization: Bearer $(cat /run/secrets/uni-api-admin-api-key)" \
+# 网关自身：应列出全部渠道模型 + Codex 订阅模型
+K=$(sed -n 's/^ *- "\(.*\)"$/\1/p' /var/lib/cliproxyapi/config.yaml | head -1)
+curl -fsS -H "Authorization: Bearer $K" http://127.0.0.1:${LT.portStr.CLIProxyAPI}/v1/models \
+  | jq '(.data // []) | length'
+
+# 管理 API：确认 openai-compatibility 已渲染出各渠道
+M=$(sed -n 's/.*secret-key: "\(.*\)"/\1/p' /var/lib/cliproxyapi/config.yaml)
+curl -fsS -H "X-Management-Key: $M" \
+  http://127.0.0.1:${LT.portStr.CLIProxyAPI}/v0/management/openai-compatibility \
+  | jq '[. ["openai-compatibility"][] | {name, models: (.models | length)}]'
+```
+
+预期容器 `active`，`/v1/models` 数量 ≥ 124（渠道模型）并包含 Codex 订阅模型，
+管理 API 列出 5 个渠道。数量变少时先看容器日志与 sops 渲染结果：
+
+```bash
+journalctl -u podman-cliproxyapi --since '30 minutes ago' --no-pager
+cat /var/lib/cliproxyapi/config.yaml | head -5   # 只确认渲染成功，不要外传
+test -s /run/secrets/cliproxyapi-management-key
+```
+
+消费方侧（任一台）验证：
+
+```bash
+curl -fsS -H "Authorization: Bearer $(cat /run/secrets/ai-api-key)" \
   https://ai-api.zhyi.xin/v1/models | jq '(.data // []) | length'
-
-curl -fsS \
-  -H "Authorization: Bearer $(cat /run/secrets/uni-api-admin-api-key)" \
-  http://127.0.0.1:13811/v1/models | jq '(.data // []) | length'
 ```
 
-预期所有 service 为 `active`，两次模型数相同。模型数变化通常是 Provider 注册表变更
-的结果；模型数为 `0`、服务反复重启或两个数不一致时，先检查：
+## 部署注意
 
-```bash
-journalctl -u metapi --since '30 minutes ago' --no-pager
-# 在 hostdare 上检查 UniAPI：
-# journalctl -u uni-api --since '30 minutes ago' --no-pager
-```
-
-再检查对应 SOPS secret 是否已加载，不要先重置数据库：
-
-```bash
-test -s /run/secrets/uni-api-admin-api-key
-test -s /run/secrets/default-pw
-```
-
-## 初始化与恢复
-
-只有在应用数据库被明确新建或清空后，才需要再次初始化：
-
-1. 先部署并确认 UniAPI（rock5c）有模型，同时验证 `https://ai-api.zhyi.xin` 可达 ROCK 5C。
-2. 在 Metapi 创建唯一 `UniAPI`、`openai` 站点，地址为
-   `https://ai-api.zhyi.xin`；添加 API-key 账户并执行“刷新模型并重建路由”。
-3. 用“健康检查”验证模型数一致，再恢复应用自身的备份数据。
-4. 只有明确重新启用 AxonHub 时，才在其首次向导创建管理员和唯一的 `UniAPI`
-   channel；不要把历史初始化记录当成当前服务已经部署。
-
-若目标只是修复服务启动、证书或 Nix 配置，不要重新执行这套初始化，也不要重置运行态
-数据库。
+- **auth 目录**：本仓旧的原生单元用 `/var/lib/cliproxyapi/auths`，上游容器模块挂载
+  `/var/lib/cliproxyapi/auth`。首次部署容器版前必须在 `google` 上
+  `mv /var/lib/cliproxyapi/auths /var/lib/cliproxyapi/auth`，否则 Codex 登录态丢失，
+  订阅模型全部消失（表现为 `/v1/models` 只剩渠道模型）。
+- **模型清单更新**：改 `llm-providers/apis/*.json` 后要 bump secrets 输入并部署
+  `google`；`sops.templates` 的 `restartUnits` 会在配置变化时重启容器。
