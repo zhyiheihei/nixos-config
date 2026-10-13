@@ -68,7 +68,7 @@ nixos/server-apps/coredns.nix # DNSSEC 签名序号漂移（运营性，随各�
 nixos/server-apps/powerdns-recursor.nix # neo zone 移除 + CN 公共递归分支
 nixos/server-components/logging.nix # 日志接 Axiom（filebeat→ES 兼容托管端）
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
-overlays/50-general.nix # mpv ffmpeg 私有包引用移除（fork 无该 secrets/pkg）
+overlays/50-general.nix # mpv ffmpeg 私有包引用移除（fork 无该 secrets/pkg）；2026-10-13 known 文件出示 diff 的工具盲区修复后，补齐 clickhouse-lts/dump1090-fa/grafana-loki/hydra-oidc/hydra-queue-runner 五处曾漏跟 hunk，现为上游全文减 mpv 块
 overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）+ ncps doCheck=false（Go TSan 在 qemu-user aarch64 下不可运行）
 nixos/optional-apps/dlx.nix  # skip: 2026-09-13 用户决策不启用（临时性服务），DLX 端口已从 ports.nix 移除
 nixos/optional-apps/oidc-tester.nix # skip: 2026-09-13 用户决策不启用（临时性调试服务），端口已移除
@@ -89,4 +89,3 @@ nixos/optional-apps/attic.nix # fork：attic 用 nur-xddxdd.lantianCustomized.at
 overlays/52-old-packages.nix # fork：zerotierone 固定 1.14.2（1.16.0 家宽↔VPS v4 unicast 失效，上游 #2573 多人验证 1.14.2 稳定；诊断与决策见 docs/agent/inspection-fleet-20261007.md）
 nixos/hardware/xilinx.nix # skip: 上游依赖作者 secrets 私有 hidden-module da4fbe694da377db，fork 不采纳
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
-patches/colmena-verbose-single-node.patch # fork：单节点 apply 强制 verbose（上游版无 n_targets == 1 分支）

@@ -4,6 +4,13 @@ let
 in
 rec {
   # keep-sorted start block=yes
+  clickhouse-lts = prev.clickhouse-lts.overrideAttrs (old: {
+    # ld.lld -r from the LLVM 21.1.8 in the locked nixpkgs produces a broken
+    # combined object for the Rust workspace archives (over 0xffff sections,
+    # section symbols get st_shndx = SHN_UNDEF), and the final link then fails
+    # with "undefined symbol: ". The stripping is only a size optimization.
+    patches = (old.patches or [ ]) ++ [ ../patches/clickhouse-disable-rust-symbol-strip.patch ];
+  });
   colmena = prev.colmena.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [
       ../patches/colmena-combine-logs-same-node.patch
@@ -18,12 +25,20 @@ rec {
     vendorHash = "sha256-7T4svxdzKsSQup1Ls43bK+l/xMgxL4mmQQ7Ck3WoKRk=";
     doCheck = false;
   });
+  dump1090-fa = prev.dump1090-fa.overrideAttrs (old: {
+    # glibc 2.44's fortified snprintf diagnoses a too-small buffer in
+    # interactive.c while dump1090 builds with -Werror
+    NIX_CFLAGS_COMPILE = (old.NIX_CFLAGS_COMPILE or "") + " -Wno-error=format-truncation";
+  });
   filezilla = prev.filezilla.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/filezilla-override-pasv-ip-for-zero-ip.patch ];
   });
   flashrom = prev.flashrom.overrideAttrs (old: {
     # Fix dangling stack-local chip pointer in tests, from https://github.com/NixOS/nixpkgs/issues/558302#issuecomment-5552862912
     patches = (old.patches or [ ]) ++ [ ../patches/flashrom-fix-dangling-mock-chip-pointer.patch ];
+  });
+  grafana-loki = prev.grafana-loki.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [ ../patches/grafana-loki-unix-socket.patch ];
   });
   handbrake = prev.handbrake.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.makeWrapper ];
@@ -35,7 +50,16 @@ rec {
     '';
   });
   hydra = prev.hydra.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ../patches/hydra-protect-private-project.patch ];
+    patches = (old.patches or [ ]) ++ [
+      ../patches/hydra-protect-private-project.patch
+      ../patches/hydra-oidc-optional-nbf.patch
+    ];
+  });
+  hydra-queue-runner = prev.hydra-queue-runner.overrideAttrs (old: {
+    # Prefer .drv output paths for input-addressed derivations. DB build
+    # history can be wrong (substitution steps recorded non-"out" outputs
+    # under "out"), making builds fail with "build input ... does not exist".
+    patches = (old.patches or [ ]) ++ [ ../patches/hydra-prefer-input-addressed-drv-outputs.patch ];
   });
   # Systemd socket activation support, from https://github.com/esnet/iperf/pull/1171
   iperf3 = prev.iperf3.overrideAttrs (old: {
@@ -63,6 +87,13 @@ rec {
     patches = (old.patches or [ ]) ++ [ ../patches/netavark-disable-conntrack.patch ];
     doCheck = false;
   });
+  obs-studio-plugins = prev.obs-studio-plugins // {
+    obs-noise = prev.obs-studio-plugins.obs-noise.overrideAttrs (old: {
+      # GCC 15 diagnoses a discarded const qualifier and the OBS plugin helper
+      # adds -Werror
+      NIX_CFLAGS_COMPILE = (old.NIX_CFLAGS_COMPILE or "") + " -Wno-error=discarded-qualifiers";
+    });
+  };
   open-webui = prev.open-webui.overridePythonAttrs (old: {
     dependencies = (old.dependencies or [ ]) ++ old.optional-dependencies.all;
   });

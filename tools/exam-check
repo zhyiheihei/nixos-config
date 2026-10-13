@@ -337,9 +337,17 @@ def do_upstream(argv):
         for p in missing:
             print(f"  {p}")
     if known:
-        print("\n!known 已登记差异（fork 决策）:")
+        print("\n!known 已登记差异（fork 决策；逐个核对下方归一化 diff 仅含登记项，防整文件豁免吞掉上游新 hunk）:")
         for p in known:
             print(f"  {p}  # {allow.get(p, '')}")
+        for p in known:
+            base = normalize(git("show", f"exam/master:{p}")).splitlines()
+            work = normalize((REPO / p).read_bytes()).splitlines()
+            d = list(difflib.unified_diff(base, work, fromfile=f"exam/master:{p}", tofile=f"worktree:{p}", lineterm=""))
+            print(f"\n{'=' * 20} {p} (known diff)")
+            print("\n".join(d[:120]) or "（无差异）")
+            if len(d) > 120:
+                print(f"…（其余 {len(d) - 120} 行省略）")
     if renamed:
         print("\n! 上游改名未跟进（上游路径 → 本仓路径）:")
         for old, new in renamed:
@@ -545,6 +553,18 @@ def main():
     if stale_allow:
         print("\nallowlist 失效条目（漂移已消除，请删除）:")
         for p in stale_allow:
+            print(f"  {p}")
+    # 盲区修复（2026-10-13 obs-noise 漏跟事故）：A/D/R 之外，上游还会往既有文件里
+    # 塞内容 hunk（M）。基线快照不包含这些变更，仅靠 allowlist 整文件豁免会漏跟，
+    # 必须在每次审计时把 M 清单作为同步作业待办出示。
+    content_changed = sorted(
+        norm_path(old)
+        for code, old, _ in ops
+        if code == "M" and not old.startswith(EXCLUDES)
+    )
+    if content_changed:
+        print("\n! 上游内容变更未核对（M，自 baseline；同步作业逐 hunk 跟进后 bump baseline）:")
+        for p in content_changed:
             print(f"  {p}")
     struct_unapplied = structure_report(baseline, allow, args.path)
     if struct_unapplied:
