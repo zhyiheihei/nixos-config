@@ -68,7 +68,6 @@ nixos/server-apps/coredns.nix # DNSSEC 签名序号漂移（运营性，随各�
 nixos/server-apps/powerdns-recursor.nix # neo zone 移除 + CN 公共递归分支
 nixos/server-components/logging.nix # 日志接 Axiom（filebeat→ES 兼容托管端）
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
-overlays/50-general.nix # mpv ffmpeg 私有包引用移除（fork 无该 secrets/pkg）；2026-10-13 known 文件出示 diff 的工具盲区修复后，补齐 clickhouse-lts/dump1090-fa/grafana-loki/hydra-oidc/hydra-queue-runner 五处曾漏跟 hunk，现为上游全文减 mpv 块
 overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）+ ncps doCheck=false（Go TSan 在 qemu-user aarch64 下不可运行）
 nixos/optional-apps/dlx.nix  # skip: 2026-09-13 用户决策不启用（临时性服务），DLX 端口已从 ports.nix 移除
 nixos/optional-apps/oidc-tester.nix # skip: 2026-09-13 用户决策不启用（临时性调试服务），端口已移除
