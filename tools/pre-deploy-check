@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+# 部署前确认（规范见 docs/agent/deployment.md「部署前确认」），两项硬门槛：
+#   1. ncps 可用——本机唯一 substituter（ncps-client mkForce 且无兜底），断开
+#      即零二进制缓存，全部转本机源码编译；
+#   2. ml-builder 在线且 /etc/nix/machines 派发在位——big-parallel 与
+#      aarch64-cross（ARM 交叉内核）仅 ml-builder 承接。
+# 任一不成立时构建全落本机，32G 内存被大包并发编译打满死机，部署整体失败。
+set -u
+cd "$(dirname "$0")/.."
+
+allow_local=0
+for arg in "$@"; do
+  case "$arg" in
+    --allow-local-build) allow_local=1 ;;
+    *) echo "用法: tools/pre-deploy-check [--allow-local-build]"; exit 2 ;;
+  esac
+done
+
+rc=0
+
+# 地址即 nixos/optional-apps/ncps-client.nix 的 mkForce 值，改 NCPS 地址时同步改这里
+echo "== 1/2 ncps substituter（dragon-q8b 192.168.0.66:13851）"
+if info=$(curl -fsS -m 5 http://192.168.0.66:13851/nix-cache-info 2>&1); then
+  echo "  ✓ $(echo "$info" | tr '\n' ' ')"
+else
+  echo "  ✗ ncps 不可达/服务断开: $info"
+  echo "    排查: ssh -p 2222 root@dragon-q8b.zhyi.xin systemctl status ncps"
+  rc=1
+fi
+case $(nix show-config 2>/dev/null | awk '$1 == "substituters" { print $3 }') in
+  *192.168.0.66:13851*) echo "  ✓ 本机 substituters 指向 ncps" ;;
+  *) echo "  ✗ 本机 substituters 未指向 ncps，检查 ncps-client 接入"; rc=1 ;;
+esac
+
+echo "== 2/2 ml-builder 远程构建（/etc/nix/machines + ssh nix-builder@ml-builder.zhyi.xin）"
+if [ ! -e /etc/nix/machines ] || ! grep -q ml-builder /etc/nix/machines; then
+  echo "  ✗ /etc/nix/machines 缺失或无 ml-builder 条目（跑过 nix-remote-build-off，远程派发关闭）"
+  rc=1
+else
+  echo "  ✓ /etc/nix/machines 派发在位"
+  if timeout 15 ssh -o BatchMode=yes -o ConnectTimeout=5 -p 2222 nix-builder@ml-builder.zhyi.xin true 2>/dev/null; then
+    echo "  ✓ ml-builder 在线"
+  else
+    echo "  ✗ ml-builder 离线（该机空闲时人工关机，先物理开机）"
+    rc=1
+  fi
+fi
+
+if [ "$rc" -ne 0 ]; then
+  if [ "$allow_local" -eq 1 ]; then
+    echo "⚠ 确认未通过但已 --allow-local-build：仅限小改动，本机构建风险自担"
+    exit 0
+  fi
+  large=""
+  if ! git diff --quiet HEAD -- flake.lock nvfetcher.toml; then
+    large="，且检出大更新信号（flake.lock/nvfetcher.toml 相对 HEAD 有改动）"
+  fi
+  echo "✗ 部署前确认未通过${large}：全量编译会落在本机，32G 内存打满死机，禁止发起 make 构建部署"
+  echo "  先恢复 ncps / 开机 ml-builder 后重跑；确属小改动用 --allow-local-build 豁免"
+  exit 1
+fi
+echo "✓ 确认通过，可以发起 make 构建/部署"

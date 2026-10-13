@@ -13,6 +13,27 @@ cd ~/Documents/nixos/nixos-config
 git pull --ff-only   # 有远端改动时
 ```
 
+## 部署前确认
+
+任何 make/colmena 构建部署发起前，先运行 `tools/pre-deploy-check` 完成两项
+确认，未通过不发起（2026-10-13 用户确立，工具不进 Makefile——与上游逐字
+对齐，由发起部署的会话/人工执行）：
+
+1. **ncps 可用**。本机唯一 substituter 是 ncps（dragon-q8b，
+   `http://192.168.0.66:13851`，`ncps-client` mkForce 无兜底）。服务断开或
+   网络异常时 nix 无任何二进制缓存可用，全部转本机源码编译。
+2. **ml-builder 在线且派发在位**。`/etc/nix/machines` 必须指向 ml-builder
+   （跑过 `nix-remote-build-off` 会整个删掉它），且
+   `ssh -p 2222 nix-builder@ml-builder.zhyi.xin true` 可通。该机空闲时人工
+   关机，大更新（flake.lock / nvfetcher.toml 有改动，或新增大体积包）前先
+   物理开机。`big-parallel` 与交叉内核（requiredSystemFeature
+   `aarch64-cross`）仅 ml-builder 承接；aarch64 原生构建依赖 opi5p，涉及
+   ARM 包时可顺带确认。
+
+两项任一不成立时发起构建，编译会全部落在本机：本机 32G 内存会被大包并发
+编译打满，整机死机，部署整体失败。这是硬门槛，脚本默认拒绝通过；确属小
+改动才用 `tools/pre-deploy-check --allow-local-build` 显式豁免。
+
 ## 常用命令
 
 ```bash
