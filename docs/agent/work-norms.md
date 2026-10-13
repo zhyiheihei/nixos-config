@@ -63,6 +63,15 @@
   4. 逐台 `nix eval` 主机 toplevel 必须全绿；`tools/exam-check upstream` 的
      未对齐/缺失/改名未跟进必须为 0（只剩 `!known` 登记偏离）
   5. 更新 `docs/agent/upstream-baseline.md` 的 baseline 并提交
+- **锁世界纪律（2026-10-13 定型）：共享 inputs 的 locked 值必须与 exam/master
+  一致，`tools/exam-check` 默认审计（锁世界脱离项即 exit 1）。禁止裸跑
+  `nix flake update`——它会拉频道头让 nixpkgs 脱离作者已构建验证的 rev；
+  本仓 nixpkgs 带补丁，官方缓存对补丁后哈希无效，能救场的只有作者缓存与
+  自家 attic，二者都只覆盖作者锁的世界。锁脱身一天 = 全舰队源码重编
+  （2026-10-13 实锤）。fork 独有 inputs（comfyui-nix/ncps/zhyi-packages）
+  与 secrets（同名但内容必须保持本仓，上游为作者私仓）单独
+  `nix flake lock --update-input <name>` 更新。生效节点判定看 root 引用链
+  （exam 的 nixpkgs_2），不能看节点名（记忆 #329）
 - **merge 后必须复核**：driver 与 post-merge-env 只做机械替换，两处需要人看——
   ① 双方在同一位置各自新增同一段代码时 git 会插入两份（用 `nix eval` 的
   duplicate attribute 报错定位）；② 上游新代码可能依赖本仓尚未跟进的输入版本

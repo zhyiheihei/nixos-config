@@ -425,6 +425,45 @@ def do_log(argv):
           "接管文件（allowlist/hosts/）手动搬 patch；完成后 tools/exam-check，绿后 bump baseline。")
 
 
+FORK_ONLY_LOCK_INPUTS = {"secrets"}  # 同名但内容必然不同：上游为作者私仓
+
+
+def lock_report():
+    """锁世界审计：共享 inputs 的 locked 值必须与 exam/master 一致。
+
+    2026-10-13 定型：本仓 nixpkgs 带补丁，官方缓存对补丁后的哈希无效，
+    能救场的只有作者缓存 + 自家 attic，二者都只覆盖作者锁定的 rev。
+    锁脱身（如裸 flake update 拉频道头）= 全舰队退化为源码构建，所以
+    除 fork 独有与 secrets 外，任何共享 input 锁值偏离 exam 都算失败。
+    """
+    import json as _json
+
+    fork = _json.loads((REPO / "flake.lock").read_text())
+    exam = _json.loads(git("show", "exam/master:flake.lock"))
+
+    def root_inputs(nodes, root):
+        r = nodes[root] if isinstance(root, str) else root
+        return r["inputs"]
+
+    def resolve(nodes, ref):
+        nid = ref if isinstance(ref, str) else list(ref.values())[0]
+        while isinstance(nodes.get(nid), str):
+            nid = nodes[nid]
+        return nid
+
+    froot, eroot = root_inputs(fork["nodes"], fork["root"]), root_inputs(exam["nodes"], exam["root"])
+    drift = []
+    for name in sorted(set(froot) & set(eroot) - FORK_ONLY_LOCK_INPUTS):
+        fn = fork["nodes"][resolve(fork["nodes"], froot[name])]
+        en = exam["nodes"][resolve(exam["nodes"], eroot[name])]
+        if fn.get("locked") != en.get("locked"):
+            f, e = fn.get("locked", {}), en.get("locked", {})
+            fk = f.get("rev") or f.get("lastModified", "?")
+            ek = e.get("rev") or e.get("lastModified", "?")
+            drift.append(f"  {name}: fork={str(fk)[:14]} exam={str(ek)[:14]}")
+    return drift
+
+
 def main():
     argv = sys.argv[1:]
     if argv and argv[0] == "upstream":
@@ -566,6 +605,11 @@ def main():
         print("\n! 上游内容变更未核对（M，自 baseline；同步作业逐 hunk 跟进后 bump baseline）:")
         for p in content_changed:
             print(f"  {p}")
+    lock_drift = [] if args.path else lock_report()
+    if lock_drift:
+        print(f"\n! 锁世界脱离 exam（共享 inputs locked 值不一致；只许随 exam 同步移动，禁止裸 flake update）:")
+        for line in lock_drift:
+            print(line)
     struct_unapplied = structure_report(baseline, allow, args.path)
     if struct_unapplied:
         print("\n! 上游结构变更未跟进（新增/删除/改名，逐个 checkout/mv 或登记 skip）:")
@@ -581,9 +625,9 @@ def main():
             if len(diff) > 120:
                 print(f"…（其余 {len(diff) - 120} 行省略）")
 
-    if drift or struct_unapplied:
+    if drift or struct_unapplied or lock_drift:
         print(
-            f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项，exit 1",
+            f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、锁世界脱离 {len(lock_drift)} 项，exit 1",
             file=sys.stderr,
         )
         sys.exit(1)
