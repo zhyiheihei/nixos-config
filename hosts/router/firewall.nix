@@ -178,6 +178,9 @@ in
       fib daddr type local tcp dport 8443 iifname "ppp0" dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}:8443
       fib daddr type local tcp dport 4000 iifname "ppp0" dnat ip to ${edgeAddress}:443
 
+      # Palworld game server on chromebox (UDP only).
+      fib daddr type local udp dport 8211 iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
+
       # Redirect LAN DNS requests to the isolated CoreDNS client namespace.
       # br-lan is the bridge ingress seen by LAN guests; eth0 covers direct
       # physical traffic.
@@ -190,6 +193,9 @@ in
       # public DNS, while traffic is returned to the actual home service host.
       # VaultS3 is the one bulk endpoint owned by OPI5P rather than ROCK 5C.
       fib daddr type local tcp dport 8443 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}:8443
+
+      # Palworld game server on chromebox (hairpin, before the ROCK 5C catch-all).
+      fib daddr type local udp dport 8211 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
 
       # All remaining public services are handled by the ROCK 5C edge.
       fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to ${edgeAddress}

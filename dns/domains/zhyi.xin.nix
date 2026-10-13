@@ -270,6 +270,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "palworld";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
       name = "pb";
       target = "greencloud.zhyi.xin.";
       ttl = "1h";

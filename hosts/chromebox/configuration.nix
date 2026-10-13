@@ -9,6 +9,7 @@
     ../../nixos/server.nix
 
     ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/palworld.nix
 
     ./hardware-configuration.nix
     ./media-automation.nix
@@ -37,6 +38,11 @@
 
   # 通用策略禁用全局 wait-online，NFS 挂载依赖按接口实例。
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@eno0.service" ];
+
+  # palworld-exporter 1.3.1 的存档自动发现与新版 Palworld 的 backup/ 子目录布局
+  # 不兼容（glob 到两个 Level.sav 后报 No GameUserSettings.ini 退出），且 9877
+  # 无 Prometheus 抓取方，禁用避免崩溃重启循环；服务器本体不受影响。
+  systemd.services.palworld-exporter.enable = false;
 
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
