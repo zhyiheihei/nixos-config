@@ -191,6 +191,7 @@
     wantedBy = [ "multi-user.target" ];
     after = [ "zerotierone.service" ];
     wants = [ "zerotierone.service" ];
+    path = [ pkgs.iproute2 ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;

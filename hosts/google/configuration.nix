@@ -1,11 +1,9 @@
-{ inputs, lib, ... }:
+{ lib, ... }:
 {
   imports = [
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
-    ../../nixos/optional-apps/cliproxyapi.nix
-    (inputs.secrets + "/cliproxyapi.nix")
   ];
 
   systemd.network.networks.eth0 = {
