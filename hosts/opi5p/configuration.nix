@@ -321,6 +321,7 @@ in
     wantedBy = [ "multi-user.target" ];
     after = [ "zerotierone.service" ];
     wants = [ "zerotierone.service" ];
+    path = [ pkgs.iproute2 ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -341,6 +342,11 @@ in
   # max-jobs=1（生产节点保护，见文档 2026-08-02 事故记录）；x86 与
   # aarch64-cross 全部外派 ml-builder。
   systemd.services.hydra-evaluator.environment = LT.proxyEnvironment;
+  # gRPC 构建机入口同样遵守单槽：services.hydra-builder 默认 maxJobs=4，
+  # 会让 Hydra 往生产节点并发派 4 个构建绕开上面的保护（builder.toml 侧
+  # 才是 Hydra 派发的闸口，daemon 的 max-jobs 拦不住它）。2026-10-14 起
+  # 强制 1。
+  services.hydra-builder.settings.maxJobs = 1;
   # qemu binfmt 关闭时 minimal-components 不设 extra-platforms，而
   # nix-distributed 生成 machines-with-localhost 时强制读取该属性；本机
   # 纯 aarch64 原生构建，显式置空。

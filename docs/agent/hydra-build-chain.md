@@ -12,18 +12,41 @@
 - `ml-builder` 仍是唯一主构建机（28 vCPU / 58 GiB + 100% zram），也是唯一声明
   `big-parallel` 的主机。自身构建单额 6×16（`max-jobs = 6`、`cores = 16`，
   2026-09-05 定型，取代 2026-08-06 事故前的多任务不限核策略）；远程派发的
-  构建同样走 ml-builder 的 nix.conf，单构建 `-j16` 由构建机侧强制。内存
-  兑底由 earlyoom 负责（2026-09-25 启用：超包络时杀掉最大的单个编译进程，
-  丢一个构建换整机存活），Hydra 迁走后本机回归纯构建机定位
+  构建同样走 ml-builder 的 nix.conf，单构建 `-j16` 由构建机侧强制。gRPC
+  派发并发 3（`hydra-builder.settings.maxJobs = 3`，2026-10-14 从默认 4
+  下调：重建波次起点 PSI=0 时四个构建几秒内同时起跑，叠加 bambu-studio
+  类大件进入 zram 风暴直接整机冻结——当天 17:23 冻结、无 OOM 日志，内核
+  日志止于 17:23:15）。内存兑底由 earlyoom 负责（阈值 8%/5%，swap 2%
+  直接 SIGKILL；2026-10-14 收紧，风暴成形前丢一个编译进程换整机存活），
+  zram 交换设备同时限为 32G 上限（无上限时风暴不可恢复；到顶后内核 OOM
+  立即杀程）。机器水位 `vm.watermark_scale_factor = 500` 仅构建机生效
+  （覆盖 kernel.nix 全局 125）。Hydra 迁走后本机回归纯构建机定位
   （archiveteam/clawemail/epic 容器同期迁出）。
 - `pve-5700u` 是纯 Proxmox VE 宿主，不再运行 Hydra，也不再作为 Nix 回退 builder。
+- **2026-10-14 下午：大包独立车道**。同一天下午的 OOM 冻结之后另建
+  `hydra-builder-big`（同机第二个 gRPC builder 实例）：只声明
+  `big-parallel`（mandatoryFeatures 闸口，machine.rs
+  `get_machine_for_system` 把未携带该 feature 的任务全部拒之门外），
+  **1 并发 × -j4 + 64G 磁盘 swapfile**（/nix btrfs mkswapfile 自动建，
+  优先级 0 低于 zram），把 chromium/qtwebengine/llvm/rustc/ghc 等 64 个
+  上游 `big-parallel` 大件的峰值内存压平——不考虑构建速度，慢但必成。
+  主车道 `supportedFeatures` 显式去掉 big-parallel，两个车道互不抢活。
+  注意此机制的覆盖范围是 feature 标记：firefox 没有该标记（给它加标记
+  会改 drv hash，上游 binary cache 永久 miss，更糟），留在主车道单链
+  25-30G 在 RAM 内放得下，风暴时由收紧后的 earlyoom 优先杀 ld.lld 保机。
+  同机 swap 层改为双轨：zram 32G 上限（快钱，先吃）+ /nix/swapfile 64G
+  （长尾兜底，慢但能成），`vm.page-cluster` 强制 0 防 zram 预读放大。
 - **2026-10-12：Hydra 派发改走 gRPC**（跟随上游与新 nixpkgs）。新 nixpkgs 的
   队列器不再读 `/etc/nix/machines`（`services.hydra.buildMachinesFiles` 已移除），
   改由构建机主动连队列器：`opi5p` 跑本机 `services.hydra-builder`（127.0.0.1 级），
   `ml-builder` 跑远程 `services.hydra-builder`，`queueRunnerAddr` 指向
   `opi5p` 的 LTNET 地址与 `LT.portStr.Hydra.QueueRunnerGRPC`（队列器 gRPC 因此
   绑在 LTNET 而非上游默认的 127.0.0.1）。两边的共享凭据是 `hydra.yaml` 的
-  `hydra-queue-runner-token`。`/etc/nix/machines*` 仍服务普通 `nix build`
+  `hydra-queue-runner-token`。派发闸口在 builder 侧的 `builder.toml`：
+  `maxJobs` 静态并发上限 + PSI 动态回退（`machineFreeFn =
+  "DynamicWithMaxJobLimit"` 两者叠加），daemon 的 `max-jobs` 拦不住 gRPC
+  构建， opi5p 据此把 gRPC builder 也强制单槽（`maxJobs = 1`，对齐生产
+  节点保护）。`/etc/nix/machines*` 仍服务普通 `nix build`
   （nix-distributed），与 Hydra 的队列无关。Hydra 同期还接上了 Dex OIDC 登录
   （client `hydra`，`dex-hydra-secret`）与 `/ws` 实时构建日志。
 - `opi5p` 首先是数据库、媒体和 reDroid 生产节点，只作为单任务原生 ARM 回退节点。
@@ -73,8 +96,8 @@
 
 | 节点 | 地址 | 架构 | 同时任务 | 单任务核心 | speed factor | 声明 feature | 角色 |
 | --- | --- | --- | ---: | ---: | ---: | --- | --- |
-| `ml-builder` | `192.168.0.50` | `x86_64-linux` | 1 | 0（默认全核） | 28 | `aarch64-cross`, `big-parallel`；Hydra localhost 另有 `kvm,nixos-test,benchmark` | 唯一主构建机，大包和交叉构建 |
-| `opi5p` | `192.168.0.62` | `aarch64-linux` | 1 | 0（默认全核） | 8 | 无 | Hydra 所在地；必须执行 ARM 目标程序时的原生回退 |
+| `ml-builder` | `192.168.0.50` | `x86_64-linux` | 1（+ Hydra gRPC 主道 3 / 大包道 1×-j4） | 0（默认全核） | 28 | `aarch64-cross`, `big-parallel`；Hydra localhost 另有 `kvm,nixos-test,benchmark` | 唯一主构建机，大包和交叉构建 |
+| `opi5p` | `192.168.0.62` | `aarch64-linux` | 1（含 Hydra gRPC 单槽） | 0（默认全核） | 8 | 无 | Hydra 所在地；必须执行 ARM 目标程序时的原生回退 |
 | `ml-laptop` | `192.168.0.55` | `x86_64-linux` | 0 | — | — | `aarch64-cross`（本地 daemon） | 控制机；自身构建全外派，不跑 Hydra，不对外通告 |
 
 `speed factor` 只帮助 Nix 在同架构候选机之间排序，不是资源限制。真正的保护来自
