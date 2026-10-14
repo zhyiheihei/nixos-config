@@ -179,4 +179,20 @@
     gnumake
   ];
 
+  # 临时中继：到 opi5p（198.18.0.122）的 zt 数据面丢包 ~100%，经 router 转发；
+  # 根因排查后移除，见 docs/agent/deployment-20261013.md 问题 11
+  systemd.services.zt-via-router-routes = {
+    description = "Route opi5p LTNET traffic via router";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "zerotierone.service" ];
+    wants = [ "zerotierone.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      ip route replace 198.18.0.122/32 via 198.18.0.112 dev zttalxbxtu
+    '';
+  };
+
 }
