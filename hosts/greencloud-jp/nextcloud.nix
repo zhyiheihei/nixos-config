@@ -83,6 +83,8 @@
     };
   };
   systemd.services.phpfpm-nextcloud.path = [ pkgs.msmtp ];
+  # 上游 treewide RestartSec（b1383d16）断言要求；本主机文件独立于公共模块。
+  systemd.services.phpfpm-nextcloud.serviceConfig.RestartSec = "5s";
 
   services.redis.servers.nextcloud = {
     enable = true;

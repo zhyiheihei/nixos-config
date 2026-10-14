@@ -55,6 +55,7 @@
 
   systemd.services.filebeat = lib.mkIf config.services.filebeat.enable {
     serviceConfig = LT.serviceHarden // {
+      RestartSec = "5s";
       ProcSubset = "all";
       ReadOnlyPaths = [ "/run" ];
       RestrictAddressFamilies = [

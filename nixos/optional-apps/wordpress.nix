@@ -136,4 +136,6 @@ in
   lantian.nginxVhosts."wp.zhyi.xin" = {
     sslCertificate = "zerossl-zhyi.xin";
   };
+
+  systemd.services."phpfpm-wordpress-wp.zhyi.xin".serviceConfig.RestartSec = "5s";
 }

@@ -6,7 +6,7 @@
 {
   services.ncps = {
     enable = true;
-    server.addr = "${LT.this.interconnect.IPv4}:${LT.portStr.Ncps}";
+    server.addr = "192.168.0.4:${LT.portStr.Ncps}";
     cache = {
       inherit (config.networking) hostName;
       lru.schedule = "53 4 * * *";
@@ -18,4 +18,6 @@
       };
     };
   };
+
+  systemd.services.ncps.serviceConfig.RestartSec = "5s";
 }

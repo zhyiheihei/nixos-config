@@ -284,6 +284,11 @@ in
     restartUnits = [ "hostapd.service" ];
   };
 
+  # 上游 treewide RestartSec（b1383d16）的 ensure-service-restart 新断言拒绝
+  # RestartSec < 3s 或缺省的 Restart 服务；hostapd 是 fork 独有消费者（上游
+  # 无 AP 主机，不会撞上），主机级补齐，不偏离 nixpkgs hostapd 模块默认值。
+  systemd.services.hostapd.serviceConfig.RestartSec = "5s";
+
   services.hostapd = {
     enable = true;
     radios.wlan0 = {

@@ -75,18 +75,15 @@ in
       packages = [
         # keep-sorted start
         "npm:@cortexkit/pi-magic-context"
-        "npm:@fradser/pi-utils"
         "npm:@gamaraan/ask-tool"
         "npm:@mjakl/pi-subagent"
         "npm:@moguw/pi-session-migrate"
         "npm:@monotykamary/pi-tps"
-        "npm:@narumitw/pi-usage"
         "npm:@router-for-me/pi-cliproxyapi-provider"
         "npm:pi-btw"
         "npm:pi-codex-goal"
         "npm:pi-copy-message"
         "npm:pi-fast-resume"
-        "npm:pi-multi-pass"
         "npm:pi-ollama-cloud"
         "npm:pi-secret-mask"
         "npm:pi-simplify"

@@ -90,7 +90,10 @@ in
         DEFAULT_KEEP_EMAIL_PRIVATE = true;
         DISABLE_REGISTRATION = true;
         ENABLE_CAPTCHA = false;
-        ENABLE_NOTIFY_MAIL = false;
+        ENABLE_NOTIFY_MAIL = true;
+        ENABLE_BASIC_AUTHENTICATION = false;
+        ENABLE_PASSWORD_SIGNIN_FORM = false;
+        ENABLE_PASSKEY_AUTHENTICATION = false;
         NO_REPLY_ADDRESS = "hidden.zhyi.xin";
         REGISTER_EMAIL_CONFIRM = false;
         REQUIRE_SIGNIN_VIEW = false;
@@ -131,6 +134,7 @@ in
 
   systemd.services.gitea.serviceConfig = {
     RuntimeDirectoryMode = lib.mkForce "0755";
+    RestartSec = "5s";
   };
 
   services.mysql = {

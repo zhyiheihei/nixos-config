@@ -158,6 +158,9 @@ in
     queueRunnerAddr = "http://${LT.this.ltnet.IPv4}:${LT.portStr.Hydra.QueueRunnerGRPC}";
   };
 
+  systemd.services.hydra-server.serviceConfig.RestartSec = "5s";
+  systemd.services.hydra-evaluator.serviceConfig.RestartSec = "5s";
+
   systemd.services.hydra-notify = {
     preStart = ''
       if [ ! -f "$HOME/.config/attic/config.toml" ]; then

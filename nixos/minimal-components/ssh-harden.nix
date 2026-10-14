@@ -173,6 +173,8 @@ in
       LogLevel ERROR
   '';
 
+  systemd.services.sshd.serviceConfig.RestartSec = "5s";
+
   systemd.services.sshd.environment = {
     # XZ backdoor kill switch
     "yolAbejyiejuvnup" = "Evjtgvsh5okmkAvj";

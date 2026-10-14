@@ -44,6 +44,11 @@
   # 无 Prometheus 抓取方，禁用避免崩溃重启循环；服务器本体不受影响。
   systemd.services.palworld-exporter.enable = false;
 
+  # 上游 treewide RestartSec（b1383d16）会让 ensure-service-restart 断言
+  # 拒绝 RestartSec < 3s 或缺省的 Restart 服务；palworld 仅 chromebox 导入，
+  # 上游无消费主机故未在其列，主机级补齐避免偏离共享模块。
+  systemd.services.palworld.serviceConfig.RestartSec = "5s";
+
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
   };

@@ -144,6 +144,9 @@ in
         LD_LIBRARY_PATH = "${pkgs.libmali-rockchip-g610}/lib";
       };
       serviceConfig = {
+        # netns 模板不带 Restart；全局断言（b1383d16）要求两者成对在位。
+        Restart = "on-failure";
+        RestartSec = "5s";
         RuntimeDirectory = "jellyfin";
         # Rockchip MPP identifies the SoC through
         # /proc/device-tree/compatible.  NixOS' generic Jellyfin hardening

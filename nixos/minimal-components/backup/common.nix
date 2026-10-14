@@ -7,29 +7,39 @@
 rec {
   resticIgnored = ''
     media/
+    root/.cache/
     sftp-server/
     tmp/
     var/cache/
+    var/lib/archiveteam/
     var/lib/asterisk/
     var/lib/btrfs/
+    var/lib/clamav/
     var/lib/cni/
     var/lib/containers/
     var/lib/crowdsec/
     var/lib/docker/
     var/lib/docker-dind/
     var/lib/filebeat/
+    var/lib/fluent-bit/
     var/lib/GeoIP/
     var/lib/grafana/
     var/lib/jellyfin/transcodes/
+    var/lib/lancache/
     var/lib/libvirt/
     var/lib/machines/
+    var/lib/matrix-synapse/remote-media/
+    var/lib/ncps/
+    var/lib/open5gs-certs/
     var/lib/os-prober/
     var/lib/private/
     var/lib/prometheus/
+    var/lib/redis-*/
     var/lib/resilio-sync/*.db
     var/lib/resilio-sync/*.db-wal
-    var/lib/samba/private/
+    var/lib/samba/
     var/lib/systemd/
+    var/lib/tor/
     var/lib/udisks2/
     var/lib/vm/
     var/lib/vz/
@@ -45,7 +55,7 @@ rec {
 
       [repository.options]
       user = "sftp"
-      endpoint = "ssh://${config.lantian.backup.sftpEndpoint}:2222"
+      endpoint = "ssh://sftp.pve-epyc.ltnet.xuyh0120.win:2222"
       key = "${config.sops.secrets.sftp-privkey.path}"
       root = "/backups/restic"
       known_hosts_strategy = "Accept"
@@ -73,10 +83,10 @@ rec {
       cache-dir = "/var/cache/restic/storagebox"
 
       [repository.options]
-      user = "sftp"
-      endpoint = "ssh://greencloud-jp.ltnet.zhyi.xin:2222"
+      user = "u378583-sub2"
+      endpoint = "ssh://u378583-sub2.your-storagebox.de:23"
       key = "${config.sops.secrets.sftp-privkey.path}"
-      root = "/backups/rustic-storagebox"
+      root = "/home"
       known_hosts_strategy = "Accept"
       enable_copy = "true"
 
@@ -98,8 +108,8 @@ rec {
   };
 
   maintenanceHosts = {
-    "opi5p" = [ "home" ];
-    "greencloud-jp" = [ "storagebox" ];
+    "terrahost" = [ "storagebox" ];
+    "pve-epyc" = [ "home" ];
   };
 
   resticCommands = lib.mapAttrsToList (

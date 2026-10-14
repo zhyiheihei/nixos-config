@@ -39,6 +39,11 @@
     extraPackages = ps: [ ps.hass-web-proxy-lib ];
   };
 
+  # RestartSec 全局断言（b1383d16）要求 ≥3s；HA 与 mosquitto 均为本仓独有
+  # 消费者，nixpkgs 模块自身不设 RestartSec。
+  systemd.services.home-assistant.serviceConfig.RestartSec = "5s";
+  systemd.services.mosquitto.serviceConfig.RestartSec = "5s";
+
   # Frigate 集成的事件传感器走 MQTT；broker 只监听回环，
   # omitPasswordAuth 允许本机 frigate/HA 匿名连接。
   services.mosquitto = {

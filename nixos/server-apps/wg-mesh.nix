@@ -101,4 +101,6 @@ in
     port = LT.port.Prometheus.WireGuardExporter;
     latestHandshakeDelay = true;
   };
+
+  systemd.services."prometheus-wireguard-exporter".serviceConfig.RestartSec = "5s";
 }

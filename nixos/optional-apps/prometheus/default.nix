@@ -26,7 +26,9 @@
     ];
   };
 
-  systemd.services.prometheus.serviceConfig = LT.serviceHarden;
+  systemd.services.prometheus.serviceConfig = LT.serviceHarden // {
+    RestartSec = "5s";
+  };
 
   lantian.nginxVhosts."prometheus.zhyi.xin" = {
     locations = {

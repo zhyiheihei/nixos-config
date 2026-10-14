@@ -270,6 +270,8 @@
 
   services.usbmuxd.enable = true;
   systemd.services.usbmuxd.serviceConfig.Restart = "always";
+  # b1383d16 新断言：RestartSec 不得为 systemd 默认的 100ms。
+  systemd.services.usbmuxd.serviceConfig.RestartSec = "5s";
 
   # 对齐上游 lt-hp-omen：手柄驱动。
   hardware.xpadneo.enable = true;

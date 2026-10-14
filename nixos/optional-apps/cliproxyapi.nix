@@ -1,47 +1,45 @@
 {
+  pkgs,
+  lib,
   LT,
   ...
 }:
-{
-  virtualisation.oci-containers.containers.cliproxyapi = {
-    labels."io.containers.autoupdate" = "registry";
-    image = "docker.io/eceasy/cli-proxy-api:latest";
-    ports = [ "127.0.0.1:${LT.portStr.CLIProxyAPI}:8317" ];
-    volumes = [
-      "/var/lib/cliproxyapi/config.yaml:/CLIProxyAPI/config.yaml"
-      "/var/lib/cliproxyapi/auth:/root/.cli-proxy-api"
-      "/var/lib/cliproxyapi/plugins:/CLIProxyAPI/plugins"
+let
+  # Patched cli-proxy-api (numtide/llm-agents.nix):
+  # /v1/models etc. hide original model IDs that are also listed under an
+  # alias or provider-prefixed ID, while routing keeps accepting bare IDs.
+  cli-proxy-api = pkgs.llm-agents.cli-proxy-api.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      ../../patches/cliproxyapi-hide-original-models.patch
     ];
+    doCheck = false;
+    doInstallCheck = false;
+  });
+in
+{
+  systemd.services.cliproxyapi = {
+    description = "CLIProxyAPI";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+
+    serviceConfig = LT.serviceHarden // {
+      ExecStart = lib.getExe cli-proxy-api;
+      Restart = "always";
+      RestartSec = "3";
+
+      StateDirectory = "cliproxyapi";
+      WorkingDirectory = "/var/lib/cliproxyapi";
+
+      User = "cliproxyapi";
+      Group = "cliproxyapi";
+    };
   };
 
-  systemd.tmpfiles.settings.cliproxyapi = {
-    "/var/lib/cliproxyapi"."d" = {
-      mode = "700";
-      user = "root";
-      group = "root";
-    };
-    "/var/lib/cliproxyapi/auth"."d" = {
-      mode = "700";
-      user = "root";
-      group = "root";
-    };
-    "/var/lib/cliproxyapi/plugins"."d" = {
-      mode = "700";
-      user = "root";
-      group = "root";
-    };
+  users.users.cliproxyapi = {
+    group = "cliproxyapi";
+    isSystemUser = true;
   };
-
-  lantian.localVhosts.cliproxyapi = {
-    locations = {
-      "/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.CLIProxyAPI}";
-        proxyNoTimeout = true;
-        proxyOverrideHost = "localhost";
-      };
-      "= /".return = "302 /management.html";
-    };
-  };
+  users.groups.cliproxyapi.members = [ "nginx" ];
 
   lantian.nginxVhosts = {
     "ai-api.zhyi.xin" = {

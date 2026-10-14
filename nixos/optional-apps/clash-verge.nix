@@ -108,6 +108,8 @@ in
         tunMode = true;
         autoStart = true;
       };
+      # nixpkgs clash-verge-service 不设 RestartSec，低于全局断言下限。
+      systemd.services.clash-verge.serviceConfig.RestartSec = "5s";
 
       networking.firewall.checkReversePath = lib.mkForce "loose";
     }
