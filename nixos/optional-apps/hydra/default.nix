@@ -147,8 +147,8 @@ in
       # fork：上游 16 workers 按其大机型设定；Hydra 跑在 opi5p（8 核 ARM
       # 生产节点）时 16 workers 求值会把整机压到 sshd 饿死，降为 4 并降
       # 单 worker 内存预算（登记 allowlist）
-      evaluator_workers = 4
-      evaluator_max_memory_size = 4096
+      evaluator_workers = 2
+      evaluator_max_memory_size = 3072
     '';
   };
 
