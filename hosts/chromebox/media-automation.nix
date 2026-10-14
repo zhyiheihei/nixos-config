@@ -11,6 +11,9 @@ let
   ];
 in
 {
+  # 游戏服务器常驻高负载，powersave 降频会造成顿卡（2026-10-14 排查）。
+  powerManagement.cpuFreqGovernor = "performance";
+
   imports = [
     ../../nixos/optional-apps/resilio-sync.nix
     ../../nixos/optional-apps/clamav.nix
