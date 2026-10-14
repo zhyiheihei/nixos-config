@@ -198,6 +198,7 @@
     };
     script = ''
       ip route replace 198.18.0.122/32 via 198.18.0.112 dev zttalxbxtu
+      ip route replace 198.18.0.123/32 via 198.18.0.112 dev zttalxbxtu
     '';
   };
 
