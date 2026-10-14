@@ -28,8 +28,41 @@ let
   ########################################
 
   activationMarker = "/nix/persistent/var/lib/qbittorrent-router/ready";
-  authSubnetWhitelist = "192.168.0.62,192.168.0.64";
   unifiedDownloadPath = "/mnt/storage/downloads";
+  # PT 订阅实例（qbittorrent-pt）：与主实例同法的 conf 规整 preStart，
+  # 只是 conf 路径换成 pt profile 目录，并显式置零全局上下行限速（订阅不限速）。
+  # PT 订阅实例（qbittorrent-pt）：与主实例同法的 conf 规整 preStart，
+  # 只是 conf 路径换成 pt profile 目录，并显式置零全局上下行限速（订阅不限速）。
+  qbitPreStartPT = ''
+    conf=/var/lib/qbittorrent-pt/qBittorrent/config/qBittorrent.conf
+    mkdir -p "$(dirname "$conf")"
+    touch "$conf"
+    if ! grep -q '^\[BitTorrent\]$' "$conf"; then
+      printf '[BitTorrent]\n' >> "$conf"
+    fi
+    if ! grep -q '^\[Preferences\]$' "$conf"; then
+      printf '[Preferences]\n' >> "$conf"
+    fi
+    sed -i '/^Session\\DefaultSavePath=/d' "$conf"
+    sed -i '/^Session\\Interface=/d' "$conf"
+    sed -i '/^Session\\InterfaceName=/d' "$conf"
+    sed -i '/^Session\\InterfaceAddress=/d' "$conf"
+    sed -i '/^Session\\GlobalDLSpeedLimit=/d' "$conf"
+    sed -i '/^Session\\GlobalUPSpeedLimit=/d' "$conf"
+    sed -i '/^Session\\AsyncIOThreadsCount=/d' "$conf"
+    sed -i '/^Session\\DiskCacheSize=/d' "$conf"
+    sed -i '/^Session\\DiskCacheTTL=/d' "$conf"
+    sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=${unifiedDownloadPath}/" "$conf"
+    # Leave Session\Interface unset ("Any interface"); reason documented at
+    # the main instance's qbitPreStart (PPPoE redial re-bind, 2026-08-13).
+    sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceAddress=0.0.0.0" "$conf"
+    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalDLSpeedLimit=0" "$conf"
+    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalUPSpeedLimit=0" "$conf"
+    sed -i "/^\[BitTorrent\]$/a Session\\\\AsyncIOThreadsCount=4" "$conf"
+    sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheSize=256" "$conf"
+    sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheTTL=60" "$conf"
+  '';
+
   qbitPreStart = ''
     conf=/var/lib/qbittorrent/qBittorrent/config/qBittorrent.conf
     mkdir -p "$(dirname "$conf")"
@@ -45,33 +78,19 @@ let
     sed -i '/^Session\\InterfaceName=/d' "$conf"
     sed -i '/^Session\\InterfaceAddress=/d' "$conf"
     sed -i '/^Session\\GlobalDLSpeedLimit=/d' "$conf"
+    sed -i '/^Session\\GlobalUPSpeedLimit=/d' "$conf"
     sed -i '/^Session\\AsyncIOThreadsCount=/d' "$conf"
     sed -i '/^Session\\DiskCacheSize=/d' "$conf"
     sed -i '/^Session\\DiskCacheTTL=/d' "$conf"
-    sed -i '/^WebUI\\AuthSubnetWhitelistEnabled=/d' "$conf"
-    sed -i '/^WebUI\\AuthSubnetWhitelist=/d' "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=${unifiedDownloadPath}/" "$conf"
-    # Leave Session\Interface unset ("Any interface") instead of pinning ppp0.
-    # Verified 2026-08-13 on qbittorrent 5.2.3 / libtorrent 2.0.13: with
-    # InterfaceAddress=0.0.0.0 qBittorrent listens IPv4-only (the two global
-    # IPv6 addresses on ppp0 are not listened, so PTTime keeps single-IP
-    # announces) and re-binds automatically when ppp0's address changes after
-    # a PPPoE redial — the previous ppp0-pinned listener kept the stale IP
-    # until a manual restart, stalling all downloads (2026-08-13 incident).
+    # Leave Session\Interface unset ("Any interface"); reason documented at
+    # the main instance's qbitPreStart (PPPoE redial re-bind, 2026-08-13).
     sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceAddress=0.0.0.0" "$conf"
-    # Full broadband throughput requires removing the 10MB/s global download
-    # cap that was carried into the migrated runtime config.
     sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalDLSpeedLimit=0" "$conf"
-    # qBittorrent defaults to 10 async IO threads and an auto-sized disk
-    # cache; on the 4-core R5C router cap both to keep torrent IO from
-    # starving NAT/softirq work (measured 2026-08-12: load 9-13 -> ~4.6,
-    # WAN rx_missed 0).  Keys verified in qbittorrent release-5.2.3
-    # sessionimpl.cpp.
+    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalUPSpeedLimit=0" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\AsyncIOThreadsCount=4" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheSize=256" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheTTL=60" "$conf"
-    sed -i '/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelistEnabled=true' "$conf"
-    sed -i "/^\[Preferences\]$/a WebUI\\AuthSubnetWhitelist=${authSubnetWhitelist}" "$conf"
   '';
 
   ########################################
@@ -287,6 +306,7 @@ in
     ../../nixos/optional-apps/nmea-static-gps-server.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/qbittorrent.nix
+    ../../nixos/optional-apps/qbittorrent-pt.nix
   ];
 
   # The R5C hardware module force-replaces boot.supportedFilesystems; mirror
@@ -467,6 +487,41 @@ in
     ];
     serviceConfig.BindPaths = [ unifiedDownloadPath ];
     preStart = lib.mkAfter qbitPreStart;
+  };
+
+  # 订阅专用 PT 实例（qbittorrent-pt 模块，WebUI 13809、torrenting 31121）：
+  # 刷流留在主实例（bt.*），订阅下载走 pt.*，qB 全局限速只压刷流实例语义。
+  # 主机级接线对齐 exam pve-epyc media-center：同一统一下载路径 Bind、
+  # 存储就绪 marker/NFS 挂载门控，以及与主实例同法的 conf 规整 preStart。
+  systemd.services.qbittorrent-pt = {
+    unitConfig.ConditionPathExists = activationMarker;
+    after = [
+      "var-lib.mount"
+      "mnt-storage.mount"
+    ];
+    requires = [
+      "var-lib.mount"
+      "mnt-storage.mount"
+    ];
+    serviceConfig.BindPaths = [ unifiedDownloadPath ];
+    preStart = lib.mkAfter qbitPreStartPT;
+  };
+
+  # router 的 qBittorrent 构建对 127.0.0.1 的 WebUI 鉴权豁免失效（同主实例
+  # bt 的 [::1] 现象），仅改主机级后端地址，保留模块作者式 vhost 结构。
+  lantian.nginxVhosts = {
+    "pt.${config.networking.hostName}.zhyi.xin".locations."/".proxyPass =
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentPT.WebUI}";
+    "pt.localhost".locations."/".proxyPass =
+      lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentPT.WebUI}";
+  };
+
+  systemd.tmpfiles.settings.qbittorrent-pt-router = {
+    "${unifiedDownloadPath}".d = {
+      mode = "755";
+      user = "zhyi";
+      group = "users";
+    };
   };
 
   ########################################
