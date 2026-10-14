@@ -314,24 +314,6 @@ in
   # 其 IPv6 从本网络不可达，远程构建必失败（2026-09-06 ncps go-modules）。
   systemd.services.nix-daemon.environment.GOPROXY = "https://goproxy.cn,direct";
 
-  # 临时中继：本机 zt 直达公网 VPS 的数据面丢包 ~100%，经 router 转发；
-  # 根因排查后移除，见 docs/agent/deployment-20261013.md 问题 11
-  systemd.services.zt-via-router-routes = {
-    description = "Route LTNET VPS traffic via router";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "zerotierone.service" ];
-    wants = [ "zerotierone.service" ];
-    path = [ pkgs.iproute2 ];
-    serviceConfig = {
-      Type = "oneshot";
-      RemainAfterExit = true;
-    };
-    script = ''
-      ip route replace 198.18.0.120/32 via 198.18.0.112 dev zttalxbxtu
-      ip route replace 198.18.0.132/32 via 198.18.0.112 dev zttalxbxtu
-    '';
-  };
-
   # The private Attic endpoint occasionally needs slightly more than Nix's
   # five-second default to complete its public TLS handshake from this board.
   # Match ml-builder so a healthy private cache is not disabled prematurely.
