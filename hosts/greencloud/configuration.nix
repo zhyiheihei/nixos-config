@@ -55,6 +55,11 @@
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
   ];
 
+  # agents 工具循环递归上限，默认 50 不够用（详见 fleet-service-chain.md）。
+  services.librechat.settings.endpoints.agents = {
+    recursionLimit = 150;
+  };
+
   services.librechat.settings.endpoints.custom = lib.mkForce [
     {
       name = "Magic Flash";

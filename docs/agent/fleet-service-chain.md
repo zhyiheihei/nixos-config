@@ -116,25 +116,62 @@ flowchart LR
 
 ### AI 链
 
-```text
-LibreChat / Metapi / n8n（greencloud）
-                    |
-                    v
-         主 UniAPI（rock5c） -> 外部 Provider
-                    |
-                    `-> n8n OpenAI Bridge（greencloud）
+### AI 模型链路（2026-10-14 重写）
 
-ai-api.zhyi.xin -> 独立 UniAPI（hostdare，2026-08-14 起唯一实例） -> 外部 Provider
-```
+uni-api/metapi 已退役（跟随上游 `f8be2aefe`/`34eba9e3f`，fork 提交
+`714e00ff2`）；外部 Provider 汇聚点改为 **CLIProxyAPI**（`hosts/google/`
+的 `cliproxyapi`，llm-agents 钉版权本 + `cliproxyapi-hide-original-models`
+补丁），公开入口仍是 `ai-api.zhyi.xin`（google：nginx /v1/ →
+`LT.portStr.CLIProxyAPI`）。渠道配置由 secrets 仓 `llm-providers/`
+渲染为 `openai-compatibility`，消费方：LibreChat（ai.zhyi.xin，greencloud）、
+pi（CLIPROXYAPI 官方插件）、n8n bridge、DSH、picoclaw。
+
+#### 渠道现状（2026-10-14 审计）
+
+| 渠道 | 状态 | 说明 |
+| --- | --- | --- |
+| `zhipu-coding`（bigmodel.cn） | ✅ 正常 | 最稳定渠道；接受带 `name` 字段的 tool 消息 |
+| `linuxdo-hub` | ✅ 正常 | 拒收 `reasoning_effort: xhigh`（只收 low/medium/high） |
+| `ollama-cloud` | ✅ 正常 | 接受 `name`；部分响应以 `reasoning` 为主 |
+| `opencode-go-2` | ✅ 正常 | **用户的 Go 订阅账户**；必须带 `x-opencode-session` 头（CPA 渠道 headers 已配 `uniapi-fallback` 静态值） |
+| `opencode-go` | ⛔ 停用 | sk-M...GWzX key 账户无 Go 订阅态：带正确 session 头后仍恒定 403，中国家宽与 greencloud 东京双出口报错一致（排除节点 IP 因素）；配置与 key 保留在 providers/，换 key 后启用 |
+| `opencode-zen` | ⛔ 维持停用 | 2026-09-10 用户决策：Go 订阅用户不消费 zen，保持不导入 |
+| `volcengine` / `taotoken` | ⛔ 临时/永久停用 | 见 secrets 仓 providers/ 注释 |
+
+**LibreChat 对齐事故（2026-10-13，已修）**：`714e00ff2` 把 LibreChat 自定义
+端点名从 `UniAPI` 改成 `Magic Flash`（跟上游 `UNI_API_KEY`→`AI_API_KEY`
+改造连带），secrets 仐藏模块的 4 个 modelSpecs 中 3 个未同步端点名，
+LibreChat 加载时静默丢弃端点不存在的 spec，智能体列表只剩走 agents 端
+点的影视助手。已同步改齐（secrets 3d1e918）。
+
+**智能体分配约定**：4 个 preset 智能体（通用/日程/家居/影视助手）定义在
+secrets 仓 `nixos-hidden-module/5ac5eb91326c8f04`，模型统一
+`deepseek-v4.1-flash`，`maxContextTokens=1000000`（未设时默认 30400 预
+算，91 个 MCP 工具定义约 43K token 直接触发 empty_messages 报错，
+2026-10-10 实锤）。影视助手走 agents 端点（skills 只在 agents 链路生效）,
+分配 moviepilot + time + tavily，MCP；通用助手挂全量搜索/时间/日历类
+MCP。agents 工具循环撞 LangGraph `recursionLimit 50` 的问题（glm-5.3-flash
+反复调 moviepilot 不收口，2026-10-14 实锤）靠 LibreChat 端点配置
+`endpoints.agents.recursionLimit` 抬高上限。
+
+#### 已知问题
+
+- 带 `name` 字段的 tool 消息被 opencode 系渠道拒收（`[unsupported_parameter]
+  messages[2]`），zhipu/ollama 接受；若需 opencode 渠道接 LibreChat 工具对话，
+  需 CPA 侧翻译补丁。
+- LibreChat 版本在 0.8.7→0.8.8 间存在部署态与当前树不一致，agent 数据
+  与版本升级时间线尚未完全对清（agents 集合 0 条，含 10-13 备份快照），
+  用户确认的旧智能体待后续从更早快照找回。
+- greencloud→storagebox 的备份链路自 2026-10-01 起每日失败（openssh-with-hpn
+  的 ldns 解析不吃 /etc/hosts，见 deployment notes）；home repo 仍可用。
+
+#### 历史（保留）
 
 - `LibreChat`、`n8n`、`n8n-openai-bridge` 和 `Metapi` 已确认在 `greencloud` 运行；
-- 主 `uni-api.service` 2026-08-14 起只运行在 `hostdare`（rock5c/tencent 实例已移除）；
-- LibreChat 与 Metapi 直接使用公开入口 `ai-api.zhyi.xin`（hostdare）；
-- `AxonHub` 模块存在，但没有被任何 host 导入，实机也没有 `axonhub.service`；它是
-  未部署候选，不是当前链路的一部分；
-- `hostdare` 声明独立公开 UniAPI，但主机不可达，不能标记为已运行。
+- 主 `uni-api.service` 已随对齐退役；hostdare 无独立 UniAPI（仅 nginx/proxy）,
+  运行态以本节为准。
 
-UniAPI 仍是唯一外部 Provider 汇聚点。不得把 Metapi、AxonHub 或 n8n Bridge 反向
+UniAPI（现为 CLIProxyAPI）仍是唯一外部 Provider 汇聚点。不得把 Metapi、AxonHub 或 n8n Bridge 反向
 配置为循环上游。
 
 ### 知识链
