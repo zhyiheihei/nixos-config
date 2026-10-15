@@ -78,3 +78,34 @@
 5. ml-builder btrfs Text file busy 修复（🔴-5，可参考 10-07 本机快照修复方式）。
 6. Prometheus blackbox 陈旧目标清理（🔴-6，清单：comments/github-pages/netlify/render/
    sip/vercel/lab/asf 中已不存在域名的、sglang-sakura-llm）。
+
+## 处置结果（10-15 下午，f6505f23d）
+
+- storagebox key 全舰队被拒：不是 Hetzner key 失效——本仓根本没有 StorageBox，
+  第二份异地备份在 greencloud-jp。对齐时仓库定义被写回 exam 样式
+  （u378583-sub2.your-storagebox.de:23 + /home）。已改指
+  v6.greencloud-jp.ltnet.zhyi.xin:2222 的 /backups/rustic-storagebox，
+  tencent-cn 实测双仓快照均保存。
+- home repo 备份失败的另一半根因：从 CN 解析 opi5p.zhyi.xin 走 ZT v4
+  优先，单向黑洞时 opendal 连接池超时。端点统一改 v6-only LTNET 记录
+  （v6.opi5p.ltnet.zhyi.xin），断链走 PLANET 中继自愈；不再强制
+  AddressFamily inet6（部分 VPS 无公网 v6）。强制 v6 已当日撤销。
+- jellyfin/rock5c 停机 4.5h：earlyoom 击杀后 Jellyfin 干净退出
+  （exit 0），Restart=on-failure 拦不住。jellyfin-rockchip 改
+  Restart=always（mkForce，netns 断言成对要求）。当日已 start 恢复。
+- ml-builder 备份 Text file busy ×195：/nix/.snapshot 快照把
+  swapfile 包进来了。swapfile 迁 /nix/swap 子卷（64G 已激活），夜间
+  窗口起不再互踩。
+- blackbox 告警：上游样式的探针目标保留（lab/sip/asf/comments/netlify
+  等均 up）；仅移除 scrape-configs 的 sglang-sakura-llm（舰队无此
+  服务）。夜间窗口的 9 域名告警随备份链路修复自然消退。
+- wave 部署降级三连（immich/opi5p、gitea/greencloud-jp、
+  pocket-id/volcengine）：overlay/62 统一搬 6510408d 包，服务全部
+  拉起。锁升级越过 6510408d 后删该文件。
+- merge(9852b6e1a) 溢出：ncps.nix 监听地址参数化登记已恢复登记行、
+  picoclaw.nix 用户名回 zhyi。
+- secrets 仓 hidden module（pi auth 注入）还停在 uni-api 旧路径，
+  致 ml-laptop HM 激活 status=100；32d3b75 已迁 llm-providers，
+  modelOverrides 换挂 cliproxyapi。
+- 不可达主机（ml-2700/h28k/opi03/pve-5700u/taishanpi）：按用户口径
+  未纳入，未部署。
