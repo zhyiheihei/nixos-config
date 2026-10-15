@@ -55,7 +55,7 @@ rec {
 
       [repository.options]
       user = "sftp"
-      endpoint = "ssh://${config.lantian.backup.sftpEndpoint}:2222"
+      endpoint = "ssh://opi5p.ltnet.zhyi.xin:2222"
       key = "${config.sops.secrets.sftp-privkey.path}"
       root = "/backups/restic"
       known_hosts_strategy = "Accept"
@@ -84,7 +84,7 @@ rec {
 
       [repository.options]
       user = "sftp"
-      endpoint = "ssh://v6.greencloud-jp.ltnet.zhyi.xin:2222"
+      endpoint = "ssh://greencloud-jp.ltnet.zhyi.xin:2222"
       key = "${config.sops.secrets.sftp-privkey.path}"
       root = "/backups/rustic-storagebox"
       known_hosts_strategy = "Accept"

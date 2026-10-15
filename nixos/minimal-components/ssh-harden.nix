@@ -116,7 +116,7 @@ in
   };
 
   programs.ssh.extraConfig = ''
-    Match host "v6.opi5p.ltnet.zhyi.xin,v6.greencloud-jp.ltnet.zhyi.xin"
+    Match host "opi5p.ltnet.zhyi.xin,greencloud-jp.ltnet.zhyi.xin"
       ControlMaster no
       ControlPath none
       ControlPersist no

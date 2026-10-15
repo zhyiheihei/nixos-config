@@ -32,11 +32,6 @@ in
       type = lib.types.bool;
       default = LT.this.hasTag LT.tags.server;
     };
-    sftpEndpoint = lib.mkOption {
-      type = lib.types.str;
-      default = "v6.opi5p.ltnet.zhyi.xin";
-      description = "SFTP host that stores the home backup repositories.";
-    };
     resticRepos = lib.mkOption {
       type = lib.types.listOf lib.types.str;
       default = builtins.attrNames resticRepos;
