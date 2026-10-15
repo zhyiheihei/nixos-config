@@ -69,8 +69,11 @@ nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置�
 overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）+ ncps doCheck=false（Go TSan 在 qemu-user aarch64 下不可运行）
 nixos/optional-apps/ollama-cpa-honeypot.nix  # skip: fork 无 colocrossing 主机（上游作者 infra），honeypot 链路依赖不成立（e86e3f8c9/031e97a2c/6d83f59f2）
 nixos/server-apps/ollama-cpa-honeypot-proxy.nix  # skip: 同上，vhost 依赖 LT.hosts.colocrossing（作者 infra）fork 缺席
-nixos/optional-apps/yggdrasil/default.nix # regionMappings.SG 与 ZT 接口正则为 fork 舰队事实值（greencloud=SG；接口名与作者网络不同）；上游 714fe461e 由 common-apps 改名 optional-apps，fork 跟改名不跟弃用
-nixos/optional-apps/yggdrasil/public-peers.json # peers 数据文件经 update.py 自动工作流维护（publicpeers.neilalexander.dev 源列表实时变化），内容漂移无意义; 路径同上改为 optional-apps
+nixos/optional-apps/yggdrasil/default.nix  # skip: 上游 714fe461e 停用改名，fork 维持 common-apps 原位（fork 舰队仍在跑，见 common-apps/yggdrasil 条目）
+nixos/optional-apps/yggdrasil/public-peers.json  # skip: 同上
+nixos/optional-apps/yggdrasil/update.py  # skip: 同上
+nixos/common-apps/yggdrasil/default.nix # regionMappings.SG 与 ZT 接口正则为 fork 舰队事实值（greencloud=SG；接口名与作者网络不同）；上游 714fe461e 由 common-apps 改名 optional-apps=停用语义（上游 hosts 无引用），fork tencent/opi5p 仍在跑 services.yggdrasil.regions（regions 默认值定义在此模块，fork server.nix 自动导入），维持 common-apps 原位不跟改名
+nixos/common-apps/yggdrasil/public-peers.json # peers 数据文件经 update.py 自动工作流维护（publicpeers.neilalexander.dev 源列表实时变化），内容漂移无意义; 路径同上改为 optional-apps
 nixos/optional-apps/dlx.nix  # skip: 2026-09-13 用户决策不启用（临时性服务），DLX 端口已从 ports.nix 移除
 nixos/optional-apps/oidc-tester.nix # skip: 2026-09-13 用户决策不启用（临时性调试服务），端口已移除
 nixos/optional-apps/epic-awesome-gamer/default.nix # skip: 依赖作者 secrets 仓 epic-awesome-gamer.yaml，fork 无凭据且不需要喜加一

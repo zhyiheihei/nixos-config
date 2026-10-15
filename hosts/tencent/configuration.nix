@@ -83,11 +83,4 @@
   # can verify TLS; the mesh default vhost only carries snakeoil.
   lantian.nginxVhosts."tencent.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
-  # Korea has no entry in the shared yggdrasil regionMappings
-  # (nixos/common-apps/yggdrasil/default.nix); peer the closest regions
-  # instead of editing the public module.
-  services.yggdrasil.regions = [
-    "japan"
-    "singapore"
-  ];
-}
+}}

@@ -435,12 +435,7 @@ in
   };
   networking.networkmanager.enable = lib.mkForce false;
 
-  # Break the boot ordering cycle between yggdrasil (Before=network.target),
-  # the NFS mnt-storage mount (After=network.target) and nix-daemon.socket
-  # (local-fs.target -> sockets.target). With the cycle, systemd drops
-  # nix-daemon.socket at boot and ssh-ng deployment fails until the socket is
-  # started manually. Yggdrasil still starts via multi-user.target.
-  systemd.services.yggdrasil.unitConfig.Before = lib.mkForce [ ];
+
 
   # `boot.supportedFilesystems` loads the kernel client, while nfs-utils
   # supplies mount.nfs.  Keep both host-local: this board reads the NAS
