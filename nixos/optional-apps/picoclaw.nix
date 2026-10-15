@@ -5,8 +5,18 @@
   ...
 }:
 let
-  # Upstream llm-agents.nix removed picoclaw; repackage the afjcjsbx fork locally
-  picoclaw = pkgs.callPackage ../../pkgs/picoclaw { };
+  # Package from NUR, with the local patches kept on top. The fork pins go.mod
+  # to go 1.27.2 while nixpkgs builds with go 1.27.1 and GOTOOLCHAIN=local, so
+  # relax the directive to the available major.minor (does not affect vendor).
+  picoclaw = pkgs.nur-xddxdd.picoclaw.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      ../../patches/picoclaw-disable-command-restrictions.patch
+      ../../patches/picoclaw-mcp-json.patch
+    ];
+    postPatch = (old.postPatch or "") + ''
+      sed -i -E "s/^go .*/go 1.27/" go.mod
+    '';
+  });
 in
 {
   imports = [ ../client-apps/mcp-servers.nix ];
@@ -35,13 +45,13 @@ in
       # Remove leftover PID file
       rm -f $CONFIG_DIR/.picoclaw.pid
 
-      export PATH=/etc/profiles/per-user/zhyi/bin:/run/current-system/sw/bin:$PATH
+      export PATH=/etc/profiles/per-user/lantian/bin:/run/current-system/sw/bin:$PATH
       exec ${lib.getExe picoclaw} gateway
     '';
 
     serviceConfig = LT.serviceHarden // {
-      User = "zhyi";
-      Group = "zhyi";
+      User = "lantian";
+      Group = "lantian";
 
       MemoryDenyWriteExecute = false;
       ProtectHome = false;

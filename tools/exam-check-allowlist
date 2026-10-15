@@ -19,7 +19,6 @@ home/client-apps/firefox/addons/update.py # SLUGS 列表追加 zeroomega（否�
 home/client-apps/git.nix # 签名 key 为用户本人 GPG 指纹（结构零差异）
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
 nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化 + browseros 门控 ml-laptop（上游 c7fd34b4 libvirt server 已随本次同步采纳）
-flake.lock # llm-agents 钉 e9b8c502（exam bot 锁 c6432215124 删除了 picoclaw 包，导致 picoclaw.nix 求值失败；e9b8c502 为 baseline b1383d16 时的值且 cli-proxy-api 同为 8.0.27）；上游 bot 修回 picoclaw 后随对齐取消
 nixos/common-apps/coredns.nix # 仅保留 CN 主机 AliDNS/DNSPod 分支（docs/human/network/regional-dns.md 设计文档背书），其余结构对齐上游
 nixos/common-apps/nginx/autoconfig.nix # 域名清单并入单域
 nixos/common-apps/nginx/nginx.nix # gopher map 移除 neo（NeoNetwork 置空）+ user nginx nginx 指令（nginx #1388：root nginx -t 会把 temp 目录 chown 成编译默认 nobody，大 body 请求全 500）
@@ -35,7 +34,7 @@ nixos/minimal-components/networking.nix # backupDNSServers 按 CN 国别分支�
 nixos/minimal-components/podman.nix # CN 区域镜像加速（hubproxy + daocloud 兜底）
 nixos/minimal-components/smtp.nix # fork 邮件账号；from=postmaster@zhyi.cc 已确认非残留：AhaSend 账户只登记 zhyi.cc（commit 3d880f3cc，zhyi.xin 会被 556 拒发），DNS TXT/DMARC 记录在 dns/common/records.nix ForwardEmail 块维护
 nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（备份端点域）+ backup sftp 两后端 Match ControlMaster no，host 值为 LTNET 内部域名（opendal/rustic 多进程并发 ssh 不复用连接）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）+ sshd ExecStartPre 预建 /var/empty
-nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名；portMappingEnabled 额外要求 server 标签（2026-10-07 zt 专项排查）：去 mesh 家庭机开 NAT-PMP 映射会在 miniupnpd 注册映射，内网对端经发夹 NAT 学到 192.168.0.1:临时端口的垃圾路径，映射一换（miniupnpd 重启/重拨）路径即死但仍 preferred，zt 虚拟帧只走 preferred 导致 v4 单播全灭（v6 走 RFC4193 NDP 模拟幸存）；机房 VPS 本就 _publiclyAccessible=false，仅家庭 server（opi5p）保留映射
+nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名（环境事实）；portMappingEnabled server-gate 已随 2026-10-15 误判翻案撤销（v4 单播全灭真因=wgmesh 接口缺失），回上游原文 !LT.this._publiclyAccessible
 nixos/common-apps/yggdrasil/default.nix # regionMappings.SG 与 ZT 接口正则为 fork 舰队事实值（greencloud=SG；接口名与作者网络不同）；peers 内容经 update.py 工作流维护
 nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书（对齐上游同款结构，值不同）
 nixos/optional-apps/acme/common.nix # google-test 证书构造器移除
@@ -84,6 +83,6 @@ helpers/constants/misc.nix # defaultGatewayHost=rock5c（上游 pve-epyc）：lt
 nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机为 0（f28facd0b 防构建机 OOM 收口），非 nix-builder 分支随上游 d10db560f client?10:180
 nixos/common-apps/yggdrasil/public-peers.json # peers 数据文件经 update.py 自动工作流维护（publicpeers.neilalexander.dev 源列表实时变化），fork bot 与上游 bot 同步时点不同，内容漂移无意义
 nixos/optional-apps/attic.nix # fork：attic 用 nur-xddxdd.lantianCustomized.attic-telnyx-compatible 包
-overlays/52-old-packages.nix # fork：zerotierone 固定 1.14.2（1.16.0 家宽↔VPS v4 unicast 失效，上游 #2573 多人验证 1.14.2 稳定；诊断与决策见 docs/agent/inspection-fleet-20261007.md）
+overlays/52-old-packages.nix # fork：linphone 系取自 nixpkgs-multiverse 26.05（nixpkgs 无此包，来源替代）；zerotierone 1.14.2 钉版已随 2026-10-15 误判翻案撤销（v4 失效真因=opi5p wgmesh 接口 boot 竞态），回 nixpkgs 1.16.0
 nixos/hardware/xilinx.nix # skip: 上游依赖作者 secrets 私有 hidden-module da4fbe694da377db，fork 不采纳
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
