@@ -93,10 +93,10 @@
   };
   grafana-falconlogscale-datasource = {
     pname = "grafana-falconlogscale-datasource";
-    version = "1.10.3";
+    version = "1.10.4";
     src = fetchurl {
-      url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.3/grafana-falconlogscale-datasource-1.10.3.zip";
-      sha256 = "sha256-DwV0m69bNncPrSa8RxycIE+V7vtRvGBZcTr+WeC8+eE=";
+      url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.4/grafana-falconlogscale-datasource-1.10.4.zip";
+      sha256 = "sha256-Y5CkephVDn/k83O1MRGC2Wjfc+Nf1VzMYjwh8oPFlng=";
     };
   };
   grafana-yesoreyeram-infinity-datasource = {
@@ -109,17 +109,17 @@
   };
   lobe-icons = {
     pname = "lobe-icons";
-    version = "c385b2b8d1f9e19aa86e628d4e23c91ee1111a47";
+    version = "05a9b8c41e4735a4a2b6d2f1e43574bd8ec6c8cb";
     src = fetchgit {
       url = "https://github.com/lobehub/lobe-icons.git";
-      rev = "c385b2b8d1f9e19aa86e628d4e23c91ee1111a47";
+      rev = "05a9b8c41e4735a4a2b6d2f1e43574bd8ec6c8cb";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-HnKAHwoNuDEFice6zetBvhpXjwT6QDPvaLLY6CWUBjE=";
+      sha256 = "sha256-SX4F0uq3SGu8aWlHkhkRHDHqJr7PYKk1kCEZ0eDXaXU=";
     };
-    date = "2026-10-07";
+    date = "2026-10-13";
   };
   lyrica-customized = {
     pname = "lyrica-customized";
@@ -256,15 +256,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "c30c58641ca5e46f8efaccc6fb58fbfd9adc5eea";
+    version = "1aac99e37f595874c024dcb2a54b33c06a49c370";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "c30c58641ca5e46f8efaccc6fb58fbfd9adc5eea";
+      rev = "1aac99e37f595874c024dcb2a54b33c06a49c370";
       fetchSubmodules = false;
-      sha256 = "sha256-gf5cMRzx+whruYFxA//EyBKWyABaRu6LFpkjprg9M3U=";
+      sha256 = "sha256-V9FLgxmrvoZhPKWZkWQGh3P6Ubg78Tm6IwqBQFZaG98=";
     };
-    date = "2026-10-05";
+    date = "2026-10-12";
   };
   ulauncher-albert-calculate-anything = {
     pname = "ulauncher-albert-calculate-anything";

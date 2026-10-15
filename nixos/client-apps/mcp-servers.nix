@@ -79,6 +79,10 @@ in
       sopsFile = inputs.secrets + "/common/mcp.yaml";
       mode = "0444";
     };
+    sops.secrets.mcp-gitea-api-key = {
+      sopsFile = inputs.secrets + "/common/mcp.yaml";
+      mode = "0444";
+    };
     sops.secrets.mcp-google-maps-api-key = {
       sopsFile = inputs.secrets + "/common/mcp.yaml";
       mode = "0444";
@@ -194,6 +198,15 @@ in
               export AEROAPI_KEY=$(cat "${config.sops.secrets.mcp-flightaware-api-key.path}")
               export HISHEL_CACHE_PATH=/tmp/mcp-flightaware-cache.db
               exec ${pkgs.uv}/bin/uvx '--with=mcp<2' flightaware-mcp
+            ''
+          );
+        };
+        gitea = {
+          command = toString (
+            pkgs.writeShellScript "mcp-gitea" ''
+              export GITEA_HOST=https://git.zhyi.xin
+              export GITEA_ACCESS_TOKEN=$(cat "${config.sops.secrets.mcp-gitea-api-key.path}")
+              exec ${lib.getExe pkgs.gitea-mcp-server} -t stdio
             ''
           );
         };
