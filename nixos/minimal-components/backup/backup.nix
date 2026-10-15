@@ -34,7 +34,7 @@ in
     };
     sftpEndpoint = lib.mkOption {
       type = lib.types.str;
-      default = "opi5p.zhyi.xin";
+      default = "v6.opi5p.ltnet.zhyi.xin";
       description = "SFTP host that stores the home backup repositories.";
     };
     resticRepos = lib.mkOption {

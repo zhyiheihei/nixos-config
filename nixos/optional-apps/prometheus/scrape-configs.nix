@@ -280,13 +280,6 @@ in
       ];
     })
     {
-      job_name = "sglang-sakura-llm";
-      scheme = "https";
-      static_configs = [
-        { targets = [ "sakura-llm.ml-builder.zhyi.xin" ]; }
-      ];
-    }
-    {
       job_name = "sakura-share";
       scheme = "https";
       static_configs = [

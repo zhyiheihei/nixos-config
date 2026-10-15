@@ -31,10 +31,11 @@ nixos/hardware/vfio.nix # ACS/IOMMU 条件注入（雷电 eGPU Xid 79 修复，f
 nixos/minimal-apps/nginx-proxy.nix # neo ULA 移除（NeoNetwork 置空）
 nixos/minimal-apps/rsync-server.nix # --no-group 修复（2026-08-30 opi5p exit 23 实证，fork 自维护）
 nixos/minimal-components/backup/backup.nix # sftpEndpoint 选项化（备份端点迁 opi5p，lt-home-vm 退役）
+nixos/minimal-components/backup/common.nix # home 端点接 backup.nix 的 sftpEndpoint 选项（备份链统一 opi5p，见 backup.nix 行）；storagebox 仓端点实为 v6.greencloud-jp.ltnet.zhyi.xin:2222（本仓无 Hetzner storagebox，异地第二份走 greencloud-jp LTNET）；maintenanceHosts 主机名同步 fork 化（opi5p=home，greencloud-jp=storagebox）
 nixos/minimal-components/networking.nix # backupDNSServers 按 CN 国别分支（223.5.5.5 等）
 nixos/minimal-components/podman.nix # CN 区域镜像加速（hubproxy + daocloud 兜底）
 nixos/minimal-components/smtp.nix # fork 邮件账号；from=postmaster@zhyi.cc 已确认非残留：AhaSend 账户只登记 zhyi.cc（commit 3d880f3cc，zhyi.xin 会被 556 拒发），DNS TXT/DMARC 记录在 dns/common/records.nix ForwardEmail 块维护
-nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（storagebox 等备份端点）+ backup sftp 两后端 Match AddressFamily inet6（LTNET v4 数据面 CN↔家宽间歇单向黑洞，v6 稳定；opendal-sftp v4 connect 挂死不回退）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）+ sshd ExecStartPre 预建 /var/empty（/var 恢复后 sshd 起不来）
+nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（storagebox 等备份端点）+ backup sftp 两后端 Match ControlMaster no（opendal/rustic 多进程并发 ssh 不复用连接；2026-10-15 用户裁定撤销 AddressFamily inet6 强制：部分备份客户端无 v6，LTNET 断链走 PLANET 中继自愈）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）
 nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名；portMappingEnabled 额外要求 server 标签（2026-10-07 zt 专项排查）：去 mesh 家庭机开 NAT-PMP 映射会在 miniupnpd 注册映射，内网对端经发夹 NAT 学到 192.168.0.1:临时端口的垃圾路径，映射一换（miniupnpd 重启/重拨）路径即死但仍 preferred，zt 虚拟帧只走 preferred 导致 v4 单播全灭（v6 走 RFC4193 NDP 模拟幸存）；机房 VPS 本就 _publiclyAccessible=false，仅家庭 server（opi5p）保留映射
 nixos/common-apps/yggdrasil/default.nix # regionMappings.SG 与 ZT 接口正则为 fork 舰队事实值（greencloud=SG；接口名与作者网络不同）；peers 内容经 update.py 工作流维护
 nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书（对齐上游同款结构，值不同）
@@ -51,11 +52,12 @@ nixos/optional-apps/hydra/default.nix # fork 三处：attic 登录/上传接 zhy
 nixos/optional-apps/maddy.nix # neo 域移除（NeoNetwork 置空）
 nixos/optional-apps/mysql.nix # Galera 副本清单差异（作者节点不存在于本仓）
 nixos/optional-apps/ncps-client.nix # ncps 指向本仓 192.168.0.66（作者 .04）
+nixos/optional-apps/ncps.nix # 监听地址参数化（作者硬编码其 LAN IP）
 nixos/optional-apps/nix-distributed.nix # nixbuild.net 付费构建节点移除（fork 无账号），x86_64 构建机额外通告 aarch64-cross 承接三个 vendor 内核交叉构建（rock5c/opi5p/sc8280xp-kernel 的 requiredSystemFeature；上游靠 nixbuild.net 兜底无此需求），其余结构对齐上游
 nixos/optional-apps/plausible.nix # geonames.csv tmpfiles 软链：nixos-unstable 模块设 GEONAMES_SOURCE_FILE 但无生成机制，greencloud 迁移后实证起不来；上游（colocrossing）无此修复
 nixos/optional-apps/pocket-id.nix # EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED 邮箱验证码降级登录（2026-09-07 用户决策偏离）；APP_NAME 去掉 @（2026-10-10 用户决策）：裸 @ 在 From 显示名违反 RFC 5322，AhaSend/KumoMTA 严格解析回 421 technical difficulties，Pocket ID v2.15.0 修复（pocket-id/pocket-id#1484），本仓 nixpkgs 锁随 exam 在 dc5d91f8 只到 2.14.0；nixpkgs 含 ≥2.15.0 后恢复原名并删本条
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
-nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（sakura-llm 指向 ml-builder）；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
+nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（2026-10-15 移除 sglang-sakura-llm job：舰队已无该服务，prometheus up 恒 0）；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
 nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
 nixos/optional-apps/zerotierone-controller.nix # GL-MT3600BE 旅行路由器 LAN 路由（192.168.3.0/24 via 198.18.0.115，fork 独有拓扑）+ 家庭 LAN 路由（192.168.0.0/24 via router，供 allowManaged=1 额外客户端异地访问，2026-10-03）；defaultGatewayHost 已随上游收口到 LT 继承（rock5c 特例登记于 misc.nix 条目）
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）

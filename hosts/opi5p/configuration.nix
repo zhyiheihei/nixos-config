@@ -510,7 +510,8 @@ in
     wantedBy = [ "swap.target" ];
     before = [
       "swap.target"
-      "nix-swapfile.swap"
+      "nix-swap-swapfile.swap"
+      "mkswap-nix-swap-swapfile.service"
     ];
     requires = [ "nix.mount" ];
     after = [ "nix.mount" ];
@@ -521,7 +522,7 @@ in
     serviceConfig = {
       Type = "oneshot";
       ExecStart = [
-        "${pkgs.util-linux}/bin/test -d /nix/swap || ${pkgs.btrfs-progs}/bin/btrfs subvolume create /nix/swap"
+        "${pkgs.bash}/bin/sh -c 'test -d /nix/swap || ${pkgs.btrfs-progs}/bin/btrfs subvolume create /nix/swap'"
         "${pkgs.coreutils}/bin/touch /nix/swap/swapfile"
         "${pkgs.e2fsprogs}/bin/chattr +C /nix/swap/swapfile"
         "${pkgs.coreutils}/bin/dd if=/dev/zero of=/nix/swap/swapfile bs=1M count=4096 status=none"

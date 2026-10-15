@@ -116,12 +116,7 @@ in
   };
 
   programs.ssh.extraConfig = ''
-    # backup sftp 两后端（backup.sftpEndpoint 默认 opi5p.zhyi.xin、
-    # storagebox 端 greencloud-jp.ltnet.zhyi.xin）强制 v6：LTNET v4 数据
-    # 面（CN↔家宽 ZT 打洞方向）间歇性单向黑洞，v6 路径稳定；opendal-sftp
-    # 的 v4 connect 挂死不回退，导致每日备份 connection request: timeout。
-    Match host "opi5p.zhyi.xin,greencloud-jp.ltnet.zhyi.xin"
-      AddressFamily inet6
+    Match host "v6.opi5p.ltnet.zhyi.xin,v6.greencloud-jp.ltnet.zhyi.xin"
       ControlMaster no
       ControlPath none
       ControlPersist no

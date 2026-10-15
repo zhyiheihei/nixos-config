@@ -6,7 +6,7 @@
 {
   services.ncps = {
     enable = true;
-    server.addr = "192.168.0.4:${LT.portStr.Ncps}";
+    server.addr = "${LT.this.interconnect.IPv4}:${LT.portStr.Ncps}";
     cache = {
       inherit (config.networking) hostName;
       lru.schedule = "53 4 * * *";

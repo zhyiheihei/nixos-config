@@ -145,7 +145,7 @@ in
       };
       serviceConfig = {
         # netns 模板不带 Restart；全局断言（b1383d16）要求两者成对在位。
-        Restart = "on-failure";
+        Restart = lib.mkForce "always";
         RestartSec = "5s";
         RuntimeDirectory = "jellyfin";
         # Rockchip MPP identifies the SoC through

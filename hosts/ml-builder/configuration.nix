@@ -276,13 +276,40 @@ in
   # zram），设计依据见 docs/agent/hydra-build-chain.md。
   swapDevices = [
     {
-      device = "/nix/swapfile";
+      device = "/nix/swap/swapfile";
       size = 65536;
       priority = 0;
     }
   ];
   zramSwap.enable = lib.mkForce true;
   boot.kernel.sysctl."vm.page-cluster" = lib.mkForce 0;
+
+  systemd.services.ml-builder-swapfile-bootstrap = {
+    description = "Create /nix/swap subvolume and swapfile before swap.target when missing";
+    wantedBy = [ "swap.target" ];
+    before = [
+      "swap.target"
+      "nix-swap-swapfile.swap"
+      "mkswap-nix-swap-swapfile.service"
+    ];
+    requires = [ "nix.mount" ];
+    after = [ "nix.mount" ];
+    unitConfig = {
+      DefaultDependencies = lib.mkForce false;
+      ConditionPathExists = "!/nix/swap/swapfile";
+    };
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = [
+        "${pkgs.bash}/bin/sh -c 'test -d /nix/swap || ${pkgs.btrfs-progs}/bin/btrfs subvolume create /nix/swap'"
+        "${pkgs.coreutils}/bin/touch /nix/swap/swapfile"
+        "${pkgs.e2fsprogs}/bin/chattr +C /nix/swap/swapfile"
+        "${pkgs.coreutils}/bin/dd if=/dev/zero of=/nix/swap/swapfile bs=1M count=65536 status=none"
+        "${pkgs.coreutils}/bin/chmod 600 /nix/swap/swapfile"
+        "${pkgs.util-linux}/bin/mkswap /nix/swap/swapfile"
+      ];
+    };
+  };
 
   # 2026-09-25：多客户端（ml-laptop/opi5p 的并行部署会话）预算叠加时，
   # 聚合内存峰值仍可能超出 58 GiB + zram 包络，进入回收风暴后整机冻结

@@ -55,7 +55,7 @@ rec {
 
       [repository.options]
       user = "sftp"
-      endpoint = "ssh://sftp.pve-epyc.ltnet.xuyh0120.win:2222"
+      endpoint = "ssh://${config.lantian.backup.sftpEndpoint}:2222"
       key = "${config.sops.secrets.sftp-privkey.path}"
       root = "/backups/restic"
       known_hosts_strategy = "Accept"
@@ -83,10 +83,10 @@ rec {
       cache-dir = "/var/cache/restic/storagebox"
 
       [repository.options]
-      user = "u378583-sub2"
-      endpoint = "ssh://u378583-sub2.your-storagebox.de:23"
+      user = "sftp"
+      endpoint = "ssh://v6.greencloud-jp.ltnet.zhyi.xin:2222"
       key = "${config.sops.secrets.sftp-privkey.path}"
-      root = "/home"
+      root = "/backups/rustic-storagebox"
       known_hosts_strategy = "Accept"
       enable_copy = "true"
 
@@ -108,8 +108,8 @@ rec {
   };
 
   maintenanceHosts = {
-    "terrahost" = [ "storagebox" ];
-    "pve-epyc" = [ "home" ];
+    "opi5p" = [ "home" ];
+    "greencloud-jp" = [ "storagebox" ];
   };
 
   resticCommands = lib.mapAttrsToList (
