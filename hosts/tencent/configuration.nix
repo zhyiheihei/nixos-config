@@ -82,5 +82,4 @@
   # Serve /ray (v2ray xhttp) with a real certificate so cn-accel clients
   # can verify TLS; the mesh default vhost only carries snakeoil.
   lantian.nginxVhosts."tencent.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
-
-}}
+}
