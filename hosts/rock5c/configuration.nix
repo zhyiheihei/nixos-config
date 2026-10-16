@@ -12,10 +12,6 @@ let
   # MoviePilot 容器：PySocks 用 socks5 时本地解析域名，socks5h 让域名在
   # router 代理解析，避开污染。
   moviepilotProxy = "socks5h://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
-  # .NET 应用不认 socks5:// 环境代理（jellyfin 曾因此裸连被污染的
-  # api.themoviedb.org，元数据/图片刷新全部超时），只能走 router v2ray
-  # 的 HTTP CONNECT 入站，域名在出站端远端解析。
-  jellyfinProxy = "http://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
 in
 {
   imports = [
@@ -72,23 +68,15 @@ in
 
   # ROCK 5C carries a Rockchip RK3588S2 SoC (same VPU family as opi5p's
   # RK3588): enable the rockchip jellyfin build with full AV1/HDR decode.
-  lantian.jellyfinRockchip.soc = "rk3588";
+  # 2026-10-17 撤除：Jellyfin 迁往 chromebox（x86 QSV 硬解，规避本机
+  # 8G 内存天花板下 earlyoom 绞杀转码会话的循环故障），回滚 = git
+  # revert 对应提交恢复本块与 media-apps.nix 的 jellyfin-rockchip import。
 
   # Never scan an empty local directory when the direct NAS mount is absent.
   # environment must merge (no mkForce) with jellyfin-rockchip's Kestrel unix
   # socket env: a mkForce here silently dropped JELLYFIN_kestrel__socket on the
   # 2026-09-06 deploy, nginx jellyfin vhosts 502'd and the service sat dead for
   # 9 days.
-  systemd.services.jellyfin = {
-    after = [ "mnt-storage.mount" ];
-    requires = [ "mnt-storage.mount" ];
-    environment = proxyEnvironment // {
-      HTTP_PROXY = jellyfinProxy;
-      HTTPS_PROXY = jellyfinProxy;
-      http_proxy = jellyfinProxy;
-      https_proxy = jellyfinProxy;
-    };
-  };
 
   # MoviePilot container: PySocks resolves hostnames locally with socks5;
   # socks5h keeps GitHub/plugin traffic on the router proxy with remote DNS.

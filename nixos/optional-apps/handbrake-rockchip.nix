@@ -5,8 +5,12 @@
 }:
 {
   assertions = [
+    # 2026-10-17 jellyfin-rockchip module removed from rock5c (Jellyfin
+    # migrated to chromebox); handbrake-rockchip still targets the same
+    # RK3588 SoC and asserts it directly instead of piggybacking on the
+    # removed option.
     {
-      assertion = config.lantian.jellyfinRockchip.soc == "rk3588";
+      assertion = config.networking.hostName == "rock5c";
       message = "handbrake-rockchip.nix currently supports only RK3588";
     }
   ];

@@ -84,15 +84,45 @@ in
       };
       # MoviePilot 专用 HTTP-only Jellyfin API 入口（--add-host 指名依赖
       # 此稳定域名；rewrite 供其媒体库扫描聚合 radarr/sonarr 目录）。
+      # 2026-10-17 后端翻到 chromebox:8096（Jellyfin 迁移，本机进程退役）；
+      # 迁移前 jellyfin.zhyi.xin 的 443 内网前置 vhost 由 jellyfin-rockchip
+      # 模块携带，摘模块后在此重建，保持入口链不变。
+      "jellyfin.zhyi.xin" = {
+        serverAliases = [ "rk-jellyfin.zhyi.xin" ];
+        locations = {
+          "/" = {
+            proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096";
+            proxyWebsockets = true;
+            proxyNoTimeout = true;
+          };
+          "= /web/".proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096/web/index.html";
+        };
+        sslCertificate = "lets-encrypt-zhyi.xin";
+        noIndex.enable = true;
+      };
+      "jellyfin.localhost" = {
+        listenHTTP.enable = true;
+        listenHTTPS.enable = false;
+        locations = {
+          "/" = {
+            proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096";
+            proxyWebsockets = true;
+            proxyNoTimeout = true;
+          };
+          "= /web/".proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096/web/index.html";
+        };
+        accessibleBy = "localhost";
+        noIndex.enable = true;
+      };
       "jellyfin-api.${config.networking.hostName}.zhyi.xin" = {
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
         locations."= /Library/SelectableMediaFolders" = {
-          proxyPass = "http://unix:/run/jellyfin/socket";
+          proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096";
           extraConfig = "rewrite ^ /Library/MediaFolders break;";
         };
         locations."/" = {
-          proxyPass = "http://unix:/run/jellyfin/socket";
+          proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096";
           proxyWebsockets = true;
           proxyNoTimeout = true;
         };
