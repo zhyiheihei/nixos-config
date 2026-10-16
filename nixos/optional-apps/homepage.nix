@@ -149,5 +149,12 @@ in
 
   # Point both installed browsers at the local navigation page.
   programs.firefox.policies.Homepage.URL = lib.mkForce "http://homepage.localhost";
-  programs.chromium.extraOpts.HomepageLocation = lib.mkForce "http://homepage.localhost";
+  # "homepage" variant does not override browser.startup.page; only the
+  # locked variant forces the startup page.
+  programs.firefox.policies.Homepage.StartPage = lib.mkForce "homepage-locked";
+  # Do not set extraOpts.HomepageLocation via mkForce: types.attrs leaves
+  # keep the override wrapper, producing an invalid policy entry Chrome
+  # drops entirely. The dedicated homepageLocation option produces a
+  # well-formed entry in default.json.
+  programs.chromium.homepageLocation = lib.mkForce "http://homepage.localhost";
 }
