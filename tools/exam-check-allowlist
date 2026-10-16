@@ -27,6 +27,7 @@ nixos/common-apps/nginx/testssl.nix # google-test 测试站点移除
 nixos/common-apps/nginx/whois-server.nix # whois neo 别名移除（NeoNetwork 置空）
 nixos/hardware/nvidia/prime.nix # eGPU 条件 steam offload wrapper（拔 eGPU 卡死修复，fork 自维护）
 nixos/hardware/vfio.nix # ACS/IOMMU 条件注入（雷电 eGPU Xid 79 修复，fork 自维护）
+nixos/minimal-apps/rsync-server.nix # rsyncd 绑定/客户端 URL 改 LTNET ULA v6（家宽↔greencloud 双向 wgmesh UDP 被家宽 ISP 掐断：2026-10-15 实测出站 src 家宽→greencloud:10122 全丢、外部入站→家宽:10120 包不到 ppp0；ZT v6 走 PLANET 中继可靠）；hosts allow 追加 fdd8::/48
 nixos/minimal-apps/nginx-proxy.nix # neo ULA 移除（NeoNetwork 置空）
 nixos/minimal-apps/rsync-server.nix # --no-group 修复（2026-08-30 opi5p exit 23 实证，fork 自维护）
 nixos/minimal-components/backup/common.nix # 值级环境事实：ignore 清单补 fork 服务目录（archiveteam/ncps/tor/samba 全目录等）；home 仓端点=opi5p.ltnet.zhyi.xin:2222（exam=pve-epyc 退役）；storagebox 仓=user sftp + greencloud-jp.ltnet.zhyi.xin:2222 + /backups/rustic-storagebox（本仓无 Hetzner，第二份异地走 greencloud-jp LTNET）；maintenanceHosts 主机名 fork 化（opi5p=home，greencloud-jp=storagebox）
@@ -34,7 +35,7 @@ nixos/minimal-components/networking.nix # backupDNSServers 按 CN 国别分支�
 nixos/minimal-components/podman.nix # CN 区域镜像加速（hubproxy + daocloud 兜底）
 nixos/minimal-components/smtp.nix # fork 邮件账号；from=postmaster@zhyi.cc 已确认非残留：AhaSend 账户只登记 zhyi.cc（commit 3d880f3cc，zhyi.xin 会被 556 拒发），DNS TXT/DMARC 记录在 dns/common/records.nix ForwardEmail 块维护
 nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（备份端点域）+ backup sftp 两后端 Match ControlMaster no，host 值为 LTNET 内部域名（opendal/rustic 多进程并发 ssh 不复用连接）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）+ sshd ExecStartPre 预建 /var/empty
-nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名（环境事实）；portMappingEnabled server-gate 已随 2026-10-15 误判翻案撤销（v4 单播全灭真因=wgmesh 接口缺失），回上游原文 !LT.this._publiclyAccessible
+nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名（环境事实）；portMappingEnabled server-gate 已随 2026-10-15 误判翻案撤销（原 server-gate 撤销；2026-10-16 复核：家宽↔greencloud wgmesh UDP 双向被家宽 ISP 掐断是真实约束，与 wgmesh 接口 boot 竞态两个故障并存，zerotier 1.16 撤钉仍成立——上游 1.16 无本地复现问题）
 nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书（对齐上游同款结构，值不同）
 nixos/optional-apps/acme/common.nix # google-test 证书构造器移除
 nixos/optional-apps/acme/default.nix # DNS 商 gcore（bunny 为作者所用）、dnsPropagationCheck=false
@@ -66,6 +67,7 @@ nixos/server-apps/coredns.nix # DNSSEC 签名序号漂移（运营性，随各�
 nixos/server-apps/powerdns-recursor.nix # neo zone 移除 + CN 公共递归分支
 nixos/server-components/logging.nix # 日志接 Axiom（filebeat→ES 兼容托管端）；上游 d92f2bbe 系已迁 fluent-bit→Loki，输出主机 LT.hosts.colocrossing 在 fork 无主机（作者 infra），Axiom 链为 fork 现实依赖，暂不跟迁
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
+nixos/optional-apps/picoclaw.nix # User/Group/PATH 主机用户 lantian→zhyi（dragon-q8b 无 lantian 用户；上游作者家内同名用户，fork 用户体系不同——9852b6e1a merge 溢出，f6505f23d 曾修，463323b6b 跟 nur 形态时回退，本轮重修并登记）
 overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）+ ncps doCheck=false（Go TSan 在 qemu-user aarch64 下不可运行）
 nixos/optional-apps/ollama-cpa-honeypot.nix  # skip: fork 无 colocrossing 主机（上游作者 infra），honeypot 链路依赖不成立（e86e3f8c9/031e97a2c/6d83f59f2）
 nixos/server-apps/ollama-cpa-honeypot-proxy.nix  # skip: 同上，vhost 依赖 LT.hosts.colocrossing（作者 infra）fork 缺席
@@ -85,6 +87,6 @@ nixos/common-apps/nginx/vhosts-lantian.nix # skip: fork 以自维护 vhosts-zhyi
 helpers/constants/misc.nix # defaultGatewayHost=rock5c（上游 pve-epyc）：ltnet/dn42 默认网关主机映射特例，与 zerotier 条目同一决策；ULA 已替换为 fdd8 前缀
 nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机为 0（f28facd0b 防构建机 OOM 收口），非 nix-builder 分支随上游 d10db560f client?10:180
 nixos/optional-apps/attic.nix # fork：attic 用 nur-xddxdd.lantianCustomized.attic-telnyx-compatible 包
-overlays/52-old-packages.nix # fork：linphone 系取自 nixpkgs-multiverse 26.05（nixpkgs 无此包，来源替代）；zerotierone 1.14.2 钉版已随 2026-10-15 误判翻案撤销（v4 失效真因=opi5p wgmesh 接口 boot 竞态），回 nixpkgs 1.16.0
+overlays/52-old-packages.nix # fork：linphone 系取自 nixpkgs-multiverse 26.05（nixpkgs 无此包，来源替代）；zerotierone 1.14.2 钉版撤销（2026-10-16 复核：当年「1.16 家宽↔VPS v4 失效」主因是家宽 ISP 掐 wgmesh UDP＋wgmesh 接口 boot 竞态两故障叠加，非 ZT 本身；上游 exam 生产跑 1.16.0 正常），回 nixpkgs 1.16.0
 nixos/hardware/xilinx.nix # skip: 上游依赖作者 secrets 私有 hidden-module da4fbe694da377db，fork 不采纳
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写

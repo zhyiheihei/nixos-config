@@ -45,13 +45,13 @@ in
       # Remove leftover PID file
       rm -f $CONFIG_DIR/.picoclaw.pid
 
-      export PATH=/etc/profiles/per-user/lantian/bin:/run/current-system/sw/bin:$PATH
+      export PATH=/etc/profiles/per-user/zhyi/bin:/run/current-system/sw/bin:$PATH
       exec ${lib.getExe picoclaw} gateway
     '';
 
     serviceConfig = LT.serviceHarden // {
-      User = "lantian";
-      Group = "lantian";
+      User = "zhyi";
+      Group = "zhyi";
 
       MemoryDenyWriteExecute = false;
       ProtectHome = false;

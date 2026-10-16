@@ -33,7 +33,7 @@ in
     socketActivated = true;
     settings = {
       globalSection = {
-        address = LT.this.ltnet.IPv4;
+        address = LT.this.ltnet.IPv6;
         gid = "root";
         uid = "root";
         "use chroot" = true;
@@ -42,7 +42,7 @@ in
       sections = {
         sync-servers = {
           "read only" = true;
-          "hosts allow" = "198.18.0.0/15";
+          "hosts allow" = "198.18.0.0/15 fdd8:1938:4e88::/48";
           path = "/nix/sync-servers";
         };
       };
@@ -56,7 +56,7 @@ in
   };
 
   systemd.sockets.rsync = {
-    listenStreams = lib.mkForce [ "${LT.this.ltnet.IPv4}:${LT.portStr.Rsync}" ];
+    listenStreams = lib.mkForce [ "[${LT.this.ltnet.IPv6}]:${LT.portStr.Rsync}" ];
     socketConfig = {
       FreeBind = true;
       SocketProtocol = "mptcp";
@@ -79,7 +79,7 @@ in
             "--no-group"
             "--delete-after"
             "--timeout=300"
-            "rsync://${LT.hosts.${primaryServer}.ltnet.IPv4}/sync-servers/"
+            "rsync://[${LT.hosts.${primaryServer}.ltnet.IPv6}]/sync-servers/"
             "/nix/sync-servers/"
           ]
         else
