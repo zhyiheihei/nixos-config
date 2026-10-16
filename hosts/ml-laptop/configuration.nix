@@ -465,6 +465,7 @@
 
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
+    "${LT.hosts.hostdare.public.IPv4}" = [ "ai-api.zhyi.xin" ];
   };
 
   # 不在家时经 ZeroTier 经 router 访问家庭 LAN。NixOS 主机 allowManaged=0，
