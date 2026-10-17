@@ -57,7 +57,7 @@ let
     # the main instance's qbitPreStart (PPPoE redial re-bind, 2026-08-13).
     sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceAddress=0.0.0.0" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalDLSpeedLimit=0" "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalUPSpeedLimit=0" "$conf"
+    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalUPSpeedLimit=2000" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\AsyncIOThreadsCount=4" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheSize=256" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheTTL=60" "$conf"
@@ -86,8 +86,11 @@ let
     # Leave Session\Interface unset ("Any interface"); reason documented at
     # the main instance's qbitPreStart (PPPoE redial re-bind, 2026-08-13).
     sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceAddress=0.0.0.0" "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalDLSpeedLimit=0" "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalUPSpeedLimit=0" "$conf"
+    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalDLSpeedLimit=10000" "$conf"
+    # 2026-10-17 用户定：主实例（bt 刷流）上传锁定 2500KB/s——整夜上行
+    # 峰值 87Mbps 后当日晨被运营商踢线进 CGNAT（pppd/miniupnpd 日志），
+    # 全局总闸控制风控触发概率。
+    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalUPSpeedLimit=2500" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\AsyncIOThreadsCount=4" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheSize=256" "$conf"
     sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheTTL=60" "$conf"

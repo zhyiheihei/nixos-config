@@ -199,8 +199,13 @@ in
         WithoutRA = "solicit";
       };
       linkConfig.RequiredForOnline = "routable";
+      # 真实线路 shaping（2026-10-17 用户报套餐：千兆下 / 50M 上）。
+      # 上行设 45M（标称 90%）让 CAKE 在运营器侧缓存积压前接管队列，
+      # 保游戏（帕鲁）低延迟；下行不限速维持 1G 不塑形（仅保留
+      # fq_codel 型公平调度）。此前 Bandwidth=1G 高于真实上行，shaping
+      # 阈值形同虚设。
       cakeConfig = {
-        Bandwidth = "1G";
+        Bandwidth = "45M";
         FlowIsolationMode = "dual-src-host";
         NAT = true;
         PriorityQueueingPreset = "diffserv8";
