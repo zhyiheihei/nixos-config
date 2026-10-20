@@ -143,6 +143,9 @@
 
   lantian.zcode.enable = true;
 
+  # 青简输入法（fcitx5 插件 + 用户后端 server），与中州韵并存试用。
+  lantian.qingjian.enable = true;
+
   # 划词翻译（Ctrl+Alt+E），KDE Wayland 下经 crow 的 D-Bus 接口触发。
   lantian.crow-translate.enable = true;
 
