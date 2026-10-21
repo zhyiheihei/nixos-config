@@ -12,22 +12,24 @@
         message = "${n}'s accessibleBy is not set to localhost";
       }
       {
-        assertion =
-          builtins.elem n LT.constants.publicSites
-          || v.accessibleBy != "public"
-          || v.locations."/".enableOAuth or false
-          || v.locations."/".enableBasicAuth or false;
-        message = "${n} is publicly accessible without authentication";
+        assertion = builtins.elem n LT.constants.publicSites || v.accessibleBy != "public";
+        message = "${n} is publicly accessible";
       }
     ]) (config.lantian.nginxVhosts or { }))
     ++ (lib.mapAttrsToList (n: v: [
       {
+        # Prevent lt-hp-omen from exposing to private LAN
         assertion =
-          # Prevent lt-hp-omen from exposing to private LAN without auth
-          !builtins.elem config.networking.hostName [ "ml-laptop" ]
-          || v.locations."/".enableOAuth or false
-          || v.locations."/".enableBasicAuth or false;
-        message = "${n} is LAN accessible without authentication";
+          (!builtins.elem config.networking.hostName [ "ml-laptop" ])
+          || builtins.elem n [
+            "ipfs"
+            "ipfs-api"
+            "lab"
+            "llama-swap"
+            "pi"
+            "syncthing"
+          ];
+        message = "${n} is LAN accessible";
       }
     ]) (config.lantian.localVhosts or { }))
   );

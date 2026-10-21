@@ -24,7 +24,18 @@ in
 {
   imports = [ ../postgresql.nix ];
 
-  sops.secrets.waline-env.sopsFile = inputs.secrets + "/waline.yaml";
+  sops.secrets.telegram-bot-token.sopsFile = inputs.secrets + "/telegram.yaml";
+  sops.secrets.telegram-bot-chat-id.sopsFile = inputs.secrets + "/telegram.yaml";
+  sops.secrets.waline-openrouter-key.sopsFile = inputs.secrets + "/waline.yaml";
+  sops.secrets.waline-jwt-token.sopsFile = inputs.secrets + "/waline.yaml";
+  sops.templates.waline-env.content = ''
+    SMTP_PASS=${config.sops.placeholder.smtp-pass}
+    TELEGRAM_BOT_TOKEN=${config.sops.placeholder.telegram-bot-token}
+    TELEGRAM_CHAT_ID=${config.sops.placeholder.telegram-bot-chat-id}
+    OPENAI_API_KEY=${config.sops.placeholder.waline-openrouter-key}
+    JWT_TOKEN=${config.sops.placeholder.waline-jwt-token}
+
+  '';
 
   lantian.nginxVhosts = {
     "comments.zhyi.xin" = {
@@ -38,7 +49,7 @@ in
         "= /".return = "307 /ui/";
       };
 
-      sslCertificate = "zerossl-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
   };
@@ -55,7 +66,12 @@ in
 
   systemd.services.waline = {
     description = "Waline comment system";
-    after = [ "network.target" ];
+    after = [
+      "network.target"
+      "postgresql.target"
+    ];
+    requires = [ "postgresql.target" ];
+    partOf = [ "postgresql.service" ];
     wantedBy = [ "multi-user.target" ];
 
     environment = {
@@ -71,6 +87,7 @@ in
 
       SITE_NAME = "Magic Flash @ Blog";
       SITE_URL = "https://zhyi.xin";
+      AUTHOR_EMAIL = "lantian@zhyi.xin";
       AKISMET_KEY = "false";
 
       SMTP_HOST = config.programs.msmtp.accounts.default.host;
@@ -83,7 +100,7 @@ in
 
     serviceConfig = LT.serviceHarden // {
       ExecStart = lib.getExe waline;
-      EnvironmentFile = config.sops.secrets.waline-env.path;
+      EnvironmentFile = config.sops.templates.waline-env.path;
       Restart = "always";
       RestartSec = 3;
       User = "waline";
@@ -91,11 +108,13 @@ in
 
       RuntimeDirectory = "waline";
       WorkingDirectory = "${waline}/lib/node_modules/@waline/vercel";
+      BindReadOnlyPaths = [ "/run/postgresql" ];
 
       MemoryDenyWriteExecute = lib.mkForce false;
       SystemCallFilter = lib.mkForce [ ];
     };
   };
+  lantian.harden.waline = true;
 
   users.users.waline = {
     group = "waline";

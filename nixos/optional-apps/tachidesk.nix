@@ -51,7 +51,9 @@
       };
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    # Keep off the public internet; basic auth already required
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

@@ -46,7 +46,7 @@ in
     };
 
     phpfpmSocket = config.services.phpfpm.pools.lab.socket;
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 
@@ -95,11 +95,16 @@ in
       "${labRoot}/hobby-net"."L+" = {
         argument = "/nix/sync-servers/ltnet-scripts";
       };
-      "${labRoot}/testssl.html"."L+" = {
-        argument = "/nix/sync-servers/www/lab.zhyi.xin/testssl.htm";
-      };
     };
   };
 
   systemd.services."phpfpm-lab".serviceConfig.RestartSec = "5s";
+
+  systemd.tmpfiles.settings.nginx = {
+    "/var/www/lab.zhyi.xin"."d" = {
+      mode = "755";
+      user = "root";
+      group = "root";
+    };
+  };
 }

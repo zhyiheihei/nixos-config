@@ -5,9 +5,6 @@
   inputs,
   ...
 }:
-let
-  glauthUsers = import (inputs.secrets + "/glauth-users.nix");
-in
 {
   sops.secrets.smtp-pass = {
     sopsFile = inputs.secrets + "/common/smtp.yaml";
@@ -53,7 +50,7 @@ in
     ];
 
     script = ''
-      MAILTO="${glauthUsers.zhyi.mail}"
+      MAILTO="molishanguang@outlook.com"
 
       [ "$MONITOR_SERVICE_RESULT" = "success" ] && FLAG="⭕️ SUCCESS:" || FLAG="❌ FAILURE:"
 

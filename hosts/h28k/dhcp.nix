@@ -1,4 +1,9 @@
-{ lib, inputs, ... }:
+{
+  lib,
+  inputs,
+  LT,
+  ...
+}:
 let
   # MAC -> IP reservations for the site LAN live in the secrets repo, like
   # the author's lt-home-router/dhcp.nix (reservations.vlan0/vlan5).
@@ -44,8 +49,26 @@ in
     };
   };
 
-  systemd.services.kea-dhcp4-server.serviceConfig = {
+  systemd.services.kea-dhcp4-server.serviceConfig = LT.networkToolHarden // {
     Restart = lib.mkForce "always";
     RestartSec = 3;
+    DynamicUser = lib.mkForce false;
+    PrivateUsers = false;
+    BindPaths = [
+      "/var/lib/kea"
+      "/run/kea"
+    ];
+    BindReadOnlyPaths = [
+      "/etc/kea"
+    ];
+    RestrictAddressFamilies = [
+      "AF_UNIX"
+      "AF_INET"
+      "AF_INET6"
+      "AF_NETLINK"
+      "AF_PACKET"
+    ];
   };
+  environment.etc."kea/dhcp4-server.conf".mode = "0444";
+  lantian.harden.kea-dhcp4-server = true;
 }

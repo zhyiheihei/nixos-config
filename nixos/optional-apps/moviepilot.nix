@@ -81,7 +81,7 @@ in
             proxyNoTimeout = true;
           };
         };
-        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
+        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
         noIndex.enable = true;
         accessibleBy = "private";
       };

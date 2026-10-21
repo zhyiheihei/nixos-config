@@ -30,7 +30,7 @@
       UI_CONFIG_DISABLED = true;
       ANALYTICS_DISABLED = true;
 
-      APP_NAME = "Magic Flash Login";
+      APP_NAME = "Magic Flash @ Login";
       EMAILS_VERIFIED = true;
       ALLOW_OWN_ACCOUNT_EDIT = false;
       DISABLE_ANIMATIONS = true;
@@ -41,24 +41,6 @@
       SMTP_USER = config.programs.msmtp.accounts.default.user;
       SMTP_TLS = if config.programs.msmtp.accounts.default.tls_starttls then "starttls" else "tls";
       EMAIL_ONE_TIME_ACCESS_AS_ADMIN_ENABLED = true;
-      EMAIL_ONE_TIME_ACCESS_AS_UNAUTHENTICATED_ENABLED = true;
-
-      LDAP_ENABLED = true;
-      LDAP_URL = "ldap://[fdd8:1938:4e88:3712::389]:${LT.portStr.LDAP}";
-      LDAP_BIND_DN = "cn=serviceuser,dc=zhyi,dc=xin";
-      LDAP_BASE = "dc=zhyi,dc=xin";
-      LDAP_USER_SEARCH_FILTER = "(&(objectClass=posixAccount)(!(ou=svcaccts)))";
-      LDAP_USER_GROUP_SEARCH_FILTER = "(objectClass=posixGroup)";
-      LDAP_SOFT_DELETE_USERS = true;
-      LDAP_ADMIN_GROUP_NAME = "admin";
-      LDAP_ATTRIBUTE_USER_UNIQUE_IDENTIFIER = "uid";
-      LDAP_ATTRIBUTE_USER_USERNAME = "uid";
-      LDAP_ATTRIBUTE_USER_EMAIL = "mail";
-      LDAP_ATTRIBUTE_USER_FIRST_NAME = "givenName";
-      LDAP_ATTRIBUTE_USER_LAST_NAME = "sn";
-      LDAP_ATTRIBUTE_GROUP_MEMBER = "uniqueMember";
-      LDAP_ATTRIBUTE_GROUP_UNIQUE_IDENTIFIER = "cn";
-      LDAP_ATTRIBUTE_GROUP_NAME = "cn";
     };
   };
 
@@ -72,30 +54,49 @@
     ];
   };
 
-  systemd.services.pocket-id.serviceConfig = {
+  systemd.services.pocket-id.after = [ "postgresql.target" ];
+  systemd.services.pocket-id.requires = [ "postgresql.target" ];
+  systemd.services.pocket-id.serviceConfig = LT.serviceHarden // {
     RestartSec = lib.mkForce 5;
     RuntimeDirectory = "pocket-id";
     RuntimeDirectoryMode = "750";
+    # chroot's tmpfs root is ephemeral; bind state dir + socket through; the
+    # socket is accessed by nginx outside the chroot
+    BindPaths = [
+      "/var/lib/pocket-id"
+      "/run/pocket-id"
+    ];
+    # sops secrets, postgres unix socket, CA certs for SMTP TLS
+    BindReadOnlyPaths = [
+      "/run/postgresql"
+      "/run/secrets/pocket-id-encryption-key"
+      "/run/secrets/smtp-pass"
+      # Peer auth to postgres and the GeoLite DB need the real uid/hosts
+      # environment; user namespace would break postgres peer auth
+      "${config.environment.etc."geoip".source}:/etc/geoip"
+    ];
+    PrivateUsers = lib.mkForce false;
     ExecStart = lib.mkForce (
       builtins.toString (
         pkgs.writeShellScript "pocket-id-start" ''
           set -euo pipefail
           export ENCRYPTION_KEY=$(cat ${config.sops.secrets.pocket-id-encryption-key.path})
           export SMTP_PASSWORD=$(cat ${config.sops.secrets.smtp-pass.path})
-          export LDAP_BIND_PASSWORD=$(cat ${config.sops.secrets.glauth-bindpw.path})
           exec ${lib.getExe pkgs.pocket-id}
         ''
       )
     );
   };
   users.groups.pocket-id.members = [ "nginx" ];
+  lantian.harden.pocket-id = true;
 
   lantian.nginxVhosts."id.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://unix:/run/pocket-id/pocket-id.sock";
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

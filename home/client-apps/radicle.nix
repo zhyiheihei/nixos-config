@@ -12,6 +12,8 @@ lib.mkIf (osConfig.networking.hostName == "ml-laptop" && config.home.username ==
     Unit = {
       Description = "Radicle node (decentralized git server)";
       After = [ "network.target" ];
+      # The restored desktop has no Radicle identity; never create one implicitly.
+      ConditionPathExists = "%h/.radicle/config.json";
     };
 
     Service = {

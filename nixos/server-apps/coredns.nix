@@ -3,7 +3,6 @@
   lib,
   LT,
   config,
-  inputs,
   ...
 }:
 let
@@ -11,16 +10,10 @@ let
 
   corednsConfig =
     let
-      dnssec =
-        key:
-        if key != null then
-          ''
-            dnssec {
-              key file "${config.sops.secrets."${key}.private".path}"
-            }
-          ''
-        else
-          "";
+      # Disabled: common/dnssec.yaml (DNSSEC key set) removed from
+      # nixos-secrets (7bcc13f); zones are served unsigned for now. Restore
+      # the file and revert this to re-enable DNSSEC.
+      dnssec = _key: "";
       forwardZone = zone: dnssecKey: ''
         ${zone} {
           any
@@ -115,19 +108,22 @@ let
 
 in
 lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
-  sops.secrets =
-    let
-      lines = lib.splitString "\n" (builtins.readFile (inputs.secrets + "/common/dnssec.yaml"));
-      keyNames = builtins.map (l: lib.trim (builtins.head (lib.splitString ":" l))) (
-        builtins.filter (lib.hasPrefix "    K") lines
-      );
-    in
-    lib.genAttrs keyNames (n: {
-      sopsFile = inputs.secrets + "/common/dnssec.yaml";
-      key = "dnssec/${n}";
-      owner = "coredns";
-      group = "coredns";
-    });
+  # Disabled: common/dnssec.yaml removed from nixos-secrets (7bcc13f);
+  # restore from git history together with the DNSSEC gate in the Corefile.
+  # sops.secrets =
+  #   let
+  #     lines = lib.splitString "\n" (builtins.readFile (inputs.secrets +
+  #       "/common/dnssec.yaml"));
+  #     keyNames = builtins.map (l: lib.trim (builtins.head (lib.splitString ":" l))) (
+  #       builtins.filter (lib.hasPrefix "    K") lines
+  #     );
+  #   in
+  #   lib.genAttrs keyNames (n: {
+  #     sopsFile = inputs.secrets + "/common/dnssec.yaml";
+  #     key = "dnssec/''${n}";
+  #     owner = "coredns";
+  #     group = "coredns";
+  #   });
 
   lantian.netns.coredns-authoritative = {
     ipSuffix = "54";
@@ -357,7 +353,14 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
     listenAddress = LT.this.ltnet.IPv4;
   };
 
-  systemd.services."prometheus-knot-exporter".serviceConfig.RestartSec = "5s";
+  systemd.services."prometheus-knot-exporter".serviceConfig = LT.serviceHarden // {
+    RestartSec = "5s";
+    ProcSubset = "all";
+    ProtectProc = "default";
+    # Queries knot control socket
+    BindReadOnlyPaths = [ "/run/knot" ];
+  };
+  lantian.harden.prometheus-knot-exporter = true;
 
   systemd.services = {
     coredns-authoritative = netns.bind {
@@ -389,17 +392,30 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
           "AF_UNIX"
           "AF_NETLINK"
         ];
+        # Joins host-owned network namespace via NetworkNamespacePath
+        PrivateUsers = false;
+        BindReadOnlyPaths = [ "/run/netns" ];
       };
     };
 
     knot = netns.bind {
       serviceConfig = {
-        ReadWritePaths = [ "/tmp" ];
-        CacheDirectory = "zones";
         RestartSec = "5s";
+        PrivateMounts = true;
+        SystemCallErrorNumber = "EPERM";
+        # Binds privileged port, reads /run/knot control socket;
+        # chroot's tmpfs root is ephemeral, so bind host state dirs through
+        PrivateUsers = false;
+        BindPaths = [
+          "/run/knot"
+          "/var/lib/knot"
+          "/var/cache/zones"
+        ];
       };
     };
   };
+  lantian.harden.coredns-authoritative = true;
+  lantian.harden.knot = true;
 
   users.users.coredns = {
     group = "coredns";

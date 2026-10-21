@@ -10,6 +10,17 @@
     user = "zhyi";
     group = "users";
     dataDir = "/var/lib/radarr";
+    settings.server.allowedHosts = lib.concatStringsSep "," (
+      [
+        "localhost"
+        "127.0.0.1"
+        "[::1]"
+        "radarr.localhost"
+        "radarr.${config.networking.hostName}.zhyi.xin"
+        LT.this.ltnet.IPv4
+      ]
+      ++ config.lantian.localVhosts.radarr.serverAliases
+    );
   };
   systemd.services.radarr = {
     serviceConfig = LT.serviceHarden // {
@@ -22,6 +33,20 @@
       ];
       StateDirectory = "radarr";
       MemoryDenyWriteExecute = false;
+      BindPaths = [ "/var/lib/radarr" ];
+      BindReadOnlyPaths = [
+        "/etc/resolv.conf"
+        # The configured local download client uses localhost.
+        "${config.environment.etc.hosts.source}:/etc/hosts"
+        "${
+          config.environment.etc."ssl/certs/ca-certificates.crt".source
+        }:/etc/ssl/certs/ca-certificates.crt"
+        "${config.environment.etc."ssl/certs/ca-certificates.crt".source}:/etc/ssl/certs/ca-bundle.crt"
+      ];
+    };
+    confinement = {
+      enable = true;
+      fullUnit = true;
     };
   };
 
@@ -37,7 +62,8 @@
     enable = true;
     listenAddress = LT.this.ltnet.IPv4;
     port = LT.port.Prometheus.RadarrExporter;
-    url = "http://radarr.localhost";
+    # sonarr.localhost /etc/hosts entries are gone; use the loopback direct
+    url = "http://127.0.0.1:${LT.portStr.Radarr}";
     environment = {
       INTERFACE = LT.this.ltnet.IPv4;
       PORT = LT.portStr.Prometheus.RadarrExporter;
@@ -49,5 +75,11 @@
   systemd.services.prometheus-exportarr-radarr-exporter.serviceConfig = {
     DynamicUser = lib.mkForce false;
     RestartSec = "5s";
+    # chroot's tmpfs root is ephemeral; bind data dir through
+    BindReadOnlyPaths = [ "/var/lib/radarr" ];
+
+    AmbientCapabilities = [ "" ];
+    SystemCallErrorNumber = "EPERM";
   };
+  lantian.harden."prometheus-exportarr-radarr-exporter" = true;
 }

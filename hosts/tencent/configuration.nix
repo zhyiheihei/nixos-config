@@ -1,8 +1,6 @@
 {
   LT,
   lib,
-  pkgs,
-  config,
   ...
 }:
 {
@@ -10,13 +8,12 @@
     ../../nixos/server.nix
 
     ./hardware-configuration.nix
-    ../../nixos/optional-apps/dsh-web
     ../../nixos/optional-apps/grafana.nix
     ../../nixos/optional-apps/hubproxy.nix
     ../../nixos/optional-apps/navdash.nix
     ../../nixos/optional-apps/prometheus
     ../../nixos/optional-apps/searxng.nix
-    ../../nixos/optional-apps/clawemail.nix
+    # ../../nixos/optional-apps/clawemail.nix
     # 2026-09-11 新增：Lsky Pro 图床（pic.zhyi.xin），官方 Docker 镜像。
     ../../nixos/optional-apps/lsky-pro.nix
     # 2026-09-02 自 rock5c 迁入（warrior 镜像仅有 amd64 变体，aarch64 主机
@@ -31,9 +28,6 @@
 
   lantian.hubproxy.enable = true;
 
-  # DSH web UI（dsh.zhyi.xin，Dex OIDC 登录，模型走 ai-api.zhyi.xin）
-  lantian.dsh-web.enable = true;
-
   # Lsky Pro 图床（pic.zhyi.xin，官方 Docker 镜像）
   lantian.lskyPro.enable = true;
 
@@ -44,7 +38,15 @@
   # 实测 vassal 补充组恒为空（uwsgi immediate-uid 不做 initgroups、add-gid
   # 不生效），且 uwsgi 重启会把 CacheDirectory 属主改回 uwsgi——组/属主
   # 方案都会被覆盖。目录只放 favicon 缓存库，私有实例，直接 0777。
-  systemd.services.uwsgi.serviceConfig.CacheDirectoryMode = "0777";
+  systemd.services.uwsgi.serviceConfig = LT.serviceHarden // {
+    CacheDirectoryMode = "0777";
+    # uwsgi 执行 Python 插件并 fork worker，部分键与动态加载冲突
+    MemoryDenyWriteExecute = lib.mkForce false;
+    PrivateUsers = lib.mkForce false;
+    PrivateDevices = lib.mkForce false;
+    SystemCallFilter = lib.mkForce [ ];
+  };
+  lantian.harden.uwsgi = true;
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
   # from greencloud 2026-08-14 with the monitoring stack). Private only: Homepage
@@ -82,4 +84,5 @@
   # Serve /ray (v2ray xhttp) with a real certificate so cn-accel clients
   # can verify TLS; the mesh default vhost only carries snakeoil.
   lantian.nginxVhosts."tencent.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
+
 }

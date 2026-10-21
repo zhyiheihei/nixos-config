@@ -2,7 +2,6 @@
   pkgs,
   lib,
   LT,
-  inputs,
   config,
   ...
 }:
@@ -20,11 +19,6 @@ let
   '';
 in
 {
-  sops.secrets.default-pw = {
-    sopsFile = inputs.secrets + "/common/default-pw.yaml";
-    mode = "0444";
-  };
-
   # Set your time zone.
   time.timeZone = "Asia/Shanghai";
 
@@ -101,7 +95,7 @@ in
   hardware.ksm.enable = true;
 
   lantian.qemu-user-static-binfmt = {
-    enable = LT.this.hasTag LT.tags.nix-builder || LT.this.hasTag LT.tags.client;
+    enable = LT.this.hasTag LT.tags.nix-builder;
     package = pkgs.nur-xddxdd.qemu-user-static;
   };
 
@@ -135,8 +129,8 @@ in
     ForwardToKMsg = false;
     ForwardToWall = false;
     Storage = "persistent";
-    SystemMaxFileSize = "10M";
-    SystemMaxUse = "100M";
+    SystemMaxFileSize = "100M";
+    SystemMaxUse = "1G";
   };
 
   security.openssl = {

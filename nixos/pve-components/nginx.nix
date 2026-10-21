@@ -14,7 +14,7 @@
   config = lib.mkIf config.services.proxmox-ve.enable {
     lantian.nginxVhosts."${config.networking.hostName}.zhyi.xin" = {
       serverAliases = [ config.services.proxmox-ve.ipAddress ];
-      sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       accessibleBy = "private";
       noIndex.enable = true;
       locations."/" = {

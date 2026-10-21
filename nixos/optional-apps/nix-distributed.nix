@@ -3,6 +3,7 @@
   LT,
   config,
   pkgs,
+  inputs,
   ...
 }:
 let
@@ -56,16 +57,21 @@ let
       ];
 
   platforms = builtins.concatStringsSep "," (
-    lib.uniqueStrings (config.nix.settings.extra-platforms ++ [ pkgs.stdenv.hostPlatform.system ])
+    lib.uniqueStrings (
+      (config.nix.settings.extra-platforms or [ ]) ++ [ pkgs.stdenv.hostPlatform.system ]
+    )
   );
 in
 {
   options.lantian.nix-distributed.sshKeyPath = lib.mkOption {
     type = lib.types.str;
-    default = "/home/zhyi/.ssh/id_ed25519";
+    default = config.sops.secrets.hydra-ssh-privkey.path;
   };
 
   config = {
+    # nix-builder 的 ssh 私钥（secrets 里沿用原 hydra 密钥文件名）
+    sops.secrets.hydra-ssh-privkey.sopsFile = inputs.secrets + "/hydra.yaml";
+
     nix = {
       distributedBuilds = true;
       buildMachines = lib.flatten (

@@ -1,5 +1,13 @@
 # Hydra 构建链路与并发约束
 
+> **2026-10-21 起 Hydra 已按上游停用**（上游 `hosts/pve-epyc/configuration.nix`
+> 的 `# ... hydra # intentionally disabled by request`）：opi5p 不再导入
+> `nixos/optional-apps/hydra`，ml-builder 的 `services.hydra-builder` 与
+> `hydra-builder-big` 接线已删除，队列器/评估器/hydra.zhyi.xin 一并下线。
+> 远程构建改由 `nixos/optional-apps/nix-distributed.nix` 的 `nix.buildMachines`
+> （ssh + `nix-builder` 用户）承担，私钥为 secrets `hydra.yaml` 的
+> `hydra-ssh-privkey`。本文以下内容保留为恢复 Hydra 时的参考，当前不生效。
+
 本文是当前 Hydra 与 Nix 远程构建链路的权威说明。主机参数仍以
 [`hosts/`](../../hosts) 为准；修改 builder 角色、并发或 feature 前必须同时更新
 本文并按末尾流程回归。

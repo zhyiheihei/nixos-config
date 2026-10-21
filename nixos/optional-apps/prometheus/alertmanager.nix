@@ -9,11 +9,11 @@
 }:
 {
   sops.secrets.telegram-bot-token = {
-    sopsFile = inputs.secrets + "/common/telegram.yaml";
+    sopsFile = inputs.secrets + "/telegram.yaml";
     mode = "0444";
   };
   sops.secrets.telegram-bot-chat-id = {
-    sopsFile = inputs.secrets + "/common/telegram.yaml";
+    sopsFile = inputs.secrets + "/telegram.yaml";
     mode = "0444";
   };
 
@@ -254,16 +254,6 @@
       receivers = [
         {
           name = "admin";
-          # email_configs = [
-          #   {
-          #     to = glauthUsers.zhyi.mail;
-          #     send_resolved = true;
-          #     threading = {
-          #       enabled = true;
-          #       thread_by_date = "daily";
-          #     };
-          #   }
-          # ];
           telegram_configs = [
             {
               bot_token_file = config.sops.secrets.telegram-bot-token.path;
@@ -280,13 +270,19 @@
     };
   };
 
-  systemd.services.alertmanager.serviceConfig.RestartSec = "5s";
-
-  systemd.services.alertmanager.serviceConfig.ExecStartPre = lib.mkForce (
-    pkgs.writeShellScript "alertmanager-pre-start" ''
-      ${utils.genJqSecretsReplacementSnippet config.services.prometheus.alertmanager.configuration "/tmp/alert-manager-substituted.yaml"}
-    ''
-  );
+  systemd.services.alertmanager = {
+    serviceConfig = LT.serviceHarden // {
+      RestartSec = "5s";
+      ExecStartPre = lib.mkForce (
+        pkgs.writeShellScript "alertmanager-pre-start" ''
+          ${utils.genJqSecretsReplacementSnippet config.services.prometheus.alertmanager.configuration "/tmp/alert-manager-substituted.yaml"}
+        ''
+      );
+      # FIXME: secret
+      BindReadOnlyPaths = [ "/run" ];
+    };
+  };
+  lantian.harden.alertmanager = true;
 
   lantian.nginxVhosts."alert.zhyi.xin" = {
     locations = {
@@ -296,7 +292,8 @@
       };
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

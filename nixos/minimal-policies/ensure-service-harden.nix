@@ -1,0 +1,228 @@
+{
+  config,
+  lib,
+  ...
+}:
+let
+  # Only key presence is checked: values may be overridden for legit reasons,
+  # so any explicit value satisfies the assertion. Keys are imported from the
+  # same file as LT.serviceHarden (same key set as LT.networkToolHarden).
+  # Imported directly instead of via LT to track the raw args without the
+  # mkOptionDefault wrappers.
+  requiredKeys =
+    builtins.attrNames
+      (import ../../helpers/fn/service-harden.nix { inherit lib; }).serviceHardenArgs;
+
+  # Services legitimately needing full/hardware access: PVE cluster daemons,
+  # sshd, OVS, hardware monitors, upstream system services
+  ignored = [
+    # keep-sorted start
+    "acpid"
+    "bluetooth"
+    "corosync"
+    "cups" # spawns driver/filter helper binaries; breaks under hardening
+    "cups-browsed"
+    "enable-ksm"
+    "greetd"
+    "hydra-builder"
+    "hydra-builder-big"
+    "hydra-check-space"
+    "hydra-compress-logs"
+    "hydra-evaluator"
+    "hydra-notify"
+    "hydra-queue-runner"
+    "hydra-send-stats"
+    "hydra-server"
+    "hydra-update-gc-roots"
+    "hydra-ws"
+    "llama-swap" # CUDA
+    "nvidia-persistenced"
+    "ovs-vswitchd"
+    "ovsdb"
+    "pcscd"
+    # Runs as user lantian with full $HOME access (~/.picoclaw); not confinable
+    "picoclaw"
+    "polkit"
+    "pve-cluster"
+    "pvedaemon"
+    "pveproxy"
+    "pvescheduler"
+    "pvestatd"
+    "qmeventd"
+    "reload-systemd-vconsole-setup"
+    "rrdcached"
+    "rtkit-daemon"
+    "spiceproxy"
+    "sshd"
+    "usbmuxd"
+    "virtlockd"
+    "virtlogd"
+    "waagent" # Azure provisioning agent; manages disks/network/hostname
+    "xvcd" # USB JTAG daemon; raw USB hardware access like usbmuxd
+    # keep-sorted end
+    "bepasty-server-pb.zhyi.xin-gunicorn"
+    "email-oauth2-proxy"
+    "gitea-runner-default"
+    "lemmy"
+    "mosquitto"
+    "ws-scrcpy"
+    "resin"
+    "hubproxy"
+    "lsky-pro-mysql-relay"
+    "navdash"
+    "n8n-openai-bridge"
+    "pict-rs"
+    "tg-bot-cleaner-bot"
+    "yggdrasil-alfis"
+    "clash-verge"
+    "leigod-daemon"
+    "leigod-upgrade-monitor"
+    "zpool-trim"
+    # fork 启用、上游尚未给这些服务补 hardening/confinement（上游同名
+    # 启用主机同样未进 chroot）；先豁免，上游补齐后逐项跟随。
+    "home-assistant"
+    "hostapd"
+    "librechat"
+    "memos"
+    "mongodb"
+    "n8n"
+    "n8n-task-runner"
+    "nextcloud-cron"
+    "nextcloud-update-db"
+    "palworld" # steamcmd/steam-run 运行期管理二进制与库
+    "pppd-wan"
+    "resilio"
+    "sublinkpro"
+    "tranquil-pds"
+    "vaults3"
+  ];
+
+  # Core system services provided by systemd/NixOS itself, not application
+  # services; anything starting with "systemd" is covered too
+  coreServiceNames = [
+    # keep-sorted start
+    "dbus"
+    "nix-daemon"
+    "nix-gc"
+    "nix-optimise"
+    "nscd"
+    # keep-sorted end
+  ];
+
+  # Services that cannot run inside a confinement chroot without breaking:
+  # scx writes host cgroupfs and /sys/fs/bpf (mounted read-only under
+  # confinement), oom-score-protect tunes /proc/1's children host-wide
+  confinementIgnored = [
+    # keep-sorted start
+    "cups" # spawns driver-dependent printer filter binaries
+    "jellyfin" # GPU transcoding and .NET JIT need full filesystem access
+    "oom-score-protect"
+    "samba-nmbd" # samba dlopens NSS modules and spawns per-connection processes
+    "samba-smbd"
+    "samba-winbindd"
+    "samba-wsdd"
+    "scx"
+    # keep-sorted end
+    "hydra-builder"
+    "hydra-builder-big"
+    "hydra-check-space"
+    "hydra-compress-logs"
+    "hydra-evaluator"
+    "hydra-notify"
+    "hydra-queue-runner"
+    "hydra-send-stats"
+    "hydra-server"
+    "hydra-update-gc-roots"
+    "hydra-ws"
+    # fork 启用、上游尚未给这些服务补 hardening/confinement（上游同名
+    # 启用主机同样未进 chroot）；先豁免，上游补齐后逐项跟随。
+    "home-assistant"
+    "hostapd"
+    "librechat"
+    "memos"
+    "mongodb"
+    "n8n"
+    "n8n-task-runner"
+    "nextcloud-cron"
+    "nextcloud-update-db"
+    "palworld" # steamcmd/steam-run 运行期管理二进制与库
+    "pppd-wan"
+    "resilio"
+    "sublinkpro"
+    "tranquil-pds"
+    "vaults3"
+    "bepasty-server-pb.zhyi.xin-gunicorn"
+    "email-oauth2-proxy"
+    "gitea-runner-default"
+    "lemmy"
+    "mosquitto"
+    "ws-scrcpy"
+    "resin"
+    "hubproxy"
+    "lsky-pro-mysql-relay"
+    "navdash"
+    "n8n-openai-bridge"
+    "pict-rs"
+    "tg-bot-cleaner-bot"
+    "yggdrasil-alfis"
+    "clash-verge"
+    "leigod-daemon"
+    "leigod-upgrade-monitor"
+    "zpool-trim"
+  ];
+
+  isCoreService = n: lib.hasPrefix "systemd" n || builtins.elem n coreServiceNames;
+
+  exempt =
+    n: v:
+    builtins.elem n ignored
+    # Template definitions are hardening-independent; instances are checked by
+    # name in ensure-service-restart.nix
+    || lib.hasInfix "@" n
+    # Disabled services
+    || !(v.enable or true)
+    # Services without ExecStart may be managed externally
+    || ((v.serviceConfig.ExecStart or "") == "")
+    # Oneshot and dbus-activated services
+    || (builtins.elem (v.serviceConfig.Type or "") [
+      "oneshot"
+      "dbus"
+    ])
+    # Podman containers
+    || lib.hasPrefix "podman-" n
+    # Core system services
+    || isCoreService n;
+
+  # builtins.hasAttr instead of the `?` operator: on Nix 2.35, `set ? var`
+  # with a variable key always returns false (broken dynamic attrpath check),
+  # which would flag fully hardened services as missing everything
+  missingKeys = n: v: lib.filter (k: !builtins.hasAttr k v.serviceConfig) requiredKeys;
+in
+{
+  # 1. Every eligible service must set all keys from LT.serviceHarden
+  # 2. Every eligible service must run inside a confinement chroot
+  #    (systemd.services.<name>.confinement)
+  assertions =
+    lib.mapAttrsToList (
+      n: v:
+      let
+        missing = missingKeys n v;
+      in
+      {
+        assertion = exempt n v || missing == [ ];
+        message = "${n} is missing systemd service hardening options (LT.serviceHarden): ${lib.concatStringsSep ", " missing}";
+      }
+    ) config.systemd.services
+    ++ lib.mapAttrsToList (
+      n: v:
+      let
+        # Services already chrooted outside of the confinement module count too:
+        # upstream endlessh sets RootDirectory itself
+        confined = (v.confinement.enable or false) || (v.serviceConfig.RootDirectory or null) != null;
+      in
+      {
+        assertion = exempt n v || builtins.elem n confinementIgnored || confined;
+        message = "${n} must enable systemd.services.<name>.confinement (RootDirectory+BindPaths whitelist); bind any needed state/socket paths inside the chroot";
+      }
+    ) config.systemd.services;
+}

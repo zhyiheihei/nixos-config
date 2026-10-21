@@ -12,11 +12,12 @@ let
     HostKeyAlgorithms ssh-ed25519
     KexAlgorithms mlkem768x25519-sha256,sntrup761x25519-sha512,sntrup761x25519-sha512@openssh.com
     Ciphers aes256-gcm@openssh.com
-    PubkeyAcceptedAlgorithms ssh-ed25519
+    PubkeyAcceptedAlgorithms ssh-ed25519,sk-ssh-ed25519@openssh.com
   '';
 in
 {
   sops.secrets.sftp-privkey.sopsFile = inputs.secrets + "/common/sftp.yaml";
+  sops.secrets.rsync-internal-key.sopsFile = inputs.secrets + "/common/rsync-internal.yaml";
 
   # Keep compatibility with PVE which expect SSH keys in standard location
   lantian.preservation.files = [
@@ -127,6 +128,12 @@ in
       HostName opi5p.ltnet.zhyi.xin
       User sftp
       IdentityFile ${config.sops.secrets.sftp-privkey.path}
+      ${ltnetSSHConfig}
+
+    Host rsync-internal
+      HostName greencloud.ltnet.zhyi.xin
+      User rsync-internal
+      IdentityFile ${config.sops.secrets.rsync-internal-key.path}
       ${ltnetSSHConfig}
 
     Host git.zhyi.xin

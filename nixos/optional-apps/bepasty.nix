@@ -42,7 +42,7 @@ in
       };
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 

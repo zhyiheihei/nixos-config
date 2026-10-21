@@ -19,7 +19,7 @@
     ../../nixos/optional-apps/byparr.nix
     ../../nixos/optional-apps/clash-verge.nix
     # ../../nixos/optional-apps/clamav.nix
-    ../../nixos/optional-apps/homepage.nix
+    # ../../nixos/optional-apps/homepage.nix
     ../../nixos/optional-apps/libvirt
     ../../nixos/optional-apps/llama-cpp.nix
     ../../nixos/optional-apps/llama-swap.nix
@@ -41,7 +41,7 @@
     # - Sunshine：Moonlight 串流服务端。
     # - ncps-client：局域网二进制缓存代理接入。
     # Hydra CI 已于 2026-09-17 迁往 opi5p（构建拓扑见 docs/agent/hydra-build-chain.md）。
-    ../../nixos/optional-apps/sunshine.nix
+    # ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/client-apps/zcode.nix
     # ../../nixos/optional-apps/leigod-accelerator.nix

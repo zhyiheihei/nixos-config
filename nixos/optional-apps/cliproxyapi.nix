@@ -34,6 +34,7 @@ in
       Group = "cliproxyapi";
     };
   };
+  lantian.harden.cliproxyapi = true;
 
   users.users.cliproxyapi = {
     group = "cliproxyapi";
@@ -57,7 +58,8 @@ in
         };
       };
 
-      sslCertificate = "zerossl-zhyi.xin";
+      accessibleBy = "private";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
     "cliproxyapi.zhyi.xin" = {
@@ -71,7 +73,7 @@ in
       };
 
       accessibleBy = "private";
-      sslCertificate = "zerossl-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
   };

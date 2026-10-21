@@ -99,12 +99,19 @@ in
   # must not replace upstream scalar settings with competing definitions.
   systemd.services.loki.serviceConfig = LT.serviceHarden // {
     RestartSec = "5s";
-    ReadWritePaths = [ dataDir ];
     Group = config.services.loki.group;
     RuntimeDirectory = "loki";
     RuntimeDirectoryMode = "0770";
     UMask = "0007";
+    # chroot's tmpfs root is ephemeral; bind host state dir and socket
+    # (read and proxied by nginx through its group membership)
+    BindPaths = [
+      "/var/lib/loki"
+      "/run/loki"
+    ];
   };
+
+  lantian.harden.loki = true;
 
   users.groups.${config.services.loki.group}.members = [ config.services.nginx.user ];
   systemd.services.nginx.serviceConfig.SupplementaryGroups = [ config.services.loki.group ];
@@ -117,9 +124,6 @@ in
     };
     listenHTTPS.enable = false;
     accessibleBy = "private";
-    extraConfig = ''
-      access_log off;
-    '';
     locations = lib.genAttrs [
       "= /loki/api/v1/push"
       "= /api/prom/push"
@@ -148,15 +152,5 @@ in
     ] (_: proxyLocation);
   };
 
-  # Loki has no authentication: accept its private endpoint only through the
-  # LTnet mesh, the existing ZeroTier fallback, or local loopback traffic.
-  lantian.firewall.chains.FILTER_INPUT.rules = [
-    {
-      priority = LT.firewallPriorities.preService;
-      text = ''
-        ip daddr ${LT.this.ltnet.IPv4} tcp dport ${LT.portStr.Loki} ip saddr != 198.18.0.0/24 reject with tcp reset
-        ip daddr ${LT.this.ltnet.IPv4} tcp dport ${LT.portStr.Loki} iifname != "lo" iifname != "wgmesh*" iifname != "ztje7axwd2" reject with tcp reset
-      '';
-    }
-  ];
+  lantian.firewall.presets.public-firewall.firewalledPorts = [ LT.port.Loki ];
 }

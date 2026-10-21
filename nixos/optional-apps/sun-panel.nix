@@ -44,7 +44,7 @@
           };
         };
 
-        sslCertificate = "zerossl-zhyi.xin";
+        sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
       "index-helper.zhyi.xin" = {
@@ -54,7 +54,7 @@
           };
         };
 
-        sslCertificate = "zerossl-zhyi.xin";
+        sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
       "sun-panel.localhost" = {

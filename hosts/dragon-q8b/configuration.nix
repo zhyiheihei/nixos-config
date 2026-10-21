@@ -15,11 +15,28 @@
     ../../nixos/optional-apps/kubo.nix
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/picoclaw.nix
+    ../../nixos/optional-apps/redroid-gapps-image.nix
     ../../nixos/optional-apps/redroid.nix
   ];
 
   # 摘除 server 标签后 backup 默认关闭，显式启用（同 ml-laptop 惯例）。
   lantian.backup.enable = true;
+
+  # 官方 redroid 镜像无 GMS，用 MindTheGapps 13 arm64 官方包叠加出本地镜像。
+  lantian.redroidGappsImage = {
+    enable = true;
+    mtgZip = pkgs.fetchurl {
+      url = "https://github.com/MindTheGapps/13.0.0-arm64/releases/download/MindTheGapps-13.0.0-arm64-20231025_200931/MindTheGapps-13.0.0-arm64-20231025_200931.zip";
+      hash = "sha256-P/LtqnVAbrQhRAL8ppBtS0E6tQr9sa8DPZ45aZIzjQs=";
+    };
+  };
+  # MTG 附带的 GMS setup wizard 不适合 headless 容器（redroid-doc GApps 章节）。
+  virtualisation.oci-containers.containers.redroid.cmd = [ "ro.setupwizard.mode=DISABLED" ];
+
+  # 镜像构建服务缺基础镜像时需要拉网，代理注入对齐 redroid 容器服务自身。
+  systemd.services.redroid-gapps-image.environment = LT.proxyEnvironment // {
+    NO_PROXY = "${LT.proxyBypass},docker.m.daocloud.io";
+  };
 
   boot.loader.grub.enable = lib.mkForce false;
   boot.loader.systemd-boot.enable = true;
@@ -27,7 +44,7 @@
 
   # nomodeset 会让 msm DRM 拒绝 probe（adev bind failed -19），且 kernelParams
   # 只能追加、mkForce 重列会顶掉模块级参数，故 disabledModules 整块禁用。
-  disabledModules = [ ../../nixos/server-components/boot-params.nix ];
+  disabledModules = [ ../../nixos/minimal-components/boot-params.nix ];
 
   boot.kernelParams = [
     "clk_ignore_unused"

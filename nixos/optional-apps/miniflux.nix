@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  LT,
   ...
 }:
 {
@@ -40,17 +41,21 @@
       };
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 
-  systemd.services.miniflux.serviceConfig = {
+  systemd.services.miniflux.partOf = [ "postgresql.service" ];
+  systemd.services.miniflux.serviceConfig = LT.serviceHarden // {
     DynamicUser = lib.mkForce false;
     RuntimeDirectoryMode = lib.mkForce "0770";
     UMask = lib.mkForce "0007";
     User = "miniflux";
     Group = "miniflux";
+    BindReadOnlyPaths = [ "/run/postgresql" ];
   };
+  lantian.harden.miniflux = true;
 
   users.users.miniflux = {
     group = "miniflux";

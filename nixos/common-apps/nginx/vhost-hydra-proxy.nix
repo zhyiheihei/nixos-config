@@ -21,7 +21,7 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
 
       blockDotfiles = false;
       enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
   };

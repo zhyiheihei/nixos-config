@@ -1,23 +1,13 @@
 {
-  pkgs,
   lib,
   LT,
   config,
-  inputs,
   ...
 }@args:
 let
   osConfig = config;
 
   inherit (import ./helpers.nix args) fastcgiParams;
-
-  htpasswdFile =
-    let
-      glauthUsers = import (inputs.secrets + "/glauth-users.nix");
-    in
-    pkgs.writeText "htpasswd" ''
-      zhyi:${glauthUsers.zhyi.passBcrypt}
-    '';
 in
 { config, ... }:
 let
@@ -47,7 +37,7 @@ let
       '')
       + (lib.optionalString config.enableBasicAuth ''
         auth_basic "Restricted";
-        auth_basic_user_file ${htpasswdFile};
+        auth_basic_user_file /etc/nginx/htpasswd;
         proxy_set_header X-User $remote_user;
         proxy_set_header X-Remote-User $remote_user;
       '')

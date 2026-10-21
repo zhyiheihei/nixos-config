@@ -69,7 +69,7 @@ let
         "asf.zhyi.xin"
         "openlist.zhyi.xin"
       ]) { enableOAuth = true; };
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 in

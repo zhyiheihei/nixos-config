@@ -99,7 +99,7 @@ in
         };
 
         accessibleBy = "private";
-        sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
+        sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
         noIndex.enable = true;
       };
       "seedbox.localhost" = {

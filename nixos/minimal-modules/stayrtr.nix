@@ -116,6 +116,7 @@ let
           RestartSec = "3";
           User = cfg.user;
           Group = cfg.group;
+          BindReadOnlyPaths = [ "/nix/sync-servers" ];
         };
       }
     );
@@ -136,6 +137,9 @@ in
     })
     {
       systemd.services = lib.mapAttrs' mkInstance config.services.stayrtr;
+      lantian.harden = lib.mapAttrs' (
+        n: v: lib.nameValuePair "stayrtr-${n}" true
+      ) config.services.stayrtr;
     }
   ];
 }

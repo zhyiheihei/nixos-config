@@ -2,10 +2,11 @@
   pkgs,
   lib,
   config,
+  inputs,
   ...
 }:
 let
-  luaPackage = pkgs.callPackage ./lua { };
+  unixHashedPassword = import (inputs.secrets + "/user-hashed-password.nix");
 
   nginxSslConf =
     isStream:
@@ -59,7 +60,9 @@ in
   services.nginx = rec {
     enable = true;
     enableReload = true;
-    package = pkgs.nur-xddxdd.lantianCustomized.nginx;
+    package = pkgs.nur-xddxdd.lantianCustomized.nginx.overrideAttrs (old: {
+      patches = old.patches ++ [ ../../../patches/nginx-ktls-lingering-close.patch ];
+    });
     enableQuicBPF = false;
     proxyResolveWhileRunning = true;
     proxyTimeout = "1h";
@@ -100,7 +103,6 @@ in
                       '$status $body_bytes_sent "$http_referer" "$http_user_agent" '
                       'JA4=$http_ssl_ja4 JA4H=$http_ssl_ja4h JA4ONE=$http_ssl_ja4one';
       access_log syslog:server=unix:/dev/log,nohostname main if=$is_not_healthcheck_user_agent;
-      more_set_headers "Server: zhyi/${config.networking.hostName}";
 
       # set to aio on; for io_uring support
       aio on;
@@ -185,8 +187,6 @@ in
       server_name_in_redirect off;
 
       charset utf-8;
-
-      lua_package_path '${luaPackage}/?.lua;;';
     ''
     + lib.optionalString config.lantian.geoip.enable ''
       geoip2 /etc/geoip/GeoLite2-City.mmdb {
@@ -216,8 +216,6 @@ in
 
       ssl_protocols ${sslProtocols};
       ${nginxSslConf true}
-
-      lua_package_path '${luaPackage}/?.lua;;';
     '';
   };
 
@@ -226,11 +224,62 @@ in
       inherit (config.environment.variables) OPENSSL_CONF;
     };
     serviceConfig = {
-      # Workaround Lua crash
-      MemoryDenyWriteExecute = lib.mkForce false;
+      # Nginx binds privileged ports 80/443
+      PrivateUsers = false;
+      # chroot's tmpfs root is ephemeral; bind sockets and cache/logs through.
+      # BindReadOnlyPaths first, then BindPaths override at these paths.
+      BindReadOnlyPaths = [
+        # App unix sockets (nginx only connects; FS permissions still apply)
+        "/run"
+        # Config: /etc/nginx/* are symlinks to /etc/static, whose store target
+        # is not in the unit closure, so bind the real store files instead
+        "${config.environment.etc."nginx/nginx.conf".source}:/etc/nginx/nginx.conf"
+        "${config.environment.etc."nginx/htpasswd".source}:/etc/nginx/htpasswd"
+        # ACME certs
+        "/nix/sync-servers/acme"
+      ]
+      ++ lib.optionals config.lantian.geoip.enable [
+        "${config.environment.etc."geoip".source}:/etc/geoip"
+      ];
+      SystemCallErrorNumber = "EPERM";
       SystemCallFilter = lib.mkForce [ ];
       LimitMEMLOCK = "infinity";
       LimitNOFILE = "1048576";
     };
   };
+  lantian.harden.nginx = true;
+
+  # The synchronous helper must outlive nginx's 90s reload deadline; under
+  # deployment I/O pressure a successful reload exceeded its upstream 60s limit.
+  systemd.services.nginx-config-reload.serviceConfig.TimeoutStartSec = "120s";
+
+  environment.etc."nginx/htpasswd".text = ''
+    lantian:${unixHashedPassword}
+  '';
+
+  systemd.packages = [
+    (pkgs.writeTextFile {
+      name = "nginx-confinement";
+      destination = "/lib/systemd/system/nginx.service.d/nginx-root.conf";
+      text = builtins.concatStringsSep "\n" (
+        [ "[Service]" ]
+        ++ builtins.map (n: "BindReadOnlyPaths=${n}") (
+          builtins.filter (v: v != null) (
+            lib.unique (
+              lib.flatten (
+                lib.mapAttrsToList (
+                  _: v:
+                  [ v.root ]
+                  ++ lib.mapAttrsToList (_: v: [
+                    v.root
+                    v.alias
+                  ]) v.locations
+                ) config.lantian.nginxVhosts
+              )
+            )
+          )
+        )
+      );
+    })
+  ];
 }

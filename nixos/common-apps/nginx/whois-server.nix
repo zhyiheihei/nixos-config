@@ -1,10 +1,10 @@
 {
   config,
   lib,
-  LT,
   ...
 }:
-lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
+# FIXME: refactor without lua
+lib.mkIf false {
   lantian.nginxVhosts = {
     "whois.zhyi.xin" = {
       listenHTTP.enable = true;
@@ -40,7 +40,7 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
         '';
       };
 
-      sslCertificate = "zerossl-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.xin";
     };
 
     "stage1.whois.local" = {

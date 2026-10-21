@@ -112,7 +112,7 @@
 
   lantian.nginxVhosts."cloud.zhyi.xin" = {
     # Nextcloud sends "X-Robots-Tag: none" itself, no need for noIndex
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     enableCommonLocationOptions = false;
     enableCommonVhostOptions = false;
   };

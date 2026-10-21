@@ -11,11 +11,6 @@
     ../../nixos/hardware/smart.nix
     ../../nixos/pve.nix
 
-    # Pull /nix/sync-servers (ACME certs + ltnet-scripts data) from the
-    # greencloud primary so pveproxy can serve the fleet-synced Let's Encrypt
-    # certificate. pve.nix alone does not include minimal-apps.
-    ../../nixos/minimal-apps/rsync-server.nix
-
     ../../nixos/optional-apps/ncps-client.nix
 
     ./enable-smart.nix

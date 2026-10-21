@@ -91,3 +91,26 @@ nixos/optional-apps/attic.nix # fork：attic 用 nur-xddxdd.lantianCustomized.at
 overlays/52-old-packages.nix # fork：linphone 系取自 nixpkgs-multiverse 26.05（nixpkgs 无此包，来源替代）；zerotierone 1.14.2 钉版撤销（2026-10-16 复核：当年「1.16 家宽↔VPS v4 失效」主因是家宽 ISP 掐 wgmesh UDP＋wgmesh 接口 boot 竞态两故障叠加，非 ZT 本身；上游 exam 生产跑 1.16.0 正常），回 nixpkgs 1.16.0
 nixos/hardware/xilinx.nix # skip: 上游依赖作者 secrets 私有 hidden-module da4fbe694da377db，fork 不采纳
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
+nixos/minimal-components/environment.nix # fork：default-pw sops secret 定义（上游移入其私有 secrets 模块，本仓 secrets 无该模块）
+nixos/minimal-policies/ensure-service-harden.nix # fork：额外豁免本仓独有且无法 confinement 的服务（palworld/clash-verge/leigod/hydra/zpool-trim），上游启用集不含这些服务
+nixos/optional-apps/bepasty.nix # fork：gunicorn 服务补 confinement（上游未跑 bepasty）
+nixos/optional-apps/gitea-actions.nix # fork：runner 补 confinement（上游 CI runner 配置不同）
+nixos/optional-apps/imapfilter.nix # fork：lantian→zhyi 服务改名后补 confinement（上游未启用 imapfilter）
+nixos/optional-apps/lemmy.nix # fork：lemmy 补 confinement（上游未启用）
+nixos/optional-apps/librechat.nix # fork：librechat 补 confinement（上游未启用）
+nixos/optional-apps/mongodb.nix # fork：mongodb 补 confinement（上游未启用）
+nixos/optional-apps/n8n/default.nix # fork：n8n/n8n-task-runner 补 confinement（上游未启用）
+nixos/optional-apps/n8n/n8n-openai-bridge.nix # fork：bridge 补 confinement（上游未启用）
+nixos/optional-apps/pict-rs.nix # fork：pict-rs 补 confinement（上游未启用）
+nixos/optional-apps/qbittorrent-pt.nix # fork：PT 客户端补 confinement（上游无此服务）
+nixos/optional-apps/qbittorrent.nix # fork：qBittorrent 补 confinement（上游未启用）
+nixos/optional-apps/radicle.nix # fork：radicle-httpd/node 补 SystemCallErrorNumber + 节点别名 zhyi-*
+nixos/optional-apps/resin.nix # fork：resin 补 confinement（上游无此服务）
+nixos/optional-apps/searxng.nix # fork：uwsgi 补 confinement（上游未启用）
+nixos/optional-apps/tg-bot-cleaner-bot/default.nix # fork：补 confinement（上游未启用）
+nixos/optional-apps/tranquil-pds.nix # fork：补 confinement（上游未启用）
+nixos/optional-apps/yggdrasil-alfis.nix # fork：补 confinement（上游 yggdrasil 系已退役）
+nixos/optional-apps/glauth.nix # skip: fork 保留 glauth（pocket-id/lsky LDAP 登录链依赖，2026-09-14 起为现网事实；上游已移除该服务）
+nixos/common-apps/nginx/hosts.nix # fork 恢复：上游 cdd2c42ab 删除 vhost→本机 LTNET 的 /etc/hosts 映射，其环境靠自建权威 DNS split-horizon 兜底；本仓解析器只返回公网答案，删掉后 volcengine 上 dex 对 id.zhyi.xin 的 OIDC discovery 走 EIP hairpin 源地址不在 accessibleBy=private 白名单（444 断连），SSO 链全断。恢复以还原 dex/oauth2-proxy 自取发现端点的路径
+nixos/minimal-components/ssh-harden.nix # rsync-internal 客户端 HostName 指向 greencloud.ltnet.zhyi.xin（上游 colocrossing.ltnet.xuyh0120.win；本仓 rsync-internal 服务端落在 greencloud，与 hosts/greencloud 的 rsync-server-internal 配套）
+nixos/common-apps/nginx/default.nix # 多一行 ./hosts.nix 导入：上游 cdd2c42ab 删该模块后靠自建权威 DNS split-horizon 兜底，本仓解析只给公网答案，缺它 volcengine 的 dex 拉 id.zhyi.xin 发现端点会走 EIP hairpin 被 accessibleBy=private 的 444 断连（SSO 全断）

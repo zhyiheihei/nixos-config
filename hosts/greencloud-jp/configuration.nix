@@ -40,8 +40,8 @@ in
     # Syncthing 同步节点（自 greencloud 移交，机群常在线异地端）。
     ../../nixos/optional-apps/syncthing
 
-    # Attic 二进制缓存（S3 后端为本机 VaultS3，详见 docs/agent/attic-s3-cache.md）。
-    ./attic.nix
+    # atticd 按上游停用（服务下线，域名留给占位说明页）。
+    ../../nixos/optional-apps/attic-placeholder.nix
   ];
 
   # Syncthing 存储放 1T 数据盘（默认值在 40G 系统盘上放不下）。
@@ -125,19 +125,6 @@ in
     group = "vaults3";
   };
 
-  # atticd 专用 IAM key（vaults3-atticd），经第二个 EnvironmentFile 覆盖
-  # 默认 AWS_*（同名变量后者生效）。
-  sops.secrets.vaults3-atticd = {
-    sopsFile = inputs.secrets + "/common/attic.yaml";
-    owner = "atticd";
-    group = "atticd";
-  };
-
-  systemd.services.atticd.serviceConfig.EnvironmentFile = lib.mkForce [
-    config.sops.secrets.attic-credentials.path
-    config.sops.secrets.vaults3-atticd.path
-  ];
-
   systemd.tmpfiles.settings.vaults3 = {
     "/nix/persistent/var/lib/vaults3".d = {
       mode = "0700";
@@ -178,39 +165,6 @@ in
         "/nix/persistent/var/lib/vaults3"
       ];
     };
-  };
-
-  # nix-cache 桶不由 VaultS3 自动创建：幂等 oneshot 建桶（官方 S3 API、
-  # root 凭据），atticd 排在其后。
-  systemd.services.vaults3-init-nix-cache = {
-    description = "Ensure nix-cache bucket exists for atticd";
-    wantedBy = [ "multi-user.target" ];
-    after = [ "vaults3.service" ];
-    requires = [ "vaults3.service" ];
-    serviceConfig = LT.serviceHarden // {
-      Type = "oneshot";
-      RemainAfterExit = true;
-      DynamicUser = lib.mkForce false;
-      User = "vaults3";
-      Group = "vaults3";
-      EnvironmentFile = config.sops.templates.vaults3-credentials.path;
-      ExecStart = pkgs.writeShellScript "vaults3-init-nix-cache" ''
-        export PATH=${pkgs.awscli2}/bin:$PATH
-        # EnvironmentFile 里是 VaultS3 CLI 约定的 VAULTS3_* 变量名，
-        # awscli 需要 AWS_*：在此映射，凭据本身不变。
-        export AWS_ACCESS_KEY_ID="$VAULTS3_ACCESS_KEY"
-        export AWS_SECRET_ACCESS_KEY="$VAULTS3_SECRET_KEY"
-        export AWS_DEFAULT_REGION=us-east-1
-        if ! aws --endpoint-url http://127.0.0.1:9000 s3api head-bucket --bucket nix-cache >/dev/null 2>&1; then
-          aws --endpoint-url http://127.0.0.1:9000 s3api create-bucket --bucket nix-cache
-        fi
-      '';
-    };
-  };
-
-  systemd.services.atticd = {
-    after = [ "vaults3-init-nix-cache.service" ];
-    wants = [ "vaults3-init-nix-cache.service" ];
   };
 
   lantian.nginxVhosts."s3.zhyi.xin" = {

@@ -6,6 +6,7 @@
   ...
 }:
 let
+  userbornEnabled = config.services.userborn.enable && !config.services.userborn.static;
   mysqlenv-common = pkgs.buildEnv {
     name = "mysql-path-env-common";
     pathsToLink = [ "/bin" ];
@@ -77,22 +78,43 @@ in
     ];
   };
 
-  systemd.services.mysql = {
+  systemd.services.mysql = lib.mkIf config.services.mysql.enable {
     path = [
       config.services.mysql.package
       mysqlenv-common
       mysqlenv-rsync
     ];
-    restartIfChanged = false;
-    serviceConfig = {
+    # Rebind passwd/group after userborn atomically replaces their inodes.
+    restartIfChanged = lib.mkForce true;
+    restartTriggers = lib.optionals userbornEnabled config.systemd.services.userborn.restartTriggers;
+    after = lib.optional userbornEnabled "userborn.service";
+    serviceConfig = LT.serviceHarden // {
       Restart = lib.mkForce "on-failure";
       TimeoutStartSec = 300;
+      # Keep socket-directory inodes stable for confined clients across stop/start.
+      RuntimeDirectoryPreserve = "yes";
+      # chroot's tmpfs root is ephemeral; bind data dir and unix socket
+      # through; the socket is accessed by apps outside the chroot.
+      # Peer/auth uid resolution needs nss files
+      PrivateUsers = false;
+      BindPaths = [
+        "/var/lib/mysql"
+        "/run/mysqld"
+      ];
+      BindReadOnlyPaths = [
+        "${config.environment.etc."my.cnf".source}:/etc/my.cnf"
+        "/etc/passwd"
+        "/etc/group"
+      ];
     };
   };
+  lantian.harden.mysql = true;
 
   systemd.services.prometheus-mysqld-exporter = {
     description = "Prometheus MySQL Exporter";
     wantedBy = [ "multi-user.target" ];
+    wants = [ "mysql.service" ];
+    after = [ "mysql.service" ];
     serviceConfig =
       let
         myCnf = pkgs.writeText "my.cnf" ''
@@ -110,8 +132,11 @@ in
 
         User = "prometheus-mysqld-exporter";
         Group = "prometheus-mysqld-exporter";
+        # Connects to the mysqld unix socket
+        BindPaths = [ "/run/mysqld" ];
       };
   };
+  lantian.harden.prometheus-mysqld-exporter = true;
 
   users.users.prometheus-mysqld-exporter = {
     group = "prometheus-mysqld-exporter";

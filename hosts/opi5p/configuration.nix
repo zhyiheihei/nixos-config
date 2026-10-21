@@ -205,7 +205,8 @@ in
     ../../nixos/optional-apps/food-dashboard.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
     ../../nixos/optional-apps/home-assistant.nix
-    ../../nixos/optional-apps/hydra
+    # ../../nixos/optional-apps/hydra # intentionally disabled by request
+    ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/i2pd.nix
     ../../nixos/optional-apps/ignis.nix
     ../../nixos/optional-apps/immich-rockchip.nix
@@ -271,8 +272,16 @@ in
       RuntimeDirectory = "v2ray";
       Restart = "always";
       RestartSec = 5;
+      # Secret is owned by the v2ray user; user namespace would unmap that uid
+      PrivateUsers = false;
+      BindReadOnlyPaths = [ "/run" ];
+    };
+    confinement = {
+      enable = true;
+      fullUnit = true;
     };
   };
+  lantian.harden.v2ray = true;
 
   users.users.v2ray = {
     group = "v2ray";
@@ -323,9 +332,7 @@ in
   # docs/agent/hydra-build-chain.md）。本机承接 aarch64 原生构建，单槽
   # max-jobs=1（生产节点保护，见文档 2026-08-02 事故记录）；x86 与
   # aarch64-cross 全部外派 ml-builder。
-  systemd.services.hydra-evaluator.environment = LT.proxyEnvironment;
   # gRPC builder 入口同样单槽（闸口在 builder.toml，daemon max-jobs拦不住 gRPC）。
-  services.hydra-builder.settings.maxJobs = 1;
   # qemu binfmt 关闭时 minimal-components 不设 extra-platforms，而
   # nix-distributed 生成 machines-with-localhost 时强制读取该属性；本机
   # 纯 aarch64 原生构建，显式置空。
@@ -434,8 +441,6 @@ in
     ];
   };
   networking.networkmanager.enable = lib.mkForce false;
-
-
 
   # `boot.supportedFilesystems` loads the kernel client, while nfs-utils
   # supplies mount.nfs.  Keep both host-local: this board reads the NAS

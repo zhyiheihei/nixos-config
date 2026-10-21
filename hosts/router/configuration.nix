@@ -428,6 +428,12 @@ in
       Type = "simple";
       User = "vaults3";
       Group = "vaults3";
+      PrivateUsers = false;
+      BindPaths = [
+        "/mnt/storage/vaults3-data"
+        "/nix/persistent/var/lib/vaults3"
+      ];
+      BindReadOnlyPaths = [ config.sops.templates.vaults3-credentials.path ];
       EnvironmentFile = config.sops.templates.vaults3-credentials.path;
       ExecStart = "${vaults3Pkg}/bin/vaults3 -config ${vaults3Config}";
       Restart = "on-failure";
@@ -438,6 +444,8 @@ in
       ];
     };
   };
+
+  lantian.harden.vaults3 = true;
 
   ########################################
   # qBittorrent
@@ -488,7 +496,14 @@ in
       "var-lib.mount"
       "mnt-storage.mount"
     ];
-    serviceConfig.BindPaths = [ unifiedDownloadPath ];
+    serviceConfig = LT.serviceHarden // {
+      StateDirectory = "qbittorrent";
+      BindPaths = [ unifiedDownloadPath ];
+    };
+    confinement = {
+      enable = true;
+      fullUnit = true;
+    };
     preStart = lib.mkAfter qbitPreStart;
   };
 
@@ -506,7 +521,14 @@ in
       "var-lib.mount"
       "mnt-storage.mount"
     ];
-    serviceConfig.BindPaths = [ unifiedDownloadPath ];
+    serviceConfig = LT.serviceHarden // {
+      StateDirectory = "qbittorrent-pt";
+      BindPaths = [ unifiedDownloadPath ];
+    };
+    confinement = {
+      enable = true;
+      fullUnit = true;
+    };
     preStart = lib.mkAfter qbitPreStartPT;
   };
 

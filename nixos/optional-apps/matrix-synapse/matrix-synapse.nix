@@ -2,19 +2,10 @@
   lib,
   LT,
   config,
-  inputs,
   ...
 }:
-let
-  glauthUsers = import (inputs.secrets + "/glauth-users.nix");
-in
 {
   imports = [ ../postgresql.nix ];
-
-  sops.secrets.glauth-bindpw = {
-    sopsFile = inputs.secrets + "/common/glauth.yaml";
-    mode = "0444";
-  };
 
   services.matrix-synapse = {
     enable = true;
@@ -25,7 +16,6 @@ in
 
     plugins = with config.services.matrix-synapse.package.plugins; [
       matrix-http-rendezvous-synapse
-      matrix-synapse-ldap3
       matrix-synapse-mjolnir-antispam
     ];
 
@@ -80,7 +70,7 @@ in
         ++ LT.constants.dn42.IPv6
         ++ LT.constants.neonetwork.IPv4
         ++ LT.constants.neonetwork.IPv6;
-      admin_contact = glauthUsers.zhyi.mail;
+      admin_contact = "lantian@zhyi.xin";
 
       forgotten_room_retention_period = "7d";
 
@@ -111,22 +101,6 @@ in
         {
           module = "matrix_http_rendezvous_synapse.SynapseRendezvousModule";
           config.prefix = "/_synapse/client/org.matrix.msc3886/rendezvous";
-        }
-        {
-          module = "ldap_auth_provider.LdapAuthProviderModule";
-          config = {
-            enabled = true;
-            uri = "ldap://[fdd8:1938:4e88:3712::389]:${LT.portStr.LDAP}";
-            base = "dc=zhyi,dc=xin";
-            attributes = {
-              uid = "cn";
-              mail = "mail";
-              name = "givenName";
-            };
-          };
-          bind_dn = "cn=serviceuser,dc=zhyi,dc=xin";
-          bind_password_file = config.sops.secrets.glauth-bindpw.path;
-          filter = "(&(objectClass=posixAccount)(!(ou=svcaccts)))";
         }
         {
           module = "mjolnir.Module";
@@ -230,29 +204,45 @@ in
 
   users.groups.matrix-synapse.members = [ "nginx" ];
 
-  systemd.services = {
-    matrix-synapse = {
-      environment = {
-        SYNAPSE_ASYNC_IO_REACTOR = "1";
-      };
-      serviceConfig = LT.serviceHarden // {
+  systemd.services =
+    let
+      args = LT.serviceHarden // {
         RestartSec = "5s";
         MemoryDenyWriteExecute = false;
         StateDirectory = "matrix-synapse";
         RuntimeDirectory = "matrix-synapse";
-        RuntimeDirectoryPreserve = lib.mkForce false;
+        RuntimeDirectoryPreserve = lib.mkForce true;
+        BindReadOnlyPaths = [
+          "/run/postgresql"
+          "/run/redis-matrix-synapse"
+        ];
       };
-    };
-    redis-matrix-synapse.serviceConfig = {
-      Restart = "always";
-      RestartSec = 5;
-    };
+    in
+    {
+      matrix-synapse = {
+        after = [ "postgresql.target" ];
+        environment = {
+          SYNAPSE_ASYNC_IO_REACTOR = "1";
+        };
+        serviceConfig = args;
+      };
+      redis-matrix-synapse.serviceConfig = {
+        Restart = "always";
+        RestartSec = 5;
+      };
+    }
+    // (lib.mapAttrs' (
+      n: _:
+      lib.nameValuePair "matrix-synapse-worker-${n}" {
+        serviceConfig = args;
+      }
+    ) config.services.matrix-synapse.workers);
+
+  lantian.harden = {
+    matrix-synapse = true;
   }
   // (lib.mapAttrs' (
-    n: _:
-    lib.nameValuePair "matrix-synapse-worker-${n}" {
-      serviceConfig.RestartSec = "5s";
-    }
+    n: _: lib.nameValuePair "matrix-synapse-worker-${n}" true
   ) config.services.matrix-synapse.workers);
 
   services.postgresql = {
@@ -280,7 +270,7 @@ in
       };
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 
@@ -310,7 +300,7 @@ in
       };
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 

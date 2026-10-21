@@ -57,7 +57,8 @@ in
       };
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-zhyi.xin";
   };
 
   systemd.services = {
@@ -74,6 +75,7 @@ in
       };
     };
     plausible = netns.bind {
+      partOf = [ "postgresql.service" ];
       environment = {
         LOG_LEVEL = "warning";
         RELEASE_DISTRIBUTION = "none";
@@ -100,9 +102,14 @@ in
         StateDirectory = lib.mkForce "plausible";
         RuntimeDirectory = "plausible";
         WorkingDirectory = lib.mkForce "/run/plausible";
+        BindReadOnlyPaths = [
+          "/etc/geoip"
+          "/run/postgresql"
+        ];
       };
     };
   };
+  lantian.harden.plausible = true;
 
   users.users.plausible = {
     group = "plausible";

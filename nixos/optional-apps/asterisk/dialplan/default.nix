@@ -60,7 +60,7 @@ in
 {
   lantian.nginxVhosts."sip.zhyi.xin" = {
     root = dialPlanDir;
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

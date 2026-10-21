@@ -44,6 +44,11 @@ let
       RuntimeDirectory = "bitmagnet";
       StateDirectory = "bitmagnet";
       WorkingDirectory = "/var/lib/bitmagnet";
+      BindPaths = [
+        "/var/lib/bitmagnet"
+        "/run/bitmagnet"
+        "/run/postgresql"
+      ];
 
       User = "bitmagnet";
       Group = "bitmagnet";
@@ -57,6 +62,12 @@ in
     sopsFile = inputs.secrets + "/tmdb.yaml";
     owner = "bitmagnet";
     group = "bitmagnet";
+  };
+
+  lantian.harden = {
+    bitmagnet-http = true;
+    bitmagnet-queue = true;
+    bitmagnet-dht = true;
   };
 
   systemd.services.bitmagnet-http = mkBitmagnetService "http_server";

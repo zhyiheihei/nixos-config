@@ -94,7 +94,7 @@ in
   lantian.nginxVhosts = {
     "zhyi.xin" = addConfLantianPub {
       serverAliases = [ "${config.networking.hostName}.zhyi.xin" ];
-      sslCertificate = "zerossl-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.xin";
     };
     "zhyi.dn42" = addConfLantianPub {
       listenHTTP.enable = true;
@@ -105,7 +105,7 @@ in
     "www.zhyi.xin" = {
       locations."/".return = "307 https://zhyi.xin$request_uri";
       enableCommonLocationOptions = false;
-      sslCertificate = "zerossl-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.xin";
     };
     # lab.zhyi.xin 在上游重定向到 lab.zhyi.xin（跨域到正牌 lab 站）；
     # 域名统一并入 zhyi.xin 后跨域重定向退化为自跳（G1 死链），而真实的
@@ -139,7 +139,7 @@ in
       enableCommonLocationOptions = false;
       noIndex.enable = true;
 
-      sslCertificate = "zerossl-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.xin";
 
       extraConfig = ''
         error_page 404 /404.gopher;
@@ -165,7 +165,7 @@ in
       enableCommonLocationOptions = false;
       noIndex.enable = true;
 
-      sslCertificate = "zerossl-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.xin";
 
       extraConfig = ''
         error_page 404 /404.gopher;

@@ -29,4 +29,5 @@
       DynamicUser = true;
     };
   };
+  lantian.harden.vlmcsd = true;
 }

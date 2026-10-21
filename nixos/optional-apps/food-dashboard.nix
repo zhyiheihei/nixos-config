@@ -7,4 +7,10 @@
 }:
 {
   imports = [ inputs.zhyi-packages.nixosModules.food-dashboard ];
+
+  systemd.services.epd-food-server.serviceConfig = {
+    PrivateUsers = false;
+    BindPaths = [ "/var/lib/epd_dashboard" ];
+  };
+  lantian.harden.epd-food-server = true;
 }

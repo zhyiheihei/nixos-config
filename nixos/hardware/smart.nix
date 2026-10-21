@@ -8,5 +8,11 @@
     port = LT.port.Prometheus.SmartctlExporter;
   };
 
-  systemd.services."prometheus-smartctl-exporter".serviceConfig.RestartSec = "5s";
+  systemd.services."prometheus-smartctl-exporter".serviceConfig = LT.serviceHarden // {
+    RestartSec = "5s";
+    # Reads SMART data via device ioctls
+    PrivateUsers = false;
+    PrivateDevices = false;
+  };
+  lantian.harden."prometheus-smartctl-exporter" = true;
 }

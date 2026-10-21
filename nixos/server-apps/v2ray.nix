@@ -139,6 +139,13 @@ lib.mkIf (LT.this.hasTag LT.tags.cn-accel) {
       RuntimeDirectory = "v2ray";
       Restart = "always";
       RestartSec = 5;
+      # Secret is owned by the nginx user; user namespace would unmap that uid
+      PrivateUsers = false;
+      # FIXME: hardening to access secrets without direct access
+      BindReadOnlyPaths = [
+        "/run"
+      ];
     };
   };
+  lantian.harden.v2ray = true;
 }

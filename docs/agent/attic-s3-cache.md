@@ -1,4 +1,11 @@
-# 私有 Attic + S3 缓存架构
+# 私有 Attic + S3 缓存架构（2026-10-21 起已停用）
+
+> **本文描述的自建缓存已按上游停用**：`hosts/greencloud-jp/attic.nix`（atticd +
+> VaultS3 `nix-cache` 桶）已删除，`helpers/constants/nix.nix` 不再把
+> `attic.zhyi.xin` 列进 substituters，`attic.zhyi.xin` 现由上游
+> `optional-apps/attic-placeholder.nix` 返回 503 说明页（与上游 colocrossing
+> 一致）。构建缓存由 ncps（dragon-q8b）承担。下文保留为恢复自建缓存时的参考。
+
 
 当前缓存名、公开端点与公钥只以
 [`helpers/constants/nix.nix`](../../helpers/constants/nix.nix) 为准。不要在文档、Shell

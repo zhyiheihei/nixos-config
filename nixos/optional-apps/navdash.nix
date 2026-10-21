@@ -99,7 +99,6 @@ let
     "alert.zhyi.xin" = "Prometheus_B";
     "api.zhyi.xin" = "Nginx_A";
     "asf.zhyi.xin" = "Steam_A";
-    "attic.zhyi.xin" = "Attic_A";
     "books.zhyi.xin" = "Calibre--电子书管理--qdnas-s";
     "fastapi-dls.rock5c.zhyi.xin" = "Python--Python--python.org";
     "google-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
@@ -172,7 +171,6 @@ let
     "dsh.zhyi.xin" = "效率工具";
     # 公开 · 基础设施与运维
     "hydra.zhyi.xin" = "基础设施与运维";
-    "attic.zhyi.xin" = "基础设施与运维";
     "git.zhyi.xin" = "基础设施与运维";
     "netbox.zhyi.xin" = "基础设施与运维";
     "dashboard.zhyi.xin" = "基础设施与运维";

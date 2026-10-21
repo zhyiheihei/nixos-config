@@ -16,7 +16,6 @@ let
   path = lib.makeBinPath [
     pkgs.gitMinimal
     pkgs.jq
-    pkgs.attic-client
   ];
 in
 {
@@ -24,18 +23,6 @@ in
     ../nix-distributed.nix
     ../postgresql.nix
   ];
-
-  sops.secrets.attic-upload-key = {
-    sopsFile = inputs.secrets + "/common/attic.yaml";
-    mode = "0444";
-  };
-  # Read by hydra-server at startup, so it must be readable by the hydra user
-  sops.secrets.dex-hydra-secret = {
-    sopsFile = inputs.secrets + "/common/dex.yaml";
-    mode = "0440";
-    owner = "hydra";
-    group = "hydra";
-  };
 
   sops.secrets.hydra-ssh-privkey = {
     sopsFile = inputs.secrets + "/hydra.yaml";
@@ -161,41 +148,9 @@ in
   systemd.services.hydra-server.serviceConfig.RestartSec = "5s";
   systemd.services.hydra-evaluator.serviceConfig.RestartSec = "5s";
 
-  systemd.services.hydra-notify = {
-    preStart = ''
-      if [ ! -f "$HOME/.config/attic/config.toml" ]; then
-        ${lib.getExe pkgs.attic-client} login --set-default ${LT.nix.attic.cacheName} \
-          https://attic.zhyi.xin \
-          $(cat ${config.sops.secrets.attic-upload-key.path})
-      fi
-    '';
-  };
-
   systemd.services.hydra-queue-runner.serviceConfig = {
     OOMScoreAdjust = "1000";
   };
   systemd.services.hydra-evaluator.environment.GIT_SSH_COMMAND =
     "${lib.getExe pkgs.openssh} -i ${config.sops.secrets.hydra-ssh-privkey.path} -o IdentitiesOnly=yes";
-
-  systemd.services.hydra-attic-repush = {
-    script = ''
-      (for F in /nix/var/nix/gcroots/hydra/*; do
-        echo "/nix/store/$(basename "$F")"
-      done) | xargs -n10 ${lib.getExe pkgs.attic-client} push ${LT.nix.attic.cacheName} || true
-    '';
-    serviceConfig = LT.serviceHarden // {
-      Type = "oneshot";
-      User = "hydra-queue-runner";
-      Group = "hydra";
-    };
-  };
-
-  systemd.timers.hydra-attic-repush = {
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnCalendar = "hourly";
-      Persistent = true;
-      RandomizedDelaySec = "1h";
-    };
-  };
 }

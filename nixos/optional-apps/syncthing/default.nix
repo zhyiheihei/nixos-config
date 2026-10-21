@@ -53,13 +53,23 @@
 
     environment.systemPackages = [ config.services.syncthing.package ];
 
+    # Keep off the public internet; OAuth already required
+    # (accessibleBy defaults to private)
+
     systemd.services.syncthing = {
       unitConfig.RequiresMountsFor = map LT.escapeMountPath [
         config.lantian.syncthing.storage
         config.services.syncthing.dataDir
       ];
-      serviceConfig = {
+      serviceConfig = LT.serviceHarden // {
         RestartSec = "5s";
+        # Go uses netlink to enumerate interfaces for discovery and NAT traversal.
+        RestrictAddressFamilies = [
+          "AF_UNIX"
+          "AF_INET"
+          "AF_INET6"
+          "AF_NETLINK"
+        ];
         AmbientCapabilities = [
           "CAP_DAC_OVERRIDE"
           "CAP_FOWNER"
@@ -71,6 +81,8 @@
         ReadWritePaths = [ "/run/syncthing-files" ];
         RuntimeDirectory = "syncthing";
         StateDirectory = "syncthing";
+        # chroot's tmpfs root is ephemeral; bind the served data through
+        BindPaths = [ config.services.syncthing.dataDir ];
 
         ExecStartPre =
           let
@@ -78,9 +90,10 @@
               builtins.toJSON config.services.syncthing.settings
             );
           in
-          "${lib.getExe pkgs.python3} ${./update-config.py} ${settingsJSON} /var/lib/syncthing/config.xml";
+          "${lib.getExe pkgs.python3} ${./update-config.py} ${settingsJSON} /var/lib/syncthing/config.xml ${lib.getExe config.services.syncthing.package}";
       };
     };
+    lantian.harden.syncthing = true;
 
     # Replaced by custom config script
     systemd.services.syncthing-init.enable = lib.mkForce false;
@@ -96,7 +109,6 @@
     };
 
     lantian.localVhosts.syncthing = {
-      accessibleBy = "public";
       locations = {
         "/" = {
           enableOAuth = true;

@@ -2,6 +2,7 @@
   pkgs,
   lib,
   config,
+  LT,
   ...
 }:
 {
@@ -11,11 +12,31 @@
     natpmp = true;
   };
 
-  systemd.services.miniupnpd.serviceConfig = {
-    ExecStartPre = "${lib.getExe pkgs.bash} -x ${pkgs.miniupnpd}/etc/miniupnpd/iptables_init.sh -i ${config.services.miniupnpd.externalInterface}";
-    ExecStopPost = "${lib.getExe pkgs.bash} -x ${pkgs.miniupnpd}/etc/miniupnpd/iptables_removeall.sh -i ${config.services.miniupnpd.externalInterface}";
+  systemd.services.miniupnpd = {
+    serviceConfig = LT.networkToolHarden // {
+      # The NixOS module owns the nftables chains; legacy hooks are iptables-only.
+      ExecStartPre =
+        lib.mkIf (!config.networking.nftables.enable)
+          "${lib.getExe pkgs.bash} -x ${pkgs.miniupnpd}/etc/miniupnpd/iptables_init.sh -i ${config.services.miniupnpd.externalInterface}";
+      ExecStopPost =
+        lib.mkIf (!config.networking.nftables.enable)
+          "${lib.getExe pkgs.bash} -x ${pkgs.miniupnpd}/etc/miniupnpd/iptables_removeall.sh -i ${config.services.miniupnpd.externalInterface}";
 
-    Restart = "always";
-    RestartSec = "3";
+      ProtectKernelModules = false;
+      ProtectKernelTunables = false;
+      # nftables needs CAP_NET_ADMIN in the host network namespace.
+      PrivateUsers = false;
+      # Port-in-use checks and interface statistics read /proc/net.
+      ProcSubset = "all";
+
+      BindPaths = [
+        "/run"
+        "/var/run"
+      ];
+
+      Restart = "always";
+      RestartSec = "3";
+    };
   };
+  lantian.harden.miniupnpd = true;
 }

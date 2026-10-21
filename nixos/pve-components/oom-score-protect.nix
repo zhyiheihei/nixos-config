@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, LT, ... }:
 {
   systemd.services.oom-score-protect = {
     after = [ "pve-cluster.service" ];
@@ -16,9 +16,18 @@
       done
     '';
 
-    serviceConfig = {
+    serviceConfig = LT.serviceHarden // {
       Restart = "always";
       RestartSec = "3";
+      # Adjusts oom_score_adj of host-side QEMU processes
+      AmbientCapabilities = [ "CAP_SYS_RESOURCE" ];
+      CapabilityBoundingSet = [ "CAP_SYS_RESOURCE" ];
+      ProtectProc = "default";
+      ProcSubset = "all";
+      SystemCallFilter = [ ];
+      # Needs host capabilities and full host /proc view (sees QEMU PIDs),
+      # which a confinement chroot cannot provide
+      PrivateUsers = false;
     };
   };
 }

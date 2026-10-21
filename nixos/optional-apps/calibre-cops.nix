@@ -22,6 +22,11 @@ in
       (LT.escapeMountPath calibreLibrary)
     ];
     systemd.services.nginx.unitConfig.RequiresMountsFor = [ (LT.escapeMountPath calibreLibrary) ];
+    # nginx confinement: bind the calibre library read-only for the internal
+    # X-Accel alias
+    systemd.services.nginx.serviceConfig.BindReadOnlyPaths = [
+      (LT.escapeMountPath calibreLibrary)
+    ];
 
     services.phpfpm.pools.calibre-cops = {
       phpPackage = pkgs.php.withExtensions (
@@ -51,6 +56,8 @@ in
     lantian.nginxVhosts = {
       "books.zhyi.xin" = {
         root = pkgs.nur-xddxdd.calibre-cops;
+        # Keep off the public internet; basic auth already required
+        accessibleBy = "private";
         locations = {
           "/" = {
             tryFiles = "$uri $uri/ /index.php$uri";
@@ -74,7 +81,7 @@ in
         };
 
         phpfpmSocket = config.services.phpfpm.pools.calibre-cops.socket;
-        sslCertificate = "zerossl-zhyi.xin";
+        sslCertificate = "lets-encrypt-zhyi.xin";
       };
     };
 
@@ -105,6 +112,16 @@ in
       $config['default_timezone'] = '${config.time.timeZone}';
     '';
 
-    systemd.services."phpfpm-calibre-cops".serviceConfig.RestartSec = "5s";
+    systemd.services.phpfpm-calibre-cops = {
+      confinement.packages = [
+        pkgs.nur-xddxdd.calibre-cops
+        pkgs.kepubify
+        config.environment.etc."calibre-cops/config_local.php".source
+      ];
+      serviceConfig.BindReadOnlyPaths = [
+        (LT.escapeMountPath calibreLibrary)
+        "/etc/calibre-cops/config_local.php"
+      ];
+    };
   };
 }

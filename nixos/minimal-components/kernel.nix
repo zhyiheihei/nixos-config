@@ -7,8 +7,7 @@
   ...
 }:
 let
-  glauthUsers = import (inputs.secrets + "/glauth-users.nix");
-  unixHashedPassword = glauthUsers.zhyi.passBcrypt;
+  unixHashedPassword = import (inputs.secrets + "/user-hashed-password.nix");
 
   myKernelPackageFor =
     kernel:

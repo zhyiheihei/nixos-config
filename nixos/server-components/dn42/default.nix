@@ -187,7 +187,6 @@ in
   config = {
     sops.secrets.wg-priv.sopsFile =
       inputs.secrets + "/per-host/wg-priv/${config.networking.hostName}.yaml";
-
     networking.wireguard.enable = true;
     networking.wireguard.useNetworkd = false;
     networking.wireguard.interfaces =

@@ -46,7 +46,9 @@
       };
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    # Keep off the public internet; OAuth already required
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

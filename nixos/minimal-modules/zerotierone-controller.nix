@@ -179,8 +179,14 @@ in
 
         User = "zerotierone-controller";
         Group = "zerotierone-controller";
+        # ZeroTier may still open /dev/net/tun in controller mode
+        PrivateUsers = false;
+        PrivateDevices = false;
+        # chroot's tmpfs root is ephemeral; bind host state dir through
+        BindPaths = [ "/var/lib/zerotier-one-controller" ];
       };
     };
+    lantian.harden.zerotierone-controller = true;
 
     systemd.services.zerotierone-controller-setup = {
       description = "ZeroTier One Controller Setup";

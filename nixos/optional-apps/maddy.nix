@@ -29,8 +29,8 @@
             keyPath = LT.nginx.getSSLKey v;
           })
           [
-            "zerossl-zhyi.xin-ecc"
-            "zerossl-zhyi.xin-ecc"
+            "lets-encrypt-zhyi.xin-ecc"
+            "lets-encrypt-zhyi.xin-ecc"
             "dn42-zhyi.dn42-ecc"
           ];
     };

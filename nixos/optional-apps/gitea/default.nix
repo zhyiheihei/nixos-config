@@ -3,27 +3,9 @@
   pkgs,
   lib,
   config,
+  LT,
   ...
 }:
-let
-  emailReplaceArgs = {
-    proxyPass = "http://unix:/run/gitea/gitea.sock";
-    proxyNoTimeout = true;
-    extraConfig = ''
-      header_filter_by_lua_block {
-        if ngx.header.content_type:find("^text/html") ~= nil then
-          ngx.header.content_length = nil
-        end
-      }
-      body_filter_by_lua_block {
-        if ngx.header.content_type:find("^text/html") ~= nil then
-          -- https://stackoverflow.com/a/201378
-          ngx.arg[1] = ngx.re.gsub(ngx.arg[1], [[(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])]], "[EMAIL HIDDEN]", "ijo");
-        end
-      }
-    '';
-  };
-in
 {
   imports = [ ../mysql.nix ];
 
@@ -91,8 +73,8 @@ in
         DISABLE_REGISTRATION = true;
         ENABLE_CAPTCHA = false;
         ENABLE_NOTIFY_MAIL = true;
-        ENABLE_BASIC_AUTHENTICATION = false;
-        ENABLE_PASSWORD_SIGNIN_FORM = false;
+        ENABLE_BASIC_AUTHENTICATION = true;
+        ENABLE_PASSWORD_SIGNIN_FORM = true;
         ENABLE_PASSKEY_AUTHENTICATION = false;
         NO_REPLY_ADDRESS = "hidden.zhyi.xin";
         REGISTER_EMAIL_CONFIRM = false;
@@ -132,10 +114,17 @@ in
     };
   };
 
-  systemd.services.gitea.serviceConfig = {
+  systemd.services.gitea.serviceConfig = LT.serviceHarden // {
     RuntimeDirectoryMode = lib.mkForce "0755";
     RestartSec = "5s";
+    StateDirectory = "gitea";
+    # FIXME: secrets
+    BindReadOnlyPaths = [ "/run" ];
+    # fork: 仓库根迁出 StateDirectory（/data 数据盘，见 greencloud-jp），
+    # confinement chroot 需显式 bind；上游 local 存储无此需求
+    BindPaths = [ config.services.gitea.repositoryRoot ];
   };
+  lantian.harden.gitea = true;
 
   services.mysql = {
     ensureDatabases = [ "gitea" ];
@@ -170,10 +159,8 @@ in
         proxyPass = "http://unix:/run/gitea/gitea.sock";
         proxyNoTimeout = true;
       };
-      "/backup/dn42-registry/" = emailReplaceArgs;
-      "/backup/neonetwork-registry/" = emailReplaceArgs;
       "= /robots.txt".alias = ./robots.txt;
-      "= /user/login".return = "307 /user/oauth2/Dex";
+      # "= /user/login".return = "307 /user/oauth2/Dex";
     };
 
     blockDotfiles = false;

@@ -34,7 +34,8 @@
           };
         };
 
-        sslCertificate = "zerossl-zhyi.xin";
+        accessibleBy = "private";
+        sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
       "immich.localhost" = {
@@ -56,9 +57,23 @@
 
     systemd.services.immich-server = {
       unitConfig.RequiresMountsFor = [ (LT.escapeMountPath config.services.immich.mediaLocation) ];
+      serviceConfig = LT.serviceHarden // {
+        MemoryDenyWriteExecute = lib.mkForce false;
+        BindPaths = [
+          config.services.immich.mediaLocation
+          "/run/postgresql"
+          "/run/redis-immich"
+        ];
+      };
       after = [ "redis-immich.service" ];
       requires = [ "redis-immich.service" ];
     };
+    lantian.harden.immich-server = true;
+
+    systemd.services.immich-machine-learning = {
+      serviceConfig = LT.serviceHarden;
+    };
+    lantian.harden.immich-machine-learning = true;
 
     systemd.tmpfiles.settings = {
       immich = {

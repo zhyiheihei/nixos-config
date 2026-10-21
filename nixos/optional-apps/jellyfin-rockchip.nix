@@ -3,6 +3,7 @@
   lib,
   pkgs,
   utils,
+  LT,
   ...
 }:
 let
@@ -143,11 +144,22 @@ in
         OCL_ICD_VENDORS = "${pkgs.libmali-rockchip-g610}/etc/OpenCL/vendors";
         LD_LIBRARY_PATH = "${pkgs.libmali-rockchip-g610}/lib";
       };
-      serviceConfig = {
+      serviceConfig = LT.serviceHarden // {
         # netns 模板不带 Restart；全局断言（b1383d16）要求两者成对在位。
         Restart = lib.mkForce "always";
         RestartSec = "5s";
         RuntimeDirectory = "jellyfin";
+        # 与上游 jellyfin 模块同法：chroot 的根是 tmpfs，状态/缓存/GPU 需 bind 进去
+        BindPaths = [
+          "/var/lib/jellyfin"
+          "/run/jellyfin"
+          "/var/cache"
+          "/dev/dri"
+          "/dev/mali0"
+          "/dev/mpp_service"
+          "/dev/rga"
+          "/dev/dma_heap"
+        ];
         # Rockchip MPP identifies the SoC through
         # /proc/device-tree/compatible.  NixOS' generic Jellyfin hardening
         # uses ProcSubset=pid, which hides that non-process procfs subtree.
@@ -179,4 +191,6 @@ in
       };
     };
   };
+
+  lantian.harden.jellyfin = true;
 }

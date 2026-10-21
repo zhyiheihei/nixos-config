@@ -10,10 +10,12 @@
     after = [
       "radarr.service"
       "sonarr.service"
+      "prowlarr.service"
     ];
     requires = [
       "radarr.service"
       "sonarr.service"
+      "prowlarr.service"
     ];
 
     script = ''
@@ -39,11 +41,13 @@
 
       StateDirectory = "jproxy";
       WorkingDirectory = "/var/lib/jproxy";
+      BindPaths = [ "/var/lib/jproxy" ];
 
       User = "zhyi";
       Group = "users";
     };
   };
+  lantian.harden.jproxy = true;
 
   lantian.localVhosts.jproxy = {
     locations = {

@@ -1,15 +1,12 @@
 {
   LT,
   config,
-  inputs,
   pkgs,
   lib,
   ...
 }:
 {
   imports = [ ./mysql.nix ];
-
-  sops.secrets.vaultwarden-env.sopsFile = inputs.secrets + "/vaultwarden.yaml";
 
   services.mysql = {
     ensureDatabases = [ "vaultwarden" ];
@@ -39,7 +36,6 @@
       SMTP_FROM = config.programs.msmtp.accounts.default.from;
       SMTP_FROM_NAME = "Vaultwarden";
     };
-    environmentFile = config.sops.secrets.vaultwarden-env.path;
   };
 
   lantian.nginxVhosts."bitwarden.zhyi.xin" = {
@@ -48,14 +44,15 @@
       proxyWebsockets = true;
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 
   systemd.services.vaultwarden = {
     after = [ "mysql.service" ];
     requires = [ "mysql.service" ];
-    serviceConfig = {
+    serviceConfig = LT.serviceHarden // {
       RestartSec = "5s";
       RestrictAddressFamilies = [
         "AF_UNIX"
@@ -64,6 +61,13 @@
         "AF_LOCAL"
         "AF_NETLINK"
       ];
+      # chroot's tmpfs root is ephemeral; bind data dir and the mysqld unix
+      # socket through
+      BindPaths = [
+        "/var/lib/vaultwarden"
+        "/run/mysqld"
+      ];
     };
   };
+  lantian.harden.vaultwarden = true;
 }

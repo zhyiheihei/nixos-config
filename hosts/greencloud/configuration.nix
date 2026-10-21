@@ -15,72 +15,44 @@
     ./hardware-configuration.nix
 
     ../../nixos/optional-apps/acme
-    ../../nixos/optional-apps/bepasty.nix
+    # ../../nixos/optional-apps/bepasty.nix
     ../../nixos/optional-apps/bird-lg-go.nix
     ../../nixos/optional-apps/byparr.nix
     ../../nixos/optional-apps/fastpit.nix
     ../../nixos/optional-apps/flapalerted.nix
     # Gitea Actions runner：Gitea 在 greencloud-jp（性能弱不跑 CI），runner 留本机。
-    ../../nixos/optional-apps/gitea-actions.nix
-    ../../nixos/optional-apps/imapfilter.nix
-    ../../nixos/optional-apps/lemmy.nix
-    ../../nixos/optional-apps/librechat.nix
-    ../../nixos/optional-apps/maddy.nix
+    # ../../nixos/optional-apps/gitea-actions.nix
+    # ../../nixos/optional-apps/imapfilter.nix
+    # ../../nixos/optional-apps/lemmy.nix
+    # ../../nixos/optional-apps/librechat.nix
+    # DN42 TLS certificate is not yet restored.
+    # ../../nixos/optional-apps/maddy.nix
     ../../nixos/optional-apps/matrix-synapse
+    ../../nixos/optional-apps/loki.nix
     ../../nixos/optional-apps/miniflux.nix
-    ../../nixos/optional-apps/n8n
+    # ../../nixos/optional-apps/n8n # compromised
     ../../nixos/optional-apps/netbox.nix
     ../../nixos/optional-apps/nginx-api.nix
     ../../nixos/optional-apps/plausible.nix
-    ../../nixos/optional-apps/quassel.nix
     ../../nixos/optional-apps/radicale.nix
-    ../../nixos/optional-apps/radicle.nix
+    # ../../nixos/optional-apps/radicle.nix
     ../../nixos/optional-apps/rsshub.nix
     ../../nixos/optional-apps/rsync-server-ci.nix
+    ../../nixos/optional-apps/rsync-server-internal.nix
     ../../nixos/optional-apps/sublinkpro-nix.nix
-    ../../nixos/optional-apps/tranquil-pds.nix
-    ../../nixos/optional-apps/tg-bot-cleaner-bot
-    ../../nixos/optional-apps/yggdrasil-alfis.nix
+    # ../../nixos/optional-apps/tranquil-pds.nix
+    # ../../nixos/optional-apps/tg-bot-cleaner-bot
+    # ../../nixos/optional-apps/yggdrasil-alfis.nix
     ../../nixos/optional-apps/zerotierone-controller.nix
 
     ../../nixos/optional-cron-jobs/cleanup-github-notifications
     ../../nixos/optional-cron-jobs/dn42-certificate.nix
     # ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
-    ../../nixos/optional-cron-jobs/testssl.nix
 
     "${inputs.secrets}/nixos-hidden-module/11116c7374949a7a"
     "${inputs.secrets}/nixos-hidden-module/35c68fea6f2bde77"
-    "${inputs.secrets}/nixos-hidden-module/5ac5eb91326c8f04"
     "${inputs.secrets}/nixos-hidden-module/c9f6c0c333e73062"
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
-  ];
-
-  # agents 工具循环递归上限，默认 50 不够用（详见 fleet-service-chain.md）。
-  services.librechat.settings.endpoints.agents = {
-    recursionLimit = 150;
-  };
-
-  services.librechat.settings.endpoints.custom = lib.mkForce [
-    {
-      name = "Magic Flash";
-      apiKey = "\${AI_API_KEY}";
-      baseURL = "https://ai-api.zhyi.xin/v1";
-      # glm-5.3-flash 实际上下文为 1M；LibreChat 未设置时按默认 30400 预算裁剪，
-      # 91 个 MCP 工具定义（约 43K token）就足以把全部消息裁剪为空（empty_messages 报错）
-      maxContextTokens = 1000000;
-      models = {
-        default = lib.unique (
-          lib.concatMap (
-            provider:
-            (builtins.map (v: v.value) provider._models)
-            ++ lib.optionals (provider.modelJsonFile != null) (
-              builtins.attrNames (lib.importJSON provider.modelJsonFile)
-            )
-          ) config.lantian.llm-providers
-        );
-        fetch = false;
-      };
-    }
   ];
 
   networking.domain = lib.mkForce "zhyi.xin";
@@ -132,10 +104,6 @@
 
   lantian.nginxVhosts."greencloud.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
-  # Hydra 自 2026-09-17 跑在 opi5p（公共 vhost 仍指上游 pve-epyc，此处仅覆写后端）。
-  lantian.nginxVhosts."hydra.zhyi.xin".locations."/".proxyPass =
-    lib.mkForce "http://${LT.hosts.opi5p.ltnet.IPv4}:${LT.portStr.Hydra.WebUI}";
-
   # Home Assistant is a public app for the mobile companion; greencloud
   # terminates TLS and proxies straight to the HA instance on opi5p over LTNET.
   lantian.nginxVhosts."ha.zhyi.xin" = {
@@ -155,29 +123,11 @@
     environment.HOST = lib.mkForce LT.this.ltnet.IPv4;
   };
 
-  # n8n ships zh-CN translations; make the editor default to Simplified Chinese.
-  services.n8n.environment.N8N_DEFAULT_LOCALE = "zh-CN";
-
   # Match the user's local Firefox identity so anti-bot sites do not reject the
   # Miniflux fetcher as a non-browser client. Keep RSSHub on the same UA.
   services.miniflux.config.HTTP_CLIENT_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
   services.rsshub.settings.UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
 
-  # Keep the author's account automation units available, but leave them
-  # dormant until this deployment has its own account-specific configuration.
-  systemd.services.email-oauth2-proxy.unitConfig.ConditionPathExists =
-    "${inputs.secrets}/imapfilter/emailproxy.config";
-  systemd.services.imapfilter-outlook.unitConfig.ConditionPathExists =
-    "${inputs.secrets}/imapfilter/outlook.lua";
-  systemd.services.imapfilter-gmail.unitConfig.ConditionPathExists =
-    "${inputs.secrets}/imapfilter/gmail.lua";
-  systemd.services.imapfilter-lantian.unitConfig.ConditionPathExists =
-    "${inputs.secrets}/imapfilter/lantian.lua";
-
-  systemd.services.tg-bot-cleaner-bot.serviceConfig.ExecCondition = [
-    "${pkgs.gnugrep}/bin/grep -qE ^TG_API_ID=.+$ ${config.sops.secrets.tg-bot-cleaner-bot.path}"
-    "${pkgs.gnugrep}/bin/grep -qE ^TG_API_HASH=.+$ ${config.sops.secrets.tg-bot-cleaner-bot.path}"
-  ];
   systemd.services.cleanup-github-notifications.serviceConfig.ExecCondition =
     "${pkgs.gnugrep}/bin/grep -qE ^GITHUB_TOKEN=.+$ ${config.sops.secrets.cleanup-github-notifications-env.path}";
   environment.systemPackages = with pkgs; [

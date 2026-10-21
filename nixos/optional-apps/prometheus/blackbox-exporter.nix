@@ -17,10 +17,6 @@ let
     "https://render.zhyi.xin"
     "https://vercel.zhyi.xin"
 
-    # SSL tests
-    "https://letsencrypt-ssl.zhyi.xin"
-    "https://zerossl.zhyi.xin"
-
     # Services under zhyi.xin
     "https://comments.zhyi.xin"
     "https://element.zhyi.xin"
@@ -108,6 +104,7 @@ in
                 304
                 307
                 308
+                401
               ];
               follow_redirects = false;
             };
@@ -234,5 +231,8 @@ in
     ))
   ];
 
-  systemd.services."prometheus-blackbox-exporter".serviceConfig.RestartSec = "5s";
+  systemd.services."prometheus-blackbox-exporter".serviceConfig = LT.serviceHarden // {
+    RestartSec = "5s";
+  };
+  lantian.harden.prometheus-blackbox-exporter = true;
 }

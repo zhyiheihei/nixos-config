@@ -51,22 +51,42 @@
       "/static/".alias = config.services.netbox.settings.STATIC_ROOT + "/";
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 
   systemd.services.netbox = {
-    after = [ "redis-netbox.service" ];
-    requires = [ "redis-netbox.service" ];
+    after = [
+      "redis-netbox.service"
+      "postgresql.target"
+    ];
+    requires = [
+      "redis-netbox.service"
+      "postgresql.target"
+    ];
     serviceConfig = LT.networkToolHarden // {
       RuntimeDirectory = "netbox";
+      # FIXME: secret
+      BindReadOnlyPaths = [ "/run" ];
     };
   };
   systemd.services.netbox-rq = {
-    after = [ "redis-netbox.service" ];
-    requires = [ "redis-netbox.service" ];
-    serviceConfig = LT.serviceHarden;
+    after = [
+      "redis-netbox.service"
+      "postgresql.target"
+    ];
+    requires = [
+      "redis-netbox.service"
+      "postgresql.target"
+    ];
+    serviceConfig = LT.serviceHarden // {
+      # FIXME: secret
+      BindReadOnlyPaths = [ "/run" ];
+    };
   };
+  lantian.harden.netbox = true;
+  lantian.harden.netbox-rq = true;
 
   users.groups.netbox.members = [ "nginx" ];
 }

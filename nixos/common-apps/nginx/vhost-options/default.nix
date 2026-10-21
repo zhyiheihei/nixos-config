@@ -39,7 +39,7 @@
         {
           config = {
             accessibleBy = lib.mkDefault "private";
-            sslCertificate = lib.mkDefault "zerossl-${config.networking.hostName}.zhyi.xin";
+            sslCertificate = lib.mkDefault "lets-encrypt-${config.networking.hostName}.zhyi.xin";
             noIndex.enable = lib.mkDefault true;
           };
         }

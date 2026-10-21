@@ -134,8 +134,27 @@ in
   };
 
   lantian.nginxVhosts."wp.zhyi.xin" = {
-    sslCertificate = "zerossl-zhyi.xin";
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-zhyi.xin";
   };
 
-  systemd.services."phpfpm-wordpress-wp.zhyi.xin".serviceConfig.RestartSec = "5s";
+  systemd.services."phpfpm-wordpress-wp.zhyi.xin" = {
+    # Rebind the database socket when MySQL recreates its RuntimeDirectory.
+    after = [ "mysql.service" ];
+    requires = [ "mysql.service" ];
+    partOf = [ "mysql.service" ];
+    confinement.packages = [ config.services.wordpress.sites."wp.zhyi.xin".finalPackage ];
+    serviceConfig = {
+      BindReadOnlyPaths = [
+        "/run/mysqld"
+        "/var/lib/wordpress/wp.zhyi.xin/secret-keys.php"
+      ];
+      BindPaths = with config.services.wordpress.sites."wp.zhyi.xin"; [
+        cacheDir
+        uploadsDir
+        fontsDir
+      ];
+
+    };
+  };
 }

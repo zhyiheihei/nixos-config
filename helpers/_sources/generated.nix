@@ -101,25 +101,25 @@
   };
   grafana-yesoreyeram-infinity-datasource = {
     pname = "grafana-yesoreyeram-infinity-datasource";
-    version = "4.1.1";
+    version = "4.1.2";
     src = fetchurl {
-      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.1/yesoreyeram-infinity-datasource-4.1.1.zip";
-      sha256 = "sha256-GRBOEkaPiyEfwWQXRrERmGF/qXTOanaj9moyxpC5G1Y=";
+      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.2/yesoreyeram-infinity-datasource-4.1.2.zip";
+      sha256 = "sha256-YPS+I9f29LsYb/3plfdogfOECOUyBzty3knpbh9Xetc=";
     };
   };
   lobe-icons = {
     pname = "lobe-icons";
-    version = "05a9b8c41e4735a4a2b6d2f1e43574bd8ec6c8cb";
+    version = "8a1b2821bb768c484fe8da20c5e1838b6bf551a9";
     src = fetchgit {
       url = "https://github.com/lobehub/lobe-icons.git";
-      rev = "05a9b8c41e4735a4a2b6d2f1e43574bd8ec6c8cb";
+      rev = "8a1b2821bb768c484fe8da20c5e1838b6bf551a9";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-SX4F0uq3SGu8aWlHkhkRHDHqJr7PYKk1kCEZ0eDXaXU=";
+      sha256 = "sha256-srR8QUAw8uPzR1UtgwUx8su5ne1lUJtxpsJAOoY9Wu4=";
     };
-    date = "2026-10-13";
+    date = "2026-10-15";
   };
   lyrica-customized = {
     pname = "lyrica-customized";
@@ -256,15 +256,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "1aac99e37f595874c024dcb2a54b33c06a49c370";
+    version = "522f3da995fcd52ea7a84583fbcd6e8f43197407";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "1aac99e37f595874c024dcb2a54b33c06a49c370";
+      rev = "522f3da995fcd52ea7a84583fbcd6e8f43197407";
       fetchSubmodules = false;
-      sha256 = "sha256-V9FLgxmrvoZhPKWZkWQGh3P6Ubg78Tm6IwqBQFZaG98=";
+      sha256 = "sha256-xVNXs6f0c7xdrXRddBBP4VSfuCGsO+Zq6QHsuOTtx0w=";
     };
-    date = "2026-10-12";
+    date = "2026-10-19";
   };
   ulauncher-albert-calculate-anything = {
     pname = "ulauncher-albert-calculate-anything";
@@ -516,76 +516,5 @@
       url = "https://downloads.wordpress.org/theme/twentytwelve.4.9.zip";
       sha256 = "sha256-oVHsA4dn1+SaSrs0CLF1TOgJipAvPK1LvDRZBdZBW54=";
     };
-  };
-  yourls = {
-    pname = "yourls";
-    version = "1.10.6";
-    src = fetchFromGitHub {
-      owner = "YOURLS";
-      repo = "YOURLS";
-      rev = "1.10.6";
-      fetchSubmodules = false;
-      sha256 = "sha256-aGnrrCosgdyAkWhIc+6cRbtMXi2hKf3x74ofiTMhcl0=";
-    };
-  };
-  yourls-404-if-not-found = {
-    pname = "yourls-404-if-not-found";
-    version = "a611040c6f33cd6d00b07ddb824b9842ed2de2de";
-    src = fetchFromGitHub {
-      owner = "YOURLS";
-      repo = "404-if-not-found";
-      rev = "a611040c6f33cd6d00b07ddb824b9842ed2de2de";
-      fetchSubmodules = false;
-      sha256 = "sha256-3pgk7TkwuuTYz7eU9lxptkpqu0COOrWKZyt7Lp8VqLQ=";
-    };
-    date = "2023-12-16";
-  };
-  yourls-always-302 = {
-    pname = "yourls-always-302";
-    version = "c704f3d285fae60e0c49445c499a5bf4b235d411";
-    src = fetchFromGitHub {
-      owner = "tinjaw";
-      repo = "Always-302";
-      rev = "c704f3d285fae60e0c49445c499a5bf4b235d411";
-      fetchSubmodules = false;
-      sha256 = "sha256-llZagwjVWSXCupIzDQ90Rid6icKQ3PL5xoqIC0NzImg=";
-    };
-    date = "2020-08-22";
-  };
-  yourls-dont-track-admins = {
-    pname = "yourls-dont-track-admins";
-    version = "be87e385a52fb452d6b8c70e9fc28ca060a63f62";
-    src = fetchFromGitHub {
-      owner = "dgw";
-      repo = "yourls-dont-track-admins";
-      rev = "be87e385a52fb452d6b8c70e9fc28ca060a63f62";
-      fetchSubmodules = false;
-      sha256 = "sha256-GWCUpxPfD/bqwGS1Rhu12HVDK7hgQVCv2mlcI5OOvUg=";
-    };
-    date = "2022-05-30";
-  };
-  yourls-login-timeout = {
-    pname = "yourls-login-timeout";
-    version = "1a8eee5a5104c15660952abc49b79486d81917c6";
-    src = fetchFromGitHub {
-      owner = "reanimus";
-      repo = "yourls-login-timeout";
-      rev = "1a8eee5a5104c15660952abc49b79486d81917c6";
-      fetchSubmodules = false;
-      sha256 = "sha256-YGz09e2Fd9R1LcXVIGSjvlF7Hzn6KLB2ZiTL/jPlkSA=";
-    };
-    date = "2019-04-01";
-  };
-  yourls-sleeky = {
-    pname = "yourls-sleeky";
-    version = "608583819aed46e0a3f5b72e54e323d430d5f9e0";
-    src = fetchFromGitHub {
-      owner = "Flynntes";
-      repo = "Sleeky";
-      rev = "608583819aed46e0a3f5b72e54e323d430d5f9e0";
-      fetchSubmodules = false;
-      sha256 = "sha256-b0MEtbGhLG15+/CfWT8iq2Dl/e3lQZ6f6k9PeyFDCOM=";
-    };
-    date = "2025-09-25";
   };
 }

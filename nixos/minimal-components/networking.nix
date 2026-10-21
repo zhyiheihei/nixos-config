@@ -1,7 +1,7 @@
 {
   lib,
-  config,
   LT,
+  config,
   ...
 }:
 let
@@ -142,6 +142,8 @@ in
   };
 
   systemd.services.systemd-networkd.restartIfChanged = false;
+  # Read restored .netdev files without restarting networkd or the uplinks.
+  systemd.services.systemd-networkd.reloadIfChanged = true;
   services.resolved.enable = false;
 
   services.mptcpd = {
@@ -153,10 +155,16 @@ in
       };
     };
   };
-  systemd.services.mptcp.serviceConfig = {
+  systemd.services.mptcp.serviceConfig = LT.networkToolHarden // {
     Restart = "on-failure";
     RestartSec = "3";
+    # mptcpd probes /proc/sys/net/mptcp for kernel support and drives host
+    # netlink
+    PrivateUsers = false;
+    ProcSubset = "all";
+    ProtectProc = "default";
   };
+  lantian.harden.mptcp = true;
 
   # https://github.com/nix-community/srvos/blob/main/nixos/common/networking.nix
   systemd.services.systemd-networkd.stopIfChanged = false;
@@ -173,6 +181,7 @@ in
         nameserver ${ns}
       '')}
     '';
+    mode = "0444";
   };
 
   # Support network namespaces

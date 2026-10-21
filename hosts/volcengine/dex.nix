@@ -180,22 +180,18 @@ in
   imports = [ ../../nixos/optional-apps/postgresql.nix ];
 
   sops.secrets = {
-    glauth-bindpw = {
-      sopsFile = inputs.secrets + "/common/glauth.yaml";
-      mode = "0444";
-    };
     dex-pocket-id-client-id = {
-      sopsFile = inputs.secrets + "/common/dex.yaml";
+      sopsFile = inputs.secrets + "/dex/pocket-id.yaml";
       owner = "dex";
       group = "dex";
     };
     dex-pocket-id-client-secret = {
-      sopsFile = inputs.secrets + "/common/dex.yaml";
+      sopsFile = inputs.secrets + "/dex/pocket-id.yaml";
       owner = "dex";
       group = "dex";
     };
     dex-vaultwarden-secret = {
-      sopsFile = inputs.secrets + "/common/dex.yaml";
+      sopsFile = inputs.secrets + "/dex/vaultwarden.yaml";
       owner = "dex";
       group = "dex";
       # Vaultwarden SSO reads this secret too, as its own service user.
@@ -207,7 +203,7 @@ in
       (
         f:
         lib.nameValuePair "dex-${f}-secret" {
-          sopsFile = inputs.secrets + "/common/dex.yaml";
+          sopsFile = inputs.secrets + "/dex/${f}.yaml";
           owner = "dex";
           group = "dex";
         }
@@ -222,7 +218,7 @@ in
         "moviepilot"
         "navdash"
         "nextcloud"
-        "oauth2-proxy"
+        "oauth-proxy"
         "tranquil-pds"
         "wallos"
         # keep-sorted end
@@ -256,8 +252,11 @@ in
       RuntimeDirectory = "dex";
       Restart = "always";
       RestartSec = "5";
+      BindPaths = [ "/run" ];
     };
   };
+
+  lantian.harden.dex = true;
 
   users.users.dex = {
     group = "dex";

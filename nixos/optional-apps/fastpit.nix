@@ -25,6 +25,7 @@ in
       Group = "fastpit";
     };
   };
+  lantian.harden.fastpit = true;
 
   lantian.nginxVhosts."posts.zhyi.xin" = {
     locations = {
@@ -32,7 +33,7 @@ in
         proxyPass = "http://unix:/run/fastpit/fastpit.sock";
       };
     };
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 

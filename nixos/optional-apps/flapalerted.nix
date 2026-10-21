@@ -36,6 +36,7 @@ in
       ];
     };
   };
+  lantian.harden.flapalerted = true;
 
   users.groups.bird.members = [ "nginx" ];
 
@@ -46,7 +47,7 @@ in
       };
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

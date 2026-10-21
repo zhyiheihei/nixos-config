@@ -71,7 +71,7 @@
       proxyNoTimeout = true;
     };
 
-    sslCertificate = "zerossl-at.zhyi.xin";
+    sslCertificate = "lets-encrypt-at.zhyi.xin";
     noIndex.enable = true;
   };
 }

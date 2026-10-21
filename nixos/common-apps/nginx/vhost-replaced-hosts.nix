@@ -24,7 +24,7 @@ in
         serverName = "~^(?<sub>[^.]+)\\.${lib.escapeRegex domain}$";
         locations."/".return = "301 https://$sub.${new}.zhyi.xin$request_uri";
         enableCommonLocationOptions = false;
-        sslCertificate = "zerossl-${old}.zhyi.xin";
+        sslCertificate = "lets-encrypt-${old}.zhyi.xin";
       };
     }
   ) replacedOnThisHost;

@@ -6,10 +6,10 @@
   ...
 }:
 {
-  sops.secrets.dex-oauth-proxy-secret.sopsFile = inputs.secrets + "/common/dex.yaml";
-  sops.secrets.oauth2-proxy-cookie-secret.sopsFile = inputs.secrets + "/common/oauth2-proxy.yaml";
+  sops.secrets.dex-oauth-proxy-secret.sopsFile = inputs.secrets + "/dex/oauth-proxy.yaml";
+  sops.secrets.oauth-proxy-cookie-secret.sopsFile = inputs.secrets + "/common/oauth-proxy.yaml";
   sops.templates.oauth2-proxy-keys.content = ''
-    OAUTH2_PROXY_COOKIE_SECRET=${config.sops.placeholder.oauth2-proxy-cookie-secret}
+    OAUTH2_PROXY_COOKIE_SECRET=${config.sops.placeholder.oauth-proxy-cookie-secret}
     OAUTH2_PROXY_CLIENT_SECRET=${config.sops.placeholder.dex-oauth-proxy-secret}
   '';
 
@@ -58,6 +58,9 @@
       RestartSec = "3";
       RuntimeDirectory = "oauth2-proxy";
       UMask = "007";
+      # FIXME: secret
+      BindReadOnlyPaths = [ "/run" ];
     };
   };
+  lantian.harden.oauth2-proxy = config.services.oauth2-proxy.enable;
 }

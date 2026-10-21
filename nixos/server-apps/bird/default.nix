@@ -78,8 +78,21 @@ in
       User = "bird";
       Group = "bird";
       RuntimeDirectory = "bird";
+      # Confined clients must retain this inode even across a full stop/start.
+      RuntimeDirectoryPreserve = "yes";
+      # Manages host kernel routes
+      PrivateUsers = false;
+      # chroot's tmpfs root is ephemeral; bind control socket through (used by
+      # birdc, bird-lgproxy-go and the bird exporter outside the chroot).
+      # /etc/bird on the host is a symlink chain to /etc/static, whose
+      # store target isn't in the closure, so bind the real store file
+      BindPaths = [ "/run/bird" ];
+      BindReadOnlyPaths = [
+        "${config.environment.etc."bird/bird.conf".source}:/etc/bird/bird.conf"
+      ];
     }
   );
+  lantian.harden.bird = true;
 
   systemd.tmpfiles.settings = {
     bird-config = {
@@ -111,11 +124,21 @@ in
       enable = LT.this.hasTag LT.tags.server && LT.this.hasTag LT.tags.dn42;
       port = LT.port.Prometheus.BirdExporter;
       listenAddress = LT.this.ltnet.IPv4;
-      birdSocket = "/var/run/bird/bird.ctl";
+      birdSocket = "/run/bird/bird.ctl";
     };
   };
 
-  systemd.services."prometheus-bird-exporter".serviceConfig.RestartSec = "5s";
+  systemd.services."prometheus-bird-exporter" = {
+    wants = [ "bird.service" ];
+    after = [ "bird.service" ];
+    serviceConfig = LT.serviceHarden // {
+      RestartSec = "5s";
+      ProcSubset = "all";
+      ProtectProc = "default";
+      BindReadOnlyPaths = [ "/run/bird" ];
+    };
+  };
+  lantian.harden.prometheus-bird-exporter = true;
 
   systemd.services.bird-lgproxy-go = {
     enable = LT.this.hasTag LT.tags.server && LT.this.hasTag LT.tags.dn42;
@@ -153,6 +176,10 @@ in
       User = "bird";
 
       CPUQuota = "10%";
+      # Privileged operations need host-level capabilities
+      PrivateUsers = false;
+      BindReadOnlyPaths = [ "/run/bird" ];
     };
   };
+  lantian.harden.bird-lgproxy-go = true;
 }

@@ -7,10 +7,8 @@
   ...
 }:
 let
-  glauthUsers = import (inputs.secrets + "/glauth-users.nix");
-
   emailNotificationScript = pkgs.writeShellScript "email.sh" ''
-    MAILTO="${glauthUsers.zhyi.mail}"
+    MAILTO="lantian@zhyi.xin"
 
     exec sendmail -t <<EOF
     To: $MAILTO

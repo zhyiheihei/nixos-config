@@ -30,11 +30,12 @@ in
   powerManagement.cpuFreqGovernor = "performance";
 
   imports = [
+    ../../nixos/optional-apps/jellyfin.nix
     ../../nixos/optional-apps/resilio-sync.nix
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/peerbanhelper.nix
     ../../nixos/optional-apps/tachidesk.nix
-    ../../nixos/optional-apps/bitmagnet.nix
+    # ../../nixos/optional-apps/bitmagnet.nix # missing regenerated secret tmdb.yaml
   ];
 
   lantian.resilioSync = {
@@ -89,11 +90,10 @@ in
     {
       # .NET 应用不认 socks5，走 router v2ray 的 HTTP CONNECT 入站拉
       # TMDB/图片等外网元数据；media 库挂在 QNAP NFS 上，NAS 就绪前不扫盘。
+      # 硬化与 chroot 由原版 jellyfin 模块提供，这里只加主机侧依赖。
       jellyfin = {
         after = [ "mnt-storage.mount" ];
         requires = [ "mnt-storage.mount" ];
-        # 同 jellyfin-rockchip 模块：RestartSec ≥ 3s 过 ensure-service-restart 策略。
-        serviceConfig.RestartSec = "5s";
         environment = LT.proxyEnvironment // {
           HTTP_PROXY = "http://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
           HTTPS_PROXY = "http://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";

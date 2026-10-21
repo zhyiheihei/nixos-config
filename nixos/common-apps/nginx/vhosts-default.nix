@@ -33,10 +33,6 @@ in
 
       enableCommonLocationOptions = false;
       enableCommonVhostOptions = false;
-
-      extraConfig = ''
-        access_log off;
-      '';
     };
 
     "_default_https" = {
@@ -50,10 +46,6 @@ in
 
       enableCommonLocationOptions = false;
       enableCommonVhostOptions = false;
-
-      extraConfig = ''
-        access_log off;
-      '';
     };
 
     "localhost" = {
@@ -62,6 +54,14 @@ in
       root = "/var/www/localhost";
       enableCommonLocationOptions = false;
       accessibleBy = "localhost";
+    };
+  };
+
+  systemd.tmpfiles.settings.nginx = {
+    "/var/www/localhost"."d" = {
+      mode = "755";
+      user = "root";
+      group = "root";
     };
   };
 }

@@ -38,7 +38,7 @@
       "/".return = "https://ca.zhyi.xin:444$request_uri";
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 

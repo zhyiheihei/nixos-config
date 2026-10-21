@@ -4,14 +4,10 @@
   lib,
   ...
 }:
-let
-  glauthUsers = import (inputs.secrets + "/glauth-users.nix");
-in
 {
   imports = [
     ./base-domains.nix
     ./cert-exporter.nix
-    ./testssl.nix
   ];
 
   sops.secrets.lego-env = {
@@ -28,12 +24,11 @@ in
       dnsProvider = "gcore";
       dnsResolver = "8.8.8.8:53";
       dnsPropagationCheck = false;
-      email = glauthUsers.zhyi.mail;
+      email = "molishanguang@outlook.com";
       environmentFile = [ config.sops.secrets.lego-env.path ];
       postRun = ''
         CERT=$(basename $(pwd))
         install -Dm644 --owner=root -t /nix/sync-servers/acme/"$CERT" *
-        systemctl try-reload-or-restart nginx.service
       '';
     };
   };
@@ -41,10 +36,6 @@ in
   systemd.services =
     let
       cfg = {
-        environment = {
-          LEGO_DEBUG_CLIENT_VERBOSE_ERROR = "true";
-          LEGO_DEBUG_ACME_HTTP_CLIENT = "true";
-        };
         serviceConfig = {
           Restart = "on-failure";
           TimeoutStartSec = "900";

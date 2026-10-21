@@ -30,6 +30,13 @@ in
         User = "zhyi";
         Restart = "on-failure";
         RestartSec = 3;
+        # chroot's tmpfs root is ephemeral; bind audio devices and the
+        # pipewire-pulse UNIX socket through
+        BindPaths = [
+          "/dev/snd"
+          "/run/user/1000"
+        ];
       };
   };
+  lantian.harden.fluidsynth = true;
 }

@@ -55,7 +55,7 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
       "= /config.json".root = elementConfigPath;
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
     disableLiveCompression = true;
   };

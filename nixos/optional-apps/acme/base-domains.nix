@@ -8,7 +8,6 @@
 let
   inherit (pkgs.callPackage ./common.nix { inherit config; })
     mkLetsEncryptWildcardCert
-    mkZeroSSLWildcardCert
     ;
 
   baseDomains = [
@@ -25,14 +24,11 @@ in
 {
   security.acme.certs = lib.mergeAttrsList (
     (builtins.map mkLetsEncryptWildcardCert baseDomains)
-    ++ (builtins.map mkZeroSSLWildcardCert baseDomains)
     ++ [
       # ATproto PDS
-      (mkZeroSSLWildcardCert "at.zhyi.xin")
+      (mkLetsEncryptWildcardCert "at.zhyi.xin")
     ]
     ++ (builtins.map mkLetsEncryptWildcardCert hostSubdomains)
-    ++ (builtins.map mkZeroSSLWildcardCert hostSubdomains)
     ++ (builtins.map mkLetsEncryptWildcardCert replacedHostSubdomains)
-    ++ (builtins.map mkZeroSSLWildcardCert replacedHostSubdomains)
   );
 }

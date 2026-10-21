@@ -274,8 +274,9 @@ let
       + (lib.optionalString (config.listenHTTPS.enable || config.listenHTTPS_Socket.enable) (
         if config.sslCertificate != null then
           ''
-            ssl_certificate ${LT.nginx.getSSLCert "${config.sslCertificate}-rsa"};
-            ssl_certificate_key ${LT.nginx.getSSLKey "${config.sslCertificate}-rsa"};
+            # FIXME: reenable when RSA certs ready
+            #ssl_certificate ${LT.nginx.getSSLCert "${config.sslCertificate}-rsa"};
+            #ssl_certificate_key ${LT.nginx.getSSLKey "${config.sslCertificate}-rsa"};
 
             ssl_certificate ${LT.nginx.getSSLCert "${config.sslCertificate}-ecc"};
             ssl_certificate_key ${LT.nginx.getSSLKey "${config.sslCertificate}-ecc"};
@@ -303,8 +304,6 @@ let
         add_header Cache-Control 'private';
         add_header Referrer-Policy strict-origin-when-cross-origin;
         add_header Permissions-Policy 'interest-cohort=()';
-
-        more_clear_headers 'X-Powered-By' 'X-Runtime' 'X-Version' 'X-AspNet-Version';
       '')
       + (lib.optionalString
         (config.enableCommonVhostOptions && (config.listenHTTPS.enable || config.listenHTTPS_Socket.enable))
@@ -346,7 +345,7 @@ let
       '')
       + (lib.optionalString (config.accessibleBy == "private") ''
         ${lib.concatMapStringsSep "\n" (ip: "allow ${ip};") (
-          LT.constants.reserved.IPv4 ++ LT.constants.reserved.IPv6
+          LT.constants.ltnet.IPv4 ++ LT.constants.ltnet.IPv6
         )}
         allow 127.0.0.1;
         allow ::1;
@@ -355,8 +354,6 @@ let
         error_page 403 ${config.accessBlockAction};
       '')
       + (lib.optionalString (config.accessibleBy == "localhost") ''
-        access_log off;
-
         ${lib.concatMapStringsSep "\n" (ip: "allow ${ip};") LT.this._addresses}
         allow 127.0.0.1;
         allow ::1;

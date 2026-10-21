@@ -50,7 +50,7 @@ in
         hints = true;
       };
       node = {
-        alias = "lantian-${config.networking.hostName}";
+        alias = "zhyi-${config.networking.hostName}";
         peers.type = "dynamic";
         externalAddresses =
           (lib.optionals (LT.this.public.IPv4 != null) [
@@ -96,6 +96,9 @@ in
     listenPort = LT.port.Radicle.HTTPd;
   };
 
+  systemd.services.radicle-httpd.serviceConfig.SystemCallErrorNumber = "EPERM";
+  systemd.services.radicle-node.serviceConfig.SystemCallErrorNumber = "EPERM";
+
   systemd.tmpfiles.settings = {
     radicle-public-key = {
       "/var/lib/radicle/keys/radicle.pub"."C+" = {
@@ -119,7 +122,7 @@ in
       };
     };
 
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     disableLiveCompression = true;
   };
 }

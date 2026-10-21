@@ -53,6 +53,8 @@ in
       UMask = "007";
     };
   };
+
+  lantian.harden.bird-lg-go = true;
   systemd.services.bird-lgproxy-go.enable = lib.mkForce true;
 
   lantian.nginxVhosts = {
@@ -70,7 +72,7 @@ in
         };
       };
 
-      sslCertificate = "zerossl-zhyi.xin";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
     "lg.zhyi.dn42" = {
@@ -85,7 +87,7 @@ in
         };
       };
 
-      sslCertificate = "zerossl-zhyi.dn42";
+      sslCertificate = "lets-encrypt-zhyi.dn42";
       noIndex.enable = true;
     };
   };

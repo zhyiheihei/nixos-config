@@ -260,6 +260,9 @@ in
                   User = "bird";
                   Group = "bird";
                   RuntimeDirectory = "bird-${name}";
+                  # Joins host-owned network namespace via NetworkNamespacePath
+                  PrivateUsers = false;
+                  BindReadOnlyPaths = [ "/run/netns" ];
                 };
               }
             ))
@@ -267,5 +270,8 @@ in
         ) config.lantian.netns
       )
     );
+    lantian.harden = lib.mapAttrs' (
+      n: v: lib.nameValuePair "netns-bird-${n}" true
+    ) config.lantian.netns;
   };
 }
