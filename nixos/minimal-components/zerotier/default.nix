@@ -107,8 +107,9 @@ in
         ip neigh add ${ip} dev zttalxbxtu lladdr ${calculateMac ltnet n} router \
           || ip neigh replace ${ip} dev zttalxbxtu lladdr ${calculateMac ltnet n} router
       '') v.ipAssignments
-    ) LT.zerotier.managedHosts;
-    # Do not include additional hosts, ZeroTier Windows calculate mac differently
+    ) (LT.zerotier.managedHosts // LT.zerotier.additionalLinuxHosts);
+    # 额外主机里跑 Linux 版 ZeroTier 的（OpenWrt 等）同算法推 MAC，一并预置；
+    # macOS/Windows 客户端的 MAC 推导不同，仍不列入（由 secrets 的 linux = true 标记区分）。
   };
 
   systemd.network.networks."99-zerotier" = {
