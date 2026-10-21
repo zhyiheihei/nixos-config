@@ -17,7 +17,7 @@ let
     {
       recordType = "CNAME";
       name = "ai-api";
-      target = "hostdare.ltnet.zhyi.xin.";
+      target = "tencent.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {

@@ -6,6 +6,7 @@
 let
   opiAddress = LT.hosts.opi5p.interconnect.IPv4;
   dragonAddress = LT.hosts.dragon-q8b.interconnect.IPv4;
+  tencentAddress = LT.hosts.tencent.ltnet.IPv4;
   # 服务在 opi5p 上的走 opi5p 回源，已迁 dragon-q8b 的走 dragon-q8b。
   mkBackend = backendHost: hostAddress: {
     proxyPass = "https://${hostAddress}";
@@ -18,6 +19,10 @@ let
     '';
   };
   fixedFrontends = {
+    "ai-api.zhyi.xin" = {
+      backend = "ai-api.zhyi.xin";
+      address = tencentAddress;
+    };
     "asf.zhyi.xin" = {
       backend = "asf.zhyi.xin";
       address = opiAddress;
