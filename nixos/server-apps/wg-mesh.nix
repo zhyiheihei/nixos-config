@@ -16,6 +16,15 @@ let
     else
       null;
   targetHosts = lib.filterAttrs (n: v: v.hasTag "server") LT.otherHosts;
+
+  # 家宽对 10122（= WGMesh.Start + opi5p.index）的境外入站 UDP 回包丢弃：
+  # greencloud 发出的 handshake response 在 router ppp0 上完全抓不到，换端口
+  # 10151 后立即握手成功。同一家宽的 rock5c/dragon-q5b/chromebox 端口正常。
+  # 端口按「拥有者主机」登记，两侧（监听端口与对端 Endpoint）自动一致。
+  wgPortOverrides = {
+    opi5p = 10151;
+  };
+  wgPortFor = n: wgPortOverrides.${n} or (LT.port.WGMesh.Start + LT.hosts.${n}.index);
 in
 {
   sops.secrets.wg-priv = {
@@ -36,7 +45,7 @@ in
       };
       wireguardConfig = {
         PrivateKeyFile = config.sops.secrets.wg-priv.path;
-        ListenPort = LT.port.WGMesh.Start + v.index;
+        ListenPort = wgPortFor n;
       };
       wireguardPeers = [
         (
@@ -49,7 +58,7 @@ in
             PersistentKeepalive = 15;
           }
           // lib.optionalAttrs (wgEndpoint != null) {
-            Endpoint = "${wgEndpoint}:${builtins.toString (LT.port.WGMesh.Start + LT.this.index)}";
+            Endpoint = "${wgEndpoint}:${builtins.toString (wgPortFor config.networking.hostName)}";
           }
         )
       ];
