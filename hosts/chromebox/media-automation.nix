@@ -137,9 +137,9 @@ in
   # 回源）：上游 jellyfin.nix 原文只开 netns 内 unix socket（假设 nginx
   # 同机），后端跨机必须有 TCP 监听。用模块同款 vhost 机制开 8096 HTTP
   # 回源 socket（命名同 rock5c jellyfin-api 的 <name>.<host>.zhyi.xin 形
-  # 态）。accessibleBy 必须 public：private 只放行 LTNET+lo，不含家庭
-  # LAN 段（192.168.0.0/24），rock5c 回源会被 403→444 空断；仅 LAN 可达，
-  # router 公网侧无 8096 DNAT，无公网暴露面。
+  # 态）。accessibleBy private 的放行集是 LTNET+lo，不含家庭 LAN 段，因
+  # 此 rock5c 回源走本机 LTNET 地址（见 rock5c media-edge），来源 IP 落
+  # 在放行集内；属拓扑环境事实偏移，共享模块保持原文。
   lantian.nginxVhosts."jellyfin-backend.chromebox.zhyi.xin" = {
     listenHTTP = {
       enable = true;
@@ -157,7 +157,7 @@ in
         proxyPass = "http://unix:/run/jellyfin/socket:/web/index.html";
       };
     };
-    accessibleBy = "public";
+    accessibleBy = "private";
     noIndex.enable = true;
   };
 

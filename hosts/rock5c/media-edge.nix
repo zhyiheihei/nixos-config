@@ -91,11 +91,11 @@ in
         serverAliases = [ "rk-jellyfin.zhyi.xin" ];
         locations = {
           "/" = {
-            proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096";
+            proxyPass = "http://${LT.hosts.chromebox.ltnet.IPv4}:8096";
             proxyWebsockets = true;
             proxyNoTimeout = true;
           };
-          "= /web/".proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096/web/index.html";
+          "= /web/".proxyPass = "http://${LT.hosts.chromebox.ltnet.IPv4}:8096/web/index.html";
         };
         sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
@@ -105,11 +105,11 @@ in
         listenHTTPS.enable = false;
         locations = {
           "/" = {
-            proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096";
+            proxyPass = "http://${LT.hosts.chromebox.ltnet.IPv4}:8096";
             proxyWebsockets = true;
             proxyNoTimeout = true;
           };
-          "= /web/".proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096/web/index.html";
+          "= /web/".proxyPass = "http://${LT.hosts.chromebox.ltnet.IPv4}:8096/web/index.html";
         };
         accessibleBy = "localhost";
         noIndex.enable = true;
@@ -118,11 +118,11 @@ in
         listenHTTP.enable = true;
         listenHTTPS.enable = false;
         locations."= /Library/SelectableMediaFolders" = {
-          proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096";
+          proxyPass = "http://${LT.hosts.chromebox.ltnet.IPv4}:8096";
           extraConfig = "rewrite ^ /Library/MediaFolders break;";
         };
         locations."/" = {
-          proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:8096";
+          proxyPass = "http://${LT.hosts.chromebox.ltnet.IPv4}:8096";
           proxyWebsockets = true;
           proxyNoTimeout = true;
         };
