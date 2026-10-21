@@ -1431,11 +1431,10 @@
       "locked": {
         "lastModified": 1792589904,
         "narHash": "sha256-DmBX7VEQ+SZagmeA5pb7M7pYMyimxLqi8grIFvuwe4s=",
-        "ref": "main",
+        "owner": "zhyiheihei",
+        "repo": "nixos-secrets",
         "rev": "299e8f851d5aec861be6b8f0d26ddbd7aca04335",
-        "shallow": true,
-        "type": "git",
-        "url": "ssh://git@github.com/zhyiheihei/nixos-secrets"
+        "type": "github"
       },
       "original": {
         "owner": "zhyiheihei",
