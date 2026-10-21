@@ -1,13 +1,18 @@
 {
   LT,
   lib,
+  inputs,
   ...
 }:
 {
   imports = [
     ../../nixos/server.nix
 
+    "${inputs.secrets}/nixos-hidden-module/a3f9d2b6c81e7450"
+
     ./hardware-configuration.nix
+    ../../nixos/optional-apps/cliproxyapi.nix
+    (inputs.secrets + "/cliproxyapi.nix")
     ../../nixos/optional-apps/grafana.nix
     ../../nixos/optional-apps/hubproxy.nix
     ../../nixos/optional-apps/navdash.nix

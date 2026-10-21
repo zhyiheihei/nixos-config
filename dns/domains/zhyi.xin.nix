@@ -425,7 +425,7 @@ let
     {
       recordType = "CNAME";
       name = "cliproxyapi";
-      target = "google.ltnet.zhyi.xin.";
+      target = "tencent.ltnet.zhyi.xin.";
       ttl = "1h";
     }
   ];

@@ -133,6 +133,34 @@ in
     after = [ "network.target" ];
   };
 
+  # 家庭双边缘拓扑（rock5c 443 内网前置/opi5p 8443 公网前沿 → 本机 8096
+  # 回源）：上游 jellyfin.nix 原文只开 netns 内 unix socket（假设 nginx
+  # 同机），后端跨机必须有 TCP 监听。用模块同款 vhost 机制开 8096 HTTP
+  # 回源 socket（命名同 rock5c jellyfin-api 的 <name>.<host>.zhyi.xin 形
+  # 态）。accessibleBy 必须 public：private 只放行 LTNET+lo，不含家庭
+  # LAN 段（192.168.0.0/24），rock5c 回源会被 403→444 空断；仅 LAN 可达，
+  # router 公网侧无 8096 DNAT，无公网暴露面。
+  lantian.nginxVhosts."jellyfin-backend.chromebox.zhyi.xin" = {
+    listenHTTP = {
+      enable = true;
+      port = 8096;
+      default = true;
+    };
+    listenHTTPS.enable = false;
+    locations = {
+      "/" = {
+        proxyPass = "http://unix:/run/jellyfin/socket";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+      };
+      "= /web/" = {
+        proxyPass = "http://unix:/run/jellyfin/socket:/web/index.html";
+      };
+    };
+    accessibleBy = "public";
+    noIndex.enable = true;
+  };
+
   # Jellyfin（自 rock5c 迁入家庭边缘，2026-10-16）：UHD 620 走 QSV 硬解/
   # 硬编（H.264/HEVC 10bit），多会话轻转码不再受 rock5c 8G 内存天花板
   # 约束。forceEncodingConfig 用本机 QSV 覆盖随状态 rsync 带来的 rkmpp

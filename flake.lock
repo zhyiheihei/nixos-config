@@ -1429,12 +1429,13 @@
         ]
       },
       "locked": {
-        "lastModified": 1792512287,
-        "narHash": "sha256-f7nFvB53/CLnwJ7OFoveaCXA+02WDZm2Gjgkqnga74U=",
-        "owner": "zhyiheihei",
-        "repo": "nixos-secrets",
-        "rev": "d17e1f4c2a165e05a7241e41ecd2e7ee9bd61ad0",
-        "type": "github"
+        "lastModified": 1792589904,
+        "narHash": "sha256-DmBX7VEQ+SZagmeA5pb7M7pYMyimxLqi8grIFvuwe4s=",
+        "ref": "main",
+        "rev": "299e8f851d5aec861be6b8f0d26ddbd7aca04335",
+        "shallow": true,
+        "type": "git",
+        "url": "ssh://git@github.com/zhyiheihei/nixos-secrets"
       },
       "original": {
         "owner": "zhyiheihei",
