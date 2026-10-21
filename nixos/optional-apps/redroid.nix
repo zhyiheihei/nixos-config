@@ -56,6 +56,10 @@
       image = config.lantian.redroidSc8280xp.image;
       labels."io.containers.autoupdate" = "registry";
       privileged = true;
+      # Same PIDs rationale as redroid-rk3588.nix: GMS needs more than
+      # podman's default 2048, and runaway PIDs above 65535 kill 32-bit
+      # bionic processes.
+      extraOptions = [ "--pids-limit=16384" ];
       ports = [ "${LT.this.interconnect.IPv4}:5555:5555" ];
       volumes = [
         "${config.lantian.redroidSc8280xp.dataDir}:/data"

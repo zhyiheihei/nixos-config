@@ -61,6 +61,12 @@
           image = config.lantian.redroid.image;
           labels."io.containers.autoupdate" = "registry";
           privileged = true;
+          # Android with GMS exceeds podman's default PIDs ceiling of 2048:
+          # system_server dies on pthread_create EAGAIN and the magisk
+          # zygote-restart loop then burns past 65535 PIDs, where 32-bit
+          # bionic (pthread_mutex_t) aborts and the container loses its
+          # network. 16384 keeps boot headroom and stays below that wall.
+          extraOptions = [ "--pids-limit=16384" ];
           ports = [ "${LT.this.interconnect.IPv4}:5555:5555" ];
           volumes = [
             "${config.lantian.redroid.dataDir}:/data"

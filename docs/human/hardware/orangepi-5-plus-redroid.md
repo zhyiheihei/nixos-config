@@ -507,6 +507,46 @@ would form a swap.target → unit → basic.target → sysinit.target ordering
 cycle and systemd would drop swap.target entirely (observed on first NVMe
 boot: no swap at all).
 
+## PIDs ceiling (2026-10-21 incident)
+
+scrcpy could no longer connect to the container. The failure chain, each step
+confirmed from live state:
+
+1. Podman applies a built-in default PIDs ceiling of 2048 to every container
+   (`pids.max` on the container cgroup; the repository's containers.conf sets
+   no `pids_limit`). Ordinary Linux containers never notice; Android with GMS
+   does not fit: `system_server` died on
+   `OutOfMemoryError: pthread_create ... failed: Try again` minutes after a
+   fresh boot (dropbox `system_server_crash` from 2026-10-20 21:32).
+2. init and Magisk then entered a `zygote-restart` loop; every ~5 s cycle
+   leaked PIDs from the container's PID namespace. Past 65535, 32-bit bionic
+   aborts (`pthread_mutex_t` stores only 16 bits of PID; observed as
+   `crash_dump32` SIGABRT spam in the crash log buffer).
+3. With no running `netd`/`system_server`, the per-network `ip rule` entries
+   for table 1002 are never installed, so every unmarked packet (including
+   adbd replies) hits the `32000: from all unreachable` rule. ARP even stops
+   being answered, so the host shows `FAILED` neighbor entries and
+   `No route to host` for the container IP.
+
+The breakage began without any repository or image change: GMS state in the
+persistent `/data` slowly grew boot-time thread count past the 2048 ceiling.
+
+Fix: `extraOptions = [ "--pids-limit=16384" ]` on the redroid container in
+both shared modules (`redroid-rk3588.nix`, `redroid.nix`). 16384 leaves boot
+headroom and, importantly, keeps PIDs below the 65535 wall even if a restart
+loop ever recurs. `hosts/opi03/configuration.nix` defines its container inline
+and is not yet covered.
+
+Diagnosis commands that pinpointed the chain, for future reference:
+
+```bash
+podman inspect redroid --format "{{.State.CgroupPath}}"
+cat /sys/fs/cgroup/machine.slice/libpod-*.scope/pids.{current,max}
+podman exec redroid sh -c 'ip rule; logcat -d -b crash | tail'
+grep -r pthread_create \
+  /nix/persistent/var/lib/redroid-rk3588-lineage20/system/dropbox/
+```
+
 ## Rollback
 
 Keep the off-board 16 MiB SPI backup until repeated cold boots, networking,
