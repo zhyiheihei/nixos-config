@@ -88,6 +88,7 @@ H28K 管理独立的 `192.168.30.0/24`，它不是家庭 `home-lan` 的扩展。
 | `chromebox` | 131 | `192.168.0.56` | `cea01154b5` | `198.18.0.131` | x86_64 家庭 server；server mesh 全互联 |
 | `tencent-cn` | 132 | 无 | `57faffd1e1` | `198.18.0.132` | CN 公网节点；server mesh + public-facing |
 | `molishanguang-macbook` | 200 | 无 | `174ea952dd` | `198.18.0.200` | 额外 ZeroTier 客户端；不参与 server mesh |
+| `f50` | 133 | 无（USB 直连时 192.168.77.1） | `befc635633` | `198.18.0.133` | ZTE F50 随身WiFi，OpenWrt 25.12.5；额外 ZeroTier 客户端，`linux = true` 故预置静态邻居 |
 
 ZeroTier 受控节点的静态地址由 index 推导：IPv4 为 `198.18.0.<index>`，IPv6 为 `fdd8:1938:4e88::<index>`。额外客户端的声明来源仍是 secrets 的 `zerotier-additional-hosts.nix`；上表只记录已授权的 Mac 固定分配。
 
