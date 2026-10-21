@@ -10,6 +10,13 @@ let
   reservations = import (inputs.secrets + "/dhcp-reservations.nix");
 in
 {
+  # Explicit user instead of relying on the nixpkgs module's DynamicUser
+  users.users.kea = {
+    isSystemUser = true;
+    group = "kea";
+  };
+  users.groups.kea = { };
+
   services.kea.dhcp4 = {
     enable = true;
     settings = {

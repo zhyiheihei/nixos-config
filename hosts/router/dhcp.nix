@@ -10,6 +10,13 @@ let
   reservations = import (inputs.secrets + "/dhcp-reservations.nix");
 in
 {
+  # Explicit user instead of relying on the nixpkgs module's DynamicUser
+  users.users.kea = {
+    isSystemUser = true;
+    group = "kea";
+  };
+  users.groups.kea = { };
+
   # Follow the home-router Kea layout.  Infrastructure addresses stay static;
   # ordinary home devices receive addresses only from the .100-.249 pool.
   services.kea.dhcp4 = {
@@ -73,4 +80,63 @@ in
   };
   environment.etc."kea/dhcp4-server.conf".mode = "0444";
   lantian.harden.kea-dhcp4-server = true;
+
+  # 上游 lt-home-router 同款结构；地址换成环境事实：br-lan 只挂静态
+  # ULA fc00:192:168::/64，运营商 PD /64 是动态前缀，kea 无法静态建
+  # 子网，GUA 仍由 networkd RA PIO SLAAC 承接。
+  services.kea.dhcp6 = {
+    enable = true;
+    settings = {
+      interfaces-config = {
+        interfaces = [ "br-lan/fc00:192:168::1" ];
+      };
+      lease-database = {
+        name = "/var/lib/kea/dhcp6.leases";
+        persist = true;
+        type = "memfile";
+      };
+
+      rebind-timer = 3600 * 6;
+      renew-timer = 3600 * 3;
+      valid-lifetime = 3600 * 12;
+
+      subnet6 = [
+        {
+          id = 1;
+          subnet = "fc00:192:168::/64";
+          interface = "br-lan";
+          pools = [ { pool = "fc00:192:168::ff00 - fc00:192:168::ffff"; } ];
+          option-data = [
+            {
+              name = "dns-servers";
+              data = "fc00:192:168::1";
+            }
+          ];
+        }
+      ];
+    };
+  };
+
+  systemd.services.kea-dhcp6-server.serviceConfig = LT.networkToolHarden // {
+    Restart = lib.mkForce "always";
+    RestartSec = 3;
+    DynamicUser = lib.mkForce false;
+    PrivateUsers = false;
+    BindPaths = [
+      "/var/lib/kea"
+      "/run/kea"
+    ];
+    BindReadOnlyPaths = [
+      "/etc/kea"
+    ];
+    RestrictAddressFamilies = [
+      "AF_UNIX"
+      "AF_INET"
+      "AF_INET6"
+      "AF_NETLINK"
+      "AF_PACKET"
+    ];
+  };
+  environment.etc."kea/dhcp6-server.conf".mode = "0444";
+  lantian.harden.kea-dhcp6-server = true;
 }

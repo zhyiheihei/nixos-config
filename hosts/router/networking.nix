@@ -245,8 +245,9 @@ in
       ipv6SendRAConfig = {
         EmitDNS = true;
         DNS = "fc00:192:168::1";
-        Managed = false;
-        OtherInformation = false;
+        # M/O 置位配合 kea-dhcp6 发 ULA 地址；PD GUA 走 PIO SLAAC 不受影响
+        Managed = true;
+        OtherInformation = true;
       };
       ipv6Prefixes = [ { Prefix = "fc00:192:168::/64"; } ];
     };
