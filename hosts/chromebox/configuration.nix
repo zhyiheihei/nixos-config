@@ -9,7 +9,8 @@
     ../../nixos/server.nix
 
     ../../nixos/optional-apps/ncps-client.nix
-    # ../../nixos/optional-apps/palworld.nix
+    # 2026-10-21 随上游停用，用户指示重新启用（fork 偏移：上游无 palworld 消费主机）。
+    ../../nixos/optional-apps/palworld.nix
 
     ./hardware-configuration.nix
     ./media-automation.nix
