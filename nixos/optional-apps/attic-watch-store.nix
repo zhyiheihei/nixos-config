@@ -16,8 +16,8 @@
     environment.HOME = "/var/cache/attic-watch-store";
 
     script = ''
-      attic login --set-default zhyi https://attic.zhyi.xin $(cat ${config.sops.secrets.attic-upload-key.path})
-      exec attic watch-store zhyi
+      attic login --set-default lantian https://attic.colocrossing.xuyh0120.win $(cat ${config.sops.secrets.attic-upload-key.path})
+      exec attic watch-store lantian
     '';
 
     serviceConfig = {
