@@ -103,3 +103,4 @@ nixos/optional-apps/samba.nix # 本机 pre-commit 的 nil 版本比上游新，�
 nixos/optional-apps/syncthing/update-config.py # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
 nixos/optional-apps/webdav.nix # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
 skip: nixos/server-apps/ollama-cpa-honeypot-proxy.nix # 上游 colocrossing 专用 honeypot 入口；该文件放在 server-apps/ 会被 server.nix 整目录自动导入，在我们主机上会无条件创建两个 accessibleBy=public 的 vhost 并触发 nginx-security 断言，且本仓没有对应服务与端点
+nixos/optional-apps/prometheus/storagebox.nix # 内容与上游一致，仅文件末尾多一个换行：pre-commit 的 end-of-file-fixer 强制补齐，无法保持上游的「无尾换行」
