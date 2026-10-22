@@ -690,6 +690,10 @@ in
   ########################################
 
   services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
+  # 家宽 WAN 443 被运营商封禁，公网只能经本机 8443 进入（与 jellyfin/dav 同一前沿）。
+  # 模块默认 accessibleBy = private 会把非 LTNET 来源 403 转 444 直接断连，公网表现为
+  # 连不上；认证由 vhost 的 Basic Auth 承担，故这里放开来源限制（用户 2026-10-22 定）。
+  lantian.nginxVhosts."books.zhyi.xin".accessibleBy = lib.mkForce "public";
 
   # lantian.ignis.enable = true;
   # lantian.ignis.vaultDir = "/mnt/storage/media/Documents";

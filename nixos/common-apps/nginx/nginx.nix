@@ -254,7 +254,7 @@ in
   systemd.services.nginx-config-reload.serviceConfig.TimeoutStartSec = "120s";
 
   environment.etc."nginx/htpasswd".text = ''
-    lantian:${unixHashedPassword}
+    zhyi:${unixHashedPassword}
   '';
 
   systemd.packages = [
