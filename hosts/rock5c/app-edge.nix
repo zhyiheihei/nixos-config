@@ -7,13 +7,18 @@ let
   opiAddress = LT.hosts.opi5p.interconnect.IPv4;
   dragonAddress = LT.hosts.dragon-q8b.interconnect.IPv4;
   tencentAddress = LT.hosts.tencent.ltnet.IPv4;
+  # opi5p 上的 vhost 是 accessibleBy = private（只放行 LTNET/ULA/lo）。本机走家庭 LAN
+  # 地址回源时源 IP 是 192.168.0.64，会被 403 转 444 直接断连（前置表现为 502）。
+  # 这类后端需要把回源源地址绑到本机 LTNET 地址，才落进后端的允许集。
+  ltnetSource = LT.hosts.rock5c.ltnet.IPv4;
   # 服务在 opi5p 上的走 opi5p 回源，已迁 dragon-q8b 的走 dragon-q8b。
-  mkBackend = backendHost: hostAddress: {
+  mkBackend = backendHost: hostAddress: extraConfig: {
     proxyPass = "https://${hostAddress}";
     proxyOverrideHost = backendHost;
     proxyWebsockets = true;
     proxyNoTimeout = true;
     extraConfig = ''
+      ${extraConfig}
       proxy_ssl_server_name on;
       proxy_ssl_name ${backendHost};
     '';
@@ -30,6 +35,7 @@ let
     "books.zhyi.xin" = {
       backend = "books.zhyi.xin";
       address = opiAddress;
+      bindLTNET = true;
     };
     "dav.zhyi.xin" = {
       # 后端实际 vhost 名：opi5p 上 webdav 以 localVhost 生成 dav.opi5p.zhyi.xin，
@@ -65,7 +71,9 @@ let
   };
   mkFixedFrontend = frontend: cfg: {
     locations."/" =
-      (mkBackend cfg.backend cfg.address)
+      (mkBackend cfg.backend cfg.address (
+        lib.optionalString (cfg.bindLTNET or false) "proxy_bind ${ltnetSource};"
+      ))
       // lib.optionalAttrs (builtins.elem frontend [
         "books.zhyi.xin"
         "dav.zhyi.xin"
