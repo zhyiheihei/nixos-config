@@ -10,11 +10,12 @@
 
     ./hardware-configuration.nix
     ./home-services.nix
-    ./picoclaw-config.nix
+    # picoclaw 已按上游停用（pve-epyc 注释该模块），用户 2026-10-22 要求跟随。
+    # ./picoclaw-config.nix
 
     ../../nixos/optional-apps/kubo.nix
     ../../nixos/optional-apps/ncps.nix
-    ../../nixos/optional-apps/picoclaw.nix
+    # ../../nixos/optional-apps/picoclaw.nix
     ../../nixos/optional-apps/redroid-gapps-image.nix
     ../../nixos/optional-apps/redroid.nix
   ];

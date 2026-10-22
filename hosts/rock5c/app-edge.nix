@@ -46,6 +46,7 @@ let
     "immich.zhyi.xin" = {
       backend = "immich.zhyi.xin";
       address = opiAddress;
+      bindLTNET = true;
     };
     # OpenList 后端 vhost 在 opi5p（OAuth 在后端层），此处同 asf 模式前置
     # 一层 OAuth：内网 443 入口经 router 兜底 DNAT 落到本机，缺失登记时

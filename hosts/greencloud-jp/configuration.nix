@@ -33,9 +33,9 @@ in
     # Gitea（自 greencloud 迁入，2026-08-29；模块自带 mysql 依赖）。
     ../../nixos/optional-apps/gitea
 
-    # Nextcloud：数据库用本机 MariaDB（上游 oci 类型连的是作者的 Oracle
-    # ADB），OIDC 走 volcengine 的 Dex。
-    ./nextcloud.nix
+    # Nextcloud 已按上游停用（oracle-vm-arm1 注释该模块），用户 2026-10-22
+    # 要求跟随；主机级配置保留在 ./nextcloud.nix 便于随时恢复。
+    # ./nextcloud.nix
 
     # Syncthing 同步节点（自 greencloud 移交，机群常在线异地端）。
     ../../nixos/optional-apps/syncthing

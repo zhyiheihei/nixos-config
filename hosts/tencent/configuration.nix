@@ -1,6 +1,5 @@
 {
   LT,
-  lib,
   inputs,
   ...
 }:
@@ -17,7 +16,9 @@
     ../../nixos/optional-apps/hubproxy.nix
     ../../nixos/optional-apps/navdash.nix
     ../../nixos/optional-apps/prometheus
-    ../../nixos/optional-apps/searxng.nix
+    # 上游已停用 searxng（pve-epyc 注释该模块：missing regenerated secret），
+    # 按用户 2026-10-22 要求跟随停用。
+    # ../../nixos/optional-apps/searxng.nix
     # ../../nixos/optional-apps/clawemail.nix
     # 2026-09-11 新增：Lsky Pro 图床（pic.zhyi.xin），官方 Docker 镜像。
     ../../nixos/optional-apps/lsky-pro.nix
@@ -39,19 +40,10 @@
   # 个人服务门户（nav.zhyi.xin，原生 OIDC 登录，卡片由求值期生成）
   lantian.navdash.enable = true;
 
-  # searx 的 favicon 缓存（作者布局：/var/cache/searx）由 vassal 进程写入；
-  # 实测 vassal 补充组恒为空（uwsgi immediate-uid 不做 initgroups、add-gid
-  # 不生效），且 uwsgi 重启会把 CacheDirectory 属主改回 uwsgi——组/属主
-  # 方案都会被覆盖。目录只放 favicon 缓存库，私有实例，直接 0777。
-  systemd.services.uwsgi.serviceConfig = LT.serviceHarden // {
-    CacheDirectoryMode = "0777";
-    # uwsgi 执行 Python 插件并 fork worker，部分键与动态加载冲突
-    MemoryDenyWriteExecute = lib.mkForce false;
-    PrivateUsers = lib.mkForce false;
-    PrivateDevices = lib.mkForce false;
-    SystemCallFilter = lib.mkForce [ ];
-  };
-  lantian.harden.uwsgi = true;
+  # searx 已随上游停用，uwsgi 的 confinement 依赖（/run/searx、vassal 降权）一并移除。
+  # 如需重启：searxng.nix 重新导入后，uwsgi 必须给 chroot 补 /etc/passwd、
+  # /etc/group、/etc/nsswitch.conf（vassal 用 immediate-uid/gid 符号名降权）
+  # 与 /run/searx（searx-init 的 RuntimeDirectory，socket+settings.yml 都在里面）。
 
   # Read-only Prometheus API for Homepage's prometheusmetric widgets (migrated
   # from greencloud 2026-08-14 with the monitoring stack). Private only: Homepage

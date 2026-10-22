@@ -210,13 +210,15 @@ in
     ../../nixos/optional-apps/i2pd.nix
     ../../nixos/optional-apps/ignis.nix
     ../../nixos/optional-apps/immich-rockchip.nix
-    ../../nixos/optional-apps/microsoft-rewards-script.nix
+    # 上游已停用（pve-epyc 注释 microsoft-rewards-script / resin），按用户
+    # 2026-10-22 要求跟随停用。
+    # ../../nixos/optional-apps/microsoft-rewards-script.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/openlist.nix
     ../../nixos/optional-apps/one-kvm.nix
     ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/ws-scrcpy.nix
-    ../../nixos/optional-apps/resin.nix
+    # ../../nixos/optional-apps/resin.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/taosync.nix
