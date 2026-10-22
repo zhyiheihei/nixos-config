@@ -327,7 +327,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | 网络信息 API | `https://api.zhyi.xin/geoip` | 公开 |
 | Avatar API | `https://avatar.zhyi.xin` | 公开 |
 | ArchiSteamFarm | `https://asf.zhyi.xin` | Dex OAuth / IPC |
-| Calibre COPS | `https://books.zhyi.xin` | Basic Auth |
+| Calibre COPS | `https://books.zhyi.xin`（OPDS 1.2 XML 在 `/feed`） | Basic Auth |
 | Immich | `https://immich.zhyi.xin` | 应用登录 |
 | Tachidesk | `https://tachidesk.zhyi.xin` | Basic Auth |
 | Jellyfin | `https://jellyfin.zhyi.xin` | 应用登录 |
@@ -389,6 +389,20 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 
 Homepage 按“没有 Web UI 的协议不添加虚假卡片”规则不为 SMTP、SFTP、Samba、
 NFS 等生成卡片；WebDAV 卡片保留在 `08 · 私有 · 家庭服务` 分组。
+
+### books.zhyi.xin（Calibre COPS）两个踩过的坑
+
+- **OPDS 路径是 `/feed`，不是 `/opds`**。COPS 4.5.4 的 `/opds` 是 OPDS 2.0
+  JSON 入口，仅 developer 模式可用，非 dev 构建直接 PHP fatal（返回
+  text/html 500 页面）；OPDS 1.2 XML 目录在 `/feed`，单书下载是
+  `/index.php/fetch/...`，`type="application/epub+zip"`，阅读器（CrossPoint
+  / OnePage 固件）只认这个组合。
+- **前置回源必须绑 LTNET 源地址**。opi5p 上该 vhost 是
+  `accessibleBy = "private"`（只放行 LTNET/ULA/lo）；rock5c 前置若用 LAN
+  地址 `192.168.0.62` 回源，源 IP 是 `192.168.0.64`，被 `403 → 444` 断连，
+  对外表现为 502（日志 `access forbidden by rule`）。`hosts/rock5c/app-edge.nix`
+  里给该后端开 `bindLTNET = true`，回源绑 `198.18.0.123` 才通。`immich.zhyi.xin`
+  是同一类缺陷（前置 502、后端 200）。
 
 ## 当前漂移与处理优先级
 
