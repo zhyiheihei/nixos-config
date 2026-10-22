@@ -33,5 +33,6 @@
 | DNS 发布 | [`gcore-dnscontrol-free-plan.md`](gcore-dnscontrol-free-plan.md) |
 | 监控 | [`monitoring.md`](monitoring.md) |
 | 服务位置 | [`fleet-service-chain.md`](fleet-service-chain.md) |
+| 阅读器（OnePage 硬件/固件/书库） | [`onepage-reader.md`](onepage-reader.md) |
 
 > 仓库结构详解（目录树、模块分层表、标签、架构图）见 [`../human/reference/repository-structure.md`](../human/reference/repository-structure.md)。
