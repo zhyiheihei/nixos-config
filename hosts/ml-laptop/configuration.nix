@@ -45,6 +45,9 @@
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/client-apps/zcode.nix
     # ../../nixos/optional-apps/leigod-accelerator.nix
+
+    # 本机保留：ComfyUI（作业图片管线，见 comfyui.nix 头注）。
+    ./comfyui.nix
   ];
 
   # pi 的 CLIProxyAPI 插件凭据：owner 设为 zhyi，供 home activation 读取后
