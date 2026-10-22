@@ -343,7 +343,7 @@ Elasticsearch unit 或容器。因此不能把日志汇聚写成“正常运行�
 | Uni API | `https://ai-api.zhyi.xin` | API key |
 | MetaAPI | `https://metapi.tencent.zhyi.xin` | 应用口令 / token |
 | n8n OpenAI Bridge | `https://n8n-bridge.greencloud.zhyi.xin/health` | bearer token |
-| SearxNG | `https://searx.tencent.zhyi.xin` | 私有 |
+| SearxNG | `https://searx.tencent.zhyi.xin` | 私有（2026-10-22 按上游停用，vhost 已下线） |
 | FastAPI DLS | `https://fastapi-dls.rock5c.zhyi.xin` | 租约 token |
 | RSSHub | `https://rsshub.zhyi.xin` | 私有 |
 | PVE | `https://pve-5700u.zhyi.xin:8006` | 应用登录 |
