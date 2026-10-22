@@ -94,6 +94,13 @@ in
       jellyfin = {
         after = [ "mnt-storage.mount" ];
         requires = [ "mnt-storage.mount" ];
+        # 媒体库启用了字幕写回，chroot 需要可写绑定媒体目录。
+        serviceConfig.BindPaths = [
+          "/run/opengl-driver"
+          "/mnt/storage/media-radarr"
+          "/mnt/storage/media-shortdrama"
+          "/mnt/storage/media-sonarr"
+        ];
         environment = LT.proxyEnvironment // {
           HTTP_PROXY = "http://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
           HTTPS_PROXY = "http://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
@@ -161,17 +168,25 @@ in
     noIndex.enable = true;
   };
 
-  # Jellyfin（自 rock5c 迁入家庭边缘，2026-10-16）：UHD 620 走 QSV 硬解/
+  # Jellyfin（自 rock5c 迁入家庭边缘，2026-10-16）：UHD 620 走 VAAPI 硬解/
   # 硬编（H.264/HEVC 10bit），多会话轻转码不再受 rock5c 8G 内存天花板
-  # 约束。forceEncodingConfig 用本机 QSV 覆盖随状态 rsync 带来的 rkmpp
+  # 约束。forceEncodingConfig 用本机 VAAPI 覆盖随状态 rsync 带来的 rkmpp
   # 编码配置，NixOS 配置成为 encoding.xml 唯一真源。
+  # UHD 620 的 QSV 需要已被 nixpkgs 标记为不安全的旧 Media SDK；直接用
+  # iHD 驱动的 VAAPI 后端，避免引入该运行时。Intel 驱动写法见
+  # nixos/client-components/xorg.nix。
+  hardware.graphics = {
+    enable = true;
+    extraPackages = [ pkgs.intel-media-driver ];
+  };
+
   services.jellyfin = {
     enable = true;
     forceEncodingConfig = true;
     transcoding.enableHardwareEncoding = true;
     hardwareAcceleration = {
       enable = true;
-      type = "qsv";
+      type = "vaapi";
       device = "/dev/dri/renderD128";
     };
   };
