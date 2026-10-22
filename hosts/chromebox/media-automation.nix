@@ -94,6 +94,10 @@ in
       jellyfin = {
         after = [ "mnt-storage.mount" ];
         requires = [ "mnt-storage.mount" ];
+        # libva 运行期 dlopen /run/opengl-driver 下的 iHD 驱动，其 gmmlib 依赖
+        # 不在 ExecStart 闭包里，confinement chroot 看不到，ffmpeg 会报
+        # "Failed to initialise VAAPI connection"；驱动闭包需显式补进 chroot。
+        confinement.packages = [ pkgs.intel-media-driver ];
         # 媒体库由 MoviePilot 刮削写回，Jellyfin 在 chroot 中只读访问。
         serviceConfig = {
           BindPaths = [ "/run/opengl-driver" ];
