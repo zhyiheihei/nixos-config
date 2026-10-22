@@ -1,6 +1,8 @@
 # OnePage 电纸书阅读器（壹页 / ESP32-C61）
 
 作者仓库：`MoveCall/crosspoint-onepage`（CrossPoint Reader 的 C61 移植，MIT）。
+本地维护分支：**`zhyiheihei/crosspoint-onepage`**（fork，只有 HEAD 上一个本地 fix 提交，
+完整保留上游历史，`git rebase upstream/main` 可跟进）。
 本文件记录 2026-10-22 把它接上 `books.zhyi.xin` 的全过程与踩坑，供以后重建/升级固件时对照。
 
 ## 硬件与固件事实（实测，不是推测）
@@ -48,7 +50,9 @@ static void* psramCalloc(size_t n, size_t size) {
 mbedtls_platform_set_calloc_free(psramCalloc, heap_caps_free);
 ```
 
-补丁全文见 `tools/onepage-firmware/mbedtls-psram.patch`（含临时诊断打印）。
+补丁与详细根因分析在固件仓 `zhyiheihei/crosspoint-onepage`（上游 `MoveCall/crosspoint-onepage`
+的 fork，本地只在 HEAD 上叠一个 fix 提交，便于 `git rebase upstream/main` 跟进），
+见该仓 `FORK_NOTES.md` 与 commit `fix(tls): point mbedTLS allocator at PSRAM`。
 构建/刷机：`tools/onepage-firmware/build.sh <源码目录>`、`flash.sh <firmware.bin>`。
 构建必须在容器里做（本机 NixOS 直接跑 PlatformIO 会撞 `/tmp` 沙箱与动态链接器问题）；
 工具链缓存放 `${HOME}/.cache/pio-c61`，冷构建约 8 分钟（其中大头是下载 8 GB 工具链），增量 20 秒级。
