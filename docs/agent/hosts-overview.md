@@ -23,16 +23,16 @@
 | `volcengine` | 119 | `server` / 公网入口 | `volcengine.zhyi.xin` | CN VPS；`zhyi.xin` 公网入口；运行 Dex、Pocket ID 与 Vaultwarden。 |
 | `greencloud` | 120 | `server` / DN42 / 公网入口 | `203.55.176.158` | SG VPS；公共服务、协作内容链路与 ZeroTier controller（监控栈 2026-08-14 迁至 tencent）；2026-10-08 起另承载 fastpit（posts.zhyi.xin，对齐上游 colocrossing）。 |
 | `google` | 121 | `server` / 公网入口 / 日志目标 | `35.212.152.140` | US VPS（GCP）；Filebeat 目标仍指向此机，但当前未部署 Elasticsearch，日志链待修复。 |
-| `opi5p` | 122 | RK3588 / reDroid / One-KVM | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。2026-09 启用板载 HDMI RX（vendor-hdmirx.patch）+ One-KVM IP-KVM 容器（lantian.one-kvm，Web :8080）。2026-09-17 起 Hydra CI 所在地（见 docs/agent/hydra-build-chain.md）。家庭内唯一保留 `server` 标签的机器（备份 SFTP 端点 + 全仓统一出站代理入口），2026-10-01 定；2026-10-08 起另承担 i2pd/Tor 匿名出口（对齐上游 pve-epyc）。 |
-| `rock5c` | 123 | RK3588 / 家庭边缘 | `192.168.0.64` | Radxa ROCK 5C；边缘代理、控制链、MetaCubeXD 与 reDroid。2026-10-01 起 LTNET 走 ZeroTier（已退出 wgmesh/BGP mesh，见 wg-mesh 漂移登记）。2026-10-11 启用 earlyoom：Jellyfin 全库刷新叠加 rkmpp 硬解转码（DRM GEM 计入 Shmem）吃满 8 GiB + 4 GiB zram，无 OOM kill 下整机回收风暴活锁到断电。 |
-| `lubancat1` | 124 | RK3566 / `low-ram` | `192.168.0.65` | 原版 LubanCat-1（非 V2），2 GiB RAM、无 eMMC；server 角色基线已上线，尚未迁入用户应用；2026-10-01 摘除 `server` 标签退出 mesh（其 ZeroTier 当前失联，待修）。 |
+| `opi5p` | 122 | `server` / RK3588 / reDroid / One-KVM | `192.168.0.62` | Orange Pi 5 Plus；vendor kernel、Mali GPU，以及不依赖 eMMC 的 SPI + NVMe 启动。2026-09 启用板载 HDMI RX（vendor-hdmirx.patch）+ One-KVM IP-KVM 容器（lantian.one-kvm，Web :8080）。2026-09-17 起 Hydra CI 所在地（见 docs/agent/hydra-build-chain.md）。家庭 `server` mesh 成员（`lt-home-vm` 服务映射组之一；备份 SFTP 端点 + 全仓统一出站代理入口）；2026-10-08 起另承担 i2pd/Tor 匿名出口（对齐上游 pve-epyc）。 |
+| `rock5c` | 123 | `server` / RK3588 / 家庭边缘 | `192.168.0.64` | Radxa ROCK 5C；边缘代理、控制链、MetaCubeXD 与 reDroid。2026-10-22 按 `lt-home-vm` 服务映射重入 server mesh，部署与握手验收通过。2026-10-11 启用 earlyoom：Jellyfin 全库刷新叠加 rkmpp 硬解转码（DRM GEM 计入 Shmem）吃满 8 GiB + 4 GiB zram，无 OOM kill 下整机回收风暴活锁到断电。 |
+| `lubancat1` | 124 | `server` / RK3566 / `low-ram` | `192.168.0.65` | 原版 LubanCat-1（非 V2），2 GiB RAM、无 eMMC；server 角色基线已上线，尚未迁入用户应用；2026-10-22 按 `lt-home-vm` 服务映射重入 server mesh，部署与握手验收通过。 |
 | `h28k` | 125 | RK3528 / 异地路由器（预部署） | WAN DHCP / LAN `192.168.30.1` | HINLINK H28K；双千兆口、Kea、CoreDNS 与 nftables NAT；SSH/SOPS/ZeroTier 身份已采集（ZeroTier node ID `368d3cf42b`，2026-08-15 修正），仍在家中 staging（临时 SSH 放行规则保留），待迁异地站点。 |
 | `opi03` | 126 | H618 / reDroid 实验设备 | DHCP（未固定） | Orange Pi Zero 3；本地 Android 镜像和硬件加速仍在开发，尚未完成正式网络身份与实机验收。 |
 | `taishanpi` | 127 | RK3566 / 带起中 | `192.168.0.136`（Wi-Fi DHCP）/ LTNET `198.18.0.127` | LCKFB Taishan Pi（泰山派）；板载 AP6212 Wi-Fi 已通（SDIO + 自带固件，见 `pkgs/taishanpi-kernel/brcm-firmware/`）；eMMC 独立引导，SD 可拔；ZT node `e649a796a9`；串口 ttyS2 1500000；MIPI 屏未验证，`manualDeploy` 保持。 |
 | `tencent` | 128 | `server` / 公网入口 / DN42 | `tencent.zhyi.xin` | 腾讯云首尔 VPS（2C/4G，AS132203）；DN42 节点、cn-accel 出口、监控中心（Prometheus/Grafana 自 greencloud 迁入，2026-08-14）；2026-08-13 重装完成，host key/ZeroTier 已回填，LTNET mesh 已接入。 |
-| `dragon-q8b` | 129 | SC8280XP / 家庭服务机 | `192.168.0.66` | Radxa Dragon Q8B（SC8280XP aarch64，8G RAM）；2026-08-28 起自 opi5p 迁入家庭服务，2026-09 下载链（bitmagnet/peerbanhelper/tachidesk/resilio）再迁 chromebox 减负；现承载 archivebox/memos/wallos + NCPS + reDroid，2026-10-08 新增 IPFS（kubo，tnl-buyvm netns）与 PicoClaw 助理网关；2026-10-01 摘除 `server` 标签退出 mesh。 |
+| `dragon-q8b` | 129 | `server` / SC8280XP / 家庭服务机 | `192.168.0.66` | Radxa Dragon Q8B（SC8280XP aarch64，8G RAM）；2026-08-28 起自 opi5p 迁入家庭服务，2026-09 下载链（bitmagnet/peerbanhelper/tachidesk/resilio）再迁 chromebox 减负；现承载 archivebox/memos/wallos + NCPS + reDroid，2026-10-08 新增 IPFS（kubo，tnl-buyvm netns）与 PicoClaw 助理网关；2026-10-22 按 `lt-home-vm` 服务映射重入 server mesh，部署与握手验收通过。 |
 | `greencloud-jp` | 130 | `server` / DN42 / 异地备份 / `cn-accel` 出口 / S3 网关 / Gitea / Syncthing | `45.159.48.76` | GreenCloud 东京存储 VPS（2C/3G + 1T 数据盘，IIJ 线路）；SFTP 备份端点 + storagebox 双备份仓库；S3 网关（`s3.zhyi.xin`，含 gitea LFS 桶）；cn-accel 出口（订阅内 🇯🇵 日本 GreenCloud JP）；Gitea 自 greencloud 迁入（2026-08-29，`git.zhyi.xin`）；Syncthing 同步节点自 greencloud 移交（2026-09，存储 `/data/syncthing`，知识库 vault `/data/syncthing/Notes`）；v4 静态（该机房 DHCPv4 拿不到租约）；接入记录见 [greencloud-jp](../human/hardware/greencloud-jp-vps.md)。 |
-| `chromebox` | 131 | `lan-access` | `192.168.0.56` | x86_64 迷你主机（i7-8550U / 9.6G / KIOXIA 465.8G NVMe）；UEFI + GRUB EFI，btrfs 三子卷；2026-09-21 从 NixOS ISO 接入（ZeroTier `cea01154b5`，LTNET `198.18.0.131`）；2026-09 起承载下载消费链（Bitmagnet/PeerBanHelper/Tachidesk/ClamAV/Resilio + QNAP NFS，自 dragon-q8b 迁入，92e7ed0e7）；2026-10-01 摘除 `server` 标签退出 mesh；2026-10-13 起承载 Palworld 服务器（`palworld.zhyi.xin:8211`，全舰队唯一 x86_64 家庭服务机，启用上游 `palworld.nix` 模块，禁用其中的 palworld-exporter：其 1.3.1 存档发现与新版 backup/ 布局不兼容且无抓取方）。 |
+| `chromebox` | 131 | `server` / `lan-access` | `192.168.0.56` | x86_64 迷你主机（i7-8550U / 9.6G / KIOXIA 465.8G NVMe）；UEFI + GRUB EFI，btrfs 三子卷；2026-09-21 从 NixOS ISO 接入（ZeroTier `cea01154b5`，LTNET `198.18.0.131`）；2026-09 起承载下载消费链（Bitmagnet/PeerBanHelper/Tachidesk/ClamAV/Resilio + QNAP NFS，自 dragon-q8b 迁入，92e7ed0e7）；2026-10-22 按 `lt-home-vm` 服务映射重入 server mesh，部署与握手验收通过；2026-10-13 起承载 Palworld 服务器（`palworld.zhyi.xin:8211`，全舰队唯一 x86_64 家庭服务机，启用上游 `palworld.nix` 模块，禁用其中的 palworld-exporter：其 1.3.1 存档发现与新版 backup/ 布局不兼容且无抓取方）。 |
 | `tencent-cn` | 132 | `server` / 公网入口 | `123.206.117.194` | 腾讯云 CN VPS（2C，IPv6 静态 /128）；2026-09-23 接入，`public-facing` + server mesh 成员（ZeroTier `57faffd1e1`，LTNET `198.18.0.132`）；尚未迁入用户应用。 |
 
 家庭局域网地址、MAC 与 DHCP 边界以 [网络参照的 LAN 分配](reference.md#家庭-lan-静态分配)
@@ -46,9 +46,7 @@
 
 ## 作者主机 → 本仓主机映射
 
-公共模块（与上游逐字对齐）引用 `LT.hosts.<作者主机>` 时按下表直接替换为本仓
-真实主机名（无别名机制，见 work-norms §3）。多对一映射以**角色/地域最接近**为准；
-若某作者主机只被引用为某服务的承载者而本仓对应主机不承载该服务，则删除该引用。
+公共模块（与上游逐字对齐）中的 `LT.hosts.<作者主机>` 映射必须依据该 host 实际导入的服务，以及这些服务在本仓的承载位置核定，不能按 CPU、地域或硬件相似度选“最近的一台”。一个 exam host 的服务可以拆到多个本地主机，映射表应列出完整集合；具体引用再按服务导入上下文判断，不能将一对多关系压成单一全局替换。
 
 | 作者主机 | 本仓主机 | 依据 |
 | --- | --- | --- |
@@ -56,7 +54,7 @@
 | `lt-home-rdp` | `ml-builder` | 家庭 RDP/构建机 |
 | `pve-epyc` | `pve-5700u` | PVE 宿主 |
 | `lt-home-router` | `router` | 家庭路由器 |
-| `lt-home-vm` | `rock5c` | 家庭服务 VM 已退役，应用迁至 ROCK5C/OPI5P/PVE |
+| `lt-home-vm` | `rock5c`、`opi5p`、`dragon-q8b`、`lubancat1`、`chromebox` | 上游服务导入分散在这五台本地主机；这是服务映射集合，不是一台硬件等价主机 |
 | `lt-dell-wyse` | `ml-2700` | 作者物理笔记本 |
 | `lt-dell-wyse-thin` | `opi03` | 瘦客户端/实验设备 |
 | `lt-rpi4` | `lubancat1` | 低功耗 ARM 板 |
@@ -68,7 +66,8 @@
 | `bwg-lax` / `virmach-ny1g` / `virmach-ny6g` | `hostdare` | 海外 VPS，公网入口 |
 | `colocrossing` | `greencloud` | 海外 VPS，公共服务 |
 | `terrahost` / `v-ps-sea` / `azure-vm1` / `azure-vm2` / `azure-vm3` | `tencent` | 海外 VPS，监控/服务 |
-| `oracle-vm-arm1` | `rock5c` | ARM VPS |
+
+旧映射 `oracle-vm-arm1 -> rock5c` 仅依据 ARM 硬件相似度，按新规则撤销；完成服务导入核对前，不得据此替换引用或推导主机角色。表内其余旧映射也应逐项按服务导入关系复核；未复核的行不能作为新增配置或网络成员资格的依据。
 
 ## 关键字段
 

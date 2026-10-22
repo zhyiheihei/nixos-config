@@ -2,6 +2,7 @@
 # 上游 exam 对齐工具（agent 入口，自描述）：
 #   tools/exam-check          审计共享路径相对基线的漂移（默认动作）
 #   tools/exam-check log      查看基线以来上游增量
+#   tools/exam-check host-map [exam-host] 查看按服务导入核定的主机映射
 #   tools/exam-check --help   完整用法与工作流
 # 基线见 docs/agent/upstream-baseline.md，流程见 docs/agent/work-norms.md §3。
 import argparse
@@ -80,7 +81,7 @@ NORMALIZE = [
     ("fe80::2547", "fe80::3712"),
     (", 2547,", ", 3712,"),
     ("lantian_dn42", "zhyi_dn42"),
-    # 主机映射（docs/agent/hosts-overview.md「作者主机 → 本仓主机映射」，多对一取角色最近）
+    # 已有的单主机文本映射；新增映射必须先按服务导入核实。服务拆分成多台主机时不得全局替换。
     ("LT.hosts.lt-hp-omen", "LT.hosts.ml-laptop"),
     ('"lt-hp-omen"', '"ml-laptop"'),
     ("LT.hosts.lt-home-rdp", "LT.hosts.ml-builder"),
@@ -89,8 +90,6 @@ NORMALIZE = [
     ('"pve-epyc"', '"pve-5700u"'),
     ("LT.hosts.lt-home-router", "LT.hosts.router"),
     ('"lt-home-router"', '"router"'),
-    ("LT.hosts.lt-home-vm", "LT.hosts.rock5c"),
-    ('"lt-home-vm"', '"rock5c"'),
     ("LT.hosts.lt-dell-wyse-thin", "LT.hosts.opi03"),
     ('"lt-dell-wyse-thin"', '"opi03"'),
     ("LT.hosts.lt-dell-wyse", "LT.hosts.ml-2700"),
@@ -131,9 +130,14 @@ NORMALIZE = [
     ('"azure-vm2"', '"tencent"'),
     ("LT.hosts.azure-vm3", "LT.hosts.tencent"),
     ('"azure-vm3"', '"tencent"'),
-    ("LT.hosts.oracle-vm-arm1", "LT.hosts.rock5c"),
-    ('"oracle-vm-arm1"', '"rock5c"'),
 ]
+
+SERVICE_IMPORT_HOST_MAPS = {
+    "lt-home-vm": {
+        "local_hosts": ("rock5c", "opi5p", "dragon-q8b", "lubancat1", "chromebox"),
+        "basis": "上游服务导入分散在这五台本地主机；这是服务映射集合，不是单一硬件等价主机",
+    },
+}
 
 
 def git(*args):
@@ -146,6 +150,24 @@ def git(*args):
 def die(msg, code=2):
     print(f"exam-check: {msg}", file=sys.stderr)
     sys.exit(code)
+
+
+def do_host_map(argv):
+    ap = argparse.ArgumentParser(
+        prog="tools/exam-check host-map",
+        description="列出按 exam 服务导入关系核定的主机映射",
+    )
+    ap.add_argument("exam_host", nargs="?", choices=tuple(SERVICE_IMPORT_HOST_MAPS))
+    args = ap.parse_args(argv)
+    mappings = (
+        {args.exam_host: SERVICE_IMPORT_HOST_MAPS[args.exam_host]}
+        if args.exam_host
+        else SERVICE_IMPORT_HOST_MAPS
+    )
+    for upstream, mapping in mappings.items():
+        print(f"{upstream} -> {' + '.join(mapping['local_hosts'])}")
+        print(f"  {mapping['basis']}")
+        print("  多主机映射按服务上下文解析，不做全局 NORMALIZE 替换。")
 
 
 def load_baseline():
@@ -268,6 +290,23 @@ def baseline_content(baseline, path):
     return git("show", f"{baseline}:{path}")
 
 
+def validate_shared_subpath(subpath):
+    if not subpath:
+        return
+    candidate = Path(subpath).as_posix().rstrip("/")
+    if not any(
+        candidate == root
+        or candidate.startswith(root.rstrip("/") + "/")
+        or root.startswith(candidate + "/")
+        for root in SHARED_PATHS
+    ):
+        die(
+            f"--path {subpath!r} 不在共享审计路径内；hosts/、docs/ 等 fork 自有路径不能报告为对齐通过"
+        )
+    if not baseline_files(load_baseline(), candidate) and not worktree_files(candidate):
+        die(f"--path {subpath!r} 在共享路径内没有匹配文件")
+
+
 def do_diff(argv):
     ap = argparse.ArgumentParser(
         prog="tools/exam-check diff",
@@ -275,6 +314,7 @@ def do_diff(argv):
     )
     ap.add_argument("path", help="共享路径内的文件（改名前后皆可）")
     a = ap.parse_args(argv)
+    validate_shared_subpath(a.path)
     baseline = load_baseline()
     paths = [a.path]
     for code, old, new in tree_ops(f"{baseline}..exam/master"):
@@ -294,6 +334,7 @@ def do_upstream(argv):
     ap.add_argument("--path", default="", help="只对比某子路径")
     ap.add_argument("-v", "--verbose", action="store_true", help="打印未对齐文件的归一化 diff")
     a = ap.parse_args(argv)
+    validate_shared_subpath(a.path)
     allow = load_allowlist()
     up = git("ls-tree", "-r", "--name-only", "-z", "exam/master", "--", *([a.path] if a.path else SHARED_PATHS))
     up_set = {p for p in up.decode().split("\0") if p and not p.startswith(EXCLUDES)}
@@ -378,6 +419,7 @@ def do_structure(argv):
     )
     ap.add_argument("--path", default="", help="只审计某子路径")
     a = ap.parse_args(argv)
+    validate_shared_subpath(a.path)
     baseline = load_baseline()
     allow = load_allowlist()
     unapplied = structure_report(baseline, allow, a.path)
@@ -466,6 +508,9 @@ def lock_report():
 
 def main():
     argv = sys.argv[1:]
+    if argv and argv[0] == "host-map":
+        do_host_map(argv[1:])
+        return
     if argv and argv[0] == "upstream":
         do_upstream(argv[1:])
         return
@@ -486,6 +531,7 @@ def main():
         epilog="常用工作流：\n"
                "  git fetch exam\n"
                "  tools/exam-check log          # 上游改了什么\n"
+               "  tools/exam-check host-map     # 查看按服务导入核定的主机映射\n"
                "  tools/exam-check structure    # 上游新增/删除/改名是否已跟进（A/D/R）\n"
                "  tools/exam-check              # 我们漂了多少（含结构审计；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
                "  tools/exam-check -v           # 漂移文件的归一化 diff\n"
@@ -496,6 +542,7 @@ def main():
     ap.add_argument("--path", default="", help="只审计某子路径")
     ap.add_argument("--print-paths", action="store_true", help="打印共享路径清单")
     args = ap.parse_args(argv)
+    validate_shared_subpath(args.path)
 
     if args.print_paths:
         print(" ".join(SHARED_PATHS))

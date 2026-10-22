@@ -19,10 +19,12 @@ let
 
   # 家宽对 10122（= WGMesh.Start + opi5p.index）的境外入站 UDP 回包丢弃：
   # greencloud 发出的 handshake response 在 router ppp0 上完全抓不到，换端口
-  # 10151 后立即握手成功。同一家宽的 rock5c/dragon-q5b/chromebox 端口正常。
+  # 10151 后立即握手成功；rock5c/chromebox 的端口覆盖见下方配置与 exam-check-allowlist。
   # 端口按「拥有者主机」登记，两侧（监听端口与对端 Endpoint）自动一致。
   wgPortOverrides = {
     opi5p = 10151;
+    rock5c = 49123;
+    chromebox = 49131;
   };
   wgPortFor = n: wgPortOverrides.${n} or (LT.port.WGMesh.Start + LT.hosts.${n}.index);
 in

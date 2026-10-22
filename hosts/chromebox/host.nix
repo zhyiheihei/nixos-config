@@ -9,6 +9,7 @@
   system = "x86_64-linux";
   tags = with tags; [
     lan-access
+    server
   ];
   cpuThreads = 8;
   city = geo.cities."CN Ningbo";

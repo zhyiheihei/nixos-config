@@ -16,7 +16,6 @@
     ./media-automation.nix
   ];
 
-  # 摘除 server 标签后 backup 默认关闭，显式启用（同 ml-laptop 惯例）。
   lantian.backup.enable = true;
 
   boot.loader.grub = {

@@ -2,19 +2,28 @@
 # （nixosModules.food-dashboard + epd-food-server 包），主机按需设
 # lantian.food-dashboard.enable；API/WebUI 均为内网私有服务，不开公网入口。
 {
+  config,
   inputs,
+  lib,
   ...
 }:
 {
   imports = [ inputs.zhyi-packages.nixosModules.food-dashboard ];
 
+  # 受限根目录没有宿主机 /etc/passwd，libpq 无法从 UID 推导 peer 用户名。
+  systemd.services.epd-food-server.environment.EPD_FOOD_DSN =
+    lib.mkForce "host=/run/postgresql dbname=epd_dashboard user=epd_dashboard";
+
   systemd.services.epd-food-server.serviceConfig = {
     PrivateUsers = false;
     BindPaths = [ "/var/lib/epd_dashboard" ];
+    BindReadOnlyPaths = [
+      config.sops.secrets.default-pw.path
+      "/run/postgresql"
+    ];
   };
-  # 启动脚本读 /run/secrets/default-pw，而 sops-install-secrets 在激活末期才写该目录：
-  # 2026-10-22 opi5p 切换时两者并发，服务抢在前面启动导致 colmena 报激活失败
-  # （cat: /run/secrets/default-pw: 没有那个文件或目录，exit 4）。显式排序。
+  # 服务的 RootDirectory 沙箱看不到宿主机 /run/secrets 和 /run/postgresql；只读 bind
+  # 暴露日历密码与 PostgreSQL socket，After/Wants 确保对应服务先启动。
   systemd.services.epd-food-server.after = [ "sops-install-secrets.service" ];
   systemd.services.epd-food-server.wants = [ "sops-install-secrets.service" ];
   lantian.harden.epd-food-server = true;

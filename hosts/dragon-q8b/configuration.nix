@@ -19,7 +19,6 @@
     ../../nixos/optional-apps/redroid.nix
   ];
 
-  # 摘除 server 标签后 backup 默认关闭，显式启用（同 ml-laptop 惯例）。
   lantian.backup.enable = true;
 
   # 官方 redroid 镜像无 GMS，用 MindTheGapps 13 arm64 官方包叠加出本地镜像。
@@ -44,7 +43,9 @@
 
   # nomodeset 会让 msm DRM 拒绝 probe（adev bind failed -19），且 kernelParams
   # 只能追加、mkForce 重列会顶掉模块级参数，故 disabledModules 整块禁用。
-  disabledModules = [ ../../nixos/minimal-components/boot-params.nix ];
+  disabledModules = [
+    ../../nixos/minimal-components/boot-params.nix
+  ];
 
   boot.kernelParams = [
     "clk_ignore_unused"

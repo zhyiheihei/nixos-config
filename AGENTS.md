@@ -74,7 +74,7 @@ Flake 入口文件，定义了：
 | `dn42`           | DN42 节点                                                  |
 | `nix-builder`    | Nix 远程构建节点                                           |
 | `public-facing`  | 公网可访问节点（用于 Prometheus blackbox 监控等）          |
-| `server`         | 服务器配置；同时门控 wgmesh/BGP mesh 成员资格与 backup 默认开启。2026-10-01 定：仅机房 VPS + opi5p（家庭内唯一）持有，其余家庭机走 ZeroTier 进 LTNET、backup 显式启用；统一出站代理入口为 opi5p（自 router 迁入） |
+| `server`         | 服务器配置；同时门控 wgmesh/BGP mesh 成员资格与 backup 默认开启。2026-10-22 用户授权：除机房 VPS 与 opi5p 外，rock5c、dragon-q8b、lubancat1、chromebox 也按 `lt-home-vm` 服务映射加入 mesh；其余家庭主机仍按原 ZeroTier 拓扑，统一出站代理入口为 opi5p（自 router 迁入）。 |
 | `ipv4-only`      | 仅 IPv4                                                    |
 | `ipv6-only`      | 仅 IPv6                                                    |
 | `lan-access`     | 局域网访问                                                 |
@@ -234,8 +234,7 @@ deployment / hosts-overview / reference / inspection-playbook / user-provisionin
    遗忘早期决定，≥2 条信号即提议交接；失败 2 次必须换方案，禁第 3 次原样重试；
    重探索子任务优先派 subagent。
 
-主机 index/IP/ZeroTier 对照 `docs/agent/hosts-overview.md`；域名体系与双入口结构
-对照 `docs/agent/domain-service-layout.md` 与 `docs/agent/fleet-service-chain.md`。
+主机 index/IP/ZeroTier 对照 `docs/agent/hosts-overview.md`；exam host 映射按服务导入和本地主机实际承载关系确定，允许一对多，禁止按硬件相似度猜测。`lt-home-vm` 的服务映射为 rock5c、opi5p、dragon-q8b、lubancat1、chromebox；exam 导入 WG 时不得擅自禁用，握手故障先核 peer/endpoint 与实际日志；确认 UDP 端口受阻后，选择目标主机防火墙允许的高位端口，不能默认使用 20000-23999（block-cn-ports 会拒绝来自 CN 地址的该范围 UDP）。域名体系与双入口结构对照 `docs/agent/domain-service-layout.md` 与 `docs/agent/fleet-service-chain.md`。
 
 跟进上游（exam）用 `tools/exam-check log` / `tools/exam-check`，基线在
 [`docs/agent/upstream-baseline.md`](docs/agent/upstream-baseline.md)；动共享路径前先跑

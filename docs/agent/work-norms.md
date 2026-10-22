@@ -41,7 +41,9 @@
   - **用户**：`zhyi`（显示名 Magic Flash）vs 作者 `lantian`（显示名 Lan Tian）；GitHub `zhyiheihei` vs `lantian1998`
   - **硬性值**：时区 `Asia/Shanghai`（作者 America/Los_Angeles）、DN42 ASN `4242423712` / ULA `fdd8:1938:4e88`（作者 2547 / fdbc:f9dc:67ad）、自建主机与私有网络拓扑
   - **模块命名空间** `lantian.*`（xddxdd 模块系统约定）是前缀不是用户名，绝不能替换
-- 公共模块里 `LT.hosts.<作者主机>` 引用**直接替换为对应真实主机**（无别名），映射见 `hosts-overview.md`；作者主机引用删除前确认是否影响 eval
+- `LT.hosts.<作者主机>` 映射按 **exam 主机实际导入的服务及这些服务在本仓的承载位置**核定，不能按 CPU、地域或“角色最近”猜成一对一。一个 exam host 可以对应多个本地主机；映射表必须列出完整集合和证据。服务拆分时逐个按模块/服务上下文判断，禁止用单个本地主机做全局文本替换。映射见 `hosts-overview.md`，工具用 `tools/exam-check host-map [exam-host]` 查询。
+- 上游 host 导入了 WG mesh 时，不得擅自给对应本地主机加 `disabledModules` 禁用 WG。若握手失败，先核对两端 peer、endpoint、监听端口和实际日志；确认是 UDP 端口阻断后，选择目标主机防火墙允许的高位端口，并同步更新监听与 peer endpoint。不能默认使用 20000-23999：`block-cn-ports` 会拒绝来自 CN 地址的该范围 UDP。单纯没有握手不能直接推断端口被封。
+- `tools/exam-check --path` 只接受 `--print-paths` 列出的共享路径；hosts/ 等 fork 自有路径不能被该工具报告为“对齐通过”。本地主机与 exam host 的服务映射要用 host-map 和真实导入关系核对。
 - 偏离作者的地方必须在提交信息/注释里说明原因
 - 复刻新增的能力（如 rss 链路自动化、immich-rockchip）要独立成模块，不污染作者原版文件
 - **磁盘/子卷布局同样要与作者对齐**，不止配置文件。主机级配置逐字对齐但底层磁盘结构不对齐，会导致依赖该结构的服务（如 `lantian.backup` 的 btrfs `subvolume snapshot`）配置通过、运行必失败。物理 client 的子卷布局基准见 `new-host-standard.md`；新主机接入或迁移前先核对子卷，再谈配置对齐
