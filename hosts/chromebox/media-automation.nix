@@ -94,13 +94,15 @@ in
       jellyfin = {
         after = [ "mnt-storage.mount" ];
         requires = [ "mnt-storage.mount" ];
-        # 媒体库启用了字幕写回，chroot 需要可写绑定媒体目录。
-        serviceConfig.BindPaths = [
-          "/run/opengl-driver"
-          "/mnt/storage/media-radarr"
-          "/mnt/storage/media-shortdrama"
-          "/mnt/storage/media-sonarr"
-        ];
+        # 媒体库由 MoviePilot 刮削写回，Jellyfin 在 chroot 中只读访问。
+        serviceConfig = {
+          BindPaths = [ "/run/opengl-driver" ];
+          BindReadOnlyPaths = [
+            "/mnt/storage/media-radarr"
+            "/mnt/storage/media-shortdrama"
+            "/mnt/storage/media-sonarr"
+          ];
+        };
         environment = LT.proxyEnvironment // {
           HTTP_PROXY = "http://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
           HTTPS_PROXY = "http://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.HttpClient}";
