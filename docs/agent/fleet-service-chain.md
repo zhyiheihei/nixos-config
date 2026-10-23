@@ -91,8 +91,8 @@ flowchart LR
 | 公网应用入口 | `greencloud` | 大部分 `zhyi.xin` 应用、OAuth 入口与到家庭 ROCK 5C 的 LTNET 反代 |
 | 监控入口 | `tencent` | `alert`/`dashboard`/`prometheus`（zhyi.xin）自 greencloud 迁入；Grafana/Prometheus 经 Dex 登录 |
 | 身份与 Attic 入口 | `volcengine` | Dex、Pocket ID、Vaultwarden 与 Attic 直接在本机终止 HTTPS |
-| 家庭 Web 边缘 | `rock5c` | 原 `*.ml-home-vm.zhyi.xin` 服务别名及家庭应用入口；向 OPI5P、PVE、QNAP 反代 |
-| 家庭数据直达 | `opi5p` | 8443 家庭入站、VaultS3、媒体与文件服务，不经 ROCK 5C 中转大流量 |
+| 家庭 Web 入口 | `opi5p` | 唯一家庭边缘：公网 8443、兼容 4000、内网 hairpin 443 全部落本机；向 rock5c/dragon-q8b/chromebox/router/QNAP 反代 |
+| 家庭媒体与工具 | `rock5c` | 媒体库、MoviePilot、Immich 机器学习与本地 `.rock5c` 工具入口；不再承担家庭 Web 前置 |
 | 证书 | `greencloud` | ACME timers 集中续签各主机和域名证书 |
 | Overlay/路由 | 各 server；控制器在 `greencloud` | BIRD、WireGuard/WSS、Yggdrasil、ZeroTier；DN42/RPKI/Bird-LG 主要在 greencloud |
 
@@ -257,14 +257,16 @@ Nix clients -> Attic（greencloud-jp，2026-09 自 volcengine 迁入）
 退役（jellyfin-backend/handbrake-backend/tachidesk-backend 均已撤除；上游
 作者没有该惯例）。家庭边缘的入口关系：
 
-- opi5p 是家宽公网唯一 TLS 前沿（WAN 443 被运营商封禁，router 把公网 8443
-  DNAT 直通 opi5p:8443，nginx 原生双监听 443/8443）；解析到 home-ddns 的
-  域名 TLS 必须落在 opi5p。
-- `jellyfin.zhyi.xin` 定格 rock5c（2026-09-04 决策）：opi5p 前沿经 mesh IP
-  回源 rock5c 的 jellyfin vhost（该 vhost 回源本机 unix socket）；
-  MoviePilot 专用 HTTP 入口 `jellyfin-api.rock5c.zhyi.xin` 同步保留。
-- `tachidesk.zhyi.xin`：边缘 rock5c 与前沿 opi5p 直连 dragon-q8b 机器域；
-  basicAuth 两层共用同一份 htpasswd。
+- opi5p 是家庭唯一 Web 边缘（WAN 443 被运营商封禁，router 把公网 {80,443}、
+  4000、8443 与内网 hairpin 443 全部 DNAT 到 opi5p，nginx 原生双监听
+  443/8443）；解析到 home-ddns 的域名 TLS 必须落在 opi5p，公网可见性由
+  `hosts/opi5p/public-vhosts.nix` 名单统一决定。2026-10-23 起 rock5c 的
+  `app-edge.nix` / `home-lan-edge.nix` 前置层已撤除，SSH 2222 仍落 rock5c。
+- `jellyfin.zhyi.xin`：opi5p 前沿经 mesh IP 回源 rock5c；rock5c 上的同名 vhost
+  仅服务本机客户端（MoviePilot 依赖），不是公网入口。MoviePilot 专用 HTTP 入口
+  `jellyfin-api.rock5c.zhyi.xin` 同步保留。
+- `tachidesk.zhyi.xin`：opi5p 前沿直连 dragon-q8b 机器域并叠 basicAuth；rock5c
+  上的同名 vhost 同样只服务本机客户端。
 - `memos.zhyi.xin` / `wallos.zhyi.xin`：opi5p 前沿回源 dragon-q8b 内网 443。
 - 历史别名 `*.ml-home-vm.zhyi.xin` 不应再被当作实际后端。
 
@@ -397,12 +399,12 @@ NFS 等生成卡片；WebDAV 卡片保留在 `08 · 私有 · 家庭服务` 分�
   text/html 500 页面）；OPDS 1.2 XML 目录在 `/feed`，单书下载是
   `/index.php/fetch/...`，`type="application/epub+zip"`，阅读器（CrossPoint
   / OnePage 固件）只认这个组合。
-- **前置回源必须绑 LTNET 源地址**。opi5p 上该 vhost 是
-  `accessibleBy = "private"`（只放行 LTNET/ULA/lo）；rock5c 前置若用 LAN
-  地址 `192.168.0.62` 回源，源 IP 是 `192.168.0.64`，被 `403 → 444` 断连，
-  对外表现为 502（日志 `access forbidden by rule`）。`hosts/rock5c/app-edge.nix`
-  里给该后端开 `bindLTNET = true`，回源绑 `198.18.0.123` 才通。`immich.zhyi.xin`
-  是同一类缺陷（前置 502、后端 200）。
+- **公网可见性由名单决定**。上游模块把该 vhost 写成
+  `accessibleBy = "private"`（只放行 LTNET/ULA/lo），公网经 router 进来时源地址
+  被 masquerade 成 `192.168.0.1`，被 `403 → 444` 断连（日志
+  `access forbidden by rule`）。2026-10-23 起不再用 rock5c 前置 `bindLTNET`
+  绕过，而是在 `hosts/opi5p/public-vhosts.nix` 名单里统一放开 books/immich/asf
+  等家庭公网域名。
 
 ## 当前漂移与处理优先级
 

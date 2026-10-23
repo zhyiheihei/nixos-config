@@ -234,7 +234,7 @@ deployment / hosts-overview / reference / inspection-playbook / user-provisionin
    遗忘早期决定，≥2 条信号即提议交接；失败 2 次必须换方案，禁第 3 次原样重试；
    重探索子任务优先派 subagent。
 
-主机 index/IP/ZeroTier 对照 `docs/agent/hosts-overview.md`；exam host 映射按服务导入和本地主机实际承载关系确定，允许一对多，禁止按硬件相似度猜测。`lt-home-vm` 的服务映射为 rock5c、opi5p、dragon-q8b、lubancat1、chromebox；exam 导入 WG 时不得擅自禁用，握手故障先核 peer/endpoint 与实际日志；确认 UDP 端口受阻后，选择目标主机防火墙允许的高位端口，不能默认使用 20000-23999（block-cn-ports 会拒绝来自 CN 地址的该范围 UDP）。域名体系与双入口结构对照 `docs/agent/domain-service-layout.md` 与 `docs/agent/fleet-service-chain.md`。
+主机 index/IP/ZeroTier 对照 `docs/agent/hosts-overview.md`；exam host 映射按服务导入和本地主机实际承载关系确定，允许一对多，禁止按硬件相似度猜测。`lt-home-vm` 的服务映射为 rock5c、opi5p、dragon-q8b、lubancat1、chromebox；exam 导入 WG 时不得擅自禁用，握手故障先核 peer/endpoint 与实际日志；确认 UDP 端口受阻后，选择目标主机防火墙允许的高位端口，不能默认使用 20000-23999（block-cn-ports 会拒绝来自 CN 地址的该范围 UDP）。家庭 Web 入口只有 opi5p 一台（公网 8443、兼容 4000、内网 hairpin 443 全部 DNAT 到本机，nginx 双监听 443/8443），公网可见性只由 `hosts/opi5p/public-vhosts.nix` 名单决定，SSH 2222 落 rock5c；域名体系与入口结构对照 `docs/agent/domain-service-layout.md` 与 `docs/agent/fleet-service-chain.md`。
 
 跟进上游（exam）用 `tools/exam-check log` / `tools/exam-check`，基线在
 [`docs/agent/upstream-baseline.md`](docs/agent/upstream-baseline.md)；动共享路径前先跑

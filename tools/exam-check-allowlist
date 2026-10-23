@@ -71,6 +71,7 @@ nixos/optional-apps/attic.nix # fork：attic 用 nur-xddxdd.lantianCustomized.at
 overlays/52-old-packages.nix # fork：linphone 系取自 nixpkgs-multiverse 26.05（nixpkgs 无此包，来源替代）；zerotierone 1.14.2 钉版撤销（2026-10-16 复核：当年「1.16 家宽↔VPS v4 失效」主因是家宽 ISP 掐 wgmesh UDP＋wgmesh 接口 boot 竞态两故障叠加，非 ZT 本身；上游 exam 生产跑 1.16.0 正常），回 nixpkgs 1.16.0
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
 nixos/minimal-components/environment.nix # fork：default-pw sops secret 定义（上游移入其私有 secrets 模块，本仓 secrets 无该模块）
+nixos/minimal-modules/harden.nix # 上游 bug 修正：原写法 `lib.mapAttrs (_: v: if v then {...} else {})` 在 harden=false 时仍会生成空的 systemd.services 定义，留下没有 ExecStart 的单元，activation 重启时报 "has a bad unit file setting"（2026-10-23 rock5c 撤掉 OAuth 前沿后 oauth2-proxy 命中，部署直接失败）；改为 lib.mkIf v {...}，false 时不再产生单元定义。上游独立修复后可删条目
 nixos/minimal-policies/ensure-service-harden.nix # fork：额外豁免本仓独有且无法 confinement 的服务（palworld/clash-verge/leigod/hydra/zpool-trim），上游启用集不含这些服务
 nixos/optional-apps/bepasty.nix # fork：gunicorn 服务补 confinement（上游未跑 bepasty）
 nixos/optional-apps/gitea-actions.nix # fork：runner 补 confinement（上游 CI runner 配置不同）

@@ -21,9 +21,11 @@
   家庭主机（rock5c/opi5p）时由入口机保留 Host/SNI 反向代理。
 - **身份服务**（Dex/Pocket ID/Vaultwarden）由 volcengine 直接承载，DNS 直指
   `volcengine.zhyi.xin`。
-- **家庭入站** 443 被运营商封锁时，外部入口统一 8443，router 直通到 OPI5P
-  Nginx 8443（端口不变，nginx 在 443 与 8443 同时监听，见
-  `hosts/opi5p/edge-vhosts.nix`）。
+- **家庭入站** 443 被运营商封锁，公网只能走 8443；家内 hairpin 与兼容端口
+  :4000 也落在同一台边缘主机 OPI5P。router 把 `{80,443}`、`4000`、`8443`
+  全部 DNAT 到 OPI5P，该机 nginx 在 443 与 8443 上服务同一套 vhost（见
+  `hosts/opi5p/configuration.nix` 的 `with8443`）；公网可见性只由
+  `hosts/opi5p/public-vhosts.nix` 的名单决定。SSH 2222 仍落 ROCK 5C。
 - Attic 是例外：`attic.zhyi.xin` → volcengine 本机；S3 存储后端为
   greencloud-jp 本机 VaultS3（`s3.zhyi.xin`；2026-09-04 前为家庭 DDNS 的
   `vaults3.zhyi.xin`，因跨境大对象上传被中间链路切断而切换）。
@@ -75,19 +77,13 @@ lantian.nginxVhosts."<svc>.${config.networking.hostName}.zhyi.xin" = {
 };
 ```
 
-### 家庭侧访问：hosts 覆盖到 LTNET 地址
+### 家庭侧访问：解析到 LTNET 地址
 
-家庭边缘（rock5c `hosts/rock5c/home-lan-edge.nix`）通过 hosts 文件把 tencent 等
-主机上的服务解析到隧道地址（源地址是保留段，被 vhost 放行）：
+`<service>.<hostname>.zhyi.xin` 的 DNS 直接解析到该主机的 LTNET 地址，源地址
+落在保留段，被 `accessibleBy = "private"` 的 vhost 放行（rock5c 上
+`prometheus.tencent.zhyi.xin` 就是这种解析，`/etc/hosts` 里没有对应条目）。
 
-```nix
-networking.hosts."${LT.hosts.tencent.ltnet.IPv4}" = [
-  "hub.tencent.zhyi.xin"
-  "metapi.tencent.zhyi.xin"
-];
-```
-
-其他主机访问时同样需要把域名覆盖到对应主机的 `ltnet.IPv4`（ZeroTier/LTNET）。
+不要用 `networking.hosts` 单机钉地址来绕过链路问题（见 work-norms 的网络红线）。
 
 ### 镜像加速服务的特殊限制
 
@@ -104,7 +100,7 @@ hubproxy（`hub.tencent.zhyi.xin`）容器镜像加速：
 1. 模块内定义服务 + vhost（`<svc>.${hostName}.zhyi.xin`，private）。
 2. 端口登记 `helpers/constants/ports.nix`。
 3. 确认 `*.<hostname>.zhyi.xin` 通配证书存在（greencloud `/nix/sync-servers/acme/`）。
-4. 家庭侧访问路径在 `hosts/rock5c/home-lan-edge.nix` hosts 列表补充。
+4. 家庭侧访问无需额外配置：`<svc>.<host>.zhyi.xin` 的 DNS 已指向该主机 LTNET 地址。
 5. 无 DNS 记录改动。
 6. `nix flake check` / colmena build 验证，按 [构建与部署](deployment.md) 部署。
 
