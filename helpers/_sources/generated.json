@@ -120,27 +120,6 @@
         },
         "version": "913a94772c1ba09f3e5b623cd50d572951b9ea79"
     },
-    "evebox": {
-        "cargoLock": null,
-        "date": null,
-        "extract": null,
-        "name": "evebox",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "deepClone": false,
-            "fetchSubmodules": false,
-            "leaveDotGit": false,
-            "name": null,
-            "owner": "jasonish",
-            "repo": "evebox",
-            "rev": "0.28.0",
-            "sha256": "sha256-+aXq665DeZlBHVrXRc2ubLsnuYhkZ7WahirCqrKxgVM=",
-            "sparseCheckout": [],
-            "type": "github"
-        },
-        "version": "0.28.0"
-    },
     "grafana-falconlogscale-datasource": {
         "cargoLock": null,
         "date": null,
@@ -150,11 +129,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Y5CkephVDn/k83O1MRGC2Wjfc+Nf1VzMYjwh8oPFlng=",
+            "sha256": "sha256-S1drVJFFKlvkCg6E5FjE9XpLdE7vlv/9B3Wp87zw0OQ=",
             "type": "url",
-            "url": "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.4/grafana-falconlogscale-datasource-1.10.4.zip"
+            "url": "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.5/grafana-falconlogscale-datasource-1.10.5.zip"
         },
-        "version": "1.10.4"
+        "version": "1.10.5"
     },
     "grafana-yesoreyeram-infinity-datasource": {
         "cargoLock": null,
@@ -165,15 +144,15 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-YPS+I9f29LsYb/3plfdogfOECOUyBzty3knpbh9Xetc=",
+            "sha256": "sha256-F8AYOixlPO0LbOe4dvrPPhZGTu3HkUIPCQEteoeuBQ8=",
             "type": "url",
-            "url": "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.2/yesoreyeram-infinity-datasource-4.1.2.zip"
+            "url": "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.3/yesoreyeram-infinity-datasource-4.1.3.zip"
         },
-        "version": "4.1.2"
+        "version": "4.1.3"
     },
     "lobe-icons": {
         "cargoLock": null,
-        "date": "2026-10-15",
+        "date": "2026-10-21",
         "extract": null,
         "name": "lobe-icons",
         "passthru": null,
@@ -183,13 +162,13 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "8a1b2821bb768c484fe8da20c5e1838b6bf551a9",
-            "sha256": "sha256-srR8QUAw8uPzR1UtgwUx8su5ne1lUJtxpsJAOoY9Wu4=",
+            "rev": "21b2144f4ebe87ead9b7c0e10067759ae261b03e",
+            "sha256": "sha256-AjczJvlq6UYQGfgcTT94iDcMhM9OSno4E8pa4REcy4Y=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://github.com/lobehub/lobe-icons.git"
         },
-        "version": "8a1b2821bb768c484fe8da20c5e1838b6bf551a9"
+        "version": "21b2144f4ebe87ead9b7c0e10067759ae261b03e"
     },
     "lyrica-customized": {
         "cargoLock": null,
@@ -253,27 +232,6 @@
         },
         "version": "3b3f430074a67c63572a582847ed1fa69330c668"
     },
-    "n8n-openai-bridge-customized": {
-        "cargoLock": null,
-        "date": "2026-04-27",
-        "extract": null,
-        "name": "n8n-openai-bridge-customized",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "deepClone": false,
-            "fetchSubmodules": false,
-            "leaveDotGit": false,
-            "name": null,
-            "owner": "xddxdd",
-            "repo": "n8n-openai-bridge",
-            "rev": "46df0398f3397fa240619f5d91db98351b1ead5f",
-            "sha256": "sha256-jbUefUfzsatjNDtXK/GdpVC2AzzuCcTyhG9NXb3g0U8=",
-            "sparseCheckout": [],
-            "type": "github"
-        },
-        "version": "46df0398f3397fa240619f5d91db98351b1ead5f"
-    },
     "nmea-static-gps-server": {
         "cargoLock": null,
         "date": "2026-05-03",
@@ -297,7 +255,7 @@
     },
     "nvidia-patch": {
         "cargoLock": null,
-        "date": "2026-09-24",
+        "date": "2026-10-21",
         "extract": null,
         "name": "nvidia-patch",
         "passthru": null,
@@ -309,12 +267,12 @@
             "name": null,
             "owner": "keylase",
             "repo": "nvidia-patch",
-            "rev": "bf2965a1269639363e3d59148964583d3d027c73",
-            "sha256": "sha256-owI6rlCTjdzG50V3ZLXy7Be9MnrW/+rqdZyz++3q3io=",
+            "rev": "5f35e7ed2ace51bf8d2da07552c4bff74ef280a1",
+            "sha256": "sha256-9lFrgNaFMEszWgRB75yJJzVf5bEBsPBG32mXhxXvnCk=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "bf2965a1269639363e3d59148964583d3d027c73"
+        "version": "5f35e7ed2ace51bf8d2da07552c4bff74ef280a1"
     },
     "open5gs": {
         "cargoLock": null,
@@ -745,11 +703,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-hHYQv+ihBg4tizhYiHY3iER4tDBNc/ubHz3fAR/7bvc=",
+            "sha256": "sha256-7+AQ38+eLxhgLxw6cgfiMDVIFrUFpAjmBsMb2olWHmE=",
             "type": "url",
-            "url": "https://git.um-react.app/um/um-react/releases/download/v0.6.0/um-react-0.6.0.zip"
+            "url": "https://git.um-react.app/um/um-react/releases/download/v0.6.2/um-react-0.6.2.zip"
         },
-        "version": "0.6.0"
+        "version": "0.6.2"
     },
     "vscode-vibrancy-continued": {
         "cargoLock": null,
@@ -765,12 +723,12 @@
             "name": null,
             "owner": "illixion",
             "repo": "vscode-vibrancy-continued",
-            "rev": "v1.4.0",
-            "sha256": "sha256-4PCIGND6PjMGQHYQPiMvhAbjvT0UBXSElmuHhgjQbVg=",
+            "rev": "v1.5.0",
+            "sha256": "sha256-qB2lFNSxT5P2pucDJGNLXGOVenaVZczwYXb+GWQ+j/I=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "v1.4.0"
+        "version": "v1.5.0"
     },
     "wordpress-theme-twentyeleven": {
         "cargoLock": null,

@@ -2,29 +2,15 @@
   pkgs,
   LT,
   config,
-  inputs,
   ...
 }:
 {
   imports = [ ./postgresql.nix ];
 
-  sops.secrets.netbox-pepper = {
-    sopsFile = inputs.secrets + "/netbox.yaml";
-    owner = "netbox";
-    group = "netbox";
-  };
-  sops.secrets.netbox-secret = {
-    sopsFile = inputs.secrets + "/netbox.yaml";
-    owner = "netbox";
-    group = "netbox";
-  };
-
   services.netbox = {
     enable = true;
     package = pkgs.netbox;
     bind = "unix:/run/netbox/netbox.sock";
-    apiTokenPepperFiles."1" = config.sops.secrets.netbox-pepper.path;
-    secretKeyFile = config.sops.secrets.netbox-secret.path;
     settings = {
       CSRF_TRUSTED_ORIGINS = [ "https://netbox.zhyi.xin" ];
       REMOTE_AUTH_AUTO_CREATE_GROUPS = true;

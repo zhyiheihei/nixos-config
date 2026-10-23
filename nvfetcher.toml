@@ -36,10 +36,6 @@ pinned = true
 fetch.github = "xddxdd/dnscontrol"
 src.git = "https://github.com/xddxdd/dnscontrol.git"
 
-[evebox]
-fetch.github = "jasonish/evebox"
-src.github = "jasonish/evebox"
-
 [grafana-falconlogscale-datasource]
 fetch.url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v$ver/grafana-falconlogscale-datasource-$ver.zip"
 src.github = "grafana/falconlogscale-datasource"
@@ -65,10 +61,6 @@ src.git = "https://github.com/Womsxd/MihoyoBBSTools.git"
 [mpv-sockets]
 fetch.github = "wis/mpvSockets"
 src.git = "https://github.com/wis/mpvSockets.git"
-
-[n8n-openai-bridge-customized]
-fetch.github = "xddxdd/n8n-openai-bridge"
-src.git = "https://github.com/xddxdd/n8n-openai-bridge.git"
 
 [nmea-static-gps-server]
 fetch.github = "evert/nmea-static-gps-server"

@@ -23,7 +23,7 @@
 
       environment = {
         LISTEN_PORT = LT.portStr.DN42Peerfinder;
-        SECRET_KEY_FILE = config.services.dn42-peerfinder.secretFile;
+        SECRET_KEY_FILE = "%d/secret";
         LANG = "C.UTF-8";
       };
 

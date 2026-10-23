@@ -72,6 +72,7 @@ in
     nur-xddxdd.lantianCustomized.ls-iommu
     nur-xddxdd.lantianCustomized.nixos-cleanup
     nur-xddxdd.lantianCustomized.x86-arch-level
+    nur-xddxdd.netns-exec
     openssl
     pigz
     pv
@@ -124,15 +125,6 @@ in
   services.fstrim.enable = true;
   services.irqbalance.enable = LT.this.cpuThreads > 1;
 
-  services.journald.settings.Journal = {
-    ForwardToConsole = false;
-    ForwardToKMsg = false;
-    ForwardToWall = false;
-    Storage = "persistent";
-    SystemMaxFileSize = "100M";
-    SystemMaxUse = "1G";
-  };
-
   security.openssl = {
     oqs-provider = {
       enable = true;
@@ -153,10 +145,6 @@ in
         "p256_bikel1"
       ];
     };
-    gost-engine = {
-      enable = true;
-      package = pkgs.nur-xddxdd.gost-engine;
-    };
   };
 
   security.wrappers = {
@@ -169,13 +157,6 @@ in
     };
     netns-exec = {
       source = pkgs.nur-xddxdd.netns-exec + "/bin/netns-exec";
-      owner = "root";
-      group = "root";
-      setuid = true;
-      setgid = true;
-    };
-    netns-exec-dbus = {
-      source = pkgs.nur-xddxdd.netns-exec + "/bin/netns-exec-dbus";
       owner = "root";
       group = "root";
       setuid = true;

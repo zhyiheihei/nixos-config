@@ -2,14 +2,13 @@
   inputs,
   config,
   LT,
-  lib,
   pkgs,
   ...
 }:
 {
   imports = [ ./postgresql.nix ];
 
-  sops.secrets.dex-tranquil-pds-secret.sopsFile = inputs.secrets + "/common/dex.yaml";
+  sops.secrets.dex-tranquil-pds-secret.sopsFile = inputs.secrets + "/dex/tranquil-pds.yaml";
   sops.secrets.tranquil-pds-jwt-secret.sopsFile = inputs.secrets + "/tranquil-pds.yaml";
   sops.secrets.tranquil-pds-dpop-secret.sopsFile = inputs.secrets + "/tranquil-pds.yaml";
   sops.secrets.tranquil-pds-master-key.sopsFile = inputs.secrets + "/tranquil-pds.yaml";
@@ -35,6 +34,7 @@
         trusted_proxy_count = 1;
       };
       database = {
+        url = "postgresql:///tranquil-pds?host=/run/postgresql&user=tranquil-pds";
         max_connections = 10;
         min_connections = 1;
       };
@@ -55,13 +55,23 @@
       };
     };
   };
+  systemd.services.tranquil-pds.serviceConfig = {
+    AmbientCapabilities = [ ];
+    SystemCallErrorNumber = "EPERM";
+    BindReadOnlyPaths =
+      let
+        settingsFormat = pkgs.formats.toml { };
+        cfg = settingsFormat.generate "tranquil-pds.toml" config.services.tranquil-pds.settings;
+      in
+      [
+        "${cfg}:/etc/tranquil-pds/config.toml"
+        "/run/postgresql"
+      ];
+  };
+  lantian.harden.tranquil-pds = true;
 
-  # Bypass config validation that doesn't recognize secretsenvironment.etc = {
-  environment.etc."tranquil-pds/config.toml".source =
-    let
-      settingsFormat = pkgs.formats.toml { };
-    in
-    lib.mkForce (settingsFormat.generate "tranquil-pds.toml" config.services.tranquil-pds.settings);
+  # Bypass config validation that doesn't recognize secrets
+  environment.etc."tranquil-pds/config.toml".enable = false;
 
   lantian.nginxVhosts."at.zhyi.xin" = {
     serverAliases = [ "*.at.zhyi.xin" ];

@@ -7,8 +7,6 @@
   ...
 }:
 let
-  cfg = config.lantian.nix-distributed;
-
   mkBuildMachine =
     n: v:
     let
@@ -32,11 +30,10 @@ let
           inherit (v) system;
           hostName = "${n}.zhyi.xin";
           maxJobs = v.cpuThreads;
-          # Use legacy protocol for Hydra
-          protocol = "ssh";
+          protocol = "ssh-ng";
           speedFactor = v.cpuThreads;
-          sshKey = cfg.sshKeyPath;
-          sshUser = "nix-builder";
+          sshKey = config.sops.secrets.nix-ssh-privkey.path;
+          sshUser = "nix-ssh";
           supportedFeatures = gccarchFeatures ++ crossKernelFeatures;
           mandatoryFeatures = [ ];
         }
@@ -46,11 +43,10 @@ let
           inherit (v) system;
           hostName = "${n}.zhyi.xin";
           maxJobs = 1;
-          # Use legacy protocol for Hydra
-          protocol = "ssh";
+          protocol = "ssh-ng";
           speedFactor = v.cpuThreads;
-          sshKey = cfg.sshKeyPath;
-          sshUser = "nix-builder";
+          sshKey = config.sops.secrets.nix-ssh-privkey.path;
+          sshUser = "nix-ssh";
           supportedFeatures = [ "big-parallel" ] ++ gccarchFeatures ++ crossKernelFeatures;
           mandatoryFeatures = [ "big-parallel" ];
         }
@@ -63,39 +59,30 @@ let
   );
 in
 {
-  options.lantian.nix-distributed.sshKeyPath = lib.mkOption {
-    type = lib.types.str;
-    default = config.sops.secrets.hydra-ssh-privkey.path;
-  };
+  sops.secrets.nix-ssh-privkey.sopsFile = inputs.secrets + "/nix-client.yaml";
 
-  config = {
-    # nix-builder 的 ssh 私钥（secrets 里沿用原 hydra 密钥文件名）
-    sops.secrets.hydra-ssh-privkey.sopsFile = inputs.secrets + "/hydra.yaml";
-
-    nix = {
-      distributedBuilds = true;
-      buildMachines = lib.flatten (
-        lib.filter (v: v != null) (
-          lib.mapAttrsToList mkBuildMachine (
-            lib.filterAttrs (n: v: v.hasTag LT.tags.nix-builder) LT.otherHosts
-          )
+  nix = {
+    distributedBuilds = true;
+    buildMachines = lib.flatten (
+      lib.filter (v: v != null) (
+        lib.mapAttrsToList mkBuildMachine (
+          lib.filterAttrs (n: v: v.hasTag LT.tags.nix-builder && !v.hasTag LT.tags.client) LT.otherHosts
         )
-      );
-
-    };
-
-    # FIXME: hydra might be unable to handle duplicate entries
-    environment.etc."nix/machines-with-localhost".text = config.environment.etc."nix/machines".text + ''
-      localhost ${platforms} - 2 1 kvm,nixos-test,big-parallel,benchmark - -
-    '';
-
-    environment.systemPackages = [
-      (pkgs.writeShellScriptBin "nix-remote-build-off" ''
-        sudo rm -f /etc/nix/machines
-      '')
-      (pkgs.writeShellScriptBin "nix-remote-build-on" ''
-        sudo ln -s ${config.environment.etc."nix/machines".source} /etc/nix/machines
-      '')
-    ];
+      )
+    );
   };
+
+  # FIXME: hydra might be unable to handle duplicate entries
+  environment.etc."nix/machines-with-localhost".text = config.environment.etc."nix/machines".text + ''
+    localhost ${platforms} - 2 1 kvm,nixos-test,big-parallel,benchmark - -
+  '';
+
+  environment.systemPackages = [
+    (pkgs.writeShellScriptBin "nix-remote-build-off" ''
+      sudo rm -f /etc/nix/machines
+    '')
+    (pkgs.writeShellScriptBin "nix-remote-build-on" ''
+      sudo ln -s ${config.environment.etc."nix/machines".source} /etc/nix/machines
+    '')
+  ];
 }

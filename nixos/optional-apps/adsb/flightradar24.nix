@@ -6,17 +6,12 @@
   config,
   ...
 }:
+let
+  hardenArgs = (import ../../../helpers/fn/service-harden.nix { inherit lib; }).serviceHardenArgs;
+in
 {
-  sops.secrets.adsb-flightradar24-key = {
-    sopsFile = inputs.secrets + "/adsb.yaml";
-    owner = "fr24";
-    group = "fr24";
-  };
-  sops.secrets.adsb-flightradar24-uat-key = {
-    sopsFile = inputs.secrets + "/adsb.yaml";
-    owner = "fr24";
-    group = "fr24";
-  };
+  sops.secrets.adsb-flightradar24-key.sopsFile = inputs.secrets + "/adsb.yaml";
+  sops.secrets.adsb-flightradar24-uat-key.sopsFile = inputs.secrets + "/adsb.yaml";
 
   environment.systemPackages = [ pkgs.nur-xddxdd.fr24feed ];
 
@@ -28,7 +23,7 @@
     script = ''
       exec ${lib.getExe pkgs.nur-xddxdd.fr24feed} \
         --monitor-file=/run/fr24feed/decoder.txt \
-        --fr24key=$(cat ${config.sops.secrets.adsb-flightradar24-key.path}) \
+        --fr24key="$(cat "$CREDENTIALS_DIRECTORY/fr24key")" \
         --bs=no \
         --raw=no \
         --mlat=no \
@@ -37,16 +32,31 @@
         --host=${LT.constants.localHost.IPv4}:${LT.portStr.ADSB.BeastOutput}
     '';
 
-    serviceConfig = {
+    serviceConfig = LT.serviceHarden // {
       User = "fr24";
       Group = "fr24";
 
       RuntimeDirectory = "fr24feed";
 
+      # Flightradar24 key is read by the script before bwrap execs
+      LoadCredential = [ "fr24key:${config.sops.secrets.adsb-flightradar24-key.path}" ];
+
+      # fr24feed is an FHS-env wrapper on bubblewrap: verified live on lt-rpi4
+      # that it needs user/mount namespaces, mount+capset syscalls, and
+      # unrestricted /proc (for /proc/sys/kernel/overflowuid)
+      ProcSubset = "all";
+      RestrictNamespaces = [
+        "user"
+        "mnt"
+        "pid"
+      ];
+      SystemCallFilter = hardenArgs.SystemCallFilter ++ [ "@mount capset" ];
+
       Restart = "always";
       RestartSec = "5";
     };
   };
+  lantian.harden.fr24feed = true;
 
   systemd.services.fr24uat-feed = {
     description = "Flightradar24 UAT Feeder";
@@ -62,23 +72,36 @@
     script = ''
       exec ${lib.getExe pkgs.nur-xddxdd.fr24feed} \
         --monitor-file=/run/fr24uat-feed/decoder.txt \
-        --fr24key=$(cat ${config.sops.secrets.adsb-flightradar24-uat-key.path}) \
+        --fr24key="$(cat "$CREDENTIALS_DIRECTORY/fr24key-uat")" \
         --http-listen-port=8755 \
         --unit=fr24uat-feed \
         --receiver=uat-tcp \
         --uat-port="${LT.portStr.ADSB.RawOutput978}"
     '';
 
-    serviceConfig = {
+    serviceConfig = LT.serviceHarden // {
       User = "fr24";
       Group = "fr24";
 
       RuntimeDirectory = "fr24uat-feed";
 
+      # Flightradar24 key is read by the script before bwrap execs
+      LoadCredential = [ "fr24key-uat:${config.sops.secrets.adsb-flightradar24-uat-key.path}" ];
+
+      # Same bwrap requirements as fr24feed
+      ProcSubset = "all";
+      RestrictNamespaces = [
+        "user"
+        "mnt"
+        "pid"
+      ];
+      SystemCallFilter = hardenArgs.SystemCallFilter ++ [ "@mount capset" ];
+
       Restart = "always";
       RestartSec = "5";
     };
   };
+  lantian.harden.fr24uat-feed = true;
 
   users.users.fr24 = {
     group = "fr24";

@@ -1,6 +1,5 @@
 {
   inputs,
-  pkgs,
   lib,
   config,
   LT,
@@ -91,9 +90,11 @@
       mailer = {
         ENABLED = true;
         FROM = config.programs.msmtp.accounts.default.from;
-        PROTOCOL = "sendmail";
-        SENDMAIL_PATH = lib.getExe pkgs.msmtp;
-        SENDMAIL_ARGS = "--";
+        PROTOCOL = "smtp+starttls";
+        SMTP_ADDR = config.programs.msmtp.accounts.default.host;
+        SMTP_PORT = config.programs.msmtp.accounts.default.port;
+        USER = config.programs.msmtp.accounts.default.user;
+        # PASSWD is set via env var
       };
       "git.timeout" = {
         DEFAULT = 3600;

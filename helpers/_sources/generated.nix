@@ -80,46 +80,35 @@
     };
     date = "2026-08-08";
   };
-  evebox = {
-    pname = "evebox";
-    version = "0.28.0";
-    src = fetchFromGitHub {
-      owner = "jasonish";
-      repo = "evebox";
-      rev = "0.28.0";
-      fetchSubmodules = false;
-      sha256 = "sha256-+aXq665DeZlBHVrXRc2ubLsnuYhkZ7WahirCqrKxgVM=";
-    };
-  };
   grafana-falconlogscale-datasource = {
     pname = "grafana-falconlogscale-datasource";
-    version = "1.10.4";
+    version = "1.10.5";
     src = fetchurl {
-      url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.4/grafana-falconlogscale-datasource-1.10.4.zip";
-      sha256 = "sha256-Y5CkephVDn/k83O1MRGC2Wjfc+Nf1VzMYjwh8oPFlng=";
+      url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.5/grafana-falconlogscale-datasource-1.10.5.zip";
+      sha256 = "sha256-S1drVJFFKlvkCg6E5FjE9XpLdE7vlv/9B3Wp87zw0OQ=";
     };
   };
   grafana-yesoreyeram-infinity-datasource = {
     pname = "grafana-yesoreyeram-infinity-datasource";
-    version = "4.1.2";
+    version = "4.1.3";
     src = fetchurl {
-      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.2/yesoreyeram-infinity-datasource-4.1.2.zip";
-      sha256 = "sha256-YPS+I9f29LsYb/3plfdogfOECOUyBzty3knpbh9Xetc=";
+      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.3/yesoreyeram-infinity-datasource-4.1.3.zip";
+      sha256 = "sha256-F8AYOixlPO0LbOe4dvrPPhZGTu3HkUIPCQEteoeuBQ8=";
     };
   };
   lobe-icons = {
     pname = "lobe-icons";
-    version = "8a1b2821bb768c484fe8da20c5e1838b6bf551a9";
+    version = "21b2144f4ebe87ead9b7c0e10067759ae261b03e";
     src = fetchgit {
       url = "https://github.com/lobehub/lobe-icons.git";
-      rev = "8a1b2821bb768c484fe8da20c5e1838b6bf551a9";
+      rev = "21b2144f4ebe87ead9b7c0e10067759ae261b03e";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-srR8QUAw8uPzR1UtgwUx8su5ne1lUJtxpsJAOoY9Wu4=";
+      sha256 = "sha256-AjczJvlq6UYQGfgcTT94iDcMhM9OSno4E8pa4REcy4Y=";
     };
-    date = "2026-10-15";
+    date = "2026-10-21";
   };
   lyrica-customized = {
     pname = "lyrica-customized";
@@ -159,18 +148,6 @@
     };
     date = "2024-02-13";
   };
-  n8n-openai-bridge-customized = {
-    pname = "n8n-openai-bridge-customized";
-    version = "46df0398f3397fa240619f5d91db98351b1ead5f";
-    src = fetchFromGitHub {
-      owner = "xddxdd";
-      repo = "n8n-openai-bridge";
-      rev = "46df0398f3397fa240619f5d91db98351b1ead5f";
-      fetchSubmodules = false;
-      sha256 = "sha256-jbUefUfzsatjNDtXK/GdpVC2AzzuCcTyhG9NXb3g0U8=";
-    };
-    date = "2026-04-27";
-  };
   nmea-static-gps-server = {
     pname = "nmea-static-gps-server";
     version = "cb2e67796026a7250c91e89834ece3618500954b";
@@ -185,15 +162,15 @@
   };
   nvidia-patch = {
     pname = "nvidia-patch";
-    version = "bf2965a1269639363e3d59148964583d3d027c73";
+    version = "5f35e7ed2ace51bf8d2da07552c4bff74ef280a1";
     src = fetchFromGitHub {
       owner = "keylase";
       repo = "nvidia-patch";
-      rev = "bf2965a1269639363e3d59148964583d3d027c73";
+      rev = "5f35e7ed2ace51bf8d2da07552c4bff74ef280a1";
       fetchSubmodules = false;
-      sha256 = "sha256-owI6rlCTjdzG50V3ZLXy7Be9MnrW/+rqdZyz++3q3io=";
+      sha256 = "sha256-9lFrgNaFMEszWgRB75yJJzVf5bEBsPBG32mXhxXvnCk=";
     };
-    date = "2026-09-24";
+    date = "2026-10-21";
   };
   open5gs = {
     pname = "open5gs";
@@ -436,21 +413,21 @@
   };
   um-react = {
     pname = "um-react";
-    version = "0.6.0";
+    version = "0.6.2";
     src = fetchurl {
-      url = "https://git.um-react.app/um/um-react/releases/download/v0.6.0/um-react-0.6.0.zip";
-      sha256 = "sha256-hHYQv+ihBg4tizhYiHY3iER4tDBNc/ubHz3fAR/7bvc=";
+      url = "https://git.um-react.app/um/um-react/releases/download/v0.6.2/um-react-0.6.2.zip";
+      sha256 = "sha256-7+AQ38+eLxhgLxw6cgfiMDVIFrUFpAjmBsMb2olWHmE=";
     };
   };
   vscode-vibrancy-continued = {
     pname = "vscode-vibrancy-continued";
-    version = "v1.4.0";
+    version = "v1.5.0";
     src = fetchFromGitHub {
       owner = "illixion";
       repo = "vscode-vibrancy-continued";
-      rev = "v1.4.0";
+      rev = "v1.5.0";
       fetchSubmodules = false;
-      sha256 = "sha256-4PCIGND6PjMGQHYQPiMvhAbjvT0UBXSElmuHhgjQbVg=";
+      sha256 = "sha256-qB2lFNSxT5P2pucDJGNLXGOVenaVZczwYXb+GWQ+j/I=";
     };
   };
   wordpress-theme-twentyeleven = {

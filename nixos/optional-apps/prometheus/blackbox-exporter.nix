@@ -23,7 +23,6 @@ let
     "https://flapalerted.zhyi.xin"
     "https://git.zhyi.xin"
     "https://lab.zhyi.xin"
-    "https://lemmy.zhyi.xin"
     "https://lg.zhyi.xin"
     "https://login.zhyi.xin"
     "https://matrix.zhyi.xin/_matrix/client/versions"
@@ -45,8 +44,6 @@ let
     "https://netbox.zhyi.xin"
     "https://prometheus.zhyi.xin"
     "https://rss.zhyi.xin"
-    "https://rsshub.zhyi.xin"
-    "https://searx.zhyi.xin"
     "https://stats.zhyi.xin"
     # "https://tachidesk.zhyi.xin"
   ];

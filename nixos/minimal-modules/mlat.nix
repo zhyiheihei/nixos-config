@@ -136,19 +136,19 @@ let
       (lib.optional cfg.noModeacResults "--no-modeac-results")
       (
         if cfg.latitudeFile != null then
-          [ "--lat=$(cat ${lib.escapeShellArg cfg.latitudeFile})" ]
+          [ ''--lat=$(cat "$CREDENTIALS_DIRECTORY/lat")'' ]
         else
           (arg' "--lat" cfg.latitude)
       )
       (
         if cfg.longitudeFile != null then
-          [ "--lon=$(cat ${lib.escapeShellArg cfg.longitudeFile})" ]
+          [ ''--lon=$(cat "$CREDENTIALS_DIRECTORY/lon")'' ]
         else
           (arg' "--lon" cfg.longitude)
       )
       (
         if cfg.altitudeFile != null then
-          [ "--alt=$(cat ${lib.escapeShellArg cfg.altitudeFile})" ]
+          [ ''--alt=$(cat "$CREDENTIALS_DIRECTORY/alt")'' ]
         else
           (arg' "--alt" cfg.altitude)
       )
@@ -156,7 +156,7 @@ let
       (arg' "--user" cfg.mlatUser)
       (arg' "--server" cfg.server)
       (lib.optional cfg.noUdp "--no-udp")
-      (arg' "--uuid-file" cfg.uuidFile)
+      (if cfg.uuidFile != null then [ "--uuid-file=$CREDENTIALS_DIRECTORY/uuid" ] else [ ])
       cfg.extraOptions
     ];
 
@@ -176,6 +176,15 @@ let
         Group = cfg.group;
         Restart = "always";
         RestartSec = "5";
+
+        # *File options (e.g. sops secret paths) are delivered as credentials;
+        # systemd mounts the credential dir inside the unit's namespace
+        LoadCredential = lib.filter (c: c != null) [
+          (if cfg.latitudeFile != null then "lat:${cfg.latitudeFile}" else null)
+          (if cfg.longitudeFile != null then "lon:${cfg.longitudeFile}" else null)
+          (if cfg.altitudeFile != null then "alt:${cfg.altitudeFile}" else null)
+          (if cfg.uuidFile != null then "uuid:${cfg.uuidFile}" else null)
+        ];
       };
     };
 in
@@ -195,6 +204,11 @@ in
     })
     {
       systemd.services = lib.mapAttrs' mkInstance config.services.mlat-client;
+    }
+    {
+      lantian.harden = lib.mapAttrs' (
+        name: _: lib.nameValuePair "mlat-client-${name}" true
+      ) config.services.mlat-client;
     }
   ];
 }

@@ -256,8 +256,15 @@
           name = "admin";
           telegram_configs = [
             {
-              bot_token_file = config.sops.secrets.telegram-bot-token.path;
-              chat_id_file = config.sops.secrets.telegram-bot-chat-id.path;
+              bot_token = {
+                _secret = config.sops.secrets.telegram-bot-token.path;
+              };
+              chat_id = {
+                _secret = config.sops.secrets.telegram-bot-chat-id.path;
+                # Chat ID must end up as a JSON/YAML number, so parse the
+                # secret file instead of quoting its content as a string
+                quote = false;
+              };
               message = lib.trim ''
                 {{ range .Alerts.Firing }}🔥 {{ .Labels.alertname }} - {{ .Labels.instance }} - {{ .Annotations.summary }}
                 {{ end }}{{ range .Alerts.Resolved }}✅ {{ .Labels.alertname }} - {{ .Labels.instance }} - {{ .Annotations.summary }}

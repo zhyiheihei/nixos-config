@@ -32,13 +32,6 @@ let
         ];
       }) LT.constants.zones.Emercoin;
 
-      yggdrasilAlfis = builtins.map (k: {
-        zone = k;
-        forwarders = [
-          "fdd8:1938:4e88:3712::52"
-        ];
-      }) LT.constants.zones.YggdrasilAlfis;
-
       hack = [
         {
           zone = "hack";
@@ -46,7 +39,7 @@ let
         }
       ];
     in
-    authoritative ++ emercoin ++ yggdrasilAlfis ++ hack;
+    authoritative ++ emercoin ++ hack;
 
   forwardZonesRecurse =
     let

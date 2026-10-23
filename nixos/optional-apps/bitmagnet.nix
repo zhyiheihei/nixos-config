@@ -38,9 +38,11 @@ let
       exec ${lib.getExe bitmagnet} worker run --keys=${worker}
     '';
     serviceConfig = LT.serviceHarden // {
+      ExecStart = "${lib.getExe bitmagnet} worker run --keys=${worker}";
       Type = "simple";
       Restart = "always";
       RestartSec = "3";
+      EnvironmentFile = config.sops.templates.bitmagnet-env.path;
       RuntimeDirectory = "bitmagnet";
       StateDirectory = "bitmagnet";
       WorkingDirectory = "/var/lib/bitmagnet";

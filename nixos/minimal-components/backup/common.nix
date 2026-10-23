@@ -85,6 +85,7 @@ rec {
       [repository.options]
       user = "sftp"
       endpoint = "ssh://greencloud-jp.ltnet.zhyi.xin:2222"
+      connections = "1"
       key = "${config.sops.secrets.sftp-privkey.path}"
       root = "/backups/rustic-storagebox"
       known_hosts_strategy = "Accept"

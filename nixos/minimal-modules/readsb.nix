@@ -63,7 +63,7 @@ let
       uuidFile = lib.mkOption {
         type = lib.types.nullOr lib.types.str;
         default = null;
-        description = "Path passed to `--uuid-file`.";
+        description = "Path passed to `--uuid-file`. A sops secret path is loaded as a credential and read from `\$CREDENTIALS_DIRECTORY`.";
       };
 
       mlat = mkFlagOption false;
@@ -142,7 +142,7 @@ let
       (lib.optional cfg.netSbsReduce "--net-sbs-reduce")
       (lib.optional cfg.statsRange "--stats-range")
 
-      (arg' "--uuid-file" cfg.uuidFile)
+      (if cfg.uuidFile != null then [ "--uuid-file=$CREDENTIALS_DIRECTORY/uuid" ] else [ ])
       (arg' "--write-json" cfg.writeJson)
       (arg' "--write-state" cfg.writeState)
       (arg' "--json-reliable" cfg.jsonReliable)
@@ -173,13 +173,13 @@ let
       (arg' "--ppm" cfg.ppm)
       (
         if cfg.latitudeFile != null then
-          [ "--lat=$(cat ${lib.escapeShellArg cfg.latitudeFile})" ]
+          [ ''--lat=$(cat "$CREDENTIALS_DIRECTORY/lat")'' ]
         else
           (arg' "--lat" cfg.latitude)
       )
       (
         if cfg.longitudeFile != null then
-          [ "--lon=$(cat ${lib.escapeShellArg cfg.longitudeFile})" ]
+          [ ''--lon=$(cat "$CREDENTIALS_DIRECTORY/lon")'' ]
         else
           (arg' "--lon" cfg.longitude)
       )
@@ -206,10 +206,23 @@ let
       serviceConfig = LT.serviceHarden // {
         PrivateDevices = false;
         RestrictAddressFamilies = "";
+
+        # Direct SDR access needs USB device ioctls on nodes owned by the
+        # initial user namespace; user namespace would break them
+        PrivateUsers = lib.mkIf (cfg.deviceType != null) false;
+
         User = cfg.user;
         Group = cfg.group;
         Restart = "always";
         RestartSec = "5";
+
+        # *File options (e.g. sops secret paths) are delivered as credentials;
+        # systemd mounts the credential dir inside the unit's namespace
+        LoadCredential = lib.filter (c: c != null) [
+          (if cfg.latitudeFile != null then "lat:${cfg.latitudeFile}" else null)
+          (if cfg.longitudeFile != null then "lon:${cfg.longitudeFile}" else null)
+          (if cfg.uuidFile != null then "uuid:${cfg.uuidFile}" else null)
+        ];
       };
     };
 in
@@ -229,6 +242,11 @@ in
     })
     {
       systemd.services = lib.mapAttrs' mkInstance config.services.readsb;
+    }
+    {
+      lantian.harden = lib.mapAttrs' (
+        name: _: lib.nameValuePair "readsb-${name}" true
+      ) config.services.readsb;
     }
   ];
 }

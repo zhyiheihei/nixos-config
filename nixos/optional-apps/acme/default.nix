@@ -10,8 +10,11 @@
     ./cert-exporter.nix
   ];
 
-  sops.secrets.lego-env = {
-    sopsFile = inputs.secrets + "/lego.yaml";
+  sops.secrets.bunny-api-key.sopsFile = inputs.secrets + "/bunny-dns.yaml";
+  sops.templates.lego-env = {
+    content = ''
+      BUNNY_API_KEY=${config.sops.placeholder.bunny-api-key}
+    '';
     owner = "acme";
     group = "acme";
   };

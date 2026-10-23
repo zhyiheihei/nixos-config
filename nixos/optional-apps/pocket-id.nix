@@ -1,9 +1,9 @@
 {
   inputs,
   lib,
+  pkgs,
   config,
   LT,
-  pkgs,
   ...
 }:
 {
@@ -16,6 +16,10 @@
     owner = "pocket-id";
     group = "pocket-id";
   };
+  sops.secrets.pocket-id-env.content = ''
+    ENCRYPTION_KEY=${config.sops.placeholder.pocket-id-encryption-key}
+    SMTP_PASSWORD=${config.sops.placeholder.smtp-pass}
+  '';
 
   services.pocket-id = {
     enable = true;
@@ -58,6 +62,7 @@
   systemd.services.pocket-id.requires = [ "postgresql.target" ];
   systemd.services.pocket-id.serviceConfig = LT.serviceHarden // {
     RestartSec = lib.mkForce 5;
+    EnvironmentFiles = [ config.sops.secrets.pocket-id-env ];
     RuntimeDirectory = "pocket-id";
     RuntimeDirectoryMode = "750";
     # chroot's tmpfs root is ephemeral; bind state dir + socket through; the
