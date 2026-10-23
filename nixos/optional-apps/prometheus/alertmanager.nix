@@ -7,15 +7,14 @@
   inputs,
   ...
 }:
+let
+  jqSecrets = utils.genJqSecretsReplacement {
+    loadCredential = true;
+  } config.services.prometheus.alertmanager.configuration "/tmp/alert-manager-substituted.yaml";
+in
 {
-  sops.secrets.telegram-bot-token = {
-    sopsFile = inputs.secrets + "/telegram.yaml";
-    mode = "0444";
-  };
-  sops.secrets.telegram-bot-chat-id = {
-    sopsFile = inputs.secrets + "/telegram.yaml";
-    mode = "0444";
-  };
+  sops.secrets.telegram-bot-token.sopsFile = inputs.secrets + "/telegram.yaml";
+  sops.secrets.telegram-bot-chat-id.sopsFile = inputs.secrets + "/telegram.yaml";
 
   services.prometheus = {
     alertmanagers = [
@@ -282,11 +281,10 @@
       RestartSec = "5s";
       ExecStartPre = lib.mkForce (
         pkgs.writeShellScript "alertmanager-pre-start" ''
-          ${utils.genJqSecretsReplacementSnippet config.services.prometheus.alertmanager.configuration "/tmp/alert-manager-substituted.yaml"}
+          ${jqSecrets.script}
         ''
       );
-      # FIXME: secret
-      BindReadOnlyPaths = [ "/run" ];
+      LoadCredential = jqSecrets.credentials;
     };
   };
   lantian.harden.alertmanager = true;

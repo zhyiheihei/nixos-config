@@ -34,7 +34,6 @@
     ../../nixos/optional-apps/plausible.nix
     ../../nixos/optional-apps/radicale.nix
     # ../../nixos/optional-apps/radicle.nix
-    ../../nixos/optional-apps/rsshub.nix
     ../../nixos/optional-apps/rsync-server-ci.nix
     ../../nixos/optional-apps/rsync-server-internal.nix
     ../../nixos/optional-apps/sublinkpro-nix.nix
@@ -118,7 +117,6 @@
   };
 
   services.miniflux.config.HTTP_CLIENT_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
-  services.rsshub.settings.UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
 
   systemd.services.cleanup-github-notifications.serviceConfig.ExecCondition =
     "${pkgs.gnugrep}/bin/grep -qE ^GITHUB_TOKEN=.+$ ${config.sops.secrets.cleanup-github-notifications-env.path}";

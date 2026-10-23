@@ -160,12 +160,7 @@ in
   }
   // builtins.listToAttrs (
     builtins.map (
-      f:
-      lib.nameValuePair "dex-${f.id}-secret" {
-        sopsFile = inputs.secrets + "/dex/${f.id}.yaml";
-        owner = "dex";
-        group = "dex";
-      }
+      f: lib.nameValuePair "dex-${f.id}-secret" { sopsFile = inputs.secrets + "/dex/${f.id}.yaml"; }
     ) cfg.staticClients
   );
 
@@ -198,9 +193,10 @@ in
       RuntimeDirectory = "dex";
       Restart = "always";
       RestartSec = "5";
-      # FIXME: hardening to access secrets without direct access
-      BindPaths = [
-        "/run"
+      # Postgres unix socket; RuntimeDirectory config.yaml is mounted from the
+      # host automatically
+      BindReadOnlyPaths = [
+        "/run/postgresql"
       ];
     };
   };

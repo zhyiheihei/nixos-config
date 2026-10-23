@@ -609,10 +609,19 @@ def main():
         if allow[p].startswith("skip: ") and p in base_set and p not in work_set
         and (not scoped or p == scoped or p.startswith(scoped.rstrip("/") + "/"))
     )
+    # 上游删除但 fork 决定保留并登记 skip: 的路径同样不算失效条目。
+    kept_deleted = {
+        old
+        for code, old, _ in ops
+        if code == "D"
+        and allow.get(old, "").startswith("skip: ")
+        and (REPO / old).exists()
+    }
     upstream_only = [p for p in upstream_only if p not in skipped_upstream]
     stale_allow = [
         p for p in allow
         if p not in drift and p not in known and p not in skipped_upstream
+        and p not in kept_deleted
         and (not scoped or p == scoped or p.startswith(scoped.rstrip("/") + "/"))
         and (p in expected or p in base_set)
     ]

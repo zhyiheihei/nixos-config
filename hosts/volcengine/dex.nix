@@ -91,14 +91,6 @@ let
         ];
       }
       {
-        id = "librechat";
-        name = "Librechat";
-        secret = {
-          _secret = config.sops.secrets.dex-librechat-secret.path;
-        };
-        redirectURIs = [ "https://ai.zhyi.xin/oauth/openid/callback" ];
-      }
-      {
         id = "memos";
         name = "Memos";
         secret = {
@@ -213,7 +205,6 @@ in
         "gitea"
         "grafana"
         "immich"
-        "librechat"
         "memos"
         "moviepilot"
         "navdash"
