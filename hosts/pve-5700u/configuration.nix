@@ -11,6 +11,7 @@
     ../../nixos/hardware/smart.nix
     ../../nixos/pve.nix
 
+    ../../nixos/optional-apps/llama-cpp.nix
     ../../nixos/optional-apps/ncps-client.nix
 
     ./enable-smart.nix

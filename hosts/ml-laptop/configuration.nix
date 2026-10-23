@@ -43,6 +43,15 @@
     ./comfyui.nix
   ];
 
+  services.syncthing = {
+    user = lib.mkForce "zhyi";
+    group = lib.mkForce "users";
+  };
+  systemd.services.syncthing.serviceConfig = {
+    ProtectHome = false;
+    BindPaths = [ config.lantian.syncthing.storage ];
+  };
+
   sops.secrets.pi-ai-api-key = {
     sopsFile = inputs.secrets + "/ai-api.yaml";
     key = "ai-api-key";

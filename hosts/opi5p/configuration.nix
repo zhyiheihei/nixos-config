@@ -197,7 +197,7 @@ in
     ../../nixos/optional-apps/food-dashboard.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
     ../../nixos/optional-apps/home-assistant.nix
-    # ../../nixos/optional-apps/hydra # intentionally disabled by request
+    ../../nixos/optional-apps/hydra
     ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/i2pd.nix
     ../../nixos/optional-apps/ignis.nix
@@ -304,10 +304,10 @@ in
       mk = n: maxJobs: features: {
         inherit (LT.hosts.${n}) system;
         hostName = "${n}.zhyi.xin";
-        protocol = "ssh";
+        protocol = "ssh-ng";
         speedFactor = LT.hosts.${n}.cpuThreads;
-        sshKey = config.sops.secrets.hydra-ssh-privkey.path;
-        sshUser = "nix-builder";
+        sshKey = config.sops.secrets.nix-ssh-privkey.path;
+        sshUser = "nix-ssh";
         inherit maxJobs;
         supportedFeatures = features;
         mandatoryFeatures = [ ];

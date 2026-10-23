@@ -21,7 +21,9 @@
     ../../nixos/optional-apps/lsky-pro.nix
     ../../nixos/optional-apps/archiveteam.nix
 
+    ../../nixos/optional-cron-jobs/auto-mihoyo-bbs
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
+    ../../nixos/optional-cron-jobs/skyland-auto-checkin.nix
   ];
 
   lantian.hubproxy.enable = true;
