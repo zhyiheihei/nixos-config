@@ -34,6 +34,7 @@ in
     ../../nixos/client-components/hidpi.nix
     ../../nixos/client-components/xorg.nix
 
+    # ../../nixos/optional-apps/bitmagnet.nix # missing regenerated secret tmdb.yaml
     ../../nixos/optional-apps/jellyfin.nix
     ../../nixos/optional-apps/peerbanhelper.nix
     ../../nixos/optional-apps/qbittorrent.nix
@@ -41,6 +42,7 @@ in
     ../../nixos/optional-apps/sonarr
     ../../nixos/optional-cron-jobs/sonarr-queue-cleanup
 
+    # ../../nixos/optional-cron-jobs/flexget
   ];
 
   services.xserver.enable = lib.mkForce false;

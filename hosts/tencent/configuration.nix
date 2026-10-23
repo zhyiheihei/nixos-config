@@ -16,9 +16,9 @@
     ../../nixos/optional-apps/hubproxy.nix
     ../../nixos/optional-apps/navdash.nix
     ../../nixos/optional-apps/prometheus
-
+    # ../../nixos/optional-apps/searxng.nix
+    # ../../nixos/optional-apps/clawemail.nix
     ../../nixos/optional-apps/lsky-pro.nix
-
     ../../nixos/optional-apps/archiveteam.nix
 
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix

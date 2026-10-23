@@ -14,7 +14,7 @@ in
   imports = [
     ../../nixos/optional-apps/handbrake-rockchip.nix
     ../../nixos/optional-apps/moviepilot.nix
-
+    # ../../nixos/optional-apps/chinesesubfinder.nix
   ];
 
   lantian.moviepilot.enable = true;

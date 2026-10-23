@@ -28,11 +28,19 @@
 
 ## 约定
 
-- **改主机配置时，理由写进对应文档，不写进 `.nix`**。代码里只保留能让 `keep-sorted`
-  这类工具识别的指令性标记（start / end 标记对）。
-- **例外**：嵌在 `''...''` 字符串里的内容（nftables 规则集、nginx `extraConfig`、shell/
-  Python 脚本）自带注释属于生成的配置本体，`nft list ruleset`、`systemctl cat`、运行时
-  调试都能看到，因此保留。
+风格对齐上游 exam：代码为主，只保留两类注释。
+
+1. **停用模块的占位行**：`# ../../nixos/optional-apps/foo.nix # 简短原因`。停用的
+   import 留在原来的位置、带一句原因（`missing regenerated secret …`、
+   `intentionally disabled by request`、`compromised` 等），读 import 列表就能看出
+   “这个模块存在但故意不启用”，不必去翻文档。
+2. **嵌在 `''…''` 字符串里的内容注释**（nftables 规则集、nginx `extraConfig`、shell /
+   Python 脚本）：属于生成的配置本体，`nft list ruleset`、`systemctl cat` 与运行时调试
+   都能看到，保留。
+
+其余一切（背景、历史决策、踩过的坑、环境事实、为什么这么取值）写进
+`docs/agent/hosts/<host>.md`，不写进 `.nix`。`keep-sorted` 的 start/end 标记属于工具
+指令，照旧保留。
 - 跨主机通用的规则不属于这里：入口结构见
   [domain-service-layout](../domain-service-layout.md)，舰队服务链见
   [fleet-service-chain](../fleet-service-chain.md)，部署流程见

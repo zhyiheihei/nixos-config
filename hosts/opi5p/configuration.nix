@@ -197,18 +197,18 @@ in
     ../../nixos/optional-apps/food-dashboard.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
     ../../nixos/optional-apps/home-assistant.nix
-
+    # ../../nixos/optional-apps/hydra # intentionally disabled by request
     ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/i2pd.nix
     ../../nixos/optional-apps/ignis.nix
     ../../nixos/optional-apps/immich-rockchip.nix
-
+    # ../../nixos/optional-apps/microsoft-rewards-script.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/openlist.nix
     ../../nixos/optional-apps/one-kvm.nix
     ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/ws-scrcpy.nix
-
+    # ../../nixos/optional-apps/resin.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/taosync.nix

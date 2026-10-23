@@ -15,30 +15,37 @@
     ./hardware-configuration.nix
 
     ../../nixos/optional-apps/acme
-
+    # ../../nixos/optional-apps/bepasty.nix
     ../../nixos/optional-apps/bird-lg-go.nix
     ../../nixos/optional-apps/byparr.nix
     ../../nixos/optional-apps/fastpit.nix
     ../../nixos/optional-apps/flapalerted.nix
-
+    # ../../nixos/optional-apps/gitea-actions.nix
+    # ../../nixos/optional-apps/imapfilter.nix
+    # ../../nixos/optional-apps/lemmy.nix
+    # ../../nixos/optional-apps/librechat.nix
+    # ../../nixos/optional-apps/maddy.nix
     ../../nixos/optional-apps/matrix-synapse
     ../../nixos/optional-apps/loki.nix
     ../../nixos/optional-apps/miniflux.nix
-
+    # ../../nixos/optional-apps/n8n # compromised
     ../../nixos/optional-apps/netbox.nix
     ../../nixos/optional-apps/nginx-api.nix
     ../../nixos/optional-apps/plausible.nix
     ../../nixos/optional-apps/radicale.nix
-
+    # ../../nixos/optional-apps/radicle.nix
     ../../nixos/optional-apps/rsshub.nix
     ../../nixos/optional-apps/rsync-server-ci.nix
     ../../nixos/optional-apps/rsync-server-internal.nix
     ../../nixos/optional-apps/sublinkpro-nix.nix
-
+    # ../../nixos/optional-apps/tranquil-pds.nix
+    # ../../nixos/optional-apps/tg-bot-cleaner-bot
+    # ../../nixos/optional-apps/yggdrasil-alfis.nix
     ../../nixos/optional-apps/zerotierone-controller.nix
 
     ../../nixos/optional-cron-jobs/cleanup-github-notifications
     ../../nixos/optional-cron-jobs/dn42-certificate.nix
+    # ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
 
     "${inputs.secrets}/nixos-hidden-module/11116c7374949a7a"
     "${inputs.secrets}/nixos-hidden-module/35c68fea6f2bde77"

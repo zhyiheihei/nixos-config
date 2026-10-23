@@ -28,6 +28,8 @@ in
 
     ../../nixos/optional-apps/gitea
 
+    # ./nextcloud.nix
+
     ../../nixos/optional-apps/syncthing
 
     ../../nixos/optional-apps/attic-placeholder.nix

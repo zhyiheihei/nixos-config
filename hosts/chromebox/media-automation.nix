@@ -33,7 +33,7 @@ in
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/peerbanhelper.nix
     ../../nixos/optional-apps/tachidesk.nix
-
+    # ../../nixos/optional-apps/bitmagnet.nix # missing regenerated secret tmdb.yaml
   ];
 
   lantian.resilioSync = {
