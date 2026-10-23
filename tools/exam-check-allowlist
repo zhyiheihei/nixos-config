@@ -92,3 +92,4 @@ nixos/minimal-modules/secrets/test_generate.py # 上游新增文件，本机 tre
 nixos/minimal-modules/secrets/tests.nix # 上游新增文件，测试桩用 greencloud 替代上游 colocrossing（本仓无该主机）
 pkgs/libltnginx/resources/update.sh # 上游新增脚本，本机 treefmt(shfmt) 缩进/引号规范化；语义零差异
 nixos/common-apps/nginx/vhosts-lantian.nix # skip: 对应 fork 的 vhosts-zhyi.nix（vhost 集合按 zhyi 域重写，NORMALIZE 只做路径映射）
+nixos/optional-apps/pocket-id.nix # 上游用 sops.secrets.pocket-id-env.content，当前 sops-nix（a1438ca36）的 secrets 子模块无 content 选项无法求值；本仓 volcengine 启用该服务，改用 sops.templates.pocket-id-env

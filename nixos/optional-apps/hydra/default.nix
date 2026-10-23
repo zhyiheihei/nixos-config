@@ -21,7 +21,7 @@ let
     "hydra-ws"
   ];
   hydraConf = pkgs.writeScript "hydra.conf" config.services.hydra.extraConfig;
-  queueRunnerToken = config.lantian.secrets.hydra-queue-runner-token.path;
+  queueRunnerToken = config.sops.secrets.hydra-queue-runner-token.path;
   py = pkgs.python3.withPackages (
     ps: with ps; [
       pydantic
@@ -65,8 +65,8 @@ in
     group = "hydra";
   };
 
-  # Only the local builder connects to the loopback queue runner.
-  lantian.secrets.hydra-queue-runner-token = {
+  sops.secrets.hydra-queue-runner-token = {
+    sopsFile = inputs.secrets + "/hydra.yaml";
     mode = "0440";
     group = "hydra";
   };

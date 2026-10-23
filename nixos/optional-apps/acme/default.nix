@@ -10,10 +10,10 @@
     ./cert-exporter.nix
   ];
 
-  sops.secrets.bunny-api-key.sopsFile = inputs.secrets + "/bunny-dns.yaml";
+  sops.secrets.gcore-api-key.sopsFile = inputs.secrets + "/gcore-dns.yaml";
   sops.templates.lego-env = {
     content = ''
-      BUNNY_API_KEY=${config.sops.placeholder.bunny-api-key}
+      GCORE_API_KEY=${config.sops.placeholder.gcore-api-key}
     '';
     owner = "acme";
     group = "acme";
@@ -28,7 +28,7 @@
       dnsResolver = "8.8.8.8:53";
       dnsPropagationCheck = false;
       email = "molishanguang@outlook.com";
-      environmentFile = [ config.sops.secrets.lego-env.path ];
+      environmentFile = [ config.sops.templates.lego-env.path ];
       postRun = ''
         CERT=$(basename $(pwd))
         install -Dm644 --owner=root -t /nix/sync-servers/acme/"$CERT" *

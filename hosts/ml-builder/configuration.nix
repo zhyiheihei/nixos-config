@@ -2,6 +2,7 @@
   lib,
   pkgs,
   config,
+  inputs,
   LT,
   ...
 }:
@@ -86,9 +87,16 @@ in
   # Hydra 构建机（gRPC）：新 nixpkgs 的队列器不再读 /etc/nix/machines，
   # 改由构建机主动连队列器（services.hydra-builder，队列器在 opi5p）。
   # 本机是舰队唯一 x86_64 主构建机，不接上则 Hydra 只剩 opi5p 本地槽。
+  sops.secrets.hydra-queue-runner-token = {
+    sopsFile = inputs.secrets + "/hydra.yaml";
+    mode = "0440";
+    owner = "hydra-builder";
+    group = "hydra";
+  };
+
   services.hydra-builder = {
     enable = true;
-    authorizationFile = config.lantian.secrets.hydra-queue-runner-token.path;
+    authorizationFile = config.sops.secrets.hydra-queue-runner-token.path;
     queueRunnerAddr = "http://${LT.hosts.opi5p.ltnet.IPv4}:${LT.portStr.Hydra.QueueRunnerGRPC}";
   };
 
@@ -173,7 +181,7 @@ in
         "--config-path"
         "/etc/hydra/builder-big.toml"
         "--authorization-file"
-        config.lantian.secrets.hydra-queue-runner-token.path
+        config.sops.secrets.hydra-queue-runner-token.path
       ];
 
       User = "hydra-builder";
