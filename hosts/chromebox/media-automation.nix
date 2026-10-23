@@ -11,9 +11,7 @@ let
     "podman-tachidesk"
     "jellyfin"
   ];
-  # 网页字幕渲染的 CJK 回退字体（同 rock5c media-apps.nix，Jellyfin
-  # 只收 ttf/otf/woff 且总量限 20MB，用单区 SC OTF）。烧录路径走系统
-  # fontconfig。
+
   jellyfinFallbackFont = pkgs.fetchurl {
     urls = [
       "https://cdn.jsdelivr.net/gh/notofonts/noto-cjk@Sans2.004/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf"
@@ -26,7 +24,7 @@ let
   '';
 in
 {
-  # 游戏服务器常驻高负载，powersave 降频会造成顿卡（2026-10-14 排查）。
+
   powerManagement.cpuFreqGovernor = "performance";
 
   imports = [
@@ -35,7 +33,7 @@ in
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/peerbanhelper.nix
     ../../nixos/optional-apps/tachidesk.nix
-    # ../../nixos/optional-apps/bitmagnet.nix # missing regenerated secret tmdb.yaml
+
   ];
 
   lantian.resilioSync = {
@@ -88,17 +86,13 @@ in
 
   systemd.services = lib.mkMerge [
     {
-      # .NET 应用不认 socks5，走 router v2ray 的 HTTP CONNECT 入站拉
-      # TMDB/图片等外网元数据；media 库挂在 QNAP NFS 上，NAS 就绪前不扫盘。
-      # 硬化与 chroot 由原版 jellyfin 模块提供，这里只加主机侧依赖。
+
       jellyfin = {
         after = [ "mnt-storage.mount" ];
         requires = [ "mnt-storage.mount" ];
-        # libva 运行期 dlopen /run/opengl-driver 下的 iHD 驱动，其 gmmlib 依赖
-        # 不在 ExecStart 闭包里，confinement chroot 看不到，ffmpeg 会报
-        # "Failed to initialise VAAPI connection"；驱动闭包需显式补进 chroot。
+
         confinement.packages = [ pkgs.intel-media-driver ];
-        # 媒体库由 MoviePilot 刮削写回，Jellyfin 在 chroot 中只读访问。
+
         serviceConfig = {
           BindPaths = [ "/run/opengl-driver" ];
           BindReadOnlyPaths = [
@@ -146,13 +140,6 @@ in
     after = [ "network.target" ];
   };
 
-  # 家庭双边缘拓扑（rock5c 443 内网前置/opi5p 8443 公网前沿 → 本机 8096
-  # 回源）：上游 jellyfin.nix 原文只开 netns 内 unix socket（假设 nginx
-  # 同机），后端跨机必须有 TCP 监听。用模块同款 vhost 机制开 8096 HTTP
-  # 回源 socket（命名同 rock5c jellyfin-api 的 <name>.<host>.zhyi.xin 形
-  # 态）。accessibleBy private 的放行集是 LTNET+lo，不含家庭 LAN 段，因
-  # 此 rock5c 回源走本机 LTNET 地址（见 rock5c media-edge），来源 IP 落
-  # 在放行集内；属拓扑环境事实偏移，共享模块保持原文。
   lantian.nginxVhosts."jellyfin-backend.chromebox.zhyi.xin" = {
     listenHTTP = {
       enable = true;
@@ -174,13 +161,6 @@ in
     noIndex.enable = true;
   };
 
-  # Jellyfin（自 rock5c 迁入家庭边缘，2026-10-16）：UHD 620 走 VAAPI 硬解/
-  # 硬编（H.264/HEVC 10bit），多会话轻转码不再受 rock5c 8G 内存天花板
-  # 约束。forceEncodingConfig 用本机 VAAPI 覆盖随状态 rsync 带来的 rkmpp
-  # 编码配置，NixOS 配置成为 encoding.xml 唯一真源。
-  # UHD 620 的 QSV 需要已被 nixpkgs 标记为不安全的旧 Media SDK；直接用
-  # iHD 驱动的 VAAPI 后端，避免引入该运行时。Intel 驱动写法见
-  # nixos/client-components/xorg.nix。
   hardware.graphics = {
     enable = true;
     extraPackages = [ pkgs.intel-media-driver ];

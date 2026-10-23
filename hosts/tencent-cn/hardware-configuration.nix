@@ -1,11 +1,3 @@
-# Tencent Cloud CVM (Shanghai) storage layout, following the project's unified
-# server architecture: tmpfs / (impermanence), dedicated /boot, persistent
-# btrfs /nix with neededForBoot = true.
-#
-# BIOS layout (confirmed in install env: test -d /sys/firmware/efi
-# → BIOS): 2 MiB bios_grub (unmounted) + 1 GiB ext4 /boot + btrfs /nix.
-# boot.loader.grub.device = "/dev/vda". UUIDs read from blkid in the
-# Alpine RAM install environment (2026-09-23).
 _: {
   imports = [
     ../../nixos/hardware/qemu.nix

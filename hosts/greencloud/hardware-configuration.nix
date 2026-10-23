@@ -1,4 +1,3 @@
-# BIOS QEMU VM; disk layout verified from the Alpine installer.
 _: {
   imports = [
     ../../nixos/hardware/qemu.nix

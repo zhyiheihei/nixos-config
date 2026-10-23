@@ -5,20 +5,17 @@
   ...
 }:
 let
-  # MAC -> IP reservations live in the secrets repo, like the author's
-  # lt-home-router/dhcp.nix.
+
   reservations = import (inputs.secrets + "/dhcp-reservations.nix");
 in
 {
-  # Explicit user instead of relying on the nixpkgs module's DynamicUser
+
   users.users.kea = {
     isSystemUser = true;
     group = "kea";
   };
   users.groups.kea = { };
 
-  # Follow the home-router Kea layout.  Infrastructure addresses stay static;
-  # ordinary home devices receive addresses only from the .100-.249 pool.
   services.kea.dhcp4 = {
     enable = true;
     settings = {
@@ -81,9 +78,6 @@ in
   environment.etc."kea/dhcp4-server.conf".mode = "0444";
   lantian.harden.kea-dhcp4-server = true;
 
-  # 上游 lt-home-router 同款结构；地址换成环境事实：br-lan 只挂静态
-  # ULA fc00:192:168::/64，运营商 PD /64 是动态前缀，kea 无法静态建
-  # 子网，GUA 仍由 networkd RA PIO SLAAC 承接。
   services.kea.dhcp6 = {
     enable = true;
     settings = {

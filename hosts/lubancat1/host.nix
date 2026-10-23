@@ -20,6 +20,6 @@
     name = "home-lan";
     IPv4 = "192.168.0.65";
   };
-  # Server-role BIRD configuration consumes the region even without dn42.
+
   dn42.region = constants.dn42.region.Asia-E;
 }

@@ -28,7 +28,7 @@ let
       {
         type = "oidc";
         name = "Pocket ID";
-        id = "ldap"; # Backwards compatibility
+        id = "ldap";
         config = {
           issuer = "https://id.zhyi.xin";
           scopes = [
@@ -194,7 +194,7 @@ in
       sopsFile = inputs.secrets + "/dex/vaultwarden.yaml";
       owner = "dex";
       group = "dex";
-      # Vaultwarden SSO reads this secret too, as its own service user.
+
       mode = "0444";
     };
   }

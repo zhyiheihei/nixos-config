@@ -12,8 +12,6 @@
     group = "zhyi";
   };
 
-  # / 为 tmpfs，picoclaw 的 config.json 无法跨重启存活；开机用 picoclaw 专用
-  # key 拼装种子配置（缺文件或缺目标模型即重写， healed 后的运行期改动保留）。
   systemd.services.picoclaw-config-seed = {
     wantedBy = [ "multi-user.target" ];
     before = [ "picoclaw.service" ];
@@ -24,9 +22,7 @@
     script = ''
       install -d -m700 -o zhyi -g zhyi /home/zhyi/.picoclaw
       if [ ! -f /home/zhyi/.picoclaw/config.json ] || ! grep -q gpt-5.6-luna /home/zhyi/.picoclaw/config.json; then
-        ${lib.getExe pkgs.jq} -n --arg key "$(cat ${
-          config.sops.secrets."ai-api-key".path
-        })" '{
+        ${lib.getExe pkgs.jq} -n --arg key "$(cat ${config.sops.secrets."ai-api-key".path})" '{
           version: 3,
           agents: {defaults: {model_name: "gpt-5.6-luna", workspace: "~/.picoclaw/workspace", restrict_to_workspace: true}},
           model_list: [{

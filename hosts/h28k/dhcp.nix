@@ -5,12 +5,11 @@
   ...
 }:
 let
-  # MAC -> IP reservations for the site LAN live in the secrets repo, like
-  # the author's lt-home-router/dhcp.nix (reservations.vlan0/vlan5).
+
   reservations = import (inputs.secrets + "/dhcp-reservations.nix");
 in
 {
-  # Explicit user instead of relying on the nixpkgs module's DynamicUser
+
   users.users.kea = {
     isSystemUser = true;
     group = "kea";

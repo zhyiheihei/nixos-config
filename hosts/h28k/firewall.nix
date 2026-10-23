@@ -5,9 +5,7 @@
   ...
 }:
 let
-  # Ports that must never be exposed on the untrusted WAN side. Same list as
-  # the author's lt-home-router (nixos-config-exam/hosts/lt-home-router/
-  # firewall.nix).
+
   publicFirewalledPorts = [
     137
     138
@@ -28,13 +26,7 @@ let
   '';
 in
 {
-  # The repository-wide prefix classifier treats both eth0 and eth1 as WAN.
-  # Override it for this two-port router so eth0 is trusted LAN and eth1 is an
-  # untrusted DHCP uplink. Firewall model mirrors the author's lt-home-router:
-  # input/output default to accept with explicit drops for timestamp ICMP,
-  # ZeroTier mDNS and the never-exposed ports on the WAN. The earlier
-  # drop-by-default input chain was a deviation from upstream and silently cut
-  # off the Colmena deploy path (SSH over ZeroTier/LTNET on zt*).
+
   networking.nftables.tables.zhyi.content = lib.mkForce ''
     chain FILTER_INPUT {
       type filter hook input priority 5; policy accept;

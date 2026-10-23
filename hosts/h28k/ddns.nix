@@ -10,10 +10,7 @@ let
   py = pkgs.python3.withPackages (p: with p; [ requests ]);
 in
 {
-  # Keep the site hostname (site.zhyi.xin) pointed at the dynamic DHCP WAN.
-  # Same Gcore token as the home router's ddns-gcore (lego.yaml lego-env).
-  # While the board is still staging at home the record follows the home
-  # public IP; re-check after relocation.
+
   sops.secrets.ddns-gcore-env = {
     sopsFile = inputs.secrets + "/lego.yaml";
     key = "lego-env";

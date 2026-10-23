@@ -10,19 +10,16 @@
 
     ./hardware-configuration.nix
     ./home-services.nix
-    # picoclaw 已按上游停用（pve-epyc 注释该模块），用户 2026-10-22 要求跟随。
-    # ./picoclaw-config.nix
 
     ../../nixos/optional-apps/kubo.nix
     ../../nixos/optional-apps/ncps.nix
-    # ../../nixos/optional-apps/picoclaw.nix
+
     ../../nixos/optional-apps/redroid-gapps-image.nix
     ../../nixos/optional-apps/redroid.nix
   ];
 
   lantian.backup.enable = true;
 
-  # 官方 redroid 镜像无 GMS，用 MindTheGapps 13 arm64 官方包叠加出本地镜像。
   lantian.redroidGappsImage = {
     enable = true;
     mtgZip = pkgs.fetchurl {
@@ -30,10 +27,9 @@
       hash = "sha256-P/LtqnVAbrQhRAL8ppBtS0E6tQr9sa8DPZ45aZIzjQs=";
     };
   };
-  # MTG 附带的 GMS setup wizard 不适合 headless 容器（redroid-doc GApps 章节）。
+
   virtualisation.oci-containers.containers.redroid.cmd = [ "ro.setupwizard.mode=DISABLED" ];
 
-  # 镜像构建服务缺基础镜像时需要拉网，代理注入对齐 redroid 容器服务自身。
   systemd.services.redroid-gapps-image.environment = LT.proxyEnvironment // {
     NO_PROXY = "${LT.proxyBypass},docker.m.daocloud.io";
   };
@@ -42,8 +38,6 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = lib.mkForce true;
 
-  # nomodeset 会让 msm DRM 拒绝 probe（adev bind failed -19），且 kernelParams
-  # 只能追加、mkForce 重列会顶掉模块级参数，故 disabledModules 整块禁用。
   disabledModules = [
     ../../nixos/minimal-components/boot-params.nix
   ];
@@ -73,7 +67,6 @@
 
   boot.supportedFilesystems = [ "nfs" ];
 
-  # noauto + automount：同 opi5p 修复（c72df01ca），archivebox 绑定 NFS。
   fileSystems."/mnt/storage" = {
     device = "192.168.0.40:/nixos";
     fsType = "nfs";
@@ -137,7 +130,6 @@
   };
   networking.networkmanager.enable = lib.mkForce false;
 
-  # 通用策略禁用全局 wait-online，NFS 挂载依赖按接口实例。
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@bond0.service" ];
 
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = ''
@@ -164,10 +156,6 @@
     }
   ];
 
-  # NCPS 上游代理：router V2Ray（LT.proxyEnvironment）在 2026-09-05 间歇性
-  # 断流，导致 NCPS 替代下载超时、全集群 substituter 退化。改走 rock5c 的
-  # metacubexd mihomo mixed 口（metacubexd.nix 里 MIXED_PORT=7892 且发布在
-  # rock5c LAN 地址上）。m-team 豁免照旧。
   systemd.services.ncps.environment = LT.proxyEnvironment // {
     HTTP_PROXY = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
     HTTPS_PROXY = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";

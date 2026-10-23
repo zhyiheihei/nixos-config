@@ -9,8 +9,7 @@ let
     NO_PROXY = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
     no_proxy = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
   };
-  # MoviePilot 容器：PySocks 用 socks5 时本地解析域名，socks5h 让域名在
-  # router 代理解析，避开污染。
+
   moviepilotProxy = "socks5h://${LT.hosts.opi5p.interconnect.IPv4}:${LT.portStr.V2Ray.SocksClient}";
 in
 {
@@ -19,8 +18,6 @@ in
 
     ../../nixos/optional-apps/ncps-client.nix
 
-    # Phase 1 of the ml-home-vm split migration.  These services stay on the
-    # ROCK 5C address until the edge role has been verified and cut over.
     ../../nixos/optional-apps/metacubexd.nix
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
     ./moviepilot-watchdog.nix
@@ -33,13 +30,9 @@ in
 
   lantian.backup.enable = true;
 
-  # Align with opi5p: the NAS exports the media library directly; mount the
-  # same share instead of routing media through another host.
   boot.supportedFilesystems = [ "nfs" ];
   environment.systemPackages = [ pkgs.nfs-utils ];
 
-  # noauto + automount：裸 mount 在 NAS 未就绪时失败且不重试，写法
-  # 对齐 exam lt-hp-omen（同 opi5p 修复，c72df01ca）。
   fileSystems."/mnt/storage" = {
     device = "192.168.0.40:/nixos";
     fsType = "nfs";
@@ -56,7 +49,6 @@ in
     ];
   };
 
-  # automount 触发的 mount 失败不再撞 5 次/10s 限流，NAS 恢复后访问即自愈。
   systemd.units."mnt-storage.mount" = {
     overrideStrategy = "asDropin";
     text = ''
@@ -65,20 +57,6 @@ in
     '';
   };
 
-  # ROCK 5C carries a Rockchip RK3588S2 SoC (same VPU family as opi5p's
-  # RK3588): enable the rockchip jellyfin build with full AV1/HDR decode.
-  # 2026-10-17 撤除：Jellyfin 迁往 chromebox（x86 QSV 硬解，规避本机
-  # 8G 内存天花板下 earlyoom 绞杀转码会话的循环故障），回滚 = git
-  # revert 对应提交恢复本块与 media-apps.nix 的 jellyfin-rockchip import。
-
-  # Never scan an empty local directory when the direct NAS mount is absent.
-  # environment must merge (no mkForce) with jellyfin-rockchip's Kestrel unix
-  # socket env: a mkForce here silently dropped JELLYFIN_kestrel__socket on the
-  # 2026-09-06 deploy, nginx jellyfin vhosts 502'd and the service sat dead for
-  # 9 days.
-
-  # MoviePilot container: PySocks resolves hostnames locally with socks5;
-  # socks5h keeps GitHub/plugin traffic on the router proxy with remote DNS.
   systemd.services.podman-moviepilot.environment = proxyEnvironment // {
     HTTP_PROXY = moviepilotProxy;
     HTTPS_PROXY = moviepilotProxy;
@@ -90,16 +68,11 @@ in
     "--add-host=jellyfin-api.rock5c.zhyi.xin:${LT.this.interconnect.IPv4}"
   ];
 
-  # Handbrake image pulls and the distributed RKNN worker's model/image
-  # downloads go through the same stable router egress. Moved here from
-  # media-apps.nix / immich-ml.nix per module-placement-norms §3.
   systemd.services.podman-handbrake.environment = proxyEnvironment;
   systemd.services.podman-immich-machine-learning-rknn.environment =
     lib.genAttrs (lib.attrNames proxyEnvironment)
       (k: lib.mkForce proxyEnvironment.${k});
 
-  # Match the onboard GMAC by its permanent address so future driver or probe
-  # ordering changes cannot silently move the static LAN configuration.
   systemd.network.links."10-rock5c-lan" = {
     matchConfig.PermanentMACAddress = "e2:dc:47:5e:02:24";
     linkConfig.Name = "lan0";
@@ -117,24 +90,12 @@ in
   };
   networking.networkmanager.enable = lib.mkForce false;
 
-  # The common network policy intentionally masks the global wait-online
-  # service. This host's NFS media mount must still wait for its physical LAN
-  # carrier, so enable systemd's scoped per-interface instance only.
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@lan0.service" ];
 
-  # ROCK 5C has no reliable RTC. A calendar timer is armed while the clock is
-  # still months behind, then fires immediately when time synchronization
-  # jumps forward. The global `podman system prune -af` consequently deletes
-  # the imported MetaCubeXD and reDroid images before their units can start.
-  # Keep the author default globally and disable automatic pruning only here;
-  # image cleanup on this appliance is deliberate and manual.
   virtualisation.podman.autoPrune.enable = lib.mkForce false;
 
   boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
 
-  # BrushFlow/SubtitleAssistant can lose their dynamic page/API routes after a
-  # container restart.  Only reload when the route is actually missing, so the
-  # health check never causes churn during normal operation.
   systemd.services.moviepilot-plugin-health = {
     description = "Restore missing MoviePilot plugin API routes";
     serviceConfig = {
@@ -175,11 +136,6 @@ in
     };
   };
 
-  # 2026-10-11：Jellyfin 全库元数据刷新叠加 rkmpp 硬解转码（DRM GEM 缓冲计入
-  # Shmem），把 8 GiB 内存和 4 GiB zram swap 一起吃满；swappiness=180 下内核
-  # 只换页不肯杀进程，01:25→03:10 后进入回收风暴，10:50 起整机活锁到断电。
-  # earlyoom 在内存与 swap 同时吃紧时先杀转码/推理进程，丢一次转码换整机存活
-  # （做法同 ml-builder 的编译机收尾）。
   services.earlyoom = {
     enable = true;
     extraArgs = [

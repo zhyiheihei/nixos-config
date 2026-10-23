@@ -7,9 +7,6 @@
   ...
 }:
 let
-  ########################################
-  # VaultS3 S3 网关（s3.zhyi.xin）
-  ########################################
 
   vaults3Pkg = inputs.zhyi-packages.packages.${pkgs.system}.vaults3;
   vaults3Config = pkgs.writeText "vaults3.yaml" ''
@@ -27,38 +24,25 @@ in
 
     ./hardware-configuration.nix
 
-    # SFTP 备份端点（internal-sftp chroot，chroot 目录改到 1T 数据盘）。
     ../../nixos/optional-apps/sftp-server.nix
 
-    # Gitea（自 greencloud 迁入，2026-08-29；模块自带 mysql 依赖）。
     ../../nixos/optional-apps/gitea
 
-    # Nextcloud 已按上游停用（oracle-vm-arm1 注释该模块），用户 2026-10-22
-    # 要求跟随；主机级配置保留在 ./nextcloud.nix 便于随时恢复。
-    # ./nextcloud.nix
-
-    # Syncthing 同步节点（自 greencloud 移交，机群常在线异地端）。
     ../../nixos/optional-apps/syncthing
 
-    # atticd 按上游停用（服务下线，域名留给占位说明页）。
     ../../nixos/optional-apps/attic-placeholder.nix
   ];
 
-  # Syncthing 存储放 1T 数据盘（默认值在 40G 系统盘上放不下）。
   lantian.syncthing.storage = "/data/syncthing";
 
-  # Obsidian vault 固定目录，与 opi5p Ignis vault 同名，方便 Syncthing 对接。
   systemd.tmpfiles.settings.syncthing."/data/syncthing/Notes"."d" = {
     mode = "755";
     user = "syncthing";
     group = "syncthing";
   };
 
-  # 本机是机群的异地备份目标，不再向外推送自身备份。
   lantian.backup.schedule = null;
 
-  # sftp chroot 改到 1T 数据盘：ChrootDirectory 要求整条路径 root 属主，
-  # 故 home 本身 root 属主，数据写进内部 sftp 可写的 backups/restic 子目录。
   users.users.sftp = {
     home = lib.mkForce "/data/sftp-server";
     createHome = lib.mkForce false;
@@ -80,7 +64,7 @@ in
       group = "sftp";
       mode = "755";
     };
-    # storagebox 双备份仓库根（minimal-components/backup/common.nix）
+
     "/data/sftp-server/backups/rustic-storagebox"."d" = {
       user = "sftp";
       group = "sftp";
@@ -88,11 +72,8 @@ in
     };
   };
 
-  # cn-accel 出口节点：默认 vhost 的 /ray 走真证书（同 tencent；xray 服务由
-  # cn-accel 标签经 server-apps/v2ray.nix 启用）。
   lantian.nginxVhosts."greencloud-jp.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
-  # Gitea LFS/附件存储指向本机 VaultS3（router 上的旧实例已停摆）。
   services.gitea.settings.storage = {
     MINIO_ENDPOINT = lib.mkForce "s3.zhyi.xin:443";
     MINIO_BUCKET = lib.mkForce "gitea";
@@ -101,14 +82,8 @@ in
     SERVE_DIRECT = lib.mkForce false;
   };
 
-  # git 裸仓本体迁 1T 数据盘（2026-09-17 故障复盘）：dooya SDK 裸仓 33G
-  # 把 39G 系统盘塞爆 → postgres 写失败 start-limit-hit 不重启 → attic
-  # 数据库连接 500 → 全舰队部署拉包失败。LFS/附件已在 VaultS3，裸仓同步
-  # 迁出；stateDir（配置/密钥/索引）仍留 /nix/persistent。
   services.gitea.repositoryRoot = "/data/gitea/repositories";
 
-  # VaultS3 S3 网关：数据放 1T 数据盘，仅监听 loopback，由 nginx 反代
-  # s3.zhyi.xin（泛域名证书）。与 router 上的实例共用机群统一凭据约定。
   users.users.vaults3 = {
     isSystemUser = true;
     group = "vaults3";
@@ -179,14 +154,13 @@ in
     noIndex.enable = true;
   };
 
-  # 该机房 DHCPv4 拿不到租约，v4/v6 均静态（网关为救援环境实测值）。
   systemd.network.networks.eth0 = {
     matchConfig.Name = "eth0";
     address = [
       "45.159.48.76/24"
       "2403:71c0:2000:1253::a/64"
     ];
-    # 双栈全静态，显式关 RA 防机房意外下发第二条默认路由（同 tencent 写法）。
+
     networkConfig.IPv6AcceptRA = "no";
     routes = [
       {

@@ -1,9 +1,3 @@
-# OPI5P 媒体中心。上游 lt-home-vm 的下载链（qBittorrent/sonarr/flexget）
-# 在本仓库演化为：qB 与 *arr 迁往 router/rock5c，由 MoviePilot v3 接管；
-# tachidesk / peerbanhelper 已迁至 dragon-q8b（负载降压）；
-# bitmagnet 三件套也已于 2026-08-28 迁至 dragon-q8b（含其 postgres 库，
-# 爬取数据可再生，未做迁移、从零重建）。本机保留为 rock5c 准备的 NFS
-# 库目录与 postgres（immich/home-assistant 仍在用）。
 {
   config,
   lib,
@@ -59,8 +53,7 @@ in
       };
     }
     {
-      # 库目录名沿用已退役的 sonarr/radarr：MoviePilot v3 与 Jellyfin 的媒体库
-      # 扫描仍以这两个路径组织 union（见 rock5c/media-edge.nix），改名断库。
+
       "/mnt/storage/media-radarr".d = {
         mode = "755";
         user = "zhyi";
@@ -80,8 +73,7 @@ in
       user = "root";
       group = "root";
     };
-    # Bitmagnet's 16 GiB PostgreSQL database is write-heavy.  Set NOCOW while
-    # the directory is still empty, before PostgreSQL initializes it on NVMe.
+
     "/nix/persistent/var/lib/postgresql" = {
       d = {
         mode = "0700";

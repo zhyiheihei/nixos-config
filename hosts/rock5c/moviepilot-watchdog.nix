@@ -1,7 +1,3 @@
-# MoviePilot 健康度看门狗：把两类已实锤的停摆状态（订阅搜索队列卡死、
-# 刷流新增/删种停摆）导出为 node_exporter textfile 指标，由 tencent
-# Prometheus 告警（Alertmanager → Telegram）。故障背景与阈值依据见
-# docs/agent/inspection-playbook.md 的 moviepilot 条目。
 {
   pkgs,
   ...

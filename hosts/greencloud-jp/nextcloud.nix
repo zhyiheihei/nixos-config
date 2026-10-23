@@ -21,8 +21,7 @@
       apcu = true;
       redis = true;
     };
-    # 上游 dbtype = "oci" 连的是作者自己的 Oracle ADB 实例；本机没有
-    # Oracle，改用宿主已有 MariaDB（Gitea 同库），socket 免密认证。
+
     database.createLocally = true;
     config = {
       adminpassFile = config.sops.secrets.default-pw.path;
@@ -83,7 +82,7 @@
     };
   };
   systemd.services.phpfpm-nextcloud.path = [ pkgs.msmtp ];
-  # 上游 treewide RestartSec（b1383d16）断言要求；本主机文件独立于公共模块。
+
   systemd.services.phpfpm-nextcloud.serviceConfig.RestartSec = "5s";
 
   services.redis.servers.nextcloud = {
@@ -98,7 +97,7 @@
   };
 
   lantian.nginxVhosts."cloud.zhyi.xin" = {
-    # Nextcloud sends "X-Robots-Tag: none" itself, no need for noIndex
+
     sslCertificate = "zerossl-zhyi.xin";
     enableCommonLocationOptions = false;
     enableCommonVhostOptions = false;

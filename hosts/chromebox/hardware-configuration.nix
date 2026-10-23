@@ -1,6 +1,3 @@
-# UEFI 两分区布局（512M ESP + Btrfs 三子卷 nix/persistent/persistent-home，
-# tmpfs /）。UUID 为 2026-09-21 安装现场 blkid 实测值（KIOXIA EXCERIA 465.8G，
-# S/N 51IA21S3K2Q2）。
 {
   config,
   lib,
@@ -69,7 +66,7 @@
   };
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-  # Intel 平台微码 + 自由固件（i7-8550U）。
+
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
   hardware.enableRedistributableFirmware = true;
 }

@@ -19,6 +19,5 @@
 
   zerotier = "ecd09d7bc2";
 
-  # Server-role BIRD configuration consumes the region even without dn42.
   dn42.region = constants.dn42.region.Asia-E;
 }

@@ -1,8 +1,7 @@
-# Do not modify this file! It was generated for the VOLCENGINE QEMU guest.
 _: {
   imports = [
     ../../nixos/hardware/qemu.nix
-    # 对齐 exam alice（同款 QEMU guest）：禁用 virtio balloon，防内存气球干扰。
+
     ../../nixos/hardware/disable-balloon.nix
   ];
 

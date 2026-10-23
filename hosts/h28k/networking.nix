@@ -4,14 +4,11 @@
   ...
 }:
 let
-  # The remote-site uplink rate is not known yet; CAKE shaping must match the
-  # real WAN bandwidth after relocation. 1G matches the current home staging
-  # switch port.
+
   wanBandwidth = "1G";
 
   tc = "${pkgs.iproute2}/bin/tc";
-  # Both NICs are single-queue (dwmac-rockchip eth0, r8169 eth1), so the
-  # global RPS table must cover 2 queues, one per port.
+
   flowEntriesPerQueue = 8192;
   rpsFlowEntries = 2 * flowEntriesPerQueue;
 
@@ -62,9 +59,7 @@ let
 in
 {
   systemd.network.networks = {
-    # WAN: the PCIe RTL8111H is an IPv4 DHCP uplink shaped by CAKE (the
-    # author's router recipe: dual-src-host flow isolation + NAT + diffserv8,
-    # see nixos-config-exam/hosts/lt-home-router/networking.nix).
+
     "10-h28k-wan" = {
       matchConfig.Name = "eth1";
       networkConfig = {
@@ -84,9 +79,6 @@ in
       };
     };
 
-    # LAN: the integrated GMAC (eth0) owns the site subnet 192.168.30.0/24.
-    # Kea (dhcp.nix) serves addresses from the .100-.249 pool with gateway and
-    # DNS at 192.168.30.1; no DHCP client runs here.
     "10-h28k-lan" = {
       matchConfig.Name = "eth0";
       address = [ "192.168.30.1/24" ];
@@ -95,13 +87,6 @@ in
     };
   };
 
-  ########################################
-  # NIC queue / RPS tuning
-  ########################################
-
-  # R5C router high-throughput recipe (docs/human/research/10-router-rx-queue-4.md):
-  # raise device/socket buffers and spread RX processing across all cores.
-  # BBR is already enabled globally by nixos/minimal-components/networking.nix.
   boot.kernel.sysctl = {
     "net.core.netdev_budget" = 1200;
     "net.core.netdev_budget_usecs" = 30000;
@@ -113,9 +98,6 @@ in
     "net.core.rps_sock_flow_entries" = rpsFlowEntries;
   };
 
-  # The public default enables irqbalance on multi-core hosts, but its queue
-  # placement hurt multi-queue performance on the R5C router; keep the H28K
-  # network IRQs pinned by h28k-rps instead.
   services.irqbalance.enable = lib.mkForce false;
 
   systemd.services.h28k-rps = {
@@ -144,8 +126,6 @@ in
     };
   };
 
-  # Driver resets or link reinit can wipe qdisc/affinity/RPS settings while
-  # systemd still reports the oneshot active; reassert every minute.
   systemd.timers.h28k-rps-check = {
     wantedBy = [ "timers.target" ];
     timerConfig = {

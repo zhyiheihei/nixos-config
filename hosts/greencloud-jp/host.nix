@@ -15,10 +15,9 @@
   cpuThreads = 2;
   hostname = "45.159.48.76";
   city = geo.cities."JP Tokyo";
-  # Generated during the 2026-08-29 install at /nix/persistent/etc/ssh;
-  # fingerprint SHA256:GJ8IBWu9Q3aPIOaYm8uc62XlJQaPagPjQ+4dyxaZGgk.
+
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICYtkOxbzQPS8J4d4pMfrEukWUToSnQrnJajj7m4Gcf7 root@storage";
-  # ZeroTier node ID 采集于首次启动（2026-08-29 zerotier-cli info）。
+
   zerotier = "f4ec4a081c";
 
   public = {

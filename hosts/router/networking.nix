@@ -10,8 +10,7 @@ let
   tc = "${pkgs.iproute2}/bin/tc";
   queueCount = LT.this.cpuThreads;
   flowEntriesPerQueue = 8192;
-  # Both RTL8125 ports have queueCount RX queues, so the global RPS table
-  # must cover 2 * queueCount queues.
+
   rpsFlowEntries = 2 * queueCount * flowEntriesPerQueue;
 
   rpsScript = pkgs.writeShellScript "router-rps" ''
@@ -67,25 +66,16 @@ in
     restartUnits = [ "pppd-wan.service" ];
   };
 
-  # Keep the WAN identity used by OpenWrt. Some ISPs bind the active PPPoE
-  # session to the CPE MAC address.
   systemd.network.links."10-router-wan" = {
     matchConfig.OriginalName = "eth1";
     linkConfig.MACAddress = "02:c8:90:df:19:eb";
   };
 
-  # r8125 cannot read the on-board EEPROM MAC at probe time, so both ports
-  # start with a temporary address.  eth1 is pinned above for PPPoE; pin eth0
-  # to its factory permanent address as well so the LAN bridge identity does
-  # not depend on udev's machine-id derived persistent policy.
   systemd.network.links."10-router-lan" = {
     matchConfig.OriginalName = "eth0";
     linkConfig.MACAddress = "36:57:34:66:a7:af";
   };
 
-  # Disable EEE on both RTL8125B ports: the PHY firmware (rtl8125b-2_0.0.2)
-  # fails to wake from EEE low-power idle, causing intermittent carrier loss.
-  # The NixOS linkConfig type does not expose EEE, so use ethtool directly.
   systemd.services.disable-eee = {
     description = "Disable EEE on RTL8125B NICs";
     wantedBy = [ "multi-user.target" ];
@@ -165,7 +155,7 @@ in
   };
 
   systemd.network.networks = {
-    # Physical WAN. PPPoE owns addressing and the default route.
+
     eth1 = {
       matchConfig.Name = "eth1";
       networkConfig = {
@@ -176,18 +166,12 @@ in
       linkConfig.RequiredForOnline = "carrier";
     };
 
-    # PPPoE WAN. IPv4 is negotiated by pppd; networkd requests the ISP's
-    # delegated IPv6 prefix and redistributes one /64 to br-lan. CAKE shapes
-    # the uplink (author's lt-home-router recipe: dual-src-host, NAT,
-    # diffserv8) at the ~1G line rate measured in docs/human/research/11-network-acceptance-2026-08-12.md.
     ppp0 = {
       matchConfig.Name = "ppp0";
       networkConfig = {
         DHCP = "ipv6";
         IPv6AcceptRA = "yes";
-        # pppd owns the PPPoE IPv4 address and default route; without this,
-        # systemd-networkd can drop them when it applies ppp0.network after
-        # IPCP completes, leaving the WAN with IPv6 only.
+
         KeepConfiguration = "static";
       };
       ipv6AcceptRAConfig = {
@@ -199,11 +183,7 @@ in
         WithoutRA = "solicit";
       };
       linkConfig.RequiredForOnline = "routable";
-      # 真实线路 shaping（2026-10-17 用户报套餐：千兆下 / 50M 上）。
-      # 上行设 45M（标称 90%）让 CAKE 在运营器侧缓存积压前接管队列，
-      # 保游戏（帕鲁）低延迟；下行不限速维持 1G 不塑形（仅保留
-      # fq_codel 型公平调度）。此前 Bandwidth=1G 高于真实上行，shaping
-      # 阈值形同虚设。
+
       cakeConfig = {
         Bandwidth = "45M";
         FlowIsolationMode = "dual-src-host";
@@ -212,14 +192,12 @@ in
       };
     };
 
-    # LAN bridge: local PVE VMs and physical clients.
     eth0 = {
       matchConfig.Name = "eth0";
       networkConfig.Bridge = "br-lan";
       linkConfig.RequiredForOnline = "enslaved";
     };
 
-    # Static IPv4 gateway plus ULA and delegated IPv6 prefixes for LAN guests.
     br-lan = {
       matchConfig.Name = "br-lan";
       address = [
@@ -245,7 +223,7 @@ in
       ipv6SendRAConfig = {
         EmitDNS = true;
         DNS = "fc00:192:168::1";
-        # M/O 置位配合 kea-dhcp6 发 ULA 地址；PD GUA 走 PIO SLAAC 不受影响
+
         Managed = true;
         OtherInformation = true;
       };
@@ -253,7 +231,6 @@ in
     };
   };
 
-  # Trigger DDNS update when WAN becomes routable
   services.networkd-dispatcher = {
     enable = true;
     rules.trigger-ddns = {
@@ -269,13 +246,6 @@ in
     };
   };
 
-  ########################################
-  # WLAN (hostapd AP)
-  ########################################
-
-  # MediaTek MT7921 is the preferred radio for this router: unlike the Intel
-  # 7265 it supports 802.11ax, and its upstream mt76 driver is a better fit for
-  # AP mode than the RTL8852BE rtw89 driver.
   boot.kernelModules = [
     "mt7921e"
     "mt7921_common"
@@ -290,9 +260,6 @@ in
     restartUnits = [ "hostapd.service" ];
   };
 
-  # 上游 treewide RestartSec（b1383d16）的 ensure-service-restart 新断言拒绝
-  # RestartSec < 3s 或缺省的 Restart 服务；hostapd 是 fork 独有消费者（上游
-  # 无 AP 主机，不会撞上），主机级补齐，不偏离 nixpkgs hostapd 模块默认值。
   systemd.services.hostapd.serviceConfig.RestartSec = "5s";
 
   services.hostapd = {
@@ -315,7 +282,7 @@ in
         operatingChannelWidth = "80";
       };
       settings = {
-        # Channel 36 belongs to the 80 MHz block centred on channel 42.
+
         vht_oper_centr_freq_seg0_idx = 42;
         he_oper_centr_freq_seg0_idx = 42;
       };
@@ -333,20 +300,6 @@ in
     };
   };
 
-  # hostapd changes wlan0 from managed to AP mode before adding it to br-lan.
-  # systemd-networkd must not try to enslave the still-managed interface first.
-  # Kea, CoreDNS, IPv6 RA and the firewall already operate on br-lan.
-
-  ########################################
-  # NIC queue / RPS tuning (RTL8125)
-  ########################################
-
-  # Follow the OpenWrt NanoPi R5C high-throughput recipe that is backed by
-  # community measurements: raise device/socket buffers and spread every RX
-  # queue across all four cores.  The r8125 override opens 4 RX queues;
-  # the RPS flow tables are sized for both NICs.  BBR is already enabled
-  # globally by nixos/minimal-components/networking.nix.  NAPI and qdisc
-  # values are backed by A/B medians in docs/human/research/10-router-rx-queue-4.md.
   boot.kernel.sysctl = {
     "net.core.netdev_budget" = 1200;
     "net.core.netdev_budget_usecs" = 30000;
@@ -358,9 +311,6 @@ in
     "net.core.rps_sock_flow_entries" = rpsFlowEntries;
   };
 
-  # The public default enables irqbalance on multi-core hosts, but its queue
-  # placement hurt RTL8125 multi-queue performance on this board.  Keep the
-  # network IRQs pinned by router-rps instead.
   services.irqbalance.enable = lib.mkForce false;
 
   systemd.services.router-rps = {
@@ -389,8 +339,6 @@ in
     };
   };
 
-  # r8125 driver resets or link reinit can wipe qdisc/affinity/RPS settings
-  # while systemd still reports the oneshot active; reassert every minute.
   systemd.timers.router-rps-check = {
     wantedBy = [ "timers.target" ];
     timerConfig = {

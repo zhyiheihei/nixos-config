@@ -14,8 +14,6 @@ in
     ./hardware-configuration.nix
   ];
 
-  # Use DHCP only during bring-up. Mainline Allwinner DT aliases normally
-  # produce end0; eth0 is retained here for older naming policy revisions.
   systemd.network.networks."10-opi03-lan" = {
     matchConfig.Name = "end0 eth0";
     networkConfig = {
@@ -26,14 +24,10 @@ in
 
   networking.networkmanager.enable = lib.mkForce false;
 
-  # Android's bpfloader needs this writable and enabled.  The repository-wide
-  # hardening default is irreversible until reboot, so override it declaratively
-  # before the first reDroid start rather than trying to repair it at runtime.
   boot.kernel.sysctl."kernel.unprivileged_bpf_disabled" = lib.mkForce 0;
 
   environment.systemPackages = [
-    # The locally built Android rootfs is transferred as a .tar.zst archive;
-    # keep decompression on opi03 while all compilation stays on ml-builder.
+
     pkgs.zstd
   ];
 
@@ -41,8 +35,7 @@ in
     inherit image;
     labels."io.containers.autoupdate" = "local";
     privileged = true;
-    # opi03 has no final LAN identity yet.  Keep ADB on loopback and reach it
-    # through SSH forwarding; never expose an unauthenticated ADB daemon on WAN.
+
     ports = [ "127.0.0.1:5555:5555" ];
     volumes = [ "${stateDirectory}/data:/data" ];
     cmd = [
@@ -52,9 +45,7 @@ in
       "androidboot.redroid_fps=30"
       "androidboot.redroid_adbd_bind_eth0=1"
       "androidboot.redroid_fake_wifi=1"
-      # Initial accelerator bring-up is permissive so SELinux policy noise
-      # cannot hide a GPU/VPU ABI error.  Tightening is a separate acceptance
-      # step after Mali and c2.allwinner both pass.
+
       "androidboot.selinux=permissive"
       "ro.adb.secure=0"
       "ro.build.characteristics=default"
@@ -75,9 +66,7 @@ in
   };
 
   systemd.services.podman-redroid = {
-    # A fresh NixOS image must remain bootable before the locally built Android
-    # rootfs has been imported.  The explicit marker turns this into a skipped
-    # unit, not a failed activation or an accidental registry pull.
+
     unitConfig.ConditionPathExists = imageReady;
     preStart = lib.mkBefore ''
       if ! ${pkgs.podman}/bin/podman image exists ${image}; then

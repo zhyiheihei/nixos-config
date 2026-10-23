@@ -8,15 +8,6 @@
 let
   edgeAddress = LT.hosts.rock5c.interconnect.IPv4;
 
-  # nftables.service loads the main ruleset before network interfaces exist,
-  # and the flowtable needs real netdevs.  Upstream NixOS issue #141802
-  # endorses adding flow offload with a separate service after interfaces are
-  # up; its failure is non-critical.  Requires the new kernel with
-  # NF_FLOW_TABLE support after a staged boot.  Only WAN (ppp0) flows are
-  # offloaded; hairpin flows stay on the normal netfilter path because the
-  # measured retransmit benefit is documented in docs/human/research/10-router-rx-queue-4.md.
-  # Note that offloaded flows bypass the rest of FILTER_FORWARD, so policy
-  # that can change after the first packet must live in pre-forward hooks.
   nft = "${lib.getExe' pkgs.nftables "nft"}";
   flowtableScript = pkgs.writeShellScript "router-flowtable" ''
     set -eu
@@ -105,7 +96,7 @@ let
   '';
 
   publicFirewalledPorts = [
-    # Samba
+
     137
     138
     139
@@ -270,9 +261,7 @@ in
       "pppd-wan.service"
     ];
     wants = [ "nftables.service" ];
-    # nftables restarts flush the table; the periodic check service restores
-    # the fast path within a minute, and restarting with pppd-wan covers
-    # PPPoE redial.
+
     partOf = [
       "nftables.service"
       "pppd-wan.service"
@@ -291,9 +280,6 @@ in
     };
   };
 
-  # nftables reloads flush the table and PPPoE redials recreate ppp0; the
-  # idempotent script re-adds the flowtable and scoped forward rules on a
-  # short timer.
   systemd.timers.router-flowtable-check = {
     wantedBy = [ "timers.target" ];
     timerConfig = {

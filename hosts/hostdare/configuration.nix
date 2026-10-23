@@ -19,7 +19,5 @@
 
   lantian.nginxVhosts."hostdare.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
-  # hostdare 流量限额小，关闭每日自动备份；需要时手动触发：
-  #   systemctl start backup-nix-persistent.service
   lantian.backup.schedule = null;
 }

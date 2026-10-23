@@ -15,7 +15,6 @@ let
   radarrMediaPath = "/mnt/storage/media-radarr";
   sonarrMediaPath = "/mnt/storage/media-sonarr";
 
-  # Preserve stored bt.localhost endpoints only in these two application views.
   arrReadOnlyPaths = [
     "/etc/resolv.conf"
     "${
@@ -35,7 +34,6 @@ in
     ../../nixos/client-components/hidpi.nix
     ../../nixos/client-components/xorg.nix
 
-    # ../../nixos/optional-apps/bitmagnet.nix # missing regenerated secret tmdb.yaml
     ../../nixos/optional-apps/jellyfin.nix
     ../../nixos/optional-apps/peerbanhelper.nix
     ../../nixos/optional-apps/qbittorrent.nix
@@ -43,7 +41,6 @@ in
     ../../nixos/optional-apps/sonarr
     ../../nixos/optional-cron-jobs/sonarr-queue-cleanup
 
-    # ../../nixos/optional-cron-jobs/flexget
   ];
 
   services.xserver.enable = lib.mkForce false;
@@ -88,8 +85,6 @@ in
     };
   };
 
-  # Recursive ownership fix for restored state trees (systemd StateDirectory
-  # only chowns the top directory); runs via tmpfiles on every activation
   systemd.tmpfiles.settings."arr-state-ownership" = {
     "/var/lib/radarr"."Z" = {
       mode = "-";
@@ -98,14 +93,6 @@ in
     };
   };
 
-  ########################################
-  # Sonarr
-  ########################################
-
-  # BitMagnet disabled: missing regenerated secret tmdb.yaml
-  # systemd.services.bitmagnet-http = netns.bind { };
-  # systemd.services.bitmagnet-queue = netns.bind { };
-  # systemd.services.bitmagnet-dht = netns.bind { };
   systemd.services.peerbanhelper = netns.bind { };
   systemd.services.jellyfin.unitConfig.RequiresMountsFor = "/mnt/storage";
 
@@ -203,8 +190,7 @@ in
   };
 
   lantian.localVhosts = {
-    # bitmagnet disabled: missing regenerated secret tmdb.yaml
-    # bitmagnet.locations."/".proxyPass = lib.mkForce "http://${netns.ipv4}:${LT.portStr.Bitmagnet}";
+
     bt.locations."/".proxyPass = lib.mkForce "http://${netns.ipv4}:${LT.portStr.qBitTorrent.WebUI}";
     peerbanhelper.locations."/".proxyPass =
       lib.mkForce "http://${netns.ipv4}:${LT.portStr.PeerBanHelper}";

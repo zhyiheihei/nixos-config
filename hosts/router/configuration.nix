@@ -1,5 +1,3 @@
-# 与上游 lt-home-router 同构：主题文件止步于 ddns/dhcp/firewall/networking，
-# 各服务的定义与取值调整全部落在主配置。
 {
   config,
   inputs,
@@ -9,9 +7,6 @@
   ...
 }:
 let
-  ########################################
-  # VaultS3 对象存储
-  ########################################
 
   vaults3Pkg = inputs.zhyi-packages.packages.${pkgs.system}.vaults3;
   vaults3Config = pkgs.writeText "vaults3.yaml" ''
@@ -23,16 +18,9 @@ let
       metadata_dir: /nix/persistent/var/lib/vaults3
   '';
 
-  ########################################
-  # qBittorrent（下载链主力，自 opi5p 迁入）
-  ########################################
-
   activationMarker = "/nix/persistent/var/lib/qbittorrent-router/ready";
   unifiedDownloadPath = "/mnt/storage/downloads";
-  # PT 订阅实例（qbittorrent-pt）：与主实例同法的 conf 规整 preStart，
-  # 只是 conf 路径换成 pt profile 目录，并显式置零全局上下行限速（订阅不限速）。
-  # PT 订阅实例（qbittorrent-pt）：与主实例同法的 conf 规整 preStart，
-  # 只是 conf 路径换成 pt profile 目录，并显式置零全局上下行限速（订阅不限速）。
+
   qbitPreStartPT = ''
     conf=/var/lib/qbittorrent-pt/qBittorrent/config/qBittorrent.conf
     mkdir -p "$(dirname "$conf")"
@@ -96,15 +84,9 @@ let
     sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheTTL=60" "$conf"
   '';
 
-  ########################################
-  # Prometheus textfile 指标（邻居/DHCP/连通性）
-  ########################################
-
   metricsDir = "/var/lib/node-exporter-textfile";
   metricsFile = "${metricsDir}/router.prom";
 
-  # Map home-LAN IPs to hostnames for devices without a DHCP lease (static
-  # servers); DHCP leases remain the primary source for dynamic clients.
   lanHostnames =
     lib.mapAttrs' (n: v: lib.nameValuePair v.interconnect.IPv4 (lib.removePrefix "_" n)) (
       lib.filterAttrs (n: v: v.interconnect.IPv4 != null && v.interconnect.name == "home-lan") LT.hosts
@@ -299,9 +281,7 @@ in
     ../../nixos/common-apps/coredns.nix
     ../../nixos/common-apps/nginx/nginx.nix
     ../../nixos/common-apps/nginx/vhost-options/default.nix
-    # 与 exam pve-components/nginx.nix 同构的三件套：缺 vhosts-default 时
-    # _default_http 不存在，Prometheus 以 IP 为 Host 的 /metrics 抓取会掉进
-    # bt.localhost 被 localhost-only ACL 拒绝（403），nginx 监控链盲区
+
     ../../nixos/common-apps/nginx/vhosts-default.nix
     ../../nixos/client-components/multicast-dns.nix
 
@@ -312,9 +292,6 @@ in
     ../../nixos/optional-apps/qbittorrent-pt.nix
   ];
 
-  # The R5C hardware module force-replaces boot.supportedFilesystems; mirror
-  # its list and add NFS at host level. The kernel config already has
-  # CONFIG_NFS_FS=y and nfs-utils supplies mount.nfs.
   boot.supportedFilesystems = lib.mkForce [
     "btrfs"
     "ext4"
@@ -323,9 +300,6 @@ in
   ];
   environment.systemPackages = [ pkgs.nfs-utils ];
 
-  # noauto + automount：裸 mount 在 NAS 未就绪时失败且不重试，写法
-  # 对齐 exam lt-hp-omen（同 opi5p 修复，c72df01ca）。保留 nofail：
-  # router 是 LAN 网关，NAS 掉线也必须照常起来。
   fileSystems."/mnt/storage" = {
     device = "192.168.0.40:/nixos";
     fsType = "nfs";
@@ -343,7 +317,6 @@ in
     ];
   };
 
-  # automount 触发的 mount 失败不再撞 5 次/10s 限流，NAS 恢复后访问即自愈。
   systemd.units."mnt-storage.mount" = {
     overrideStrategy = "asDropin";
     text = ''
@@ -352,8 +325,6 @@ in
     '';
   };
 
-  # Global wait-online is disabled by minimal networking; wait for the static
-  # LAN bridge before attempting the NFS mount, mirroring opi5p's lan0 setup.
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@br-lan.service" ];
 
   services.miniupnpd = {
@@ -361,13 +332,6 @@ in
     internalIPs = [ "br-lan" ];
   };
 
-  # The fleet-wide ZeroTier interface whitelist has no "ppp" prefix (the
-  # author's routers dial via VLAN subinterfaces like eth1.201), so ppp0 lands
-  # in the generated blacklist and this router's daemon cannot bind the PPPoE
-  # uplink: no packets ever come back from the PLANET roots (paths=[] on every
-  # peer) and the whole home-LAN overlay stalls behind the missing controller
-  # reachability. Re-derive the blacklist from the stock whitelist (netns
-  # prefixes excluded, same as the module) plus "ppp".
   services.zerotierone.localConf.settings.interfacePrefixBlacklist = lib.mkForce (
     pkgs.callPackage ../../nixos/minimal-components/zerotier/whitelist_to_blacklist.nix { } (
       (builtins.filter (v: v != "ns") (
@@ -377,18 +341,12 @@ in
     )
   );
 
-  ########################################
-  # VaultS3
-  ########################################
-
   users.users.vaults3 = {
     isSystemUser = true;
     group = "vaults3";
   };
   users.groups.vaults3 = { };
 
-  # VaultS3 uses the fleet-wide account/password convention: access key is the
-  # unified account and the secret key comes from the shared default-pw secret.
   sops.templates.vaults3-credentials = {
     content = ''
       VAULTS3_ACCESS_KEY=zhyi
@@ -447,21 +405,11 @@ in
 
   lantian.harden.vaults3 = true;
 
-  ########################################
-  # qBittorrent
-  ########################################
-
-  # Public module stays upstream-aligned; router only adds host-specific
-  # extension keys: official client, fixed port, one WAN interface, unified
-  # save path, and LAN auth bypass.
   services.qbittorrent = {
     package = lib.mkForce pkgs.qbittorrent-nox;
     torrentingPort = lib.mkForce 31220;
   };
 
-  # This router's qBittorrent build does not treat IPv4 127.0.0.1 as loopback
-  # for the WebUI auth bypass, while [::1] works. Keep the author-style vhost
-  # structure and only change the host-level backend address.
   lantian.nginxVhosts = {
     "bt.${config.networking.hostName}.zhyi.xin".locations."/".proxyPass =
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrent.WebUI}";
@@ -507,10 +455,6 @@ in
     preStart = lib.mkAfter qbitPreStart;
   };
 
-  # 订阅专用 PT 实例（qbittorrent-pt 模块，WebUI 13809、torrenting 31121）：
-  # 刷流留在主实例（bt.*），订阅下载走 pt.*，qB 全局限速只压刷流实例语义。
-  # 主机级接线对齐 exam pve-epyc media-center：同一统一下载路径 Bind、
-  # 存储就绪 marker/NFS 挂载门控，以及与主实例同法的 conf 规整 preStart。
   systemd.services.qbittorrent-pt = {
     unitConfig.ConditionPathExists = activationMarker;
     after = [
@@ -532,8 +476,6 @@ in
     preStart = lib.mkAfter qbitPreStartPT;
   };
 
-  # router 的 qBittorrent 构建对 127.0.0.1 的 WebUI 鉴权豁免失效（同主实例
-  # bt 的 [::1] 现象），仅改主机级后端地址，保留模块作者式 vhost 结构。
   lantian.nginxVhosts = {
     "pt.${config.networking.hostName}.zhyi.xin".locations."/".proxyPass =
       lib.mkForce "http://[::1]:${LT.portStr.qBitTorrentPT.WebUI}";
@@ -549,22 +491,6 @@ in
     };
   };
 
-  ########################################
-  # miniupnpd watchdog
-  ########################################
-
-  # miniupnpd 在 PPPoE 重拨瞬间读到 ppp0 无地址后会永久卡死
-  # （journal：ext interface ppp0 has no IPv4 address / cannot get public IP
-  # address, stopping），之后所有 NAT-PMP/UPnP 添加永远返回 Network Failure，
-  # 守护进程自身无恢复逻辑（2026-09-15 巡检实锤）。上游模块假定静态 WAN。
-  #
-  # 旧实现用 natpmpc 从本机自检映射，2026-09-23 实锤两层缺陷：探测包经 lo
-  # 出站被 NAT_POSTROUTING masquerade 改写源地址（firewall.nix 已对齐 exam
-  # 补回 lo 豁免），natpmpc 还会按 /proc/net/route 顺序绑定到非 LAN 接口，
-  # 二者都让 miniupnpd 判定 "not from a LAN" 丢弃，自检永久失败形成
-  # 2 分钟一次的重启循环（6 天 911 次），频繁重写 iptables 间歇性杀掉
-  # LTNET 的 UDP 路径。改为事件驱动：miniupnpd 启动时记录 WAN 地址，
-  # 看门狗只在地址变化时重启，稳定状态零动作。
   systemd.services.miniupnpd.preStart = ''
     ${lib.getExe' pkgs.iproute2 "ip"} -4 addr show ppp0 | ${lib.getExe' pkgs.gawk "awk"} "/inet /{print \$2; exit}" > /run/miniupnpd/wan-addr || true
   '';
@@ -596,10 +522,6 @@ in
       Unit = "miniupnpd-watchdog.service";
     };
   };
-
-  ########################################
-  # Prometheus textfile metrics
-  ########################################
 
   services.prometheus.exporters.node = {
     enabledCollectors = lib.mkAfter [ "textfile" ];
