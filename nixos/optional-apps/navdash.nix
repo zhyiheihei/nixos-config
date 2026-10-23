@@ -163,7 +163,6 @@ let
     "immich.zhyi.xin" = "媒体链路";
     "tachidesk.zhyi.xin" = "媒体链路";
     "jellyfin.zhyi.xin" = "媒体链路";
-    "rk-jellyfin.zhyi.xin" = "媒体链路";
     # 公开 · 效率工具
     "tools.zhyi.xin" = "效率工具";
     "api.zhyi.xin" = "效率工具";

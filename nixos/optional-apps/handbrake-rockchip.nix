@@ -5,10 +5,9 @@
 }:
 {
   assertions = [
-    # 2026-10-17 jellyfin-rockchip module removed from rock5c (Jellyfin
-    # migrated to chromebox); handbrake-rockchip still targets the same
-    # RK3588 SoC and asserts it directly instead of piggybacking on the
-    # removed option.
+    # 2026-10-17 Jellyfin 迁至 chromebox，jellyfin-rockchip 模块停用并于
+    # 2026-10-23 删除；handbrake-rockchip 仍针对同一 RK3588 SoC，直接断言
+    # 目标主机，不再依赖已删的选项。
     {
       assertion = config.networking.hostName == "rock5c";
       message = "handbrake-rockchip.nix currently supports only RK3588";
