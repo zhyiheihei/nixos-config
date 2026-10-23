@@ -36,7 +36,9 @@ def main():
     base, ours, theirs = sys.argv[1], sys.argv[2], sys.argv[3]
     blobs = [Path(p).read_bytes() for p in (base, ours, theirs)]
     if any(b"\x00" in b for b in blobs):
-        r = subprocess.run(["git", "merge-file", "-p", ours, base, theirs], capture_output=True)
+        r = subprocess.run(
+            ["git", "merge-file", "-p", ours, base, theirs], capture_output=True
+        )
     else:
         with tempfile.TemporaryDirectory() as tmp:
             d = Path(tmp)

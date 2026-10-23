@@ -15,9 +15,9 @@ let
   rpsScript = pkgs.writeShellScript "h28k-rps" ''
     set -eu
 
-    # eth0 (LAN): replace the default mq/pfifo_fast root with fq_codel (the
-    # R5C A/B in docs/human/research/10-router-rx-queue-4.md showed fq_codel halves retransmits at equal
-    # or better throughput). eth1 (WAN) is shaped by CAKE via
+    # eth0 (LAN): replace the default mq/pfifo_fast root with fq_codel (A/B
+    # measurements showed fq_codel halves retransmits at equal or better
+    # throughput). eth1 (WAN) is shaped by CAKE via
     # systemd.network cakeConfig (author's router recipe) and must not be
     # touched here.
     ${tc} qdisc replace dev eth0 root fq_codel 2>/dev/null || true

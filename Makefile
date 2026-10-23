@@ -1,7 +1,7 @@
 # 与上游 Makefile 逐字对齐。两个登记偏移：
 # ① CN 归属主机部署由发起端（控制机）并行推闭包；
 # ② 求值按 EVAL_CHUNK（默认 2）台一批串行（并发求值会打满 32G 内存 OOM）。
-# 两者均由 _deploy-tag 实现，标准通道见 docs/agent/deployment.md。
+# 两者均由 _deploy-tag 实现。
 
 servers: FORCE
 	@$(MAKE) _deploy-tag TAG=@server

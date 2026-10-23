@@ -8,12 +8,6 @@ The original project structure, module layout, and many shared components come
 from the upstream repository. My changes focus on adapting it for my own hosts,
 secrets repository, hardware, and daily desktop workflow.
 
-## Documentation
-
-- [Documentation index](docs/README.md)
-- [Adapt this project to your own NixOS device](docs/human/getting-started/adapt-own-device.md)
-- [NanoPi R5C NixOS image build and installation](docs/human/hardware/nanopi-r5c.md)
-
 ## License
 
 This repository follows the upstream licensing status. At the time this fork was

@@ -4,7 +4,7 @@
 #   tools/exam-check log      查看基线以来上游增量
 #   tools/exam-check host-map [exam-host] 查看按服务导入核定的主机映射
 #   tools/exam-check --help   完整用法与工作流
-# 基线见 docs/agent/upstream-baseline.md，流程见 docs/agent/work-norms.md §3。
+# 基线见 tools/exam-check-baseline。
 import argparse
 import difflib
 import os
@@ -13,10 +13,10 @@ import sys
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-BASELINE_FILE = REPO / "docs/agent/upstream-baseline.md"
+BASELINE_FILE = REPO / "tools/exam-check-baseline"
 ALLOWLIST_FILE = REPO / "tools/exam-check-allowlist"
 
-# 与上游 exam 对齐的路径；hosts/、dns/、docs/、Makefile、AGENTS.md 等为 fork 自有，不审。
+# 与上游 exam 对齐的路径；hosts/、dns/、Makefile、AGENTS.md 等为 fork 自有，不审。
 SHARED_PATHS = [
     "flake.nix",
     "nvfetcher.toml",
@@ -301,7 +301,7 @@ def validate_shared_subpath(subpath):
         for root in SHARED_PATHS
     ):
         die(
-            f"--path {subpath!r} 不在共享审计路径内；hosts/、docs/ 等 fork 自有路径不能报告为对齐通过"
+            f"--path {subpath!r} 不在共享审计路径内；hosts/、tools/ 等 fork 自有路径不能报告为对齐通过"
         )
     if not baseline_files(load_baseline(), candidate) and not worktree_files(candidate):
         die(f"--path {subpath!r} 在共享路径内没有匹配文件")
@@ -442,7 +442,7 @@ def do_log(argv):
         epilog="新增量落在 pristine 文件时直接 git checkout exam/master -- <path> 后做认可替换；\n"
                "落在已接管文件（hosts/ 或 allowlist 内）时手动搬 patch；\n"
                "先跑 tools/exam-check structure 过新增/删除/改名（A/D/R），再搬内容；\n"
-               "同步完跑 tools/exam-check，绿后 bump docs/agent/upstream-baseline.md。",
+               "同步完跑 tools/exam-check，绿后 bump tools/exam-check-baseline。",
     )
     ap.add_argument("--fetch", action="store_true", help="先 fetch exam（离线时跳过，用本地已有对象）")
     ap.add_argument("--no-stat", action="store_true", help="只列提交，不显示文件级变更")
@@ -535,7 +535,7 @@ def main():
                "  tools/exam-check structure    # 上游新增/删除/改名是否已跟进（A/D/R）\n"
                "  tools/exam-check              # 我们漂了多少（含结构审计；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
                "  tools/exam-check -v           # 漂移文件的归一化 diff\n"
-               "同步完成后 bump docs/agent/upstream-baseline.md 的 baseline。",
+               "同步完成后 bump tools/exam-check-baseline 的 baseline。",
     )
     ap.add_argument("-v", "--verbose", action="store_true", help="打印漂移文件的归一化 diff")
     ap.add_argument("--strict", action="store_true", help="忽略 allowlist，未清偿项按未登记漂移对待")
@@ -617,7 +617,7 @@ def main():
         and (p in expected or p in base_set)
     ]
 
-    print(f"baseline {baseline[:12]} (docs/agent/upstream-baseline.md) | exam/master {exam_tip}")
+    print(f"baseline {baseline[:12]} (tools/exam-check-baseline) | exam/master {exam_tip}")
     print(f"统计: = 一致 {len(same)} | ≈ 认可替换 {len(subst)} | + fork独有 {len(fork_only)} | − 上游独有 {len(upstream_only)} | !known 已登记 {len(known)} | ! 未登记漂移 {len(drift)}")
 
     if drift:

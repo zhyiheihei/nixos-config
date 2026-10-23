@@ -1,5 +1,9 @@
 # Zhyi's NixOS Configuration
 
+## 文档范围
+
+本文件仅记录项目通用规则、目录结构和开发流程。禁止添加或恢复具体应用、服务或模块的配置细节、选项说明、实现细节及主机部署记录；此类内容应放在对应代码或专属文档中，不得因功能新增或变更而补充到本文件。
+
 ## 项目概述
 
 这是一个基于 Nix Flakes 的 NixOS 配置项目，用于管理多台主机的系统配置。项目采用模块化设计，支持服务器、客户端和最小化三种配置类型，集成了大量自定义包、覆盖层和补丁。
@@ -47,6 +51,18 @@ Flake 入口文件，定义了：
 
 锁定所有输入的版本，确保可重现构建。
 
+flake.lock 的标准格式：顶层 `"root"` 键是一个字符串，指向 `"nodes"` 中根 Flake 的输入集合（节点名通常也叫 `root`）；每个节点的 `inputs` 把输入名映射到另一个锁定节点。
+
+**注意：根 Flake 的 `nixpkgs` 输入未必对应名为 `nixpkgs` 的节点**。本仓库中根输入 `nixpkgs` 映射到节点 `nixpkgs_4`，而名为 `nixpkgs` 的节点只是其他第三方输入内部的依赖版本，**不是**系统求值用的 nixpkgs。
+
+### 查找实际生效的 nixpkgs 版本
+
+任何需要查阅 nixpkgs 源码（NixOS 模块、包定义、默认值）时，都**必须**先按以下流程确定实际生效的版本，禁止直接假设节点名或使用已知旧版本：
+
+1. 解析 `flake.lock`：读取 `nodes[root].inputs.nixpkgs` 得到节点名，再读取该节点的 `locked` 字段（含 `rev`、`type`、`url`）。
+2. 若根输入带 `follows` 链（如某输入 `inputs.nixpkgs.follows = "nixpkgs"`），需顺着映射继续解引用，直到得到 `locked` 非空的节点。
+3. 用该 `rev` 直接从 GitHub 拉取源码，例如：`https://raw.githubusercontent.com/NixOS/nixpkgs/<rev>/nixos/modules/...`（tarball 类型输入的短 rev 同样适用于 GitHub raw）。
+
 ### Makefile
 
 提供常用构建命令的快捷方式。
@@ -74,11 +90,12 @@ Flake 入口文件，定义了：
 | `dn42`           | DN42 节点                                                  |
 | `nix-builder`    | Nix 远程构建节点                                           |
 | `public-facing`  | 公网可访问节点（用于 Prometheus blackbox 监控等）          |
-| `server`         | 服务器配置；同时门控 wgmesh/BGP mesh 成员资格与 backup 默认开启。2026-10-22 用户授权：除机房 VPS 与 opi5p 外，rock5c、dragon-q8b、lubancat1、chromebox 也按 `lt-home-vm` 服务映射加入 mesh；其余家庭主机仍按原 ZeroTier 拓扑，统一出站代理入口为 opi5p（自 router 迁入）。 |
+| `server`         | 服务器配置                                                 |
 | `ipv4-only`      | 仅 IPv4                                                    |
 | `ipv6-only`      | 仅 IPv6                                                    |
 | `lan-access`     | 局域网访问                                                 |
 | `cuda`           | NVIDIA CUDA 支持                                           |
+| `low-gpu`        | 低性能 GPU 优化（禁用桌面模糊、简化 mpv 缩放）             |
 | `low-ram`        | 低内存优化                                                 |
 
 ## 模块系统说明
@@ -116,15 +133,6 @@ Flake 入口文件，定义了：
 
 `nixos/minimal-policies/` 目录存放配置策略断言（assertions），用于在构建时检查配置是否符合预期约束。该目录会被 `minimal.nix`、`server.nix`、`client.nix`、`pve.nix` 等所有角色配置自动导入。
 
-当前包含的策略：
-
-| 文件                                  | 说明                                                          |
-| ------------------------------------- | ------------------------------------------------------------- |
-| `ensure-dynamicuser-correctness.nix`  | 确保自定义用户未启用 DynamicUser                              |
-| `ensure-service-restart.nix`          | 确保所有 systemd 服务设置了 Restart 属性                      |
-| `nginx-security.nix`                  | 确保 Nginx 虚拟主机的安全配置正确（localhost/public 访问控制） |
-| `podman-ensure-autoupdate.nix`        | 确保所有 Podman 容器启用了自动更新                            |
-
 ## 自定义包说明
 
 `pkgs/` 目录包含自定义 Nix 包。每个包目录包含：
@@ -132,6 +140,9 @@ Flake 入口文件，定义了：
 - `default.nix` - Nix 构建定义
 - `Cargo.toml` / `Cargo.lock` - Rust 依赖配置（适用于 Rust 包）
 - `src/` - 源代码
+- `build.rs`、`data/`、`assets/` - 构建脚本、编译期内嵌数据与运行时资产（如该包需要）
+
+包由使用处通过 `pkgs.callPackage ../../pkgs/<名> { }` 引入。若包带有运行时才读取的资产，约定在 `postInstall` 中安装到 `$out/share/<pname>/`，由服务单元以参数指向该路径。
 
 ## 覆盖层说明
 
@@ -199,48 +210,207 @@ Home Manager 配置：
 | `common-apps/`     | 通用应用配置             |
 | `non-client-apps/` | 非客户端应用配置         |
 
-## Agent 操作铁律（pi 会话执行层）
+## 操作指南
 
-流程细则在 `docs/agent/`（development-handbook / work-norms / module-placement-norms /
-deployment / hosts-overview / reference / inspection-playbook / user-provisioning 等），
-不凭记忆猜。
-以下是执行层硬规则：
+### 新增 Flake 输入
 
-1. **本机就是主控机（ml-laptop，NixOS）**：nix 求值、构建（`make build`）、部署
-   （`make local` / `nix run .#colmena -- build/apply --on <host>`）、secrets 解密
-   全部在本机执行；编译重活由 nix-distributed 自动派给 ml-builder / opi5p，
-   不需要任何「交给别的机器准备」的流程。
-2. **部署前确认（2026-10-13 用户确立）**：发起任何 make/colmena 构建部署前先跑
-   `tools/pre-deploy-check`，两项硬门槛：① ncps（dragon-q8b，本机唯一
-   substituter）可用；② ml-builder 在线且 /etc/nix/machines 派发在位。任一
-   不成立时全量编译落在本机，32G 内存打满死机、部署整体失败；确属小改动才
-   可 `--allow-local-build` 豁免。细则见 docs/agent/deployment.md「部署前确认」。
-3. **SSH 端口一律 2222**：`ssh -p 2222 root@<host>.zhyi.xin`；nix copy / ssh-ng
-   分发派生必须带 `NIX_SSHOPTS="-i <key> -p 2222"` 与完整 URL
-   `ssh://<user>@<host>:2222`，否则撞上各主机 LTNET 口的 endlessh 无限挂起。
-4. **提交纪律**：改动完成后立即 conventional commit（中文说清「为什么」）并
-   push origin；用户未提交的改动绝不丢弃；提交前核对暂存区只含本会话文件
-   （pre-commit 会把暂存区里其他会话的改动一起卷进提交）。
-5. **secrets**：secrets 仓在 `~/Documents/nixos/nixos-secrets`（main 分支）；
-   sops 走 `nix run nixpkgs#sops`，明文永不提交；改完 push 后
-   `https_proxy=socks5h://127.0.0.1:1080 nix flake update secrets`
-   并提交主仓 `flake.lock`。
-6. **代理**：GitHub 等外站走 `https_proxy=socks5h://127.0.0.1:1080`
-   （curl/git/nix flake update 均适用）；家庭 LAN、LTNET（198.18.0.0/15）、
-   dn42、yggdrasil、自有域（zhyi.cc/zhyi.xin/zhyi.dn42）一律直连。
-7. **NixOS 纪律**：装软件只用 Nix，禁止 apt/brew；禁止 find / 等根目录搜索，
-   禁止把 /nix/store 作为命令参数（细则见 `home/client-apps/pi/rules/04-nixos.md`）。
-8. **会话健康**：重复读已读文件 / 同一失败思路第 2 次重试 / 违反早期约束 /
-   遗忘早期决定，≥2 条信号即提议交接；失败 2 次必须换方案，禁第 3 次原样重试；
-   重探索子任务优先派 subagent。
+#### 步骤 1：在 flake.nix 中添加输入
 
-主机 index/IP/ZeroTier 对照 `docs/agent/hosts-overview.md`；exam host 映射按服务导入和本地主机实际承载关系确定，允许一对多，禁止按硬件相似度猜测。**`hosts/` 下的 Nix 文件不写注释**：理由、历史决策与踩过的坑按主机记在 `docs/agent/hosts/<host>.md`（入口见 `docs/agent/hosts/README.md`），改主机配置时同步更新该主机文档；只有嵌在 `''...''` 里的 nft/nginx/脚本本体注释保留。`lt-home-vm` 的服务映射为 rock5c、opi5p、dragon-q8b、lubancat1、chromebox；exam 导入 WG 时不得擅自禁用，握手故障先核 peer/endpoint 与实际日志；确认 UDP 端口受阻后，选择目标主机防火墙允许的高位端口，不能默认使用 20000-23999（block-cn-ports 会拒绝来自 CN 地址的该范围 UDP）。家庭 Web 入口只有 opi5p 一台（公网 8443、兼容 4000、内网 hairpin 443 全部 DNAT 到本机，nginx 双监听 443/8443），公网可见性只由 `hosts/opi5p/public-vhosts.nix` 名单决定，SSH 2222 落 rock5c；域名体系与入口结构对照 `docs/agent/domain-service-layout.md` 与 `docs/agent/fleet-service-chain.md`。
+在 [`flake.nix`](flake.nix) 的 `inputs` 块中添加新的输入。
 
-跟进上游（exam）用 `tools/exam-check log` / `tools/exam-check`，基线在
-[`docs/agent/upstream-baseline.md`](docs/agent/upstream-baseline.md)；动共享路径前先跑
-`tools/exam-check` 确认基线绿，流程见 work-norms §3「上游同步流程」。对齐质量
-标准（人视角对齐：diff 零差异、禁止等价方案、注释写进文档不写代码）见
-work-norms §3「对齐质量标准」，对齐类改动逐条对照。
+**基本输入格式**：
+
+```nix
+input-name = {
+  url = "github:owner/repo";
+};
+```
+
+**带 follows 的输入格式**（共享依赖，避免重复下载）：
+
+```nix
+input-name = {
+  url = "github:owner/repo";
+  inputs.nixpkgs.follows = "nixpkgs";
+  inputs.systems.follows = "systems";
+};
+```
+
+**非 Flake 输入格式**：
+
+```nix
+input-name = {
+  url = "https://example.com/file.tar.gz";
+  flake = false;
+};
+```
+
+#### 步骤 2：使用 Flake 输入
+
+**在 Flake 模块中导入**：
+
+在 [`flake.nix`](flake.nix:182) 的 `imports` 列表中添加：
+
+```nix
+inputs.some-flake.flakeModules.someModule
+```
+
+**在 NixOS 模块中使用**：
+
+通过 `inputs` 参数访问，例如在 [`helpers/default.nix`](helpers/default.nix) 中 `inputs` 已作为参数传入。
+
+**在 Overlay 中使用**：
+
+在 [`overlays/`](overlays/) 目录下创建新的 overlay 文件，通过 `inputs` 参数访问 flake 输入。
+
+#### 步骤 3：更新 Flake 锁
+
+```bash
+nix flake lock --update-input input-name
+```
+
+### 添加 NixOS 模块
+
+#### 步骤 1：确定模块类型
+
+根据模块用途选择目录：
+
+| 模块类型   | 目录                        | 自动导入的配置          |
+| ---------- | --------------------------- | ----------------------- |
+| 最小化应用 | `nixos/minimal-apps/`       | minimal, server, client |
+| 通用应用   | `nixos/common-apps/`        | server, client          |
+| 服务器应用 | `nixos/server-apps/`        | server                  |
+| 客户端应用 | `nixos/client-apps/`        | client                  |
+| 最小化组件 | `nixos/minimal-components/` | minimal, server, client |
+| 可上游化模块 | `nixos/minimal-modules/`  | minimal, server, client |
+| 服务器组件 | `nixos/server-components/`  | server                  |
+| 客户端组件 | `nixos/client-components/`  | client                  |
+
+#### 步骤 2：创建模块文件
+
+在对应目录下创建 `.nix` 文件。模块会自动被配置类型导入，无需手动注册。
+
+自动导入机制：各配置文件（[`minimal.nix`](nixos/minimal.nix)、[`server.nix`](nixos/server.nix)、[`client.nix`](nixos/client.nix)）使用 `builtins.readDir` 自动加载对应目录下的所有 `.nix` 文件。
+
+### 添加 Overlay
+
+#### 步骤 1：创建 Overlay 文件
+
+在 [`overlays/`](overlays/) 目录下创建新文件，命名格式为 `数字前缀-描述.nix`。
+
+数字前缀决定执行顺序：
+
+- `00-` 到 `39-`：基础配置
+- `40-` 到 `59-`：包覆盖
+- `60-` 到 `89-`：非 Flake 包
+- `90-` 以上：优化和清理
+
+#### 步骤 2：编写 Overlay
+
+```nix
+# overlays/50-my-overlay.nix
+final: prev: {
+  # 覆盖现有包
+  somePackage = prev.somePackage.overrideAttrs (old: {
+    # 修改属性
+  });
+
+  # 添加新包
+  myPackage = final.callPackage ../pkgs/my-package { };
+}
+```
+
+Overlay 会自动被 [`overlays/default.nix`](overlays/default.nix) 加载。
+
+### 分配服务端口号
+
+#### 端口分配机制
+
+端口常量定义在 [`helpers/constants/ports.nix`](helpers/constants/ports.nix) 中，使用嵌套属性结构组织。
+
+**端口范围规划**：
+
+| 端口范围    | 用途                          |
+| ----------- | ----------------------------- |
+| 1-9999      | 知名服务和标准端口            |
+| 10000-13999 | 自定义服务端口                |
+| 30000+      | 特殊用途（如 WireGuard 转发） |
+
+#### 步骤 1：选择合适的端口
+
+1. 查看现有端口分配，避免冲突
+2. 根据服务类型选择合适的端口范围
+3. 相关服务的端口尽量相邻
+
+#### 步骤 2：添加端口常量
+
+在 [`helpers/constants/ports.nix`](helpers/constants/ports.nix) 的 `port` 属性集中添加：
+
+```nix
+port = {
+  # ... 现有端口 ...
+
+  # 新服务端口
+  MyService = 13xxx;           # 单个端口
+  MyService.API = 13xxx;       # 带子服务的端口
+  MyService.UI = 13xxx;
+
+  # 端口范围
+  MyService.Start = 13xxx;
+  MyService.End = 13xxx;
+};
+```
+
+**端口必须按端口号数值升序排列**。`port` 属性集中的每一行都要按其端口号从小到大排序，新增端口时应插入到数值正确的位置，而非简单追加到末尾。带嵌套属性的端口（如 `MyService.API`）同样按其端口号参与排序。
+
+#### 步骤 3：在模块中使用端口
+
+```nix
+{ LT, ... }:
+{
+  services.myService = {
+    port = LT.port.MyService;
+  };
+}
+```
+
+`LT` 辅助对象在模块中自动可用，包含所有常量和辅助函数。
+
+#### 步骤 4：使用字符串格式端口
+
+如果需要字符串格式的端口号，使用 `portStr`：
+
+```nix
+portStr.MyService  # 返回 "13xxx" 而非 13xxx
+```
+
+## 开发指南
+
+### 常用命令
+
+```bash
+# 检查配置
+nix flake check
+
+# 构建主机配置
+nix build .#nixosConfigurations.<hostname>.config.system.build.toplevel
+
+# 部署到远程主机（使用 Colmena）
+nix run .#colmena apply
+
+# 更新 DNS 配置
+nix run .#dnscontrol
+
+# 更新 Flake 输入
+nix run .#update-flake
+```
+
+### 添加新主机
+
+1. 在 `hosts/` 目录下创建新目录
+2. 创建 `host.nix` 定义主机元数据
+3. 创建 `configuration.nix` 导入所需模块
+4. 运行 `nixos-generate-config` 生成 `hardware-configuration.nix`
 
 ## 架构图
 

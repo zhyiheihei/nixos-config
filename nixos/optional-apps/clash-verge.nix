@@ -31,7 +31,7 @@ let
   mergeYaml = pkgs.writeText "clash-verge-merge-ltnet.yaml" ''
     # LTNET / dn42 兼容层 —— 本文件由 NixOS 管理（勿在 Verge GUI 中编辑），
     # 修改请改 nixos/optional-apps/clash-verge.nix。部署后重启 Verge 或重新
-    # 激活订阅生效；原理与排障见 docs/human/network/clash-verge-ltnet-compat.md。
+    # 激活订阅生效。
     dns:
       enable: true
       ipv6: false
@@ -94,8 +94,7 @@ in
   #   ACL4SSR 全量模板（不含 LTNET/ZeroTier 豁免），仓库内的
   #   sublinkpro/clash.yaml 是本网络设计的权威订阅模板；两者都不感知
   #   mihomo 与网络层的地址冲突，因此客户端侧由下方 ltnetCompat 注入
-  #   verge 全局 Merge + Script 兼容层，详见模块注释与
-  #   docs/human/network/clash-verge-ltnet-compat.md。
+  #   verge 全局 Merge + Script 兼容层。
   # - 订阅地址见 greencloud:/var/lib/sublinkpro/unified-subscription.txt
   #   （统一订阅 Clash/Mihomo 链接），在 GUI「订阅」页导入即可。
 
@@ -142,8 +141,7 @@ in
         Install LTNET/dn42 compatibility overrides (Verge global Merge + Script)
         so clash-verge TUN mode coexists with the project's network design
         (LTNET 198.18.0.0/15 over ZeroTier, netns CoreDNS, networkd main-table
-        precedence). Any LTNET member needs this; rationale and troubleshooting
-        in docs/human/network/clash-verge-ltnet-compat.md.
+        precedence). Any LTNET member needs this.
       '';
     };
     user = lib.mkOption {

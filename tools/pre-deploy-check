@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 部署前确认（规范见 docs/agent/deployment.md「部署前确认」），两项硬门槛：
+# 部署前确认，两项硬门槛：
 #   1. ncps 可用——本机唯一 substituter（ncps-client mkForce 且无兜底），断开
 #      即零二进制缓存，全部转本机源码编译；
 #   2. ml-builder 在线且 /etc/nix/machines 派发在位——big-parallel 与

@@ -48,7 +48,7 @@ let
 
   # uxplay 是裸 ELF，靠 GST_PLUGIN_SYSTEM_PATH_1_0 找 gstreamer 插件；会话里
   # 那串路径只有 core/base/good，缺 h264 解析/解码与 waylandsink，AirPlay 串流
-  # 会直接失败。把 uxplay 自身引用的插件闭包钉进 wrapper（docs/human/hardware/ml-laptop.md）。
+  # 会直接失败。把 uxplay 自身引用的插件闭包钉进 wrapper。
   uxplay-with-plugins = pkgs.symlinkJoin {
     name = "uxplay";
     paths = [ pkgs.uxplay ];
@@ -193,7 +193,7 @@ in
       ]
       ++ lib.optionals (osConfig.networking.hostName == "ml-laptop") [
         nur-xddxdd.svp_4_6
-        # AirPlay 接收端：Mac 把本机当副屏用（docs/human/hardware/ml-laptop.md）。
+        # AirPlay 接收端：Mac 把本机当副屏用。
         uxplay-with-plugins
         mac-display
       ]

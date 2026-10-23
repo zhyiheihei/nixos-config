@@ -20,7 +20,7 @@ home/client-apps/firefox/addons/update.py # SLUGS 列表追加 zeroomega（否�
 home/client-apps/git.nix # 签名 key 为用户本人 GPG 指纹（结构零差异）
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
 nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化 + browseros 门控 ml-laptop（上游 c7fd34b4 libvirt server 已随本次同步采纳）
-nixos/common-apps/coredns.nix # 仅保留 CN 主机 AliDNS/DNSPod 分支（docs/human/network/regional-dns.md 设计文档背书），其余结构对齐上游
+nixos/common-apps/coredns.nix # 仅保留 CN 主机 AliDNS/DNSPod 分支，其余结构对齐上游
 nixos/common-apps/nginx/autoconfig.nix # 域名清单并入单域
 nixos/common-apps/nginx/nginx.nix # gopher map 移除 neo（NeoNetwork 置空）+ user nginx nginx 指令（nginx #1388：root nginx -t 会把 temp 目录 chown 成编译默认 nobody，大 body 请求全 500）+ 不采纳 37740059c systemd.services.nginx enable=false（作者实例沦陷后的应急停机含 FIXME，fork 未沦陷且全站服务在 nginx 后端，上游解除 FIXME 后随对齐取消） + htpasswd 用户名 lantian→zhyi（用户 2026-10-22 定为硬偏移：全站 Basic Auth 统一 zhyi 账号）
 nixos/common-apps/nginx/oauth2-proxy.nix # csrf cookie 对齐说明 + cookie 域清单差异

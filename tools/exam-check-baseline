@@ -1,8 +1,5 @@
-# 上游对齐基线（exam）
-
-本仓共享路径（清单见 `tools/exam-check` 的 `SHARED_PATHS`）对齐上游
-xddxdd/nixos-config 的同步点。`tools/exam-check log` 据此计算上游增量，
-`tools/exam-check` 据此审计漂移；同步流程见 work-norms §3。
+# 上游对齐基线（exam）——tools/exam-check 的数据源，勿删
+# 共享路径清单见 tools/exam-check 的 SHARED_PATHS；log 按 baseline 计算上游增量。
 
 baseline: 5ba0bad27639170a3dc59576647455fd8d8e1846
 

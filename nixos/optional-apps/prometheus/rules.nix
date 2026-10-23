@@ -1,6 +1,5 @@
 # MoviePilot 停摆类告警：rock5c moviepilot-watchdog 的 textfile 指标
 # （订阅搜索卡死 / 刷流新增、删种停摆），经 Alertmanager 走 Telegram。
-# 阈值依据见 docs/agent/inspection-playbook.md 的 moviepilot 条目。
 {
   pkgs,
   lib,
