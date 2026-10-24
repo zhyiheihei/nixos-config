@@ -13,6 +13,7 @@
 
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/llama-cpp.nix
+    ../../nixos/optional-apps/resin.nix
     ../../nixos/optional-apps/ncps-client.nix
 
     ./enable-smart.nix
