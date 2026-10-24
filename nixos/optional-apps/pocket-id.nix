@@ -61,7 +61,7 @@
   systemd.services.pocket-id.requires = [ "postgresql.target" ];
   systemd.services.pocket-id.serviceConfig = LT.serviceHarden // {
     RestartSec = lib.mkForce 5;
-    EnvironmentFiles = [ config.sops.templates.pocket-id-env.path ];
+    EnvironmentFile = [ config.sops.templates.pocket-id-env.path ];
     RuntimeDirectory = "pocket-id";
     RuntimeDirectoryMode = "750";
     BindReadOnlyPaths = [

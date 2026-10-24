@@ -1,5 +1,4 @@
 {
-  pkgs,
   lib,
   LT,
   config,
@@ -9,16 +8,14 @@
 {
   imports = [ ./postgresql.nix ];
 
-  sops.secrets.attic-credentials = {
-    sopsFile = inputs.secrets + "/common/attic.yaml";
-    owner = "atticd";
-    group = "atticd";
-  };
+  sops.secrets.attic-server-token.sopsFile = inputs.secrets + "/attic.yaml";
+  sops.templates.attic-env.content = ''
+    ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64=${config.sops.placeholder.attic-server-token}
+  '';
 
   services.atticd = {
     enable = true;
-    package = pkgs.nur-xddxdd.lantianCustomized.attic-telnyx-compatible;
-    environmentFile = config.sops.secrets.attic-credentials.path;
+    environmentFile = config.sops.templates.attic-env.path;
     mode = "monolithic";
     settings = lib.mkForce {
       listen = "[::1]:${LT.portStr.Attic}";
@@ -28,10 +25,8 @@
       };
       require-proof-of-possession = false;
       storage = {
-        type = "s3";
-        region = "us-central-1";
-        bucket = "lantian-nix-cache";
-        endpoint = "https://us-central-1.telnyxstorage.com";
+        type = "local";
+        path = "/var/cache/attic";
       };
       # Disable chunking to use S3 direct download
       chunking = {
@@ -46,7 +41,7 @@
       };
       garbage-collection = {
         interval = "12 hours";
-        default-retention-period = "3 month";
+        default-retention-period = "1 month";
       };
     };
   };
@@ -54,7 +49,10 @@
   systemd.services.atticd.serviceConfig = LT.serviceHarden // {
     DynamicUser = lib.mkForce false;
     StateDirectory = lib.mkForce "";
+    CacheDirectory = lib.mkForce "attic";
+    BindReadOnlyPaths = [ "/run/postgresql" ];
   };
+  lantian.harden.atticd = true;
 
   users.users.atticd = {
     group = "atticd";
@@ -73,7 +71,7 @@
   };
 
   lantian.nginxVhosts = {
-    "attic.zhyi.xin" = {
+    "cache.zhyi.xin" = {
       locations = {
         "/" = {
           proxyPass = "http://[::1]:${LT.portStr.Attic}";
@@ -87,7 +85,6 @@
   };
 
   lantian.localVhosts.attic = {
-    accessibleBy = "public";
     locations = {
       "/" = {
         proxyPass = "http://[::1]:${LT.portStr.Attic}";

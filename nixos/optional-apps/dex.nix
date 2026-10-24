@@ -132,7 +132,6 @@ let
         secret = {
           _secret = config.sops.secrets.dex-tranquil-pds-secret.path;
         };
-        # FIXME
         redirectURIs = [ "https://at.zhyi.xin/oauth/sso/callback" ];
       }
       # keep-sorted end

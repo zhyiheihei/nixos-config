@@ -8,6 +8,7 @@
   imports = [
     ../../nixos/server.nix
 
+    ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/ncps-client.nix
 
     ../../nixos/optional-apps/palworld.nix

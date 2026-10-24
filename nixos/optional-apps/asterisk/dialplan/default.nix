@@ -38,13 +38,13 @@ let
     destConferenceDialPlan
   ];
 
-  # DN42 phone numbers prepend "+04243712" to the 4-digit local extension,
-  # matching the +04243712XXXX inbound rule in extensions.conf
-  # (+04243712 + 1234 = +042437121234).
-  dn42Prefix = "+04243712";
+  # DN42 phone numbers prepend "+04242547" to the 4-digit local extension,
+  # matching the +04242547XXXX inbound rule in extensions.conf
+  # (+04242547 + 1234 = +042425471234).
+  dn42Prefix = "+04242547";
 
   # Generate the HTML pages and the CardDAV vCard file, then merge everything
-  # into a single directory served by the sip.zhyi.xin vhost.
+  # into a single directory served by the sip.lantian.pub vhost.
   htmlFiles = pkgs.callPackage ./html.nix {
     inherit dialPlan dn42Prefix prefixZeros;
   };
@@ -58,9 +58,9 @@ let
   };
 in
 {
-  lantian.nginxVhosts."sip.zhyi.xin" = {
+  lantian.nginxVhosts."sip.lantian.pub" = {
     root = dialPlanDir;
-    sslCertificate = "lets-encrypt-zhyi.xin";
+    sslCertificate = "lets-encrypt-lantian.pub";
     noIndex.enable = true;
   };
 }

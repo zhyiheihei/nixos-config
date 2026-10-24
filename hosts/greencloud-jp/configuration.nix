@@ -32,7 +32,7 @@ in
 
     ../../nixos/optional-apps/syncthing
 
-    ../../nixos/optional-apps/attic-placeholder.nix
+    ../../nixos/optional-apps/attic.nix
   ];
 
   lantian.syncthing.storage = "/data/syncthing";

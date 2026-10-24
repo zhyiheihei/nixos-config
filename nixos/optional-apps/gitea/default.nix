@@ -1,23 +1,12 @@
 {
-  inputs,
   lib,
   config,
   LT,
+  pkgs,
   ...
 }:
 {
   imports = [ ../mysql.nix ];
-
-  sops.secrets.gitea-storage-access-key = {
-    sopsFile = inputs.secrets + "/gitea.yaml";
-    owner = "git";
-    group = "gitea";
-  };
-  sops.secrets.gitea-storage-secret-key = {
-    sopsFile = inputs.secrets + "/gitea.yaml";
-    owner = "git";
-    group = "gitea";
-  };
 
   services.gitea = {
     enable = true;
@@ -30,11 +19,8 @@
       createDatabase = false;
     };
     lfs.enable = true;
-    mailerPasswordFile = config.sops.secrets.smtp-pass.path;
     user = "git";
-
-    minioAccessKeyId = config.sops.secrets.gitea-storage-access-key.path;
-    minioSecretAccessKey = config.sops.secrets.gitea-storage-secret-key.path;
+    mailerPasswordFile = config.sops.secrets.smtp-pass.path;
 
     settings = {
       ui = {
@@ -80,9 +66,6 @@
         REQUIRE_SIGNIN_VIEW = false;
         SHOW_REGISTRATION_BUTTON = false;
       };
-      oauth2_client = {
-        ENABLE_AUTO_REGISTRATION = true;
-      };
       session = {
         PROVIDER = "db";
         COOKIE_SECURE = true;
@@ -94,7 +77,6 @@
         SMTP_ADDR = config.programs.msmtp.accounts.default.host;
         SMTP_PORT = config.programs.msmtp.accounts.default.port;
         USER = config.programs.msmtp.accounts.default.user;
-        # PASSWD is set via env var
       };
       "git.timeout" = {
         DEFAULT = 3600;
@@ -105,12 +87,14 @@
         GC = 3600;
       };
       storage = {
-        STORAGE_TYPE = "minio";
-        MINIO_ENDPOINT = "vaults3.zhyi.xin:8443";
-        MINIO_BUCKET = "gitea";
-        MINIO_LOCATION = "east-1";
-        MINIO_USE_SSL = true;
-        SERVE_DIRECT = false;
+        STORAGE_TYPE = "local";
+      };
+      actions = {
+        ARTIFACT_RETENTION_DAYS = 90;
+        RUN_RETENTION_DAYS = 90;
+        ZOMBIE_TASK_TIMEOUT = "3h";
+        ENDLESS_TASK_TIMEOUT = "24h";
+        ABANDONED_JOB_TIMEOUT = "24h";
       };
     };
   };
@@ -119,11 +103,10 @@
     RuntimeDirectoryMode = lib.mkForce "0755";
     RestartSec = "5s";
     StateDirectory = "gitea";
-    # FIXME: secrets
-    BindReadOnlyPaths = [ "/run" ];
-    # fork: 仓库根迁出 StateDirectory（/data 数据盘，见 greencloud-jp），
-    # confinement chroot 需显式 bind；上游 local 存储无此需求
-    BindPaths = [ config.services.gitea.repositoryRoot ];
+    BindReadOnlyPaths = [
+      "/run" # for SMTP password
+      "${lib.getExe' pkgs.coreutils "env"}:/usr/bin/env" # for hooks
+    ];
   };
   lantian.harden.gitea = true;
 

@@ -18,6 +18,7 @@ let
     "https://vercel.zhyi.xin"
 
     # Services under zhyi.xin
+    "https://cache.zhyi.xin"
     "https://comments.zhyi.xin"
     "https://element.zhyi.xin"
     "https://flapalerted.zhyi.xin"
@@ -34,7 +35,6 @@ let
     # "https://ai.zhyi.xin"
     "https://alert.zhyi.xin"
     "https://asf.zhyi.xin"
-    "https://attic.zhyi.xin"
     # "https://books.zhyi.xin"
     "https://bitwarden.zhyi.xin"
     "https://cal.zhyi.xin"

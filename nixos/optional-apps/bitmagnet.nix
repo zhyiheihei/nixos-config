@@ -24,19 +24,9 @@ let
       POSTGRES_HOST = "/run/postgresql";
       POSTGRES_NAME = "bitmagnet";
       POSTGRES_USER = "bitmagnet";
+      TMDB_ENABLED = "true";
+      PROCESSOR_CONCURRENCY = builtins.toString LT.this.cpuThreads;
     };
-    script = ''
-      TMDB_API_KEY=$(cat ${config.sops.secrets.tmdb-api-key.path})
-      if [ -n "$TMDB_API_KEY" ] && [ "$TMDB_API_KEY" != placeholder ]; then
-        export TMDB_API_KEY TMDB_ENABLED=true
-      else
-        unset TMDB_API_KEY
-        export TMDB_ENABLED=false
-        echo "TMDB API key is not configured; metadata enrichment is disabled" >&2
-      fi
-      export PROCESSOR_CONCURRENCY=$(nproc)
-      exec ${lib.getExe bitmagnet} worker run --keys=${worker}
-    '';
     serviceConfig = LT.serviceHarden // {
       ExecStart = "${lib.getExe bitmagnet} worker run --keys=${worker}";
       Type = "simple";
@@ -46,14 +36,10 @@ let
       RuntimeDirectory = "bitmagnet";
       StateDirectory = "bitmagnet";
       WorkingDirectory = "/var/lib/bitmagnet";
-      BindPaths = [
-        "/var/lib/bitmagnet"
-        "/run/bitmagnet"
-        "/run/postgresql"
-      ];
 
       User = "bitmagnet";
       Group = "bitmagnet";
+      BindReadOnlyPaths = [ "/run/postgresql" ];
     };
   };
 in
@@ -66,11 +52,9 @@ in
     group = "bitmagnet";
   };
 
-  lantian.harden = {
-    bitmagnet-http = true;
-    bitmagnet-queue = true;
-    bitmagnet-dht = true;
-  };
+  sops.templates.bitmagnet-env.content = ''
+    TMDB_API_KEY=${config.sops.placeholder.tmdb-api-key}
+  '';
 
   systemd.services.bitmagnet-http = mkBitmagnetService "http_server";
   systemd.services.bitmagnet-queue = mkBitmagnetService "queue_server";
@@ -92,6 +76,12 @@ in
         proxyPass = "http://127.0.0.1:${LT.portStr.Bitmagnet}";
       };
     };
+  };
+
+  lantian.harden = {
+    bitmagnet-http = true;
+    bitmagnet-queue = true;
+    bitmagnet-dht = true;
   };
 
   users.users.bitmagnet = {

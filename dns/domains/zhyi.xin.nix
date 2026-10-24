@@ -53,8 +53,9 @@ let
     }
     {
       recordType = "CNAME";
-      name = "attic";
-      # atticd 自 greencloud 迁 greencloud-jp（2026-09）
+      name = "cache";
+      # atticd 自 greencloud 迁 greencloud-jp（2026-09）；域名随上游 2bcb81f46
+      # attic → cache（norm: cache.lantian.pub → cache.zhyi.xin）
       target = "greencloud-jp.zhyi.xin.";
       ttl = "1h";
     }

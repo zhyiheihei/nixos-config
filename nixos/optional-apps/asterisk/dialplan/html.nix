@@ -135,19 +135,19 @@ let
     '';
 
   indexHtml = makeHtml {
-    title = "zhyi.xin SIP dial plan";
+    title = "lantian.pub SIP dial plan";
     current = "public";
     linkGen =
       number:
       if builtins.match "[[:digit:]]+" number != null then
-        "<a href=\"sip:${number}@zhyi.xin\">sip:${number}@zhyi.xin</a>"
+        "<a href=\"sip:${number}@lantian.pub\">sip:${number}@lantian.pub</a>"
       else
-        "sip:${number}@zhyi.xin";
-    summaryGen = prefix: "sip:${prefix}XX@zhyi.xin";
+        "sip:${number}@lantian.pub";
+    summaryGen = prefix: "sip:${prefix}XX@lantian.pub";
   };
 
   dn42Html = makeHtml {
-    title = "zhyi.dn42 phone dial plan";
+    title = "lantian.dn42 phone dial plan";
     current = "dn42";
     linkGen =
       number:

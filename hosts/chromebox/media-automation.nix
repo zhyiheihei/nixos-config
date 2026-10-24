@@ -1,10 +1,12 @@
 {
   lib,
   pkgs,
+  config,
   LT,
   ...
 }:
 let
+  netns = config.lantian.netns.tnl-buyvm;
   activationMarker = "/nix/persistent/var/lib/media-automation/ready";
   gatedServices = [
     "peerbanhelper"
@@ -33,7 +35,7 @@ in
     ../../nixos/optional-apps/clamav.nix
     ../../nixos/optional-apps/peerbanhelper.nix
     ../../nixos/optional-apps/tachidesk.nix
-    # ../../nixos/optional-apps/bitmagnet.nix # missing regenerated secret tmdb.yaml
+    ../../nixos/optional-apps/bitmagnet.nix
   ];
 
   lantian.resilioSync = {
@@ -130,6 +132,11 @@ in
         environment = LT.proxyEnvironment;
       })
     )
+    (lib.genAttrs [
+      "bitmagnet-dht"
+      "bitmagnet-http"
+      "bitmagnet-queue"
+    ] (_: netns.bind { }))
   ];
 
   systemd.targets.media-automation = {

@@ -3,17 +3,33 @@
   lib,
   LT,
   config,
+  inputs,
   ...
 }:
 let
   netns = config.lantian.netns.coredns-authoritative;
 
+  # DNSSEC key file names parsed from the sops-encrypted nixos-secrets
+  # keyset; each gets a sops secret declaration, and private halves are
+  # passed as systemd credentials.
+  dnssecKeyNames = builtins.map (l: lib.trim (builtins.head (lib.splitString ":" l))) (
+    builtins.filter (lib.hasPrefix "    K") (
+      lib.splitString "\n" (builtins.readFile (inputs.secrets + "/common/dnssec.yaml"))
+    )
+  );
+
   corednsConfig =
     let
-      # Disabled: common/dnssec.yaml (DNSSEC key set) removed from
-      # nixos-secrets (7bcc13f); zones are served unsigned for now. Restore
-      # the file and revert this to re-enable DNSSEC.
-      dnssec = _key: "";
+      dnssec =
+        key:
+        if key != null then
+          ''
+            dnssec {
+              key file "$CREDENTIALS_DIRECTORY/${key}.private"
+            }
+          ''
+        else
+          "";
       forwardZone = zone: dnssecKey: ''
         ${zone} {
           any
@@ -42,11 +58,12 @@ let
       }
 
       # DN42 Magic Flash Authoritatives
-      ${forwardZone "zhyi.dn42" "Kzhyi.dn42.+013+23771"}
+      ${forwardZone "zhyi.dn42" "Kzhyi.dn42.+013+13904"}
       ${forwardZone "asn.zhyi.dn42" null}
-      ${forwardZone "224/27.46.20.172.in-addr.arpa" "K224_27.46.20.172.in-addr.arpa.+013+49136"}
-      ${forwardZone "8.8.e.4.8.3.9.1.8.d.d.f.ip6.arpa" "K8.8.e.4.8.3.9.1.8.d.d.f.ip6.arpa.+013+58452"}
-      ${forwardZone "7.4.5.2.4.2.4.0.tel.dn42" "K7.4.5.2.4.2.4.0.tel.dn42.+013+33346"}
+      ${forwardZone "184/29.76.22.172.in-addr.arpa" "K184_29.76.22.172.in-addr.arpa.+013+41695"}
+      ${forwardZone "96/27.76.22.172.in-addr.arpa" "K96_27.76.22.172.in-addr.arpa.+013+14558"}
+      ${forwardZone "d.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa" "Kd.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa.+013+39604"}
+      ${forwardZone "7.4.5.2.4.2.4.0.tel.dn42" "K7.4.5.2.4.2.4.0.tel.dn42.+013+12192"}
 
       # DN42 Authoritative
       ${forwardZone "dn42" null}
@@ -57,17 +74,28 @@ let
       ${forwardZone "d.f.ip6.arpa" null}
       ${forwardZone "tel.dn42" null}
 
+      # NeoNetwork Authoritative
+      ${forwardZone "neo" null}
+      ${forwardZone "127.10.in-addr.arpa" null}
+
       # LTNET Active Directory
       ${forwardZone "ad.zhyi.xin" null}
 
+      # NeoNetwork Magic Flash Authoritative
+      ${forwardZone "zhyi.neo" "Kzhyi.neo.+013+42520"}
+      ${forwardZone "asn.zhyi.neo" null}
+      ${forwardZone "10.127.10.in-addr.arpa" "K10.127.10.in-addr.arpa.+013+09857"}
+      ${forwardZone "0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa" "K0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa.+013+63734"}
+
       # LTNET Public Facing Addressing
-      ${forwardZone "asn.zhyi.cc" "Kasn.zhyi.cc.+013+54715"}
+      ${forwardZone "asn.zhyi.xin" "Kasn.zhyi.xin.+013+65412"}
 
       # LTNET Authoritative
       ${forwardZone "18.198.in-addr.arpa" null}
       ${forwardZone "19.198.in-addr.arpa" null}
 
       # Public Internet Authoritative
+      ${forwardZone "lantian.eu.org" "Klantian.eu.org.+013+52244"}
 
       # OpenNIC Authoritative
       ${forwardZone "opennic.glue" null}
@@ -108,31 +136,21 @@ let
 
 in
 lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
-  # Disabled: common/dnssec.yaml removed from nixos-secrets (7bcc13f);
-  # restore from git history together with the DNSSEC gate in the Corefile.
-  # sops.secrets =
-  #   let
-  #     lines = lib.splitString "\n" (builtins.readFile (inputs.secrets +
-  #       "/common/dnssec.yaml"));
-  #     keyNames = builtins.map (l: lib.trim (builtins.head (lib.splitString ":" l))) (
-  #       builtins.filter (lib.hasPrefix "    K") lines
-  #     );
-  #   in
-  #   lib.genAttrs keyNames (n: {
-  #     sopsFile = inputs.secrets + "/common/dnssec.yaml";
-  #     key = "dnssec/''${n}";
-  #     owner = "coredns";
-  #     group = "coredns";
-  #   });
+  sops.secrets = lib.genAttrs dnssecKeyNames (n: {
+    sopsFile = inputs.secrets + "/common/dnssec.yaml";
+    key = "dnssec/${n}";
+  });
 
   lantian.netns.coredns-authoritative = {
     ipSuffix = "54";
     announcedIPv4 = [
-      "172.20.46.227"
+      "172.22.76.109"
       "198.19.0.254"
+      "10.127.10.254"
     ];
     announcedIPv6 = [
       "fdd8:1938:4e88:3712::54"
+      "fd10:127:10:2547::54"
     ];
     birdBindTo = [ "coredns-authoritative.service" ];
   };
@@ -316,12 +334,16 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
               path = "ltnet-scripts/zones/asn.zhyi.dn42";
             }
             {
-              domain = "224/27.46.20.172.in-addr.arpa";
-              path = "ltnet-zones/224_27.46.20.172.in-addr.arpa";
+              domain = "184/29.76.22.172.in-addr.arpa";
+              path = "ltnet-zones/184_29.76.22.172.in-addr.arpa";
             }
             {
-              domain = "8.8.e.4.8.3.9.1.8.d.d.f.ip6.arpa";
-              path = "ltnet-zones/8.8.e.4.8.3.9.1.8.d.d.f.ip6.arpa";
+              domain = "96/27.76.22.172.in-addr.arpa";
+              path = "ltnet-zones/96_27.76.22.172.in-addr.arpa";
+            }
+            {
+              domain = "d.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa";
+              path = "ltnet-zones/d.a.7.6.c.d.9.f.c.b.d.f.ip6.arpa";
             }
             {
               domain = "7.4.5.2.4.2.4.0.tel.dn42";
@@ -332,8 +354,24 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
               path = "ltnet-scripts/zones/tel.dn42";
             }
             {
-              domain = "asn.zhyi.cc";
-              path = "ltnet-scripts/zones/asn.zhyi.cc";
+              domain = "zhyi.neo";
+              path = "ltnet-zones/zhyi.neo";
+            }
+            {
+              domain = "asn.zhyi.neo";
+              path = "ltnet-scripts/zones/asn.zhyi.neo";
+            }
+            {
+              domain = "10.127.10.in-addr.arpa";
+              path = "ltnet-zones/10.127.10.in-addr.arpa";
+            }
+            {
+              domain = "0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa";
+              path = "ltnet-zones/0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa";
+            }
+            {
+              domain = "asn.zhyi.xin";
+              path = "ltnet-scripts/zones/asn.zhyi.xin";
             }
             {
               domain = "18.198.in-addr.arpa";
@@ -342,6 +380,30 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
             {
               domain = "19.198.in-addr.arpa";
               path = "ltnet-zones/19.198.in-addr.arpa";
+            }
+            {
+              domain = "lantian.eu.org";
+              path = "ltnet-zones/lantian.eu.org";
+            }
+            {
+              domain = "neo";
+              path = "ltnet-scripts/zones/neo";
+            }
+            {
+              domain = "127.10.in-addr.arpa";
+              path = "ltnet-scripts/zones/127.10.in-addr.arpa";
+            }
+            {
+              domain = "mnc001.mcc001.3gppnetwork.org";
+              path = "ltnet-zones/mnc001.mcc001.3gppnetwork.org";
+            }
+            {
+              domain = "mnc010.mcc315.3gppnetwork.org";
+              path = "ltnet-zones/mnc010.mcc315.3gppnetwork.org";
+            }
+            {
+              domain = "mnc999.mcc999.3gppnetwork.org";
+              path = "ltnet-zones/mnc999.mcc999.3gppnetwork.org";
             }
           ]);
       };
@@ -365,11 +427,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
   systemd.services = {
     coredns-authoritative = netns.bind {
       description = "Coredns for authoritative zones";
-      requires = [ "sops-install-secrets.service" ];
-      after = [
-        "network.target"
-        "sops-install-secrets.service"
-      ];
+      after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
       serviceConfig = LT.serviceHarden // {
         LimitNPROC = 512;
@@ -377,7 +435,13 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
         MemoryMax = "256M";
         MemorySwapMax = "64M";
 
-        ExecStart = "${lib.getExe pkgs.nur-xddxdd.lantianCustomized.coredns} -conf=${corednsConfig}";
+        # Render the Corefile template: it references $CREDENTIALS_DIRECTORY,
+        # which systemd exposes only at unit runtime. coredns reads the
+        # rendered static copy instead.
+        ExecStartPre = "${lib.getExe pkgs.bash} -c \"${lib.getExe pkgs.envsubst} < ${corednsConfig} > /run/coredns-authoritative/Corefile\"";
+        ExecStart = "${lib.getExe pkgs.nur-xddxdd.lantianCustomized.coredns} -conf=/run/coredns-authoritative/Corefile";
+        LoadCredential = map (n: "${n}:${config.sops.secrets."${n}".path}") dnssecKeyNames;
+        RuntimeDirectory = "coredns-authoritative";
         ExecReload = "${lib.getExe' pkgs.coreutils "kill"} -SIGUSR1 $MAINPID";
         Restart = "on-failure";
         RestartSec = "5s";
@@ -410,6 +474,8 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
           "/run/knot"
           "/var/lib/knot"
           "/var/cache/zones"
+          "/nix/sync-servers/ltnet-scripts"
+          "/nix/sync-servers/ltnet-zones"
         ];
       };
     };

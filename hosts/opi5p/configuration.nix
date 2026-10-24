@@ -209,7 +209,7 @@ in
     ../../nixos/optional-apps/one-kvm.nix
     ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/ws-scrcpy.nix
-    # ../../nixos/optional-apps/resin.nix
+    ../../nixos/optional-apps/resin.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/taosync.nix

@@ -15,7 +15,7 @@ in
     [${number}](template-endpoint-local)
     auth=${number}
     aors=${number}
-    callerid=Magic Flash <${number}>
+    callerid=Lan Tian <${number}>
 
     [${number}](template-aor)
   '') localNumbers;
