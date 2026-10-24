@@ -6,7 +6,7 @@ flake.nix # fork inputs（secrets/zhyi-packages/ncps）、hydra jobs 剔除 apps
 flake-modules/commands/dnscontrol.nix # vendorHash 对应 fork pin 的 dnscontrol v4 913a947 + 本机 nixpkgs go 版本下的 vendor 树（2026-10-08 随 go 更新重算；上游值随其 auto-update 的 v5 源走）；gcore LabelFromFQDNWithDot bug 未修必须 pin，上游修复后随对齐取消
 nvfetcher.toml # fork 保留 dnscontrol pin v4（上游 gcore LabelFromFQDNWithDot bug 未修，取消 pin 会让 DNS preview 报千条假修正）；ulauncher-cursor-projects 已按用户决策对齐移除
 helpers/cities.json # fork 主机地理位置数据
-helpers/constants/nix.nix # 用户 2026-10-24 裁定：恢复自建 attic（cache.zhyi.xin + zhyi RS256 公钥，constants 队尾兜底），优先吃上游构建缓存——作者 attic 由 nur nix-cache-attic 模块原样提供（上游同款，constants 内不重复）；新 NUR meta 已无 cachix 项，fork 的 xddxdd.cachix 引用退役
+helpers/constants/nix.nix # 用户 2026-10-24 裁定：恢复自建 attic 且缓存列表同时保留 fork ncps 与 exam attic——constants 加 cache.zhyi.xin + zhyi RS256 公钥；上游 cache.lantian.pub 由 nur nix-cache-attic 模块提供（钉作者域名/公钥），fork 不引入该模块（见 nixos-configurations.nix 条目）；新 NUR meta 已无 cachix 项，fork 的 xddxdd.cachix 引用一并退役
 helpers/constants/ports.nix # fork 服务端口登记（单域 vhost 生态 + V2Ray.HttpClient=1081 HTTP CONNECT 入站，供 .NET 应用/jellyfin 使用）；DLX/OidcTester 按用户 2026-09-13 决策移除（临时性服务不启用）
 helpers/constants/public-sites.nix # fork 子域清单（并入单域 zhyi.xin，无 google-test/zhyi.xin）
 helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
@@ -93,4 +93,5 @@ nixos/minimal-modules/secrets/tests.nix # 上游新增文件，测试桩用 gree
 pkgs/libltnginx/resources/update.sh # 上游新增脚本，本机 treefmt(shfmt) 缩进/引号规范化；语义零差异
 nixos/common-apps/nginx/vhosts-lantian.nix # skip: 对应 fork 的 vhosts-zhyi.nix（vhost 集合按 zhyi 域重写，NORMALIZE 只做路径映射）
 nixos/optional-apps/pocket-id.nix # 上游用 sops.secrets.pocket-id-env.content，当前 sops-nix（a1438ca36）的 secrets 子模块无 content 选项无法求值；本仓 volcengine 启用该服务，改用 sops.templates.pocket-id-env
+flake-modules/nixos-configurations.nix # 不引入 nur nix-cache-attic 模块（其 substituter 钉 attic.xuyh0120.win/lantian + 作者公钥）；fork 按用户 2026-10-24 裁定恢复自建 attic（cache.zhyi.xin）且缓存列表同时保留 ncps，见 helpers/constants/nix.nix 既有登记
 nixos/optional-apps/attic-placeholder.nix # skip: fork 已按用户 2026-10-24 裁定恢复自建 attic（greencloud-jp 真 atticd + cache.zhyi.xin），503 占位页不再需要；上游仍保留供其 colocrossing 使用
