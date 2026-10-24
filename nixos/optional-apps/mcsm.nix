@@ -22,7 +22,6 @@ in
         labels."io.containers.autoupdate" = "registry";
         ports = [ "127.0.0.1:${LT.portStr.Mcsm.Web}:23333" ];
         volumes = [
-          "/etc/timezone:/etc/timezone:ro"
           "/etc/localtime:/etc/localtime:ro"
           "/var/lib/mcsm/web/data:/opt/mcsmanager/web/data"
           "/var/lib/mcsm/web/logs:/opt/mcsmanager/web/logs"
@@ -38,7 +37,6 @@ in
           MCSM_DOCKER_WORKSPACE_PATH = "/var/lib/mcsm/daemon/data/InstanceData";
         };
         volumes = [
-          "/etc/timezone:/etc/timezone:ro"
           "/etc/localtime:/etc/localtime:ro"
           "/var/lib/mcsm/daemon/data:/opt/mcsmanager/daemon/data"
           "/var/lib/mcsm/daemon/logs:/opt/mcsmanager/daemon/logs"
@@ -47,10 +45,17 @@ in
       };
     };
 
-    systemd.tmpfiles.settings.mcsm."/var/lib/mcsm"."d" = {
-      mode = "0700";
-      user = "root";
-      group = "root";
+    systemd.tmpfiles.settings.mcsm = {
+      "/var/lib/mcsm"."d" = {
+        mode = "0700";
+        user = "root";
+        group = "root";
+      };
+      "/var/lib/mcsm/web/data"."d" = { };
+      "/var/lib/mcsm/web/logs"."d" = { };
+      "/var/lib/mcsm/web/public/upload_files"."d" = { };
+      "/var/lib/mcsm/daemon/data"."d" = { };
+      "/var/lib/mcsm/daemon/logs"."d" = { };
     };
 
     # 浏览器须直连 daemon（控制台/文件传输不经过 web 面板），HTTPS 反代时

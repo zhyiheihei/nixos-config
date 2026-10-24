@@ -45,11 +45,12 @@
 
   services.syncthing = {
     user = lib.mkForce "zhyi";
-    group = lib.mkForce "users";
+    group = lib.mkForce "zhyi";
   };
+  lantian.syncthing.storage = "/home/zhyi";
   systemd.services.syncthing.serviceConfig = {
     ProtectHome = false;
-    BindPaths = [ config.lantian.syncthing.storage ];
+    BindPaths = [ "/home/zhyi" ];
   };
 
   sops.secrets.pi-ai-api-key = {

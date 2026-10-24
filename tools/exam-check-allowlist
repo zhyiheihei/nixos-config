@@ -95,3 +95,8 @@ nixos/common-apps/nginx/vhosts-lantian.nix # skip: 对应 fork 的 vhosts-zhyi.n
 nixos/optional-apps/pocket-id.nix # 上游用 sops.secrets.pocket-id-env.content，当前 sops-nix（a1438ca36）的 secrets 子模块无 content 选项无法求值；本仓 volcengine 启用该服务，改用 sops.templates.pocket-id-env
 flake-modules/nixos-configurations.nix # 不引入 nur nix-cache-attic 模块（其 substituter 钉 attic.xuyh0120.win/lantian + 作者公钥）；fork 按用户 2026-10-24 裁定恢复自建 attic（cache.zhyi.xin）且缓存列表同时保留 ncps，见 helpers/constants/nix.nix 既有登记
 nixos/optional-apps/attic-placeholder.nix # skip: fork 已按用户 2026-10-24 裁定恢复自建 attic（greencloud-jp 真 atticd + cache.zhyi.xin），503 占位页不再需要；上游仍保留供其 colocrossing 使用
+nixos/optional-apps/asterisk # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/server-apps/coredns.nix # fork 环境偏移：zone 列表含自有域（zhyi.dn42/zhyi.neo/zhyi.xin 等），DNSSEC key serial 对齐 exam 并已同步 secrets 仓 dnssec.yaml（49297b091）；zhyi.neo 与 asn.zhyi.xin 两个 fork 自有域无 DNSSEC key，按 null 不签名
+nixos/minimal-components/backup/backup.nix # fork 环境适配：aarch64 目标的 rustic 改 x86 交叉编译（hinlink-h28k/lubancat-1 crossPkgs 同款先例）——rustic 的 cargo lib 链接内存峰值在 opi5p 反复触发 memory pressure 断链；requiredSystemFeatures=aarch64-cross 路由 ml-builder
+nixos/minimal-components/backup/prune.nix # 同 backup.nix：prune 单元的 rustic 同款交叉编译
+nixos/minimal-components/backup/common.nix # 同 backup.nix：rustic 由 callPackage 参数传入（wrapper exec 指向交叉包）

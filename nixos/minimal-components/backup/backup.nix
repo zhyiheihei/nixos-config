@@ -1,5 +1,6 @@
 {
   pkgs,
+  self,
   lib,
   config,
   inputs,
@@ -11,7 +12,20 @@ let
 
   isBtrfsRoot = (config.fileSystems."/nix".fsType or "") == "btrfs";
 
-  inherit (pkgs.callPackage ./common.nix { inherit config; })
+  # aarch64 目标改走 x86 交叉编译（hinlink-h28k/lubancat-1 同款 crossPkgs
+  # 先例）：rustic 的 cargo lib 链接内存峰值在 opi5p 这类小内存 ARM 机上
+  # 反复触发 memory pressure 断链；requiredSystemFeatures 路由到 ml-builder
+  # 的 aarch64-cross 车道。x86 目标保持原生包。
+  rustic =
+    if pkgs.stdenv.hostPlatform.isAarch64 then
+      self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform.rustic.overrideAttrs
+        (old: {
+          requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+        })
+    else
+      pkgs.rustic;
+
+  inherit (pkgs.callPackage ./common.nix { inherit config rustic; })
     resticIgnored
     resticRepos
     resticCommands
@@ -79,7 +93,7 @@ in
     sops.secrets.restic-pw.sopsFile = inputs.secrets + "/common/restic.yaml";
     sops.secrets.sftp-privkey.sopsFile = inputs.secrets + "/common/sftp.yaml";
 
-    environment.systemPackages = resticCommands ++ [ pkgs.rustic ];
+    environment.systemPackages = resticCommands ++ [ rustic ];
 
     lantian.backup.paths.nix-persistent = lib.mkIf isBtrfsRoot {
       snapshotFrom = "/nix";

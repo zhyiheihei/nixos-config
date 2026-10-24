@@ -82,13 +82,13 @@ let
       ${forwardZone "ad.zhyi.xin" null}
 
       # NeoNetwork Magic Flash Authoritative
-      ${forwardZone "zhyi.neo" "Kzhyi.neo.+013+42520"}
+      ${forwardZone "zhyi.neo" null} # fork 无 zhyi.neo DNSSEC key，未签名
       ${forwardZone "asn.zhyi.neo" null}
       ${forwardZone "10.127.10.in-addr.arpa" "K10.127.10.in-addr.arpa.+013+09857"}
       ${forwardZone "0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa" "K0.1.0.0.7.2.1.0.0.1.d.f.ip6.arpa.+013+63734"}
 
       # LTNET Public Facing Addressing
-      ${forwardZone "asn.zhyi.xin" "Kasn.zhyi.xin.+013+65412"}
+      ${forwardZone "asn.zhyi.xin" null} # fork 无 asn.zhyi.xin DNSSEC key，未签名
 
       # LTNET Authoritative
       ${forwardZone "18.198.in-addr.arpa" null}

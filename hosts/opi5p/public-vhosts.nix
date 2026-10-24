@@ -7,7 +7,6 @@ let
     "immich"
     "jellyfin"
     "mcsm"
-    "mcsm-daemon"
     "memos"
     "openlist"
     "qnap"

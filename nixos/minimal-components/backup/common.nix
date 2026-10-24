@@ -2,6 +2,7 @@
   lib,
   pkgs,
   config,
+  rustic,
   ...
 }:
 rec {
@@ -128,7 +129,7 @@ rec {
       pkgs.writeShellScriptBin "rustic-${k}" ''
         export PATH=${ssh}/bin:$PATH
         export RUSTIC_USE_PROFILE=${configFile}
-        exec ${lib.getExe pkgs.rustic} "$@"
+        exec ${lib.getExe rustic} "$@"
       ''
     ) resticRepos;
 }

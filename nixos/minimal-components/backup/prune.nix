@@ -1,11 +1,22 @@
 {
   lib,
   pkgs,
+  self,
   config,
   ...
 }:
 let
-  inherit (pkgs.callPackage ./common.nix { inherit config; }) resticCommands maintenanceHosts;
+  # 与 backup.nix 同款交叉编译 rustic（见该文件注释）
+  rustic =
+    if pkgs.stdenv.hostPlatform.isAarch64 then
+      self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform.rustic.overrideAttrs
+        (old: {
+          requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+        })
+    else
+      pkgs.rustic;
+
+  inherit (pkgs.callPackage ./common.nix { inherit config rustic; }) resticCommands maintenanceHosts;
 
   pruneScript = repo: ''
     echo "Pruning ${repo}"

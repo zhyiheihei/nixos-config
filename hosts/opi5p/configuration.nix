@@ -196,7 +196,7 @@ in
     ../../nixos/optional-apps/calibre-cops.nix
     ../../nixos/optional-apps/food-dashboard.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
-    ../../nixos/optional-apps/home-assistant.nix
+    # ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/hydra
     ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/i2pd.nix
