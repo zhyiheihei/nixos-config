@@ -100,3 +100,4 @@ nixos/server-apps/coredns.nix # fork 环境偏移：zone 列表含自有域（zh
 nixos/minimal-components/backup/backup.nix # fork 环境适配：aarch64 目标的 rustic 改 x86 交叉编译（hinlink-h28k/lubancat-1 crossPkgs 同款先例）——rustic 的 cargo lib 链接内存峰值在 opi5p 反复触发 memory pressure 断链；requiredSystemFeatures=aarch64-cross 路由 ml-builder
 nixos/minimal-components/backup/prune.nix # 同 backup.nix：prune 单元的 rustic 同款交叉编译
 nixos/minimal-components/backup/common.nix # 同 backup.nix：rustic 由 callPackage 参数传入（wrapper exec 指向交叉包）
+nixos/optional-apps/qbittorrent.nix # fork 多保留一行 qbittorrent-pt 的 lockfile 清理：router 的 pt 实例数据在 /var/lib/qbittorrent-pt（hosts/router 引用），上游 b4b8fe005 仅修单实例路径视为 typo 删除该行，fork 两实例都要清

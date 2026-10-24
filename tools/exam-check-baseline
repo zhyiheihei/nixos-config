@@ -1,7 +1,7 @@
 # 上游对齐基线（exam）——tools/exam-check 的数据源，勿删
 # 共享路径清单见 tools/exam-check 的 SHARED_PATHS；log 按 baseline 计算上游增量。
 
-baseline: 12217ae174114f64de42a04e4bfc0a5e664adcaa
+baseline: f336165fdc95297bffb7a631d3ca4430f03be106
 
 | 日期       | baseline | 说明                                                                                                     |
 |------------|----------|----------------------------------------------------------------------------------------------------------|
