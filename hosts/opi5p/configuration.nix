@@ -202,6 +202,7 @@ in
     ../../nixos/optional-apps/i2pd.nix
     ../../nixos/optional-apps/ignis.nix
     ../../nixos/optional-apps/immich-rockchip.nix
+    ../../nixos/optional-apps/mcsm.nix
     # ../../nixos/optional-apps/microsoft-rewards-script.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/openlist.nix
@@ -472,6 +473,7 @@ in
     "192.168.0.41:5555"
   ];
 
+  lantian.mcsm.enable = true;
   lantian.openlist.enable = true;
   lantian.taosync.enable = true;
   systemd.services.podman-openlist.environment = LT.proxyEnvironment // {

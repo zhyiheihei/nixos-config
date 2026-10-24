@@ -52,6 +52,8 @@
   "login.zhyi.xin"
   "matrix-client.zhyi.xin"
   "matrix-federation.zhyi.xin"
+  "mcsm-daemon.zhyi.xin"
+  "mcsm.zhyi.xin"
   "memos.zhyi.xin"
   "n8n.zhyi.xin"
   "nav.zhyi.xin"

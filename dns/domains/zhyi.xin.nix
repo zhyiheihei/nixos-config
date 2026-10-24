@@ -245,6 +245,18 @@ let
     }
     {
       recordType = "CNAME";
+      name = "mcsm";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
+      name = "mcsm-daemon";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
       name = "nav";
       target = "tencent.zhyi.xin.";
       ttl = "1h";

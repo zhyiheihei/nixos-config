@@ -148,6 +148,8 @@ rec {
     ADSB.RawOutput978 = 13978;
     Asterisk.AudioSocket = 13980;
     Resin = 13995;
+    Mcsm.Web = 13996;
+    Mcsm.Daemon = 13997;
     Open5GS = 13999;
     ChineseSubFinder = 19035;
     WGLanTian.ForwardStart = 30010;

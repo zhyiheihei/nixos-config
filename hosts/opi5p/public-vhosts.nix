@@ -6,6 +6,8 @@ let
     "dav"
     "immich"
     "jellyfin"
+    "mcsm"
+    "mcsm-daemon"
     "memos"
     "openlist"
     "qnap"
