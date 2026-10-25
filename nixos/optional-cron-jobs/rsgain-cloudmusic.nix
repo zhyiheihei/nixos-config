@@ -27,6 +27,8 @@
       ReadWritePaths = [
         "/mnt/storage/syncthing/CloudMusic"
         "/mnt/storage/syncthing/CloudMusicArchive"
+        # ProtectSystem=strict 使 /run 只读，script 需在 WorkingDirectory 写 parallel.lst
+        "/run/rsgain-cloudmusic"
       ];
       RuntimeDirectory = "rsgain-cloudmusic";
       WorkingDirectory = "/run/rsgain-cloudmusic";
