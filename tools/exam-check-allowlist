@@ -102,3 +102,8 @@ nixos/minimal-components/backup/prune.nix # 同 backup.nix：prune 单元的 rus
 nixos/minimal-components/backup/common.nix # 同 backup.nix：rustic 由 callPackage 参数传入（wrapper exec 指向交叉包）
 nixos/optional-apps/qbittorrent.nix # fork 多保留一行 qbittorrent-pt 的 lockfile 清理：router 的 pt 实例数据在 /var/lib/qbittorrent-pt（hosts/router 引用），上游 b4b8fe005 仅修单实例路径视为 typo 删除该行，fork 两实例都要清
 nixos/optional-apps/nix-distributed.nix # fork 增补：x86_64 构建机通告 i686-linux 可构建（32 位 multilib 包如 nvidia-egl-x32 无机器可建；上游靠控制机本地构建兜底，fork 本机 max-jobs=0）
+hosts/ml-laptop/configuration.nix # 临时偏离：注释 obs-studio 导入绕过 nixpkgs 02c087f3 的 v4l2loopback modules.alias buildEnv 冲突（nixpkgs#576406），上游 nixpkgs bump 后恢复
+hosts/ml-laptop/configuration.nix # 临时偏离：disabledModules looking-glass（kvmfr 模块 nixpkgs#576406 同族构建失败），上游 nixpkgs bump 后恢复
+home/client-apps/firefox/default.nix # 临时偏离：摘除 tweaks-for-youtube 扩展（AMO 对 nixpkgs 钉住的旧版 xpi 返回 406，构建不可过），nixpkgs bump 后恢复
+home/client-apps/firefox/default.nix # 临时偏离：摘除 firefox-color 扩展（AMO 406，同 tweaks-for-youtube），nixpkgs bump 后恢复
+hosts/ml-laptop/configuration.nix # 本机防 OOM 偏离：max-jobs=2/cores=2/connect-timeout=60（32G 弱机，构建期 OOM 实证），fork 长期保留或上游对齐后删

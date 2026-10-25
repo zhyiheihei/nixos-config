@@ -34,45 +34,51 @@ let
     package = null; # Already installed system wide
     profiles.zhyi = {
       extensions = {
-        packages = with firefox-addons; [
-          # keep-sorted start
-          adnauseam
-          all-api-hub
-          auto-novel-addon
-          awardwallet
-          bilisponsorblock
-          bitwarden-password-manager
-          cardpointers-x
-          clearurls
-          darkreader
-          dont-track-me-google1
-          downthemall
-          fastforwardteam
-          foxyproxy-standard
-          i-dont-care-about-cookies
-          ipfs-companion
-          lovely-forks
-          multi-account-containers
-          noscript
-          pakkujs
-          pay-by-privacy
-          phantom-app
-          plasma-integration
-          protondb-for-steam
-          pt-depiler
-          read-frog-open-ai-translator
-          redirector
-          return-youtube-dislikes
-          sponsorblock
-          steam-database
-          tab-reloader
-          tampermonkey
-          tweaks-for-youtube
-          ublacklist
-          wappalyzer
-          zeroomega
-          # keep-sorted end
-        ];
+        # 临时偏离：firefox-color 声明源未定位（exam 求值无此项，本仓多出幽灵项），其 AMO 旧版 URL 406 不可构建；mkForce 过滤弃之，nixpkgs bump 后恢复原状
+        packages = lib.mkForce (
+          builtins.filter (p: !lib.hasInfix "firefox-color" (toString (p.drvPath or ""))) (
+            with firefox-addons;
+            [
+              # keep-sorted start
+              adnauseam
+              all-api-hub
+              auto-novel-addon
+              awardwallet
+              bilisponsorblock
+              bitwarden-password-manager
+              cardpointers-x
+              clearurls
+              darkreader
+              dont-track-me-google1
+              downthemall
+              fastforwardteam
+              foxyproxy-standard
+              i-dont-care-about-cookies
+              ipfs-companion
+              lovely-forks
+              multi-account-containers
+              noscript
+              pakkujs
+              pay-by-privacy
+              phantom-app
+              plasma-integration
+              protondb-for-steam
+              pt-depiler
+              read-frog-open-ai-translator
+              redirector
+              return-youtube-dislikes
+              sponsorblock
+              steam-database
+              tab-reloader
+              tampermonkey
+              # tweaks-for-youtube # 临时：AMO 使旧版下载 URL 失效（406），nixpkgs 内 addon 版本/hash 未跟上，bump 后恢复
+              ublacklist
+              wappalyzer
+              zeroomega
+              # keep-sorted end
+            ]
+          )
+        );
         force = true;
       };
 

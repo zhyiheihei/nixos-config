@@ -31,7 +31,13 @@ in
       mcsm-daemon = {
         image = "docker.io/githubyumao/mcsmanager-daemon:latest";
         labels."io.containers.autoupdate" = "registry";
-        ports = [ "127.0.0.1:${LT.portStr.Mcsm.Daemon}:24444" ];
+        # 普通实例跑在 daemon 容器内，游戏端口须经 daemon 容器发布到宿主机
+        # （router DNAT 25565 → opi5p），MC 默认端口 TCP+UDP。
+        ports = [
+          "127.0.0.1:${LT.portStr.Mcsm.Daemon}:24444"
+          "25565:25565/tcp"
+          "25565:25565/udp"
+        ];
         environment = {
           # docker.sock 创建实例容器时 -v 绑定按宿主机路径解析，须用宿主机路径
           MCSM_DOCKER_WORKSPACE_PATH = "/var/lib/mcsm/daemon/data/InstanceData";

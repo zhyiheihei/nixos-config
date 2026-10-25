@@ -7,6 +7,11 @@
   ...
 }:
 {
+  disabledModules = [
+    # 临时：kvmfr（looking-glass）在 nixpkgs 02c087f3 上 modules buildEnv 签名失败（kvmfr.ko.cer missing，nixpkgs#576406 同族），上游修复进锁后恢复
+    ../../nixos/client-apps/looking-glass.nix
+  ];
+
   imports = [
     ../../nixos/client.nix
 
@@ -23,7 +28,7 @@
     ../../nixos/optional-apps/llama-swap.nix
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/nix-distributed.nix
-    ../../nixos/optional-apps/obs-studio.nix
+    # ../../nixos/optional-apps/obs-studio.nix # 临时：nixpkgs 02c087f3 regression（v4l2loopback modules.alias 与内核 modules buildEnv 冲突，nixpkgs#576406），上游修复进锁后恢复
     ../../nixos/optional-apps/opencl.nix
     ../../nixos/optional-apps/pi-web.nix
     # ../../nixos/optional-apps/pipewire-noise-cancelling.nix
@@ -41,6 +46,7 @@
     # ../../nixos/optional-apps/leigod-accelerator.nix
 
     ./comfyui.nix
+    ./minecraft.nix
   ];
 
   services.syncthing = {
@@ -386,4 +392,11 @@
   };
   users.groups.bird = { };
 
+  # 临时偏离：本机 32G 弱机防 OOM（构建+桌面+服务共用），18 槽 auto 并发会 OOM 炸机；
+  # 配对 connect-timeout 60 防 ncps 冷缓存 5s 判死。上游无此段，nixpkgs 大版本对齐期后视情撤除
+  nix.settings = {
+    max-jobs = lib.mkForce 2;
+    cores = lib.mkForce 2;
+    connect-timeout = lib.mkForce 60;
+  };
 }

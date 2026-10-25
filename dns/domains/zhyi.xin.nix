@@ -275,7 +275,7 @@ let
     {
       recordType = "CNAME";
       name = "mcsm-daemon";
-      target = "opi5p.ltnet.zhyi.xin.";
+      target = homeDdnsTarget;
       ttl = "2m";
     }
     {
