@@ -19,6 +19,8 @@
       for FILE in $(find /mnt/storage/syncthing/CloudMusicArchive -type f -iname \*.mp3 -or -iname \*.m4a -or -iname \*.ogg -or -iname \*.flac); do
         echo "rsgain custom --skip-existing --tagmode=i --loudness=-14 \"$FILE\"" >> parallel.lst
       done
+      # 空库时上方循环不执行，parallel.lst 不存在会让 < 重定向 ENOENT
+      touch parallel.lst
       parallel -j$(nproc) < parallel.lst
     '';
 
