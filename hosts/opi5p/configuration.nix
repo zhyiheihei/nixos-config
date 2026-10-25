@@ -685,4 +685,9 @@ in
     sslCertificate = "zerossl-opi5p.zhyi.xin";
     noIndex.enable = true;
   };
+
+  # 恢复 fork 已登记偏移（allowlist hydra 条目）：队列器 gRPC 绑 LTNET，
+  # 上游 127.0.0.1 —— ml-builder 的 hydra-builder agent 需经 LTNET 连入；
+  # 第二轮同步被上游模块重写冲掉，2026-10-25 恢复
+  services.hydra.queueRunner.grpc.address = lib.mkForce LT.this.ltnet.IPv4;
 }
