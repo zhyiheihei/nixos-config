@@ -16,6 +16,7 @@ in
   imports = [
     ../../nixos/server.nix
 
+    ../../nixos/optional-apps/archivebox.nix
     ../../nixos/optional-apps/ncps-client.nix
 
     ../../nixos/optional-apps/metacubexd.nix

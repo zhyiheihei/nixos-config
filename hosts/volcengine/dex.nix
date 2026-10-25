@@ -53,6 +53,14 @@ let
     staticClients = [
       # keep-sorted start block=yes
       {
+        id = "actual";
+        name = "Actual Budget";
+        secret = {
+          _secret = config.sops.secrets.dex-actual-secret.path;
+        };
+        redirectURIs = [ "https://actual.zhyi.xin/openid/callback" ];
+      }
+      {
         id = "gitea";
         name = "Gitea";
         secret = {
@@ -136,6 +144,14 @@ let
           "https://*.zhyi.xin/oauth2/callback"
           "https://*.*.zhyi.xin/oauth2/callback"
         ];
+      }
+      {
+        id = "oidc-tester";
+        name = "OIDC Tester";
+        secret = {
+          _secret = config.sops.secrets.dex-oidc-tester-secret.path;
+        };
+        redirectURIs = [ "https://oidc-tester.zhyi.xin/oauth2/callback" ];
       }
       {
         id = "tranquil-pds";

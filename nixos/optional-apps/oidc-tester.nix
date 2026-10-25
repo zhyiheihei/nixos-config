@@ -25,9 +25,9 @@ in
       exec ${lib.getExe oidc-tester-app} \
         --host 127.0.0.1 \
         --port ${LT.portStr.OidcTester} \
-        --public-url https://oidc-tester.lantian.pub/ \
+        --public-url https://oidc-tester.zhyi.xin/ \
         --id oidc-tester \
-        --issuer https://login.lantian.pub \
+        --issuer https://login.zhyi.xin \
         --secret "$(cat $CREDENTIALS_DIRECTORY/secret)"
     '';
 
@@ -52,7 +52,7 @@ in
   };
   users.groups.oidc-tester = { };
 
-  lantian.nginxVhosts."oidc-tester.lantian.pub" = {
+  lantian.nginxVhosts."oidc-tester.zhyi.xin" = {
     locations = {
       "/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.OidcTester}";
@@ -63,7 +63,7 @@ in
     enableCommonLocationOptions = false;
 
     accessibleBy = "private";
-    sslCertificate = "lets-encrypt-lantian.pub";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 }

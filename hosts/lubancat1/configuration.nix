@@ -48,6 +48,9 @@
     text = ''
       [Unit]
       StartLimitIntervalSec=0
+      # 开机时本挂载会被 phpfpm 等服务经 RequiresMountsFor 强制拉起，
+      # NFS 须等 LAN 地址就绪后再挂，否则 nginx 依赖链开机雪崩
+      After=network-addresses-eth0.service
     '';
   };
 }

@@ -101,3 +101,4 @@ nixos/minimal-components/backup/backup.nix # fork 环境适配：aarch64 目标�
 nixos/minimal-components/backup/prune.nix # 同 backup.nix：prune 单元的 rustic 同款交叉编译
 nixos/minimal-components/backup/common.nix # 同 backup.nix：rustic 由 callPackage 参数传入（wrapper exec 指向交叉包）
 nixos/optional-apps/qbittorrent.nix # fork 多保留一行 qbittorrent-pt 的 lockfile 清理：router 的 pt 实例数据在 /var/lib/qbittorrent-pt（hosts/router 引用），上游 b4b8fe005 仅修单实例路径视为 typo 删除该行，fork 两实例都要清
+nixos/optional-apps/nix-distributed.nix # fork 增补：x86_64 构建机通告 i686-linux 可构建（32 位 multilib 包如 nvidia-egl-x32 无机器可建；上游靠控制机本地构建兜底，fork 本机 max-jobs=0）

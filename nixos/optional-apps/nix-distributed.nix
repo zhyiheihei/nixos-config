@@ -20,6 +20,17 @@ let
       #（rock5c-kernel/opi5p-kernel/sc8280xp-kernel 声明该 requiredSystemFeature；
       # 上游无此需求是因为其 nixbuild.net 兜底，fork 已移除，故 fork 需显式通告）。
       crossKernelFeatures = lib.optionals (v.system == "x86_64-linux") [ "aarch64-cross" ];
+      # i686-linux：32 位 multilib 包（如 nvidia-egl-external-platforms-x32）无法
+      # 在 aarch64 构建机上跑，本机 max-jobs=0 也不兜底；x86_64 构建机原生可执
+      # 行 i686，故把 i686-linux 一并通告进可构建系统表。
+      systems =
+        if v.system == "x86_64-linux" then
+          [
+            "x86_64-linux"
+            "i686-linux"
+          ]
+        else
+          [ v.system ];
     in
     assert v.cpuThreads > 0;
     if isLocal then
@@ -27,7 +38,7 @@ let
     else
       [
         {
-          inherit (v) system;
+          inherit systems;
           hostName = "${n}.zhyi.xin";
           maxJobs = v.cpuThreads;
           protocol = "ssh-ng";
@@ -40,7 +51,7 @@ let
       ]
       ++ lib.optionals (v.cpuThreads >= 8) [
         {
-          inherit (v) system;
+          inherit systems;
           hostName = "${n}.zhyi.xin";
           maxJobs = 1;
           protocol = "ssh-ng";

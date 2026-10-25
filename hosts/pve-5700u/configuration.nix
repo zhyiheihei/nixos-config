@@ -11,6 +11,7 @@
     ../../nixos/hardware/smart.nix
     ../../nixos/pve.nix
 
+    ../../nixos/optional-apps/fastapi-dls.nix
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/llama-cpp.nix
     ../../nixos/optional-apps/resin.nix
@@ -19,6 +20,7 @@
 
     ./enable-smart.nix
     ./hardware-configuration.nix
+    ../../nixos/optional-cron-jobs/ncmm.nix
   ];
 
   boot.kernelParams = [
