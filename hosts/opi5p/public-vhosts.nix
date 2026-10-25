@@ -10,7 +10,6 @@ let
     "memos"
     "openlist"
     "qnap"
-    "tachidesk"
     "vaults3"
     "wallos"
   ];

@@ -262,6 +262,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "mc";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
       name = "mcsm";
       target = homeDdnsTarget;
       ttl = "2m";
@@ -269,7 +275,7 @@ let
     {
       recordType = "CNAME";
       name = "mcsm-daemon";
-      target = homeDdnsTarget;
+      target = "opi5p.ltnet.zhyi.xin.";
       ttl = "2m";
     }
     {

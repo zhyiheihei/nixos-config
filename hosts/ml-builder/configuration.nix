@@ -9,6 +9,8 @@
 let
 
   fetchDirectHosts = lib.concatStringsSep "," [
+    # AMO 对 opi5p 代理出口返回 406，xpi fetcher 必须直连
+    "addons.mozilla.org"
     "api.k8slens.dev"
     "archive.hadrons.org"
     "cdn.kernel.org"
