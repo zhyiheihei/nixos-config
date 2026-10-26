@@ -107,3 +107,6 @@ hosts/ml-laptop/configuration.nix # 临时偏离：disabledModules looking-glass
 home/client-apps/firefox/default.nix # 临时偏离：摘除 tweaks-for-youtube 扩展（AMO 对 nixpkgs 钉住的旧版 xpi 返回 406，构建不可过），nixpkgs bump 后恢复
 home/client-apps/firefox/default.nix # 临时偏离：摘除 firefox-color 扩展（AMO 406，同 tweaks-for-youtube），nixpkgs bump 后恢复
 hosts/ml-laptop/configuration.nix # 本机防 OOM 偏离：max-jobs=2/cores=2/connect-timeout=60（32G 弱机，构建期 OOM 实证），fork 长期保留或上游对齐后删
+nixos/optional-apps/strata.nix # STRATA_ALLOWED_HOSTS 域名值级环境事实（xuyh0120.win→zhyi.xin）
+nixos/optional-apps/hydra/cancel-old-builds.nix # skip: 上游已删（oauth 阻断脚本登录），fork 同步删除
+nixos/optional-apps/hydra/cancel-old-builds.py # skip: 上游已删（oauth 阻断脚本登录），fork 同步删除

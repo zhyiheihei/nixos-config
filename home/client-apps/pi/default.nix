@@ -25,6 +25,7 @@ in
 
   programs.pi-coding-agent = {
     enable = true;
+    models = lib.mkForce { };
     package = pkgs.llm-agents.pi.override {
       useBun = false;
     };
@@ -35,11 +36,10 @@ in
     extraPackages = [ pkgs.nodejs ];
 
     settings = {
-      # Enable all built-in tools on top of the defaults (read/bash/edit/write);
-      # codemode and tool_search are built-in extensions, off by default.
+      # grep/find built-ins are disabled here; the pi-fff package below replaces
+      # them with ffgrep/fffind/fff-multi-grep. codemode and tool_search are
+      # built-in extensions, off by default.
       defaultTools = [
-        "+grep"
-        "+find"
         "+ls"
         "+codemode"
         "+tool_search"
@@ -75,6 +75,7 @@ in
       packages = [
         # keep-sorted start
         "npm:@cortexkit/pi-magic-context"
+        "npm:@ff-labs/pi-fff"
         "npm:@gamaraan/ask-tool"
         "npm:@mjakl/pi-subagent"
         "npm:@moguw/pi-session-migrate"
@@ -114,19 +115,32 @@ in
     webTools = false;
     usageStatus = true;
   };
-  # pi 的 CLIProxyAPI 插件（@router-for-me/pi-cliproxyapi-provider）默认连
-  # 127.0.0.1:8317，这里把端点指向本仓新的 ai-api（google 上的 CLIProxyAPI）；
-  # 凭据优先取环境变量、其次 ~/.pi/agent/cliproxyapi.json、再其次 /login。
-  # 密钥不能进 store，故用 activation 写文件（owner 0600），插件后续可自行改写。
-  home.sessionVariables.CLIPROXYAPI_BASE_URL = "https://ai-api.zhyi.xin";
-  home.activation.pi-cliproxyapi = lib.mkIf (osConfig.sops.secrets ? "pi-ai-api-key") ''
-    mkdir -p "$HOME/.pi/agent"
-    printf '{"baseUrl":"https://ai-api.zhyi.xin","apiKey":"%s"}\n' \
-      "$(cat ${osConfig.sops.secrets."pi-ai-api-key".path})" \
-      > "$HOME/.pi/agent/cliproxyapi.json"
-    chmod 600 "$HOME/.pi/agent/cliproxyapi.json"
-  '';
-
+  # Strata inference server on pve-epyc (nixos/optional-apps/strata.nix),
+  # exposed through the private vhost. The server takes any API key and any
+  # model name; the id below matches what the deployed quant reports via
+  # /v1/models (n_ctx 204800, text+image input).
+  home.file.".pi/agent/models.json".text = builtins.toJSON {
+    "$schema" = "https://pi.dev/schemas/models.schema.json";
+    providers.strata = {
+      name = "Strata (pve-epyc)";
+      baseUrl = "https://strata.pve-epyc.xuyh0120.win/v1";
+      api = "openai-completions";
+      apiKey = "strata";
+      models = [
+        {
+          id = "qwen3.8-flash-next-iq3_s";
+          name = "Qwen 3.8 Flash Next (pve-epyc)";
+          reasoning = true;
+          input = [
+            "text"
+            "image"
+          ];
+          contextWindow = 204800;
+          maxTokens = 8192;
+        }
+      ];
+    };
+  };
   home.file.".pi/agent/ask-tool.json".text = builtins.toJSON {
     notify = true;
     timeoutSeconds = 300;
@@ -136,14 +150,12 @@ in
     enabled = true;
     auto_update = false;
     allow_home_project = true;
-    historian.pi.model = "cliproxyapi/glm-5.3-flash";
-    dreamer.pi.model = "cliproxyapi/glm-5.3-flash";
-    sidekick.model = "cliproxyapi/glm-5.3-flash";
+    historian.pi.model = "ollama-cloud/glm-5.3-flash";
+    dreamer.pi.model = "ollama-cloud/glm-5.3-flash";
+    sidekick.model = "ollama-cloud/glm-5.3-flash";
     embedding = {
       provider = "openai-compatible";
-      # fork：配 ml-laptop 主机级 Vulkan iGPU 覆盖（脱离 NVIDIA），
-      # 模型名须与其 models 一致
-      model = "qwen3-embedding-4b";
+      model = "nomic-embed-code";
       endpoint = "http://127.0.0.1:${LT.portStr.LlamaSwap}/v1";
     };
   };
@@ -183,3 +195,8 @@ in
     customPatterns = [ ];
   };
 }
+
+# pi 的 CLIProxyAPI 插件（@router-for-me/pi-cliproxyapi-provider）默认连
+# 127.0.0.1:8317，这里把端点指向本仓新的 ai-api（google 上的 CLIProxyAPI）；
+# 凭据优先取环境变量、其次 ~/.pi/agent/cliproxyapi.json、再其次 /login。
+# 密钥不能进 store，故用 activation 写文件（owner 0600），插件后续可自行改写。

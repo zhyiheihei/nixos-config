@@ -392,8 +392,6 @@
   };
   users.groups.bird = { };
 
-  # 临时偏离：本机 32G 弱机防 OOM（构建+桌面+服务共用），18 槽 auto 并发会 OOM 炸机；
-  # 配对 connect-timeout 60 防 ncps 冷缓存 5s 判死。上游无此段，nixpkgs 大版本对齐期后视情撤除
   nix.settings = {
     max-jobs = lib.mkForce 2;
     cores = lib.mkForce 2;

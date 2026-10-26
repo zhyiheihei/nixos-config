@@ -188,6 +188,22 @@ in
   imports = [ ../../nixos/optional-apps/postgresql.nix ];
 
   sops.secrets = {
+    dex-actual-secret = {
+      sopsFile = inputs.secrets + "/dex/actual.yaml";
+      owner = "dex";
+      group = "dex";
+    };
+    dex-gitea-secret.sopsFile = inputs.secrets + "/dex/gitea.yaml";
+    dex-grafana-secret.sopsFile = inputs.secrets + "/dex/grafana.yaml";
+    dex-immich-secret.sopsFile = inputs.secrets + "/dex/immich.yaml";
+    dex-memos-secret.sopsFile = inputs.secrets + "/dex/memos.yaml";
+    dex-moviepilot-secret.sopsFile = inputs.secrets + "/dex/moviepilot.yaml";
+    dex-navdash-secret.sopsFile = inputs.secrets + "/dex/navdash.yaml";
+    dex-nextcloud-secret.sopsFile = inputs.secrets + "/dex/nextcloud.yaml";
+    dex-oauth-proxy-secret.sopsFile = inputs.secrets + "/dex/oauth-proxy.yaml";
+    dex-oidc-tester-secret.sopsFile = inputs.secrets + "/dex/oidc-tester.yaml";
+    dex-tranquil-pds-secret.sopsFile = inputs.secrets + "/dex/tranquil-pds.yaml";
+    dex-wallos-secret.sopsFile = inputs.secrets + "/dex/wallos.yaml";
     dex-pocket-id-client-id = {
       sopsFile = inputs.secrets + "/dex/pocket-id.yaml";
       owner = "dex";

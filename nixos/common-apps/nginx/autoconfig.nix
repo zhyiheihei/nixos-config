@@ -1,5 +1,6 @@
 {
   lib,
+  pkgs,
   LT,
   ...
 }:
@@ -63,18 +64,211 @@ let
       </clientConfig>
     '';
 
+  autodiscoverTemplate =
+    cfg:
+    minifyXML ''
+      <?xml version="1.0" encoding="utf-8"?>
+      <Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">
+        <Response xmlns="http://schemas.microsoft.com/exchange/autodiscover/outlook/responseschema/2006a">
+          <User>
+            <DisplayName>__EMAIL__</DisplayName>
+          </User>
+
+          <Account>
+            <AccountType>email</AccountType>
+            <Action>settings</Action>
+
+            <Protocol>
+              <Type>IMAP</Type>
+              <TTL>1</TTL>
+
+              <Server>${cfg.imap.server}</Server>
+              <Port>${builtins.toString cfg.imap.port}</Port>
+
+              <LoginName>__EMAIL__</LoginName>
+
+              <DomainRequired>on</DomainRequired>
+              <DomainName>${cfg.domain}</DomainName>
+
+              <SPA>off</SPA>
+              ${if cfg.imap.starttls then "<TLS>on</TLS>" else "<SSL>on</SSL>"}
+              <AuthRequired>on</AuthRequired>
+            </Protocol>
+          </Account>
+
+          <Account>
+            <AccountType>email</AccountType>
+            <Action>settings</Action>
+
+            <Protocol>
+              <Type>SMTP</Type>
+              <TTL>1</TTL>
+
+              <Server>${cfg.smtp.server}</Server>
+              <Port>${builtins.toString cfg.smtp.port}</Port>
+
+              <LoginName>__EMAIL__</LoginName>
+
+              <DomainRequired>on</DomainRequired>
+              <DomainName>${cfg.domain}</DomainName>
+
+              <SPA>off</SPA>
+              ${if cfg.smtp.starttls then "<TLS>on</TLS>" else "<SSL>on</SSL>"}
+              <AuthRequired>on</AuthRequired>
+            </Protocol>
+          </Account>
+        </Response>
+      </Autodiscover>
+    '';
+
   autodiscoverJsonTemplate =
     cfg:
     builtins.toJSON {
       Protocol = "AutodiscoverV1";
       Url = "https://autoconfig.${cfg.domain}/autodiscover/autodiscover.xml";
     };
+
+  mobileconfigTemplate =
+    cfg:
+    minifyXML ''
+      <?xml version="1.0" encoding="UTF-8"?>
+      <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+      <plist version="1.0">
+      <dict>
+        <key>HasRemovalPasscode</key>
+        <false/>
+        <key>PayloadContent</key>
+        <array>
+          <dict>
+            <key>EmailAccountDescription</key>
+            <string>__EMAIL__</string>
+            <key>EmailAccountName</key>
+            <string>__EMAIL__</string>
+            <key>EmailAccountType</key>
+            <string>EmailTypeIMAP</string>
+            <key>EmailAddress</key>
+            <string>__EMAIL__</string>
+            <key>IncomingMailServerAuthentication</key>
+            <string>EmailAuthPassword</string>
+            <key>IncomingMailServerHostName</key>
+            <string>${cfg.imap.server}</string>
+            <key>IncomingMailServerPortNumber</key>
+            <integer>${builtins.toString cfg.imap.port}</integer>
+            <key>IncomingMailServerUseSSL</key>
+            <true/>
+            <key>IncomingMailServerUsername</key>
+            <string>__EMAIL__</string>
+            <key>OutgoingMailServerAuthentication</key>
+            <string>EmailAuthPassword</string>
+            <key>OutgoingMailServerHostName</key>
+            <string>${cfg.smtp.server}</string>
+            <key>OutgoingMailServerPortNumber</key>
+            <integer>${builtins.toString cfg.smtp.port}</integer>
+            <key>OutgoingMailServerUseSSL</key>
+            <true/>
+            <key>OutgoingMailServerUsername</key>
+            <string>__EMAIL__</string>
+            <key>OutgoingPasswordSameAsIncomingPassword</key>
+            <true/>
+            <key>PayloadDescription</key>
+            <string>Configure Email Settings</string>
+            <key>PayloadDisplayName</key>
+            <string>__EMAIL__</string>
+            <key>PayloadIdentifier</key>
+            <string>com.l11r.goautoconfig.com.apple.mail.managed.7A981A9E-D5D0-4EF8-87FE-39FD6A506FAC</string>
+            <key>PayloadType</key>
+            <string>com.apple.mail.managed</string>
+            <key>PayloadUUID</key>
+            <string>7A981A9E-D5D0-4EF8-87FE-39FD6A506FAC</string>
+            <key>PayloadVersion</key>
+            <real>1</real>
+            <key>SMIMEEnablePerMessageSwitch</key>
+            <false/>
+            <key>SMIMEEnabled</key>
+            <false/>
+            <key>disableMailRecentsSyncing</key>
+            <false/>
+          </dict>
+        </array>
+        <key>PayloadDescription</key>
+        <string>Configure Email Settings</string>
+        <key>PayloadDisplayName</key>
+        <string>__EMAIL__</string>
+        <key>PayloadIdentifier</key>
+        <string>com.l11r.goautoconfig</string>
+        <key>PayloadOrganization</key>
+        <string>${cfg.domain}</string>
+        <key>PayloadRemovalDisallowed</key>
+        <false/>
+        <key>PayloadType</key>
+        <string>Configuration</string>
+        <key>PayloadUUID</key>
+        <string>48C88203-4DB9-49E8-B593-4831903605A0</string>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+      </dict>
+      </plist>
+    '';
 in
 lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
   lantian.nginxVhosts = builtins.listToAttrs (
     builtins.map (
       domain:
+      let
+        autoconfigScript = pkgs.writeText "autoconfig-${domain}.js" ''
+          import xml from 'xml';
+          import querystring from 'querystring';
+
+          function respond(r, template, email) {
+            if (typeof email !== 'string' || /[\x00-\x08\x0b\x0c\x0e-\x1f\ufffe\uffff]/.test(email)) {
+              r.return(400);
+              return;
+            }
+
+            const escaped = email.replace(/[&<>"']/g, c => ({
+              '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;'
+            })[c]);
+            r.headersOut['Content-Type'] = 'text/xml; charset=utf-8';
+            r.return(200, template.split('__EMAIL__').join(escaped) + '\n');
+          }
+
+          function mobileconfig(r) {
+            // QuickJS r.args decodes separators before splitting in njs 1.0.1.
+            const email = querystring.parse(r.variables.args || "").email;
+            if (!email) {
+              r.return(400);
+              return;
+            }
+            respond(r, ${builtins.toJSON (mobileconfigTemplate (emailConfigFor domain))}, email);
+          }
+
+          function autodiscover(r) {
+            let email = "";
+            if (r.requestText) {
+              // Restrict encodings so a DTD cannot bypass the check below.
+              if (/\x00|<!DOCTYPE/.test(r.requestText)
+                  || /<\?xml[^?]*\bencoding\s*=\s*["'](?!utf-8["'])/i.test(r.requestText)) {
+                r.return(400);
+                return;
+              }
+              try {
+                email = xml.parse(r.requestText).Autodiscover.Request.EMailAddress.$text;
+              } catch (e) {
+                r.return(400);
+                return;
+              }
+            }
+            respond(r, ${builtins.toJSON (autodiscoverTemplate (emailConfigFor domain))}, email);
+          }
+
+          export default { mobileconfig, autodiscover };
+        '';
+      in
       lib.nameValuePair "autoconfig.${domain}" {
+        extraConfig = ''
+          js_engine qjs;
+          js_import autoconfig from ${autoconfigScript};
+        '';
         locations = {
           "/mail/config-v1.1.xml" = {
             return = "200 '${autoconfigTemplate (emailConfigFor domain)}'";
@@ -82,6 +276,14 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
               add_header 'Content-Type' 'text/xml; charset=utf-8';
             '';
           };
+          "/email.mobileconfig".extraConfig = ''
+            js_content autoconfig.mobileconfig;
+          '';
+          "/autodiscover/autodiscover.xml".extraConfig = ''
+            client_max_body_size 64k;
+            client_body_buffer_size 64k;
+            js_content autoconfig.autodiscover;
+          '';
           "/autodiscover/autodiscover.json" = {
             return = "200 '${autodiscoverJsonTemplate (emailConfigFor domain)}'";
             extraConfig = ''
