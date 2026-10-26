@@ -164,7 +164,7 @@ in
     # initrd.
     initrd.availableKernelModules = lib.mkForce [ ];
     initrd.kernelModules = lib.mkForce [ ];
-    kernelModules = lib.mkForce [ ];
+    kernelModules = lib.mkForce [ "wireguard" ];
     extraModulePackages = lib.mkForce [ ];
     # ttyS2 must stay the last console= so /dev/console (and thus systemd
     # status/journal output) lands on the serial port during bring-up; the

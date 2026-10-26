@@ -113,6 +113,7 @@ in
     kernelModules = lib.mkForce [
       "r8169"
       "ledtrig_netdev"
+      "wireguard"
     ];
     extraModulePackages = lib.mkForce [ ];
     kernelParams = [

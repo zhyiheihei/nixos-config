@@ -133,6 +133,7 @@ in
       "ledtrig_netdev"
       "r8125"
       "rtc_rk808"
+      "wireguard"
     ];
     blacklistedKernelModules = lib.mkForce [ "r8169" ];
     extraModulePackages = lib.mkForce [ r8125Module ];

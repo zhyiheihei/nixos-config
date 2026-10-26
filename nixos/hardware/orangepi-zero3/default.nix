@@ -33,7 +33,10 @@ in
     initrd.availableKernelModules = lib.mkForce [ ];
     initrd.kernelModules = lib.mkForce [ ];
     initrd.systemd.tpm2.enable = false;
-    kernelModules = lib.mkForce [ "mali_kbase" ];
+    kernelModules = lib.mkForce [
+      "mali_kbase"
+      "wireguard"
+    ];
     extraModulePackages = lib.mkForce [ opi03MaliKbase ];
     kernelParams = [
       # H616/H618 UART0. Keep baud out of earlycon so the real 8250 driver can
