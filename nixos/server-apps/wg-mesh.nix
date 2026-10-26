@@ -35,6 +35,8 @@ in
     mode = "0660";
   };
 
+  systemd.services.systemd-networkd.after = [ "sops-install-secrets.service" ];
+
   systemd.network.netdevs = lib.mapAttrs' (
     n: v:
     let

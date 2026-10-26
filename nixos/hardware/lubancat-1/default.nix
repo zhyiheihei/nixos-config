@@ -137,7 +137,7 @@ in
     # shrunk initrd.
     initrd.availableKernelModules = lib.mkForce [ ];
     initrd.kernelModules = lib.mkForce [ ];
-    kernelModules = lib.mkForce [ ];
+    kernelModules = lib.mkForce [ "wireguard" ];
     extraModulePackages = lib.mkForce [ ];
     kernelParams = [
       "earlycon=uart8250,mmio32,0xfe660000"

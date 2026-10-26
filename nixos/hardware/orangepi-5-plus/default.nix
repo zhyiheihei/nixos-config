@@ -57,6 +57,7 @@ in
     kernelModules = lib.mkForce [
       "dwmac_motorcomm"
       "r8169"
+      "wireguard"
     ];
     # The generic out-of-tree modules use native ARM build tools and cannot
     # build against this x86_64 cross-built vendor kernel.
