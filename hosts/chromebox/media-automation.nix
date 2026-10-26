@@ -24,6 +24,19 @@ let
   fallbackFontsDir = pkgs.runCommand "noto-sans-cjk-sc-fallback" { } ''
     install -Dm644 ${jellyfinFallbackFont} $out/share/fonts/opentype/noto-cjk/NotoSansCJKsc-Regular.otf
   '';
+  jellyfinFontconfig = pkgs.writeText "jellyfin-fontconfig.conf" ''
+    <?xml version="1.0"?>
+    <!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+    <fontconfig>
+      <dir>${fallbackFontsDir}/share/fonts/opentype/noto-cjk</dir>
+      <cachedir>/var/cache/fontconfig</cachedir>
+      <match target="pattern">
+        <edit name="family" mode="prepend" binding="strong">
+          <string>Noto Sans CJK SC</string>
+        </edit>
+      </match>
+    </fontconfig>
+  '';
 in
 {
 
@@ -101,6 +114,8 @@ in
             "/mnt/storage/media-radarr"
             "/mnt/storage/media-shortdrama"
             "/mnt/storage/media-sonarr"
+            "${jellyfinFontconfig}:/etc/fonts/fonts.conf"
+            fallbackFontsDir
           ];
         };
         environment = LT.proxyEnvironment // {
