@@ -154,6 +154,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "frpc";
+      target = "tencent-cn";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "gemini";
       target = "greencloud";
       ttl = "1h";

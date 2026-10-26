@@ -44,6 +44,7 @@
   "couchdb.zhyi.xin"
   "dashboard.zhyi.xin"
   "dav.zhyi.xin"
+  "frpc.zhyi.xin"
   "git.zhyi.xin"
   "ha.zhyi.xin"
   "hydra.zhyi.xin"

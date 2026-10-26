@@ -123,6 +123,8 @@ rec {
     Openlist = 13837;
     TaoSync = 13838;
     Usque = 13840;
+    Frp.Server = 13841;
+    Frp.Dashboard = 13842;
     Ncps = 13851;
     IyuuPlus = 13878;
     LlamaSwap = 13880;

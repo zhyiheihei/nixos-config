@@ -2,6 +2,7 @@
 {
   imports = [
     ../../nixos/server.nix
+    ../../nixos/optional-apps/frp.nix
 
     ./hardware-configuration.nix
   ];
