@@ -183,27 +183,15 @@ let
       # keep-sorted end
     ];
   };
+
+  jqSecrets = utils.genJqSecretsReplacement {
+    loadCredential = true;
+  } cfg "/run/dex/config.yaml";
 in
 {
   imports = [ ../../nixos/optional-apps/postgresql.nix ];
 
   sops.secrets = {
-    dex-actual-secret = {
-      sopsFile = inputs.secrets + "/dex/actual.yaml";
-      owner = "dex";
-      group = "dex";
-    };
-    dex-gitea-secret.sopsFile = inputs.secrets + "/dex/gitea.yaml";
-    dex-grafana-secret.sopsFile = inputs.secrets + "/dex/grafana.yaml";
-    dex-immich-secret.sopsFile = inputs.secrets + "/dex/immich.yaml";
-    dex-memos-secret.sopsFile = inputs.secrets + "/dex/memos.yaml";
-    dex-moviepilot-secret.sopsFile = inputs.secrets + "/dex/moviepilot.yaml";
-    dex-navdash-secret.sopsFile = inputs.secrets + "/dex/navdash.yaml";
-    dex-nextcloud-secret.sopsFile = inputs.secrets + "/dex/nextcloud.yaml";
-    dex-oauth-proxy-secret.sopsFile = inputs.secrets + "/dex/oauth-proxy.yaml";
-    dex-oidc-tester-secret.sopsFile = inputs.secrets + "/dex/oidc-tester.yaml";
-    dex-tranquil-pds-secret.sopsFile = inputs.secrets + "/dex/tranquil-pds.yaml";
-    dex-wallos-secret.sopsFile = inputs.secrets + "/dex/wallos.yaml";
     dex-pocket-id-client-id = {
       sopsFile = inputs.secrets + "/dex/pocket-id.yaml";
       owner = "dex";
@@ -214,13 +202,6 @@ in
       owner = "dex";
       group = "dex";
     };
-    dex-vaultwarden-secret = {
-      sopsFile = inputs.secrets + "/dex/vaultwarden.yaml";
-      owner = "dex";
-      group = "dex";
-
-      mode = "0444";
-    };
   }
   // builtins.listToAttrs (
     builtins.map
@@ -228,12 +209,11 @@ in
         f:
         lib.nameValuePair "dex-${f}-secret" {
           sopsFile = inputs.secrets + "/dex/${f}.yaml";
-          owner = "dex";
-          group = "dex";
         }
       )
       [
         # keep-sorted start
+        "actual"
         "gitea"
         "grafana"
         "immich"
@@ -242,7 +222,9 @@ in
         "navdash"
         "nextcloud"
         "oauth-proxy"
+        "oidc-tester"
         "tranquil-pds"
+        "vaultwarden"
         "wallos"
         # keep-sorted end
       ]
@@ -262,20 +244,22 @@ in
     wantedBy = [ "multi-user.target" ];
     after = [
       "networking.target"
-      "postgresql.service"
+      "postgresql.target"
     ];
+    requires = [ "postgresql.target" ];
     script = ''
-      ${utils.genJqSecretsReplacementSnippet cfg "/run/dex/config.yaml"}
+      ${jqSecrets.script}
       exec ${lib.getExe pkgs.dex-oidc} serve /run/dex/config.yaml
     '';
     serviceConfig = LT.serviceHarden // {
+      LoadCredential = jqSecrets.credentials;
       DynamicUser = lib.mkForce false;
       User = "dex";
       Group = "dex";
       RuntimeDirectory = "dex";
       Restart = "always";
       RestartSec = "5";
-      BindPaths = [ "/run" ];
+      BindReadOnlyPaths = [ "/run/postgresql" ];
     };
   };
 

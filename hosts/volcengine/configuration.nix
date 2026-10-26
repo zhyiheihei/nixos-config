@@ -1,4 +1,4 @@
-{ ... }:
+{ lib, ... }:
 {
   imports = [
     ../../nixos/server.nix
@@ -22,4 +22,5 @@
     group = "dex";
   };
 
+  lantian.nginxVhosts."bitwarden.zhyi.xin".accessibleBy = lib.mkForce "public";
 }
