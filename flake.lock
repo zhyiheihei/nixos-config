@@ -1723,11 +1723,11 @@
         "treefmt-nix": "treefmt-nix_4"
       },
       "locked": {
-        "lastModified": 1793086860,
-        "narHash": "sha256-QYcNSdfS/+y6xj7PKZ+G5lVxbpYijuec43Y93tJMqNg=",
+        "lastModified": 1793089028,
+        "narHash": "sha256-EPVWHr9MEo93SZCGzdaCVCNF45z6548f/+R7JNfRZS4=",
         "owner": "zhyiheihei",
         "repo": "zhyi-packages",
-        "rev": "31d269bfca40ebe4b7e6b7ec910a0f7951775010",
+        "rev": "79ec4e7a28aab3f88e9d3b26ee88eeb0a9e5d4bf",
         "type": "github"
       },
       "original": {
