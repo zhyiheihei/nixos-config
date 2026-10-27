@@ -521,7 +521,9 @@ in
     caldavUser = "zhyi";
     caldavPasswordFile = config.sops.secrets.default-pw.path;
     caldavCalendar = "/zhyi/calendar/";
-
+    # 停摆告警：推送指标交给 node-exporter 的 textfile collector
+    # （rockchip/accelerator-metrics.nix 已开同名目录与采集器）
+    textfilePath = "/var/lib/node-exporter-textfile/epd-food.prom";
   };
 
   lantian.frigate = {
