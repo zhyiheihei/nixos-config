@@ -1,14 +1,15 @@
 {
   tags,
   geo,
+  constants,
   ...
 }:
 {
   index = 133;
   system = "aarch64-linux";
-  hostname = "192.168.0.63";
   tags = with tags; [
     lan-access
+    server
   ];
   cpuThreads = 4;
   city = geo.cities."CN Ningbo";
@@ -17,4 +18,6 @@
     name = "home-lan";
     IPv4 = "192.168.0.63";
   };
+
+  dn42.region = constants.dn42.region.Asia-E;
 }

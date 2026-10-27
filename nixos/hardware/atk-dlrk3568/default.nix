@@ -24,7 +24,7 @@ let
 
   atkKernel = crossPkgs.linuxManualConfig {
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
-    configfile = ../nanopi-r5c/kernel-config;
+    configfile = ./kernel-config;
   };
 
   # The board is not in mainline yet, so it carries its own DTS derived from the

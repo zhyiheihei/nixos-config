@@ -5,9 +5,13 @@
 }:
 {
   imports = [
-    ../../nixos/minimal.nix
+    ../../nixos/server.nix
     ./hardware-configuration.nix
   ];
+
+  # The board has no DNS record yet, so deploy over the LAN address while the
+  # hostname stays the fleet-wide one used for secrets and the WireGuard mesh.
+  deployment.targetHost = lib.mkForce "192.168.0.63";
 
   # Bring-up image: both RK3568 GMACs are equivalent until the first serial log,
   # so match on the interface name and address the board on the LAN.
