@@ -5,7 +5,7 @@
   ...
 }:
 {
-  index = 133;
+  index = 134;
   system = "aarch64-linux";
   tags = with tags; [
     lan-access
@@ -20,4 +20,5 @@
   };
 
   dn42.region = constants.dn42.region.Asia-E;
+  zerotier = "4478c7b276";
 }
