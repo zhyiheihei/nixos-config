@@ -13,16 +13,35 @@ let
 
   # ATK-DLRK3568 is Rockchip's RK3568 EVB1 reference design with the ATK-CLRK3568F
   # SoM: RK809 PMIC, two YT8531C (RTL8211F-compatible) gigabit PHYs on GMAC0/GMAC1,
-  # eMMC on sdhci, microSD on sdmmc0 and UART2 as the debug console. Mainline has
-  # no board DTS yet, so start from the mainline EVB1 DTB (same RGMII wiring and
-  # same PMIC) and reuse the repository's validated RK356x kernel baseline.
+  # eMMC on sdhci, microSD on sdmmc0 and UART2 as the debug console.
+  atkKernelSrc = pkgs.runCommand "linux-dts-tree" { nativeBuildInputs = [ pkgs.xz ]; } ''
+    mkdir -p $out
+    tar -xJf ${crossPkgs.linux_6_18.src} -C $out --strip-components=1 \
+      linux-*/include \
+      linux-*/arch/arm64/boot/dts/rockchip \
+      linux-*/scripts/dtc/include-prefixes
+  '';
+
   atkKernel = crossPkgs.linuxManualConfig {
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = ../nanopi-r5c/kernel-config;
   };
 
-  # Mainline U-Boot has no ATK defconfig; the generic RK3568 target uses the same
-  # TPL/BL31 chain as the NanoPi R5C package and boots any RK3568 board from SD.
+  # The board is not in mainline yet, so it carries its own DTS derived from the
+  # EVB1 reference design (PHY strapping, reset ownership, on-board RTC).
+  atkDtb = pkgs.deviceTree.compileDTS {
+    name = "rk3568-atk-dlrk3568.dtb";
+    dtsFile = ./rk3568-atk-dlrk3568.dts;
+    includePaths = [
+      "${atkKernelSrc}/include"
+      "${atkKernelSrc}/arch/arm64/boot/dts/rockchip"
+    ];
+  };
+
+  atkDtbs = pkgs.runCommand "atk3568-dtbs" { } ''
+    mkdir -p $out/rockchip
+    cp ${atkDtb} $out/rockchip/rk3568-atk-dlrk3568.dtb
+  '';
   ubootAtk3568 = (crossPkgs.ubootNanoPiR5S.override {
     defconfig = "generic-rk3568_defconfig";
   }).overrideAttrs
@@ -105,14 +124,10 @@ in
   };
 
   hardware.deviceTree = {
-    name = "rockchip/rk3568-evb1-v10.dtb";
-    filter = "rk3568-evb1-v10.dtb";
-    overlays = [
-      {
-        name = "atk3568-board";
-        dtsFile = ./rk3568-atk-dlrk3568-overlay.dts;
-      }
-    ];
+    name = "rockchip/rk3568-atk-dlrk3568.dtb";
+    filter = "rk3568-atk-dlrk3568.dtb";
+    dtbSource = atkDtbs;
+    overlays = [ ];
   };
 
   networking.networkmanager.enable = lib.mkForce false;
