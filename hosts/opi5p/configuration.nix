@@ -526,6 +526,12 @@ in
     textfilePath = "/var/lib/node-exporter-textfile/epd-food.prom";
   };
 
+  # node-exporter 被 lantian.harden 关在 chroot 里，真实 /var/lib 看不到，
+  # textfile 目录必须显式绑进去（否则采集器报 no such file or directory）。
+  systemd.services.prometheus-node-exporter.serviceConfig.BindReadOnlyPaths = [
+    "/var/lib/node-exporter-textfile"
+  ];
+
   lantian.frigate = {
     enable = true;
     cameras = {

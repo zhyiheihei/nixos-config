@@ -1,0 +1,76 @@
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/pinctrl/rockchip.h>
+
+/ {
+	compatible = "rockchip,rk3568-evb1-v10";
+};
+
+/*
+ * ATK-DLRK3568 straps both YT8531C PHYs to MDIO address 0x01 (R11/R263 pull
+ * PHYAD0 up, R30/R32/R72/R75 pull PHYAD1/PHYAD2 down), while EVB1 declares
+ * them at 0x00. Without this the kernel reports "MDIO device at address 0 is
+ * missing" on both GMACs and no PHY ever binds.
+ */
+&rgmii_phy0 {
+	reg = <0x1>;
+};
+
+&rgmii_phy1 {
+	reg = <0x1>;
+};
+
+/*
+ * Both PHY reset nets only carry unpopulated pull-ups (R63/R101 are DNP), so
+ * the PHYs stay in reset until the SoC drives PHYRSTB high: at the U-Boot
+ * prompt GPIO2_D1/GPIO2_D3 read back as 0. phylib cannot break that deadlock
+ * on its own, because it only claims the reset line after it has talked MDIO
+ * to the PHY it is still holding in reset. Drive both lines as plain GPIO
+ * outputs in the GMAC pin state so they are released before the MDIO bus is
+ * registered; the phy nodes keep their reset-gpios so phylib can still pulse
+ * the resets during probe.
+ */
+&pinctrl {
+	atk-phy-reset {
+		atk_phy_rst0: atk-phy-rst0 {
+			rockchip,pins = <2 RK_PD3 RK_FUNC_GPIO &pcfg_output_high>;
+		};
+
+		atk_phy_rst1: atk-phy-rst1 {
+			rockchip,pins = <2 RK_PD1 RK_FUNC_GPIO &pcfg_output_high>;
+		};
+	};
+};
+
+&gmac0 {
+	pinctrl-0 = <&gmac0_miim
+		     &gmac0_tx_bus2
+		     &gmac0_rx_bus2
+		     &gmac0_rgmii_clk
+		     &gmac0_rgmii_bus
+		     &atk_phy_rst0>;
+};
+
+&gmac1 {
+	pinctrl-0 = <&gmac1m1_miim
+		     &gmac1m1_tx_bus2
+		     &gmac1m1_rx_bus2
+		     &gmac1m1_rgmii_clk
+		     &gmac1m1_rgmii_bus
+		     &atk_phy_rst1>;
+};
+
+/* The board carries an AT8563T (PCF8563-compatible) RTC on I2C5 M0. */
+&i2c5 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&i2c5m0_xfer>;
+	clock-frequency = <100000>;
+
+	rtc@51 {
+		compatible = "nxp,pcf8563";
+		reg = <0x51>;
+	};
+};
