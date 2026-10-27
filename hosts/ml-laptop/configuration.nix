@@ -8,7 +8,6 @@
 }:
 {
   disabledModules = [
-    # 临时：kvmfr（looking-glass）在 nixpkgs 02c087f3 上 modules buildEnv 签名失败（kvmfr.ko.cer missing，nixpkgs#576406 同族），上游修复进锁后恢复
     ../../nixos/client-apps/looking-glass.nix
   ];
 
@@ -28,7 +27,7 @@
     ../../nixos/optional-apps/llama-swap.nix
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/nix-distributed.nix
-    # ../../nixos/optional-apps/obs-studio.nix # 临时：nixpkgs 02c087f3 regression（v4l2loopback modules.alias 与内核 modules buildEnv 冲突，nixpkgs#576406），上游修复进锁后恢复
+    # ../../nixos/optional-apps/obs-studio.nix
     ../../nixos/optional-apps/opencl.nix
     ../../nixos/optional-apps/pi-web.nix
     # ../../nixos/optional-apps/pipewire-noise-cancelling.nix

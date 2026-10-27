@@ -10,7 +10,6 @@
 let
 
   fetchDirectHosts = lib.concatStringsSep "," [
-    # AMO 对 opi5p 代理出口返回 406，xpi fetcher 必须直连
     "addons.mozilla.org"
     "api.k8slens.dev"
     "archive.hadrons.org"
@@ -87,9 +86,6 @@ in
 
   lantian.qemu-user-static-binfmt.enable = true;
 
-  # Hydra 构建机（gRPC）：新 nixpkgs 的队列器不再读 /etc/nix/machines，
-  # 改由构建机主动连队列器（services.hydra-builder，队列器在 opi5p）。
-  # 本机是舰队唯一 x86_64 主构建机，不接上则 Hydra 只剩 opi5p 本地槽。
   sops.secrets.hydra-queue-runner-token = {
     sopsFile = inputs.secrets + "/hydra.yaml";
     mode = "0440";
@@ -103,23 +99,10 @@ in
     queueRunnerAddr = "http://${LT.hosts.opi5p.ltnet.IPv4}:${LT.portStr.Hydra.QueueRunnerGRPC}";
   };
 
-  # 2026-10-14 17:23 fleet 重建波次时 4 并发几乎同时起跑（PSI 回退只挡
-  # 「新派发」，波次起点 PSI=0，4 槽几秒内同时领走构建），叠加
-  # bambu-studio 类大件后进入 zram 回收风暴，整机直接冻结（无 OOM 杀程
-  # 日志，内核日志止于 17:23:15）。
-  # - maxJobs 4→3：对冲并发冲量的唯一 Hydra 侧手段。
-  # - memPsiThreshold 80→65 / ioPsiThreshold 60：提前收手，在逼近风暴
-  #   之前就不再领取新构建。
-  # - supportedFeatures 显式去掉 big-parallel：该 feature 的 64 个上
-  #   游大件（chromium/qtwebengine/llvm/rustc/ghc…）改由下方大包车道
-  #   （hydra-builder-big，1 并发×-j4+磁盘 swap）承接，不再与常规构建
-  #   护道叠加。
   services.hydra-builder.settings = {
     maxJobs = 3;
     memPsiThreshold = 65.0;
     ioPsiThreshold = 60.0;
-    # 显式列表 = nix 自动探测集（见 hydra-builder 启动日志）去掉
-    # big-parallel。
     supportedFeatures = [
       "aarch64-cross"
       "benchmark"
@@ -129,13 +112,6 @@ in
     ];
   };
 
-  # big-parallel 专用车道：同一机器上的第二个 gRPC builder 实例。大包
-  # 一构建就 oom 的根因是峰值内存（链接/LTO 阶段）随 -j 叠加；不考虑
-  # 构建速度时，用 1 并发 × -j4 + 磁盘 swap 把峰值压平。mandatoryFeatures
-  # 是准入闸口（machine.rs get_machine_for_system 会把 step 未携带
-  # big-parallel 的任务全部拒之门外），supportedFeatures 保留全集让
-  # 「big-parallel+kvm」这类组合仍能落进来；主车道不再声明
-  # big-parallel，两个车道互不抢活。
   environment.etc."hydra/builder-big.toml".source =
     (pkgs.formats.toml { }).generate "builder-big.toml"
       (
