@@ -52,6 +52,7 @@ nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 
 nixos/optional-apps/palworld.nix # skip: 用户 2026-10-23 决定保留（fork 独有服务，chromebox 启用，上游 3691671e4 已删除）
 nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（2026-10-15 移除 sglang-sakura-llm job：舰队已无该服务，prometheus up 恒 0）；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
 nixos/optional-apps/obs-studio.nix # 保留 obs-dvd-screensaver（fork nvfetcher 包，上游未包含）+ 用户名 zhyi 认可替换
+nixos/optional-apps/radicale.nix # accessibleBy=private→public（2026-10-27 用户决策）：上游 cal 仅 LTNET 可达，本仓 public-sites.nix 已把 cal.zhyi.xin 归入自带鉴权站点，日历/通讯录客户端（手机、桌面、mcp-caldav）需公网直连；鉴权仍为 nginx basic auth + radicale http_x_remote_user
 nixos/optional-apps/zerotierone-controller.nix # GL-MT3600BE 旅行路由器 LAN 路由（192.168.3.0/24 via 198.18.0.115，fork 独有拓扑）+ 家庭 LAN 路由（192.168.0.0/24 via router，供 allowManaged=1 额外客户端异地访问，2026-10-03）；defaultGatewayHost 已随上游收口到 LT 继承（rock5c 特例登记于 misc.nix 条目）
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）
 nixos/server-apps/bird/config/dn42.nix # neo 路由移除（NeoNetwork 置空）

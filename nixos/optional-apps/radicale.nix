@@ -29,7 +29,7 @@
       };
     };
 
-    accessibleBy = "private";
+    accessibleBy = "public";
     sslCertificate = "lets-encrypt-zhyi.xin";
     blockDotfiles = false;
     noIndex.enable = true;
