@@ -42,12 +42,13 @@ let
     mkdir -p $out/rockchip
     cp ${atkDtb} $out/rockchip/rk3568-atk-dlrk3568.dtb
   '';
-  ubootAtk3568 = (crossPkgs.ubootNanoPiR5S.override {
-    defconfig = "generic-rk3568_defconfig";
-  }).overrideAttrs
-    (old: {
-      requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
-    });
+  ubootAtk3568 =
+    (crossPkgs.ubootNanoPiR5S.override {
+      defconfig = "generic-rk3568_defconfig";
+    }).overrideAttrs
+      (old: {
+        requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+      });
 
   # The board carries an AT8563T (PCF8563-compatible) RTC with a coin cell, but the
   # EVB1 DTB has no node for it, so until the board DTS is written preserve a recent
@@ -197,7 +198,6 @@ in
     wantedBy = [ "multi-user.target" ];
     after = [ "nix.mount" ];
     requires = [ "nix.mount" ];
-    before = [ "sops-install-secrets.service" ];
     path = [
       pkgs.btrfs-progs
       pkgs.gnugrep

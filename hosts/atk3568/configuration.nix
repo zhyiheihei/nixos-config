@@ -10,9 +10,10 @@
   ];
 
   # Bring-up image: both RK3568 GMACs are equivalent until the first serial log,
-  # so match on the interface name and pick up an address from the LAN.
+  # so match on the interface name and address the board on the LAN.
   systemd.network.networks."10-atk3568-lan" = {
     matchConfig.Name = "eth*";
+    address = [ "192.168.0.63/24" ];
     networkConfig = {
       DHCP = "ipv4";
       IPv6AcceptRA = true;
@@ -71,6 +72,7 @@
       done
       echo "== dmesg"
       dmesg | grep -iE "mdio|motorcomm|gmac|stmmac|eth[01]|pcf8563|rtc"
+      sync
     '';
     serviceConfig = {
       Type = "oneshot";
