@@ -775,19 +775,35 @@
 	};
 };
 
-/* RTL8852BS: Bluetooth on UART8, WIFI_REG_ON parked high here, BT_REG_ON owned
- * by the btattach unit so it can power-cycle the module before attaching. */
+/* RTL8852BS: Bluetooth on UART8, WiFi on SDMMC2. WIFI_REG_ON is driven by the
+ * mmc power sequence below; BT_REG_ON is owned by the btattach unit so it can
+ * power-cycle the module before attaching the HCI transport. */
+/ {
+	sdio_pwrseq: sdio-pwrseq {
+		compatible = "mmc-pwrseq-simple";
+		/* WIFI_REG_ON is active high, so the reset line is declared active low. */
+		reset-gpios = <&gpio3 RK_PD5 GPIO_ACTIVE_LOW>;
+		post-power-on-delay-ms = <200>;
+	};
+};
+
+&sdmmc2 {
+	status = "okay";
+	bus-width = <4>;
+	cap-sdio-irq;
+	keep-power-in-suspend;
+	max-frequency = <100000000>;
+	mmc-pwrseq = <&sdio_pwrseq>;
+	no-sd;
+	no-mmc;
+	non-removable;
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc2m0_bus4 &sdmmc2m0_clk &sdmmc2m0_cmd>;
+	vmmc-supply = <&vcc3v3_sys>;
+	vqmmc-supply = <&vcc_1v8>;
+};
 &uart8 {
 	status = "okay";
 	pinctrl-names = "default";
 	pinctrl-0 = <&uart8m0_xfer &uart8m0_ctsn &uart8m0_rtsn>;
-};
-
-&gpio3 {
-	wifi-reg-on-hog {
-		gpio-hog;
-		gpios = <RK_PD5 GPIO_ACTIVE_HIGH>;
-		output-high;
-		line-name = "wifi-reg-on";
-	};
 };
