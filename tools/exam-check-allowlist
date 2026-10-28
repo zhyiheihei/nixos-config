@@ -28,11 +28,11 @@ nixos/common-apps/nginx/whois-server.nix # whois neo 别名移除（NeoNetwork �
 nixos/hardware/nvidia/prime.nix # eGPU 条件 steam offload wrapper（拔 eGPU 卡死修复，fork 自维护）
 nixos/hardware/vfio.nix # ACS/IOMMU 条件注入（雷电 eGPU Xid 79 修复，fork 自维护）
 nixos/minimal-apps/nginx-proxy.nix # neo ULA 移除（NeoNetwork 置空）
-nixos/minimal-components/backup/common.nix # 值级环境事实：ignore 清单补 fork 服务目录（archiveteam/ncps/tor/samba 全目录等）；home 仓端点=opi5p.ltnet.zhyi.xin:2222（exam=pve-epyc 退役）；storagebox 仓=user sftp + greencloud-jp.ltnet.zhyi.xin:2222 + /backups/rustic-storagebox（本仓无 Hetzner，第二份异地走 greencloud-jp LTNET）；maintenanceHosts 主机名 fork 化（opi5p=home，greencloud-jp=storagebox）
+nixos/minimal-components/backup/common.nix # 值级环境事实：ignore 清单补 fork 服务目录（archiveteam/ncps/tor/samba 全目录等）；home 仓端点=opi5p.ltnet.zhyi.xin:2222（exam=pve-epyc 退役）；storagebox 仓=user sftp + greencloud-jp.zhyi.xin:2222（恢复 2026-08-29 原始直连值：09-01 因公网路径故障临时改 LTNET，10-27 公网双栈恢复后改回，不经 wgmesh）+ /backups/rustic-storagebox（本仓无 Hetzner，第二份异地走 greencloud-jp 公网）；maintenanceHosts 主机名 fork 化（opi5p=home，greencloud-jp=storagebox）
 nixos/minimal-components/networking.nix # backupDNSServers 按 CN 国别分支（223.5.5.5 等）
 nixos/minimal-components/podman.nix # CN 区域镜像加速（hubproxy + daocloud 兜底）
 nixos/minimal-components/smtp.nix # fork 邮件账号；from=postmaster@zhyi.cc 已确认非残留：AhaSend 账户只登记 zhyi.cc（commit 3d880f3cc，zhyi.xin 会被 556 拒发），DNS TXT/DMARC 记录在 dns/common/records.nix ForwardEmail 块维护
-nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（备份端点域）+ backup sftp 两后端 Match ControlMaster no，host 值为 LTNET 内部域名（opendal/rustic 多进程并发 ssh 不复用连接）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）+ sshd ExecStartPre 预建 /var/empty
+nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（备份端点域）+ backup sftp 两后端 Match ControlMaster no，host 值为备份端点域名（opendal/rustic 多进程并发 ssh 不复用连接）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）+ sshd ExecStartPre 预建 /var/empty
 nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名（环境事实）；portMappingEnabled server-gate 已随 2026-10-15 误判翻案撤销（原 server-gate 撤销；2026-10-16 复核：家宽↔greencloud wgmesh UDP 双向被家宽 ISP 掐断是真实约束，与 wgmesh 接口 boot 竞态两个故障并存，zerotier 1.16 撤钉仍成立——上游 1.16 无本地复现问题）
 nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书（对齐上游同款结构，值不同）
 nixos/optional-apps/acme/default.nix # DNS 商 gcore（bunny 为作者所用）、dnsPropagationCheck=false
@@ -59,6 +59,7 @@ nixos/server-apps/bird/config/dn42.nix # neo 路由移除（NeoNetwork 置空）
 nixos/server-apps/coredns.nix # DNSSEC 签名序号漂移（运营性，随各自 zone 重签）
 nixos/server-apps/powerdns-recursor.nix # neo zone 移除 + CN 公共递归分支
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
+overlays/50-general.nix # prismlauncher jdks 补 openjdk25：本机要跑 Minecraft 26.3（其 version json 写 compatibleJavaMajors=[25]），上游无 Java 25 客户端需求；PrismLauncher 自带的下游 JRE 下载在 NixOS 上被 stub-ld 拒绝（实测 Temurin 25 JRE 报 "Could not start dynamically linked executable"，未开 nix-ld），只能走 nixpkgs 提供的 JDK
 overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）+ ncps doCheck=false（Go TSan 在 qemu-user aarch64 下不可运行）
 dns/core/record-handlers.nix # NO_PURGE handler 保留（fork：迁移到 zhyi 域时保留上游/其他来源已管理记录，上游无此 handler）
 home/client-apps/packages.nix # baidunetdisk/siyuan 为 fork 自有软件；materialgram 已恢复（NUR 7.0.5.1 补丁冲突已修复）
@@ -74,7 +75,7 @@ nixos/optional-apps/tranquil-pds.nix # fork：补 confinement（上游未启用�
 nixos/common-apps/nginx/hosts.nix # fork 恢复：上游 cdd2c42ab 删除 vhost→本机 LTNET 的 /etc/hosts 映射，其环境靠自建权威 DNS split-horizon 兜底；本仓解析器只返回公网答案，删掉后 volcengine 上 dex 对 id.zhyi.xin 的 OIDC discovery 走 EIP hairpin 源地址不在 accessibleBy=private 白名单（444 断连），SSO 链全断。恢复以还原 dex/oauth2-proxy 自取发现端点的路径
 nixos/minimal-components/ssh-harden.nix # rsync-internal 客户端 HostName 指向 greencloud.ltnet.zhyi.xin（上游 colocrossing.ltnet.xuyh0120.win；本仓 rsync-internal 服务端落在 greencloud，与 hosts/greencloud 的 rsync-server-internal 配套）
 nixos/common-apps/nginx/default.nix # 多一行 ./hosts.nix 导入：上游 cdd2c42ab 删该模块后靠自建权威 DNS split-horizon 兜底，本仓解析只给公网答案，缺它 volcengine 的 dex 拉 id.zhyi.xin 发现端点会走 EIP hairpin 被 accessibleBy=private 的 444 断连（SSO 全断）
-nixos/server-apps/wg-mesh.nix # 端口覆盖表 wgPortOverrides：opi5p=10151（家宽对 10122 的境外入站 UDP 回包被丢弃，换端口后恢复）；rock5c=49123、chromebox=49131（2026-10-22 观察到对应 peer 握手为 0；20123/20131 落入 block-cn-ports 的 20000-23999 拒绝范围，改用范围外高位端口）；端口按拥有者主机登记，监听端口与对端 Endpoint 两侧自洽
+nixos/server-apps/wg-mesh.nix # 端口覆盖表 wgPortOverrides：opi5p=10151、rock5c=49123、chromebox=49131（家宽对外入向 UDP 回程丢包，换端口即恢复；20123/20131 落入 block-cn-ports 的 20000-23999 拒绝范围，改用范围外高位端口），端口按拥有者主机登记，监听端口与对端 Endpoint 两侧自洽；2026-10-27 起 lan-access（家宽）对 greencloud-jp 改用其公网 v6 端点（实测家宽→45.159.48.76 的 v4 回程按源端口定向丢弃：JP:10151 的入向 UDP 全丢，同期 10124/10129/49123/49131 的入向正常，JP→家宽的 TCP 也时长时短；v6 双向稳定），无公网 v6 的 VPS 仍走 v4
 nixos/client-components/cups.nix # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
 nixos/common-apps/nginx/proxy.nix # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
 nixos/common-apps/nginx/vhost-options/location-options.nix # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写

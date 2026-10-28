@@ -12,6 +12,7 @@
     ./hardware-configuration.nix
     ../../nixos/optional-apps/cliproxyapi.nix
     (inputs.secrets + "/cliproxyapi.nix")
+    (inputs.secrets + "/mihoyo-bbs.nix")
     ../../nixos/optional-apps/grafana.nix
     ../../nixos/optional-apps/hubproxy.nix
     ../../nixos/optional-apps/navdash.nix
@@ -42,6 +43,11 @@
   };
 
   boot.kernelParams = [ "console=ttyS0,115200" ];
+
+  systemd.services.auto-mihoyo-bbs = {
+    requires = [ "auto-mihoyo-bbs-config.service" ];
+    after = [ "auto-mihoyo-bbs-config.service" ];
+  };
 
   systemd.network.networks.eth0 = {
     matchConfig.Name = "eth0";

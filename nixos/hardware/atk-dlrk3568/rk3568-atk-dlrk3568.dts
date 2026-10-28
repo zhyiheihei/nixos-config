@@ -774,3 +774,20 @@
 		remote-endpoint = <&dsi0_in_vp1>;
 	};
 };
+
+/* RTL8852BS: Bluetooth on UART8, WIFI_REG_ON parked high here, BT_REG_ON owned
+ * by the btattach unit so it can power-cycle the module before attaching. */
+&uart8 {
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&uart8m0_xfer &uart8m0_ctsn &uart8m0_rtsn>;
+};
+
+&gpio3 {
+	wifi-reg-on-hog {
+		gpio-hog;
+		gpios = <RK_PD5 GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "wifi-reg-on";
+	};
+};

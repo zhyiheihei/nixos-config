@@ -31,7 +31,6 @@
     ../../nixos/optional-apps/opencl.nix
     ../../nixos/optional-apps/pi-web.nix
     # ../../nixos/optional-apps/pipewire-noise-cancelling.nix
-    ../../nixos/optional-apps/pipewire-roc-sink.nix
     # ../../nixos/optional-apps/qdrant.nix
     ../../nixos/optional-apps/samba.nix
     ../../nixos/optional-apps/syncthing
@@ -136,10 +135,6 @@
   lantian.crow-translate.enable = true;
 
   lantian.hidpi = 1.6;
-
-  lantian.pipewire.roc-sink-ip = [
-    "192.168.0.207"
-  ];
 
   services.samba.settings = {
     "zhyi" = {

@@ -1,4 +1,6 @@
 {
+  LT,
+  inputs,
   config,
   lib,
   modulesPath,
@@ -80,6 +82,7 @@ in
     initrd.availableKernelModules = lib.mkForce [ ];
     initrd.kernelModules = lib.mkForce [ ];
     kernelModules = lib.mkForce [
+      "hci_uart"
       "rtc_pcf8563"
       "wireguard"
     ];
@@ -121,7 +124,6 @@ in
     enableRedistributableFirmware = lib.mkForce false;
     firmware = lib.mkForce [ ];
     wirelessRegulatoryDatabase = true;
-    bluetooth.enable = false;
   };
 
   hardware.deviceTree = {
@@ -132,6 +134,71 @@ in
   };
 
   networking.networkmanager.enable = lib.mkForce false;
+
+  # The module's 32.768 kHz low-power clock is fed by the RK809 (net
+  # "RK809 32KOUT WIFI"). Mainline only enables CLK32KOUT2 when a clock consumer
+  # asks for it, and nothing does on this board, so the Bluetooth core never
+  # leaves reset and stays silent on its UART.
+  systemd.services.atk3568-pmic-32k = {
+    description = "Enable the RK809 32.768 kHz output for the RTL8852BS module";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "systemd-udevd.service" ];
+    serviceConfig = LT.serviceHarden // {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      PrivateDevices = lib.mkForce false;
+      PrivateUsers = lib.mkForce false;
+      ExecStart = "${pkgs.i2c-tools}/bin/i2cset -y -f -m 0x01 0 0x20 0x20 0x01";
+    };
+  };
+
+  # RTL8852BS Bluetooth hangs off UART8; the HCI only appears after the vendor
+  # tool uploads firmware over H5, since mainline hci_uart has no RTL protocol.
+  hardware.bluetooth = {
+    enable = lib.mkForce true;
+    powerOnBoot = true;
+  };
+
+  # The vendor tool only syncs over H5 right after a BT_REG_ON power cycle, and
+  # it must keep REG_ON asserted afterwards, so the pulse and the hold live in
+  # this unit's cgroup: stopping the unit releases the pin, a restart re-pulses.
+  systemd.services.btattach-uart8 = {
+    description = "Attach RTL8852BS Bluetooth HCI on UART8";
+    wantedBy = [ "multi-user.target" ];
+    after = [
+      "dev-ttyS0.device"
+      "atk3568-pmic-32k.service"
+    ];
+    wants = [ "atk3568-pmic-32k.service" ];
+    bindsTo = [ "dev-ttyS0.device" ];
+    serviceConfig = LT.networkToolHarden // {
+      Type = "simple";
+      ExecStartPre = pkgs.writeShellScript "atk3568-bt-power-cycle" ''
+        export PATH=${pkgs.libgpiod}/bin:$PATH
+        gpioset -c gpiochip3 0=0 &
+        holder=$!
+        sleep 1
+        kill "$holder"
+        sleep 1
+        gpioset -c gpiochip3 0=1 &
+        sleep 1
+      '';
+      ExecStart = "${
+        inputs.zhyi-packages.packages.${pkgs.stdenv.hostPlatform.system}.rtkbt
+      }/bin/rtk_hciattach -n -s 115200 /dev/ttyS0 rtk_h5";
+      Restart = "on-failure";
+      RestartSec = "5s";
+      PrivateDevices = lib.mkForce false;
+      PrivateUsers = lib.mkForce false;
+      BindPaths = [
+        "/dev/ttyS0"
+        "/dev/gpiochip3"
+      ];
+    };
+  };
+
+  lantian.harden.btattach-uart8 = true;
+  lantian.harden.atk3568-pmic-32k = true;
 
   systemd.services.atk3568-restore-clock = {
     description = "Restore ATK-DLRK3568 software clock";

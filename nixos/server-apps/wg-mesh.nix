@@ -7,24 +7,29 @@
 }:
 let
   wg-pubkey = import (inputs.secrets + "/wg-pubkey.nix");
+  targetHosts = lib.filterAttrs (n: v: v.hasTag "server") LT.otherHosts;
+
+  wgEndpointOverrides = lib.optionalAttrs (LT.this.hasTag "lan-access") (
+    lib.filterAttrs (_: v: v != null) {
+      greencloud-jp = LT.publicIPv6For "greencloud-jp";
+    }
+  );
   wgEndpointFor =
     name: host:
-    if !(LT.this.hasTag "ipv6-only") && LT.publicIPv4For name != null then
+    if builtins.hasAttr name wgEndpointOverrides then
+      wgEndpointOverrides.${name}
+    else if !(LT.this.hasTag "ipv6-only") && LT.publicIPv4For name != null then
       LT.publicIPv4For name
     else if LT.this.public.IPv6 != null && LT.publicIPv6For name != null then
       LT.publicIPv6For name
     else
       null;
-  targetHosts = lib.filterAttrs (n: v: v.hasTag "server") LT.otherHosts;
-
-  # 家宽对 10122（= WGMesh.Start + opi5p.index）的境外入站 UDP 回包丢弃：
-  # greencloud 发出的 handshake response 在 router ppp0 上完全抓不到，换端口
-  # 10151 后立即握手成功；rock5c/chromebox 的端口覆盖见下方配置与 exam-check-allowlist。
-  # 端口按「拥有者主机」登记，两侧（监听端口与对端 Endpoint）自动一致。
+  mkEndpoint = addr: port: if lib.hasInfix ":" addr then "[${addr}]:${toString port}" else "${addr}:${toString port}";
   wgPortOverrides = {
     opi5p = 10151;
     rock5c = 49123;
     chromebox = 49131;
+    atk3568 = 10152;
   };
   wgPortFor = n: wgPortOverrides.${n} or (LT.port.WGMesh.Start + LT.hosts.${n}.index);
 in
@@ -60,7 +65,7 @@ in
             PersistentKeepalive = 15;
           }
           // lib.optionalAttrs (wgEndpoint != null) {
-            Endpoint = "${wgEndpoint}:${builtins.toString (wgPortFor config.networking.hostName)}";
+            Endpoint = mkEndpoint wgEndpoint (wgPortFor config.networking.hostName);
           }
         )
       ];

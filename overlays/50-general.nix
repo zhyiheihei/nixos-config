@@ -144,6 +144,7 @@ rec {
         openjdk8
         openjdk11
         openjdk17
+        openjdk25
       ])
       ++ (with final.nur-xddxdd.openj9-ibm-semeru; [
         jdk-bin-11
