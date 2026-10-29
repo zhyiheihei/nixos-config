@@ -1,7 +1,6 @@
 {
   lib,
   config,
-  LT,
   pkgs,
   ...
 }:
@@ -92,23 +91,25 @@
       actions = {
         ARTIFACT_RETENTION_DAYS = 90;
         RUN_RETENTION_DAYS = 90;
-        ZOMBIE_TASK_TIMEOUT = "3h";
+        ZOMBIE_TASK_TIMEOUT = "24h";
         ENDLESS_TASK_TIMEOUT = "24h";
         ABANDONED_JOB_TIMEOUT = "24h";
       };
     };
   };
 
-  systemd.services.gitea.serviceConfig = LT.serviceHarden // {
+  systemd.services.gitea.serviceConfig = {
     RuntimeDirectoryMode = lib.mkForce "0755";
     RestartSec = "5s";
     StateDirectory = "gitea";
     BindReadOnlyPaths = [
-      "/run" # for SMTP password
       "${lib.getExe' pkgs.coreutils "env"}:/usr/bin/env" # for hooks
     ];
   };
-  lantian.harden.gitea = true;
+  lantian.harden.gitea = {
+    enable = true;
+    secret = true;
+  };
 
   services.mysql = {
     ensureDatabases = [ "gitea" ];

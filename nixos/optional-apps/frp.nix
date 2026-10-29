@@ -18,9 +18,7 @@
     };
   };
 
-  systemd.services.frp-frps.serviceConfig = LT.serviceHarden;
-
-  lantian.harden.frp-frps = true;
+  lantian.harden.frp-frps.enable = true;
 
   lantian.firewall.presets.public-firewall.firewalledPorts = [ LT.port.Frp.Dashboard ];
 

@@ -154,6 +154,11 @@ in
     };
   };
 
+  lantian.harden.llama-swap = {
+    enable = true;
+    cuda = true;
+  };
+
   users.users.llama-swap = {
     group = "llama-swap";
     isSystemUser = true;

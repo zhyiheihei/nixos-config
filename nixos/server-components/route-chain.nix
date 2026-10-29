@@ -42,7 +42,7 @@
       unitConfig = {
         After = "network.target";
       };
-      serviceConfig = LT.networkToolHarden // {
+      serviceConfig = {
         Type = "simple";
         Restart = "always";
         RestartSec = "3";
@@ -56,7 +56,7 @@
         PrivateUsers = false;
       };
     };
-    lantian.harden.route-chain = true;
+    lantian.harden.route-chain.enable = "network";
 
     users.users.route-chain = {
       isSystemUser = true;

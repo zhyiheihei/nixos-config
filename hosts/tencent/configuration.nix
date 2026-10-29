@@ -20,9 +20,11 @@
     # ../../nixos/optional-apps/searxng.nix
     # ../../nixos/optional-apps/clawemail.nix
     ../../nixos/optional-apps/lsky-pro.nix
+    ../../nixos/optional-apps/nginx-lab
     ../../nixos/optional-apps/archiveteam.nix
 
     ../../nixos/optional-cron-jobs/auto-mihoyo-bbs
+    ../../nixos/optional-cron-jobs/bilibili-tool-pro.nix
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
     ../../nixos/optional-cron-jobs/skyland-auto-checkin.nix
   ];

@@ -30,7 +30,7 @@ let
         lib.concatStringsSep "\r\n" [
           "BEGIN:VCARD"
           "VERSION:3.0"
-          "UID:${dn42Prefix}${number}@lantian.dn42"
+          "UID:${dn42Prefix}${number}@zhyi.dn42"
           "FN:${name}"
           "N:${name};;;;"
           "TEL;TYPE=VOICE:${dn42Prefix}${number}"

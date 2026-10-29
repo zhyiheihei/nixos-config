@@ -85,7 +85,7 @@ in
 
       environment.CONFIG_PATH = configFile;
 
-      serviceConfig = LT.serviceHarden // {
+      serviceConfig = {
         Type = "simple";
         User = "hubproxy";
         Group = "hubproxy";
@@ -95,6 +95,10 @@ in
         Restart = "always";
         RestartSec = "5";
       };
+    };
+    lantian.harden.hubproxy = {
+      enable = true;
+      enableConfinement = false;
     };
 
     users.users.hubproxy = {

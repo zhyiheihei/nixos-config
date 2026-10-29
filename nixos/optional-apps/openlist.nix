@@ -94,7 +94,7 @@ in
         "sops-install-secrets.service"
       ];
       requiredBy = [ "podman-openlist.service" ];
-      serviceConfig = LT.serviceHarden // {
+      serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
         Restart = "on-failure";
@@ -143,6 +143,10 @@ in
             | jq -e '.code == 200' >/dev/null || echo "storage /backup/${name} create skipped or failed (may already exist)" >&2
         '') (lib.attrNames cfg.backupMounts)}
       '';
+    };
+    lantian.harden.openlist-setup = {
+      enable = true;
+      enableConfinement = false;
     };
   };
 }

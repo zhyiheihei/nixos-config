@@ -186,7 +186,7 @@
       };
     };
 
-    wg-lantian = {
+    wg-zhyi = {
       forwardStart = lib.mkOption {
         readOnly = true;
         type = lib.types.int;

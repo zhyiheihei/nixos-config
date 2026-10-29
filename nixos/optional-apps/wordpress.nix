@@ -47,7 +47,7 @@ in
           url = "https://downloads.wordpress.org/translation/core/${pkgs.wordpress.version}/zh_CN.zip";
           # Upstream switched to a flat zip layout (no wrapping directory)
           stripRoot = false;
-          hash = "sha256-4w9ghAopyFuMpJ4jVPaNMY51cQtLXtSyYTodvyCVaMA=";
+          hash = "sha256-KnTO0xZk2T94qFypj58UCTRMrWGOuEar5/SmScKTWdE=";
         })
       ];
       plugins = {
@@ -100,7 +100,7 @@ in
   # HTTP-triggered cron
   systemd.services.wordpress-cron = {
     after = [ "mysql.service" ];
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       Type = "oneshot";
       User = "wordpress";
       Group = config.services.nginx.group;
@@ -114,6 +114,11 @@ in
     script = ''
       php ${config.services.wordpress.sites."wp.zhyi.xin".finalPackage}/share/wordpress/wp-cron.php
     '';
+  };
+
+  lantian.harden.wordpress-cron = {
+    enable = true;
+    enableConfinement = false;
   };
 
   systemd.timers.wordpress-cron = {
@@ -138,15 +143,14 @@ in
     sslCertificate = "lets-encrypt-zhyi.xin";
   };
 
+  lantian.harden."phpfpm-wordpress-wp.zhyi.xin".mysql = true;
   systemd.services."phpfpm-wordpress-wp.zhyi.xin" = {
     # Rebind the database socket when MySQL recreates its RuntimeDirectory.
-    after = [ "mysql.service" ];
     requires = [ "mysql.service" ];
     partOf = [ "mysql.service" ];
     confinement.packages = [ config.services.wordpress.sites."wp.zhyi.xin".finalPackage ];
     serviceConfig = {
       BindReadOnlyPaths = [
-        "/run/mysqld"
         "/var/lib/wordpress/wp.zhyi.xin/secret-keys.php"
       ];
       BindPaths = with config.services.wordpress.sites."wp.zhyi.xin"; [

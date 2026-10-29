@@ -7,10 +7,6 @@
   ...
 }:
 {
-  disabledModules = [
-    ../../nixos/client-apps/looking-glass.nix
-  ];
-
   imports = [
     ../../nixos/client.nix
 
@@ -21,7 +17,7 @@
     ../../nixos/optional-apps/byparr.nix
     ../../nixos/optional-apps/clash-verge.nix
     # ../../nixos/optional-apps/clamav.nix
-    # ../../nixos/optional-apps/homepage.nix
+    ../../nixos/optional-apps/homepage.nix
     ../../nixos/optional-apps/libvirt
     ../../nixos/optional-apps/llama-cpp.nix
     ../../nixos/optional-apps/llama-swap.nix
@@ -29,7 +25,9 @@
     ../../nixos/optional-apps/nix-distributed.nix
     # ../../nixos/optional-apps/obs-studio.nix
     ../../nixos/optional-apps/opencl.nix
+    ../../nixos/optional-apps/pi-secrets.nix
     ../../nixos/optional-apps/pi-web.nix
+    ../../nixos/optional-apps/strata.nix
     # ../../nixos/optional-apps/pipewire-noise-cancelling.nix
     # ../../nixos/optional-apps/qdrant.nix
     ../../nixos/optional-apps/samba.nix
@@ -69,6 +67,7 @@
     lab.locations."/".enableOAuth = true;
     llama-swap.locations."/".enableOAuth = true;
     pi.locations."/".enableOAuth = true;
+    strata.locations."/".enableOAuth = true;
   };
 
   services.llama-swap.settings = lib.mkForce {
@@ -135,6 +134,8 @@
   lantian.crow-translate.enable = true;
 
   lantian.hidpi = 1.6;
+  lantian.strata.model = "IQ2_XS";
+  systemd.services.strata.wantedBy = lib.mkForce [ ];
 
   services.samba.settings = {
     "zhyi" = {

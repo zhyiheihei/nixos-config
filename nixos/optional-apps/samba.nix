@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  LT,
   config,
   ...
 }:
@@ -73,7 +72,7 @@
   };
 
   systemd.services = lib.genAttrs [ "samba-nmbd" "samba-smbd" "samba-winbindd" "samba-wsdd" ] (n: {
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       Restart = "always";
       RestartSec = 5;
 
@@ -118,6 +117,11 @@
         "/var/log/samba"
       ];
     };
+  });
+
+  lantian.harden = lib.genAttrs [ "samba-nmbd" "samba-smbd" "samba-winbindd" "samba-wsdd" ] (_: {
+    enable = true;
+    enableConfinement = false;
   });
 
   systemd.tmpfiles.settings.samba = {

@@ -82,7 +82,7 @@
         "/sync"
         "/downloads"
       ];
-      serviceConfig = LT.networkToolHarden // {
+      serviceConfig = {
         Type = "simple";
         User = "resilio-sync";
         Group = "resilio-sync";
@@ -132,6 +132,10 @@
         Restart = "on-failure";
         RestartSec = 5;
       };
+    };
+    lantian.harden.resilio = {
+      enable = "network";
+      enableConfinement = false;
     };
 
     # LAN-only web UI (own login, no OAuth); the *.opi5p.zhyi.xin wildcard

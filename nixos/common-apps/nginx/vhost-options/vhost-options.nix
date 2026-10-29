@@ -12,6 +12,7 @@ in
 { name, config, ... }:
 let
   inherit (import ./helpers.nix args) fastcgiParams;
+  authFragments = import ./auth-fragments.nix { inherit lib; };
 
   listenOptions = enableDefault: portDefault: defaultDefault: {
     enable = (lib.mkEnableOption "Listener") // {
@@ -93,6 +94,13 @@ let
         // lib.optionalAttrs (phpfpmSocket != null) {
           "~ ^.+?\\.php(/.*)?$".extraConfig = ''
             try_files $fastcgi_script_name =404;
+          ''
+          # A PHP location may serve as the fallback target of a try_files
+          # directive in another location (e.g. "/"); inherit that location's
+          # auth rules so PHP is not reachable without them.
+          + authFragments.oauth config.locations."/"
+          + authFragments.basicAuth config.locations."/"
+          + ''
             fastcgi_split_path_info ^(.+\.php)(/.*)$;
             fastcgi_pass unix:${phpfpmSocket};
             fastcgi_index index.php;
@@ -267,10 +275,21 @@ let
       ])
     );
 
-    locations = lib.mapAttrs (n: v: v._config) config._locationsWithCommon;
+    locations =
+      lib.mapAttrs (n: v: v._config) config._locationsWithCommon
+      // lib.optionalAttrs (config.noIndex.enable && config.noIndex.serveRobotsTxt) {
+        "= /robots.txt".alias = robotsTxt;
+      };
 
     extraConfig =
       config.extraConfig
+      + ''
+        # Reject brotli-compressed request bodies
+        # (libbrotli OOB write, CVE-2026-111497)
+        if ($http_content_encoding ~* "\bbr\b") {
+          return 415;
+        }
+      ''
       + (lib.optionalString (config.listenHTTPS.enable || config.listenHTTPS_Socket.enable) (
         if config.sslCertificate != null then
           ''
@@ -330,11 +349,6 @@ let
       )
       + (lib.optionalString config.noIndex.enable ''
         add_header X-Robots-Tag 'noindex, nofollow';
-      '')
-      + (lib.optionalString (config.noIndex.enable && config.noIndex.serveRobotsTxt) ''
-        location = /robots.txt {
-          alias ${robotsTxt};
-        }
       '')
       + (lib.optionalString (config.accessibleBy == "public" && config.blockMainlandChina) ''
         ${lib.concatMapStringsSep "\n" (ip: "deny ${ip};") (

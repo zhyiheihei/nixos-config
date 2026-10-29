@@ -14,7 +14,7 @@
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/ncps-client.nix
 
-    # ../../nixos/optional-apps/palworld.nix
+    ../../nixos/optional-apps/palworld.nix
 
     ./hardware-configuration.nix
     ./media-automation.nix

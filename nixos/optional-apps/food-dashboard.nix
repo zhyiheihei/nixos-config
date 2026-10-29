@@ -17,14 +17,14 @@
   systemd.services.epd-food-server.serviceConfig = {
     PrivateUsers = false;
     BindPaths = [ "/var/lib/epd_dashboard" ];
-    BindReadOnlyPaths = [
-      config.sops.secrets.default-pw.path
-      "/run/postgresql"
-    ];
+    BindReadOnlyPaths = [ config.sops.secrets.default-pw.path ];
   };
   # 服务的 RootDirectory 沙箱看不到宿主机 /run/secrets 和 /run/postgresql；只读 bind
   # 暴露日历密码与 PostgreSQL socket，After/Wants 确保对应服务先启动。
   systemd.services.epd-food-server.after = [ "sops-install-secrets.service" ];
   systemd.services.epd-food-server.wants = [ "sops-install-secrets.service" ];
-  lantian.harden.epd-food-server = true;
+  lantian.harden.epd-food-server = {
+    enable = true;
+    postgresql = true;
+  };
 }

@@ -1,5 +1,4 @@
 {
-  LT,
   inputs,
   config,
   lib,
@@ -143,7 +142,7 @@ in
     description = "Enable the RK809 32.768 kHz output for the RTL8852BS module";
     wantedBy = [ "multi-user.target" ];
     after = [ "systemd-udevd.service" ];
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
       PrivateDevices = lib.mkForce false;
@@ -171,7 +170,7 @@ in
     ];
     wants = [ "atk3568-pmic-32k.service" ];
     bindsTo = [ "dev-ttyS0.device" ];
-    serviceConfig = LT.networkToolHarden // {
+    serviceConfig = {
       Type = "simple";
       ExecStartPre = pkgs.writeShellScript "atk3568-bt-power-cycle" ''
         export PATH=${pkgs.libgpiod}/bin:$PATH
@@ -197,8 +196,11 @@ in
     };
   };
 
-  lantian.harden.btattach-uart8 = true;
-  lantian.harden.atk3568-pmic-32k = true;
+  lantian.harden.btattach-uart8.enable = "network";
+  lantian.harden.atk3568-pmic-32k = {
+    enable = true;
+    enableConfinement = false;
+  };
 
   systemd.services.atk3568-restore-clock = {
     description = "Restore ATK-DLRK3568 software clock";

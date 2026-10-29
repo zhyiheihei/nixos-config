@@ -37,7 +37,7 @@
     boot.isContainer = true;
     console.enable = lib.mkForce false;
 
-    lantian.harden.nginx = lib.mkForce false;
+    lantian.harden.nginx.enable = lib.mkForce false;
 
     lantian.nginxVhosts."lab.ct-test.zhyi.xin".sslCertificate = lib.mkForce "lets-encrypt-zhyi.xin";
     lantian.nginxVhosts."lab.localhost".sslCertificate = lib.mkForce null;

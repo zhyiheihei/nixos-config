@@ -22,23 +22,6 @@ let
       done
     ''
   );
-
-  wine' = pkgs.wine-tkg.overrideAttrs (old: {
-    prePatch =
-      let
-        oldPrepatch = old.prePatch or "";
-      in
-      (if oldPrepatch == null then "" else oldPrepatch)
-      + ''
-        substituteInPlace "loader/wine.inf.in" --replace-warn \
-          'HKLM,%CurrentVersion%\RunServices,"winemenubuilder",2,"%11%\winemenubuilder.exe -a -r"' \
-          'HKLM,%CurrentVersion%\RunServices,"winemenubuilder",2,"%11%\winemenubuilder.exe -r"'
-      '';
-
-    postFixup = ''
-      ln -sf $out/bin/wine $out/bin/wine64
-    '';
-  });
 in
 {
   imports = [ inputs.nix-index-database.homeModules.nix-index ];
@@ -49,11 +32,9 @@ in
       [
         # keep-sorted start
         (LT.wrapNetns "tnl-buyvm" qbittorrent-enhanced)
-        (bambu-studio.override { withNvidiaGLWorkaround = osConfig.hardware.nvidia.enabled; })
         (hashcat.override { cudaSupport = true; })
         # error: collision between `/nix/store/2vkk2dnf693fzhlx7v2wn2kcvflgkih9-qqmusic-1.1.5/opt/LICENSE.electron.txt' and `/nix/store/zwgihw847calnxy6ff341l1qkilmn8hm-qq-3.2.2-18394/opt/LICENSE.electron.txt'
-        # FIXME
-        # (lib.hiPrio nur-xddxdd.qq)
+        (lib.hiPrio nur-xddxdd.qq)
         _86box-with-roms
         apache-directory-studio
         attic-client
@@ -82,7 +63,7 @@ in
         linphone
         llm-agents.agentsview
         llm-agents.ccusage
-        # lx-music-desktop
+        lx-music-desktop
         macchanger
         markdown-apa7th-docx
         mediainfo
@@ -128,17 +109,19 @@ in
         ventoy-full
         virt-manager
         vlc
-        wine'
         winetricks
         wpsoffice
         xca
         xdg-ninja
         yubioath-flutter
-        # z-library-desktop
+        z-library-desktop
         zoom-us
         # keep-sorted end
       ]
-      ++ lib.optionals (osConfig.networking.hostName == "ml-laptop") [ nur-xddxdd.svp_4_6 ]
+      ++ lib.optionals (osConfig.networking.hostName == "ml-laptop") [
+        nur-xddxdd.bambu-studio-bin
+        nur-xddxdd.svp_4_6
+      ]
     );
 
   programs.nix-index = {
@@ -162,12 +145,6 @@ in
   };
 
   programs.distrobox.enable = true;
-
-  # # FIXME: https://github.com/NixOS/nixpkgs/issues/513245
-  # programs.lutris = {
-  #   enable = true;
-  #   package = pkgs.lutris.override { extraPkgs = p: with p; [ xdelta ]; };
-  # };
 
   programs.prismlauncher.enable = true;
 

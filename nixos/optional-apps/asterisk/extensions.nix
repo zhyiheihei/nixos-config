@@ -18,8 +18,8 @@ let
   voiceRules = ''
     [src-anonymous]
     ; Only allow anonymous inbound call to test numbers
-    ${dialRule "04242547XXXX" [ "Goto(dest-local,\${EXTEN:8},1)" ]}
-    ${dialRule "+04242547XXXX" [ "Goto(dest-local,\${EXTEN:9},1)" ]}
+    ${dialRule "04243712XXXX" [ "Goto(dest-local,\${EXTEN:8},1)" ]}
+    ${dialRule "+04243712XXXX" [ "Goto(dest-local,\${EXTEN:9},1)" ]}
     ${dialRule "[02-9]XXX" [ "Goto(dest-local,\${EXTEN},1)" ]}
 
     [src-peers-enum]
@@ -27,20 +27,20 @@ let
 
     [src-peers]
     ; Allow inbound calls
-    ${dialRule "04242547XXXX" [ "Goto(dest-local,\${EXTEN:8},1)" ]}
-    ${dialRule "+04242547XXXX" [ "Goto(dest-local,\${EXTEN:9},1)" ]}
+    ${dialRule "04243712XXXX" [ "Goto(dest-local,\${EXTEN:8},1)" ]}
+    ${dialRule "+04243712XXXX" [ "Goto(dest-local,\${EXTEN:9},1)" ]}
     ${dialRule "XXXX" [ "Goto(dest-local,\${EXTEN},1)" ]}
 
     [src-local]
     ${dialRule "733XXXX" [ "Dial(PJSIP/\${EXTEN:3}@sdf)" ]}
-    ${dialRule "04242547XXXX" [ "Goto(dest-local,\${EXTEN:8},1)" ]}
-    ${dialRule "+04242547XXXX" [ "Goto(dest-local,\${EXTEN:9},1)" ]}
+    ${dialRule "04243712XXXX" [ "Goto(dest-local,\${EXTEN:8},1)" ]}
+    ${dialRule "+04243712XXXX" [ "Goto(dest-local,\${EXTEN:9},1)" ]}
     ${dialRule "042." [
-      "Set(CALLERID(num)=+04242547\${CALLERID(num)})"
+      "Set(CALLERID(num)=+04243712\${CALLERID(num)})"
       "Goto(dest-peers,+\${EXTEN},1)"
     ]}
     ${dialRule "+042." [
-      "Set(CALLERID(num)=+04242547\${CALLERID(num)})"
+      "Set(CALLERID(num)=+04243712\${CALLERID(num)})"
       "Goto(dest-peers,\${EXTEN},1)"
     ]}
     ${dialRule "XXX" [ "Dial(PJSIP/\${EXTEN}@telnyx)" ]}
@@ -126,21 +126,21 @@ let
   messageRules = ''
     [src-anonymous-message]
     ; Only allow anonymous inbound call to test numbers
-    ${dialRule "04242547XXXX" [ "Goto(dest-local-message,\${EXTEN:8},1)" ]}
-    ${dialRule "+04242547XXXX" [ "Goto(dest-local-message,\${EXTEN:9},1)" ]}
+    ${dialRule "04243712XXXX" [ "Goto(dest-local-message,\${EXTEN:8},1)" ]}
+    ${dialRule "+04243712XXXX" [ "Goto(dest-local-message,\${EXTEN:9},1)" ]}
     ${dialRule "[02-9]XXX" [ "Goto(dest-local-message,\${EXTEN},1)" ]}
 
     [src-local-message]
-    ${dialRule "04242547XXXX" [ "Goto(dest-local-message,\${EXTEN:8},1)" ]}
-    ${dialRule "+04242547XXXX" [ "Goto(dest-local-message,\${EXTEN:9},1)" ]}
+    ${dialRule "04243712XXXX" [ "Goto(dest-local-message,\${EXTEN:8},1)" ]}
+    ${dialRule "+04243712XXXX" [ "Goto(dest-local-message,\${EXTEN:9},1)" ]}
     ${dialRule "042." [
       "Set(USER=\${CUT(CUT(MESSAGE(from),@,1),:,2)})"
-      "Set(MESSAGE(from)=<sip:+04242547\${USER}@lantian.dn42>)"
+      "Set(MESSAGE(from)=<sip:+04243712\${USER}@zhyi.dn42>)"
       "Goto(dest-peers-message,+\${EXTEN},1)"
     ]}
     ${dialRule "+042." [
       "Set(USER=\${CUT(CUT(MESSAGE(from),@,1),:,2)})"
-      "Set(MESSAGE(from)=<sip:+04242547\${USER}@lantian.dn42>)"
+      "Set(MESSAGE(from)=<sip:+04243712\${USER}@zhyi.dn42>)"
       "Goto(dest-peers-message,\${EXTEN},1)"
     ]}
     ${dialRule "XXXX" [ "Goto(dest-local-message,\${EXTEN},1)" ]}
@@ -153,14 +153,14 @@ let
     ${dialRule "." [
       # Force rewrite MESSAGE(from) so Linphone works correctly
       "Set(USER=\${CUT(CUT(MESSAGE(from),@,1),:,2)})"
-      "Set(MESSAGE(from)=<sip:\${USER}@lantian.pub>)"
+      "Set(MESSAGE(from)=<sip:\${USER}@zhyi.xin>)"
       "Goto(src-peers-message,\${EXTEN},1)"
     ]}
 
     [src-peers-message]
     ; Allow inbound calls
-    ${dialRule "04242547XXXX" [ "Goto(dest-local-message,\${EXTEN:8},1)" ]}
-    ${dialRule "+04242547XXXX" [ "Goto(dest-local-message,\${EXTEN:9},1)" ]}
+    ${dialRule "04243712XXXX" [ "Goto(dest-local-message,\${EXTEN:8},1)" ]}
+    ${dialRule "+04243712XXXX" [ "Goto(dest-local-message,\${EXTEN:9},1)" ]}
     ${dialRule "XXXX" [ "Goto(dest-local-message,\${EXTEN},1)" ]}
 
     [dest-local-message]
@@ -169,8 +169,8 @@ let
       # Auto reply for testing SMS
       "Set(USER=\${CUT(CUT(MESSAGE(from),@,1),:,2)})"
       "Log(NOTICE, Generating auto reply to \${USER})"
-      "Set(MESSAGE(from)=<sip:\${EXTEN}@lantian.pub>)"
-      "Set(MESSAGE(to)=<sip:\${USER}@lantian.pub>)"
+      "Set(MESSAGE(from)=<sip:\${EXTEN}@zhyi.xin>)"
+      "Set(MESSAGE(to)=<sip:\${USER}@zhyi.xin>)"
       "Set(MESSAGE(body)=ACK: received message from \${USER})"
       "Goto(src-local-message,\${USER},1)"
     ]}

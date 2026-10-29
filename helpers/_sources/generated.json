@@ -1,24 +1,4 @@
 {
-    "airplanes-live-mcp": {
-        "cargoLock": null,
-        "date": "2025-10-23",
-        "extract": null,
-        "name": "airplanes-live-mcp",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "deepClone": false,
-            "fetchSubmodules": false,
-            "leaveDotGit": false,
-            "name": null,
-            "rev": "df9b1499b45d3cc67c709afeb993453032943b7b",
-            "sha256": "sha256-GNmQ3RCFdMzDWjL+ygfpFyCWmXPTOxdBaedL8gmSr6s=",
-            "sparseCheckout": [],
-            "type": "git",
-            "url": "https://github.com/Bellaposa/airplanes-live-mcp.git"
-        },
-        "version": "df9b1499b45d3cc67c709afeb993453032943b7b"
-    },
     "anti-fooling-hot-line": {
         "cargoLock": null,
         "date": "2017-05-04",
@@ -129,11 +109,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-S1drVJFFKlvkCg6E5FjE9XpLdE7vlv/9B3Wp87zw0OQ=",
+            "sha256": "sha256-SrqmVb7JI/tnuPEfgHa6yY3uza+vjUnJDCB9lvra3cE=",
             "type": "url",
-            "url": "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.5/grafana-falconlogscale-datasource-1.10.5.zip"
+            "url": "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.6/grafana-falconlogscale-datasource-1.10.6.zip"
         },
-        "version": "1.10.5"
+        "version": "1.10.6"
     },
     "grafana-yesoreyeram-infinity-datasource": {
         "cargoLock": null,
@@ -144,15 +124,15 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-F8AYOixlPO0LbOe4dvrPPhZGTu3HkUIPCQEteoeuBQ8=",
+            "sha256": "sha256-vKsW1LE5jB/Sm6e0tBr4br+H8AfC43BUC2DpzkUUwLM=",
             "type": "url",
-            "url": "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.3/yesoreyeram-infinity-datasource-4.1.3.zip"
+            "url": "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.4/yesoreyeram-infinity-datasource-4.1.4.zip"
         },
-        "version": "4.1.3"
+        "version": "4.1.4"
     },
     "lobe-icons": {
         "cargoLock": null,
-        "date": "2026-10-21",
+        "date": "2026-10-26",
         "extract": null,
         "name": "lobe-icons",
         "passthru": null,
@@ -162,13 +142,13 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "21b2144f4ebe87ead9b7c0e10067759ae261b03e",
-            "sha256": "sha256-AjczJvlq6UYQGfgcTT94iDcMhM9OSno4E8pa4REcy4Y=",
+            "rev": "8b7bbc433d38437fa2b0cca58ae896917162b812",
+            "sha256": "sha256-gYaJOSgwhpAf1+Tiy9GmAz0Q9G8QoYnQTJfCGRrFJUc=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://github.com/lobehub/lobe-icons.git"
         },
-        "version": "21b2144f4ebe87ead9b7c0e10067759ae261b03e"
+        "version": "8b7bbc433d38437fa2b0cca58ae896917162b812"
     },
     "lyrica-customized": {
         "cargoLock": null,
@@ -255,7 +235,7 @@
     },
     "nvidia-patch": {
         "cargoLock": null,
-        "date": "2026-10-21",
+        "date": "2026-10-23",
         "extract": null,
         "name": "nvidia-patch",
         "passthru": null,
@@ -267,12 +247,12 @@
             "name": null,
             "owner": "keylase",
             "repo": "nvidia-patch",
-            "rev": "5f35e7ed2ace51bf8d2da07552c4bff74ef280a1",
-            "sha256": "sha256-9lFrgNaFMEszWgRB75yJJzVf5bEBsPBG32mXhxXvnCk=",
+            "rev": "9b487a584ab02fd87ee1955ff9ae09522e452fd0",
+            "sha256": "sha256-RUhAFqgK3ngXmYIcPg4pem9Iy0eKSQupMty2aQuU02s=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "5f35e7ed2ace51bf8d2da07552c4bff74ef280a1"
+        "version": "9b487a584ab02fd87ee1955ff9ae09522e452fd0"
     },
     "open5gs": {
         "cargoLock": null,
@@ -381,7 +361,7 @@
     },
     "tar1090-db": {
         "cargoLock": null,
-        "date": "2026-10-19",
+        "date": "2026-10-26",
         "extract": null,
         "name": "tar1090-db",
         "passthru": null,
@@ -393,12 +373,12 @@
             "name": null,
             "owner": "wiedehopf",
             "repo": "tar1090-db",
-            "rev": "522f3da995fcd52ea7a84583fbcd6e8f43197407",
-            "sha256": "sha256-xVNXs6f0c7xdrXRddBBP4VSfuCGsO+Zq6QHsuOTtx0w=",
+            "rev": "df22c2ef05e8bb42247d0043aebb02a10c5ab3e9",
+            "sha256": "sha256-VpDnsz2IexojiLWmhqgKTd9vw4gJFFj9fXzPoF90Umo=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "522f3da995fcd52ea7a84583fbcd6e8f43197407"
+        "version": "df22c2ef05e8bb42247d0043aebb02a10c5ab3e9"
     },
     "ulauncher-albert-calculate-anything": {
         "cargoLock": null,
@@ -723,12 +703,12 @@
             "name": null,
             "owner": "illixion",
             "repo": "vscode-vibrancy-continued",
-            "rev": "v1.5.0",
-            "sha256": "sha256-qB2lFNSxT5P2pucDJGNLXGOVenaVZczwYXb+GWQ+j/I=",
+            "rev": "v1.6.0",
+            "sha256": "sha256-b5PxrMBF/XgqKFbvzjiBEfQNKaBATh9BoLL+u773/5k=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "v1.5.0"
+        "version": "v1.6.0"
     },
     "wordpress-theme-twentyeleven": {
         "cargoLock": null,

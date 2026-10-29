@@ -1,6 +1,5 @@
 {
   lib,
-  LT,
   pkgs,
   ...
 }:
@@ -19,7 +18,7 @@
     networks."moli-1004-iot".psk = "88888888";
   };
 
-  systemd.services.wpa_supplicant.serviceConfig = LT.serviceHarden // {
+  systemd.services.wpa_supplicant.serviceConfig = {
     Restart = "always";
 
     RestartSec = "5s";
@@ -35,6 +34,7 @@
       "AF_PACKET"
     ];
   };
+  lantian.harden.wpa_supplicant.enable = "network";
 
   systemd.services.taishanpi-ssh-host-keys = {
     description = "Generate persistent SSH host keys if missing";

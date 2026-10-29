@@ -54,10 +54,11 @@ in
         sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=$downloadPath/" "$config"
       '';
 
-      serviceConfig = LT.serviceHarden // {
+      serviceConfig = {
         User = user;
         Group = group;
         StateDirectory = "qbittorrent-seedbox";
+        BindPaths = [ cfg.downloadPath ];
 
         ExecStart = utils.escapeSystemdExecArgs [
           (lib.getExe pkgs.qbittorrent-nox)
@@ -83,6 +84,7 @@ in
         IOSchedulingPriority = "7";
       };
     };
+    lantian.harden.qbittorrent-seedbox.enable = true;
 
     systemd.tmpfiles.settings.qbittorrent-seedbox = {
       "/var/lib/qbittorrent-seedbox/qBittorrent/config".d = {

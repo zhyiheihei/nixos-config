@@ -119,7 +119,7 @@ in
     latestHandshakeDelay = true;
   };
 
-  systemd.services."prometheus-wireguard-exporter".serviceConfig = LT.serviceHarden // {
+  systemd.services."prometheus-wireguard-exporter".serviceConfig = {
     RestartSec = "5s";
     # wg show runs over a netlink socket and needs NET_ADMIN to read dumps
     AmbientCapabilities = [ "CAP_NET_ADMIN" ];
@@ -131,5 +131,5 @@ in
       "AF_NETLINK"
     ];
   };
-  lantian.harden."prometheus-wireguard-exporter" = true;
+  lantian.harden."prometheus-wireguard-exporter".enable = true;
 }

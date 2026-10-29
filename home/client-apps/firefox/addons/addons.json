@@ -1,16 +1,16 @@
 [
   {
     "pname": "adnauseam",
-    "version": "3.28.8",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/4909199/adnauseam-3.28.8.xpi",
-    "hash": "sha256-+iqpnEo8dmUU1yqencwps+W1+LWAcrDXxJXwyJW3LOA=",
+    "version": "3.29.2",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5058842/adnauseam-3.29.2.xpi",
+    "hash": "sha256-qDhCE+Beh7fRin5xBgTEgqkeHcxFIFsHS/fZuUVLEGQ=",
     "addonId": "adnauseam@rednoise.org"
   },
   {
     "pname": "all-api-hub",
-    "version": "4.6.0",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5144960/all_api_hub-4.6.0.xpi",
-    "hash": "sha256-Xkp/fzUvig/D/suC4zBAIxelxNrhjr+jRm46CDlny9s=",
+    "version": "4.7.0",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5169664/all_api_hub-4.7.0.xpi",
+    "hash": "sha256-UKXXHmTAZyXwDSYRJ6yOcO5GKzMrLm7m6Pg+76WP6dI=",
     "addonId": "{bc73541a-133d-4b50-b261-36ea20df0d24}"
   },
   {
@@ -22,9 +22,9 @@
   },
   {
     "pname": "bilisponsorblock",
-    "version": "0.17.0",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5129607/bilisponsorblock-0.17.0.xpi",
-    "hash": "sha256-En27xVc3T0CsRx7wNdIyKQ7pV//FMb7B0aftnVdxpQM=",
+    "version": "0.17.1",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5157710/bilisponsorblock-0.17.1.xpi",
+    "hash": "sha256-dpl16OFg3Vl2YFPgX9M6QkkFQUqZ4RHOz7LzO+QVHdc=",
     "addonId": "{f10c197e-c2a4-43b6-a982-7e186f7c63d9}"
   },
   {
@@ -50,9 +50,9 @@
   },
   {
     "pname": "darkreader",
-    "version": "4.9.133",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5055786/darkreader-4.9.133.xpi",
-    "hash": "sha256-6wbFCW12FhbH8dlUwRUkykv/T+cikETcH84oiowIU6s=",
+    "version": "4.9.134",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5175215/darkreader-4.9.134.xpi",
+    "hash": "sha256-cAYzOVqi9jmhvtQlPicwnrZ280bVmbCuK3oEUyMuCuw=",
     "addonId": "addon@darkreader.org"
   },
   {
@@ -113,9 +113,9 @@
   },
   {
     "pname": "noscript",
-    "version": "13.6.36",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5075209/noscript-13.6.36.xpi",
-    "hash": "sha256-EIY4UdGP50poDkbkqBP9WVULtKNWolTN4+j4XIDbAHg=",
+    "version": "13.6.37",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5173524/noscript-13.6.37.xpi",
+    "hash": "sha256-pHM+4jg6Tg3rzUkwoqbh/gqKUmMywsvtqsjRpWO6khs=",
     "addonId": "{73a6fe31-595d-460b-a920-fcc0f8843232}"
   },
   {
@@ -162,9 +162,9 @@
   },
   {
     "pname": "read-frog-open-ai-translator",
-    "version": "1.52.1",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5146533/read_frog_open_ai_translator-1.52.1.xpi",
-    "hash": "sha256-RCMB/mqSnvr76hVXnV0plebWFsjx8qSFzl1nyZB5/5w=",
+    "version": "1.54.0",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5170373/read_frog_open_ai_translator-1.54.0.xpi",
+    "hash": "sha256-vQ9FpFBPXEErtVDZKLolummagq9HGRudnU20vgwiC9U=",
     "addonId": "{bd311a81-4530-4fcc-9178-74006155461b}"
   },
   {
@@ -204,9 +204,9 @@
   },
   {
     "pname": "tab-reloader",
-    "version": "0.6.8",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/4805316/tab_reloader-0.6.8.xpi",
-    "hash": "sha256-0DP1xSfQUNFCTeoogi0RsiPBuQO5x8ECCftevb9qWCk=",
+    "version": "0.7.0",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5168257/tab_reloader-0.7.0.xpi",
+    "hash": "sha256-Kov42Lp4gYXnkohmgmbpHq9gsNJGM77Mm3pJWiEIUPc=",
     "addonId": "jid0-bnmfwWw2w2w4e4edvcdDbnMhdVg@jetpack"
   },
   {
@@ -232,9 +232,9 @@
   },
   {
     "pname": "wappalyzer",
-    "version": "6.12.7",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5067215/wappalyzer-6.12.7.xpi",
-    "hash": "sha256-joK8gvKSYScwnye89kqqvBzzrtkYuTJ7RgCvNpt1d0s=",
+    "version": "6.12.8",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5166528/wappalyzer-6.12.8.xpi",
+    "hash": "sha256-ILtgBSGQ4AIElw/J1DDlx3Vuq5Co4p8wBuefLtn477g=",
     "addonId": "wappalyzer@crunchlabz.com"
   },
   {

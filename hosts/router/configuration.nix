@@ -382,7 +382,7 @@ in
       VAULTS3_DATA_DIR = "/mnt/storage/vaults3-data";
       VAULTS3_METADATA_DIR = "/nix/persistent/var/lib/vaults3";
     };
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       Type = "simple";
       User = "vaults3";
       Group = "vaults3";
@@ -403,7 +403,10 @@ in
     };
   };
 
-  lantian.harden.vaults3 = true;
+  lantian.harden.vaults3 = {
+    enable = true;
+    enableConfinement = false;
+  };
 
   services.qbittorrent = {
     package = lib.mkForce pkgs.qbittorrent-nox;
@@ -444,16 +447,13 @@ in
       "var-lib.mount"
       "mnt-storage.mount"
     ];
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       StateDirectory = "qbittorrent";
       BindPaths = [ unifiedDownloadPath ];
     };
-    confinement = {
-      enable = true;
-      fullUnit = true;
-    };
     preStart = lib.mkAfter qbitPreStart;
   };
+  lantian.harden.qbittorrent.enable = true;
 
   systemd.services.qbittorrent-pt = {
     unitConfig.ConditionPathExists = activationMarker;
@@ -465,13 +465,9 @@ in
       "var-lib.mount"
       "mnt-storage.mount"
     ];
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       StateDirectory = "qbittorrent-pt";
       BindPaths = [ unifiedDownloadPath ];
-    };
-    confinement = {
-      enable = true;
-      fullUnit = true;
     };
     preStart = lib.mkAfter qbitPreStartPT;
   };
@@ -538,15 +534,17 @@ in
 
   systemd.services.router-prometheus-metrics = {
     description = "Export router DHCP and neighbor metrics";
-    serviceConfig = LT.networkToolHarden // {
+    serviceConfig = {
       AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
       CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
       Type = "oneshot";
       ExecStart = "${routerMetrics}/bin/router-prometheus-metrics";
       ProcSubset = "all";
+      BindReadOnlyPaths = [ "/var/lib/kea" ];
       ReadWritePaths = [ metricsDir ];
     };
   };
+  lantian.harden.router-prometheus-metrics.enable = "network";
 
   systemd.timers.router-prometheus-metrics = {
     description = "Refresh router DHCP and neighbor metrics";

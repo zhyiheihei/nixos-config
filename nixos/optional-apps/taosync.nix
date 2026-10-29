@@ -56,7 +56,7 @@ in
         "sops-install-secrets.service"
       ];
       requiredBy = [ "podman-taosync.service" ];
-      serviceConfig = LT.serviceHarden // {
+      serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
         Restart = "on-failure";
@@ -85,6 +85,10 @@ in
           exit 1
         }
       '';
+    };
+    lantian.harden.taosync-setup = {
+      enable = true;
+      enableConfinement = false;
     };
 
     systemd.services.podman-taosync = {

@@ -17,6 +17,7 @@
     ../../nixos/optional-apps/resin.nix
     ../../nixos/optional-apps/dlx.nix
     ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/microsoft-rewards-script.nix
 
     ./enable-smart.nix
     ./hardware-configuration.nix

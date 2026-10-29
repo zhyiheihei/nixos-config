@@ -658,13 +658,17 @@ in
         # 直接打本机只读 Prometheus 即可，无需走 nginx vhost / 认证。
         NAVDASH_PROMETHEUS_URL = "http://127.0.0.1:${LT.portStr.Prometheus.Daemon}";
       };
-      serviceConfig = LT.serviceHarden // {
+      serviceConfig = {
         User = "navdash";
         Group = "navdash";
         EnvironmentFile = [ config.sops.templates."navdash-env".path ];
         Restart = "always";
         RestartSec = "5";
       };
+    };
+    lantian.harden.navdash = {
+      enable = true;
+      enableConfinement = false;
     };
 
     users.users.navdash = {

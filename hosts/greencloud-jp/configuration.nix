@@ -2,7 +2,6 @@
   inputs,
   config,
   lib,
-  LT,
   pkgs,
   ...
 }:
@@ -129,7 +128,7 @@ in
       VAULTS3_DATA_DIR = "/data/vaults3-data";
       VAULTS3_METADATA_DIR = "/nix/persistent/var/lib/vaults3";
     };
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       Type = "simple";
       User = "vaults3";
       Group = "vaults3";
@@ -142,6 +141,10 @@ in
         "/nix/persistent/var/lib/vaults3"
       ];
     };
+  };
+  lantian.harden.vaults3 = {
+    enable = true;
+    enableConfinement = false;
   };
 
   lantian.nginxVhosts."s3.zhyi.xin" = {

@@ -84,7 +84,7 @@ in
         "network-online.target"
       ];
       wants = [ "network-online.target" ];
-      serviceConfig = LT.serviceHarden // {
+      serviceConfig = {
         Type = "simple";
         Restart = "always";
         RestartSec = "5";
@@ -96,6 +96,10 @@ in
           in
           "${socatRelay}";
       };
+    };
+    lantian.harden.lsky-pro-mysql-relay = {
+      enable = true;
+      enableConfinement = false;
     };
 
     # Provision the database/user the installer will fill in (halo.nix
@@ -136,7 +140,7 @@ in
         "sops-install-secrets.service"
       ];
       requiredBy = [ "podman-lsky-pro.service" ];
-      serviceConfig = LT.serviceHarden // {
+      serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;
         Restart = "on-failure";
@@ -244,6 +248,12 @@ in
             WHERE type = 'mail';
           SQL
         '';
+    };
+    lantian.harden.lsky-pro-setup = {
+      enable = true;
+      enableConfinement = false;
+      mysql = true;
+      etc."my.cnf" = true;
     };
 
     # Public entry: pic.zhyi.xin, wildcard cert synced from greencloud.

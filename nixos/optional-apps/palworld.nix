@@ -90,11 +90,15 @@
       ${lib.getExe pkgs.nur-xddxdd.palworld-exporter}
     '';
 
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       User = "palworld";
       Group = "palworld";
       Restart = "on-failure";
     };
+  };
+  lantian.harden.palworld-exporter = {
+    enable = true;
+    enableConfinement = false;
   };
 
   users.users.palworld = {

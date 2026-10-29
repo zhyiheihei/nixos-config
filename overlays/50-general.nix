@@ -159,16 +159,6 @@ rec {
         build-system = [ pythonFinal.setuptools ];
         pythonImportsCheck = [ "flask_swagger_ui" ];
       });
-      pyopenjtalk-plus = pythonPrev.pyopenjtalk-plus.overridePythonAttrs (old: {
-        patches = (old.patches or [ ]) ++ [
-          (final.fetchpatch {
-            name = "fix-cython-3.3.0.patch";
-            url = "https://github.com/tsukumijima/pyopenjtalk-plus/commit/90b644f9e9d397882e6eafe4dcd1843a4fde6a63.patch";
-            includes = [ "tests/test_frontend.py" ];
-            hash = "sha256-Jb7T/bRUHxqwBLwV6xYC/teaFHm5GmqJxA7sCX+oiNI=";
-          })
-        ];
-      });
       scikit-learn = pythonPrev.scikit-learn.overridePythonAttrs (old: {
         patches = (old.patches or [ ]) ++ [ ../patches/scikit-learn-callback-pickle.patch ];
       });
@@ -183,14 +173,6 @@ rec {
       });
     })
   ];
-  qbittorrent-enhanced-nox = prev.qbittorrent-enhanced-nox.overrideAttrs (old: {
-    # Sonarr retries with different release when adding existing torrent
-    patches = (old.patches or [ ]) ++ [ ../patches/qbittorrent-return-success-on-dup-torrent.patch ];
-  });
-  qbittorrent-nox = prev.qbittorrent-nox.overrideAttrs (old: {
-    # Sonarr retries with different release when adding existing torrent
-    patches = (old.patches or [ ]) ++ [ ../patches/qbittorrent-return-success-on-dup-torrent.patch ];
-  });
   rustic = prev.rustic.overrideAttrs (old: {
     # Patch vendored rustic_core dependency
     # Stop tree workers after receiver closes, from https://github.com/rustic-rs/rustic_core/pull/546

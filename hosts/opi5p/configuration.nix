@@ -254,7 +254,7 @@ in
 
       exec ${lib.getExe pkgs.xray} -config /run/v2ray/config.json
     '';
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       User = "v2ray";
       Group = "v2ray";
       RuntimeDirectory = "v2ray";
@@ -264,12 +264,8 @@ in
       PrivateUsers = false;
       BindReadOnlyPaths = [ "/run" ];
     };
-    confinement = {
-      enable = true;
-      fullUnit = true;
-    };
   };
-  lantian.harden.v2ray = true;
+  lantian.harden.v2ray.enable = true;
 
   users.users.v2ray = {
     group = "v2ray";

@@ -1,7 +1,6 @@
 {
   lib,
   inputs,
-  LT,
   ...
 }:
 let
@@ -55,7 +54,7 @@ in
     };
   };
 
-  systemd.services.kea-dhcp4-server.serviceConfig = LT.networkToolHarden // {
+  systemd.services.kea-dhcp4-server.serviceConfig = {
     Restart = lib.mkForce "always";
     RestartSec = 3;
     DynamicUser = lib.mkForce false;
@@ -63,9 +62,6 @@ in
     BindPaths = [
       "/var/lib/kea"
       "/run/kea"
-    ];
-    BindReadOnlyPaths = [
-      "/etc/kea"
     ];
     RestrictAddressFamilies = [
       "AF_UNIX"
@@ -76,5 +72,8 @@ in
     ];
   };
   environment.etc."kea/dhcp4-server.conf".mode = "0444";
-  lantian.harden.kea-dhcp4-server = true;
+  lantian.harden.kea-dhcp4-server = {
+    enable = "network";
+    etc.kea = true;
+  };
 }

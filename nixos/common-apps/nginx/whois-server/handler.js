@@ -77,7 +77,7 @@ function allocation(root, type, address, prefix) {
 
 function banner(r) {
     // nginx may reject a malformed URI before setting request_uri.
-    return '% Lan Tian Nginx-based WHOIS Server\n% GET ' + (r.variables.request_uri || '') + ':\n\n';
+    return '% Magic Flash Nginx-based WHOIS Server\n% GET ' + (r.variables.request_uri || '') + ':\n\n';
 }
 
 function respond(r, status, text) {

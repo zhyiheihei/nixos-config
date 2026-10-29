@@ -1,7 +1,6 @@
 {
   pkgs,
   lib,
-  LT,
   inputs,
   config,
   ...
@@ -16,7 +15,7 @@ in
   };
 
   systemd.services.ddns-gcore = {
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       Type = "oneshot";
       EnvironmentFile = config.sops.secrets.ddns-gcore-env.path;
       Environment = "IP_COMMAND=${lib.getExe' pkgs.iproute2 "ip"}";
@@ -32,6 +31,7 @@ in
     after = [ "network-online.target" ];
     wants = [ "network-online.target" ];
   };
+  lantian.harden.ddns-gcore.enable = true;
 
   systemd.timers.ddns-gcore = {
     wantedBy = [ "timers.target" ];

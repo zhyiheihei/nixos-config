@@ -45,6 +45,7 @@ in
   imports = [
     ../nix-distributed.nix
     ../postgresql.nix
+    ./cancel-old-builds.nix
   ];
 
   sops.secrets.hydra-attic-push-token = {
@@ -53,6 +54,7 @@ in
     owner = "hydra-queue-runner";
     group = "hydra";
   };
+  sops.secrets.hydra-script-password.sopsFile = inputs.secrets + "/hydra.yaml";
   # hydra-server runs as hydra-www, with primary group hydra.
   sops.secrets.dex-hydra-secret = {
     sopsFile = inputs.secrets + "/dex/hydra.yaml";
@@ -100,7 +102,7 @@ in
         # https://github.com/nixos-cuda/infra/pull/144
         maxOutputSize = 1024 * 1024 * 1024 * 1024; # 1TB
         machineFreeFn = "DynamicWithMaxJobLimit";
-        maxUnsupportedTimeInS = 3600; # Avoid unstable queue runners aborting builds
+        maxUnsupportedTimeInS = 24 * 3600; # Avoid unstable queue runners aborting builds
         tokenPaths = [ queueRunnerToken ];
         maxSilentTime = 6 * 3600;
         buildTimeout = 12 * 3600;
@@ -115,7 +117,8 @@ in
     };
 
     extraConfig = ''
-      local_auth_enabled = 0
+      # Required for custom scripts
+      local_auth_enabled = 1
       # Read by Hydra::Helper::LogEndpoints; any path works, hydra-ws accepts
       # upgrades on every path. Proxied at /ws on the public-facing hosts.
       ws_endpoint = wss://hydra.zhyi.xin/ws
@@ -158,19 +161,74 @@ in
     queueRunnerAddr = "http://127.0.0.1:${LT.portStr.Hydra.QueueRunnerGRPC}";
   };
 
-  lantian.harden = lib.genAttrs hydraServices (_: true);
+  lantian.harden = lib.mkMerge [
+    (lib.genAttrs hydraServices (_: {
+      enable = true;
+      passwd = true;
+    }))
+    {
+      hydra-server = {
+        secret = true;
+        etc = {
+          nix = true;
+          "static/nix" = true;
+        };
+      };
+      hydra-evaluator = {
+        postgresql = true;
+        etc = {
+          nix = true;
+          "static/nix" = true;
+          hydra = true;
+          "static/hydra" = true;
+        };
+      };
+      hydra-notify = {
+        postgresql = true;
+        etc = {
+          nix = true;
+          "static/nix" = true;
+        };
+      };
+      hydra-queue-runner = {
+        postgresql = true;
+        etc = {
+          hydra = true;
+          "static/hydra" = true;
+        };
+      };
+      hydra-builder.etc = {
+        nix = true;
+        "static/nix" = true;
+        hydra = true;
+        "static/hydra" = true;
+      };
+      hydra-ws = {
+        postgresql = true;
+        etc = {
+          hydra = true;
+          "static/hydra" = true;
+        };
+      };
+      hydra-update-gc-roots = {
+        postgresql = true;
+        etc = {
+          nix = true;
+          "static/nix" = true;
+        };
+      };
+      hydra-attic-repush = {
+        enable = true;
+        enableConfinement = false;
+      };
+    }
+  ];
 
   systemd.services = lib.mkMerge [
     (lib.genAttrs hydraServices (_: {
       requires = [ "hydra-init.service" ];
       after = [ "hydra-init.service" ];
-      serviceConfig = LT.serviceHarden // {
-        BindReadOnlyPaths = [
-          "/etc/passwd"
-          "/etc/group"
-          "${hydraConf}:/var/lib/hydra/hydra.conf"
-        ];
-      };
+      serviceConfig.BindReadOnlyPaths = [ "${hydraConf}:/var/lib/hydra/hydra.conf" ];
     }))
     {
       hydra-init = {
@@ -181,16 +239,12 @@ in
       hydra-server.serviceConfig = {
         RestartSec = "5s";
         BindPaths = [
-          "/var/lib/hydra/www"
+          "/var/lib/hydra"
           config.services.hydra.gcRootsDir
         ];
         BindReadOnlyPaths = [
-          # FIXME: secrets
-          "/run"
           "/nix/store"
           "/nix/var/nix/daemon-socket"
-          "/etc/nix"
-          "/etc/static/nix"
           "/var/lib/hydra/build-logs"
           "/var/lib/hydra/runcommand-logs"
         ];
@@ -203,13 +257,8 @@ in
           config.services.hydra.gcRootsDir
         ];
         BindReadOnlyPaths = [
-          "/run/postgresql"
           "/nix/store"
           "/nix/var/nix/daemon-socket"
-          "/etc/nix"
-          "/etc/static/nix"
-          "/etc/hydra"
-          "/etc/static/hydra"
           config.sops.templates.nix-include.path
         ];
       };
@@ -229,16 +278,12 @@ in
             "hydra-attic-push-token:${config.sops.secrets.hydra-attic-push-token.path}"
           ];
           BindPaths = [
-            "/var/lib/hydra/runcommand-logs"
-            "/var/lib/hydra/queue-runner"
+            "/var/lib/hydra"
+            config.services.hydra.gcRootsDir
           ];
           BindReadOnlyPaths = [
-            "/run/postgresql"
             "/nix/store"
             "/nix/var/nix/daemon-socket"
-            "/etc/nix"
-            "/etc/static/nix"
-            "/var/lib/hydra"
           ];
         };
       };
@@ -249,16 +294,12 @@ in
         serviceConfig = {
           OOMScoreAdjust = "1000";
           BindPaths = [
-            "/var/lib/hydra/build-logs"
-            "/var/lib/hydra/queue-runner"
+            "/var/lib/hydra"
             config.services.hydra.gcRootsDir
           ];
           BindReadOnlyPaths = [
-            "/run/postgresql"
             "/nix/store"
             "/nix/var/nix/daemon-socket"
-            "/etc/hydra"
-            "/etc/static/hydra"
             queueRunnerToken
           ];
         };
@@ -276,14 +317,14 @@ in
         serviceConfig = {
           # Builder capacity and pressure reporting reads /proc/{meminfo,cpuinfo,pressure}.
           ProcSubset = "all";
-          BindPaths = [ "/nix/var/nix/gcroots" ];
+          BindPaths = [
+            "/nix/var/nix/gcroots"
+            "/var/lib/hydra"
+            config.services.hydra.gcRootsDir
+          ];
           BindReadOnlyPaths = [
             "/nix/store"
             "/nix/var/nix/daemon-socket"
-            "/etc/nix"
-            "/etc/static/nix"
-            "/etc/hydra"
-            "/etc/static/hydra"
             config.nix.settings.build-dir
             config.sops.templates.nix-include.path
             queueRunnerToken
@@ -291,12 +332,7 @@ in
         };
       };
 
-      hydra-ws.serviceConfig.BindReadOnlyPaths = [
-        "/run/postgresql"
-        "/var/lib/hydra/build-logs"
-        "/etc/hydra"
-        "/etc/static/hydra"
-      ];
+      hydra-ws.serviceConfig.BindReadOnlyPaths = [ "/var/lib/hydra/build-logs" ];
 
       hydra-send-stats.serviceConfig = {
         Restart = "always";
@@ -307,13 +343,13 @@ in
 
       hydra-update-gc-roots.serviceConfig = {
         Type = "oneshot";
-        BindPaths = [ config.services.hydra.gcRootsDir ];
+        BindPaths = [
+          "/var/lib/hydra"
+          config.services.hydra.gcRootsDir
+        ];
         BindReadOnlyPaths = [
-          "/run/postgresql"
           "/nix/store"
           "/nix/var/nix/daemon-socket"
-          "/etc/nix"
-          "/etc/static/nix"
         ];
       };
 
@@ -334,7 +370,10 @@ in
         Type = "oneshot";
         User = "hydra-queue-runner";
         Group = "hydra";
-        BindPaths = [ "/var/lib/hydra/build-logs" ];
+        BindPaths = [
+          "/var/lib/hydra"
+          config.services.hydra.gcRootsDir
+        ];
       };
 
       hydra-attic-repush = {
@@ -343,7 +382,7 @@ in
             echo "/nix/store/$(basename "$F")"
           done) | xargs -n10 ${lib.getExe pkgs.attic-client} push lantian || true
         '';
-        serviceConfig = LT.serviceHarden // {
+        serviceConfig = {
           Type = "oneshot";
           User = "hydra-queue-runner";
           Group = "hydra";

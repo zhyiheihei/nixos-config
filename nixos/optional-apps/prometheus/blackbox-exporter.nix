@@ -32,7 +32,6 @@ let
     "https://whois.zhyi.xin"
 
     # Services under zhyi.xin
-    # "https://ai.zhyi.xin"
     "https://alert.zhyi.xin"
     "https://asf.zhyi.xin"
     # "https://books.zhyi.xin"
@@ -228,8 +227,8 @@ in
     ))
   ];
 
-  systemd.services."prometheus-blackbox-exporter".serviceConfig = LT.serviceHarden // {
+  systemd.services."prometheus-blackbox-exporter".serviceConfig = {
     RestartSec = "5s";
   };
-  lantian.harden.prometheus-blackbox-exporter = true;
+  lantian.harden.prometheus-blackbox-exporter.enable = true;
 }

@@ -13,7 +13,6 @@
     ./hardware-configuration.nix
 
     ../../nixos/optional-apps/acme
-    # ../../nixos/optional-apps/bepasty.nix
     ../../nixos/optional-apps/bird-lg-go.nix
     ../../nixos/optional-apps/actual.nix
     ../../nixos/optional-apps/byparr.nix
@@ -44,7 +43,6 @@
     # ../../nixos/optional-apps/yggdrasil-alfis.nix
     ../../nixos/optional-apps/zerotierone-controller.nix
 
-    ../../nixos/optional-cron-jobs/cleanup-github-notifications
     ../../nixos/optional-cron-jobs/dn42-certificate.nix
     # ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
 
@@ -120,8 +118,6 @@
 
   services.miniflux.config.HTTP_CLIENT_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
 
-  systemd.services.cleanup-github-notifications.serviceConfig.ExecCondition =
-    "${pkgs.gnugrep}/bin/grep -qE ^GITHUB_TOKEN=.+$ ${config.sops.secrets.cleanup-github-notifications-env.path}";
   environment.systemPackages = with pkgs; [
     gnumake
   ];

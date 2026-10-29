@@ -11,6 +11,12 @@ let
   context = builtins.concatStringsSep "\n" (
     builtins.map (f: "# ${builtins.baseNameOf f}\n" + builtins.readFile f) (LT.ls ./rules)
   );
+
+  api_key =
+    if builtins.hasAttr "pi-magic-context-openrouter-key" osConfig.sops.secrets then
+      "{file:${osConfig.sops.secrets.pi-magic-context-openrouter-key.path}}"
+    else
+      "";
 in
 {
   imports = [
@@ -25,7 +31,6 @@ in
 
   programs.pi-coding-agent = {
     enable = true;
-    models = lib.mkForce { };
     package = pkgs.llm-agents.pi.override {
       useBun = false;
     };
@@ -49,7 +54,7 @@ in
       collapseChangelog = true;
       enableInstallTelemetry = false;
       enableAnalytics = false;
-      defaultProvider = "cliproxyapi";
+      defaultProvider = "ollama-cloud";
       defaultModel = "glm-5.3-flash";
       defaultThinkingLevel = "high";
       showCacheMissNotices = false;
@@ -115,27 +120,27 @@ in
     webTools = false;
     usageStatus = true;
   };
-  # Strata inference server on pve-epyc (nixos/optional-apps/strata.nix),
+  # Strata inference server on ml-laptop (nixos/optional-apps/strata.nix),
   # exposed through the private vhost. The server takes any API key and any
   # model name; the id below matches what the deployed quant reports via
-  # /v1/models (n_ctx 204800, text+image input).
+  # /v1/models (n_ctx 262144, text+image input).
   home.file.".pi/agent/models.json".text = builtins.toJSON {
     "$schema" = "https://pi.dev/schemas/models.schema.json";
     providers.strata = {
-      name = "Strata (pve-epyc)";
-      baseUrl = "https://strata.pve-epyc.xuyh0120.win/v1";
+      name = "Strata (ml-laptop)";
+      baseUrl = "https://strata.ml-laptop.zhyi.xin/v1";
       api = "openai-completions";
       apiKey = "strata";
       models = [
         {
           id = "qwen3.8-flash-next-iq3_s";
-          name = "Qwen 3.8 Flash Next (pve-epyc)";
+          name = "Qwen 3.8 Flash Next (ml-laptop)";
           reasoning = true;
           input = [
             "text"
             "image"
           ];
-          contextWindow = 204800;
+          contextWindow = 262144;
           maxTokens = 8192;
         }
       ];
@@ -144,6 +149,10 @@ in
   home.file.".pi/agent/ask-tool.json".text = builtins.toJSON {
     notify = true;
     timeoutSeconds = 300;
+  };
+  home.file.".pi/agent/pi-fff.json".text = builtins.toJSON {
+    enableFsRootScanning = false;
+    enableHomeDirScanning = false;
   };
   # https://github.com/cortexkit/magic-context/blob/master/CONFIGURATION.md
   home.file.".config/cortexkit/magic-context.jsonc".text = builtins.toJSON {
@@ -155,8 +164,18 @@ in
     sidekick.model = "ollama-cloud/glm-5.3-flash";
     embedding = {
       provider = "openai-compatible";
-      model = "nomic-embed-code";
-      endpoint = "http://127.0.0.1:${LT.portStr.LlamaSwap}/v1";
+      model = "qwen/qwen3-embedding-8b";
+      endpoint = "https://openrouter.ai/api/v1";
+      inherit api_key;
+      max_input_tokens = 32768;
+    };
+    rerank = {
+      provider = "remote";
+      endpoint = "https://openrouter.ai/api/v1";
+      model = "qwen/qwen3-reranker-8b";
+      inherit api_key;
+      timeout_ms = 5000;
+      top_n = 20;
     };
   };
   home.file.".pi/agent/extensions/no-update-check.ts".source = ./extensions/no-update-check.ts;
@@ -195,8 +214,3 @@ in
     customPatterns = [ ];
   };
 }
-
-# pi 的 CLIProxyAPI 插件（@router-for-me/pi-cliproxyapi-provider）默认连
-# 127.0.0.1:8317，这里把端点指向本仓新的 ai-api（google 上的 CLIProxyAPI）；
-# 凭据优先取环境变量、其次 ~/.pi/agent/cliproxyapi.json、再其次 /login。
-# 密钥不能进 store，故用 activation 写文件（owner 0600），插件后续可自行改写。

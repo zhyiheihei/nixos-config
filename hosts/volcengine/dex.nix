@@ -251,7 +251,7 @@ in
       ${jqSecrets.script}
       exec ${lib.getExe pkgs.dex-oidc} serve /run/dex/config.yaml
     '';
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       LoadCredential = jqSecrets.credentials;
       DynamicUser = lib.mkForce false;
       User = "dex";
@@ -259,11 +259,13 @@ in
       RuntimeDirectory = "dex";
       Restart = "always";
       RestartSec = "5";
-      BindReadOnlyPaths = [ "/run/postgresql" ];
     };
   };
 
-  lantian.harden.dex = true;
+  lantian.harden.dex = {
+    enable = true;
+    postgresql = true;
+  };
 
   users.users.dex = {
     group = "dex";

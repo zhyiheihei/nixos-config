@@ -1,21 +1,12 @@
 {
   pkgs,
-  LT,
   config,
-  inputs,
   ...
 }:
 let
   labRoot = "/var/www/lab.zhyi.xin";
 in
 {
-  sops.secrets.nginx-cgi-ssh-key = {
-    sopsFile = inputs.secrets + "/ssh-id-ed25519.yaml";
-    key = "ssh-id-ed25519";
-    owner = "nginx";
-    group = "nginx";
-  };
-
   lantian.geoip.enable = true;
 
   lantian.nginxVhosts."lab.zhyi.xin" = {
@@ -34,7 +25,10 @@ in
       };
       "/hobby-net".enableAutoIndex = true;
       "/public".enableAutoIndex = true;
-      "/zjui-ece385-scoreboard".disableLiveCompression = true;
+      "/zjui-ece385-scoreboard" = {
+        disableLiveCompression = true;
+        index = "index.php";
+      };
 
       # 307 to tools.zhyi.xin
       "/dngzwxdq".return = "307 https://tools.zhyi.xin$request_uri";
@@ -85,9 +79,14 @@ in
       jq
     ];
 
-    serviceConfig = LT.serviceHarden // {
+    serviceConfig = {
       ReadWritePaths = [ "/var/www/lab.zhyi.xin" ];
     };
+  };
+
+  lantian.harden.fcgiwrap-nginx = {
+    enable = true;
+    enableConfinement = false;
   };
 
   systemd.tmpfiles.settings = {
@@ -97,6 +96,12 @@ in
       };
     };
   };
+
+  # The docroot symlink hobby-net -> /nix/sync-servers/ltnet-scripts must stay
+  # resolvable from nginx's confinement chroot; bind its target read-only.
+  systemd.services.nginx.serviceConfig.BindReadOnlyPaths = [
+    "/nix/sync-servers/ltnet-scripts"
+  ];
 
   systemd.services."phpfpm-lab".serviceConfig.RestartSec = "5s";
 
