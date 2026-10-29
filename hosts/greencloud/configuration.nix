@@ -25,7 +25,6 @@
     # ../../nixos/optional-apps/librechat.nix
     # ../../nixos/optional-apps/maddy.nix
     ../../nixos/optional-apps/matrix-synapse
-    ../../nixos/optional-apps/loki.nix
     ../../nixos/optional-apps/miniflux.nix
     # ../../nixos/optional-apps/n8n # compromised
     ../../nixos/optional-apps/netbox.nix

@@ -79,3 +79,5 @@ nixos/minimal-components/backup/prune.nix # 同 backup.nix：prune 单元的 rus
 nixos/optional-apps/qbittorrent.nix # fork 多保留一行 qbittorrent-pt 的 lockfile 清理：router 的 pt 实例数据在 /var/lib/qbittorrent-pt（hosts/router 引用），上游 b4b8fe005 仅修单实例路径视为 typo 删除该行，fork 两实例都要清
 hosts/ml-laptop/configuration.nix # 临时偏离：注释 obs-studio 导入绕过 nixpkgs 02c087f3 的 v4l2loopback modules.alias buildEnv 冲突（nixpkgs#576406），上游 nixpkgs bump 后恢复；disabledModules looking-glass 临时偏离已随 nixpkgs bump 撤销；本机防 OOM 偏离：max-jobs=2/cores=2/connect-timeout=60（32G 弱机，构建期 OOM 实证），fork 长期保留或上游对齐后删
 nixos/server-components/logging-humio.nix # skip: 上游把日志发 Humio SaaS（filebeat + common/filebeat.yaml token），本仓日志走自建 Loki（server-components/logging-loki.nix），无 Humio 账号；secrets 仓只有历史遗留的 common/flebeat.yaml
+nixos/minimal-components/audit-loki.nix # fork 环境事实：Loki 收日志端点是 greencloud-jp（上游 colocrossing.ltnet.xuyh0120.win）；2026-10-29 日志服务由 greencloud 迁到 greencloud-jp（greencloud 系统盘 59G 已 98% 满，35G 是 Loki 数据），存储落数据盘 /data/loki
+nixos/server-components/logging-loki.nix # 同上：fluent-bit 的 Loki 推送目标改 greencloud-jp（LT.hosts.greencloud-jp.ltnet.IPv4 = 198.18.0.130）

@@ -42,7 +42,7 @@ let
         {
           name = "loki";
           match = "audit";
-          host = LT.hosts.greencloud.ltnet.IPv4;
+          host = LT.hosts.greencloud-jp.ltnet.IPv4;
           port = LT.port.Loki;
           tls = "off";
           labels = "job=audit,host=${config.networking.hostName}";

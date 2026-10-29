@@ -50,7 +50,7 @@
           {
             name = "loki";
             match = "journal";
-            host = LT.hosts.greencloud.ltnet.IPv4;
+            host = LT.hosts.greencloud-jp.ltnet.IPv4;
             port = LT.port.Loki;
             tls = "off";
             labels = "job=journal,host=${config.networking.hostName},unit=$fluentbit_unit";

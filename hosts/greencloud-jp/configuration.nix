@@ -32,7 +32,24 @@ in
     ../../nixos/optional-apps/syncthing
 
     ../../nixos/optional-apps/attic.nix
+
+    ../../nixos/optional-apps/loki.nix
   ];
+
+  # 日志存储落数据盘：loki 模块固定用 /var/lib/loki，这里把该路径绑到数据盘
+  fileSystems."/var/lib/loki" = {
+    device = "/data/loki";
+    fsType = "auto";
+    options = [ "bind" ];
+  };
+
+  systemd.tmpfiles.settings.loki."/data/loki"."d" = {
+    mode = "0700";
+    user = "loki-collector";
+    group = "loki";
+  };
+
+  systemd.services.loki.unitConfig.RequiresMountsFor = [ "/var/lib/loki" ];
 
   lantian.syncthing.storage = "/data/syncthing";
 
@@ -84,6 +101,11 @@ in
   };
 
   services.gitea.repositoryRoot = "/data/gitea/repositories";
+
+  # 仓库目录在数据盘，而 gitea 走 confinement chroot（RootDirectory=/run/confinement/%n）：
+  # chroot 里只认得 BindPaths/BindReadOnlyPaths，ReadWritePaths 不会把宿主路径 bind 进去，
+  # 否则 gitea 建 hooks 目录时 mkdir /data 直接 EROFS，ExecStartPre 失败导致 crash loop。
+  systemd.services.gitea.serviceConfig.BindPaths = [ "/data/gitea/repositories" ];
 
   users.users.vaults3 = {
     isSystemUser = true;
