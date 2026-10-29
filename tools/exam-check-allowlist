@@ -14,7 +14,7 @@ helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §
 helpers/host-options.nix # fork 选项：GPU 显存档位、NeoNetwork null、netns 默认值
 helpers/fn/zerotier.nix # 额外 Linux ZeroTier 客户端由 nodeID 推导 MAC 并预置静态邻居，解决中继路径不转发广播导致 ARP 失败（fa320488a，F50 实测）
 home/client-apps/pi/default.nix # Pi 默认 provider 与 Magic Context 配置对齐 exam；仅保留本仓 zhyi 用户和 Strata 实际映射到 ml-laptop.zhyi.xin 的环境差异
-home/client-apps/firefox/default.nix # zeroomega 扩展保留（用户浏览器配置）：addons.json/update.py 各追加 zeroomega 条目（AMO slug 直取，随 update.py 工作流维护）；其余已对齐（profile 名/ai 端点均为认可替换）
+home/client-apps/firefox/default.nix # zeroomega 扩展保留（用户浏览器配置）：addons.json/update.py 各追加 zeroomega 条目（AMO slug 直取，随 update.py 工作流维护）；其余已对齐（profile 名/ai 端点均为认可替换）；临时偏离：摘除 tweaks-for-youtube 扩展（AMO 对 nixpkgs 钉住的旧版 xpi 返回 406，构建不可过），nixpkgs bump 后恢复；临时摘除 firefox-color（exam 求值无此 addon、本仓多出的幽灵项，其 AMO 旧版 URL 同样 406 不可构建，按 drvPath 过滤），nixpkgs bump / addon 版本跟上后恢复
 home/client-apps/firefox/addons/addons.json # 末尾追加 zeroomega 条目（见 firefox/default.nix 条目）
 home/client-apps/firefox/addons/update.py # SLUGS 列表追加 zeroomega（否则下次运行会从 addons.json 抹掉该扩展）
 home/client-apps/git.nix # 签名 key 为用户本人 GPG 指纹（结构零差异）
@@ -26,11 +26,11 @@ nixos/common-apps/nginx/oauth2-proxy.nix # csrf cookie 对齐说明 + cookie 域
 nixos/common-apps/nginx/whois-server.nix # whois neo 别名移除（NeoNetwork 置空）
 nixos/hardware/nvidia/prime.nix # eGPU 条件 steam offload wrapper（拔 eGPU 卡死修复，fork 自维护）
 nixos/hardware/vfio.nix # ACS/IOMMU 条件注入（雷电 eGPU Xid 79 修复，fork 自维护）
-nixos/minimal-components/backup/common.nix # 值级环境事实：ignore 清单补 fork 服务目录（archiveteam/ncps/tor/samba 全目录等）；home 仓端点=opi5p.ltnet.zhyi.xin:2222（exam=pve-epyc 退役）；storagebox 仓=user sftp + greencloud-jp.zhyi.xin:2222（恢复 2026-08-29 原始直连值：09-01 因公网路径故障临时改 LTNET，10-27 公网双栈恢复后改回，不经 wgmesh）+ /backups/rustic-storagebox（本仓无 Hetzner，第二份异地走 greencloud-jp 公网）；maintenanceHosts 主机名 fork 化（opi5p=home，greencloud-jp=storagebox）
+nixos/minimal-components/backup/common.nix # 值级环境事实：ignore 清单补 fork 服务目录（archiveteam/ncps/tor/samba 全目录等）；home 仓端点=opi5p.ltnet.zhyi.xin:2222（exam=pve-epyc 退役）；storagebox 仓=user sftp + greencloud-jp.zhyi.xin:2222（恢复 2026-08-29 原始直连值：09-01 因公网路径故障临时改 LTNET，10-27 公网双栈恢复后改回，不经 wgmesh）+ /backups/rustic-storagebox（本仓无 Hetzner，第二份异地走 greencloud-jp 公网）；maintenanceHosts 主机名 fork 化（opi5p=home，greencloud-jp=storagebox）；同 backup.nix：rustic 由 callPackage 参数传入（wrapper exec 指向交叉包）
 nixos/minimal-components/networking.nix # backupDNSServers 按 CN 国别分支（223.5.5.5 等）
 nixos/minimal-components/podman.nix # CN 区域镜像加速（hubproxy + daocloud 兜底）
 nixos/minimal-components/smtp.nix # fork 邮件账号；from=postmaster@zhyi.cc 已确认非残留：AhaSend 账户只登记 zhyi.cc（commit 3d880f3cc，zhyi.xin 会被 556 拒发），DNS TXT/DMARC 记录在 dns/common/records.nix ForwardEmail 块维护
-nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（备份端点域）+ backup sftp 两后端 Match ControlMaster no，host 值为备份端点域名（opendal/rustic 多进程并发 ssh 不复用连接）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）+ sshd ExecStartPre 预建 /var/empty
+nixos/minimal-components/ssh-harden.nix # fork known_hosts 清单（备份端点域）+ backup sftp 两后端 Match ControlMaster no，host 值为备份端点域名（opendal/rustic 多进程并发 ssh 不复用连接）；PerSourcePenaltyExemptList（192.168.0.0/24,198.18.0.0/15,127.0.0.0/8,::1）+ MaxStartups mkForce 64:30:128（colmena 并发推送被 sshd per-source penalty 卡停，e5b173c5c）+ sshd ExecStartPre 预建 /var/empty；rsync-internal 客户端 HostName 指向 greencloud.ltnet.zhyi.xin（上游 colocrossing.ltnet.xuyh0120.win；本仓 rsync-internal 服务端落在 greencloud，与 hosts/greencloud 的 rsync-server-internal 配套）
 nixos/minimal-components/zerotier/default.nix # fork ZeroTier 网络 ID 与接口名（环境事实）；portMappingEnabled server-gate 已随 2026-10-15 误判翻案撤销（原 server-gate 撤销；2026-10-16 复核：家宽↔greencloud wgmesh UDP 双向被家宽 ISP 掐断是真实约束，与 wgmesh 接口 boot 竞态两个故障并存，zerotier 1.16 撤钉仍成立——上游 1.16 无本地复现问题）
 nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书（对齐上游同款结构，值不同）
 nixos/optional-apps/acme/default.nix # DNS 商 gcore（bunny 为作者所用）、dnsPropagationCheck=false
@@ -38,11 +38,10 @@ nixos/optional-apps/bird-lg-go.nix # lg neo 别名移除（NeoNetwork 置空）
 nixos/optional-apps/homepage.nix # 单域正则简化（作者双域正则不适用）；chromium 侧不用 extraOpts mkForce——nixpkgs types.attrs 不剥 mkOverride 标记，残缺 {_type:override,content,priority:50} 条目被 Chrome 静默丢弃、主页锁失效，改走 programs.chromium.homepageLocation 专用选项（default.json 纯 JSON）；firefox StartPage 强制 homepage-locked（homepage 变体不 override 用户 browser.startup.page=0，锁定变体才强制启动页）。上游同款带病，Chrome 侧修法随上游修复回归
 nixos/client-apps/google-chrome.nix # 删 extraOpts.HomepageLocation（chrome://new-tab-page 与 homepage.nix 的 homepageLocation 冲突——mkForce 进 attr 叶子=残缺 JSON，走专用选项后跨文件冲突，删行让位；见 homepage.nix 条目）
 nixos/optional-apps/hydra/default.nix # fork 三处：attic 登录/上传接 zhyi 缓存（attic.zhyi.xin + LT.nix.attic.cacheName，上游为 attic.colocrossing.xuyh0120.win + lantian）、队列器 gRPC 绑 LTNET（上游 127.0.0.1，为让 ml-builder 的 hydra-builder 连上）、hydra-evaluator 注入 GIT_SSH_COMMAND 拉私有 flake 输入；evaluator_workers 16→1、max_memory 8192→4096（fork 跑在 opi5p 16G ARM 生产节点；求值内存峰值=workers×预算，1×4096 单 worker 串行封顶 4G，多 worker 曾把整机打进 swap 风暴，2026-10-14 实锤；代价是新世界首次全量求值串行变慢，增量期无感）
-nixos/optional-apps/maddy.nix # neo 域移除（NeoNetwork 置空）
 nixos/optional-apps/mysql.nix # Galera 副本清单差异（作者节点不存在于本仓）
 nixos/optional-apps/ncps-client.nix # ncps 指向本仓 192.168.0.66（作者 .04）
 nixos/optional-apps/ncps.nix # 监听地址参数化（作者硬编码其 LAN IP）
-nixos/optional-apps/nix-distributed.nix # nixbuild.net 付费构建节点移除（fork 无账号），x86_64 构建机额外通告 aarch64-cross 承接三个 vendor 内核交叉构建（rock5c/opi5p/sc8280xp-kernel 的 requiredSystemFeature；上游靠 nixbuild.net 兜底无此需求），其余结构对齐上游
+nixos/optional-apps/nix-distributed.nix # nixbuild.net 付费构建节点移除（fork 无账号），x86_64 构建机额外通告 aarch64-cross 承接三个 vendor 内核交叉构建（rock5c/opi5p/sc8280xp-kernel 的 requiredSystemFeature；上游靠 nixbuild.net 兜底无此需求），其余结构对齐上游；fork 增补：x86_64 构建机通告 i686-linux 可构建（32 位 multilib 包如 nvidia-egl-x32 无机器可建；上游靠控制机本地构建兜底，fork 本机 max-jobs=0）
 nixos/optional-apps/plausible.nix # geonames.csv tmpfiles 软链：nixos-unstable 模块设 GEONAMES_SOURCE_FILE 但无生成机制，greencloud 迁移后实证起不来；上游（colocrossing）无此修复
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
 nixos/optional-apps/palworld.nix # skip: 用户 2026-10-23 决定保留（fork 独有服务，chromebox 启用，上游 3691671e4 已删除）
@@ -52,7 +51,7 @@ nixos/optional-apps/radicale.nix # accessibleBy=private→public（2026-10-27 �
 nixos/optional-apps/zerotierone-controller.nix # GL-MT3600BE 旅行路由器 LAN 路由（192.168.3.0/24 via 198.18.0.115，fork 独有拓扑）+ 家庭 LAN 路由（192.168.0.0/24 via router，供 allowManaged=1 额外客户端异地访问，2026-10-03）；defaultGatewayHost 已随上游收口到 LT 继承（rock5c 特例登记于 misc.nix 条目）
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）
 nixos/server-apps/bird/config/dn42.nix # neo 路由移除（NeoNetwork 置空）
-nixos/server-apps/coredns.nix # DNSSEC 签名序号漂移（运营性，随各自 zone 重签）
+nixos/server-apps/coredns.nix # DNSSEC 签名序号漂移（运营性，随各自 zone 重签）；fork 环境偏移：zone 列表含自有域（zhyi.dn42/zhyi.neo/zhyi.xin 等），DNSSEC key serial 对齐 exam 并已同步 secrets 仓 dnssec.yaml（49297b091）；zhyi.neo 与 asn.zhyi.xin 两个 fork 自有域无 DNSSEC key，按 null 不签名
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
 overlays/50-general.nix # prismlauncher jdks 补 openjdk25：本机要跑 Minecraft 26.3（其 version json 写 compatibleJavaMajors=[25]），上游无 Java 25 客户端需求；PrismLauncher 自带的下游 JRE 下载在 NixOS 上被 stub-ld 拒绝（实测 Temurin 25 JRE 报 "Could not start dynamically linked executable"，未开 nix-ld），只能走 nixpkgs 提供的 JDK
 overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）+ ncps doCheck=false（Go TSan 在 qemu-user aarch64 下不可运行）
@@ -63,32 +62,21 @@ nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机
 overlays/52-old-packages.nix # fork：linphone 系取自 nixpkgs-multiverse 26.05（nixpkgs 无此包，来源替代）；zerotierone 1.14.2 钉版撤销（2026-10-16 复核：当年「1.16 家宽↔VPS v4 失效」主因是家宽 ISP 掐 wgmesh UDP＋wgmesh 接口 boot 竞态两故障叠加，非 ZT 本身；上游 exam 生产跑 1.16.0 正常），回 nixpkgs 1.16.0
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
 nixos/minimal-policies/ensure-service-harden.nix # fork：额外豁免本仓独有且无法 confinement 的服务（palworld/clash-verge/leigod/hydra/zpool-trim），上游启用集不含这些服务
-nixos/common-apps/nginx/hosts.nix # fork 恢复：上游 cdd2c42ab 删除 vhost→本机 LTNET 的 /etc/hosts 映射，其环境靠自建权威 DNS split-horizon 兜底；本仓解析器只返回公网答案，删掉后 volcengine 上 dex 对 id.zhyi.xin 的 OIDC discovery 走 EIP hairpin 源地址不在 accessibleBy=private 白名单（444 断连），SSO 链全断。恢复以还原 dex/oauth2-proxy 自取发现端点的路径
-nixos/minimal-components/ssh-harden.nix # rsync-internal 客户端 HostName 指向 greencloud.ltnet.zhyi.xin（上游 colocrossing.ltnet.xuyh0120.win；本仓 rsync-internal 服务端落在 greencloud，与 hosts/greencloud 的 rsync-server-internal 配套）
 nixos/server-apps/wg-mesh.nix # 端口覆盖表 wgPortOverrides：opi5p=10151、rock5c=49123、chromebox=49131（家宽对外入向 UDP 回程丢包，换端口即恢复；20123/20131 落入 block-cn-ports 的 20000-23999 拒绝范围，改用范围外高位端口），端口按拥有者主机登记，监听端口与对端 Endpoint 两侧自洽；2026-10-27 起 lan-access（家宽）对 greencloud-jp 改用其公网 v6 端点（实测家宽→45.159.48.76 的 v4 回程按源端口定向丢弃：JP:10151 的入向 UDP 全丢，同期 10124/10129/49123/49131 的入向正常，JP→家宽的 TCP 也时长时短；v6 双向稳定），无公网 v6 的 VPS 仍走 v4
 nixos/client-components/cups.nix # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
 nixos/minimal-apps/rsync-internal.nix # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
 nixos/optional-apps/syncthing/update-config.py # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
-skip: nixos/server-apps/ollama-cpa-honeypot-proxy.nix # 上游 colocrossing 专用 honeypot 入口；该文件放在 server-apps/ 会被 server.nix 整目录自动导入，在我们主机上会无条件创建两个 accessibleBy=public 的 vhost 并触发 nginx-security 断言，且本仓没有对应服务与端点
 nixos/optional-apps/prometheus/storagebox.nix # 服务停用（secrets 仓 7bcc13f 移除 hetzner-storagebox-metrics token，本仓无 Hetzner），模块为 `{ }` 占位；上游为完整 exporter 实现
 nixos/minimal-modules/secrets/generate.py # 上游新增文件，本机 treefmt(ruff) 格式化重排；语义零差异
 nixos/minimal-modules/secrets/mock-loki.py # 上游新增文件，本机 treefmt(ruff) 格式化重排；语义零差异
 nixos/minimal-modules/secrets/test_generate.py # 上游新增文件，本机 treefmt(ruff) 格式化重排；语义零差异
 nixos/minimal-modules/secrets/tests.nix # 上游新增文件，测试桩用 greencloud 替代上游 colocrossing（本仓无该主机）
-pkgs/libltnginx/resources/update.sh # 上游新增脚本，本机 treefmt(shfmt) 缩进/引号规范化；语义零差异
 nixos/common-apps/nginx/vhosts-lantian.nix # skip: 对应 fork 的 vhosts-zhyi.nix（vhost 集合按 zhyi 域重写，NORMALIZE 只做路径映射）
 nixos/optional-apps/attic-placeholder.nix # skip: fork 已按用户 2026-10-24 裁定恢复自建 attic（greencloud-jp 真 atticd + cache.zhyi.xin），503 占位页不再需要；上游仍保留供其 colocrossing 使用
 nixos/optional-apps/asterisk # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
-nixos/server-apps/coredns.nix # fork 环境偏移：zone 列表含自有域（zhyi.dn42/zhyi.neo/zhyi.xin 等），DNSSEC key serial 对齐 exam 并已同步 secrets 仓 dnssec.yaml（49297b091）；zhyi.neo 与 asn.zhyi.xin 两个 fork 自有域无 DNSSEC key，按 null 不签名
 nixos/minimal-components/backup/backup.nix # fork 环境适配：aarch64 目标的 rustic 改 x86 交叉编译（hinlink-h28k/lubancat-1 crossPkgs 同款先例）——rustic 的 cargo lib 链接内存峰值在 opi5p 反复触发 memory pressure 断链；requiredSystemFeatures=aarch64-cross 路由 ml-builder
 nixos/minimal-components/backup/prune.nix # 同 backup.nix：prune 单元的 rustic 同款交叉编译
-nixos/minimal-components/backup/common.nix # 同 backup.nix：rustic 由 callPackage 参数传入（wrapper exec 指向交叉包）
 nixos/optional-apps/qbittorrent.nix # fork 多保留一行 qbittorrent-pt 的 lockfile 清理：router 的 pt 实例数据在 /var/lib/qbittorrent-pt（hosts/router 引用），上游 b4b8fe005 仅修单实例路径视为 typo 删除该行，fork 两实例都要清
-nixos/optional-apps/nix-distributed.nix # fork 增补：x86_64 构建机通告 i686-linux 可构建（32 位 multilib 包如 nvidia-egl-x32 无机器可建；上游靠控制机本地构建兜底，fork 本机 max-jobs=0）
-hosts/ml-laptop/configuration.nix # 临时偏离：注释 obs-studio 导入绕过 nixpkgs 02c087f3 的 v4l2loopback modules.alias buildEnv 冲突（nixpkgs#576406），上游 nixpkgs bump 后恢复
-hosts/ml-laptop/configuration.nix # 临时偏离：disabledModules looking-glass（kvmfr 模块 nixpkgs#576406 同族构建失败），上游 nixpkgs bump 后恢复
-home/client-apps/firefox/default.nix # 临时偏离：摘除 tweaks-for-youtube 扩展（AMO 对 nixpkgs 钉住的旧版 xpi 返回 406，构建不可过），nixpkgs bump 后恢复
-home/client-apps/firefox/default.nix # 临时偏离：摘除 firefox-color 扩展（AMO 406，同 tweaks-for-youtube），nixpkgs bump 后恢复
-hosts/ml-laptop/configuration.nix # 本机防 OOM 偏离：max-jobs=2/cores=2/connect-timeout=60（32G 弱机，构建期 OOM 实证），fork 长期保留或上游对齐后删
+hosts/ml-laptop/configuration.nix # 临时偏离：注释 obs-studio 导入绕过 nixpkgs 02c087f3 的 v4l2loopback modules.alias buildEnv 冲突（nixpkgs#576406），上游 nixpkgs bump 后恢复；disabledModules looking-glass 临时偏离已随 nixpkgs bump 撤销；本机防 OOM 偏离：max-jobs=2/cores=2/connect-timeout=60（32G 弱机，构建期 OOM 实证），fork 长期保留或上游对齐后删
 nixos/optional-apps/hydra/cancel-old-builds.nix # skip: 上游已删（oauth 阻断脚本登录），fork 同步删除
 nixos/optional-apps/hydra/cancel-old-builds.py # skip: 上游已删（oauth 阻断脚本登录），fork 同步删除
