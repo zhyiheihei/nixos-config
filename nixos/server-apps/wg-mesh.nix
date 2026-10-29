@@ -24,7 +24,9 @@ let
       LT.publicIPv6For name
     else
       null;
-  mkEndpoint = addr: port: if lib.hasInfix ":" addr then "[${addr}]:${toString port}" else "${addr}:${toString port}";
+  mkEndpoint =
+    addr: port:
+    if lib.hasInfix ":" addr then "[${addr}]:${toString port}" else "${addr}:${toString port}";
   wgPortOverrides = {
     opi5p = 10151;
     rock5c = 49123;

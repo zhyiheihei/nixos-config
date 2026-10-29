@@ -802,6 +802,7 @@
 	vmmc-supply = <&vcc3v3_sys>;
 	vqmmc-supply = <&vcc_1v8>;
 };
+
 &uart8 {
 	status = "okay";
 	pinctrl-names = "default";
