@@ -22,6 +22,25 @@
       /run/nfs/storage ${hostOpts}
     '';
 
+  systemd.services.nfs-server = {
+    after = [
+      "mnt-storage.mount"
+      "run-nfs-storage.mount"
+    ];
+    requires = [
+      "mnt-storage.mount"
+      "run-nfs-storage.mount"
+    ];
+  };
+
+  systemd.services = {
+    samba-smbd.unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
+    nfs-mountd.unitConfig.RequiresMountsFor = [
+      "/mnt/storage"
+      "/run/nfs/storage"
+    ];
+  };
+
   services.samba.settings.storage = {
     path = "/mnt/storage";
     browseable = "yes";
@@ -45,6 +64,7 @@
 
       options = LT.constants.bindfsMountOptions' [
         "_netdev"
+        "x-systemd.requires-mounts-for=/mnt/storage"
         "force-user=sftp"
         "force-group=sftp"
         "perms=700"
@@ -60,6 +80,7 @@
 
       options = LT.constants.bindfsMountOptions' [
         "_netdev"
+        "x-systemd.requires-mounts-for=/mnt/storage"
         "force-user=zhyi"
         "force-group=zhyi"
         "perms=700"
