@@ -115,7 +115,7 @@ in
             "/mnt/storage/media-shortdrama"
             "/mnt/storage/media-sonarr"
             "${jellyfinFontconfig}:/etc/fonts/fonts.conf"
-            fallbackFontsDir
+            "${fallbackFontsDir}"
           ];
         };
         environment = LT.proxyEnvironment // {
