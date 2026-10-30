@@ -124,7 +124,7 @@ in
   # exposed through the private vhost. The server takes any API key and any
   # model name; the id below matches what the deployed quant reports via
   # /v1/models (n_ctx 262144, text+image input).
-  home.file.".pi/agent/models.json".text = builtins.toJSON {
+  programs.pi-coding-agent.models = {
     "$schema" = "https://pi.dev/schemas/models.schema.json";
     providers.strata = {
       name = "Strata (ml-laptop)";
