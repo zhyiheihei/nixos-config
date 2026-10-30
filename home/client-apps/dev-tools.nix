@@ -173,7 +173,6 @@ in
     ]
     ++ lib.optionals (osConfig.networking.hostName == "ml-laptop") [
       # FPGA
-      nur-xddxdd.vivado
       quartus-prime-lite
     ];
 

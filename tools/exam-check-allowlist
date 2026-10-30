@@ -13,6 +13,7 @@ helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）
 helpers/host-options.nix # fork 选项：GPU 显存档位、NeoNetwork null、netns 默认值
 helpers/fn/zerotier.nix # 额外 Linux ZeroTier 客户端由 nodeID 推导 MAC 并预置静态邻居，解决中继路径不转发广播导致 ARP 失败（fa320488a，F50 实测）
+home/client-apps/dev-tools.nix # 上游在作者主机 lt-hp-omen（NORMALIZE→ml-laptop）装 nur-xddxdd.vivado + quartus-prime-lite，fork 只装 quartus-prime-lite（2026-10-31 用户裁定）：vivado 是 requireFile 固定输出，需 AMD 完整安装包 FPGAs_AdaptiveSoCs_Unified_SDI_2025.2.1_0320_0604.tar（outputHashMode=flat、sha256-nTHt15n9zrYZiHuDM33bkdDzBvwG7mA4RPlOszwB7y4=）手工 nix store add 入 store，本机无该包且无 Vivado 需求，否则 make local 在该 drv 失败并级联整个系统闭包
 home/client-apps/pi/default.nix # Pi 默认 provider 与 Magic Context 配置对齐 exam；仅保留本仓 zhyi 用户、Strata 实际映射到 ml-laptop.zhyi.xin，以及 Magic Context 模型走本仓 CPA 别名 cliproxyapi/zhyi/coding-fast（exam 为 lantian/coding-fast，别名定义在私有 secrets 仓 llm-providers/apis/zhipu-coding.json）的环境差异；models 走 programs.pi-coding-agent.models 选项而非 exam 的 home.file+toJSON（secrets 仓 hidden module 的 modelOverrides 要合并进该选项）
 home/client-apps/firefox/default.nix # zeroomega 扩展保留（用户浏览器配置）：addons.json/update.py 各追加 zeroomega 条目（AMO slug 直取，随 update.py 工作流维护）；其余已对齐（profile 名/ai 端点均为认可替换）；临时偏离：摘除 tweaks-for-youtube 扩展（AMO 对 nixpkgs 钉住的旧版 xpi 返回 406，构建不可过），nixpkgs bump 后恢复；临时摘除 firefox-color（exam 求值无此 addon、本仓多出的幽灵项，其 AMO 旧版 URL 同样 406 不可构建，按 drvPath 过滤），nixpkgs bump / addon 版本跟上后恢复
 home/client-apps/firefox/addons/addons.json # 末尾追加 zeroomega 条目（见 firefox/default.nix 条目）
