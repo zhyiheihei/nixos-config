@@ -28,6 +28,119 @@ let
     configfile = ./kernel-config;
   };
 
+  # Mainline rtw89 has no SDIO support for the RTL8852BS and linux-firmware ships
+  # no firmware for it, so the vendor driver is the only way to drive the on-board
+  # module.  Its firmware is compiled in (CONFIG_FILE_FWIMG = n), which is why the
+  # module needs nothing from /lib/firmware.
+  rtl8852bs = crossPkgs.stdenv.mkDerivation {
+    pname = "rtl8852bs";
+    version = "unstable-2026-09-10";
+    src = pkgs.fetchFromGitHub {
+      owner = "armbian";
+      repo = "wifi-rtl8852bs";
+      rev = "643a4990752ad4761c2ad216901257adfd4fd8db";
+      hash = "sha256-jzLKuj/oBWUlzPM7fEfoGakMv+OIRWAlCvz5FvsWodc=";
+    };
+    nativeBuildInputs = atkKernel.moduleBuildDependencies;
+    requiredSystemFeatures = [ "aarch64-cross" ];
+    enableParallelBuilding = true;
+
+    # Every platform switch in the driver Makefile defaults to "n"; selecting the
+    # Rockchip platform is what turns on -DCONFIG_IOCTL_CFG80211 and
+    # -DCONFIG_RADIO_WORK for the SDIO port.  CONFIG_RTW_DEBUG = n is the setting
+    # Armbian patches in before building this driver.
+    makeFlags = atkKernel.commonMakeFlags ++ [
+      "KSRC=${atkKernel.dev}/lib/modules/${atkKernel.modDirVersion}/build"
+      "CONFIG_PLATFORM_ARM_ROCKCHIP=y"
+      "CONFIG_RTW_DEBUG=n"
+      "INSTALL_MOD_PATH=${placeholder "out"}"
+      "INSTALL_MOD_DIR=extra"
+    ];
+
+    # The kernel turns -Wdate-time into an error; rtw_debug.c stamps __DATE__ into
+    # its version banner, which is otherwise harmless for a module.
+    KCFLAGS = "-Wno-error=date-time";
+
+    # NixOS stitches the per-module signing certificates into modules.cer, so the
+    # module has to be installed through kbuild's own modules_install target, with
+    # the kernel's flags (including its kmodigest signing command) spelled out.
+    installPhase = ''
+      runHook preInstall
+      make ${
+        lib.escapeShellArgs (
+          atkKernel.commonMakeFlags
+          ++ [
+            "INSTALL_MOD_PATH=${placeholder "out"}"
+            "INSTALL_MOD_DIR=extra"
+          ]
+        )
+      } -C ${atkKernel.dev}/lib/modules/${atkKernel.modDirVersion}/build M=$PWD modules_install
+      runHook postInstall
+    '';
+
+    dontStrip = true;
+    meta = {
+      description = "Vendor SDIO driver for the Realtek RTL8852BS";
+      license = lib.licenses.gpl2Only;
+      platforms = [ "aarch64-linux" ];
+    };
+  };
+
+  # Mainline's rocket accel driver only knows the RK3588 NPU (the RK3568 support is
+  # still an unmerged RFC), so the RKNN runtime needs the vendor rknpu driver, here
+  # rebased onto mainline.  It drives the NPU without the IOMMU, see the board DTS.
+  rknpu = crossPkgs.stdenv.mkDerivation {
+    pname = "rknpu";
+    version = "0.9.8-unstable-2026-04-28";
+    src = pkgs.fetchFromGitHub {
+      owner = "w568w";
+      repo = "rknpu-module";
+      rev = "a8792fe6b633f90cf2c6808267cac327537ab4cf";
+      hash = "sha256-4pFs4tZR6Xy0e5wk8XDNJh8kpbhvWGLxH7KKU5wgWrk=";
+    };
+    nativeBuildInputs = atkKernel.moduleBuildDependencies;
+    requiredSystemFeatures = [ "aarch64-cross" ];
+    enableParallelBuilding = true;
+
+    # The driver's own devfreq governor only exists from 6.19 on, where
+    # devfreq-governor.h became a public header; on 6.18 the governor API is
+    # still internal to drivers/devfreq.  Build without it, which leaves the NPU
+    # on the clock rate the device tree assigns.
+    KCFLAGS = "-DRKNPU_NO_DEVFREQ";
+    postPatch = ''
+      substituteInPlace Kbuild --replace-fail " src/rknpu_devfreq.o" ""
+    '';
+
+    # The Kbuild file defines the module; the wrapper Makefile only adds the
+    # DKMS-style convenience targets, so the kernel build system is driven directly.
+    makeFlags = atkKernel.commonMakeFlags ++ [
+      "KDIR=${atkKernel.dev}/lib/modules/${atkKernel.modDirVersion}/build"
+      "INSTALL_MOD_PATH=${placeholder "out"}"
+      "INSTALL_MOD_DIR=extra"
+    ];
+
+    installPhase = ''
+      runHook preInstall
+      make ${
+        lib.escapeShellArgs (
+          atkKernel.commonMakeFlags
+          ++ [
+            "INSTALL_MOD_PATH=${placeholder "out"}"
+            "INSTALL_MOD_DIR=extra"
+          ]
+        )
+      } -C ${atkKernel.dev}/lib/modules/${atkKernel.modDirVersion}/build M=$PWD modules_install
+      runHook postInstall
+    '';
+
+    dontStrip = true;
+    meta = {
+      description = "Vendor RKNPU driver for the RK3568 NPU, ported to mainline";
+      license = lib.licenses.gpl2Only;
+      platforms = [ "aarch64-linux" ];
+    };
+  };
+
   # The board is not in mainline yet, so it carries its own DTS derived from the
   # EVB1 reference design (PHY strapping, reset ownership, on-board RTC).
   atkDtb = pkgs.deviceTree.compileDTS {
@@ -81,11 +194,16 @@ in
     initrd.availableKernelModules = lib.mkForce [ ];
     initrd.kernelModules = lib.mkForce [ ];
     kernelModules = lib.mkForce [
+      "8852bs"
       "hci_uart"
+      "rknpu"
       "rtc_pcf8563"
       "wireguard"
     ];
-    extraModulePackages = lib.mkForce [ ];
+    extraModulePackages = lib.mkForce [
+      rknpu
+      rtl8852bs
+    ];
     # ttyS2 must stay the last console= so /dev/console lands on the debug UART.
     kernelParams = [
       "earlycon=uart8250,mmio32,0xfe660000"

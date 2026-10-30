@@ -277,6 +277,15 @@
 	status = "okay";
 };
 
+&power {
+	pd_npu: power-domain@RK3568_PD_NPU {
+		reg = <RK3568_PD_NPU>;
+		clocks = <&cru ACLK_NPU_PRE>, <&cru HCLK_NPU_PRE>, <&cru PCLK_NPU_PRE>;
+		pm_qos = <&qos_npu>;
+		#power-domain-cells = <0>;
+	};
+};
+
 &hdmi {
 	avdd-0v9-supply = <&vdda0v9_image>;
 	avdd-1v8-supply = <&vcca1v8_image>;
@@ -297,6 +306,59 @@
 
 &hdmi_sound {
 	status = "okay";
+};
+
+/ {
+	npu_opp_table: npu-opp-table {
+		compatible = "operating-points-v2";
+
+		opp-200000000 {
+			opp-hz = /bits/ 64 <200000000>;
+			opp-microvolt = <850000 850000 1000000>;
+		};
+
+		opp-297000000 {
+			opp-hz = /bits/ 64 <297000000>;
+			opp-microvolt = <850000 850000 1000000>;
+		};
+
+		opp-400000000 {
+			opp-hz = /bits/ 64 <400000000>;
+			opp-microvolt = <850000 850000 1000000>;
+		};
+
+		opp-600000000 {
+			opp-hz = /bits/ 64 <600000000>;
+			opp-microvolt = <850000 850000 1000000>;
+		};
+
+		opp-700000000 {
+			opp-hz = /bits/ 64 <700000000>;
+			opp-microvolt = <875000 875000 1000000>;
+		};
+
+		opp-800000000 {
+			opp-hz = /bits/ 64 <800000000>;
+			opp-microvolt = <925000 925000 1000000>;
+		};
+	};
+
+	rknpu: npu@fde40000 {
+		compatible = "rockchip,rk3568-rknpu", "rockchip,rknpu";
+		reg = <0x0 0xfde40000 0x0 0x10000>;
+		interrupts = <GIC_SPI 151 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "npu_irq";
+		clocks = <&scmi_clk 2>, <&cru CLK_NPU>, <&cru ACLK_NPU>, <&cru HCLK_NPU>;
+		clock-names = "scmi_clk", "clk", "aclk", "hclk";
+		assigned-clocks = <&cru CLK_NPU>;
+		assigned-clock-rates = <600000000>;
+		resets = <&cru SRST_A_NPU>, <&cru SRST_H_NPU>;
+		reset-names = "srst_a", "srst_h";
+		power-domains = <&power RK3568_PD_NPU>;
+		operating-points-v2 = <&npu_opp_table>;
+		rknpu-supply = <&vdd_npu>;
+		status = "okay";
+	};
 };
 
 &i2c0 {
@@ -385,6 +447,7 @@
 
 			vdd_npu: DCDC_REG4 {
 				regulator-name = "vdd_npu";
+				regulator-always-on;
 				regulator-initial-mode = <0x2>;
 				regulator-min-microvolt = <500000>;
 				regulator-max-microvolt = <1350000>;
@@ -598,6 +661,8 @@
 	rtc@51 {
 		compatible = "nxp,pcf8563";
 		reg = <0x51>;
+		interrupt-parent = <&gpio0>;
+		interrupts = <RK_PD3 IRQ_TYPE_LEVEL_LOW>;
 	};
 };
 
@@ -781,6 +846,10 @@
 / {
 	sdio_pwrseq: sdio-pwrseq {
 		compatible = "mmc-pwrseq-simple";
+		/* The module's 32.768 kHz low-power clock is the RK809 CLK32KOUT2
+		 * output, which only mainline's clock framework can enable. */
+		clocks = <&rk809 1>;
+		clock-names = "ext_clock";
 		/* WIFI_REG_ON is active high, so the reset line is declared active low. */
 		reset-gpios = <&gpio3 RK_PD5 GPIO_ACTIVE_LOW>;
 		post-power-on-delay-ms = <200>;
@@ -790,13 +859,15 @@
 &sdmmc2 {
 	status = "okay";
 	bus-width = <4>;
+	cap-sd-highspeed;
 	cap-sdio-irq;
 	keep-power-in-suspend;
-	max-frequency = <100000000>;
+	max-frequency = <150000000>;
 	mmc-pwrseq = <&sdio_pwrseq>;
 	no-sd;
 	no-mmc;
 	non-removable;
+	sd-uhs-sdr104;
 	pinctrl-names = "default";
 	pinctrl-0 = <&sdmmc2m0_bus4 &sdmmc2m0_clk &sdmmc2m0_cmd>;
 	vmmc-supply = <&vcc3v3_sys>;

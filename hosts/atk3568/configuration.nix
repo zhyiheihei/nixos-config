@@ -75,7 +75,15 @@
         ethtool -i "$i"
       done
       echo "== dmesg"
-      dmesg | grep -iE "mdio|motorcomm|gmac|stmmac|eth[01]|pcf8563|rtc"
+      dmesg | grep -iE "mdio|motorcomm|gmac|stmmac|eth[01]|pcf8563|rtc|8852|rtw|sdio|mmc2"
+      echo "== sdio"
+      for d in /sys/bus/sdio/devices/*; do
+        echo "--- $d"
+        cat "$d/vendor" "$d/device" "$d/class"
+        readlink -f "$d/driver"
+      done
+      echo "== wifi"
+      lsmod | grep -E "8852|cfg80211|mac80211|rfkill"
       sync
     '';
     serviceConfig = {
