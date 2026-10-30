@@ -35,6 +35,16 @@ def git(*args):
     ).stdout.decode(errors="surrogateescape")
 
 
+def in_exam(path):
+    return (
+        subprocess.run(
+            ["git", "-C", str(REPO), "cat-file", "-e", f"exam/master:{path}"],
+            capture_output=True,
+        ).returncode
+        == 0
+    )
+
+
 def main():
     if len(sys.argv) != 2:
         print(__doc__.strip().splitlines()[1].strip(), file=sys.stderr)
@@ -48,7 +58,11 @@ def main():
         p.rsplit("/", 1)[1]
         for p in git("ls-tree", "-r", "--name-only", before, "--", "dns/domains/").splitlines()
     }
-    skip = {p for p, r in M.load_allowlist().items() if r.startswith("skip: ")}
+    # 只删上游仍存在的 skip: 路径；上游已删除而 fork 决定保留的登记（palworld）
+    # 不是「不采纳的上游文件」，删掉会让引用它的 host 求值失败。
+    skip = {
+        p for p, r in M.load_allowlist().items() if r.startswith("skip: ") and in_exam(p)
+    }
 
     removed, changed = [], 0
     for p in git("ls-files", "-z").split("\0"):

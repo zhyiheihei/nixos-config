@@ -30,10 +30,10 @@
   };
   delegacy-rpz = {
     pname = "delegacy-rpz";
-    version = "2026090400";
+    version = "2026102805";
     src = fetchurl {
-      url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026090400/rpz.delegacy.monostack.org.zone";
-      sha256 = "sha256-GUyiSHbcxtVDzL04N2R/nI6+VsCZTnlSZ7TpJ8yAIGs=";
+      url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026102805/rpz.delegacy.monostack.org.zone";
+      sha256 = "sha256-6yWtwmzdwe2pxHfH/rmxppgwmB3UmdLgLikwN1mlSUQ=";
     };
   };
   dn42-certificate-authority-client = {
@@ -76,10 +76,10 @@
   };
   grafana-yesoreyeram-infinity-datasource = {
     pname = "grafana-yesoreyeram-infinity-datasource";
-    version = "4.1.4";
+    version = "4.1.5";
     src = fetchurl {
-      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.4/yesoreyeram-infinity-datasource-4.1.4.zip";
-      sha256 = "sha256-vKsW1LE5jB/Sm6e0tBr4br+H8AfC43BUC2DpzkUUwLM=";
+      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.5/yesoreyeram-infinity-datasource-4.1.5.zip";
+      sha256 = "sha256-QEoMbS63M5j0dog94IjBNQbsSnYozZyJ/mzDxUI8KYE=";
     };
   };
   lobe-icons = {
@@ -148,15 +148,15 @@
   };
   nvidia-patch = {
     pname = "nvidia-patch";
-    version = "9b487a584ab02fd87ee1955ff9ae09522e452fd0";
+    version = "8c27b6fa958121424d67107d08c80e01716f4a71";
     src = fetchFromGitHub {
       owner = "keylase";
       repo = "nvidia-patch";
-      rev = "9b487a584ab02fd87ee1955ff9ae09522e452fd0";
+      rev = "8c27b6fa958121424d67107d08c80e01716f4a71";
       fetchSubmodules = false;
-      sha256 = "sha256-RUhAFqgK3ngXmYIcPg4pem9Iy0eKSQupMty2aQuU02s=";
+      sha256 = "sha256-IqsDeGKe6TkCm6fTqgXrlnm7s4X4XxTpZiz6YsG5dL4=";
     };
-    date = "2026-10-23";
+    date = "2026-10-29";
   };
   open5gs = {
     pname = "open5gs";
@@ -204,6 +204,20 @@
       sha256 = "sha256-lKNej7INWs45HkCcdlDvqeY4d5f0eFNPgg540H5se1k=";
     };
     date = "2025-12-29";
+  };
+  scam-dn42-miner = {
+    pname = "scam-dn42-miner";
+    version = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
+    src = fetchgit {
+      url = "https://git.lantian.pub/lantian/scam-dn42-miner.git";
+      rev = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
+      fetchSubmodules = false;
+      deepClone = false;
+      leaveDotGit = false;
+      sparseCheckout = [ ];
+      sha256 = "sha256-ZBeHzlKdhaEQMKtlkwNwFksVZKxj18I2Y1Y6UBRCOgw=";
+    };
+    date = "2026-10-29";
   };
   skyland-auto-checkin = {
     pname = "skyland-auto-checkin";
