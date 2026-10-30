@@ -81,22 +81,18 @@ flake.lock 的标准格式：顶层 `"root"` 键是一个字符串，指向 `"no
 | `configuration.nix`          | 主配置文件                                |
 | `hardware-configuration.nix` | 硬件配置（由 nixos-generate-config 生成） |
 
-### 可用标签
+### 服务导入落位（exam 对齐）
 
-| 标签             | 说明                                                       |
-| ---------------- | ---------------------------------------------------------- |
-| `client`         | 客户端配置（带 GUI）                                       |
-| `cn-accel`       | 中国网络加速节点（启用 v2ray、openvpn-gameaccel）  |
-| `dn42`           | DN42 节点                                                  |
-| `nix-builder`    | Nix 远程构建节点                                           |
-| `public-facing`  | 公网可访问节点（用于 Prometheus blackbox 监控等）          |
-| `server`         | 服务器配置                                                 |
-| `ipv4-only`      | 仅 IPv4                                                    |
-| `ipv6-only`      | 仅 IPv6                                                    |
-| `lan-access`     | 局域网访问                                                 |
-| `cuda`           | NVIDIA CUDA 支持                                           |
-| `low-gpu`        | 低性能 GPU 优化（禁用桌面模糊、简化 mpv 缩放）             |
-| `low-ram`        | 低内存优化                                                 |
+服务落位跟随 exam 宿主机角色，在对应角色内按职能选主机：
+
+| 角色 | fork 主机 |
+| ---- | ---- |
+| home server | pve-5700u（PVE 宿主）、opi5p（家庭 web 边缘）、rock5c（SSH 入口）、ml-builder（构建）、dragon-q8b（ncps 缓存）、router、h28k、lubancat1、chromebox、atk3568 |
+| cloud server | greencloud（dn42 网关）、greencloud-jp、tencent、tencent-cn、google、hostdare、volcengine |
+| master client | ml-laptop（主控：求值/构建调度/部署） |
+| client | ml-2700 |
+
+主机增减时同步本表；标签语义见 `helpers/constants/misc.nix`。
 
 ## 模块系统说明
 
