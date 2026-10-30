@@ -77,6 +77,15 @@ let
         redirectURIs = [ "https://dashboard.zhyi.xin/login/generic_oauth" ];
       }
       {
+        id = "home-assistant";
+        name = "Home Assistant";
+        public = true;
+        redirectURIs = [
+          "https://ha.zhyi.xin/auth/oidc/callback"
+          "https://ha.opi5p.zhyi.xin/auth/oidc/callback"
+        ];
+      }
+      {
         id = "hydra";
         name = "Hydra";
         secret = {
@@ -96,6 +105,32 @@ let
           "https://immich.zhyi.xin/api/oauth/mobile-redirect"
           "app.immich:///oauth-callback"
         ];
+      }
+      {
+        id = "memos";
+        name = "Memos";
+        secret = {
+          _secret = config.sops.secrets.dex-memos-secret.path;
+        };
+        redirectURIs = [ "https://memos.zhyi.xin/auth/callback" ];
+      }
+      {
+        id = "moviepilot";
+        name = "MoviePilot";
+        secret = {
+          _secret = config.sops.secrets.dex-moviepilot-secret.path;
+        };
+        redirectURIs = [
+          "https://moviepilot.rock5c.zhyi.xin/api/v1/plugin/OidcAuth/callback"
+        ];
+      }
+      {
+        id = "navdash";
+        name = "Navdash";
+        secret = {
+          _secret = config.sops.secrets.dex-navdash-secret.path;
+        };
+        redirectURIs = [ "https://nav.zhyi.xin/auth/callback" ];
       }
       {
         id = "nextcloud";
@@ -134,6 +169,25 @@ let
         };
         redirectURIs = [ "https://at.zhyi.xin/oauth/sso/callback" ];
       }
+      {
+        id = "vaultwarden";
+        name = "Vaultwarden";
+        secret = {
+          _secret = config.sops.secrets.dex-vaultwarden-secret.path;
+        };
+        redirectURIs = [
+          "https://bitwarden.zhyi.xin/sso-connector.html"
+          "bitwarden://sso-callback"
+        ];
+      }
+      {
+        id = "wallos";
+        name = "Wallos";
+        secret = {
+          _secret = config.sops.secrets.dex-wallos-secret.path;
+        };
+        redirectURIs = [ "https://wallos.opi5p.zhyi.xin/index.php" ];
+      }
       # keep-sorted end
     ];
   };
@@ -160,7 +214,7 @@ in
   // builtins.listToAttrs (
     builtins.map (
       f: lib.nameValuePair "dex-${f.id}-secret" { sopsFile = inputs.secrets + "/dex/${f.id}.yaml"; }
-    ) cfg.staticClients
+    ) (builtins.filter (f: f ? secret) cfg.staticClients)
   );
 
   services.postgresql = {
