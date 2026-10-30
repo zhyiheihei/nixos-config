@@ -19,7 +19,7 @@
     ../../nixos/optional-apps/fastpit.nix
     ../../nixos/optional-apps/flapalerted.nix
     ../../nixos/optional-apps/oidc-tester.nix
-    # ../../nixos/optional-apps/gitea-actions.nix
+    ../../nixos/optional-apps/gitea-actions.nix
     # ../../nixos/optional-apps/imapfilter.nix
     # ../../nixos/optional-apps/lemmy.nix
     # ../../nixos/optional-apps/librechat.nix

@@ -23,7 +23,7 @@
     ../../nixos/optional-apps/llama-swap.nix
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/nix-distributed.nix
-    # ../../nixos/optional-apps/obs-studio.nix
+    ../../nixos/optional-apps/obs-studio.nix
     ../../nixos/optional-apps/opencl.nix
     ../../nixos/optional-apps/pi-secrets.nix
     ../../nixos/optional-apps/pi-web.nix
