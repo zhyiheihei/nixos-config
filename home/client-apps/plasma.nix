@@ -6,6 +6,13 @@
   ...
 }:
 {
+  home.packages = with pkgs; [
+    whitesur-kde
+    whitesur-icon-theme
+    whitesur-cursors
+    kdePackages.qtstyleplugin-kvantum
+  ];
+
   programs.okular = {
     enable = true;
     package = null;
