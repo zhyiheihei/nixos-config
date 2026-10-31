@@ -2,6 +2,7 @@
   inputs,
   config,
   lib,
+  LT,
   pkgs,
   ...
 }:
@@ -34,9 +35,6 @@ in
     ../../nixos/optional-apps/attic.nix
 
     ../../nixos/optional-apps/loki.nix
-
-    ../../nixos/optional-apps/cliproxyapi.nix
-    (inputs.secrets + "/cliproxyapi.nix")
   ];
 
   # 日志存储落数据盘：loki 模块固定用 /var/lib/loki，这里把该路径绑到数据盘
@@ -167,6 +165,50 @@ in
       ];
     };
   };
+
+  sops.secrets.vaults3-atticd = {
+    sopsFile = inputs.secrets + "/common/attic.yaml";
+    owner = "atticd";
+    group = "atticd";
+  };
+
+  systemd.services.atticd.serviceConfig.EnvironmentFile = lib.mkForce [
+    config.sops.templates.attic-env.path
+    config.sops.secrets.vaults3-atticd.path
+  ];
+
+  systemd.services.atticd.after = [ "vaults3.service" ];
+  systemd.services.atticd.wants = [ "vaults3.service" ];
+
+  services.atticd.settings = lib.mkOverride 40 {
+    listen = "[::1]:${LT.portStr.Attic}";
+    database = {
+      url = "postgres://atticd?host=/run/postgresql&user=atticd";
+      heartbeat = true;
+    };
+    require-proof-of-possession = false;
+    storage = {
+      type = "s3";
+      region = "us-east-1";
+      bucket = "nix-cache";
+      endpoint = "https://s3.zhyi.xin";
+    };
+    chunking = {
+      nar-size-threshold = 0;
+      min-size = 16384;
+      avg-size = 65536;
+      max-size = 262144;
+    };
+    compression = {
+      type = "zstd";
+      level = 9;
+    };
+    garbage-collection = {
+      interval = "12 hours";
+      default-retention-period = "3 month";
+    };
+  };
+
   lantian.harden.vaults3 = {
     enable = true;
     enableConfinement = false;
