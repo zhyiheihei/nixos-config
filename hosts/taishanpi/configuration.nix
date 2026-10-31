@@ -35,7 +35,10 @@
       "AF_PACKET"
     ];
   };
-  lantian.harden.wpa_supplicant.enable = "network";
+  lantian.harden.wpa_supplicant = {
+    enable = "network";
+    enableConfinement = false;
+  };
 
   systemd.services.taishanpi-ssh-host-keys = {
     description = "Generate persistent SSH host keys if missing";
