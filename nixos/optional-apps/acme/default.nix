@@ -13,7 +13,7 @@
   sops.secrets.gcore-api-key.sopsFile = inputs.secrets + "/gcore-dns.yaml";
   sops.templates.lego-env = {
     content = ''
-      GCORE_API_KEY=${config.sops.placeholder.gcore-api-key}
+      GCORE_PERMANENT_API_TOKEN=${config.sops.placeholder.gcore-api-key}
     '';
     owner = "acme";
     group = "acme";
@@ -28,7 +28,7 @@
       dnsResolver = "8.8.8.8:53";
       dnsPropagationCheck = false;
       email = "molishanguang@outlook.com";
-      environmentFile = [ config.sops.templates.lego-env.path ];
+      environmentFile = config.sops.templates.lego-env.path;
       postRun = ''
         CERT=$(basename $(pwd))
         install -Dm644 --owner=root -t /nix/sync-servers/acme/"$CERT" *
