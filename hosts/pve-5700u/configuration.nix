@@ -16,6 +16,7 @@
     ../../nixos/optional-apps/llama-cpp.nix
     ../../nixos/optional-apps/resin.nix
     ../../nixos/optional-apps/dlx.nix
+    ../../nixos/optional-apps/mcsm.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/microsoft-rewards-script.nix
 
@@ -54,6 +55,8 @@
       backupPath = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-home-vm/virtiofs/nixos-home-vm/persistent";
     };
   };
+
+  lantian.mcsm.enable = true;
 
   services.proxmox-ve.bridges = [
     "br-lan"

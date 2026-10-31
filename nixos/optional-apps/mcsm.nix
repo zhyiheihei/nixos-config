@@ -14,8 +14,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # MCSManager 官方 Docker 部署（docs.mcsmanager.com/docker-install.html）：
-    # web 面板 + daemon 两个容器，daemon 经 docker.sock 创建游戏实例容器。
     virtualisation.oci-containers.containers = {
       mcsm-web = {
         image = "docker.io/githubyumao/mcsmanager-web:latest";
@@ -31,15 +29,12 @@ in
       mcsm-daemon = {
         image = "docker.io/githubyumao/mcsmanager-daemon:latest";
         labels."io.containers.autoupdate" = "registry";
-        # 普通实例跑在 daemon 容器内，游戏端口须经 daemon 容器发布到宿主机
-        # （router DNAT 25565 → opi5p），MC 默认端口 TCP+UDP。
         ports = [
           "127.0.0.1:${LT.portStr.Mcsm.Daemon}:24444"
           "25565:25565/tcp"
           "25565:25565/udp"
         ];
         environment = {
-          # docker.sock 创建实例容器时 -v 绑定按宿主机路径解析，须用宿主机路径
           MCSM_DOCKER_WORKSPACE_PATH = "/var/lib/mcsm/daemon/data/InstanceData";
         };
         volumes = [
@@ -63,9 +58,6 @@ in
       "/var/lib/mcsm/daemon/data"."d" = { };
       "/var/lib/mcsm/daemon/logs"."d" = { };
     };
-
-    # 浏览器须直连 daemon（控制台/文件传输不经过 web 面板），HTTPS 反代时
-    # daemon 也要有独立 TLS vhost，官方 docs.mcsmanager.com/ops/mcsm_network.html
     lantian.nginxVhosts = {
       "mcsm.zhyi.xin" = {
         locations."/" = {
