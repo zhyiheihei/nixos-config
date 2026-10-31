@@ -43,12 +43,25 @@ in
 
   environment.defaultPackages = [ ];
 
-  # Disable algif_aead kernel module due to the "Copy-on-Write on Demand" vulnerability:
-  # https://copy.fail/
-  boot.extraModprobeConfig = lib.optionalString (!config.networking.networkmanager.enable) ''
-    blacklist algif_aead
-    install algif_aead ${lib.getExe' pkgs.coreutils "true"}
-  '';
+  # https://lowendspirit.com/discussion/11543/shrinking-nixos-ram-footprint-and-resource-requirements-to-the-bare-minimum
+  documentation.enable = lib.mkDefault (LT.this.hasTag LT.tags.client);
+  fonts.fontconfig.enable = lib.mkDefault (LT.this.hasTag LT.tags.client);
+  xdg = {
+    mime.enable = lib.mkDefault (LT.this.hasTag LT.tags.client);
+    icons.enable = lib.mkDefault (LT.this.hasTag LT.tags.client);
+    sounds.enable = lib.mkDefault (LT.this.hasTag LT.tags.client);
+  };
+
+  # Disable kernel allocation/debugging overhead, not audit or PSI.
+  boot.kernelParams = [
+    "sysctl.vm.mem_profiling=never"
+    "kfence.sample_interval=0"
+    "damon_stat.enabled=N"
+  ]
+  ++ lib.optionals (config.lantian.hostType == "vm" && pkgs.stdenv.hostPlatform.isx86_64) [
+    "ras=cec_disable"
+    "8250.nr_uarts=1"
+  ];
 
   environment.systemPackages = with pkgs; [
     # keep-sorted start
@@ -68,7 +81,6 @@ in
     iperf3
     lsof
     nettools
-    nix-tree
     nur-xddxdd.lantianCustomized.ls-iommu
     nur-xddxdd.lantianCustomized.nixos-cleanup
     nur-xddxdd.lantianCustomized.x86-arch-level
@@ -93,8 +105,6 @@ in
     # keep-sorted end
   ];
 
-  hardware.ksm.enable = true;
-
   lantian.qemu-user-static-binfmt = {
     enable = LT.this.hasTag LT.tags.nix-builder;
     package = pkgs.nur-xddxdd.qemu-user-static;
@@ -103,7 +113,6 @@ in
   programs = {
     bash.vteIntegration = LT.this.hasTag LT.tags.client;
     command-not-found.enable = false;
-    htop.enable = true;
     iftop.enable = true;
     less = {
       enable = true;
@@ -124,6 +133,10 @@ in
 
   services.fstrim.enable = true;
   services.irqbalance.enable = LT.this.cpuThreads > 1;
+  services.lvm.enable = lib.mkDefault false;
+  services.udev.extraRules = lib.mkIf (config.lantian.hostType == "vm") ''
+    ACTION=="add|change", KERNEL=="vd[a-z]*", ENV{DEVTYPE}=="disk", ATTR{queue/scheduler}="none", ATTR{queue/read_ahead_kb}="128"
+  '';
 
   security.openssl = {
     oqs-provider = {
@@ -175,6 +188,11 @@ in
     enableEmergencyMode = LT.this.hasTag LT.tags.client;
 
     oomd.enable = lib.mkForce false;
+
+    suppressedSystemUnits = lib.optionals (!LT.this.hasTag LT.tags.client) [
+      "systemd-importd.service"
+      "systemd-importd.socket"
+    ];
 
     sleep.settings.Sleep = {
       AllowSuspend = false;

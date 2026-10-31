@@ -7,6 +7,7 @@ final: prev: {
   nixfmt-rs = inputs.nixfmt-rs.packages."${prev.stdenv.hostPlatform.system}".default;
   never-gonna = inputs.never-gonna-rust.packages."${prev.stdenv.hostPlatform.system}".default;
   picoforge = inputs.picoforge.packages."${prev.stdenv.hostPlatform.system}".picoforge;
+  web-compressor = final.callPackage ../pkgs/web-compressor { };
   wine-tkg = inputs.nix-gaming.packages."${prev.stdenv.hostPlatform.system}".wine-tkg;
   ncps = inputs.ncps.packages."${prev.stdenv.hostPlatform.system}".default.overrideAttrs (old: {
     go = final.go_1_27;
