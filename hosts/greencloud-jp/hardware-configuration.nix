@@ -20,6 +20,11 @@ _: {
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/9e3b2164-de95-4c42-822a-cccfdd435276";
     fsType = "ext4";
+    options = [
+      "nosuid"
+      "nodev"
+      "noexec"
+    ];
   };
 
   fileSystems."/data" = {

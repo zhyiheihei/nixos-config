@@ -20,6 +20,11 @@ _: {
   fileSystems."/boot" = {
     device = "/dev/vda2";
     fsType = "ext4";
+    options = [
+      "nosuid"
+      "nodev"
+      "noexec"
+    ];
   };
 
   swapDevices = [ ];

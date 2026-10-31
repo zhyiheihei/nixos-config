@@ -8,6 +8,11 @@ _: {
   fileSystems."/boot" = {
     device = "/dev/disk/by-uuid/ff803ebc-e7fd-4efd-9e4a-a62fec598ff6";
     fsType = "ext4";
+    options = [
+      "nosuid"
+      "nodev"
+      "noexec"
+    ];
   };
 
   fileSystems."/nix" = {
