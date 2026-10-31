@@ -12,12 +12,12 @@
     cn-accel
   ];
   cpuThreads = 2;
-  hostname = "35.212.152.140";
+  hostname = "35.212.216.210";
   city = geo.cities."JP Tokyo";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFdTsRnGGIr6WOBU0eG0fmaURyYUd5BIUlwBUpsmqHJT molishanguang@gmail.com";
   zerotier = "47c75f186a";
   public = {
-    IPv4 = "35.212.152.140";
+    IPv4 = "35.212.216.210";
   };
   dn42 = {
     IPv4 = "172.20.46.231";
