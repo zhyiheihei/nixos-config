@@ -25,9 +25,9 @@ let
 
   scriptRules = lib.concatStringsSep "\n" (map (r: "    \"${r}\",") ltnetRules);
 
-  # Verge 全局 Merge：唯一的实质修改是 DNS 段。在 Verge 增强链中对每个订阅
-  # 深合并生效（实测 2.5.2 下 dns 字段存活；tun 段无需覆盖——TUN 设备地址由
-  # mihomo 从 fake-ip-range 自动派生，见下）。
+  # Verge 全局 Merge：两个实质修改——DNS 段 + TUN 路由豁免。在 Verge 增强
+  # 链中对每个订阅深合并生效（实测 2.5.2 下 dns 字段存活）。
+  # TUN 设备地址由 mihomo 从 fake-ip-range 自动派生，见下。
   mergeYaml = pkgs.writeText "clash-verge-merge-ltnet.yaml" ''
     # LTNET / dn42 兼容层 —— 本文件由 NixOS 管理（勿在 Verge GUI 中编辑），
     # 修改请改 nixos/optional-apps/clash-verge.nix。部署后重启 Verge 或重新
@@ -63,6 +63,28 @@ let
       proxy-server-nameserver:
         - https://120.53.53.53/dns-query
         - https://223.5.5.5/dns-query
+    # LTNET 公网载体端点从 TUN 自动路由中豁免：ZeroTier 自己的 UDP 载体
+    # （peer 公网地址 + PLANET 根）一旦穿 TUN，core 重启/重建即整机断连，
+    # 且多路径在直连与 TUN 中继之间横跳。内核层直接走主表物理口，
+    # PROCESS-NAME/DST-PORT 规则只免代理节点、免不了 TUN 本身。
+    # fleet 新增公网主机时同步补条目；家内网段走主表更具体路由，无需列出。
+    tun:
+      route-exclude-address:
+        - 43.155.239.124/32            # tencent
+        - 240d:c000:f05f:8900::/64     # tencent v6
+        - 123.206.117.194/32           # tencent-cn
+        - 2402:4e00:c032:6100::/64     # tencent-cn v6
+        - 101.96.199.157/32            # volcengine
+        - 203.55.176.158/32            # greencloud
+        - 2a11:8083:11:191b::/64       # greencloud v6
+        - 45.159.48.76/32              # greencloud-jp
+        - 2403:71c0:2000:1253::/64     # greencloud-jp v6
+        - 36.50.85.113/32              # hostdare
+        - 35.212.152.140/32            # google
+        - 84.17.53.155/32              # ZeroTier PLANET root
+        - 185.152.67.145/32            # ZeroTier PLANET root
+        - 2605:9880:400:c3::/64        # ZeroTier PLANET root
+        - 2a02:6ea0:d368::/48          # ZeroTier PLANET root
   '';
 
   # Verge 全局 Script：规则前置必须走这里——实测 Merge 的 prepend-rules 键
