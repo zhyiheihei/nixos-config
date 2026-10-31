@@ -22,6 +22,7 @@
     ../../nixos/optional-apps/lsky-pro.nix
     ../../nixos/optional-apps/nginx-lab
     ../../nixos/optional-apps/archiveteam.nix
+    ../../nixos/optional-apps/zerotier-moon
 
     ../../nixos/optional-cron-jobs/auto-mihoyo-bbs
     ../../nixos/optional-cron-jobs/bilibili-tool-pro.nix

@@ -35,6 +35,7 @@
     ../../nixos/optional-apps/virtualbox.nix
     ../../nixos/optional-apps/vlmcsd.nix
     ../../nixos/optional-apps/whisper-cpp.nix
+    ../../nixos/optional-apps/zerotier-moon
 
     # ../../nixos/optional-apps/sunshine.nix
     ../../nixos/optional-apps/ncps-client.nix
