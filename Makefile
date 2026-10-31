@@ -1,7 +1,7 @@
 # 与上游 Makefile 逐字对齐。两个登记偏移：
 # ① CN 归属主机（host.nix 的 city 为 geo.cities."CN …"）部署由发起端（控制机）
 #    并行推闭包（PUSH_JOBS 默认 4），非 CN 主机保持 colmena apply 原样（目标机自拉缓存）；
-# ② push-cache 推 fork 自建缓存（attic 服务别名 zhyi = attic.zhyi.xin）。
+# ② push-cache 推 fork 自建缓存（attic 服务别名 zhyi = cache.zhyi.xin）。
 
 servers: FORCE
 	@$(MAKE) _deploy-tag TAG=@server
@@ -65,18 +65,18 @@ _deploy-tag: FORCE
 				apply_list="$$apply_list $$HOST"; \
 			fi; \
 		done; \
-		rm -f .gcroots/deploy-*; \
+		rm -f .gcroots/.deploy-*; \
 		status=0; \
 		if [ -n "$$apply_list" ]; then \
 			nix run .#colmena -- apply --on $$(echo $$apply_list | sed 's/ /,/g') || status=1; \
 		fi; \
 		if [ -n "$$push_list" ]; then \
 			echo $$push_list | tr ' ' '\n' | xargs -P $(PUSH_JOBS) -I{} sh -c '\
-				$(MAKE) --no-print-directory _push-host HOST={} > .gcroots/deploy-{}.log 2>&1; \
-				echo $$? > .gcroots/deploy-{}.exit'; \
+				$(MAKE) --no-print-directory _push-host HOST={} > .gcroots/.deploy-{}.log 2>&1; \
+				echo $$? > .gcroots/.deploy-{}.exit'; \
 			for HOST in $$push_list; do \
-				if [ "$$(cat .gcroots/deploy-$$HOST.exit 2>/dev/null)" -ne 0 ]; then \
-					echo "=== $$HOST push 失败 ==="; cat .gcroots/deploy-$$HOST.log; status=1; \
+				if [ "$$(cat .gcroots/.deploy-$$HOST.exit 2>/dev/null)" -ne 0 ]; then \
+					echo "=== $$HOST push 失败 ==="; cat .gcroots/.deploy-$$HOST.log; status=1; \
 				fi; \
 			done; \
 		fi; \
