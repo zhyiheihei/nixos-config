@@ -23,9 +23,18 @@ let
       linux-*/scripts/dtc/include-prefixes
   '';
 
+  # The 5.5" 1080x1920 MIPI module (ATK-MD0550M) is an HX8394 panel, but its
+  # vendor init sequence is not the one mainline carries for the Huiling panel,
+  # so carry the vendor sequence as an additional panel in the HX8394 driver.
   atkKernel = crossPkgs.linuxManualConfig {
     inherit (crossPkgs.linux_6_18) src version modDirVersion;
     configfile = ./kernel-config;
+    kernelPatches = [
+      {
+        name = "atk-md0550m-panel";
+        patch = ./0001-drm-panel-himax-hx8394-add-alientek-md0550m.patch;
+      }
+    ];
   };
 
   # Mainline rtw89 has no SDIO support for the RTL8852BS and linux-firmware ships
@@ -239,7 +248,7 @@ in
 
   hardware = {
     enableRedistributableFirmware = lib.mkForce false;
-    firmware = lib.mkForce [ ];
+    firmware = lib.mkForce [ pkgs.wireless-regdb ];
     wirelessRegulatoryDatabase = true;
   };
 

@@ -6,6 +6,8 @@
 {
   imports = [
     ../../nixos/server.nix
+    ../../nixos/client-components/fonts.nix
+    ../../nixos/client-components/kde.nix
     ../../nixos/optional-apps/ncps-client.nix
     ./hardware-configuration.nix
   ];
@@ -13,6 +15,13 @@
   # The board has no DNS record yet, so deploy over the LAN address while the
   # hostname stays the fleet-wide one used for secrets and the WireGuard mesh.
   deployment.targetHost = lib.mkForce "192.168.0.63";
+
+  # Testing only: the board drives the 5.5" 1080x1920 MIPI panel with the same
+  # Plasma 6 desktop the client machines run. The host keeps its server role, so
+  # the desktop modules are imported above and the graphics stack has to be
+  # enabled here; delete this block once the panel bring-up is over.
+  hardware.graphics.enable = true;
+  services.libinput.enable = true;
 
   # Bring-up image: both RK3568 GMACs are equivalent until the first serial log,
   # so match on the interface name and address the board on the LAN.
@@ -27,6 +36,8 @@
   };
 
   networking.networkmanager.enable = lib.mkForce false;
+
+  systemd.tmpfiles.rules = [ "d /var/cache/zones 0755 knot knot -" ];
 
   # Bring-up only: the serial console is the only path into an image whose
   # Ethernet is still being characterised. Remove together with the tools below.
@@ -55,6 +66,7 @@
     path = [
       pkgs.ethtool
       pkgs.iproute2
+      pkgs.kmod
       pkgs.util-linux
     ];
     script = ''
