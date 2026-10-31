@@ -29,7 +29,7 @@ let
     {
       recordType = "CNAME";
       name = "ai-api";
-      target = "tencent.ltnet.zhyi.xin.";
+      target = "greencloud-jp.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -110,7 +110,7 @@ let
     {
       recordType = "CNAME";
       name = "cliproxyapi";
-      target = "tencent.ltnet.zhyi.xin.";
+      target = "greencloud-jp.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {

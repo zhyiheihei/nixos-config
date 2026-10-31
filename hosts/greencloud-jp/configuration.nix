@@ -34,6 +34,9 @@ in
     ../../nixos/optional-apps/attic.nix
 
     ../../nixos/optional-apps/loki.nix
+
+    ../../nixos/optional-apps/cliproxyapi.nix
+    (inputs.secrets + "/cliproxyapi.nix")
   ];
 
   # 日志存储落数据盘：loki 模块固定用 /var/lib/loki，这里把该路径绑到数据盘

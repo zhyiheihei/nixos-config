@@ -10,8 +10,6 @@
     "${inputs.secrets}/nixos-hidden-module/a3f9d2b6c81e7450"
 
     ./hardware-configuration.nix
-    ../../nixos/optional-apps/cliproxyapi.nix
-    (inputs.secrets + "/cliproxyapi.nix")
     (inputs.secrets + "/mihoyo-bbs.nix")
     ../../nixos/optional-apps/grafana.nix
     ../../nixos/optional-apps/hubproxy.nix
