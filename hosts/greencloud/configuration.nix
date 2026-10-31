@@ -41,7 +41,6 @@
     ../../nixos/optional-apps/tg-bot-cleaner-bot
     # ../../nixos/optional-apps/yggdrasil-alfis.nix
     ../../nixos/optional-apps/zerotierone-controller.nix
-    ../../nixos/optional-apps/zerotier-moon
 
     ../../nixos/optional-cron-jobs/dn42-certificate.nix
     # ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
