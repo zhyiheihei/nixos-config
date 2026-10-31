@@ -6,7 +6,7 @@
 let
   # Only active on hosts that import the NixOS homepage module, which adds the
   # homepage.localhost vhost.
-  enabled = (lib.attrByPath [ "zhyi" "nginxVhosts" ] { } osConfig) ? "homepage.localhost";
+  enabled = (lib.attrByPath [ "lantian" "nginxVhosts" ] { } osConfig) ? "homepage.localhost";
 in
 lib.mkIf enabled {
   programs.firefox.profiles.zhyi.settings = {

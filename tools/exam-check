@@ -51,6 +51,10 @@ NORMALIZE = [
     ("glauthUsers.lantian", "glauthUsers.zhyi"),
     ("lantian:${glauthUsers", "zhyi:${glauthUsers"),
     ('"lantian"', '"zhyi"'),
+    # 选项命名空间不是用户名：裸 "lantian" 规则会把模块系统选项路径
+    # [ "lantian" "nginxVhosts" ] 改成不存在的 [ "zhyi" "nginxVhosts" ]，
+    # attrByPath 取到空集（跨主机聚合全空），故在其后原样还原，同时修回历史值。
+    ('[ "zhyi" "nginxVhosts" ]', '[ "lantian" "nginxVhosts" ]'),
     ("/ssh/lantian.nix", "/ssh/zhyi.nix"),
     ("ssh lantian@", "ssh zhyi@"),
     ("vhosts-lantian.nix", "vhosts-zhyi.nix"),
