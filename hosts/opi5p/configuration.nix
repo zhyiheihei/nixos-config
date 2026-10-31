@@ -202,7 +202,6 @@ in
     ../../nixos/optional-apps/i2pd.nix
     ../../nixos/optional-apps/ignis.nix
     ../../nixos/optional-apps/immich-rockchip.nix
-    ../../nixos/optional-apps/mcsm.nix
     # ../../nixos/optional-apps/microsoft-rewards-script.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/openlist.nix
@@ -471,7 +470,6 @@ in
     "192.168.0.41:5555"
   ];
 
-  lantian.mcsm.enable = true;
   lantian.openlist.enable = true;
   lantian.taosync.enable = true;
   systemd.services.podman-openlist.environment = LT.proxyEnvironment // {
@@ -675,6 +673,42 @@ in
     noIndex.enable = true;
   };
 
+  lantian.nginxVhosts."mcsm.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.pve-5700u.interconnect.IPv4}";
+        proxyOverrideHost = "mcsm.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name mcsm.zhyi.xin;
+        '';
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  lantian.nginxVhosts."mcsm-daemon.zhyi.xin" = {
+    locations = {
+      "/" = {
+        proxyPass = "https://${LT.hosts.pve-5700u.interconnect.IPv4}";
+        proxyOverrideHost = "mcsm-daemon.zhyi.xin";
+        proxyWebsockets = true;
+        proxyNoTimeout = true;
+        extraConfig = ''
+          proxy_ssl_server_name on;
+          proxy_ssl_name mcsm-daemon.zhyi.xin;
+        '';
+      };
+    };
+
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+
   lantian.nginxVhosts."linkr.opi5p.zhyi.xin" = {
     locations = {
       "/" = {
@@ -692,4 +726,18 @@ in
 
   services.hydra.queueRunner.grpc.address = lib.mkForce LT.this.ltnet.IPv4;
   services.hydra-builder.queueRunnerAddr = lib.mkForce "http://${LT.this.ltnet.IPv4}:${LT.portStr.Hydra.QueueRunnerGRPC}";
+
+  # Static binary cache endpoint backing LT.constants.nix.substituters, served
+  # by the fleet-wide lab local vhost (nixos/common-apps/nginx/vhost-lab.nix).
+  # Narinfos are exported here by nix copy --to file:// (population is
+  # operator-driven); the nix-cache-info file makes the URL a valid cache so
+  # fleet hosts stop logging "does not appear to be a binary cache".
+  systemd.tmpfiles.rules = [
+    "d /var/www/lab.${config.networking.hostName}.zhyi.xin/nix-static-file-cache 0755 root root -"
+    "C+ /var/www/lab.${config.networking.hostName}.zhyi.xin/nix-static-file-cache/nix-cache-info 0444 root root - ${pkgs.writeText "nix-cache-info" ''
+      StoreDir: /nix/store
+      WantMassQuery: 1
+      Priority: 40
+    ''}"
+  ];
 }

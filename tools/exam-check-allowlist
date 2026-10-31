@@ -13,7 +13,7 @@ helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）
 helpers/host-options.nix # fork 选项：GPU 显存档位、NeoNetwork null、netns 默认值
 helpers/fn/zerotier.nix # 额外 Linux ZeroTier 客户端由 nodeID 推导 MAC 并预置静态邻居，解决中继路径不转发广播导致 ARP 失败（fa320488a，F50 实测）
-hosts/opi5p/configuration.nix # queueRunner gRPC 绑 LTNET（ml-builder 远程 builder 需要）+ 本机 hydra-builder queueRunnerAddr 同步改 LTNET 地址（否则本机 builder 仍按上游默认 127.0.0.1 连不上 LTNET 绑定，crash-loop，2026-10-30 起实锤 119 次重启）
+hosts/opi5p/configuration.nix # queueRunner gRPC 绑 LTNET（ml-builder 远程 builder 需要）+ 本机 hydra-builder queueRunnerAddr 同步改 LTNET 地址（否则本机 builder 仍按上游默认 127.0.0.1 连不上 LTNET 绑定，crash-loop，2026-10-30 起实锤 119 次重启）；lab.opi5p.zhyi.xin 静态二进制缓存 vhost + nix-cache-info（上游作者在自己基础设施上服务 lab.pve-epyc 静态缓存、不在 fleet 仓库内，fork 落 opi5p，2026-10-31 用户裁定补全；签名/导出机制待后续）
 hosts/opi03/configuration.nix # 导入 ncps-client（家庭 LAN 节点走本地 ncps 缓存，2026-10-31 用户裁定补齐 opi03/taishanpi/atk3568）
 hosts/taishanpi/configuration.nix # 导入 ncps-client（家庭 LAN 节点走本地 ncps 缓存，2026-10-31 用户裁定补齐 opi03/taishanpi/atk3568）
 hosts/atk3568/configuration.nix # 导入 ncps-client（家庭 LAN 节点走本地 ncps 缓存，2026-10-31 用户裁定补齐 opi03/taishanpi/atk3568）
@@ -41,7 +41,7 @@ nixos/optional-apps/acme/base-domains.nix # 单域 baseDomains + ATproto 证书�
 nixos/optional-apps/acme/default.nix # DNS 商 gcore（bunny 为作者所用）、dnsPropagationCheck=false
 nixos/optional-apps/bird-lg-go.nix # lg neo 别名移除（NeoNetwork 置空）
 nixos/optional-apps/dex.nix # fork 扩展 OIDC 客户端（home-assistant=public 无 secret、memos、moviepilot、navdash、vaultwarden、wallos；hydra 保留上游同款），secrets 生成过滤无 secret 客户端；服务落 volcengine（原 host 本地 dex.nix 归并回共享模块）
-nixos/optional-apps/homepage.nix # 单域正则简化（作者双域正则不适用）；chromium 侧不用 extraOpts mkForce——nixpkgs types.attrs 不剥 mkOverride 标记，残缺 {_type:override,content,priority:50} 条目被 Chrome 静默丢弃、主页锁失效，改走 programs.chromium.homepageLocation 专用选项（default.json 纯 JSON）；firefox StartPage 强制 homepage-locked（homepage 变体不 override 用户 browser.startup.page=0，锁定变体才强制启动页）。上游同款带病，Chrome 侧修法随上游修复回归
+nixos/optional-apps/homepage.nix # 单域正则简化（作者双域正则不适用）；chromium 侧不用 extraOpts mkForce——nixpkgs types.attrs 不剥 mkOverride 标记，残缺 {_type:override,content,priority:50} 条目被 Chrome 静默丢弃、主页锁失效，改走 programs.chromium.homepageLocation 专用选项（default.json 纯 JSON）；firefox StartPage 强制 homepage-locked（homepage 变体不 override 用户 browser.startup.page=0，锁定变体才强制启动页）。上游同款带病，Chrome 侧修法随上游修复回归；跨主机聚合读选项路径 [ "lantian" "nginxVhosts" ]（模块系统命名空间，不是用户名）：NORMALIZE 裸 "lantian" 规则会把它改成不存在的 zhyi 路径、attrByPath 取空集（页面只剩本机 vhost），已在 tools/exam-check 的 NORMALIZE 表登记还原特例（2026-10-31）
 nixos/optional-apps/qbittorrent.nix # 删 "ssl/certs/ca-certificates.crt" = mkDefault true（2026-10-31 用户裁定）：上游 ceeba16bb 给 harden.nix 加了同名 mkDefault 默认（值=pki.caBundle store path），与文件内既有 mkDefault true 同优先级冲突，router（唯一启用 qbittorrent 的主机，上游 lt-home-router 不启用）求值 TypeError 无法部署；删行让 harden.nix 默认接管，两者解析目标相同；上游修复冲突后随对齐取消
 nixos/optional-apps/qbittorrent.nix # 删 "ssl/certs/ca-certificates.crt" = mkDefault true（2026-10-31 用户裁定）：上游 ceeba16bb 给 harden.nix 加了同名 mkDefault 默认（值=pki.caBundle store path），与文件内既有 mkDefault true 同优先级冲突，router（唯一启用 qbittorrent 的主机，上游 lt-home-router 不启用）求值 TypeError 无法部署；删行让 harden.nix 默认接管，两者解析目标相同；上游修复冲突后随对齐取消
 nixos/optional-apps/qbittorrent-pt.nix # 同 qbittorrent.nix 条目：pt 变体同名冲突，router 同时启用两实例，同批删行
