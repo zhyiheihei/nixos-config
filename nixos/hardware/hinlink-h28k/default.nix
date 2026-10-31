@@ -201,7 +201,6 @@ in
       wantedBy = [ "multi-user.target" ];
       after = [ "nix.mount" ];
       requires = [ "nix.mount" ];
-      before = [ "sops-install-secrets.service" ];
       path = [
         pkgs.btrfs-progs
         pkgs.gptfdisk
