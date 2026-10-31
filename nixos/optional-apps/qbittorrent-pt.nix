@@ -64,7 +64,6 @@ in
     etc = {
       "resolv.conf" = lib.mkDefault true;
       hosts = lib.mkDefault true;
-      "ssl/certs/ca-certificates.crt" = lib.mkDefault true;
       "ssl/certs/ca-bundle.crt" =
         lib.mkDefault
           config.environment.etc."ssl/certs/ca-certificates.crt".source;

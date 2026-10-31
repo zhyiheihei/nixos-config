@@ -6,6 +6,7 @@
 {
   imports = [
     ../../nixos/server.nix
+    ../../nixos/optional-apps/ncps-client.nix
     ./hardware-configuration.nix
   ];
 

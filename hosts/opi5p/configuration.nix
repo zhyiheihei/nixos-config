@@ -691,4 +691,5 @@ in
   };
 
   services.hydra.queueRunner.grpc.address = lib.mkForce LT.this.ltnet.IPv4;
+  services.hydra-builder.queueRunnerAddr = lib.mkForce "http://${LT.this.ltnet.IPv4}:${LT.portStr.Hydra.QueueRunnerGRPC}";
 }

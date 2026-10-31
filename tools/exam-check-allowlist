@@ -13,6 +13,10 @@ helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）
 helpers/host-options.nix # fork 选项：GPU 显存档位、NeoNetwork null、netns 默认值
 helpers/fn/zerotier.nix # 额外 Linux ZeroTier 客户端由 nodeID 推导 MAC 并预置静态邻居，解决中继路径不转发广播导致 ARP 失败（fa320488a，F50 实测）
+hosts/opi5p/configuration.nix # queueRunner gRPC 绑 LTNET（ml-builder 远程 builder 需要）+ 本机 hydra-builder queueRunnerAddr 同步改 LTNET 地址（否则本机 builder 仍按上游默认 127.0.0.1 连不上 LTNET 绑定，crash-loop，2026-10-30 起实锤 119 次重启）
+hosts/opi03/configuration.nix # 导入 ncps-client（家庭 LAN 节点走本地 ncps 缓存，2026-10-31 用户裁定补齐 opi03/taishanpi/atk3568）
+hosts/taishanpi/configuration.nix # 导入 ncps-client（家庭 LAN 节点走本地 ncps 缓存，2026-10-31 用户裁定补齐 opi03/taishanpi/atk3568）
+hosts/atk3568/configuration.nix # 导入 ncps-client（家庭 LAN 节点走本地 ncps 缓存，2026-10-31 用户裁定补齐 opi03/taishanpi/atk3568）
 home/client-apps/dev-tools.nix # 上游在作者主机 lt-hp-omen（NORMALIZE→ml-laptop）装 nur-xddxdd.vivado + quartus-prime-lite，fork 只装 quartus-prime-lite（2026-10-31 用户裁定）：vivado 是 requireFile 固定输出，需 AMD 完整安装包 FPGAs_AdaptiveSoCs_Unified_SDI_2025.2.1_0320_0604.tar（outputHashMode=flat、sha256-nTHt15n9zrYZiHuDM33bkdDzBvwG7mA4RPlOszwB7y4=）手工 nix store add 入 store，本机无该包且无 Vivado 需求，否则 make local 在该 drv 失败并级联整个系统闭包
 home/client-apps/pi/default.nix # Pi 默认 provider 与 Magic Context 配置对齐 exam；仅保留本仓 zhyi 用户、Strata 实际映射到 ml-laptop.zhyi.xin，以及 Magic Context 模型走本仓 CPA 别名 cliproxyapi/zhyi/coding-fast（exam 为 lantian/coding-fast，别名定义在私有 secrets 仓 llm-providers/apis/zhipu-coding.json）的环境差异；models 走 programs.pi-coding-agent.models 选项而非 exam 的 home.file+toJSON（secrets 仓 hidden module 的 modelOverrides 要合并进该选项）
 home/client-apps/firefox/default.nix # zeroomega 扩展保留（用户浏览器配置）：addons.json/update.py 各追加 zeroomega 条目（AMO slug 直取，随 update.py 工作流维护）；其余已对齐（profile 名/ai 端点均为认可替换）；临时偏离：摘除 tweaks-for-youtube 扩展（AMO 对 nixpkgs 钉住的旧版 xpi 返回 406，构建不可过），nixpkgs bump 后恢复；临时摘除 firefox-color（exam 求值无此 addon、本仓多出的幽灵项，其 AMO 旧版 URL 同样 406 不可构建，按 drvPath 过滤），nixpkgs bump / addon 版本跟上后恢复
@@ -38,6 +42,9 @@ nixos/optional-apps/acme/default.nix # DNS 商 gcore（bunny 为作者所用）�
 nixos/optional-apps/bird-lg-go.nix # lg neo 别名移除（NeoNetwork 置空）
 nixos/optional-apps/dex.nix # fork 扩展 OIDC 客户端（home-assistant=public 无 secret、memos、moviepilot、navdash、vaultwarden、wallos；hydra 保留上游同款），secrets 生成过滤无 secret 客户端；服务落 volcengine（原 host 本地 dex.nix 归并回共享模块）
 nixos/optional-apps/homepage.nix # 单域正则简化（作者双域正则不适用）；chromium 侧不用 extraOpts mkForce——nixpkgs types.attrs 不剥 mkOverride 标记，残缺 {_type:override,content,priority:50} 条目被 Chrome 静默丢弃、主页锁失效，改走 programs.chromium.homepageLocation 专用选项（default.json 纯 JSON）；firefox StartPage 强制 homepage-locked（homepage 变体不 override 用户 browser.startup.page=0，锁定变体才强制启动页）。上游同款带病，Chrome 侧修法随上游修复回归
+nixos/optional-apps/qbittorrent.nix # 删 "ssl/certs/ca-certificates.crt" = mkDefault true（2026-10-31 用户裁定）：上游 ceeba16bb 给 harden.nix 加了同名 mkDefault 默认（值=pki.caBundle store path），与文件内既有 mkDefault true 同优先级冲突，router（唯一启用 qbittorrent 的主机，上游 lt-home-router 不启用）求值 TypeError 无法部署；删行让 harden.nix 默认接管，两者解析目标相同；上游修复冲突后随对齐取消
+nixos/optional-apps/qbittorrent.nix # 删 "ssl/certs/ca-certificates.crt" = mkDefault true（2026-10-31 用户裁定）：上游 ceeba16bb 给 harden.nix 加了同名 mkDefault 默认（值=pki.caBundle store path），与文件内既有 mkDefault true 同优先级冲突，router（唯一启用 qbittorrent 的主机，上游 lt-home-router 不启用）求值 TypeError 无法部署；删行让 harden.nix 默认接管，两者解析目标相同；上游修复冲突后随对齐取消
+nixos/optional-apps/qbittorrent-pt.nix # 同 qbittorrent.nix 条目：pt 变体同名冲突，router 同时启用两实例，同批删行
 nixos/client-apps/google-chrome.nix # 删 extraOpts.HomepageLocation（chrome://new-tab-page 与 homepage.nix 的 homepageLocation 冲突——mkForce 进 attr 叶子=残缺 JSON，走专用选项后跨文件冲突，删行让位；见 homepage.nix 条目）
 nixos/optional-apps/hydra/default.nix # fork 三处：attic 登录/上传接 zhyi 缓存（attic.zhyi.xin + LT.nix.attic.cacheName，上游为 attic.colocrossing.xuyh0120.win + lantian）、队列器 gRPC 绑 LTNET（上游 127.0.0.1，为让 ml-builder 的 hydra-builder 连上）、hydra-evaluator 注入 GIT_SSH_COMMAND 拉私有 flake 输入；evaluator_workers 16→1、max_memory 8192→4096（fork 跑在 opi5p 16G ARM 生产节点；求值内存峰值=workers×预算，1×4096 单 worker 串行封顶 4G，多 worker 曾把整机打进 swap 风暴，2026-10-14 实锤；代价是新世界首次全量求值串行变慢，增量期无感）
 nixos/optional-apps/mysql.nix # Galera 副本清单差异（作者节点不存在于本仓）

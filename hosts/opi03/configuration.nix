@@ -11,6 +11,7 @@ in
 {
   imports = [
     ../../nixos/minimal.nix
+    ../../nixos/optional-apps/ncps-client.nix
     ./hardware-configuration.nix
   ];
 

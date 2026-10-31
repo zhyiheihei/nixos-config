@@ -35,7 +35,6 @@
 
   lantian.harden.qbittorrent.etc = {
     hosts = lib.mkDefault true;
-    "ssl/certs/ca-certificates.crt" = lib.mkDefault true;
     "ssl/certs/ca-bundle.crt" =
       lib.mkDefault
         config.environment.etc."ssl/certs/ca-certificates.crt".source;
