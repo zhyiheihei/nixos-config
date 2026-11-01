@@ -63,6 +63,28 @@
     mode = "0400";
   };
 
+  # attic 上传 token（与 greencloud-jp 的 atticd 共用 secrets 仓 common/attic.yaml）。
+  # 落盘方式照上游 hydra 模块：LoadCredential 传 token + attic login 写用户配置，
+  # 于是轮换只需更新 secrets 仓并重新部署，不再手改 ~/.config/attic/config.toml。
+  sops.secrets.attic-upload-key.sopsFile = inputs.secrets + "/common/attic.yaml";
+
+  systemd.services.attic-client-login = {
+    description = "Log in the attic client to the zhyi binary cache";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "sops-install-secrets.service" ];
+    requires = [ "sops-install-secrets.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      User = "zhyi";
+      LoadCredential = "attic-upload-key:${config.sops.secrets.attic-upload-key.path}";
+    };
+    script = ''
+      ${lib.getExe pkgs.attic-client} login --set-default zhyi \
+        https://cache.zhyi.xin "$(cat "$CREDENTIALS_DIRECTORY/attic-upload-key")"
+    '';
+  };
+
   lantian.localVhosts = {
     lab.locations."/".enableOAuth = true;
     llama-swap.locations."/".enableOAuth = true;
