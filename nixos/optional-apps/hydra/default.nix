@@ -380,7 +380,7 @@ in
         script = ''
           (for F in /nix/var/nix/gcroots/hydra/*; do
             echo "/nix/store/$(basename "$F")"
-          done) | xargs -n10 ${lib.getExe pkgs.attic-client} push lantian || true
+          done) | xargs -n10 ${lib.getExe pkgs.attic-client} push zhyi || true
         '';
         serviceConfig = {
           Type = "oneshot";

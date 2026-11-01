@@ -160,12 +160,13 @@
     }
   ];
 
+  # ncps 抓上游走代理，且 cache.zhyi.xin 也要走代理：家庭宽带出境直连抖动很大
+  # （实测 cache.zhyi.xin 直连 TTFB 0.6-5.2s，走 opi5p 的 xray 0.22-0.23s，
+  # rock5c 那个容器代理 2.2-5.1s），默认 proxyBypass 里的 .zhyi.xin 例外会让
+  # cache.zhyi.xin 直连并反复被判 unhealthy。这里只保留 LAN 本地的
+  # lab.opi5p.zhyi.xin 例外（它直连 0.11s，走代理反而不通）。
   systemd.services.ncps.environment = LT.proxyEnvironment // {
-    HTTP_PROXY = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
-    HTTPS_PROXY = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
-    http_proxy = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
-    https_proxy = "http://${LT.hosts.rock5c.interconnect.IPv4}:7892";
-    NO_PROXY = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
-    no_proxy = "${LT.proxyBypass},.m-team.cc,.m-team.io,api.m-team.io";
+    NO_PROXY = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,lab.opi5p.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
+    no_proxy = "localhost,127.0.0.1,::1,192.168.0.0/16,198.18.0.0/15,lab.opi5p.zhyi.xin,.m-team.cc,.m-team.io,api.m-team.io";
   };
 }
