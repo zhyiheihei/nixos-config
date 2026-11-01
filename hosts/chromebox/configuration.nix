@@ -8,7 +8,6 @@
   imports = [
     ../../nixos/server.nix
 
-    ../../nixos/optional-apps/mtranserver
     ../../nixos/optional-apps/nginx-openspeedtest.nix
     ../../nixos/optional-apps/tachidesk.nix
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
