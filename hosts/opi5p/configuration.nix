@@ -551,8 +551,10 @@ in
     serviceConfig = {
       PrivateDevices = lib.mkForce false;
       DevicePolicy = lib.mkForce "auto";
+      BindPaths = [ "/mnt/storage/immich-import" ];
     };
   };
+  lantian.harden.immich-server.passwd = true;
   users.users.immich.extraGroups = [
     "video"
     "render"
