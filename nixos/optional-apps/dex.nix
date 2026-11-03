@@ -103,6 +103,9 @@ let
           "https://immich.zhyi.xin/auth/login"
           "https://immich.zhyi.xin/user-settings"
           "https://immich.zhyi.xin/api/oauth/mobile-redirect"
+          "https://immich.moliy.site/auth/login"
+          "https://immich.moliy.site/user-settings"
+          "https://immich.moliy.site/api/oauth/mobile-redirect"
           "app.immich:///oauth-callback"
         ];
       }
@@ -112,7 +115,10 @@ let
         secret = {
           _secret = config.sops.secrets.dex-memos-secret.path;
         };
-        redirectURIs = [ "https://memos.zhyi.xin/auth/callback" ];
+        redirectURIs = [
+          "https://memos.zhyi.xin/auth/callback"
+          "https://memos.moliy.site/auth/callback"
+        ];
       }
       {
         id = "moviepilot";
@@ -186,7 +192,10 @@ let
         secret = {
           _secret = config.sops.secrets.dex-wallos-secret.path;
         };
-        redirectURIs = [ "https://wallos.opi5p.zhyi.xin/index.php" ];
+        redirectURIs = [
+          "https://wallos.opi5p.zhyi.xin/index.php"
+          "https://wallos.moliy.site/index.php"
+        ];
       }
       # keep-sorted end
     ];

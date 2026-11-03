@@ -12,6 +12,7 @@ let
 
   baseDomains = [
     "zhyi.xin"
+    "moliy.site"
   ];
 
   activeHosts = lib.filterAttrs (_: host: host.zerotier != null) LT.hosts;

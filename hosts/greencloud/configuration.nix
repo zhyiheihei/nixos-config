@@ -108,6 +108,159 @@
     noIndex.enable = true;
   };
 
+  lantian.nginxVhosts."moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://zhyi.xin";
+      proxyOverrideHost = "zhyi.xin";
+      proxyWebsockets = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
+  lantian.nginxVhosts."asf.moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://asf.zhyi.xin";
+      proxyOverrideHost = "asf.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name asf.zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
+  lantian.nginxVhosts."dav.moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://dav.zhyi.xin";
+      proxyOverrideHost = "dav.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name dav.zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
+  lantian.nginxVhosts."immich.moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://immich.zhyi.xin";
+      proxyOverrideHost = "immich.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name immich.zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
+  lantian.nginxVhosts."jellyfin.moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://jellyfin.zhyi.xin";
+      proxyOverrideHost = "jellyfin.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name jellyfin.zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
+  lantian.nginxVhosts."mcsm.moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://mcsm.zhyi.xin";
+      proxyOverrideHost = "mcsm.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name mcsm.zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
+  lantian.nginxVhosts."memos.moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://memos.zhyi.xin";
+      proxyOverrideHost = "memos.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name memos.zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
+  lantian.nginxVhosts."openlist.moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://openlist.zhyi.xin";
+      proxyOverrideHost = "openlist.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name openlist.zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
+  lantian.nginxVhosts."qnap.moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://qnap.zhyi.xin";
+      proxyOverrideHost = "qnap.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name qnap.zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
+  lantian.nginxVhosts."vaults3.moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://vaults3.zhyi.xin";
+      proxyOverrideHost = "vaults3.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name vaults3.zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
+  lantian.nginxVhosts."wallos.moliy.site" = {
+    locations."/" = {
+      proxyPass = "https://wallos.zhyi.xin";
+      proxyOverrideHost = "wallos.zhyi.xin";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+      extraConfig = ''
+        proxy_ssl_server_name on;
+        proxy_ssl_name wallos.zhyi.xin;
+      '';
+    };
+    sslCertificate = "lets-encrypt-moliy.site";
+    noIndex.enable = true;
+  };
   virtualisation.oci-containers.containers.byparr.ports = [
     "${LT.this.ltnet.IPv4}:${LT.portStr.FlareSolverr}:8191"
   ];
