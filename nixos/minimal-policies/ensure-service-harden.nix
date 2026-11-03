@@ -16,6 +16,7 @@ let
     # keep-sorted start
     "acpid"
     "bluetooth"
+    "bzminer" # runs inside a podman container, which needs its own namespaces
     "clash-verge"
     "corosync"
     "cups" # spawns driver/filter helper binaries; breaks under hardening
@@ -38,6 +39,8 @@ let
     "hydra-server"
     "hydra-update-gc-roots"
     "hydra-ws"
+    "krig-miner" # CUDA miner; its loader gate rejects user namespaces
+    "krig-miner-quantus" # CUDA miner; its loader gate rejects user namespaces
     "leigod-daemon"
     "leigod-upgrade-monitor"
     "llama-swap" # CUDA
@@ -102,6 +105,7 @@ let
     # Whole-set mkForce previously discarded BIRD's effective RootDirectory;
     # preserve that non-confinement baseline at the user's explicit request.
     "bird"
+    "bzminer" # runs inside a podman container, which needs its own namespaces
     "clash-verge"
     "cups" # spawns driver-dependent printer filter binaries
     "email-oauth2-proxy"
@@ -123,6 +127,8 @@ let
     "hydra-ws"
     "iyuuplus" # runtime git clone/fetch of its own source and config rewrites
     "jellyfin" # GPU transcoding and .NET JIT need full filesystem access
+    "krig-miner" # CUDA miner; its loader gate rejects user namespaces
+    "krig-miner-quantus" # CUDA miner; its loader gate rejects user namespaces
     "leigod-daemon"
     "leigod-upgrade-monitor"
     "lsky-pro-mysql-relay"

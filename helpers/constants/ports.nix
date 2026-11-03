@@ -131,6 +131,7 @@ rec {
     Strata = 13881;
     Actual = 13882;
     Wallos = 13883;
+    KRig = 13884;
     DLX = 13888;
     MoviePilot.Frontend = 13890;
     MoviePilot.Backend = 13891;

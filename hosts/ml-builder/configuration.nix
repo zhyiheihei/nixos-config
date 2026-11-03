@@ -73,14 +73,21 @@ let
 in
 {
   imports = [
-    ../../nixos/server.nix
+    ../../nixos/client.nix
 
     ./hardware-configuration.nix
 
+    ../../nixos/optional-apps/bzminer.nix
+    ../../nixos/optional-apps/krig-miner.nix
     ../../nixos/optional-apps/ncps-client.nix
   ];
 
   lantian.backup.enable = true;
+
+  # Turing 卡空闲时掉总线（Xid 79）：关掉驱动的运行时电源管理
+  boot.extraModprobeConfig = ''
+    options nvidia NVreg_DynamicPowerManagement=0x00
+  '';
 
   nix.settings.extra-system-features = [ "aarch64-cross" ];
 
@@ -204,14 +211,27 @@ in
     };
   };
 
-  systemd.network.networks.eth0 = {
-    address = [ "${LT.this.interconnect.IPv4}/24" ];
-    matchConfig.Name = "eth0";
-    gateway = [ "192.168.0.1" ];
-    networkConfig.IPv6AcceptRA = "yes";
+  networking.networkmanager.ensureProfiles.profiles.ml-builder-lan = {
+    connection = {
+      id = "ml-builder-lan";
+      uuid = "a3c0f5f2-7e1b-4d4a-9b0e-2f6c8d51e7a4";
+      type = "ethernet";
+      interface-name = "eth0";
+      autoconnect = true;
+      autoconnect-priority = 100;
+    };
+    ipv4 = {
+      method = "manual";
+      address1 = "${LT.this.interconnect.IPv4}/24,192.168.0.1";
+      dns = config.lantian.netns.coredns-client.ipv4;
+    };
+    ipv6.method = "auto";
   };
 
-  networking.networkmanager.enable = lib.mkForce false;
+  hardware.bluetooth = {
+    enable = true;
+    powerOnBoot = false;
+  };
 
   nix.settings.build-dir = lib.mkForce "/nix/build-dir";
   systemd.services.nix-daemon.unitConfig.RequiresMountsFor = [ "/nix/build-dir" ];
@@ -240,42 +260,8 @@ in
   zramSwap.memoryPercent = lib.mkForce 100;
   zramSwap.memoryMax = lib.mkForce (32 * 1024 * 1024 * 1024);
 
-  swapDevices = [
-    {
-      device = "/nix/swap/swapfile";
-      size = 65536;
-      priority = 0;
-    }
-  ];
   zramSwap.enable = lib.mkForce true;
   boot.kernel.sysctl."vm.page-cluster" = lib.mkForce 0;
-
-  systemd.services.ml-builder-swapfile-bootstrap = {
-    description = "Create /nix/swap subvolume and swapfile before swap.target when missing";
-    wantedBy = [ "swap.target" ];
-    before = [
-      "swap.target"
-      "nix-swap-swapfile.swap"
-      "mkswap-nix-swap-swapfile.service"
-    ];
-    requires = [ "nix.mount" ];
-    after = [ "nix.mount" ];
-    unitConfig = {
-      DefaultDependencies = lib.mkForce false;
-      ConditionPathExists = "!/nix/swap/swapfile";
-    };
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = [
-        "${pkgs.bash}/bin/sh -c 'test -d /nix/swap || ${pkgs.btrfs-progs}/bin/btrfs subvolume create /nix/swap'"
-        "${pkgs.coreutils}/bin/touch /nix/swap/swapfile"
-        "${pkgs.e2fsprogs}/bin/chattr +C /nix/swap/swapfile"
-        "${pkgs.coreutils}/bin/dd if=/dev/zero of=/nix/swap/swapfile bs=1M count=65536 status=none"
-        "${pkgs.coreutils}/bin/chmod 600 /nix/swap/swapfile"
-        "${pkgs.util-linux}/bin/mkswap /nix/swap/swapfile"
-      ];
-    };
-  };
 
   services.earlyoom = {
     enable = true;
@@ -292,6 +278,16 @@ in
   };
 
   services.openssh.settings.MaxStartups = "64:30:128";
+
+  services.sunshine = {
+    enable = true;
+    capSysAdmin = true;
+    settings = {
+      capture = "kms";
+      encoder = "vaapi";
+      csrf_allowed_origins = "https://192.168.0.50:47990,https://198.18.0.114:47990,https://ml-builder.zhyi.xin:47990";
+    };
+  };
 
   environment.systemPackages = with pkgs; [
     attic-client
@@ -321,5 +317,36 @@ in
       "CAP_SYS_ADMIN"
       "CAP_NET_ADMIN"
     ];
+  };
+
+  lantian.krig-miner = {
+    enable = true;
+    pool = "stratum+ssl://prl-hk.kryptex.network:8048";
+    wallet = "krxYNEN98Q";
+    extraArgs = [
+      "--devices-pci"
+      "01:00.0"
+    ];
+    instances.quantus = {
+      enable = true;
+      coin = "quantus";
+      pool = "stratum+ssl://qtc-hk.kryptex.network:8049";
+      wallet = "krxYNEN98Q";
+      worker = "worker";
+      extraArgs = [
+        "--devices-pci"
+        "05:00.0"
+      ];
+    };
+  };
+
+  lantian.bzminer = {
+    enable = false;
+    algorithm = "quantus";
+    pool = "stratum+tcp://qtc-hk.kryptex.network:7049";
+    account = "krxYNEN98Q";
+    worker = "worker";
+    devices = [ "GPU-0a63998b-46d5-a3c4-1974-520e7e12e9c3" ];
+    ocPowerLimit = 150;
   };
 }

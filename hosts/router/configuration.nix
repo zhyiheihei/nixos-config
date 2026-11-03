@@ -526,6 +526,8 @@ in
     ];
   };
 
+  systemd.services.prometheus-node-exporter.serviceConfig.BindReadOnlyPaths = [ metricsDir ];
+
   systemd.tmpfiles.settings.router-prometheus.${metricsDir}.d = {
     mode = "0755";
     user = "root";
@@ -537,11 +539,12 @@ in
     serviceConfig = {
       AmbientCapabilities = [ "CAP_DAC_READ_SEARCH" ];
       CapabilityBoundingSet = [ "CAP_DAC_READ_SEARCH" ];
+      PrivateUsers = false;
       Type = "oneshot";
       ExecStart = "${routerMetrics}/bin/router-prometheus-metrics";
       ProcSubset = "all";
       BindReadOnlyPaths = [ "/var/lib/kea" ];
-      ReadWritePaths = [ metricsDir ];
+      BindPaths = [ metricsDir ];
     };
   };
   lantian.harden.router-prometheus-metrics.enable = "network";

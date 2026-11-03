@@ -30,8 +30,6 @@ in
 
     # ./nextcloud.nix
 
-    ../../nixos/optional-apps/syncthing
-
     ../../nixos/optional-apps/attic.nix
 
     ../../nixos/optional-apps/loki.nix
@@ -51,14 +49,6 @@ in
   };
 
   systemd.services.loki.unitConfig.RequiresMountsFor = [ "/var/lib/loki" ];
-
-  lantian.syncthing.storage = "/data/syncthing";
-
-  systemd.tmpfiles.settings.syncthing."/data/syncthing/Notes"."d" = {
-    mode = "755";
-    user = "syncthing";
-    group = "syncthing";
-  };
 
   lantian.backup.schedule = null;
 

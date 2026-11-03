@@ -6,22 +6,9 @@
 {
   imports = [
     ../../nixos/server.nix
-    ../../nixos/client-components/fonts.nix
-    ../../nixos/client-components/kde.nix
     ../../nixos/optional-apps/ncps-client.nix
     ./hardware-configuration.nix
   ];
-
-  # The board has no DNS record yet, so deploy over the LAN address while the
-  # hostname stays the fleet-wide one used for secrets and the WireGuard mesh.
-  deployment.targetHost = lib.mkForce "192.168.0.63";
-
-  # Testing only: the board drives the 5.5" 1080x1920 MIPI panel with the same
-  # Plasma 6 desktop the client machines run. The host keeps its server role, so
-  # the desktop modules are imported above and the graphics stack has to be
-  # enabled here; delete this block once the panel bring-up is over.
-  hardware.graphics.enable = true;
-  services.libinput.enable = true;
 
   # Bring-up image: both RK3568 GMACs are equivalent until the first serial log,
   # so match on the interface name and address the board on the LAN.
@@ -37,6 +24,12 @@
 
   networking.networkmanager.enable = lib.mkForce false;
 
+  boot.kernelParams = [
+    # Bring-up only: needed to read the DSI host and D-PHY registers over
+    # /dev/mem. Remove together with the panel bring-up tools.
+    "iomem=relaxed"
+  ];
+
   systemd.tmpfiles.rules = [ "d /var/cache/zones 0755 knot knot -" ];
 
   # Bring-up only: the serial console is the only path into an image whose
@@ -51,7 +44,39 @@
     mmc-utils
     pciutils
     usbutils
+
+    # Panel bring-up test: a minimal X desktop on the MIPI panel, driven by
+    # its own service. Remove together with the panel bring-up tools.
+    feh
+    imagemagick
+    openbox
+    xf86-input-libinput
+    xorg.xinit
+    xorg.xorgserver
+    xterm
   ];
+
+  systemd.services.panel-x = {
+    description = "Test X server on the MIPI panel";
+    wantedBy = [ "multi-user.target" ];
+    after = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = pkgs.writeShellScript "panel-x-start" ''
+        ${pkgs.imagemagick}/bin/magick -size 1080x1920 gradient:'#1e3a8a'-'#ec4899' /tmp/wall.png
+        ${pkgs.xorg.xinit}/bin/xinit /bin/sh -c '
+          ${pkgs.feh}/bin/feh --bg-fill /tmp/wall.png
+          exec ${pkgs.openbox}/bin/openbox
+        ' -- ${pkgs.xorg.xorgserver}/bin/Xorg :0 vt2 -noreset -nolisten tcp \
+          -modulepath ${pkgs.xorg.xorgserver}/lib/xorg/modules,${pkgs.xorg.xf86inputlibinput}/lib/xorg/modules
+      '';
+      ExecStop = "${pkgs.procps}/bin/killall Xorg";
+      PrivateDevices = lib.mkForce false;
+      PrivateUsers = lib.mkForce false;
+      UtmpIdentifier = "vt2";
+    };
+  };
 
   # The 1.5 Mbaud debug UART drops bytes on multi-line output, so dump the boot
   # state onto the FAT partition instead and read it back with the card in a

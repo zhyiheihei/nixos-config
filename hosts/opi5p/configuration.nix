@@ -490,7 +490,7 @@ in
       proxyWebsockets = true;
       enableOAuth = true;
     };
-    sslCertificate = "zerossl-${config.networking.hostName}.zhyi.xin";
+    sslCertificate = "zerossl-zhyi.xin";
     noIndex.enable = true;
   };
   lantian.localVhosts.taosync.locations."/" = {
@@ -511,6 +511,7 @@ in
 
   lantian.food-dashboard = {
     enable = true;
+    sslCertificate = "zerossl-opi5p.zhyi.xin";
     caldavUrl = "https://cal.zhyi.xin";
     caldavUser = "zhyi";
     caldavPasswordFile = config.sops.secrets.default-pw.path;

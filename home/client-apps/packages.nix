@@ -100,6 +100,7 @@ in
         pwgen
         qrcp
         rar
+        siyuan
         steam-run
         synadm
         tigervnc

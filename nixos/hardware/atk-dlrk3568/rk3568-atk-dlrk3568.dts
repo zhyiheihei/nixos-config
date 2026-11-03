@@ -818,9 +818,14 @@
 	status = "okay";
 };
 
+/* The generic RK3568 U-Boot has no display setup, so it leaves the VPLL in
+ * bypass: the VOP1 pixel clock would then stay on the 24 MHz reference and the
+ * DSI host would only be able to hand the panel's init sequence to a ~11 Hz
+ * video stream.  Bring the VPLL up the way the vendor bootloader does. */
 &vop {
-	assigned-clocks = <&cru DCLK_VOP0>, <&cru DCLK_VOP1>;
+	assigned-clocks = <&cru DCLK_VOP0>, <&cru DCLK_VOP1>, <&cru PLL_VPLL>;
 	assigned-clock-parents = <&pmucru PLL_HPLL>, <&cru PLL_VPLL>;
+	assigned-clock-rates = <0>, <0>, <1200000000>;
 	status = "okay";
 };
 

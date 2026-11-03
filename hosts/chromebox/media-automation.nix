@@ -183,6 +183,10 @@ in
     noIndex.enable = true;
   };
 
+  lantian.localVhosts = {
+    bitmagnet.locations."/".proxyPass = lib.mkForce "http://${netns.ipv4}:${LT.portStr.Bitmagnet}";
+  };
+
   hardware.graphics = {
     enable = true;
     extraPackages = [ pkgs.intel-media-driver ];

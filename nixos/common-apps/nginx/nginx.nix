@@ -174,6 +174,12 @@ in
       proxy_busy_buffers_size 256k;
       proxy_read_timeout 1d;
 
+      client_body_temp_path /var/cache/nginx/client_body;
+      proxy_temp_path       /var/cache/nginx/proxy;
+      fastcgi_temp_path     /var/cache/nginx/fastcgi;
+      uwsgi_temp_path       /var/cache/nginx/uwsgi;
+      scgi_temp_path        /var/cache/nginx/scgi;
+
       vhost_traffic_status on;
       vhost_traffic_status_zone;
 

@@ -71,7 +71,7 @@ helpers/constants/misc.nix # defaultGatewayHost=rock5c（上游 pve-epyc）：lt
 nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机为 0（f28facd0b 防构建机 OOM 收口），非 nix-builder 分支随上游 d10db560f client?10:180
 overlays/52-old-packages.nix # fork：linphone 系取自 nixpkgs-multiverse 26.05（nixpkgs 无此包，来源替代）；zerotierone 1.14.2 钉版撤销（2026-10-16 复核：当年「1.16 家宽↔VPS v4 失效」主因是家宽 ISP 掐 wgmesh UDP＋wgmesh 接口 boot 竞态两故障叠加，非 ZT 本身；上游 exam 生产跑 1.16.0 正常），回 nixpkgs 1.16.0
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
-nixos/minimal-policies/ensure-service-harden.nix # fork：额外豁免本仓独有且无法 confinement 的服务（palworld/clash-verge/leigod/hydra/zpool-trim），上游启用集不含这些服务
+nixos/minimal-policies/ensure-service-harden.nix # fork：额外豁免本仓独有且无法 confinement 的服务（palworld/clash-verge/leigod/hydra/zpool-trim/矿工 bzminer、krig-miner、krig-miner-quantus），上游启用集不含这些服务
 nixos/server-apps/wg-mesh.nix # 端口覆盖表 wgPortOverrides：opi5p=10151、rock5c=49123、chromebox=49131（家宽对外入向 UDP 回程丢包，换端口即恢复；20123/20131 落入 block-cn-ports 的 20000-23999 拒绝范围，改用范围外高位端口），端口按拥有者主机登记，监听端口与对端 Endpoint 两侧自洽；2026-10-27 起 lan-access（家宽）对 greencloud-jp 改用其公网 v6 端点（实测家宽→45.159.48.76 的 v4 回程按源端口定向丢弃：JP:10151 的入向 UDP 全丢，同期 10124/10129/49123/49131 的入向正常，JP→家宽的 TCP 也时长时短；v6 双向稳定），无公网 v6 的 VPS 仍走 v4
 nixos/client-components/cups.nix # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
 nixos/minimal-apps/rsync-internal.nix # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写

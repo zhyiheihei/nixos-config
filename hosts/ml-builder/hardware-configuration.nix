@@ -1,28 +1,43 @@
-{ lib, ... }:
-
 {
-  imports = [ ];
+  lib,
+  ...
+}:
+{
+  imports = [
+    ../../nixos/hardware/nvidia/only.nix
+  ];
 
-  boot.loader.grub.device = "/dev/sda";
+  boot.loader.grub = {
+    efiSupport = true;
+    device = "nodev";
+    gfxmodeBios = "2560x1440x32,auto";
+    gfxmodeEfi = "2560x1440x32,auto";
+  };
 
   boot.initrd.availableKernelModules = [
-    "ata_piix"
-    "mptspi"
-    "uhci_hcd"
-    "ehci_pci"
     "ahci"
-    "xhci_pci"
+    "nvme"
     "sd_mod"
-    "sr_mod"
+    "usb_storage"
+    "usbhid"
+    "xhci_pci"
   ];
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
+  boot.initrd.luks.devices."root" = {
+    allowDiscards = true;
+    bypassWorkqueues = true;
+    device = "/dev/disk/by-uuid/28b8bd29-1c6e-4e6c-9180-b0629de14e53";
+  };
+
   fileSystems."/boot" = {
-    device = "/dev/sda1";
-    fsType = "ext4";
+    device = "/dev/disk/by-uuid/1BC7-1AE2";
+    fsType = "vfat";
     options = [
+      "fmask=0077"
+      "dmask=0077"
       "nosuid"
       "nodev"
       "noexec"
@@ -30,10 +45,11 @@
   };
 
   fileSystems."/nix" = {
-    device = "/dev/sda2";
+    device = "/dev/mapper/root";
     fsType = "btrfs";
     neededForBoot = true;
     options = [
+      "subvol=@nix"
       "compress-force=zstd"
       "autodefrag"
       "nosuid"
@@ -41,7 +57,15 @@
     ];
   };
 
-  swapDevices = [ ];
+  swapDevices = [
+    {
+      device = "/dev/disk/by-id/nvme-Netac_NVMe_SSD_2TB_TeNaFe202309192T4364-part3";
+      randomEncryption.enable = true;
+    }
+  ];
+
+  hardware.cpu.intel.updateMicrocode = true;
+  hardware.enableRedistributableFirmware = true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
 }

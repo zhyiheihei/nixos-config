@@ -4,7 +4,7 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
     "hydra.zhyi.xin" = {
       locations = {
         "/" = {
-          proxyPass = "http://${LT.hosts.pve-5700u.ltnet.IPv4}:${LT.portStr.Hydra.WebUI}";
+          proxyPass = "http://${LT.hosts.opi5p.ltnet.IPv4}:${LT.portStr.Hydra.WebUI}";
           blockBadUserAgents = true;
           blockBadTLSSignatures = true;
           extraConfig = ''
@@ -14,7 +14,7 @@ lib.mkIf (LT.this.hasTag LT.tags.public-facing) {
         };
         # hydra-ws live build log streaming, from the ws_endpoint in hydra.conf
         "/ws" = {
-          proxyPass = "http://${LT.hosts.pve-5700u.ltnet.IPv4}:${LT.portStr.Hydra.WebSocket}";
+          proxyPass = "http://${LT.hosts.opi5p.ltnet.IPv4}:${LT.portStr.Hydra.WebSocket}";
           proxyWebsockets = true;
         };
       };

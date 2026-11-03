@@ -7,6 +7,7 @@
 {
   index = 134;
   system = "aarch64-linux";
+  hostname = "192.168.0.63";
   tags = with tags; [
     lan-access
     server
@@ -20,5 +21,5 @@
   };
 
   dn42.region = constants.dn42.region.Asia-E;
-  zerotier = "4478c7b276";
+  zerotier = "5706fd806a";
 }
