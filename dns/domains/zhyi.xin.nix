@@ -216,8 +216,8 @@ let
     {
       recordType = "CNAME";
       name = "immich";
-      target = "opi5p.ltnet.zhyi.xin.";
-      ttl = "1h";
+      target = homeDdnsTarget;
+      ttl = "2m";
     }
     {
       recordType = "CNAME";
