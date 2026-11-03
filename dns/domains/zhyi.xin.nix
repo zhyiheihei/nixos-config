@@ -17,7 +17,7 @@ let
     {
       recordType = "CNAME";
       name = "actual";
-      target = "greencloud";
+      target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -35,7 +35,7 @@ let
     {
       recordType = "CNAME";
       name = "alert";
-      target = "tencent";
+      target = "tencent.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -53,8 +53,8 @@ let
     {
       recordType = "CNAME";
       name = "asf";
-      target = homeDdnsTarget;
-      ttl = "2m";
+      target = "opi5p.ltnet.zhyi.xin.";
+      ttl = "1h";
     }
     {
       recordType = "CNAME";
@@ -78,14 +78,14 @@ let
     {
       recordType = "CNAME";
       name = "bitwarden";
-      target = "volcengine";
+      target = "volcengine.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
       recordType = "CNAME";
       name = "books";
-      target = homeDdnsTarget;
-      ttl = "2m";
+      target = "opi5p.ltnet.zhyi.xin.";
+      ttl = "1h";
     }
     {
       recordType = "CNAME";
@@ -98,7 +98,7 @@ let
     {
       recordType = "CNAME";
       name = "cal";
-      target = "greencloud";
+      target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -117,7 +117,7 @@ let
       recordType = "CNAME";
       name = "cloud";
       # Nextcloud（greencloud-jp）。
-      target = "greencloud-jp";
+      target = "greencloud-jp.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -129,7 +129,7 @@ let
     {
       recordType = "CNAME";
       name = "dashboard";
-      target = "tencent";
+      target = "tencent.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -216,8 +216,8 @@ let
     {
       recordType = "CNAME";
       name = "immich";
-      target = homeDdnsTarget;
-      ttl = "2m";
+      target = "opi5p.ltnet.zhyi.xin.";
+      ttl = "1h";
     }
     {
       recordType = "CNAME";
@@ -306,7 +306,7 @@ let
     {
       recordType = "CNAME";
       name = "netbox";
-      target = "greencloud";
+      target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -350,7 +350,7 @@ let
     {
       recordType = "CNAME";
       name = "prometheus";
-      target = "tencent";
+      target = "tencent.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -368,7 +368,7 @@ let
     {
       recordType = "CNAME";
       name = "rss";
-      target = "greencloud";
+      target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -399,7 +399,7 @@ let
     {
       recordType = "CNAME";
       name = "stats";
-      target = "greencloud";
+      target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
