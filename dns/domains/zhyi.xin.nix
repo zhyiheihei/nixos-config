@@ -152,12 +152,13 @@ let
       target = "greencloud";
       ttl = "1h";
     }
-    {
-      recordType = "CNAME";
-      name = "frpc";
-      target = "tencent-cn";
-      ttl = "1h";
-    }
+    # 备案期间临时移出 frpc 记录
+    # {
+    #   recordType = "CNAME";
+    #   name = "frpc";
+    #   target = "tencent-cn";
+    #   ttl = "1h";
+    # }
     {
       recordType = "CNAME";
       name = "gemini";

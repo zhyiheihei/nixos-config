@@ -1,8 +1,12 @@
-{ ... }:
+{
+  LT,
+  ...
+}:
 {
   imports = [
     ../../nixos/server.nix
-    ../../nixos/optional-apps/frp.nix
+    # 备案期间临时关闭 frps 对外服务
+    # ../../nixos/optional-apps/frp.nix
 
     ./hardware-configuration.nix
   ];
@@ -26,5 +30,12 @@
 
   boot.kernelParams = [ "console=ttyS0,115200" ];
 
-  lantian.nginxVhosts."tencent-cn.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
+  # 备案期间临时关闭对外 vhost
+  # lantian.nginxVhosts."tencent-cn.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
+
+  # 备案期间临时关闭公网 Web 访问（保留 LTNET 访问）
+  lantian.firewall.presets.public-firewall.firewalledPorts = [
+    LT.port.HTTP
+    LT.port.HTTPS
+  ];
 }

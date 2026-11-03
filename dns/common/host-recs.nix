@@ -27,8 +27,13 @@ let
     virtono = LT.hosts."google";
   };
 
-  forEachActiveHost = mapFunc: (lib.mapAttrsToList mapFunc LT.hosts);
-  forEachHost = mapFunc: (lib.mapAttrsToList mapFunc (LT.hosts // replacedHosts));
+  # 备案期间临时将 tencent-cn 移出 DNS
+  dnsExcludedHosts = [ "tencent-cn" ];
+  withoutExcludedHosts = lib.filterAttrs (n: _: !(builtins.elem n dnsExcludedHosts));
+
+  forEachActiveHost = mapFunc: (lib.mapAttrsToList mapFunc (withoutExcludedHosts LT.hosts));
+  forEachHost =
+    mapFunc: (lib.mapAttrsToList mapFunc (withoutExcludedHosts (LT.hosts // replacedHosts)));
 
   ptrPrefix =
     v: if v.city != null then "${lib.replaceStrings [ "_" ] [ "-" ] v.city.sanitized}." else "";
