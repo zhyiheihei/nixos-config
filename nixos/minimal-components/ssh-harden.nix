@@ -22,6 +22,14 @@ in
   # Keep compatibility with PVE which expect SSH keys in standard location
   lantian.preservation.files = [
     {
+      file = "/etc/ssh/ssh_host_rsa_key.pub";
+      mode = "0644";
+    }
+    {
+      file = "/etc/ssh/ssh_host_rsa_key";
+      mode = "0600";
+    }
+    {
       file = "/etc/ssh/ssh_host_ed25519_key.pub";
       mode = "0644";
     }
@@ -30,11 +38,11 @@ in
       mode = "0600";
     }
     {
-      file = "/etc/ssh/ssh_host_rsa_key.pub";
+      file = "/etc/ssh/ssh_host_mldsa44_ed25519_key.pub";
       mode = "0644";
     }
     {
-      file = "/etc/ssh/ssh_host_rsa_key";
+      file = "/etc/ssh/ssh_host_mldsa44_ed25519_key";
       mode = "0600";
     }
   ];
@@ -85,6 +93,10 @@ in
       {
         path = "/nix/persistent/etc/ssh/ssh_host_ed25519_key";
         type = "ed25519";
+      }
+      {
+        path = "/nix/persistent/etc/ssh/ssh_host_mldsa44_ed25519_key";
+        type = "mldsa44-ed25519";
       }
     ];
     settings = {
@@ -190,4 +202,12 @@ in
   # Prevent regular OpenSSH from sneaking in
   # FIXME: PVE depends on regular OpenSSH
   # system.forbiddenDependenciesRegexes = [ "openssh-[0-9p\\.]+$" ];
+
+  security.pam.services.sshd = {
+    setLoginUid = true;
+    ttyAudit = {
+      enable = true;
+      enablePattern = "*";
+    };
+  };
 }

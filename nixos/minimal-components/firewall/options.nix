@@ -181,6 +181,21 @@ in
   };
 
   config = {
+    boot.availableKernelModules = [ "nf_tables" ];
+    # Include future Netfilter features and external nft/xt modules without
+    # adding individual roots; modules remain load-on-demand.
+    boot.availableKernelModulePatterns = [
+      "*/netfilter/*.ko*"
+      "*/br_netfilter.ko*"
+      "*/nf_*.ko*"
+      "*/nft_*.ko*"
+      "*/xt_*.ko*"
+      "*/ipt_*.ko*"
+      "*/ip6t_*.ko*"
+      "*/arpt_*.ko*"
+      "*/ebt_*.ko*"
+    ];
+
     lantian.firewall.chains = {
       FILTER_INPUT = {
         type = "filter";

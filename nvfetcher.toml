@@ -46,10 +46,6 @@ src.prefix = "v"
 fetch.git = "https://github.com/lobehub/lobe-icons.git"
 src.git = "https://github.com/lobehub/lobe-icons.git"
 
-[lyrica-customized]
-fetch.git = "https://github.com/xddxdd/lyrica.git"
-src.git = "https://github.com/xddxdd/lyrica.git"
-
 [mihoyo-bbs-tools]
 fetch.github = "Womsxd/MihoyoBBSTools"
 src.git = "https://github.com/Womsxd/MihoyoBBSTools.git"
@@ -84,8 +80,8 @@ fetch.github = "xddxdd/Sakura_Launcher_GUI"
 src.git = "https://github.com/xddxdd/Sakura_Launcher_GUI.git"
 
 [scam-dn42-miner]
-fetch.git = "https://git.lantian.pub/lantian/scam-dn42-miner.git"
-src.git = "https://git.lantian.pub/lantian/scam-dn42-miner.git"
+fetch.git = "https://git.zhyi.xin/lantian/scam-dn42-miner.git"
+src.git = "https://git.zhyi.xin/lantian/scam-dn42-miner.git"
 src.branch = "fpga"
 
 [skyland-auto-checkin]

@@ -31,7 +31,7 @@
     # ../../nixos/optional-apps/pipewire-noise-cancelling.nix
     # ../../nixos/optional-apps/qdrant.nix
     ../../nixos/optional-apps/samba.nix
-    ../../nixos/optional-apps/syncthing
+    ../../nixos/optional-apps/syncthing/run-as-lantian.nix
     ../../nixos/optional-apps/virtualbox.nix
     ../../nixos/optional-apps/vlmcsd.nix
     ../../nixos/optional-apps/whisper-cpp.nix
@@ -44,16 +44,6 @@
     ./comfyui.nix
     ./minecraft.nix
   ];
-
-  services.syncthing = {
-    user = lib.mkForce "zhyi";
-    group = lib.mkForce "zhyi";
-  };
-  lantian.syncthing.storage = "/home/zhyi";
-  systemd.services.syncthing.serviceConfig = {
-    ProtectHome = false;
-    BindPaths = [ "/home/zhyi" ];
-  };
 
   sops.secrets.pi-ai-api-key = {
     sopsFile = inputs.secrets + "/ai-api.yaml";
@@ -245,7 +235,6 @@
     # keep-sorted end
   };
 
-  services.displayManager.sddm.settings.X11.ServerArguments = "-dpi 144";
   services.libinput.touchpad = {
     accelSpeed = "0.4";
     clickMethod = "clickfinger";
@@ -333,43 +322,6 @@
   hardware.bluetooth = {
     enable = true;
     powerOnBoot = false;
-  };
-
-  security.pam.services.kde.rules.auth.local-pin = {
-    order = config.security.pam.services.kde.rules.auth.kwallet.order + 100;
-    control = "sufficient";
-    modulePath = "${pkgs.linux-pam}/lib/security/pam_exec.so";
-    args = [
-      "expose_authtok"
-      "${pkgs.writeShellScript "pam-verify-local-pin" ''
-        hash_file="/var/lib/lantian-local-pin/pin.sha256"
-        [ -r "$hash_file" ] || exit 1
-        input=$(head -c 256)
-        [ -n "$input" ] || exit 1
-        calc="$(printf %s "$input" | sha256sum | cut -d" " -f1)" || exit 1
-        printf %s "$calc" | cmp -s - "$(cat "$hash_file")"
-      ''}"
-    ];
-  };
-
-  environment.systemPackages = [
-    (pkgs.writeShellScriptBin "set-local-pin" ''
-      read -rsp "输入新 PIN（建议≥6位）: " p1; echo
-      read -rsp "再次确认           : " p2; echo
-      if [ -z "$p1" ] || [ "$p1" != "$p2" ]; then
-        echo "为空或两次不一致，已取消"; exit 1
-      fi
-      install -d -m 0700 /var/lib/lantian-local-pin
-      printf %s "$p1" | sha256sum | cut -d" " -f1 > /var/lib/lantian-local-pin/pin.sha256
-      chmod 600 /var/lib/lantian-local-pin/pin.sha256
-      echo "本地 PIN 已更新。锁屏解锁立即可用，无需重启。"
-    '')
-  ];
-
-  systemd.tmpfiles.settings.lantian-local-pin."/var/lib/lantian-local-pin".d = {
-    mode = "0700";
-    user = "root";
-    group = "root";
   };
 
   fileSystems."/mnt/share" = {

@@ -1,0 +1,164 @@
+{
+  pkgs,
+  lib,
+  LT,
+  config,
+  ...
+}:
+let
+  whitelistToBlacklist = pkgs.callPackage ./whitelist_to_blacklist.nix { };
+  calculateMac = pkgs.callPackage ./mac-calculator.nix { };
+
+  ltnet = "466270de75000001";
+
+  zerotier-default = pkgs.writeShellScriptBin "zerotier-default" ''
+    if [ -z "$1" ]; then
+      echo "Usage: $0 [0/1]"
+      exit 1
+    fi
+
+    sudo zerotier-cli set ${ltnet} allowDefault=$1
+  '';
+
+  wgmeshEnabled =
+    (lib.filterAttrs (n: _: lib.hasPrefix "wgmesh" n) config.systemd.network.netdevs) != { };
+in
+{
+  environment.systemPackages = lib.optional (LT.this.hasTag LT.tags.client) zerotier-default;
+
+  services.zerotierone = {
+    enable = true;
+    joinNetworks = [ ltnet ];
+    localConf = {
+      virtual = lib.mapAttrs' (
+        k: v:
+        let
+          interconnectIPv4 = LT.interconnectIPv4For k;
+          interconnectIPv6 = LT.interconnectIPv6For k;
+        in
+        lib.nameValuePair v.zerotier {
+          try =
+            (lib.optionals (interconnectIPv4 != null) [ "${interconnectIPv4}/9993" ])
+            ++ (lib.optionals (interconnectIPv6 != null) [ "${interconnectIPv6}/9993" ])
+            ++ (lib.optionals (v.public.IPv4 != null) [ "${v.public.IPv4}/9993" ])
+            ++ (lib.optionals (v.public.IPv6 != null) [ "${v.public.IPv6}/9993" ])
+            ++ (lib.optionals (v.public.IPv6Alt != null) [ "${v.public.IPv6Alt}/9993" ]);
+        }
+      ) (lib.filterAttrs (k: v: v.zerotier != null) LT.otherHosts);
+      settings = {
+        interfacePrefixBlacklist = whitelistToBlacklist (
+          # Do not try to use network namespaces
+          with LT.constants.interfacePrefixes; (builtins.filter (v: v != "ns") (WAN ++ LAN))
+        );
+        softwareUpdate = "disable";
+        portMappingEnabled = !LT.this._publiclyAccessible;
+        allowTcpFallbackRelay = false;
+      };
+    };
+  };
+
+  systemd.services.zerotierone = {
+    preStart = ''
+      rm -rf /var/lib/zerotier-one/peers.d
+
+      # Manage IP with custom logic on all NixOS hosts
+      cat > /var/lib/zerotier-one/networks.d/${ltnet}.local.conf <<EOF
+      allowManaged=0
+      allowGlobal=0
+      allowDefault=0
+      allowDNS=0
+      EOF
+    '';
+
+    serviceConfig = {
+      RestartSec = "5s";
+      StateDirectory = "zerotier-one";
+      MemoryMax = "64M";
+      Nice = "-20";
+      # Opens /dev/net/tun and drives host network
+      PrivateUsers = false;
+      PrivateDevices = false;
+      # chroot's tmpfs root is ephemeral; bind host state dir through
+      BindPaths = [ "/var/lib/zerotier-one" ];
+    };
+  };
+
+  lantian.harden.zerotierone.enable = "network";
+
+  systemd.services.zerotierone-setup-neighbors = {
+    description = "Setup neighbors entry for ZeroTier";
+    wantedBy = [ "multi-user.target" ];
+    bindsTo = [ "zerotierone.service" ];
+    after = [ "zerotierone.service" ];
+    serviceConfig.Type = "oneshot";
+    path = [ pkgs.iproute2 ];
+    script = ''
+      while ! ip link show zttalxbxtu; do
+        echo "Waiting for ZeroTier to setup device"
+        sleep 1
+      done
+    ''
+    + lib.concatMapAttrsStringSep "\n" (
+      n: v:
+      ''
+        # ${n}
+      ''
+      + lib.concatMapStringsSep "\n" (ip: ''
+        ip neigh add ${ip} dev zttalxbxtu lladdr ${calculateMac ltnet n} router \
+          || ip neigh replace ${ip} dev zttalxbxtu lladdr ${calculateMac ltnet n} router
+      '') v.ipAssignments
+    ) (LT.zerotier.managedHosts // LT.zerotier.additionalLinuxHosts);
+    # 额外主机里跑 Linux 版 ZeroTier 的（OpenWrt 等）同算法推 MAC，一并预置；
+    # macOS/Windows 客户端的 MAC 推导不同，仍不列入（由 secrets 的 linux = true 标记区分）。
+  };
+
+  systemd.network.networks."99-zerotier" = {
+    matchConfig.Name = "zttalxbxtu";
+    address = [
+      "198.18.0.${builtins.toString LT.this.index}/24"
+      "fdd8:1938:4e88::${builtins.toString LT.this.index}/64"
+    ];
+    networkConfig = {
+      LinkLocalAddressing = "no";
+    };
+    routes = lib.flatten (
+      lib.mapAttrsToList (
+        n: v:
+        let
+          i = builtins.toString v.index;
+          routes = builtins.filter (
+            route: !lib.hasPrefix "198.18.0." route && !lib.hasPrefix "fdd8:1938:4e88::" route
+          ) v._routes;
+        in
+        builtins.map (
+          r:
+          [
+            {
+              Destination = r;
+              Gateway = if lib.hasInfix ":" r then "fdd8:1938:4e88::${i}" else "198.18.0.${i}";
+            }
+          ]
+          ++ lib.optionals (!wgmeshEnabled) [
+            {
+              Destination = "0.0.0.0/0";
+              Gateway = if lib.hasInfix ":" r then "fdd8:1938:4e88::${i}" else "198.18.0.${i}";
+              Table = 10000 + v.index;
+            }
+            {
+              Destination = "::/0";
+              Gateway = if lib.hasInfix ":" r then "fdd8:1938:4e88::${i}" else "198.18.0.${i}";
+              Table = 10000 + v.index;
+            }
+          ]
+        ) routes
+        ++ lib.optionals (n == LT.defaultGatewayHostName && !config.services.bird.enable) (
+          # If BIRD is enabled then BGP handle these routes
+          builtins.map (r: {
+            Destination = r;
+            Gateway = if lib.hasInfix ":" r then "fdd8:1938:4e88::${i}" else "198.18.0.${i}";
+          }) (LT.defaultGatewayHostIPv4Routes ++ LT.defaultGatewayHostIPv6Routes)
+        )
+      ) (if wgmeshEnabled then LT.otherHostsWithoutTag LT.tags.server else LT.otherHosts)
+    );
+  };
+}

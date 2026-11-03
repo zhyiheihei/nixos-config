@@ -8,16 +8,16 @@
   },
   {
     "pname": "all-api-hub",
-    "version": "4.7.0",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5169664/all_api_hub-4.7.0.xpi",
-    "hash": "sha256-UKXXHmTAZyXwDSYRJ6yOcO5GKzMrLm7m6Pg+76WP6dI=",
+    "version": "4.8.0",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5195346/all_api_hub-4.8.0.xpi",
+    "hash": "sha256-sYpdSP67qJoScVcqxWeYgKOP7fXk5vjaoTdXG4FZ2K4=",
     "addonId": "{bc73541a-133d-4b50-b261-36ea20df0d24}"
   },
   {
     "pname": "awardwallet",
-    "version": "3.8.8",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5175855/awardwallet-3.8.8.xpi",
-    "hash": "sha256-Rr13zYhWaZmBiaA8eTDrujCpECCA7K1JFaTxkejOOOQ=",
+    "version": "3.8.10",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5198638/awardwallet-3.8.10.xpi",
+    "hash": "sha256-sbHxZSV3SIelsejhyLeqKNoy876WMTtHGLGyPjAI0LE=",
     "addonId": "6200cc7406cd11e1a68a12313d1adcbe@jetpack"
   },
   {
@@ -29,9 +29,9 @@
   },
   {
     "pname": "bitwarden-password-manager",
-    "version": "2026.10.1",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5182191/bitwarden_password_manager-2026.10.1.xpi",
-    "hash": "sha256-Jc1eB0YoBYR0ynV4Jpx14+E2Vp5qghoNoH1W7XYeEfo=",
+    "version": "2026.10.2",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5198653/bitwarden_password_manager-2026.10.2.xpi",
+    "hash": "sha256-q/nXJz3VWsBYPsxpl/f3rj0p3hHirQpIOLgOK5QdqnM=",
     "addonId": "{446900e4-71c2-419f-a6a7-df9c091e268b}"
   },
   {
@@ -78,9 +78,9 @@
   },
   {
     "pname": "foxyproxy-standard",
-    "version": "9.8",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5029813/foxyproxy_standard-9.8.xpi",
-    "hash": "sha256-NzUPP1fqD4jtElE/ojPESGwAb/NSEp1EShLaTiIoBAM=",
+    "version": "9.9",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5198108/foxyproxy_standard-9.9.xpi",
+    "hash": "sha256-ugafFIQ/M7OjbkFJ3WPj0FzqU2LRCNaaB0OXUYBHEwI=",
     "addonId": "foxyproxy@eric.h.jung"
   },
   {
@@ -140,13 +140,6 @@
     "addonId": "{7c42eea1-b3e4-4be4-a56f-82a5852b12dc}"
   },
   {
-    "pname": "plasma-integration",
-    "version": "2.1",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/4614817/plasma_integration-2.1.xpi",
-    "hash": "sha256-Nb+jdm4JcWDnT1Jb3lTZe7upDXJdqkJbneb+9uxenUQ=",
-    "addonId": "plasma-browser-integration@kde.org"
-  },
-  {
     "pname": "protondb-for-steam",
     "version": "2.3.1",
     "url": "https://addons.mozilla.org/firefox/downloads/file/5021069/protondb_for_steam-2.3.1.xpi",
@@ -155,16 +148,16 @@
   },
   {
     "pname": "pt-depiler",
-    "version": "0.0.6.1998",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5126863/pt_depiler-0.0.6.1998.xpi",
-    "hash": "sha256-nCc2TMOyP43GWCj5V+LCu8QGL0VwV5d9sRI8HvQ+WEA=",
+    "version": "0.0.6.2063",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5195763/pt_depiler-0.0.6.2063.xpi",
+    "hash": "sha256-e1wOdKplioai2E+f0oMHaKG4zO78tGlcWkWPxVZYUIg=",
     "addonId": "ptdepiler.ptplugins@gmail.com"
   },
   {
     "pname": "read-frog-open-ai-translator",
-    "version": "1.54.1",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5179853/read_frog_open_ai_translator-1.54.1.xpi",
-    "hash": "sha256-WNXoQR1LpLc4QKbhhu8c4oJTjt+NkLZD2AAOeUDwGi8=",
+    "version": "1.55.0",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5189501/read_frog_open_ai_translator-1.55.0.xpi",
+    "hash": "sha256-wXtv3VYqY01K/uLesW52PKmPD/pw1Jd4jLbA1hY8wgI=",
     "addonId": "{bd311a81-4530-4fcc-9178-74006155461b}"
   },
   {
@@ -176,9 +169,9 @@
   },
   {
     "pname": "return-youtube-dislikes",
-    "version": "4.0.6",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5012638/return_youtube_dislikes-4.0.6.xpi",
-    "hash": "sha256-WXGXSfbfOMFgHKXznAIVjV8AXEPp7uofGVJ/RoyUEhc=",
+    "version": "4.1.3",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5197718/return_youtube_dislikes-4.1.3.xpi",
+    "hash": "sha256-aW7UEYl6DAzfi+qihzlNlwlvcdfhIhIXkM+TbdXhlJM=",
     "addonId": "{762f9885-5a13-4abd-9c77-433dcd38b8fd}"
   },
   {

@@ -33,10 +33,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.stable.follows = "nixpkgs";
     };
-    comfyui-nix = {
-      url = "github:utensils/comfyui-nix";
-      inputs.flake-parts.follows = "flake-parts";
-    };
     country-ip-blocks = {
       url = "github:ipverse/country-ip-blocks";
       flake = false;
@@ -58,11 +54,6 @@
       url = "github:voidlhf/StarRailGrubThemes";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-utils.follows = "flake-utils";
-    };
-    kwin-effects-better-blur-dx = {
-      url = "github:xarblu/kwin-effects-better-blur-dx";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.utils.follows = "flake-utils";
     };
     llm-agents = {
       url = "github:numtide/llm-agents.nix";
@@ -120,7 +111,6 @@
     nixcord = {
       url = "github:kaylorben/nixcord";
       inputs.nixpkgs.follows = "nixpkgs";
-      inputs.nixpkgs-nixcord.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
     nixfmt-rs = {
@@ -130,6 +120,10 @@
     };
     nixos-hardware = {
       url = "github:NixOS/nixos-hardware";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    noctalia = {
+      url = "github:noctalia-dev/noctalia/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nur = {
@@ -151,11 +145,6 @@
       url = "github:librekeys/picoforge";
       inputs.flake-parts.follows = "flake-parts";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-    plasma-manager = {
-      url = "github:nix-community/plasma-manager";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.home-manager.follows = "home-manager";
     };
     # Scripted initrd removed in nixpkgs breaks upstream preservation's assertion
     # on boot.initrd.systemd.enable; pin to assertion-removal fix (PR #36, unmerged)
@@ -200,6 +189,10 @@
     };
     treefmt-nix = {
       url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    umbriel = {
+      url = "github:noctalia-dev/umbriel/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     zhyi-packages = {

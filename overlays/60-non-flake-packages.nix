@@ -1,7 +1,7 @@
 { inputs, ... }:
 final: prev: {
-  kwin-effects-better-blur-dx =
-    inputs.kwin-effects-better-blur-dx.packages."${prev.stdenv.hostPlatform.system}".default;
+  dn42-peerfinder = final.callPackage ../pkgs/dn42-peerfinder { };
+  lantian-secrets = final.callPackage ../pkgs/lantian-secrets { };
   markdown-apa7th-docx =
     inputs.markdown-apa7th-docx.packages."${prev.stdenv.hostPlatform.system}".default;
   nixfmt-rs = inputs.nixfmt-rs.packages."${prev.stdenv.hostPlatform.system}".default;

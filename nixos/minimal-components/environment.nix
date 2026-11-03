@@ -42,6 +42,7 @@ in
   };
 
   environment.defaultPackages = [ ];
+  environment.etc."udev/hwdb.bin".enable = config.lantian.hostType != "vm";
 
   # https://lowendspirit.com/discussion/11543/shrinking-nixos-ram-footprint-and-resource-requirements-to-the-bare-minimum
   documentation.enable = lib.mkDefault (LT.this.hasTag LT.tags.client);
@@ -65,17 +66,11 @@ in
 
   environment.systemPackages = with pkgs; [
     # keep-sorted start
-    bat
     bridge-utils
     curl
     dig
-    duf
     e2fsprogs # chattr, lsattr
-    eza
     findbin
-    fuc
-    fzf
-    gitMinimal
     gzip
     inetutils
     iperf3
@@ -88,8 +83,6 @@ in
     openssl
     pigz
     pv
-    python3
-    ripgrep
     rsync
     screen
     speedtest-go
@@ -129,11 +122,21 @@ in
     steam.platformOptimizations.enable = true;
   };
 
-  services.dbus.implementation = "broker";
+  services.dbus = {
+    implementation = "broker";
+    brokerPackage = pkgs.dbus-broker.override {
+      systemd = config.systemd.package;
+    };
+  };
 
   services.fstrim.enable = true;
   services.irqbalance.enable = LT.this.cpuThreads > 1;
-  services.lvm.enable = lib.mkDefault false;
+
+  # Random-encrypted swap needs LVM's device-mapper udev completion rules.
+  services.lvm.enable = lib.mkDefault (
+    lib.any (swap: swap.randomEncryption.enable) config.swapDevices
+  );
+
   services.udev.extraRules = lib.mkIf (config.lantian.hostType == "vm") ''
     ACTION=="add|change", KERNEL=="vd[a-z]*", ENV{DEVTYPE}=="disk", ATTR{queue/scheduler}="none", ATTR{queue/read_ahead_kb}="128"
   '';

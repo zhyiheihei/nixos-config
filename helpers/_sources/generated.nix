@@ -30,10 +30,10 @@
   };
   delegacy-rpz = {
     pname = "delegacy-rpz";
-    version = "2026102805";
+    version = "2026110200";
     src = fetchurl {
-      url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026102805/rpz.delegacy.monostack.org.zone";
-      sha256 = "sha256-6yWtwmzdwe2pxHfH/rmxppgwmB3UmdLgLikwN1mlSUQ=";
+      url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026110200/rpz.delegacy.monostack.org.zone";
+      sha256 = "sha256-/9VuVUvMC8t4RgObm+5/ooXZBX6AX6syMraiGnvKjcs=";
     };
   };
   dn42-certificate-authority-client = {
@@ -84,43 +84,29 @@
   };
   lobe-icons = {
     pname = "lobe-icons";
-    version = "8b7bbc433d38437fa2b0cca58ae896917162b812";
+    version = "8064bdc847be0a94c956c00440eb67586af2871f";
     src = fetchgit {
       url = "https://github.com/lobehub/lobe-icons.git";
-      rev = "8b7bbc433d38437fa2b0cca58ae896917162b812";
+      rev = "8064bdc847be0a94c956c00440eb67586af2871f";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-gYaJOSgwhpAf1+Tiy9GmAz0Q9G8QoYnQTJfCGRrFJUc=";
+      sha256 = "sha256-f9HrrHD0TiTG2pEfUS1dUtADQEMB+BAbX7pzwfow1PI=";
     };
-    date = "2026-10-26";
-  };
-  lyrica-customized = {
-    pname = "lyrica-customized";
-    version = "8459e045792166092445c7ec96502f62ce88db49";
-    src = fetchgit {
-      url = "https://github.com/xddxdd/lyrica.git";
-      rev = "8459e045792166092445c7ec96502f62ce88db49";
-      fetchSubmodules = false;
-      deepClone = false;
-      leaveDotGit = false;
-      sparseCheckout = [ ];
-      sha256 = "sha256-ZyZjroyiD/9IQVGl4QXBkMkQVaLOzt6d+gz85zEt/HI=";
-    };
-    date = "2026-07-05";
+    date = "2026-11-02";
   };
   mihoyo-bbs-tools = {
     pname = "mihoyo-bbs-tools";
-    version = "f062d1fda8fab88fd312a5ca3a89537f6351943b";
+    version = "01be3bab9c5f99983c61ce0d494d25d9cbea8511";
     src = fetchFromGitHub {
       owner = "Womsxd";
       repo = "MihoyoBBSTools";
-      rev = "f062d1fda8fab88fd312a5ca3a89537f6351943b";
+      rev = "01be3bab9c5f99983c61ce0d494d25d9cbea8511";
       fetchSubmodules = false;
-      sha256 = "sha256-gIzfBKC8qc79zfMEtzeLoD3r+t3VPKCr8E3PG7usJn8=";
+      sha256 = "sha256-9gGgoMFiCzDLxnAfgwQdocMurqbWNdtzJAJz8g17K0I=";
     };
-    date = "2026-06-30";
+    date = "2026-11-01";
   };
   mpv-sockets = {
     pname = "mpv-sockets";
@@ -171,15 +157,15 @@
   };
   open5gs-freediameter = {
     pname = "open5gs-freediameter";
-    version = "14725af3ba0edbf9ff61c4e3239ed42464423b2e";
+    version = "539ca5f2ded19413b756544ef8538755e9792877";
     src = fetchFromGitHub {
       owner = "open5gs";
       repo = "freeDiameter";
-      rev = "14725af3ba0edbf9ff61c4e3239ed42464423b2e";
+      rev = "539ca5f2ded19413b756544ef8538755e9792877";
       fetchSubmodules = false;
-      sha256 = "sha256-HCRJZFfoJFAEOQnZRCSMpk8lxk603vLvLkM42k3oaU0=";
+      sha256 = "sha256-mc6xbExljJh1QJytbomm2pqXUS5Hv++I/beTAsX7Hk0=";
     };
-    date = "2026-06-26";
+    date = "2026-11-02";
   };
   openspeedtest = {
     pname = "openspeedtest";
@@ -209,7 +195,7 @@
     pname = "scam-dn42-miner";
     version = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
     src = fetchgit {
-      url = "https://git.lantian.pub/lantian/scam-dn42-miner.git";
+      url = "https://git.zhyi.xin/lantian/scam-dn42-miner.git";
       rev = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
       fetchSubmodules = false;
       deepClone = false;
@@ -233,15 +219,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "df22c2ef05e8bb42247d0043aebb02a10c5ab3e9";
+    version = "512e1802380e7fb131ac2dec47e910ea91dd652b";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "df22c2ef05e8bb42247d0043aebb02a10c5ab3e9";
+      rev = "512e1802380e7fb131ac2dec47e910ea91dd652b";
       fetchSubmodules = false;
-      sha256 = "sha256-VpDnsz2IexojiLWmhqgKTd9vw4gJFFj9fXzPoF90Umo=";
+      sha256 = "sha256-ZZYo/3c13W+wn2swaAuXcPEBS6qpGln5Zd5lnS0/yqM=";
     };
-    date = "2026-10-26";
+    date = "2026-11-02";
   };
   ulauncher-albert-calculate-anything = {
     pname = "ulauncher-albert-calculate-anything";

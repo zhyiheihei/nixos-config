@@ -36,6 +36,8 @@ let
   wgPortFor = n: wgPortOverrides.${n} or (LT.port.WGMesh.Start + LT.hosts.${n}.index);
 in
 {
+  boot.availableKernelModules = [ "wireguard" ];
+
   sops.secrets.wg-priv = {
     sopsFile = inputs.secrets + "/per-host/wg-priv/${config.networking.hostName}.yaml";
     group = "systemd-network";

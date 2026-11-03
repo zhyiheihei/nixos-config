@@ -44,19 +44,17 @@ in
         colmena
         exiftool
         ffmpeg-full
+        file-roller
         filezilla
         gcdemu
         gedit
+        geeqie
         gimp
         gopher
         handbrake
         imagemagick
         immich-cli
         jpegoptim
-        kdePackages.ark
-        kdePackages.isoimagewriter
-        kdePackages.kdenlive
-        kdePackages.kpat
         kicad
         lbzip2
         libfaketime
@@ -77,6 +75,7 @@ in
         nur-xddxdd.browseros
         nur-xddxdd.cardpointers-cli
         nur-xddxdd.flashbrowser
+        nur-xddxdd.folia-major-bin
         nur-xddxdd.google-earth-pro
         nur-xddxdd.gopherus
         nur-xddxdd.kuake-cli
@@ -105,7 +104,6 @@ in
         synadm
         tigervnc
         tor-browser
-        ulauncher
         unar
         ventoy-full
         virt-manager

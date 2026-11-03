@@ -35,6 +35,7 @@
 
   config = {
     boot.isContainer = true;
+    lantian.hostType = "vm";
     console.enable = lib.mkForce false;
 
     lantian.harden.nginx.enable = lib.mkForce false;
