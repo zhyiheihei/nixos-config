@@ -227,6 +227,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "lab";
+      target = "tencent";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
       name = "lg";
       target = "greencloud";
       ttl = "1h";
