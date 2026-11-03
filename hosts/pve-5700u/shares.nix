@@ -24,11 +24,9 @@
     '';
   systemd.services.nfs-server = {
     after = [
-      "mnt-storage.mount"
       "run-nfs-storage.mount"
     ];
     requires = [
-      "mnt-storage.mount"
       "run-nfs-storage.mount"
     ];
   };

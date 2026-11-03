@@ -88,8 +88,7 @@ in
   systemd.services.jellyfin.unitConfig.RequiresMountsFor = "/mnt/storage";
 
   systemd.services.radarr = {
-    after = [ "mnt-storage.mount" ];
-    requires = [ "mnt-storage.mount" ];
+    unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
     serviceConfig = {
       StateDirectory = lib.mkForce "radarr radarr/asp";
       BindPaths = [
@@ -116,8 +115,7 @@ in
   };
 
   systemd.services.sonarr = {
-    after = [ "mnt-storage.mount" ];
-    requires = [ "mnt-storage.mount" ];
+    unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
     serviceConfig = {
       BindPaths = [
         defaultDownloadPath
@@ -143,8 +141,7 @@ in
   };
 
   systemd.services.bazarr = {
-    after = [ "mnt-storage.mount" ];
-    requires = [ "mnt-storage.mount" ];
+    unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
     path = with pkgs; [ mediainfo ];
     serviceConfig = {
       BindPaths = [
@@ -156,8 +153,7 @@ in
   lantian.harden.bazarr.enable = true;
 
   systemd.services.qbittorrent = netns.bind {
-    after = [ "mnt-storage.mount" ];
-    requires = [ "mnt-storage.mount" ];
+    unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
     environment.XDG_CACHE_HOME = "/var/lib/qbittorrent/qBittorrent/cache";
     environment.XDG_CONFIG_HOME = "/var/lib/qbittorrent/qBittorrent/config";
     environment.XDG_DATA_HOME = "/var/lib/qbittorrent/qBittorrent/data";
@@ -180,8 +176,7 @@ in
   };
 
   systemd.services.qbittorrent-pt = {
-    after = [ "mnt-storage.mount" ];
-    requires = [ "mnt-storage.mount" ];
+    unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
     environment.XDG_CACHE_HOME = "/var/lib/qbittorrent-pt/qBittorrent/cache";
     environment.XDG_CONFIG_HOME = "/var/lib/qbittorrent-pt/qBittorrent/config";
     environment.XDG_DATA_HOME = "/var/lib/qbittorrent-pt/qBittorrent/data";

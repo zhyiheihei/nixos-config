@@ -61,9 +61,7 @@
     wants = [ "network-online.target" ];
     after = [
       "network-online.target"
-      "mnt-storage.mount"
     ];
-    requires = [ "mnt-storage.mount" ];
   };
 
   systemd.tmpfiles.settings.handbrake-rockchip = {

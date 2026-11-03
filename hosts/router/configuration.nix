@@ -312,8 +312,8 @@ in
       "vers=4.1"
       "nconnect=16"
       "x-systemd.automount"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.mount-timeout=30s"
     ];
   };
 
@@ -369,11 +369,9 @@ in
     description = "VaultS3 S3-compatible object storage";
     wantedBy = [ "multi-user.target" ];
     after = [
-      "mnt-storage.mount"
       "network.target"
       "sops-install-secrets.service"
     ];
-    requires = [ "mnt-storage.mount" ];
     unitConfig = {
       RequiresMountsFor = [ "/mnt/storage/vaults3-data" ];
       ConditionPathExists = "/nix/persistent/var/lib/vaults3/ready";
@@ -439,13 +437,12 @@ in
 
   systemd.services.qbittorrent = {
     unitConfig.ConditionPathExists = activationMarker;
+    unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
     after = [
       "var-lib.mount"
-      "mnt-storage.mount"
     ];
     requires = [
       "var-lib.mount"
-      "mnt-storage.mount"
     ];
     serviceConfig = {
       StateDirectory = "qbittorrent";
@@ -457,13 +454,12 @@ in
 
   systemd.services.qbittorrent-pt = {
     unitConfig.ConditionPathExists = activationMarker;
+    unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
     after = [
       "var-lib.mount"
-      "mnt-storage.mount"
     ];
     requires = [
       "var-lib.mount"
-      "mnt-storage.mount"
     ];
     serviceConfig = {
       StateDirectory = "qbittorrent-pt";

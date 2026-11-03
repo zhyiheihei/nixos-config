@@ -73,14 +73,15 @@
     fsType = "nfs";
     options = [
       "_netdev"
+      "nofail"
       "noatime"
       "noauto"
       "hard"
       "vers=4.1"
       "nconnect=16"
       "x-systemd.automount"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.mount-timeout=30s"
     ];
   };
 
@@ -148,8 +149,9 @@
   '';
 
   systemd.services.archivebox = {
-    after = [ "mnt-storage.mount" ];
-    requires = [ "mnt-storage.mount" ];
+    unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
+    serviceConfig.Restart = "on-failure";
+    serviceConfig.RestartSec = 10;
   };
 
   zramSwap.enable = lib.mkForce false;

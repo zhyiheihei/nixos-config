@@ -24,14 +24,13 @@ in
       description = "qBittorrent seedbox client";
       wants = [
         "network-online.target"
-        "mnt-storage.mount"
       ];
       after = [
         "local-fs.target"
         "network-online.target"
         "nss-lookup.target"
-        "mnt-storage.mount"
       ];
+      unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
       wantedBy = [ "multi-user.target" ];
 
       preStart = ''

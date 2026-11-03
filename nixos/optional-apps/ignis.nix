@@ -73,10 +73,8 @@ in
 
     systemd.services.podman-ignis = {
       after = [
-        "mnt-storage.mount"
         "network-online.target"
       ];
-      requires = [ "mnt-storage.mount" ];
       unitConfig = {
         RequiresMountsFor = [
           "/mnt/storage"

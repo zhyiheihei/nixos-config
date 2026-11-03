@@ -43,8 +43,7 @@ in
     {
 
       podman-handbrake = {
-        after = [ "mnt-storage.mount" ];
-        requires = [ "mnt-storage.mount" ];
+        unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
       };
     }
   ];

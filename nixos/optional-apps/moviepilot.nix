@@ -59,10 +59,8 @@ in
 
     systemd.services.podman-moviepilot = {
       after = [
-        "mnt-storage.mount"
         "network-online.target"
       ];
-      requires = [ "mnt-storage.mount" ];
       unitConfig = {
         ConditionPathExists = "/nix/persistent/var/lib/media-apps/ready";
         RequiresMountsFor = [

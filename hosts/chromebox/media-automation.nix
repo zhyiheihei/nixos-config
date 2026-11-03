@@ -62,14 +62,15 @@ in
     fsType = "nfs";
     options = [
       "_netdev"
+      "nofail"
       "noatime"
       "noauto"
       "hard"
       "vers=4.1"
       "nconnect=16"
       "x-systemd.automount"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
+      "x-systemd.idle-timeout=60"
+      "x-systemd.mount-timeout=30s"
     ];
   };
   fileSystems."/sync".options = lib.mkForce [
@@ -103,8 +104,8 @@ in
     {
 
       jellyfin = {
-        after = [ "mnt-storage.mount" ];
-        requires = [ "mnt-storage.mount" ];
+        unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
+        serviceConfig.Restart = "on-failure";
 
         confinement.packages = [ pkgs.intel-media-driver ];
 

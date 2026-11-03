@@ -34,7 +34,6 @@ in
     unitConfig.ConditionPathExists = activationMarker;
     wants = map (name: "${name}.service") gatedServices;
     after = [
-      "mnt-storage.mount"
       "postgresql.service"
     ];
   };

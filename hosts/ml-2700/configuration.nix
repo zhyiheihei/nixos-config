@@ -109,6 +109,7 @@
     fsType = "nfs";
     options = [
       "_netdev"
+      "nofail"
       "noatime"
       "noauto"
       "clientaddr=${LT.this.ltnet.IPv4}"
@@ -116,9 +117,8 @@
       "vers=4.2"
       "nconnect=16"
       "x-systemd.automount"
-      "x-systemd.device-timeout=5s"
       "x-systemd.idle-timeout=60"
-      "x-systemd.mount-timeout=5s"
+      "x-systemd.mount-timeout=30s"
     ];
   };
 
