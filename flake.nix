@@ -71,10 +71,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
-    ncps = {
-      url = "github:kalbasit/ncps";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
     never-gonna-rust = {
       url = "github:xddxdd/never-gonna-rust";
       inputs.nixpkgs.follows = "nixpkgs";

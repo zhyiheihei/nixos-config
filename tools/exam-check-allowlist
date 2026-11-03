@@ -2,7 +2,7 @@
 # 格式: <path> # <原因>；fork 侧修复不主动上抛上游，仅当上游独立修复同一问题、
 # fork 补丁失去必要时才删条目并同步对齐。
 # 条目失效时 exam-check 会提示删除。
-flake.nix # fork inputs（secrets/zhyi-packages/ncps）、hydra jobs 剔除 apps、ARM 内核包
+flake.nix # fork inputs（secrets/zhyi-packages）、hydra jobs 剔除 apps、ARM 内核包
 flake-modules/commands/dnscontrol.nix # vendorHash 对应 fork pin 的 dnscontrol v4 913a947 + 本机 nixpkgs go 版本下的 vendor 树（2026-10-08 随 go 更新重算；上游值随其 auto-update 的 v5 源走）；gcore LabelFromFQDNWithDot bug 未修必须 pin，上游修复后随对齐取消
 nvfetcher.toml # fork 保留 dnscontrol pin v4（上游 gcore LabelFromFQDNWithDot bug 未修，取消 pin 会让 DNS preview 报千条假修正）；ulauncher-cursor-projects 已按用户决策对齐移除
 helpers/cities.json # fork 主机地理位置数据
