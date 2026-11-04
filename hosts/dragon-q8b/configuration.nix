@@ -80,7 +80,6 @@
       "vers=4.1"
       "nconnect=16"
       "x-systemd.automount"
-      "x-systemd.idle-timeout=60"
       "x-systemd.mount-timeout=30s"
     ];
   };
