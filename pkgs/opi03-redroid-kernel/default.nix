@@ -62,7 +62,14 @@ in
     # p3 Android 12 board config all carry the missing board timing in their
     # respective binding syntax.  Keep the compatibility conversion local to
     # this board-specific kernel package.
-    patches = (old.patches or [ ]) ++ [ ./orangepi-zero3-board-fixes.patch ];
+    patches =
+      # nixpkgs' linux builder appends randstruct-provide-seed-5.19.patch
+      # unconditionally, but scripts/gen-randstruct-seed.sh only exists in 5.19+;
+      # on this 5.4 vendor kernel it aborts the patch phase.
+      lib.filter (p: !(lib.hasSuffix "randstruct-provide-seed-5.19.patch" (toString p))) (
+        old.patches or [ ]
+      )
+      ++ [ ./orangepi-zero3-board-fixes.patch ];
     requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
     passthru = (old.passthru or { }) // {
       inherit vendorSource;
