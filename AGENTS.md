@@ -87,7 +87,7 @@ flake.lock 的标准格式：顶层 `"root"` 键是一个字符串，指向 `"no
 
 | 角色 | fork 主机 |
 | ---- | ---- |
-| home server | pve-5700u（PVE 宿主）、opi5p（家庭 web 边缘）、rock5c（SSH 入口）、ml-builder（构建）、dragon-q8b（ncps 缓存）、router、h28k、lubancat1、chromebox、atk3568 |
+| home server | pve-5700u（PVE 宿主）、opi5p（家庭 web 边缘）、rock5c（SSH 入口）、ml-builder（构建）、dragon-q8b（ncps 缓存）、router、h28k、lubancat1、chromebox、atk3568、tpm312 |
 | cloud server | greencloud（dn42 网关）、greencloud-jp、tencent、tencent-cn、google、hostdare、volcengine |
 | master client | ml-laptop（主控：求值/构建调度/部署） |
 | client | ml-2700 |

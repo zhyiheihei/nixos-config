@@ -65,7 +65,6 @@ nixos/server-apps/bird/config/dn42.nix # neo 路由移除（NeoNetwork 置空）
 nixos/server-apps/coredns.nix # DNSSEC 签名序号漂移（运营性，随各自 zone 重签）；fork 环境偏移：zone 列表含自有域（zhyi.dn42/zhyi.neo/zhyi.xin 等），DNSSEC key serial 对齐 exam 并已同步 secrets 仓 dnssec.yaml（49297b091）；zhyi.neo 与 asn.zhyi.xin 两个 fork 自有域无 DNSSEC key，按 null 不签名
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
 overlays/50-general.nix # prismlauncher jdks 补 openjdk25：本机要跑 Minecraft 26.3（其 version json 写 compatibleJavaMajors=[25]），上游无 Java 25 客户端需求；PrismLauncher 自带的下游 JRE 下载在 NixOS 上被 stub-ld 拒绝（实测 Temurin 25 JRE 报 "Could not start dynamically linked executable"，未开 nix-ld），只能走 nixpkgs 提供的 JDK
-overlays/60-non-flake-packages.nix # ncps 用上游 flake（nixpkgs 0.9.4 不认 attic NAR URL，kalbasit/ncps#1329 已修）+ go_1_27 构建 + dbmate-ncps 迁移垫片（nixpkgs services.ncps 模块 preStart 契约）+ ncps doCheck=false（Go TSan 在 qemu-user aarch64 下不可运行）
 dns/core/record-handlers.nix # NO_PURGE handler 保留（fork：迁移到 zhyi 域时保留上游/其他来源已管理记录，上游无此 handler）
 helpers/constants/interface-prefixes.nix # bond 前缀（ba915668d：dragon-q8b bond0 对齐 ml-2700/opi5p 正典写法，ZeroTier 接口白名单放行 bond，fork 独有拓扑）
 helpers/constants/misc.nix # defaultGatewayHost=rock5c（上游 pve-epyc）：ltnet/dn42 默认网关主机映射特例，与 zerotier 条目同一决策；ULA 已替换为 fdd8 前缀
@@ -74,13 +73,8 @@ overlays/52-old-packages.nix # fork：linphone 系取自 nixpkgs-multiverse 26.0
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
 nixos/minimal-policies/ensure-service-harden.nix # fork：额外豁免本仓独有且无法 confinement 的服务（palworld/clash-verge/leigod/hydra/zpool-trim/矿工 bzminer、krig-miner、krig-miner-quantus），上游启用集不含这些服务
 nixos/server-apps/wg-mesh.nix # 端口覆盖表 wgPortOverrides：opi5p=10151、rock5c=49123、chromebox=49131（家宽对外入向 UDP 回程丢包，换端口即恢复；20123/20131 落入 block-cn-ports 的 20000-23999 拒绝范围，改用范围外高位端口），端口按拥有者主机登记，监听端口与对端 Endpoint 两侧自洽；2026-10-27 起 lan-access（家宽）对 greencloud-jp 改用其公网 v6 端点（实测家宽→45.159.48.76 的 v4 回程按源端口定向丢弃：JP:10151 的入向 UDP 全丢，同期 10124/10129/49123/49131 的入向正常，JP→家宽的 TCP 也时长时短；v6 双向稳定），无公网 v6 的 VPS 仍走 v4
-nixos/client-components/cups.nix # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
-nixos/minimal-apps/rsync-internal.nix # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
-nixos/optional-apps/syncthing/update-config.py # 本机 pre-commit 的 nil 版本比上游新，自动删除了未使用的 binding（如 `{ LT, ... }` → `_:`），语义等价；不手工回退以免每次提交被反复改写
 nixos/optional-apps/prometheus/storagebox.nix # 服务停用（secrets 仓 7bcc13f 移除 hetzner-storagebox-metrics token，本仓无 Hetzner），模块为 `{ }` 占位；上游为完整 exporter 实现
 nixos/minimal-modules/secrets/generate.py # 上游新增文件，本机 treefmt(ruff) 格式化重排；语义零差异
-nixos/minimal-modules/secrets/mock-loki.py # 上游新增文件，本机 treefmt(ruff) 格式化重排；语义零差异
-nixos/minimal-modules/secrets/test_generate.py # 上游新增文件，本机 treefmt(ruff) 格式化重排；语义零差异
 nixos/minimal-modules/secrets/tests.nix # 上游新增文件，测试桩用 greencloud 替代上游 colocrossing（本仓无该主机）
 nixos/common-apps/nginx/vhosts-lantian.nix # skip: 对应 fork 的 vhosts-zhyi.nix（vhost 集合按 zhyi 域重写，NORMALIZE 只做路径映射）
 nixos/optional-apps/attic-placeholder.nix # skip: fork 已按用户 2026-10-24 裁定恢复自建 attic（greencloud-jp 真 atticd + cache.zhyi.xin），503 占位页不再需要；上游仍保留供其 colocrossing 使用
