@@ -328,12 +328,6 @@
             opi5p-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/opi5p-kernel {
               nixpkgsPath = inputs.nixpkgs.outPath;
             };
-            rock5c-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/rock5c-kernel {
-              nixpkgsPath = inputs.nixpkgs.outPath;
-            };
-            sc8280xp-kernel = inputs.nixpkgs.legacyPackages.x86_64-linux.callPackage ./pkgs/sc8280xp-kernel {
-              nixpkgsPath = inputs.nixpkgs.outPath;
-            };
           };
 
           devshells.default = {

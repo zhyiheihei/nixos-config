@@ -6,7 +6,7 @@
 }:
 {
   # Target host MUST have DN42 connectivity
-  defaultGatewayHostName = "rock5c";
+  defaultGatewayHostName = "router";
   defaultGatewayHostIPv4Routes = dn42.IPv4 ++ neonetwork.IPv4 ++ [ "198.18.0.0/15" ];
   defaultGatewayHostIPv6Routes = dn42.IPv6 ++ neonetwork.IPv6 ++ [ "fdd8:1938:4e88::/48" ];
 

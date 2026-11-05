@@ -29,9 +29,7 @@ let
     if lib.hasInfix ":" addr then "[${addr}]:${toString port}" else "${addr}:${toString port}";
   wgPortOverrides = {
     opi5p = 10151;
-    rock5c = 49123;
     chromebox = 49131;
-    atk3568 = 10152;
   };
   wgPortFor = n: wgPortOverrides.${n} or (LT.port.WGMesh.Start + LT.hosts.${n}.index);
 in

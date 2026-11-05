@@ -39,6 +39,7 @@ rec {
     Waline = 8360;
     OneKVM = 8420;
     WsScrcpy = 8421;
+    OneKVMHTTPS = 8444;
     Matrix.Public = 8448;
     ResilioSync.UI = 8888;
     Frigate = 8971;
