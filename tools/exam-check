@@ -29,8 +29,9 @@ SHARED_PATHS = [
     "pkgs",
     "tools",
 ]
-# 共享路径内的例外：nvfetcher 生成物随各仓更新节奏漂移，无对齐意义。
-EXCLUDES = ("helpers/_sources/",)
+# 共享路径内的例外：nvfetcher 生成物随各仓更新节奏漂移，无对齐意义；
+# __pycache__ 是运行产物，混入会让 fork独有清单变成噪声。
+EXCLUDES = ("helpers/_sources/", "__pycache__")
 
 # 认可替换（顺序敏感，特例在前）。注意 lantian.* 选项前缀与 lantianCustomized
 # 是模块系统命名空间不是用户名，必须保持原样，故不用裸的 lantian→zhyi 规则。
@@ -363,6 +364,7 @@ def do_upstream(argv):
     skip_up = {p for p in allow if allow[p].startswith("skip: ")}
     missing = sorted(p for p in up_set - work_set if p not in skip_up)
     fork_only = sorted(work_set - up_set)
+    fork_unregistered = sorted(p for p in fork_only if p not in allow)
     renamed = [
         (old, new)
         for code, old, new in tree_ops("exam/master", a.path)
@@ -380,6 +382,10 @@ def do_upstream(argv):
     if missing:
         print("\n− 缺失（跟进上游文件或登记 'skip: 原因'）:")
         for p in missing:
+            print(f"  {p}")
+    if fork_unregistered:
+        print("\n+ fork独有未登记（上游没有该文件；处理：删除，或登记 allowlist 写原因）:")
+        for p in fork_unregistered:
             print(f"  {p}")
     if known:
         print("\n!known 已登记差异（fork 决策；逐个核对下方归一化 diff 仅含登记项，防整文件豁免吞掉上游新 hunk）:")
@@ -407,9 +413,9 @@ def do_upstream(argv):
             if len(d) > 120:
                 print(f"…（其余 {len(d) - 120} 行省略）")
 
-    if drift or missing or renamed:
+    if drift or missing or renamed or fork_unregistered:
         print(
-            f"\nexam-check upstream: 未完全对齐（未对齐={len(drift)} 缺失={len(missing)} 改名未跟进={len(renamed)}）",
+            f"\nexam-check upstream: 未完全对齐（未对齐={len(drift)} 缺失={len(missing)} fork独有未登记={len(fork_unregistered)} 改名未跟进={len(renamed)}）",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -604,6 +610,7 @@ def main():
             expected.add(norm_path(old))
 
     fork_only = sorted(work_set - expected)
+    fork_unregistered = sorted(p for p in fork_only if p not in allow)
 
     scoped = args.path
     # 上游独有（base 有而 work 无）也可登记「确认不需要」：带 skip: 前缀的条目
@@ -649,6 +656,10 @@ def main():
         print("\nskip 已确认不需要的上游文件:")
         for p in skipped_upstream:
             print(f"  {p}  # {allow.get(p, '')}")
+    if fork_unregistered:
+        print("\n+ fork独有未登记（上游没有该文件；处理：删除，或登记 allowlist 写原因）:")
+        for p in fork_unregistered:
+            print(f"  {p}")
     if stale_allow:
         print("\nallowlist 失效条目（漂移已消除，请删除）:")
         for p in stale_allow:
@@ -685,9 +696,9 @@ def main():
             if len(diff) > 120:
                 print(f"…（其余 {len(diff) - 120} 行省略）")
 
-    if drift or struct_unapplied or lock_drift:
+    if drift or struct_unapplied or lock_drift or fork_unregistered:
         print(
-            f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、锁世界脱离 {len(lock_drift)} 项，exit 1",
+            f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、锁世界脱离 {len(lock_drift)} 项、fork独有未登记 {len(fork_unregistered)} 个，exit 1",
             file=sys.stderr,
         )
         sys.exit(1)

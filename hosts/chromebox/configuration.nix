@@ -35,17 +35,13 @@ in
   imports = [
     ../../nixos/server.nix
 
-    ../../nixos/optional-apps/nginx-openspeedtest.nix
-    ../../nixos/optional-apps/tachidesk.nix
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/ncps.nix
 
-    # ../../nixos/optional-apps/palworld.nix 暂时不启用
-
     ./hardware-configuration.nix
     ./media-automation.nix
-    ./edge-front.nix
-    ./migrated-services.nix
+    ./media-apps.nix
+    ./home-edge.nix
   ];
 
   lantian.backup.enable = true;
@@ -71,10 +67,6 @@ in
   networking.networkmanager.enable = lib.mkForce false;
 
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@eno0.service" ];
-
-  systemd.services.palworld-exporter.enable = false;
-
-  systemd.services.palworld.serviceConfig.RestartSec = "5s";
 
   networking.hosts = {
     "${LT.this.interconnect.IPv4}" = [ config.networking.hostName ];
