@@ -30,9 +30,7 @@ in
     };
 
     virtualisation.oci-containers.containers.moviepilot = {
-      # moviepilot v3 基线。
-      # OidcAuth 官方尚无 v3 适配，OIDC 登录暂不可用（等 package.v3.json
-      # 出现 oidcauth），本地密码登录不受影响；详见 oidc-app-integration.md。
+      # moviepilot v3 基线。OIDC 登录走社区 OidcAuth 插件（dex 客户端 moviepilot）。
       image = "docker.io/jxxghp/moviepilot-v3:latest";
       autoStart = true;
       labels."io.containers.autoupdate" = "registry";
