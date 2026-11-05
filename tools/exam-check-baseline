@@ -1,10 +1,11 @@
 # 上游对齐基线（exam）——tools/exam-check 的数据源，勿删
 # 共享路径清单见 tools/exam-check 的 SHARED_PATHS；log 按 baseline 计算上游增量。
 
-baseline: 158174a23
+baseline: 36ec51e45
 
 | 日期       | baseline | 说明                                                                                                     |
 |------------|----------|----------------------------------------------------------------------------------------------------------|
+| 2026-11-06 | 36ec51e45 | 第十二次对齐（158174a23→36ec51e45）：共享文件与 exam/master 全量逐字节对齐（exam-check upstream 未对齐=0/缺失=0/结构未跟进=0/锁世界一致）；vhost-hydra-proxy 随上游删除、miniupnpd 补 SSDP LAN-only 防火墙（ports.nix 同步 SSDP=1900）；fork 独有文件按 2026-11-06 裁定不属对齐范畴，不登记不拦截；本批会话同步的新增模块（home-manager 入 minimal-components 等）被裁定不采纳（引用不存在的 input，与既有 client-components 接线冲突），随本批删除 |
 | 2026-11-05 | 158174a23 | 第十一次路线一 merge（80dd4c0d6→158174a23，上游 4 提交）：block-wan-tcp-syn 防火墙预设（8721cb2ce）被 4b95ba751 原样回滚，共享文件零差异，但上游 lt-home-router 侧 DNAT（80/443/2222、2223）移除保留；两次 auto: update packages 只动 _sources 生成物与 firefox addons（read-frog 1.56.0 / return-youtube 4.1.5 / rsshub-radar 2.3.1，fork 保留 zeroomega）与 flake.lock（llm-agents 78f777ba→98309b14，secrets 节点保持 fork）；KDE/plasma 与 ulauncher 退役残留（nixos/client-components/kde.nix、home/client-apps/plasma.nix、home/client-apps/ulauncher/ 主题 3 文件，均为 untracked 死文件）已从磁盘删除 |
 | 2026-11-03 | 80dd4c0d6 | 第十次路线一 merge（a89977a23→80dd4c0d6，上游 31 提交）：KDE/plasma 与 ulauncher 全链退役，新增 noctalia（home/client-apps）+ umbriel（client-components）及两个 noctalia 补丁；kernel 模块裁剪（minimal-components/kernel-modules 强制 system.modulesTree 只留声明模块、minimal-modules/kernel-modules 提供 boot.pruneKernelModules 选项，各组件登记 nft/veth/open5gs/wireguard 等）；btrfs-scrub 新组件；dn42-peerfinder 由 python 改 Rust 包（pkgs/dn42-peerfinder，带协议测试）、secrets 生成器由 generate.py 改 Rust 包 pkgs/lantian-secrets；syncthing 新增 run-as-lantian.nix 接线；patch 退役 clickhouse-x86-arch-level/oracle-instantclient/handbrake、新增 sonarr 中文编号；20 个共享 input 锁随上游移动（nixpkgs 3ec63636→1c89083e，secrets/zhyi-packages/ncps 保持 fork）；fork 侧保留 zeroomega、摘 tweaks-for-youtube、packages.nix 保留 siyuan |
 | 2026-09-05 | 185a4a15 | 初次建档，对应上游 2026-09-03 HEAD。attic/dex/nextcloud/nfs/ghostty 公共模块已还原上游原版；既有行为漂移登记于 tools/exam-check-allowlist，逐个清偿 |
