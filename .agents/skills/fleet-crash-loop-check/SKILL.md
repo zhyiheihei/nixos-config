@@ -9,7 +9,7 @@ disable-model-invocation: false
 ## Fleet facts
 
 - Host list is generated live from the flake's `LT.hosts`: `root@<hostname-field>` on port 2222 (SSH user/port per `nixos/minimal-components/colmena-deployment.nix`). No static inventory file is kept.
-- `ml-laptop` is the local laptop (`127.0.0.1`). `manualDeploy=true` hosts (`router`, `taishanpi`, `opi5p`) still exist and are checked like any other host.
+- `ml-laptop` is the local laptop (`127.0.0.1`). `manualDeploy=true` hosts (`router`, `opi5p`) still exist and are checked like any other host.
 - Detection principle (verified against real journald output): every auto-restart makes systemd log `*.service: Scheduled restart job, restart counter is at N.`; many such events for one unit in the window means a restart loop.
 
 ## Workflow

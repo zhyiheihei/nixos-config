@@ -165,76 +165,6 @@
     };
   };
 
-  fileSystems = {
-    # keep-sorted start block=yes
-    "/home/zhyi/.local/share/ManosabaMod" = lib.mkForce {
-      device = "/nix/persistent/media/ManosabaMod";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/.local/share/yuzu" = lib.mkForce {
-      device = "/nix/persistent/media/Yuzu";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/Backups" = lib.mkForce {
-      device = "/nix/persistent/media/Backups";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/Books" = lib.mkForce {
-      device = "/nix/persistent/media/Books";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/Calibre Library" = lib.mkForce {
-      device = "/nix/persistent/media/Calibre Library";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/Documents" = lib.mkForce {
-      device = "/nix/persistent/media/Documents";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/LegacyOS" = lib.mkForce {
-      device = "/nix/persistent/media/LegacyOS";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/Music/CloudMusic" = lib.mkForce {
-      device = "/nix/persistent/media/CloudMusic";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/Music/CloudMusicArchive" = lib.mkForce {
-      device = "/nix/persistent/media/CloudMusicArchive";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/Pictures" = lib.mkForce {
-      device = "/nix/persistent/media/Pictures";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/Secrets" = lib.mkForce {
-      device = "/nix/persistent/media/Secrets";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/Software" = lib.mkForce {
-      device = "/nix/persistent/media/Software";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    "/home/zhyi/Videos/VideoArchive" = lib.mkForce {
-      device = "/nix/persistent/media/VideoArchive";
-      fsType = "fuse.bindfs";
-      options = LT.constants.bindfsMountOptions;
-    };
-    # keep-sorted end
-  };
-
   services.libinput.touchpad = {
     accelSpeed = "0.4";
     clickMethod = "clickfinger";
@@ -261,6 +191,16 @@
   boot.loader.grub = {
     efiSupport = true;
     device = "nodev";
+    configurationLimit = 4;
+    extraEntries = ''
+      menuentry "Windows 11" --class windows {
+        insmod part_gpt
+        insmod fat
+        insmod chain
+        search --no-floppy --fs-uuid --set=root A889-8907
+        chainloader /EFI/Microsoft/Boot/bootmgfw.efi
+      }
+    '';
   };
 
   services.sunshine.settings.csrf_allowed_origins = "https://192.168.0.55:47990,https://198.18.0.118:47990,https://ml-laptop.zhyi.xin:47990";

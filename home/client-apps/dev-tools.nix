@@ -3,7 +3,6 @@
   lib,
   LT,
   config,
-  osConfig,
   ...
 }:
 let
@@ -38,152 +37,146 @@ let
   '';
 in
 {
-  home.packages =
-    with pkgs;
-    [
-      # Android
-      android-studio
+  home.packages = with pkgs; [
+    # Android
+    android-studio
 
-      # Bash
-      dos2unix
-      shellcheck
+    # Bash
+    dos2unix
+    shellcheck
 
-      # C
-      autoconf
-      automake
-      binutils
-      bison
-      clang-tools
-      cmake
-      cppcheck
-      fakeroot
-      file
-      findutils
-      flex
-      gawk
-      gcc
-      gdb
-      gettext
-      gnumake
-      groff
-      libtool
-      lldb
-      m4
-      patch
-      pkgconf
-      texinfo
-      which
+    # C
+    autoconf
+    automake
+    binutils
+    bison
+    clang-tools
+    cmake
+    cppcheck
+    fakeroot
+    file
+    findutils
+    flex
+    gawk
+    gcc
+    gdb
+    gettext
+    gnumake
+    groff
+    libtool
+    lldb
+    m4
+    patch
+    pkgconf
+    texinfo
+    which
 
-      # Fly.io
-      flyctl
+    # Fly.io
+    flyctl
 
-      # Golang
-      delve
-      go-outline
-      go-tools
-      gomodifytags
-      gopls
-      gotests
-      impl
+    # Golang
+    delve
+    go-outline
+    go-tools
+    gomodifytags
+    gopls
+    gotests
+    impl
 
-      # Java
-      jdk
+    # Java
+    jdk
 
-      # Jsonnet
-      jsonnet
+    # Jsonnet
+    jsonnet
 
-      # Kubernetes
-      arkade
-      faas-cli # OpenFaaS
-      kubectl
-      kubectl-ktop
-      kubernetes-helm
-      lens
+    # Kubernetes
+    arkade
+    faas-cli # OpenFaaS
+    kubectl
+    kubectl-ktop
+    kubernetes-helm
+    lens
 
-      # Linux headers
-      LT.config.boot.kernelPackages.kernel.dev
+    # Linux headers
+    LT.config.boot.kernelPackages.kernel.dev
 
-      # Lua
-      luajit
-      stylua
+    # Lua
+    luajit
+    stylua
 
-      # Nix
-      pkgs.flat-flake
-      alejandra
-      nil
-      nix-output-monitor
-      nix-prefetch
-      nix-prefetch-scripts
-      nix-profiling
-      nix-search-cli
-      nix-store-add
-      nix-tree
-      nixd
-      nixfmt-rs
-      nixpkgs-fmt
-      nurl
+    # Nix
+    pkgs.flat-flake
+    alejandra
+    nil
+    nix-output-monitor
+    nix-prefetch
+    nix-prefetch-scripts
+    nix-profiling
+    nix-search-cli
+    nix-store-add
+    nix-tree
+    nixd
+    nixfmt-rs
+    nixpkgs-fmt
+    nurl
 
-      # NodeJS
-      (lib.hiPrio nodejs)
+    # NodeJS
+    (lib.hiPrio nodejs)
 
-      # Packaging
-      dpkg
+    # Packaging
+    dpkg
 
-      # PHP
-      phpPackages.composer
-      phpWithExtensions
+    # PHP
+    phpPackages.composer
+    phpWithExtensions
 
-      # Protobuf
-      protobuf
+    # Protobuf
+    protobuf
 
-      # Python
-      (lib.lowPrio python3)
-      black
-      conda
-      # FIXME: broken
-      # micromamba
-      virtualenv
-      yapf
+    # Python
+    (lib.lowPrio python3)
+    black
+    conda
+    # FIXME: broken
+    # micromamba
+    virtualenv
+    yapf
 
-      # Rust
-      rustup
+    # Rust
+    rustup
 
-      # Source Control
-      subversion
+    # Source Control
+    subversion
 
-      # Terraform
-      terraform
+    # Terraform
+    terraform
 
-      # TOML
-      taplo
+    # TOML
+    taplo
 
-      # Others
-      cdrkit
-      dhcpcd
-      elfx86exts
-      flamegraph
-      just
-      linkzoneAdb
-      minicom
-      nur-xddxdd.bin-cpuflags-x86
-      oci-cli
-      s3cmd
-      sops
-      tldr
-      tokei
+    # Others
+    cdrkit
+    dhcpcd
+    elfx86exts
+    flamegraph
+    just
+    linkzoneAdb
+    minicom
+    nur-xddxdd.bin-cpuflags-x86
+    oci-cli
+    s3cmd
+    sops
+    tldr
+    tokei
 
-      # Other unix tools
-      bat
-      duf
-      eza
-      fuc
-      fzf
-      ripgrep
-    ]
-    ++ lib.optionals (osConfig.networking.hostName == "ml-laptop") [
-      # FPGA
-      quartus-prime-lite
-    ];
+    # Other unix tools
+    bat
+    duf
+    eza
+    fuc
+    fzf
+    ripgrep
+  ];
 
   home.sessionVariables = {
     # keep-sorted start

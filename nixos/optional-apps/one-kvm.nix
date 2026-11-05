@@ -129,6 +129,7 @@ let
     import argparse
     import http.cookiejar
     import json
+    import ssl
     import sys
     import time
     import urllib.request
@@ -139,12 +140,17 @@ let
     parser.add_argument("--password-file", required=True)
     args = parser.parse_args()
 
+    # 程序自带 HTTPS 用自签证书，回源时不做链校验
+    tls = ssl._create_unverified_context()
+
     # 解卡失败不影响服务本身（上层 workaround，允许临时不可用）
     try:
         # 等 HTTP server 起来（app 监听早于 stream manager 就绪）
         for _ in range(45):
             try:
-                urllib.request.urlopen(args.base_url + "/api/setup", timeout=3)
+                urllib.request.urlopen(
+                    args.base_url + "/api/setup", timeout=3, context=tls
+                )
                 break
             except Exception:
                 time.sleep(2)
@@ -153,7 +159,8 @@ let
 
         password = open(args.password_file).read().rstrip("\r\n")
         opener = urllib.request.build_opener(
-            urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar())
+            urllib.request.HTTPSHandler(context=tls),
+            urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()),
         )
         body = json.dumps(
             {"username": args.username, "password": password}
@@ -330,21 +337,26 @@ in
       serviceConfig.ExecStartPost = lib.mkIf cfg.initialConfig.enable (
         pkgs.writeShellScript "one-kvm-unstick-run" ''
           exec ${unstickScript} \
-            --base-url http://127.0.0.1:${LT.portStr.OneKVM} \
+            --base-url https://127.0.0.1:${LT.portStr.OneKVMHTTPS} \
             --username ${lib.escapeShellArg cfg.initialConfig.username} \
             --password-file ${lib.escapeShellArg passwordFile}
         ''
       );
     };
 
-    # KVM Web UI：主机私有域名，OAuth（Dex）保护。容器 host 网络直听 8420。
+    # KVM Web UI：主机私有域名，OAuth（Dex）保护。容器 host 网络；程序自带 HTTPS
+    # 监听 OneKVMHTTPS（自签证书），TLS 终止在程序侧，nginx 反向代理以 https 回源。
     lantian.nginxVhosts."kvm.${config.networking.hostName}.zhyi.xin" = {
       locations = {
         "/" = {
           enableOAuth = true;
-          proxyPass = "http://127.0.0.1:${LT.portStr.OneKVM}";
+          proxyPass = "https://127.0.0.1:${LT.portStr.OneKVMHTTPS}";
           proxyWebsockets = true;
           proxyNoTimeout = true;
+          extraConfig = ''
+            proxy_ssl_server_name on;
+            proxy_ssl_verify off;
+          '';
         };
       };
 
