@@ -1,5 +1,4 @@
 # 停摆类告警（textfile 指标，经 Alertmanager 走 Telegram）：
-# - rock5c moviepilot-watchdog：订阅搜索卡死 / 刷流新增、删种停摆
 # - opi5p epd-food-server：食品看板推送停摆与连续传输失败
 {
   pkgs,

@@ -97,9 +97,9 @@
         };
 
         systemd.tmpfiles.settings.redroid."${config.lantian.redroid.dataDir}"."d" = {
-          mode = "0700";
-          user = "root";
-          group = "root";
+          mode = "0771";
+          user = "1000";
+          group = "1000";
         };
 
         systemd.services.podman-redroid = {

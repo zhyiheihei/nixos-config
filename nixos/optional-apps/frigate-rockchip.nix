@@ -64,7 +64,7 @@ in
 {
   # 通用 Rockchip 专版 Frigate（官方 stable-rk 镜像，RKNN NPU 检测）。
   # 可在任何带 Rockchip BSP 内核 + rknpu 驱动的 RK 板（RK3566/3568/3588
-  # 等）上启用：lubancat1、r5c（RK3588S）、rock5c、opi5p 均满足。
+  # 等）上启用：r5c（RK3588S）、opi5p 均满足。
   options.lantian.frigate = {
     enable = lib.mkEnableOption "the Rockchip (RKNN) Frigate NVR container";
 
@@ -126,6 +126,23 @@ in
                 rtsp://admin:''${config.sops.placeholder."<camera>-pw"}@host/...
                 （该占位符由 sops 模板渲染时替换为真实密码）
               '';
+            };
+            detectRtspUrl = lib.mkOption {
+              type = lib.types.nullOr lib.types.str;
+              default = null;
+              description = ''
+                子码流 RTSP URL，仅用于 detect；设置后录制仍走 rtspUrl 主码流。
+              '';
+            };
+            detectWidth = lib.mkOption {
+              type = lib.types.int;
+              default = 1280;
+              description = "detect 帧宽，与 detectRtspUrl 的子码流分辨率对齐";
+            };
+            detectHeight = lib.mkOption {
+              type = lib.types.int;
+              default = 720;
+              description = "detect 帧高，与 detectRtspUrl 的子码流分辨率对齐";
             };
             onvifHost = lib.mkOption {
               type = lib.types.str;
@@ -264,6 +281,7 @@ in
             labelmap_path = "/labelmap/coco-80.txt";
           };
         };
+        ffmpeg.hwaccel_args = "preset-rkmpp";
         record = {
           enabled = true;
           continuous.days = cfg.retentionDays;
@@ -296,15 +314,28 @@ in
             pw = "${config.sops.placeholder."frigate-${name}-pw"}";
           in
           {
-            ffmpeg.inputs = [
-              {
-                path = cam.rtspUrl;
-                roles = [
-                  "detect"
-                  "record"
+            ffmpeg.inputs =
+              if cam.detectRtspUrl != null then
+                [
+                  {
+                    path = cam.detectRtspUrl;
+                    roles = [ "detect" ];
+                  }
+                  {
+                    path = cam.rtspUrl;
+                    roles = [ "record" ];
+                  }
+                ]
+              else
+                [
+                  {
+                    path = cam.rtspUrl;
+                    roles = [
+                      "detect"
+                      "record"
+                    ];
+                  }
                 ];
-              }
-            ];
             onvif = {
               host = cam.onvifHost;
               port = cam.onvifPort;
@@ -325,7 +356,11 @@ in
             };
             # 只用定义过的 zone（自动跟踪 requiredZones 引用的区域）。
             inherit (cam) zones;
-            detect.enabled = true;
+            detect = {
+              enabled = true;
+              width = cam.detectWidth;
+              height = cam.detectHeight;
+            };
             record.enabled = true;
           }
         ) cfg.cameras;
