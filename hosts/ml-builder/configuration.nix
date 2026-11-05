@@ -4,7 +4,6 @@
   config,
   inputs,
   LT,
-  self,
   ...
 }:
 let
@@ -80,6 +79,7 @@ in
     ../../nixos/optional-apps/bzminer.nix
     ../../nixos/optional-apps/krig-miner.nix
     ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/syncthing/run-as-lantian.nix
   ];
 
   lantian.backup.enable = true;
@@ -297,27 +297,6 @@ in
   ];
 
   systemd.services."container@".serviceConfig.RestartSec = "5s";
-  systemd.services."container@ct-test".serviceConfig.RestartSec = "5s";
-
-  containers.ct-test = {
-    autoStart = true;
-    privateNetwork = true;
-    path = self.nixosConfigurations.ct-test.config.system.build.toplevel;
-    bindMounts = {
-      "/nix/sync-servers" = {
-        hostPath = "/nix/sync-servers";
-        isReadOnly = true;
-      };
-      "/run/ct-test-keys" = {
-        hostPath = "/nix/persistent/etc/ssh";
-        isReadOnly = true;
-      };
-    };
-    additionalCapabilities = [
-      "CAP_SYS_ADMIN"
-      "CAP_NET_ADMIN"
-    ];
-  };
 
   lantian.krig-miner = {
     enable = true;

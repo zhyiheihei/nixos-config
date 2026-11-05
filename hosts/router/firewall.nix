@@ -6,7 +6,7 @@
   ...
 }:
 let
-  edgeAddress = LT.hosts.rock5c.interconnect.IPv4;
+  edgeAddress = LT.hosts.chromebox.interconnect.IPv4;
 
   nft = "${lib.getExe' pkgs.nftables "nft"}";
   flowtableScript = pkgs.writeShellScript "router-flowtable" ''
@@ -158,18 +158,19 @@ in
     chain NAT_PREROUTING {
       type nat hook prerouting priority -95; policy accept;
 
-      # 家庭 Web 入口只有 opi5p 一台：本机 vhost 同时在 443（内网 hairpin）
-      # 与 8443（公网）上服务同一套域名。2222 SSH 仍落 ROCK 5C。
-      fib daddr type local tcp dport { 80, 443 } iifname "ppp0" dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}
-      fib daddr type local udp dport 443 iifname "ppp0" dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}
+      # 家庭 Web 入口只有 chromebox 一台：本机 vhost 同时在 443（内网 hairpin）
+      # 与 8443（公网）上服务同一套域名。后端不在本机的公网名由 chromebox
+      # 反代回原机（见 hosts/chromebox/edge-front.nix）。2222 SSH 落 chromebox。
+      fib daddr type local tcp dport { 80, 443 } iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
+      fib daddr type local udp dport 443 iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
       fib daddr type local tcp dport 2222 iifname "ppp0" dnat ip to ${edgeAddress}
       fib daddr type local tcp dport { 80, 443, 2222 } iifname "ppp0" dnat ip6 to [fc00:192:168::10]
       fib daddr type local udp dport 443 iifname "ppp0" dnat ip6 to [fc00:192:168::10]
 
       # Compatibility endpoints previously forwarded by OpenWrt.
       # VaultS3 is a bulk data path and terminates directly on OPI5P/NVMe.
-      fib daddr type local tcp dport 8443 iifname "ppp0" dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}:8443
-      fib daddr type local tcp dport 4000 iifname "ppp0" dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}:443
+      fib daddr type local tcp dport 8443 iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}:8443
+      fib daddr type local tcp dport 4000 iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}:443
 
       # Palworld game server on chromebox (UDP only).
       fib daddr type local udp dport 8211 iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
@@ -188,10 +189,10 @@ in
 
       # Hairpin NAT follows the author's router layout: LAN clients keep using
       # public DNS, while traffic is returned to the actual home service host.
-      # Web ports hairpin to the same opi5p edge as the WAN path.
-      fib daddr type local tcp dport { 80, 443 } iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}
-      fib daddr type local tcp dport 4000 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}:443
-      fib daddr type local tcp dport 8443 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.opi5p.interconnect.IPv4}:8443
+      # Web ports hairpin to the same chromebox edge as the WAN path.
+      fib daddr type local tcp dport { 80, 443 } iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
+      fib daddr type local tcp dport 4000 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}:443
+      fib daddr type local tcp dport 8443 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}:8443
 
       # Palworld game server on chromebox (hairpin, before the ROCK 5C catch-all).
       fib daddr type local udp dport 8211 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}

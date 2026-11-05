@@ -11,8 +11,8 @@ let
   # 只读挂载源目录到 /backup/<name>，供 TaoSync 备份到网盘；
   # opi5p 上即 Syncthing 媒体盘路径。
   backupMounts = {
-    Documents = "/mnt/storage/media/Documents";
-    Pictures = "/mnt/storage/media/Pictures";
+    Documents = "/mnt/storage/syncthing/Documents";
+    Pictures = "/mnt/storage/syncthing/Pictures";
   };
 
   # 登录失败时用 sops 当前密码重置 admin（OPENLIST_ADMIN_PASSWORD 只在首次

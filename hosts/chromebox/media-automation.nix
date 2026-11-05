@@ -155,7 +155,7 @@ in
   ];
 
   systemd.targets.media-automation = {
-    description = "Media automation stack (migrated from dragon-q8b)";
+    description = "Media automation stack";
     wantedBy = [ "multi-user.target" ];
     unitConfig.ConditionPathExists = activationMarker;
     wants = map (name: "${name}.service") gatedServices;

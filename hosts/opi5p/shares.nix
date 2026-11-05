@@ -53,7 +53,7 @@
     "delete veto files" = "yes";
   };
 
-  lantian.syncthing.storage = "/mnt/storage/media";
+  lantian.syncthing.storage = "/mnt/storage/syncthing";
 
   fileSystems = {
     "/run/sftp" = lib.mkForce {

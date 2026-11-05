@@ -60,11 +60,9 @@ let
   serviceIcons = {
     "frigate.opi5p.zhyi.xin" = "Frigate_A";
     "handbrake-backend.opi5p.zhyi.xin" = "Handbrake_A";
-    "jellyfin-api.rock5c.zhyi.xin" = "Jellyfin_A";
     "jellyfin-backend.opi5p.zhyi.xin" = "Jellyfin_A";
     "searx.localhost" = "Searxng_A";
     "tachidesk-backend.opi5p.zhyi.xin" = "Tachidesk--漫画阅读--qdnas-s";
-    "bazarr.rock5c.zhyi.xin" = "Bazarr_A";
     "bitwarden.zhyi.xin" = "Vaultwarden--密码管理--qdnas-s";
     "bt.opi5p.zhyi.xin" = "qBittorrent_A--BT下载器--qdnas-s";
     "bt.router.zhyi.xin" = "qBittorrent_A--BT下载器--qdnas-s";
@@ -80,19 +78,14 @@ let
     "jellyfin.zhyi.xin" = "Jellyfin_A";
     "matrix-client.zhyi.xin" = "Element_A";
     "matrix-federation.zhyi.xin" = "Element_A";
-    "metacubexd.rock5c.zhyi.xin" = "Clash_A";
-    "moviepilot.rock5c.zhyi.xin" = "Moviepilot_A";
-    "openspeedtest.rock5c.zhyi.xin" = "icon-openspeedtest-2.0.6-all";
     "peerbanhelper.opi5p.zhyi.xin" = "icon-peerbanhelper-9.2.5-x86";
     "prometheus.tencent.zhyi.xin" = "Prometheus_A";
     "prometheus.zhyi.xin" = "Prometheus_A";
     "qnap.zhyi.xin" = "Qnap_A";
-    "radarr.rock5c.zhyi.xin" = "Radarr_A";
     "rss.zhyi.xin" = "Miniflux_A";
     "rsshub.zhyi.xin" = "Rsshub_A";
     "searx.tencent.zhyi.xin" = "Searxng_A";
     "seedbox.opi5p.zhyi.xin" = "qBittorrent_A--BT下载器--qdnas-s";
-    "sonarr.rock5c.zhyi.xin" = "Sonarr_A";
     "tachidesk.zhyi.xin" = "Tachidesk--漫画阅读--qdnas-s";
     "ai-api.zhyi.xin" = "Chatgpt--ChatGPT--openai.com";
     "ai.zhyi.xin" = "ChatGPT_A--ChatGPT";
@@ -100,7 +93,6 @@ let
     "api.zhyi.xin" = "Nginx_A";
     "asf.zhyi.xin" = "Steam_A";
     "books.zhyi.xin" = "Calibre--电子书管理--qdnas-s";
-    "fastapi-dls.rock5c.zhyi.xin" = "Python--Python--python.org";
     "google-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "hub.tencent.zhyi.xin" = "Docker_A";
     "id.zhyi.xin" = "2Fauth_A";
@@ -109,11 +101,8 @@ let
     "lab.google.zhyi.xin" = "Nginx_B";
     "lab.greencloud.zhyi.xin" = "Nginx_B";
     "lab.hostdare.zhyi.xin" = "Nginx_B";
-    "lab.lubancat1.zhyi.xin" = "Nginx_B";
-    "lab.ml-2700.zhyi.xin" = "Nginx_B";
     "lab.ml-builder.zhyi.xin" = "Nginx_B";
     "lab.opi5p.zhyi.xin" = "Nginx_B";
-    "lab.rock5c.zhyi.xin" = "Nginx_B";
     "lab.tencent.zhyi.xin" = "Nginx_B";
     "lab.volcengine.zhyi.xin" = "Nginx_B";
     "letsencrypt-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
@@ -197,25 +186,17 @@ let
     "pt.opi5p.zhyi.xin" = "媒体与下载";
     "seedbox.opi5p.zhyi.xin" = "媒体与下载";
     "peerbanhelper.opi5p.zhyi.xin" = "媒体与下载";
-    "bitmagnet.dragon-q8b.zhyi.xin" = "媒体与下载";
-    "moviepilot.rock5c.zhyi.xin" = "媒体与下载";
-    "radarr.rock5c.zhyi.xin" = "媒体与下载";
-    "sonarr.rock5c.zhyi.xin" = "媒体与下载";
-    "bazarr.rock5c.zhyi.xin" = "媒体与下载";
     "jellyfin-backend.opi5p.zhyi.xin" = "媒体与下载";
     "tachidesk-backend.opi5p.zhyi.xin" = "媒体与下载";
     "handbrake-backend.opi5p.zhyi.xin" = "媒体与下载";
     # 私有 · 效率工具与内容
     "searx.tencent.zhyi.xin" = "效率工具与内容";
     "searx.localhost" = "效率工具与内容";
-    "fastapi-dls.rock5c.zhyi.xin" = "效率工具与内容";
     "rsshub.zhyi.xin" = "效率工具与内容";
     "ignis.opi5p.zhyi.xin" = "效率工具与内容";
     # 私有 · 基础设施与网络
     "prometheus.tencent.zhyi.xin" = "基础设施与网络";
     "pve-5700u.zhyi.xin" = "基础设施与网络";
-    "metacubexd.rock5c.zhyi.xin" = "基础设施与网络";
-    "openspeedtest.rock5c.zhyi.xin" = "基础设施与网络";
     "hub.tencent.zhyi.xin" = "基础设施与网络";
     "jproxy.opi5p.zhyi.xin" = "基础设施与网络";
     "lg.zhyi.xin" = "基础设施与网络";
@@ -241,11 +222,7 @@ let
 
   # 监控卡片：每主机一张 prometheusmetric 卡片，仅登录可见；排除
   # client 主机与尚无 node exporter 数据的主机（卡片会显示误导性 0%）。
-  noNodeExporterHosts = [
-    "h28k"
-    "opi03"
-    "taishanpi"
-  ];
+  noNodeExporterHosts = [ ];
   monitoredHosts = lib.filterAttrs (
     n: v: !v.hasTag LT.tags.client && !(builtins.elem n noNodeExporterHosts)
   ) LT.hosts;

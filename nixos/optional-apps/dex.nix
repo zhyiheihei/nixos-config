@@ -127,7 +127,7 @@ let
           _secret = config.sops.secrets.dex-moviepilot-secret.path;
         };
         redirectURIs = [
-          "https://moviepilot.rock5c.zhyi.xin/api/v1/plugin/OidcAuth/callback"
+          "https://moviepilot.chromebox.zhyi.xin/api/v1/plugin/OidcAuth/callback"
         ];
       }
       {

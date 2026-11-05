@@ -12,6 +12,7 @@
       lru.schedule = "53 4 * * *";
       maxSize = "100G";
       signNarinfo = false;
+      tempPath = "/var/lib/ncps/tmp";
       upstream = {
         urls = [ "https://cache.nixos.org" ] ++ LT.constants.nix.substituters;
         publicKeys = LT.constants.nix.trusted-public-keys;

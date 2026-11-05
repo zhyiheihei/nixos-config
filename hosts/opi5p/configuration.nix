@@ -201,7 +201,6 @@ in
     ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/i2pd.nix
     ../../nixos/optional-apps/ignis.nix
-    ../../nixos/optional-apps/immich-rockchip.nix
     # ../../nixos/optional-apps/microsoft-rewards-script.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/openlist.nix
@@ -534,6 +533,11 @@ in
         rtspUrl = "rtsp://admin:${
           config.sops.placeholder."frigate-bedroom-pw"
         }@192.168.0.104:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        detectRtspUrl = "rtsp://admin:${
+          config.sops.placeholder."frigate-bedroom-pw"
+        }@192.168.0.104:554/cam/realmonitor?channel=1&subtype=1&unicast=true&proto=Onvif";
+        detectWidth = 640;
+        detectHeight = 480;
         onvifHost = "192.168.0.104";
         zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
       };
@@ -541,34 +545,15 @@ in
         rtspUrl = "rtsp://admin:${
           config.sops.placeholder."frigate-livingroom-pw"
         }@192.168.0.115:554/cam/realmonitor?channel=1&subtype=0&unicast=true&proto=Onvif";
+        detectRtspUrl = "rtsp://admin:${
+          config.sops.placeholder."frigate-livingroom-pw"
+        }@192.168.0.115:554/cam/realmonitor?channel=1&subtype=1&unicast=true&proto=Onvif";
+        detectWidth = 640;
+        detectHeight = 480;
         onvifHost = "192.168.0.115";
         zones.cat-area.coordinates = "0.13,0.18,0.87,0.18,0.87,0.83,0.13,0.83";
       };
     };
-  };
-
-  systemd.services.immich-server = {
-    path = [ pkgs.jellyfin-ffmpeg-rockchip ];
-    serviceConfig = {
-      PrivateDevices = lib.mkForce false;
-      DevicePolicy = lib.mkForce "auto";
-      BindPaths = [ "/mnt/storage/immich-import" ];
-    };
-  };
-  lantian.harden.immich-server.passwd = true;
-  users.users.immich.extraGroups = [
-    "video"
-    "render"
-  ];
-  services.udev.extraRules = ''
-    KERNEL=="cma", MODE="0660", GROUP="video"
-  '';
-  lantian.immichRknnWorker.enable = lib.mkForce false;
-  lantian.immich.storage = "/mnt/storage/immich";
-  systemd.tmpfiles.settings.immich-import."/mnt/storage/immich-import"."d" = {
-    mode = "0775";
-    user = "immich";
-    group = "users";
   };
 
   services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
@@ -624,14 +609,9 @@ in
   lantian.nginxVhosts."memos.zhyi.xin" = {
     locations = {
       "/" = {
-        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
-        proxyOverrideHost = "memos.zhyi.xin";
+        proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:13819";
         proxyWebsockets = true;
         proxyNoTimeout = true;
-        extraConfig = ''
-          proxy_ssl_server_name on;
-          proxy_ssl_name memos.zhyi.xin;
-        '';
       };
     };
 
@@ -642,14 +622,9 @@ in
   lantian.nginxVhosts."wallos.zhyi.xin" = {
     locations = {
       "/" = {
-        proxyPass = "https://${LT.hosts.dragon-q8b.interconnect.IPv4}";
-        proxyOverrideHost = "wallos.zhyi.xin";
+        proxyPass = "http://${LT.hosts.chromebox.interconnect.IPv4}:13883";
         proxyWebsockets = true;
         proxyNoTimeout = true;
-        extraConfig = ''
-          proxy_ssl_server_name on;
-          proxy_ssl_name wallos.zhyi.xin;
-        '';
       };
     };
 
