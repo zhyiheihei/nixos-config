@@ -17,9 +17,10 @@ hosts/opi5p/configuration.nix # queueRunner gRPC 绑 LTNET（ml-builder 远程 b
 hosts/opi03/configuration.nix # 导入 ncps-client（家庭 LAN 节点走本地 ncps 缓存，2026-10-31 用户裁定补齐 opi03/taishanpi/atk3568）
 hosts/taishanpi/configuration.nix # 导入 ncps-client（家庭 LAN 节点走本地 ncps 缓存，2026-10-31 用户裁定补齐 opi03/taishanpi/atk3568）
 hosts/atk3568/configuration.nix # 导入 ncps-client（家庭 LAN 节点走本地 ncps 缓存，2026-10-31 用户裁定补齐 opi03/taishanpi/atk3568）
-home/client-apps/dev-tools.nix # 上游在作者主机 lt-hp-omen（NORMALIZE→ml-laptop）装 nur-xddxdd.vivado + quartus-prime-lite，fork 只装 quartus-prime-lite（2026-10-31 用户裁定）：vivado 是 requireFile 固定输出，需 AMD 完整安装包 FPGAs_AdaptiveSoCs_Unified_SDI_2025.2.1_0320_0604.tar（outputHashMode=flat、sha256-nTHt15n9zrYZiHuDM33bkdDzBvwG7mA4RPlOszwB7y4=）手工 nix store add 入 store，本机无该包且无 Vivado 需求，否则 make local 在该 drv 失败并级联整个系统闭包
+home/client-apps/dev-tools.nix # 上游在作者主机 lt-hp-omen（NORMALIZE→ml-laptop）装 nur-xddxdd.vivado + quartus-prime-lite，fork 两者均不装（2026-10-31 裁定去 vivado、2026-11-04 裁定去 quartus-prime-lite）：vivado 是 requireFile 固定输出，需 AMD 完整安装包 FPGAs_AdaptiveSoCs_Unified_SDI_2025.2.1_0320_0604.tar（outputHashMode=flat、sha256-nTHt15n9zrYZiHuDM33bkdDzBvwG7mA4RPlOszwB7y4=）手工 nix store add 入 store，本机无该包且无 Vivado 需求，否则 make local 在该 drv 失败并级联整个系统闭包；quartus-prime-lite 为 Intel Quartus Prime Lite + Questa 套件（解压 18.7 GB），用户无 FPGA 需求，且该 FOD 在家庭宽带下无可用下载路径（自建 attic 无此包、cache.lantian.pub 直连 50 KB/s），曾阻塞 ml-laptop 整代部署，故连同 `lib.optionals (osConfig.networking.hostName == "ml-laptop")` 块一并删除（module 参数 osConfig 保留未用）
 home/client-apps/pi/default.nix # Pi 默认 provider 与 Magic Context 配置对齐 exam；仅保留本仓 zhyi 用户、Strata 实际映射到 ml-laptop.zhyi.xin，以及 Magic Context 模型走本仓 CPA 别名 cliproxyapi/zhyi/coding-fast（exam 为 lantian/coding-fast，别名定义在私有 secrets 仓 llm-providers/apis/zhipu-coding.json）的环境差异；models 走 programs.pi-coding-agent.models 选项而非 exam 的 home.file+toJSON（secrets 仓 hidden module 的 modelOverrides 要合并进该选项）
 home/client-apps/firefox/default.nix # zeroomega 扩展保留（用户浏览器配置）：addons.json/update.py 各追加 zeroomega 条目（AMO slug 直取，随 update.py 工作流维护）；其余已对齐（profile 名/ai 端点均为认可替换）；临时偏离：摘除 tweaks-for-youtube 扩展（AMO 对 nixpkgs 钉住的旧版 xpi 返回 406，构建不可过），nixpkgs bump 后恢复
+home/client-apps/noctalia.nix # fork 偏离：umbriel 触摸板 sensitivity 0.4→0.0、新增 scroll_factor=0.3（2026-11-05 用户裁定本机触控板过快；sensitivity 0.0 = libinput 默认速度，scroll_factor 0.3 = 滚动量降到 30%）；其余 input/keybinds 逐字对齐上游
 home/client-apps/firefox/addons/addons.json # 末尾追加 zeroomega 条目（见 firefox/default.nix 条目）
 home/client-apps/packages.nix # 追加 siyuan 桌面客户端（配套 fork 独有 siyuan MCP 服务器）
 home/client-apps/firefox/addons/update.py # SLUGS 列表追加 zeroomega（否则下次运行会从 addons.json 抹掉该扩展）
@@ -72,7 +73,7 @@ nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机
 overlays/52-old-packages.nix # fork：linphone 系取自 nixpkgs-multiverse 26.05（nixpkgs 无此包，来源替代）；zerotierone 1.14.2 钉版撤销（2026-10-16 复核：当年「1.16 家宽↔VPS v4 失效」主因是家宽 ISP 掐 wgmesh UDP＋wgmesh 接口 boot 竞态两故障叠加，非 ZT 本身；上游 exam 生产跑 1.16.0 正常），回 nixpkgs 1.16.0
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
 nixos/minimal-policies/ensure-service-harden.nix # fork：额外豁免本仓独有且无法 confinement 的服务（palworld/clash-verge/leigod/hydra/zpool-trim/矿工 bzminer、krig-miner、krig-miner-quantus），上游启用集不含这些服务
-nixos/server-apps/wg-mesh.nix # 端口覆盖表 wgPortOverrides：opi5p=10151、rock5c=49123、chromebox=49131（家宽对外入向 UDP 回程丢包，换端口即恢复；20123/20131 落入 block-cn-ports 的 20000-23999 拒绝范围，改用范围外高位端口），端口按拥有者主机登记，监听端口与对端 Endpoint 两侧自洽；2026-10-27 起 lan-access（家宽）对 greencloud-jp 改用其公网 v6 端点（实测家宽→45.159.48.76 的 v4 回程按源端口定向丢弃：JP:10151 的入向 UDP 全丢，同期 10124/10129/49123/49131 的入向正常，JP→家宽的 TCP 也时长时短；v6 双向稳定），无公网 v6 的 VPS 仍走 v4
+nixos/server-apps/wg-mesh.nix # 端口覆盖表 wgPortOverrides：opi5p=10151、rock5c=10133、chromebox=49131（家宽对外入向 UDP 回程丢包，换端口即恢复；20123/20131 落入 block-cn-ports 的 20000-23999 拒绝范围，改用范围外高位端口），端口按拥有者主机登记，监听端口与对端 Endpoint 两侧自洽；2026-10-27 起 lan-access（家宽）对 greencloud-jp 改用其公网 v6 端点（实测家宽→45.159.48.76 的 v4 回程按源端口定向丢弃：JP:10151 的入向 UDP 全丢，同期 10124/10129/49123/49131 的入向正常，JP→家宽的 TCP 也时长时短；v6 双向稳定），无公网 v6 的 VPS 仍走 v4；2026-11-04 复核：49xxx 段（临时端口范围 32768-60999）被沿途 QoS 严重排队，JP:49123↔rock5c 实测 70% 丢包/RTT 6.9s，换成 10133 后 0% 丢包/RTT 65ms 且 BGP 立即 Established（同批 49131↔chromebox 换 10131 无改善，chromebox 另有原因，保留 49131）
 nixos/optional-apps/prometheus/storagebox.nix # 服务停用（secrets 仓 7bcc13f 移除 hetzner-storagebox-metrics token，本仓无 Hetzner），模块为 `{ }` 占位；上游为完整 exporter 实现
 nixos/minimal-modules/secrets/generate.py # 上游新增文件，本机 treefmt(ruff) 格式化重排；语义零差异
 nixos/minimal-modules/secrets/tests.nix # 上游新增文件，测试桩用 greencloud 替代上游 colocrossing（本仓无该主机）
@@ -82,7 +83,14 @@ nixos/optional-apps/asterisk # skip: 用户 2026-10-24 确认不启用——上�
 nixos/minimal-components/backup/backup.nix # fork 环境适配：aarch64 目标的 rustic 改 x86 交叉编译（hinlink-h28k/lubancat-1 crossPkgs 同款先例）——rustic 的 cargo lib 链接内存峰值在 opi5p 反复触发 memory pressure 断链；requiredSystemFeatures=aarch64-cross 路由 ml-builder
 nixos/minimal-components/backup/prune.nix # 同 backup.nix：prune 单元的 rustic 同款交叉编译
 nixos/optional-apps/qbittorrent.nix # fork 多保留一行 qbittorrent-pt 的 lockfile 清理：router 的 pt 实例数据在 /var/lib/qbittorrent-pt（hosts/router 引用），上游 b4b8fe005 仅修单实例路径视为 typo 删除该行，fork 两实例都要清
-hosts/ml-laptop/configuration.nix # 临时偏离：注释 obs-studio 导入绕过 nixpkgs 02c087f3 的 v4l2loopback modules.alias buildEnv 冲突（nixpkgs#576406），上游 nixpkgs bump 后恢复；disabledModules looking-glass 临时偏离已随 nixpkgs bump 撤销；本机防 OOM 偏离：max-jobs=2/cores=2/connect-timeout=60（32G 弱机，构建期 OOM 实证），fork 长期保留或上游对齐后删
+hosts/ml-laptop/configuration.nix # 临时偏离：注释 obs-studio 导入绕过 nixpkgs 02c087f3 的 v4l2loopback modules.alias buildEnv 冲突（nixpkgs#576406），上游 nixpkgs bump 后恢复；disabledModules looking-glass 临时偏离已随 nixpkgs bump 撤销；本机防 OOM 偏离：max-jobs=2/cores=2/connect-timeout=60（32G 弱机，构建期 OOM 实证），fork 长期保留或上游对齐后删；Win11 双系统偏离（2026-11-05 用户裁定）：ESP 512M 与 Windows 共用，grub.configurationLimit=4 限制内核占位，extraEntries 加 Windows chainload 项（NixOS 走 removable 落点、固件无独立 NixOS 启动项，只能由 GRUB 引导 Windows）
 nixos/server-components/logging-humio.nix # skip: 上游把日志发 Humio SaaS（filebeat + common/filebeat.yaml token），本仓日志走自建 Loki（server-components/logging-loki.nix），无 Humio 账号；secrets 仓只有历史遗留的 common/flebeat.yaml
 nixos/minimal-components/audit-loki.nix # fork 环境事实：Loki 收日志端点是 greencloud-jp（上游 colocrossing.ltnet.xuyh0120.win）；2026-10-29 日志服务由 greencloud 迁到 greencloud-jp（greencloud 系统盘 59G 已 98% 满，35G 是 Loki 数据），存储落数据盘 /data/loki
 nixos/server-components/logging-loki.nix # 同上：fluent-bit 的 Loki 推送目标改 greencloud-jp（LT.hosts.greencloud-jp.ltnet.IPv4 = 198.18.0.130）
+nixos/client-apps/v2ray.nix # fork VLESS 出口走 tencent（上游 bwg-lax 主机本仓不存在）
+nixos/optional-cron-jobs/rsgain-cloudmusic.nix # fork 音乐库路径为 /mnt/storage/syncthing/Music/CloudMusic*（上游为 syncthing 直下），环境差异
+nixos/optional-cron-jobs/smart-check/default.nix # fork 无 pve-c3758 主机，省略 SKIPPED_DEVICES 块（原 taishanpi 特例随主机退役一并移除）
+pkgs/hp-keyboard-backlight/default.nix # skip: fork 的 ml-laptop 用内核自带键盘背光控制，该包已移除
+pkgs/hp-keyboard-backlight/Cargo.toml # skip: 随 pkgs/hp-keyboard-backlight 移除
+pkgs/hp-keyboard-backlight/Cargo.lock # skip: 随 pkgs/hp-keyboard-backlight 移除
+pkgs/hp-keyboard-backlight/src/main.rs # skip: 随 pkgs/hp-keyboard-backlight 移除

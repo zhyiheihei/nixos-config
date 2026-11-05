@@ -422,13 +422,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "um";
-      # ml-home-vm retired; private static assets now resolve via the home edge.
-      target = "rock5c.ltnet.zhyi.xin.";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "vaults3";
       target = homeDdnsTarget;
       ttl = "2m";
@@ -485,13 +478,6 @@ in
         config.common.hostRecs.CAA
         (config.common.hostRecs.Normal "${domain}.")
 
-        # site.zhyi.xin is the H28K remote-site router's dynamic WAN, updated
-        # by hosts/h28k/ddns_gcore.py; keep dnscontrol from touching it.
-        {
-          recordType = "IGNORE";
-          name = "site";
-          type = "A,AAAA";
-        }
         {
           recordType = "IGNORE";
           name = "home-ddns";
