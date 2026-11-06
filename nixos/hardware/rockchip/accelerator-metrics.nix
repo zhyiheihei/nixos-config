@@ -78,8 +78,12 @@ in
     ];
   };
 
+  # 同目录还有别的服务写入 textfile（如 epd-food 用命名用户 ACL 拿写权限）。
+  # 这里的 'd' 每次运行都会 chmod，0755 会把 ACL mask 压回 r-x、令命名用户
+  # 的有效权限变成只读（写入 .tmp 时报 EACCES）。用 0775 让 group 位带 w，
+  # mask 不会被压掉。
   systemd.tmpfiles.settings.rockchip-accelerator-metrics.${metricsDir}.d = {
-    mode = "0755";
+    mode = "0775";
     user = "root";
     group = "root";
   };
