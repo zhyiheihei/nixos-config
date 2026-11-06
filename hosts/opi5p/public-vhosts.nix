@@ -1,10 +1,7 @@
 { lib, ... }:
 let
   publicServices = [
-    "asf"
-    "books"
     "dav"
-    "openlist"
   ];
 in
 {

@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  LT,
+  pkgs,
+  ...
+}:
 {
   services.home-assistant = {
     enable = true;
@@ -58,6 +63,16 @@
         settings.allow_anonymous = true;
         # 空 ACL 会把匿名连接全部拒掉（frigate 报 Not authorized）；
         # 回环专用 broker，放开全部主题给本机客户端。
+        acl = [ "pattern readwrite #" ];
+      }
+    ]
+    ++ [
+      # Frigate（opi5p，host 网络）经 LTNET 连本机 broker。
+      {
+        address = LT.this.ltnet.IPv4;
+        port = 1883;
+        omitPasswordAuth = true;
+        settings.allow_anonymous = true;
         acl = [ "pattern readwrite #" ];
       }
     ];

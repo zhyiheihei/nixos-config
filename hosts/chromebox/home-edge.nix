@@ -7,10 +7,7 @@ let
   # 公网名里后端不在本机的部分：WAN 入口统一落本机，仍按原主机收口。
   # 走 https + SNI 保留原主机的 vhost 选择，模板与 hosts/opi5p 的 memos/wallos 一致。
   tlsProxies = {
-    asf = LT.hosts.opi5p.interconnect.IPv4;
-    books = LT.hosts.opi5p.interconnect.IPv4;
     dav = LT.hosts.opi5p.interconnect.IPv4;
-    openlist = LT.hosts.opi5p.interconnect.IPv4;
   };
   plainProxies = {
     qnap = "http://192.168.0.40:8080";
@@ -54,6 +51,9 @@ in
   ];
 
   lantian.nginxVhosts = {
+    "asf.zhyi.xin".accessibleBy = lib.mkForce "public";
+    "books.zhyi.xin".accessibleBy = lib.mkForce "public";
+    "openlist.zhyi.xin".accessibleBy = lib.mkForce "public";
     "memos.zhyi.xin".accessibleBy = lib.mkForce "public";
     "wallos.zhyi.xin".accessibleBy = lib.mkForce "public";
     "mcsm.zhyi.xin".accessibleBy = lib.mkForce "public";

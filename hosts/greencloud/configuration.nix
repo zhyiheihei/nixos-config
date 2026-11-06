@@ -100,7 +100,7 @@
 
   lantian.nginxVhosts."ha.zhyi.xin" = {
     locations."/" = {
-      proxyPass = "http://${LT.hosts.opi5p.ltnet.IPv4}:8123";
+      proxyPass = "http://${LT.hosts.chromebox.ltnet.IPv4}:8123";
       proxyWebsockets = true;
       proxyNoTimeout = true;
     };

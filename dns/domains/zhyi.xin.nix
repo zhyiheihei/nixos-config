@@ -53,7 +53,7 @@ let
     {
       recordType = "CNAME";
       name = "asf";
-      target = "opi5p.ltnet.zhyi.xin.";
+      target = "chromebox.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -84,7 +84,7 @@ let
     {
       recordType = "CNAME";
       name = "books";
-      target = "opi5p.ltnet.zhyi.xin.";
+      target = "chromebox.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {

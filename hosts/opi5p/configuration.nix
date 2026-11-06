@@ -192,29 +192,19 @@ in
     ../../nixos/client-components/multicast-dns.nix
 
     ../../nixos/hardware/rockchip/accelerator-metrics.nix
-    ../../nixos/optional-apps/asf.nix
-    ../../nixos/optional-apps/calibre-cops.nix
     ../../nixos/optional-apps/food-dashboard.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
-    ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/hydra
     ../../nixos/optional-apps/nix-distributed.nix
-    ../../nixos/optional-apps/i2pd.nix
     ../../nixos/optional-apps/ignis.nix
     # ../../nixos/optional-apps/microsoft-rewards-script.nix
     ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/openlist.nix
     ../../nixos/optional-apps/one-kvm.nix
     ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/ws-scrcpy.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
-    ../../nixos/optional-apps/taosync.nix
-    ../../nixos/optional-apps/tor.nix
     ../../nixos/optional-apps/webdav.nix
-
-    ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
-    ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
   ];
 
   sops.secrets = lib.genAttrs [ "v2ray-key" ] (_: {
@@ -469,35 +459,6 @@ in
     "192.168.0.41:5555"
   ];
 
-  lantian.openlist.enable = true;
-  lantian.taosync.enable = true;
-  systemd.services.podman-openlist.environment = LT.proxyEnvironment // {
-    NO_PROXY = "${LT.proxyBypass},.baidu.com,.baidubce.com";
-    no_proxy = "${LT.proxyBypass},.baidu.com,.baidubce.com";
-  };
-
-  systemd.services.podman-taosync.environment = {
-    HTTP_PROXY = "";
-    HTTPS_PROXY = "";
-    http_proxy = "";
-    https_proxy = "";
-  };
-
-  lantian.nginxVhosts."openlist.zhyi.xin" = {
-    locations."/" = {
-      proxyPass = "http://127.0.0.1:${LT.portStr.Openlist}";
-      proxyWebsockets = true;
-      enableOAuth = true;
-    };
-    sslCertificate = "zerossl-zhyi.xin";
-    noIndex.enable = true;
-  };
-  lantian.localVhosts.taosync.locations."/" = {
-    proxyPass = "http://127.0.0.1:${LT.portStr.TaoSync}";
-    proxyWebsockets = true;
-    enableOAuth = true;
-  };
-
   lantian.nginxVhosts."dav.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://unix:/run/webdav/webdav.sock";
@@ -528,6 +489,7 @@ in
 
   lantian.frigate = {
     enable = true;
+    mqttHost = LT.hosts.chromebox.ltnet.IPv4;
     cameras = {
       bedroom = {
         rtspUrl = "rtsp://admin:${
@@ -555,8 +517,6 @@ in
       };
     };
   };
-
-  services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
 
   services.nginx.virtualHosts = lib.mkForce (lib.mapAttrs (_: with8443) config.lantian.nginxVhosts);
 

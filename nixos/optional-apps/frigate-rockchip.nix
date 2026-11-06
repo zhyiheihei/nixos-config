@@ -79,6 +79,11 @@ in
       description = "Host directory bind-mounted into the container's /media/frigate (recordings)";
     };
 
+    mqttHost = lib.mkOption {
+      type = lib.types.str;
+      default = "127.0.0.1";
+      description = "MQTT broker host Frigate publishes events to";
+    };
     numCores = lib.mkOption {
       type = lib.types.int;
       default = 3;
@@ -255,7 +260,7 @@ in
         version = "0.17-0";
         mqtt = {
           enabled = true;
-          host = "127.0.0.1";
+          host = cfg.mqttHost;
           port = 1883;
         };
         auth.enabled = false;

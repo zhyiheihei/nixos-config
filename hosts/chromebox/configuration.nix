@@ -43,6 +43,16 @@ in
     ../../nixos/optional-apps/sublinkpro-relay.nix
     ../../nixos/optional-cron-jobs/ncmm.nix
 
+    ../../nixos/optional-apps/asf.nix
+    ../../nixos/optional-apps/calibre-cops.nix
+    ../../nixos/optional-apps/home-assistant.nix
+    ../../nixos/optional-apps/i2pd.nix
+    ../../nixos/optional-apps/openlist.nix
+    ../../nixos/optional-apps/taosync.nix
+    ../../nixos/optional-apps/tor.nix
+    ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
+    ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
+
     ./hardware-configuration.nix
     ./media-automation.nix
     ./media-apps.nix
@@ -52,6 +62,38 @@ in
   lantian.backup.enable = true;
 
   lantian.mcsm.enable = true;
+
+  lantian.openlist.enable = true;
+  lantian.taosync.enable = true;
+
+  services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
+
+  systemd.services.podman-openlist.environment = LT.proxyEnvironment // {
+    NO_PROXY = "${LT.proxyBypass},.baidu.com,.baidubce.com";
+    no_proxy = "${LT.proxyBypass},.baidu.com,.baidubce.com";
+  };
+
+  systemd.services.podman-taosync.environment = {
+    HTTP_PROXY = "";
+    HTTPS_PROXY = "";
+    http_proxy = "";
+    https_proxy = "";
+  };
+
+  lantian.nginxVhosts."openlist.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.Openlist}";
+      proxyWebsockets = true;
+      enableOAuth = true;
+    };
+    sslCertificate = "zerossl-zhyi.xin";
+    noIndex.enable = true;
+  };
+  lantian.localVhosts.taosync.locations."/" = {
+    proxyPass = "http://127.0.0.1:${LT.portStr.TaoSync}";
+    proxyWebsockets = true;
+    enableOAuth = true;
+  };
 
   services.nginx.virtualHosts = lib.mkForce (lib.mapAttrs (_: with8443) config.lantian.nginxVhosts);
 
