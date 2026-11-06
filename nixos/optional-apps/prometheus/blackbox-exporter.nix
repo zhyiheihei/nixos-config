@@ -11,12 +11,6 @@ let
   httpMonitorTargets = [
     # Doesn't include main blog as that's monitored by UptimeRobot
 
-    # 3rd party backup hostings for main blog
-    "https://github-pages.zhyi.xin"
-    "https://netlify.zhyi.xin"
-    "https://render.zhyi.xin"
-    "https://vercel.zhyi.xin"
-
     # Services under zhyi.xin
     "https://cache.zhyi.xin"
     "https://comments.zhyi.xin"
@@ -27,7 +21,6 @@ let
     "https://lg.zhyi.xin"
     "https://login.zhyi.xin"
     "https://matrix.zhyi.xin/_matrix/client/versions"
-    "https://sip.zhyi.xin"
     "https://tools.zhyi.xin"
     "https://whois.zhyi.xin"
 
@@ -38,7 +31,8 @@ let
     "https://bitwarden.zhyi.xin"
     "https://cal.zhyi.xin"
     "https://dashboard.zhyi.xin"
-    "https://jellyfin.zhyi.xin"
+    # 家庭 Web 入口：ISP 封 443 入向，公网走 :8443（见 hosts/router/firewall.nix）
+    "https://jellyfin.zhyi.xin:8443"
     "https://lab.zhyi.xin"
     "https://netbox.zhyi.xin"
     "https://prometheus.zhyi.xin"
