@@ -1,7 +1,9 @@
-# 与上游 Makefile 逐字对齐。两个登记偏移：
-# ① CN 归属主机（host.nix 的 city 为 geo.cities."CN …"）部署由发起端（控制机）
-#    并行推闭包（PUSH_JOBS 默认 4），非 CN 主机保持 colmena apply 原样（目标机自拉缓存）；
-# ② push-cache 推 fork 自建缓存（attic 服务别名 zhyi = cache.zhyi.xin）。
+# 与上游 Makefile 逐字对齐。一个登记偏移：
+# ① 部署目标（servers/all/all-all）按 host.nix 的 geo.cities."CN 分两组顺序部署，
+#    各组都是原版 colmena apply（终端内原生 spinner、每台实时时间）：CN 组加
+#    --no-substitute，闭包全量由部署端推送（CN 机自拉缓存网络不稳）；非 CN 组
+#    保持原版行为，目标机自拉缓存补齐。分组不经过 colmena，直接读
+#    hosts/<名>/host.nix 的 tags 与 city。
 
 servers: FORCE
 	@$(MAKE) _deploy-tag TAG=@server
@@ -49,44 +51,38 @@ update-nur: FORCE
 push-cache: FORCE
 	@attic push zhyi $(shell readlink -f .gcroots/*)
 
-PUSH_JOBS ?= 4
+DEPLOY_CN_PARALLEL ?= 4
 
 _deploy-tag: FORCE
-	@rm -f .gcroots/node-*
-	@mkdir -p .gcroots
-	@nix run .#colmena -- build --on $(TAG)
-	@push_list=""; apply_list=""; \
-		for ROOT in .gcroots/node-*; do \
-			[ -L "$$ROOT" ] || continue; \
-			HOST=$$(echo $$ROOT | sed 's|\.gcroots/node-||'); \
-			if grep -q 'geo.cities."CN' hosts/$$HOST/host.nix; then \
-				push_list="$$push_list $$HOST"; \
-			else \
-				apply_list="$$apply_list $$HOST"; \
-			fi; \
-		done; \
-		rm -f .gcroots/.deploy-*; \
-		status=0; \
-		if [ -n "$$apply_list" ]; then \
-			nix run .#colmena -- apply --on $$(echo $$apply_list | sed 's/ /,/g') || status=1; \
+	@tag=$$(printf '%s' '$(TAG)' | sed 's/^@//'); \
+	nodes=""; \
+	for d in hosts/*/; do \
+		h=$$(basename $$d); \
+		if [ "$$tag" = all ] || sed -n '/^  tags = /,/];/p' $$d/host.nix | grep -qw "$$tag"; then \
+			nodes="$$nodes $$h"; \
 		fi; \
-		if [ -n "$$push_list" ]; then \
-			echo $$push_list | tr ' ' '\n' | xargs -P $(PUSH_JOBS) -I{} sh -c '\
-				$(MAKE) --no-print-directory _push-host HOST={} > .gcroots/.deploy-{}.log 2>&1; \
-				echo $$? > .gcroots/.deploy-{}.exit'; \
-			for HOST in $$push_list; do \
-				if [ "$$(cat .gcroots/.deploy-$$HOST.exit 2>/dev/null)" -ne 0 ]; then \
-					echo "=== $$HOST push 失败 ==="; cat .gcroots/.deploy-$$HOST.log; status=1; \
-				fi; \
-			done; \
+	done; \
+	cn=""; noncn=""; \
+	for h in $$nodes; do \
+		if grep -q 'geo.cities."CN' hosts/$$h/host.nix; then \
+			cn="$$cn,$$h"; \
+		else \
+			noncn="$$noncn,$$h"; \
 		fi; \
-		exit $$status
-
-_push-host: FORCE
-	@FULL=$$(grep -m1 'hostname' hosts/$(HOST)/host.nix | sed "s/.*\"\(.*\)\".*/\1/"); \
-		[ -n "$$FULL" ] || FULL="$(HOST).zhyi.xin"; \
-		RESULT=$$(readlink -f .gcroots/node-$(HOST)); \
-		nix copy --to "ssh-ng://root@$$FULL:2222" --no-check-sigs $$RESULT \
-			&& ssh -p 2222 root@$$FULL "nix-env --profile /nix/var/nix/profiles/system --set $$RESULT && /nix/var/nix/profiles/system/bin/switch-to-configuration switch"
+	done; \
+	cn=$${cn#,}; noncn=$${noncn#,}; \
+	if [ -z "$$cn" ] && [ -z "$$noncn" ]; then \
+		echo "no nodes match $(TAG)"; exit 1; \
+	fi; \
+	status=0; \
+	if [ -n "$$cn" ]; then \
+		echo "=== CN (full push): $${cn#,} ==="; \
+		nix run .#colmena -- apply --no-substitute --parallel $(DEPLOY_CN_PARALLEL) --on "$$cn" || status=1; \
+	fi; \
+	if [ -n "$$noncn" ]; then \
+		echo "=== non-CN (substitute): $${noncn#,} ==="; \
+		nix run .#colmena -- apply --on "$$noncn" || status=1; \
+	fi; \
+	exit $$status
 
 FORCE: ;
