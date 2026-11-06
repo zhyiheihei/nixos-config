@@ -195,16 +195,16 @@ in
     ../../nixos/optional-apps/food-dashboard.nix
     ../../nixos/optional-apps/frigate-rockchip.nix
     ../../nixos/optional-apps/hydra
-    ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/ignis.nix
     # ../../nixos/optional-apps/microsoft-rewards-script.nix
     ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/one-kvm.nix
     ../../nixos/optional-apps/redroid-rk3588.nix
-    ../../nixos/optional-apps/ws-scrcpy.nix
     ../../nixos/optional-apps/sftp-server.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/webdav.nix
+    ../../nixos/optional-apps/ws-scrcpy.nix
   ];
 
   sops.secrets = lib.genAttrs [ "v2ray-key" ] (_: {

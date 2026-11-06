@@ -49,8 +49,8 @@
   systemd.services.home-assistant.serviceConfig.RestartSec = "5s";
   systemd.services.mosquitto.serviceConfig.RestartSec = "5s";
 
-  # Frigate 集成的事件传感器走 MQTT；broker 只监听回环，
-  # omitPasswordAuth 允许本机 frigate/HA 匿名连接。
+  # Frigate 集成的事件传感器走 MQTT：本机 HA 走回环，
+  # opi5p 的 frigate（host 网络）走 LTNET；两者均无凭据匿名连接。
   services.mosquitto = {
     enable = true;
     listeners = [
@@ -65,9 +65,7 @@
         # 回环专用 broker，放开全部主题给本机客户端。
         acl = [ "pattern readwrite #" ];
       }
-    ]
-    ++ [
-      # Frigate（opi5p，host 网络）经 LTNET 连本机 broker。
+      # opi5p 的 frigate 容器用 host 网络，经 LTNET 连本机 broker。
       {
         address = LT.this.ltnet.IPv4;
         port = 1883;
