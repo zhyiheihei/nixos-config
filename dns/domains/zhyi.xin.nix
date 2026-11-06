@@ -41,7 +41,7 @@ let
     {
       recordType = "CNAME";
       name = "api";
-      target = "greencloud";
+      target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -61,6 +61,12 @@ let
       name = "at";
       # Tranquil PDS（greencloud）；DID 文档走两级通配子域 <did>.at.zhyi.xin。
       target = "greencloud";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "attic.greencloud-jp";
+      target = "greencloud-jp.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -229,6 +235,42 @@ let
       recordType = "CNAME";
       name = "lab";
       target = "tencent";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "lab.google";
+      target = "google.ltnet.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "lab.greencloud";
+      target = "greencloud.ltnet.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "lab.greencloud-jp";
+      target = "greencloud-jp.ltnet.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "lab.hostdare";
+      target = "hostdare.ltnet.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "lab.tencent";
+      target = "tencent.ltnet.zhyi.xin.";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "lab.volcengine";
+      target = "volcengine.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -418,6 +460,12 @@ let
       recordType = "CNAME";
       name = "tools";
       target = "greencloud";
+      ttl = "1h";
+    }
+    {
+      recordType = "CNAME";
+      name = "um";
+      target = "volcengine.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
