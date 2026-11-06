@@ -37,6 +37,11 @@ in
 
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/ncps.nix
+    ../../nixos/optional-apps/mcsm.nix
+    ../../nixos/optional-apps/resin.nix
+    ../../nixos/optional-apps/dlx.nix
+    ../../nixos/optional-apps/sublinkpro-relay.nix
+    ../../nixos/optional-cron-jobs/ncmm.nix
 
     ./hardware-configuration.nix
     ./media-automation.nix
@@ -45,6 +50,8 @@ in
   ];
 
   lantian.backup.enable = true;
+
+  lantian.mcsm.enable = true;
 
   services.nginx.virtualHosts = lib.mkForce (lib.mapAttrs (_: with8443) config.lantian.nginxVhosts);
 

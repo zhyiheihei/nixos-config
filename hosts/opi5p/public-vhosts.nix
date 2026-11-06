@@ -4,15 +4,7 @@ let
     "asf"
     "books"
     "dav"
-    "immich"
-    "jellyfin"
-    "mcsm"
-    "mcsm-daemon"
-    "memos"
     "openlist"
-    "qnap"
-    "vaults3"
-    "wallos"
   ];
 in
 {

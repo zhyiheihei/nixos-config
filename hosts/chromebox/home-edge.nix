@@ -1,4 +1,5 @@
 {
+  lib,
   LT,
   ...
 }:
@@ -10,8 +11,6 @@ let
     books = LT.hosts.opi5p.interconnect.IPv4;
     dav = LT.hosts.opi5p.interconnect.IPv4;
     openlist = LT.hosts.opi5p.interconnect.IPv4;
-    mcsm = LT.hosts.pve-5700u.interconnect.IPv4;
-    mcsm-daemon = LT.hosts.pve-5700u.interconnect.IPv4;
   };
   plainProxies = {
     qnap = "http://192.168.0.40:8080";
@@ -54,9 +53,14 @@ in
     ./media-edge.nix
   ];
 
-  lantian.nginxVhosts =
-    builtins.foldl' (acc: n: acc // mkTlsVhost n tlsProxies.${n}) { } (builtins.attrNames tlsProxies)
-    // builtins.foldl' (acc: n: acc // mkPlainVhost n plainProxies.${n}) { } (
-      builtins.attrNames plainProxies
-    );
+  lantian.nginxVhosts = {
+    "memos.zhyi.xin".accessibleBy = lib.mkForce "public";
+    "wallos.zhyi.xin".accessibleBy = lib.mkForce "public";
+    "mcsm.zhyi.xin".accessibleBy = lib.mkForce "public";
+    "mcsm-daemon.zhyi.xin".accessibleBy = lib.mkForce "public";
+  }
+  // builtins.foldl' (acc: n: acc // mkTlsVhost n tlsProxies.${n}) { } (builtins.attrNames tlsProxies)
+  // builtins.foldl' (acc: n: acc // mkPlainVhost n plainProxies.${n}) { } (
+    builtins.attrNames plainProxies
+  );
 }

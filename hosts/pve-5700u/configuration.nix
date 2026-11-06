@@ -11,18 +11,10 @@
     ../../nixos/hardware/smart.nix
     ../../nixos/pve.nix
 
-    ../../nixos/optional-apps/fastapi-dls.nix
-    ../../nixos/optional-apps/netns-tnl-buyvm.nix
-    ../../nixos/optional-apps/llama-cpp.nix
-    ../../nixos/optional-apps/resin.nix
-    ../../nixos/optional-apps/dlx.nix
-    ../../nixos/optional-apps/mcsm.nix
     ../../nixos/optional-apps/ncps-client.nix
-    ../../nixos/optional-apps/microsoft-rewards-script.nix
 
     ./enable-smart.nix
     ./hardware-configuration.nix
-    ../../nixos/optional-cron-jobs/ncmm.nix
   ];
 
   boot.kernelParams = [
@@ -55,8 +47,6 @@
       backupPath = "/nix/persistent/var/lib/vz/virtiofs/.snapshot-nixos-home-vm/virtiofs/nixos-home-vm/persistent";
     };
   };
-
-  lantian.mcsm.enable = true;
 
   services.proxmox-ve.bridges = [
     "br-lan"
