@@ -3,7 +3,8 @@
 #    各组都是原版 colmena apply（终端内原生 spinner、每台实时时间）：CN 组加
 #    --no-substitute，闭包全量由部署端推送（CN 机自拉缓存网络不稳）；非 CN 组
 #    保持原版行为，目标机自拉缓存补齐。分组不经过 colmena，直接读
-#    hosts/<名>/host.nix 的 tags 与 city。
+#    hosts/<名>/host.nix 的 tags 与 city。并行度由 commands/colmena.nix wrapper
+#    的 --parallel 0（不设限）决定，Makefile 不另传。
 
 servers: FORCE
 	@$(MAKE) _deploy-tag TAG=@server
@@ -51,8 +52,6 @@ update-nur: FORCE
 push-cache: FORCE
 	@attic push zhyi $(shell readlink -f .gcroots/*)
 
-DEPLOY_CN_PARALLEL ?= 4
-
 _deploy-tag: FORCE
 	@tag=$$(printf '%s' '$(TAG)' | sed 's/^@//'); \
 	nodes=""; \
@@ -77,7 +76,7 @@ _deploy-tag: FORCE
 	status=0; \
 	if [ -n "$$cn" ]; then \
 		echo "=== CN (full push): $${cn#,} ==="; \
-		nix run .#colmena -- apply --no-substitute --parallel $(DEPLOY_CN_PARALLEL) --on "$$cn" || status=1; \
+		nix run .#colmena -- apply --no-substitute --on "$$cn" || status=1; \
 	fi; \
 	if [ -n "$$noncn" ]; then \
 		echo "=== non-CN (substitute): $${noncn#,} ==="; \
