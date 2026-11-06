@@ -94,3 +94,5 @@ pkgs/hp-keyboard-backlight/default.nix # skip: fork 的 ml-laptop 用内核自�
 pkgs/hp-keyboard-backlight/Cargo.toml # skip: 随 pkgs/hp-keyboard-backlight 移除
 pkgs/hp-keyboard-backlight/Cargo.lock # skip: 随 pkgs/hp-keyboard-backlight 移除
 pkgs/hp-keyboard-backlight/src/main.rs # skip: 随 pkgs/hp-keyboard-backlight 移除
+nixos/optional-apps/acme/cert-exporter.nix # excludeGlobs 排除已退役证书族（ZeroSSL 时代 zerossl-xn--gmqs02au1c935d.pub-*、LE 金丝雀 letsencrypt-ssl/letsencrypt-test-ssl）：三者无续期 timer 也无 vhost 引用，同步来的旧文件已过期，不排除则 ssl_certificate_expiry 永久误报
+nixos/optional-apps/prometheus/blackbox-exporter.nix # 探测目标与期望串按 fork 环境改写：移除 github-pages/netlify/render/vercel/sip（本仓 DNS 与 nginx 均无这些名字）、jellyfin 改探 :8443（ISP 封 443 入向，家庭入口公网走 8443）、gopher/whois 期望串改 zhyi（gopher\.zhyi\. / ZHYI-DN42，上游为 lantian 身份）

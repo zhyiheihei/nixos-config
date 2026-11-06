@@ -43,6 +43,13 @@ NORMALIZE = [
     ("Lan Tian", "Magic Flash"),
     # 域名（含 dn42/neo 身份域）
     ("lantian.pub", "zhyi.xin"),
+    # 正则/转义里的域名标签（如 gopher 探测期望串 "gopher\\.lantian\\."）
+    (r"gopher\\.lantian\\.", r"gopher\\.zhyi\\."),
+    (r"lantian\\.pub", r"zhyi\\.xin"),
+    (r"lantian\\.dn42", r"zhyi\\.dn42"),
+    (r"lantian\\.neo", r"zhyi\\.neo"),
+    # DN42 注册对象的身份缩写（大写形态）
+    ("LANTIAN-DN42", "ZHYI-DN42"),
     ("xuyh0120.win", "zhyi.xin"),
     ("lantian.cc", "zhyi.xin"),
     ("ltn.pw", "zhyi.xin"),
@@ -206,6 +213,74 @@ def normalize(data: bytes):
     return text
 
 
+# 反向还原规则（把选项命名空间改回上游写法）不是待替换的上游标识，反查时跳过。
+RESIDUAL_SKIP = {'[ "zhyi" "nginxVhosts" ]'}
+# 选项命名空间的合法上下文：整段内出现 "lantian" 属模块选项路径，不是用户名。
+RESIDUAL_CONTEXT_EXEMPT = ('[ "lantian" "nginxVhosts" ]',)
+# 审计工具自身即替换词表的载体，不参与反查。
+RESIDUAL_SELF_FILES = {
+    "tools/exam-check",
+    "tools/exam-check-allowlist",
+    "tools/exam-check-baseline",
+    "tools/exam-check-test",
+}
+
+
+def residual_report(subpath=""):
+    """反查 fork 里没落实的认可替换（上游标识残留）。
+
+    认可替换只保证「两侧归一化后相等」，并不保证 fork 侧真的换了：上游字符串
+    在 fork 里原样保留时两侧归一化后完全相同，会被归为「一致」而隐形。
+    2026-11-06 的 gopher/whois 探测期望串（仍是 lantian）就是这么漏了两个月的。
+    这里逐条 NORMALIZE 反查 fork 工作树，把残留作为独立审计项出示。
+    """
+    allowed = set(load_allowlist())
+    hits = []
+    for path in sorted(worktree_files(subpath)):
+        if path in allowed or path in RESIDUAL_SELF_FILES or path.startswith(EXCLUDES):
+            continue
+        full = REPO / path
+        if not full.is_file():
+            continue
+        data = full.read_bytes()
+        if b"\x00" in data:
+            continue
+        text = data.decode("utf-8", errors="surrogateescape")
+        lines = text.splitlines()
+        exempt_spans = []
+        for ctx in RESIDUAL_CONTEXT_EXEMPT:
+            start = 0
+            while True:
+                idx = text.find(ctx, start)
+                if idx < 0:
+                    break
+                exempt_spans.append((idx, idx + len(ctx)))
+                start = idx + len(ctx)
+        for old, new in NORMALIZE:
+            if old in RESIDUAL_SKIP or old in new:
+                continue
+            start = 0
+            while True:
+                idx = text.find(old, start)
+                if idx < 0:
+                    break
+                start = idx + len(old)
+                if any(lo <= idx and start <= hi for lo, hi in exempt_spans):
+                    continue
+                lineno = text.count("\n", 0, idx) + 1
+                hits.append((path, lineno, old, new, lines[lineno - 1].strip()[:120]))
+    return hits
+
+
+def print_residual(hits, limit=60):
+    print("\n! 未落实的认可替换（fork 侧仍保留上游标识，改成 → 后的值）:")
+    for path, lineno, old, new, snippet in hits[:limit]:
+        print(f"  {path}:{lineno}  {old!r} → {new!r}")
+        print(f"      {snippet}")
+    if len(hits) > limit:
+        print(f"  …（其余 {len(hits) - limit} 处省略）")
+
+
 def norm_path(p):
     """路径级认可替换（vhosts-lantian.nix→vhosts-zhyi.nix 等），供结构审计配对。"""
     for old, new in NORMALIZE:
@@ -319,15 +394,20 @@ def do_diff(argv):
     )
     ap.add_argument("path", help="共享路径内的文件（改名前后皆可）")
     a = ap.parse_args(argv)
-    validate_shared_subpath(a.path)
     baseline = load_baseline()
     paths = [a.path]
+    paired = False
+    # 先做改名配对再校验：上游改名后的新路径在 baseline/工作树里都不存在，
+    # 先校验会被「共享路径内没有匹配文件」误驳，与「改名前后路径皆可」矛盾。
     for code, old, new in tree_ops(f"{baseline}..exam/master"):
         if code == "R" and (
             a.path in (old, new) or norm_path(a.path) in (norm_path(old), norm_path(new))
         ):
             paths = [old, new]
+            paired = True
             break
+    if not paired:
+        validate_shared_subpath(a.path)
     print(git("diff", f"{baseline}..exam/master", "--", *paths).decode(errors="replace"), end="")
 
 
@@ -408,9 +488,14 @@ def do_upstream(argv):
             if len(d) > 120:
                 print(f"…（其余 {len(d) - 120} 行省略）")
 
-    if drift or missing or renamed:
+    residual = residual_report(a.path)
+    if residual:
+        print_residual(residual)
+
+    if drift or missing or renamed or residual:
         print(
-            f"\nexam-check upstream: 未完全对齐（未对齐={len(drift)} 缺失={len(missing)} 改名未跟进={len(renamed)}）",
+            f"\nexam-check upstream: 未完全对齐（未对齐={len(drift)} 缺失={len(missing)} "
+            f"改名未跟进={len(renamed)} 未落实替换={len(residual)}）",
             file=sys.stderr,
         )
         sys.exit(1)
@@ -485,7 +570,10 @@ def lock_report():
     """
     import json as _json
 
-    fork = _json.loads((REPO / "flake.lock").read_text())
+    fork = _json.loads((REPO / "flake.lock").read_text()) if (REPO / "flake.lock").is_file() else None
+    if fork is None:
+        # 审计范围无锁文件（子路径审计、测试夹具）时无锁可比，不算脱离。
+        return []
     exam = _json.loads(git("show", "exam/master:flake.lock"))
 
     def root_inputs(nodes, root):
@@ -676,6 +764,9 @@ def main():
         print("\n! 上游结构变更未跟进（新增/删除/改名，逐个 checkout/mv 或登记 skip）:")
         for code, old, new, msg in struct_unapplied:
             print(f"  [{code}] {msg}")
+    residual = residual_report(args.path)
+    if residual:
+        print_residual(residual)
     if args.verbose:
         for p in drift + known:
             base = normalize(baseline_content(baseline, p)).splitlines()
@@ -686,9 +777,10 @@ def main():
             if len(diff) > 120:
                 print(f"…（其余 {len(diff) - 120} 行省略）")
 
-    if drift or struct_unapplied or lock_drift:
+    if drift or struct_unapplied or lock_drift or residual:
         print(
-            f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、锁世界脱离 {len(lock_drift)} 项，exit 1",
+            f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、"
+            f"锁世界脱离 {len(lock_drift)} 项、未落实替换 {len(residual)} 处，exit 1",
             file=sys.stderr,
         )
         sys.exit(1)

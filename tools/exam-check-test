@@ -368,5 +368,67 @@ class Errors(Base):
         self.assertIn("缺少", err)
 
 
+class Residual(Base):
+    """认可替换只保证两侧归一化等价，不保证 fork 落实；反查必须抓出残留。"""
+
+    BASE = b'x = "gopher\\\\.lantian\\\\.";\n'
+    EXAM = b'x = "gopher\\\\.lantian\\\\.";\n# upstream\n'
+    FIXED = b'x = "gopher\\\\.zhyi\\\\.";\n'
+
+    def test_residual_reported_and_fails_check(self):
+        self.fx.scenario(
+            {"home/a.nix": self.BASE},
+            {"home/a.nix": self.EXAM},
+            {"home/a.nix": self.BASE},
+        )
+        hits = M.residual_report()
+        self.assertEqual([h[0] for h in hits], ["home/a.nix"])
+        self.assertEqual(hits[0][2], r"gopher\\.lantian\\.")
+        out, _, code = run_main()
+        self.assertEqual(code, 1)
+        self.assertIn("未落实的认可替换", out)
+
+    def test_substituted_is_clean(self):
+        self.fx.scenario(
+            {"home/a.nix": self.BASE},
+            {"home/a.nix": self.EXAM},
+            {"home/a.nix": self.FIXED},
+        )
+        self.assertEqual(M.residual_report(), [])
+        _, _, code = run_main()
+        self.assertIsNone(code)
+
+    def test_option_namespace_context_exempt(self):
+        text = b'lib.attrByPath [ "lantian" "nginxVhosts" ] { } v\n'
+        exam = text + b"# upstream\n"
+        self.fx.scenario({"home/a.nix": text}, {"home/a.nix": exam}, {"home/a.nix": text})
+        self.assertEqual(M.residual_report(), [])
+
+    def test_upper_dn42_identity_detected(self):
+        text = b'name = "LANTIAN-DN42";\n'
+        exam = text + b"# upstream\n"
+        self.fx.scenario({"home/a.nix": text}, {"home/a.nix": exam}, {"home/a.nix": text})
+        self.assertEqual([h[2] for h in M.residual_report()], ["LANTIAN-DN42"])
+
+    def test_allowlisted_file_exempt(self):
+        self.fx.scenario(
+            {"home/a.nix": self.BASE},
+            {"home/a.nix": self.EXAM},
+            {"home/a.nix": self.BASE},
+            allow=[("home/a.nix", "登记差异")],
+        )
+        self.assertEqual(M.residual_report(), [])
+
+    def test_diff_pairs_rename_from_new_path(self):
+        # 改名后的新路径在 baseline/工作树都不存在，仍应能查上游 diff
+        self.fx.scenario(
+            {"home/old.nix": b"x\n"},
+            {"home/old.nix": None, "home/new.nix": b"x\ny\n"},
+            {"home/old.nix": b"x\n"},
+        )
+        out, _, _ = run(M.do_diff, ["home/new.nix"])
+        self.assertIn("rename from home/old.nix", out)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
