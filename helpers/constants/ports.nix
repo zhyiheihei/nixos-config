@@ -108,6 +108,7 @@ rec {
     OidcTester = 13817;
     SublinkPro = 13818;
     Memos = 13819;
+    SublinkProRelay = 13820;
     Halo = 13823;
     MetaCubeXD = {
       Mixed = 13824;
