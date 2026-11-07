@@ -70,7 +70,7 @@ class Fixture:
     def commit(self, files, msg):
         self.write(files)
         self.git("add", "-A")
-        self.git("commit", "-q", "-m", msg)
+        self.git("commit", "-q", "--allow-empty", "-m", msg)
         return self.git("rev-parse", "HEAD").stdout.decode().strip()
 
     def bind(self, baseline, allow=(), shared=("home",)):
@@ -395,7 +395,7 @@ class Residual(Base):
             {"home/a.nix": self.FIXED},
         )
         self.assertEqual(M.residual_report(), [])
-        _, _, code = run_main()
+        _, _, code = run_main(["--pending-ok"])
         self.assertIsNone(code)
 
     def test_option_namespace_context_exempt(self):
@@ -428,6 +428,55 @@ class Residual(Base):
         )
         out, _, _ = run(M.do_diff, ["home/new.nix"])
         self.assertIn("rename from home/old.nix", out)
+
+
+class PendingEntries(Base):
+    """allowlisted 文件里的上游条目变更必须逐条出示，不能整文件豁免吞掉。"""
+
+    def _scenario(self, allow=()):
+        self.fx.scenario(
+            {"home/a.nix": b"x = 1;\n"},
+            {"home/a.nix": b"x = 1;\ny = 2;\n"},
+            {"home/a.nix": b"x = 1;\nz = 3;\n"},
+            allow=allow,
+        )
+
+    def test_allowlisted_file_shows_commit_and_hunk(self):
+        self._scenario(allow=[("home/a.nix", "登记差异")])
+        out, _, code = run_main()
+        self.assertEqual(code, 1)
+        self.assertIn("上游条目未同步", out)
+        self.assertIn("home/a.nix  [allowlisted]", out)
+        self.assertIn(" exam", out)
+        self.assertIn("+y = 2;", out)
+
+    def test_pending_fails_by_default_allowed_with_flag(self):
+        self._scenario(allow=[("home/a.nix", "登记差异")])
+        _, err, code = run_main()
+        self.assertEqual(code, 1)
+        self.assertIn("上游条目未同步 1 个", err)
+        _, _, ok = run_main(["--pending-ok"])
+        self.assertIsNone(ok)
+
+
+class NormalizeCmd(Base):
+    def test_applies_recognized_replacements(self):
+        self.fx.scenario({"home/a.nix": b"a\n"}, {"home/a.nix": b"a\n"}, {"home/a.nix": b'a\n'})
+        (self.fx.root / "home/a.nix").write_bytes(b'x = "lantian";\ny = "lantian.pub";\n')
+        out, _, code = run(M.do_normalize, ["home/a.nix"])
+        self.assertIsNone(code)
+        self.assertIn("已替换", out)
+        self.assertEqual(
+            (self.fx.root / "home/a.nix").read_bytes(),
+            b'x = "zhyi";\ny = "zhyi.xin";\n',
+        )
+
+    def test_dry_run_keeps_file(self):
+        self.fx.scenario({"home/a.nix": b"a\n"}, {"home/a.nix": b"a\n"}, {"home/a.nix": b'a\n'})
+        (self.fx.root / "home/a.nix").write_bytes(b'x = "lantian";\n')
+        out, _, _ = run(M.do_normalize, ["--dry-run", "home/a.nix"])
+        self.assertIn("命中", out)
+        self.assertEqual((self.fx.root / "home/a.nix").read_bytes(), b'x = "lantian";\n')
 
 
 if __name__ == "__main__":

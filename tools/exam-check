@@ -3,6 +3,9 @@
 #   tools/exam-check          审计共享路径相对基线的漂移（默认动作）
 #   tools/exam-check log      查看基线以来上游增量
 #   tools/exam-check host-map [exam-host] 查看按服务导入核定的主机映射
+#   tools/exam-check structure           上游新增/删除/改名是否已跟进
+#   tools/exam-check diff <path>         某文件上游自基线的完整改动
+#   tools/exam-check normalize <path>... checkout 上游文件后套用认可替换表
 #   tools/exam-check --help   完整用法与工作流
 # 基线见 tools/exam-check-baseline。
 import argparse
@@ -334,6 +337,49 @@ def structure_report(baseline, allow, subpath=""):
     return unapplied
 
 
+def commits_touching(baseline, path, limit=8):
+    """上游 baseline..exam/master 里改动该文件的提交（新→旧）。"""
+    out = git("log", "--format=%h %ad %s", "--date=short", f"{baseline}..exam/master", "--", path)
+    lines = [ln for ln in out.decode(errors="replace").splitlines() if ln.strip()]
+    return lines[:limit], max(0, len(lines) - limit)
+
+
+def pending_hunks(baseline, path, limit=12):
+    """上游对既有文件塞进来的内容 hunk：返回 [(hunk header, [首行预览...])]。
+
+    上游改既有文件（M）不进基线快照，只靠 allowlist 整文件豁免会漏跟；
+    这里把 hunk 头和首行改动出示，条目级变化不再藏在文件级记账后面。
+    """
+    out = git("diff", "-U0", f"{baseline}..exam/master", "--", path).decode(errors="replace")
+    hunks = []
+    for line in out.splitlines():
+        if line.startswith("@@"):
+            hunks.append((line, []))
+        elif hunks and not line.startswith(("+++", "---")) and line[:1] in ("+", "-"):
+            if len(hunks[-1][1]) < 2:
+                hunks[-1][1].append(line.rstrip()[:110])
+    return hunks[:limit], max(0, len(hunks) - limit)
+
+
+def print_pending(baseline, paths, allow):
+    """逐文件出示上游条目级变更（commit + hunk），标注 allowlisted。"""
+    for p in paths:
+        tag = "  [allowlisted]" if p in allow else ""
+        print(f"  {p}{tag}")
+        commits, more_commits = commits_touching(baseline, p)
+        for c in commits:
+            print(f"      {c}")
+        if more_commits:
+            print(f"      …（其余 {more_commits} 个提交省略）")
+        hunks, more_hunks = pending_hunks(baseline, p)
+        for header, preview in hunks:
+            print(f"      {header}")
+            for line in preview:
+                print(f"        {line}")
+        if more_hunks:
+            print(f"      …（其余 {more_hunks} 个 hunk 省略，tools/exam-check diff {p}）")
+
+
 def baseline_files(baseline, subpath):
     out = git("ls-tree", "-r", "--name-only", "-z", baseline, "--", *([subpath] if subpath else SHARED_PATHS))
     return {p for p in out.decode().split("\0") if p and not p.startswith(EXCLUDES)}
@@ -502,6 +548,42 @@ def do_upstream(argv):
     print("\nexam-check upstream: 通过")
 
 
+def do_normalize(argv):
+    ap = argparse.ArgumentParser(
+        prog="tools/exam-check normalize",
+        description="对工作树文件套用认可替换表（同步时 checkout 上游文件后的机械化收尾）",
+    )
+    ap.add_argument("paths", nargs="+", help="工作树文件路径")
+    ap.add_argument("--dry-run", action="store_true", help="只报告命中，不写回")
+    a = ap.parse_args(argv)
+    touched = 0
+    for p in a.paths:
+        full = REPO / p
+        if not full.is_file():
+            die(f"不存在: {p}")
+        data = full.read_bytes()
+        if b"\x00" in data:
+            print(f"跳过（二进制）: {p}")
+            continue
+        text = data.decode("utf-8", errors="surrogateescape")
+        hits = []
+        for old, new in NORMALIZE:
+            if old in new:
+                continue
+            n = text.count(old)
+            if n:
+                text = text.replace(old, new)
+                hits.append((old, new, n))
+        for old, new, n in hits:
+            print(f"{p}: {old!r} → {new!r} ×{n}")
+        if hits:
+            touched += 1
+            if not a.dry_run:
+                full.write_bytes(text.encode("utf-8", errors="surrogateescape"))
+    verb = "命中" if a.dry_run else "已替换"
+    print(f"\nexam-check normalize: {touched} 个文件{verb}认可替换")
+
+
 def do_structure(argv):
     ap = argparse.ArgumentParser(
         prog="tools/exam-check structure",
@@ -616,6 +698,9 @@ def main():
     if argv and argv[0] == "structure":
         do_structure(argv[1:])
         return
+    if argv and argv[0] == "normalize":
+        do_normalize(argv[1:])
+        return
     if argv and argv[0] == "check":
         argv = argv[1:]
     ap = argparse.ArgumentParser(
@@ -626,12 +711,18 @@ def main():
                "  tools/exam-check log          # 上游改了什么\n"
                "  tools/exam-check host-map     # 查看按服务导入核定的主机映射\n"
                "  tools/exam-check structure    # 上游新增/删除/改名是否已跟进（A/D/R）\n"
-               "  tools/exam-check              # 我们漂了多少（含结构审计；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
+               "  tools/exam-check              # 我们漂了多少（含结构审计与上游条目级变更；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
+               "  tools/exam-check normalize <path>...  # 验收替换表套用到工作树文件（checkout 上游后收尾）\n"
                "  tools/exam-check -v           # 漂移文件的归一化 diff\n"
                "同步完成后 bump tools/exam-check-baseline 的 baseline。",
     )
     ap.add_argument("-v", "--verbose", action="store_true", help="打印漂移文件的归一化 diff")
     ap.add_argument("--strict", action="store_true", help="忽略 allowlist，未清偿项按未登记漂移对待")
+    ap.add_argument(
+        "--pending-ok",
+        action="store_true",
+        help="上游条目级变更（M）不计入失败（同步进行中的临时放行；同步完成必须清零）",
+    )
     ap.add_argument("--path", default="", help="只审计某子路径")
     ap.add_argument("--print-paths", action="store_true", help="打印共享路径清单")
     args = ap.parse_args(argv)
@@ -720,7 +811,10 @@ def main():
     ]
 
     print(f"baseline {baseline[:12]} (tools/exam-check-baseline) | exam/master {exam_tip}")
-    print(f"统计: = 一致 {len(same)} | ≈ 认可替换 {len(subst)} | + fork独有 {len(fork_only)} | − 上游独有 {len(upstream_only)} | !known 已登记 {len(known)} | ! 未登记漂移 {len(drift)}")
+    content_changed = sorted(
+        norm_path(old) for code, old, _ in ops if code == "M" and not old.startswith(EXCLUDES)
+    )
+    print(f"统计: = 一致 {len(same)} | ≈ 认可替换 {len(subst)} | + fork独有 {len(fork_only)} | − 上游独有 {len(upstream_only)} | !known 已登记 {len(known)} | ! 未登记漂移 {len(drift)} | ! 上游条目未同步 {len(content_changed)}")
 
     if drift:
         print("\n! 未登记漂移（处理：对齐上游 / 主机级接管，然后登记 allowlist 或修掉）:")
@@ -744,16 +838,10 @@ def main():
             print(f"  {p}")
     # 盲区修复（2026-10-13 obs-noise 漏跟事故）：A/D/R 之外，上游还会往既有文件里
     # 塞内容 hunk（M）。基线快照不包含这些变更，仅靠 allowlist 整文件豁免会漏跟，
-    # 必须在每次审计时把 M 清单作为同步作业待办出示。
-    content_changed = sorted(
-        norm_path(old)
-        for code, old, _ in ops
-        if code == "M" and not old.startswith(EXCLUDES)
-    )
+    # 必须在每次审计时把 M 条目连 commit/hunk 一起出示（allowlisted 文件同样列）。
     if content_changed:
-        print("\n! 上游内容变更未核对（M，自 baseline；同步作业逐 hunk 跟进后 bump baseline）:")
-        for p in content_changed:
-            print(f"  {p}")
+        print("\n! 上游条目未同步（M，自 baseline；逐 hunk 跟进后 bump baseline）:")
+        print_pending(baseline, content_changed, allow)
     lock_drift = [] if args.path else lock_report()
     if lock_drift:
         print(f"\n! 锁世界脱离 exam（共享 inputs locked 值不一致；只许随 exam 同步移动，禁止裸 flake update）:")
@@ -777,10 +865,11 @@ def main():
             if len(diff) > 120:
                 print(f"…（其余 {len(diff) - 120} 行省略）")
 
-    if drift or struct_unapplied or lock_drift or residual:
+    pending = [] if args.pending_ok else content_changed
+    if drift or struct_unapplied or lock_drift or residual or pending:
         print(
             f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、"
-            f"锁世界脱离 {len(lock_drift)} 项、未落实替换 {len(residual)} 处，exit 1",
+            f"上游条目未同步 {len(pending)} 个、锁世界脱离 {len(lock_drift)} 项、未落实替换 {len(residual)} 处，exit 1",
             file=sys.stderr,
         )
         sys.exit(1)
