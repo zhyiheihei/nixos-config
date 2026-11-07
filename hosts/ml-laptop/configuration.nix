@@ -188,21 +188,6 @@
 
   hardware.xpadneo.enable = true;
 
-  boot.loader.grub = {
-    efiSupport = true;
-    device = "nodev";
-    configurationLimit = 4;
-    extraEntries = ''
-      menuentry "Windows 11" --class windows {
-        insmod part_gpt
-        insmod fat
-        insmod chain
-        search --no-floppy --fs-uuid --set=root A889-8907
-        chainloader /EFI/Microsoft/Boot/bootmgfw.efi
-      }
-    '';
-  };
-
   services.sunshine.settings.csrf_allowed_origins = "https://192.168.0.55:47990,https://198.18.0.118:47990,https://ml-laptop.zhyi.xin:47990";
 
   services.sunshine.settings = {

@@ -11,6 +11,18 @@
     ../../nixos/hardware/smart.nix
   ];
 
+  boot.loader.efi.canTouchEfiVariables = lib.mkForce true;
+
+  boot.loader.grub = {
+    efiSupport = true;
+    efiInstallAsRemovable = lib.mkForce false;
+    device = "nodev";
+    configurationLimit = 4;
+    gfxmodeBios = "2880x1800x32,auto";
+    gfxmodeEfi = "2880x1800x32,auto";
+    useOSProber = true;
+  };
+
   boot.initrd.availableKernelModules = [
     "thunderbolt"
     "nvme"
