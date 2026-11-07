@@ -7,10 +7,7 @@
 {
   index = 131;
   system = "x86_64-linux";
-  tags = with tags; [
-    lan-access
-    server
-  ];
+  tags = with tags; [ server ];
   cpuThreads = 8;
   city = geo.cities."CN Ningbo";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOWizfDOy55dZqrVSLJ9b0loTER6/TxV3B55kN6BPdW5 root@nixos";

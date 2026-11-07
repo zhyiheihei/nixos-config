@@ -15,7 +15,9 @@
     let
       opts = "rw,insecure,no_subtree_check,mountpoint,all_squash,fsid=1,anonuid=${builtins.toString config.users.users.zhyi.uid},anongid=${builtins.toString config.users.groups.zhyi.gid}";
       hostOpts = lib.concatMapStringsSep " " (ip: "${ip}(${opts})") (
-        lib.mapAttrsToList (_: host: host.ltnet.IPv4) (LT.hostsWithTag LT.tags."lan-access")
+        lib.map (host: host.ltnet.IPv4) (
+          lib.filter (host: host.interconnect.name == "home-lan") (builtins.attrValues LT.hosts)
+        )
       );
     in
     ''

@@ -9,7 +9,7 @@ let
   wg-pubkey = import (inputs.secrets + "/wg-pubkey.nix");
   targetHosts = lib.filterAttrs (n: v: v.hasTag "server") LT.otherHosts;
 
-  wgEndpointOverrides = lib.optionalAttrs (LT.this.hasTag "lan-access") (
+  wgEndpointOverrides = lib.optionalAttrs (LT.this.interconnect.name == "home-lan") (
     lib.filterAttrs (_: v: v != null) {
       greencloud-jp = LT.publicIPv6For "greencloud-jp";
     }

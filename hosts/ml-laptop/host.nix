@@ -1,11 +1,7 @@
 { tags, geo, ... }:
 {
   index = 118;
-  tags = with tags; [
-    client
-    lan-access
-
-  ];
+  tags = with tags; [ client ];
   city = geo.cities."CN Ningbo";
   cpuThreads = 18;
 

@@ -8,7 +8,6 @@
   index = 114;
   tags = with tags; [
     client
-    lan-access
     nix-builder
   ];
 
