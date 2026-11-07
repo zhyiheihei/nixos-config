@@ -5,6 +5,8 @@
 #    保持原版行为，目标机自拉缓存补齐。分组不经过 colmena，直接读
 #    hosts/<名>/host.nix 的 tags 与 city。并行度由 commands/colmena.nix wrapper
 #    的 --parallel 0（不设限）决定，Makefile 不另传。
+#    all(=@default) 对应 colmena 内置 default 标签的语义：除 manualDeploy 主机
+#    以外的全部节点；all-all(@all) 才含 manualDeploy（ml-laptop/ml-builder/router）。
 
 servers: FORCE
 	@$(MAKE) _deploy-tag TAG=@server
@@ -57,7 +59,9 @@ _deploy-tag: FORCE
 	nodes=""; \
 	for d in hosts/*/; do \
 		h=$$(basename $$d); \
-		if [ "$$tag" = all ] || sed -n '/^  tags = /,/];/p' $$d/host.nix | grep -qw "$$tag"; then \
+		if [ "$$tag" = all ] \
+			|| { [ "$$tag" = default ] && ! grep -q 'manualDeploy = true' $$d/host.nix; } \
+			|| sed -n '/^  tags = /,/];/p' $$d/host.nix | grep -qw "$$tag"; then \
 			nodes="$$nodes $$h"; \
 		fi; \
 	done; \

@@ -27,6 +27,7 @@ rec {
     Gemini = 1965;
     GTPU = 2152; # GTP-U user plane (base station <-> LTE core)
     SSH = 2222;
+    Go2rtc = 1984; # go2rtc control/API (frigate host network)
     Xvcd = 2542; # Xilinx Virtual Cable daemon
     Loki = 3100;
     SpiceProxy = 3128; # Proxmox VE SPICE web proxy
@@ -38,9 +39,14 @@ rec {
     I2P.HTTPProxy = 4444;
     I2P.SocksProxy = 4447;
     Pipewire.TCP = 4713;
+    Jellyfin = 8096;
+    HomeAssistant = 8123;
     OneKVM = 8420;
     WsScrcpy = 8421;
+    HTTPSAlt = 8443; # public HTTPS alternate entry
     OneKVMHTTPS = 8444;
+    Go2rtcRTSP = 8554;
+    Go2rtcRTSPAlt = 8555;
     ResilioSync.UI = 8888;
     Frigate = 8971;
     Prometheus.Palworld = 9877;
@@ -48,6 +54,7 @@ rec {
     Pipewire.Roc.End = 10003;
     Pipewire.VBanRecv = 6980; # libpipewire-module-vban-recv default
     Asterisk.UDPTL.End = 4999;
+    FrigateAPI = 5000; # frigate API (host network)
     IPFS.API = 5001;
     IPFS.Gateway = 5002;
     IPerf = 5201;
@@ -187,6 +194,7 @@ rec {
     DN42.LocalPort.End = 23999;
     Asterisk.RTP.Start = 25000;
     Asterisk.RTP.End = 25199;
+    Minecraft = 25565; # MCSM-managed server (tcp main + udp query)
     WGLanTian.ForwardStart = 30010;
     WGLanTian.ForwardStop = 32559;
     Ephemeral.Start = 32768;

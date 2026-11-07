@@ -369,6 +369,17 @@ in
   networking.networkmanager.enable = lib.mkForce false;
 
   boot.supportedFilesystems = [ "nfs" ];
+
+  # 家庭 LAN 直连入口：入向全部落在 eth0（WAN 前缀），白名单模型下需显式登记。
+  lantian.firewall.presets.public-firewall.allowedPorts = [
+    LT.port.HTTPSAlt
+    LT.port.FrigateAPI
+    LT.port.Frigate
+    LT.port.OneKVMHTTPS
+    LT.port.Go2rtc
+    LT.port.Go2rtcRTSP
+    LT.port.Go2rtcRTSPAlt
+  ];
   environment.systemPackages = [ pkgs.nfs-utils ];
 
   fileSystems."/mnt/storage" = {

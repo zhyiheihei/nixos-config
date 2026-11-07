@@ -236,6 +236,10 @@ in
     };
   };
 
+  # 白名单模型下登记 13818：容器内应用在宿主网络里以通配地址监听该口，
+  # nginx 之外的历史直连入口需要它。
+  lantian.firewall.presets.public-firewall.allowedPorts = [ LT.port.SublinkPro ];
+
   virtualisation.oci-containers.containers.sublinkpro = {
     image = "docker.io/zerodeng/sublink-pro:latest";
     labels."io.containers.autoupdate" = "registry";

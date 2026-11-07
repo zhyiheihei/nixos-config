@@ -6,6 +6,17 @@
   pkgs,
   ...
 }:
+let
+  ztControllerLocalConf = pkgs.writeText "zerotier-one-controller-local.conf" (
+    builtins.toJSON {
+      settings = {
+        primaryPort = LT.port.ZeroTier.Controller;
+        secondaryPort = LT.this.wg-lantian.forwardStart + 5;
+        tertiaryPort = LT.this.wg-lantian.forwardStart + 6;
+      };
+    }
+  );
+in
 {
   imports = [
     ../../nixos/server.nix
@@ -273,4 +284,19 @@
   environment.systemPackages = with pkgs; [
     gnumake
   ];
+  # ZeroTier 控制器实例默认在 secondary/tertiary 上随机绑 UDP 口，白名单
+  # 模型下无法登记；这里写死到本机 wg-lantian 转发段内的固定值（节点自身
+  # 的 ZT 实例占 forwardStart+3/+4，控制器用 +5/+6）。
+  systemd.services.zerotierone-controller = {
+    restartTriggers = [ ztControllerLocalConf ];
+    preStart = lib.mkAfter ''
+      ${pkgs.coreutils}/bin/install -m 0644 ${ztControllerLocalConf} /var/lib/zerotier-one-controller/local.conf
+    '';
+  };
+
+  lantian.firewall.presets.public-firewall.allowedPorts = [
+    (LT.this.wg-lantian.forwardStart + 5)
+    (LT.this.wg-lantian.forwardStart + 6)
+  ];
+
 }
