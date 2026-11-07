@@ -8,7 +8,7 @@
 }:
 let
   ltnetSSHConfig = ''
-    Port 2222
+    Port ${LT.portStr.SSH}
     HostKeyAlgorithms ssh-ed25519
     KexAlgorithms mlkem768x25519-sha256,sntrup761x25519-sha512,sntrup761x25519-sha512@openssh.com
     Ciphers aes256-gcm@openssh.com
@@ -60,11 +60,11 @@ in
           let
             hostNames = [
               "${n}"
-              "[${n}]:2222"
+              "[${n}]:${LT.portStr.SSH}"
               "${n}.zhyi.xin"
-              "[${n}.zhyi.xin]:2222"
+              "[${n}.zhyi.xin]:${LT.portStr.SSH}"
               "${n}.zhyi.xin"
-              "[${n}.zhyi.xin]:2222"
+              "[${n}.zhyi.xin]:${LT.portStr.SSH}"
             ];
           in
           lib.optional (LT.hosts."${n}".ssh.ed25519 != null) {
@@ -81,7 +81,7 @@ in
 
   services.openssh = {
     enable = true;
-    ports = [ 2222 ];
+    ports = [ LT.port.SSH ];
     sftpServerExecutable = "internal-sftp";
     authorizedKeysInHomedir = false;
     hostKeys = [
@@ -198,6 +198,10 @@ in
   systemd.services.sshd.serviceConfig.ExecStartPre = [
     "${pkgs.coreutils}/bin/install -d -m 0555 -o root -g root /var/empty"
   ];
+
+  # SSH is reachable from the Internet on every host for deployment and
+  # management; port 22 is covered separately by the endlessh decoy.
+  lantian.firewall.presets.public-firewall.allowedPorts = [ LT.port.SSH ];
 
   # Prevent regular OpenSSH from sneaking in
   # FIXME: PVE depends on regular OpenSSH

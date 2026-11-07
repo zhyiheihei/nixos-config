@@ -1,15 +1,18 @@
 {
+  LT,
   pkgs,
   lib,
   config,
   ...
 }:
 {
-  lantian.firewall.presets.public-firewall.firewalledPorts = lib.mkIf config.services.samba.enable [
-    137
-    138
-    139
-    445
+
+  lantian.firewall.presets.public-firewall.allowedInternalPorts = [
+    LT.port.Smb.NameService
+    LT.port.Smb.Datagram
+    LT.port.Smb.Session
+    LT.port.Smb.Tcp
+    LT.port.WSDD
   ];
 
   services.samba = {

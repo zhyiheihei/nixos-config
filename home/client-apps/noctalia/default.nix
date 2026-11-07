@@ -11,6 +11,15 @@ let
   iconScale = 1.5;
   itemSpacing = 12;
   stylixAccent = config.lib.stylix.colors.withHashtag.base0D;
+
+  communitySrc = LT.sources.noctalia-community-plugins.src;
+  officialSrc = LT.sources.noctalia-official-plugins.src;
+  pluginBundle = pkgs.runCommand "noctalia-plugins" { } ''
+    mkdir -p $out
+    cp -r ${communitySrc}/lyrics $out/
+    cp -r ${officialSrc}/bitwarden $out/
+    cp -r ${./vscode-projects}/. $out/vscode-projects/
+  '';
 in
 {
   imports = [
@@ -274,14 +283,21 @@ in
     };
   };
 
+  home.packages = [
+    pkgs.playerctl
+    pkgs.bitwarden-cli
+    pkgs.wl-clipboard
+  ];
+
   programs.noctalia = {
     enable = true;
     systemd.enable = true;
 
     package = inputs.noctalia.packages.${pkgs.stdenv.hostPlatform.system}.default.overrideAttrs (old: {
       patches = (old.patches or [ ]) ++ [
-        ../../patches/noctalia-tray-item-size.patch
-        ../../patches/noctalia-switcher-no-pointer-warp.patch
+        ../../../patches/noctalia-tray-item-size.patch
+        ../../../patches/noctalia-switcher-no-pointer-warp.patch
+        ../../../patches/noctalia-taskbar-per-window-pinned.patch
       ];
     });
 
@@ -289,8 +305,13 @@ in
       shell = {
         corner_radius_scale = 0.0;
         polkit_agent = true;
+        launch_apps_as_systemd_services = true;
+        window_switcher = {
+          mru = true;
+          style = "compact";
+        };
+        panel.transparency_mode = "solid";
       };
-      shell.panel.transparency_mode = "solid";
 
       audio.enable_sounds = false;
 
@@ -300,6 +321,25 @@ in
         longitude = builtins.fromJSON LT.this.city.lng;
       };
       weather.enabled = true;
+
+      # 插件声明式安装：path source 指向 store 内只读 bundle，
+      # enabled 列表与 bundle 内各插件 plugin.toml 的 id 一一对应
+      plugins = {
+        enabled = [
+          "h465855hgg/lyrics"
+          "noctalia/bitwarden"
+          "lantian/vscode-projects"
+        ];
+        auto_update = "none";
+        source = [
+          {
+            name = "nix-managed";
+            kind = "path";
+            location = "${pluginBundle}";
+            enabled = true;
+          }
+        ];
+      };
 
       lockscreen.enabled = false;
 
@@ -327,6 +367,7 @@ in
         ];
         center = [ ];
         end = [
+          "lyrics"
           "tray"
           "clipboard"
           "weather"
@@ -363,6 +404,18 @@ in
         control-center.font_scale = 1.0 / iconScale;
         clipboard.scale = iconScale;
         clipboard.font_scale = 1.0 / iconScale;
+
+        lyrics = {
+          display_mode = "lyrics";
+          double_line = true;
+          double_line_auto_fit = true;
+          enable_scroll = false;
+          force_karaoke = true;
+          show_cover = false;
+          show_romanization = true;
+          show_translation = true;
+          type = "h465855hgg/lyrics:lyrics";
+        };
       };
     };
   };

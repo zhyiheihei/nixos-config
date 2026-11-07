@@ -42,6 +42,10 @@ fetch.url = "https://github.com/grafana/grafana-infinity-datasource/releases/dow
 src.github = "grafana/grafana-infinity-datasource"
 src.prefix = "v"
 
+[iyuuplus]
+fetch.git = "https://github.com/ledccn/iyuuplus-dev.git"
+src.git = "https://github.com/ledccn/iyuuplus-dev.git"
+
 [lobe-icons]
 fetch.git = "https://github.com/lobehub/lobe-icons.git"
 src.git = "https://github.com/lobehub/lobe-icons.git"
@@ -57,6 +61,14 @@ src.git = "https://github.com/wis/mpvSockets.git"
 [nmea-static-gps-server]
 fetch.github = "evert/nmea-static-gps-server"
 src.git = "https://github.com/evert/nmea-static-gps-server.git"
+
+[noctalia-community-plugins]
+fetch.git = "https://github.com/noctalia-dev/community-plugins.git"
+src.git = "https://github.com/noctalia-dev/community-plugins.git"
+
+[noctalia-official-plugins]
+fetch.git = "https://github.com/noctalia-dev/official-plugins.git"
+src.git = "https://github.com/noctalia-dev/official-plugins.git"
 
 [nvidia-patch]
 fetch.github = "keylase/nvidia-patch"
@@ -80,8 +92,8 @@ fetch.github = "xddxdd/Sakura_Launcher_GUI"
 src.git = "https://github.com/xddxdd/Sakura_Launcher_GUI.git"
 
 [scam-dn42-miner]
-fetch.git = "https://git.zhyi.xin/lantian/scam-dn42-miner.git"
-src.git = "https://git.zhyi.xin/lantian/scam-dn42-miner.git"
+fetch.git = "https://git.lantian.pub/lantian/scam-dn42-miner.git"
+src.git = "https://git.lantian.pub/lantian/scam-dn42-miner.git"
 src.branch = "fpga"
 
 [skyland-auto-checkin]

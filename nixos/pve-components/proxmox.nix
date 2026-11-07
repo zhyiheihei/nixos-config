@@ -1,5 +1,11 @@
-{ ... }:
+{ LT, ... }:
 {
+  # PVE web UI and SPICE proxy are LTnet-internal
+  lantian.firewall.presets.public-firewall.allowedInternalPorts = [
+    LT.port.Proxmox
+    LT.port.SpiceProxy
+  ];
+
   imports = [ ../hardware/vfio.nix ];
 
   services.proxmox-ve.enable = true;

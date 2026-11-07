@@ -33,9 +33,15 @@
   # 备案期间临时关闭对外 vhost
   # lantian.nginxVhosts."tencent-cn.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
-  # 备案期间临时关闭公网 Web 访问（保留 LTNET 访问）
-  lantian.firewall.presets.public-firewall.firewalledPorts = [
-    LT.port.HTTP
-    LT.port.HTTPS
+  # 备案期间临时关闭公网 Web 访问（保留 LTNET 访问）：allowlist 模型下
+  # 由 nginx 统一登记 80/443，本地在受理之后追加拒绝。
+  lantian.firewall.chains.PUBLIC_INPUT.rules = [
+    {
+      priority = LT.firewallPriorities.service + 60;
+      text = ''
+        tcp dport { ${LT.portStr.HTTP}, ${LT.portStr.HTTPS} } reject with tcp reset
+        udp dport { ${LT.portStr.HTTP}, ${LT.portStr.HTTPS} } reject with icmpx type port-unreachable
+      '';
+    }
   ];
 }

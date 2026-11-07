@@ -14,7 +14,7 @@ let
   ];
 in
 {
-  lantian.firewall.presets.public-firewall.firewalledPorts = [ LT.port.SublinkProRelay ];
+  lantian.firewall.presets.public-firewall.allowedInternalPorts = [ LT.port.SublinkProRelay ];
 
   lantian.nginxVhosts."sublinkpro-relay" = {
     accessibleBy = "private";
