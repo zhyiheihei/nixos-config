@@ -4,6 +4,7 @@
 #   tools/exam-check log      查看基线以来上游增量
 #   tools/exam-check host-map [exam-host] 查看按服务导入核定的主机映射
 #   tools/exam-check structure           上游新增/删除/改名是否已跟进
+#   tools/exam-check host-keys           上游 host.nix 用过的选项键，fork 是否逐台跟上
 #   tools/exam-check diff <path>         某文件上游自基线的完整改动
 #   tools/exam-check normalize <path>... checkout 上游文件后套用认可替换表
 #   tools/exam-check --help   完整用法与工作流
@@ -11,6 +12,7 @@
 import argparse
 import difflib
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -18,6 +20,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 BASELINE_FILE = REPO / "tools/exam-check-baseline"
 ALLOWLIST_FILE = REPO / "tools/exam-check-allowlist"
+HOSTKEYS_ALLOWLIST_FILE = REPO / "tools/exam-check-hostkeys-allowlist"
 
 # 与上游 exam 对齐的路径；hosts/、dns/、Makefile、AGENTS.md 等为 fork 自有，不审。
 SHARED_PATHS = [
@@ -205,6 +208,91 @@ def load_allowlist():
             if path:
                 entries[path] = reason.strip()
     return entries
+
+
+def load_hostkeys_allowlist():
+    entries = {}
+    if not HOSTKEYS_ALLOWLIST_FILE.is_file():
+        return entries
+    for raw in HOSTKEYS_ALLOWLIST_FILE.read_text().splitlines():
+        if "#" in raw:
+            key, reason = raw.split("#", 1)
+            key = key.strip()
+            if key:
+                entries[key] = reason.strip()
+    return entries
+
+
+HOST_KEY_RE = re.compile(r"^  ([A-Za-z][A-Za-z0-9_-]*)\s*=", re.M)
+
+
+def host_key_usage(rev=None, hosts_root=None):
+    """统计 host.nix 顶层选项键的使用次数。
+
+    rev 给定时从该 git 版本读上游 hosts/；否则读工作树 hosts_root。
+    """
+    usage = {}
+    if rev:
+        listing = git("ls-tree", "-r", "--name-only", rev, "--", "hosts/").decode().split()
+        sources = [
+            (path, lambda path=path: git("show", f"{rev}:{path}").decode(errors="surrogateescape"))
+            for path in listing
+            if path.endswith("/host.nix")
+        ]
+    else:
+        sources = [(str(p), p.read_text) for p in sorted(Path(hosts_root).glob("*/host.nix"))]
+    for _, read in sources:
+        keys = set(HOST_KEY_RE.findall(read()))
+        for key in keys:
+            usage[key] = usage.get(key, 0) + 1
+    return usage
+
+
+def host_keys_report(strict=False):
+    """上游 host.nix 用过、fork 一次都没用的选项键。
+
+    主机配置不逐字对齐（域名/IP/机名是环境事实），但「上游某选项在某类主机上
+    显式设置、fork 从不设置」通常是漏跟（如 firewalled 白名单模型改造）。
+    """
+    upstream = host_key_usage(rev="exam/master")
+    fork = host_key_usage(hosts_root=REPO / "hosts")
+    accepted = {} if strict else load_hostkeys_allowlist()
+    missing = sorted(k for k, n in upstream.items() if n > 0 and fork.get(k, 0) == 0)
+    unacked = [k for k in missing if k not in accepted]
+    acked = [k for k in missing if k in accepted]
+    stale = [k for k in accepted if k in fork]
+    return upstream, fork, unacked, acked, stale, accepted
+
+
+def print_host_keys(unacked, acked, stale, accepted):
+    if unacked:
+        print("\n! host.nix 选项键未跟上（上游在多台主机显式设置，fork 从未设置）：")
+        for key in unacked:
+            print(f"  {key}")
+        print("  处理：按语义逐台补上，或在 tools/exam-check-hostkeys-allowlist 登记原因")
+    if acked:
+        print("\nhost.nix 已登记不跟的选项键:")
+        for key in acked:
+            print(f"  {key}  # {accepted.get(key, '')}")
+    if stale:
+        print("\nhostkeys allowlist 失效条目（fork 已使用该键，请删除）:")
+        for key in stale:
+            print(f"  {key}")
+
+
+def do_host_keys(argv):
+    ap = argparse.ArgumentParser(
+        prog="tools/exam-check host-keys",
+        description="上游 host.nix 的顶层选项键 vs 本仓（主机配置不逐字对齐，但键集合要跟上）",
+    )
+    ap.add_argument("--strict", action="store_true", help="忽略 hostkeys allowlist")
+    a = ap.parse_args(argv)
+    upstream, fork, unacked, acked, stale, accepted = host_keys_report(a.strict)
+    print(f"host.nix 选项键：上游 {len(upstream)} 个、本仓 {len(fork)} 个")
+    print_host_keys(unacked, acked, stale, accepted)
+    if unacked:
+        sys.exit(1)
+    print("\nexam-check host-keys: 通过")
 
 
 def normalize(data: bytes):
@@ -698,6 +786,9 @@ def main():
     if argv and argv[0] == "structure":
         do_structure(argv[1:])
         return
+    if argv and argv[0] == "host-keys":
+        do_host_keys(argv[1:])
+        return
     if argv and argv[0] == "normalize":
         do_normalize(argv[1:])
         return
@@ -855,6 +946,10 @@ def main():
     residual = residual_report(args.path)
     if residual:
         print_residual(residual)
+    host_unacked, host_acked, host_stale = [], [], []
+    if not args.path:
+        _, _, host_unacked, host_acked, host_stale, host_accepted = host_keys_report(args.strict)
+        print_host_keys(host_unacked, host_acked, host_stale, host_accepted)
     if args.verbose:
         for p in drift + known:
             base = normalize(baseline_content(baseline, p)).splitlines()
@@ -866,10 +961,11 @@ def main():
                 print(f"…（其余 {len(diff) - 120} 行省略）")
 
     pending = [] if args.pending_ok else content_changed
-    if drift or struct_unapplied or lock_drift or residual or pending:
+    if drift or struct_unapplied or lock_drift or residual or pending or host_unacked or host_stale:
         print(
             f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、"
-            f"上游条目未同步 {len(pending)} 个、锁世界脱离 {len(lock_drift)} 项、未落实替换 {len(residual)} 处，exit 1",
+            f"上游条目未同步 {len(pending)} 个、锁世界脱离 {len(lock_drift)} 项、未落实替换 {len(residual)} 处、"
+            f"host 选项键未跟上 {len(host_unacked)} 个、hostkeys allowlist 失效 {len(host_stale)} 个，exit 1",
             file=sys.stderr,
         )
         sys.exit(1)

@@ -20,6 +20,7 @@
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEL+VnRYwULTdXkJtOCqoKY4COzWxHNz9glsndnSbZxl";
 
   zerotier = "2c86750714";
+  firewalled = true;
   manualDeploy = true;
   interconnect = {
     name = "home-lan";

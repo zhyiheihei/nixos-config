@@ -23,4 +23,5 @@
 
   dn42.region = constants.dn42.region.Asia-E;
   zerotier = "7e7ce20750";
+  firewalled = true;
 }

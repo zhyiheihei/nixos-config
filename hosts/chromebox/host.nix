@@ -12,6 +12,7 @@
   city = geo.cities."CN Ningbo";
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOWizfDOy55dZqrVSLJ9b0loTER6/TxV3B55kN6BPdW5 root@nixos";
   zerotier = "cea01154b5";
+  firewalled = true;
   interconnect = {
     name = "home-lan";
     IPv4 = "192.168.0.56";

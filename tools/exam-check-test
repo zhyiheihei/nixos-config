@@ -83,6 +83,8 @@ class Fixture:
         M.ALLOWLIST_FILE = self.root / "tools/exam-check-allowlist"
         M.ALLOWLIST_FILE.parent.mkdir(parents=True, exist_ok=True)
         M.ALLOWLIST_FILE.write_text("".join(f"{p} # {r}\n" for p, r in allow))
+        M.HOSTKEYS_ALLOWLIST_FILE = self.root / "tools/exam-check-hostkeys-allowlist"
+        M.HOSTKEYS_ALLOWLIST_FILE.write_text("")
 
     def scenario(self, base, exam, work, allow=(), shared=("home",)):
         self.sha = self.commit(base, "baseline")
@@ -477,6 +479,73 @@ class NormalizeCmd(Base):
         out, _, _ = run(M.do_normalize, ["--dry-run", "home/a.nix"])
         self.assertIn("命中", out)
         self.assertEqual((self.fx.root / "home/a.nix").read_bytes(), b'x = "lantian";\n')
+
+
+class HostKeys(unittest.TestCase):
+    """host.nix 选项键审计：上游显式设置、fork 从不设置 → 报缺。"""
+
+    _UP = b"{\n  tags,\n  ...\n}:\n{\n  index = 1;\n  firewalled = true;\n}\n"
+    _MISSING = b"{\n  tags,\n  ...\n}:\n{\n  index = 1;\n}\n"
+    HOST_UP = {"hosts/a/host.nix": _UP}
+    HOST_FORK_MISSING = {"hosts/a/host.nix": _MISSING}
+    HOST_FORK_OK = {"hosts/a/host.nix": _UP}
+
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self.fx = Fixture(self._tmp.name)
+
+    def report(self, work_hosts):
+        self.fx.sha = self.fx.commit({}, "baseline")
+        self.fx.git("checkout", "-q", "-b", "exam/master")
+        self.fx.commit(self.HOST_UP, "exam")
+        self.fx.git("checkout", "-q", "main")
+        self.fx.write(work_hosts)
+        self.fx.bind(self.fx.sha)
+        return M.host_keys_report()
+
+    def test_missing_key_reported(self):
+        _, _, unacked, acked, stale, _ = self.report(self.HOST_FORK_MISSING)
+        self.assertEqual(unacked, ["firewalled"])
+        self.assertEqual((acked, stale), ([], []))
+
+    def test_followed_key_clean(self):
+        _, _, unacked, _, _, _ = self.report(self.HOST_FORK_OK)
+        self.assertEqual(unacked, [])
+
+    def test_allowlisted_key_accepted(self):
+        self.fx.sha = self.fx.commit({}, "baseline")
+        self.fx.git("checkout", "-q", "-b", "exam/master")
+        self.fx.commit(self.HOST_UP, "exam")
+        self.fx.git("checkout", "-q", "main")
+        self.fx.write(self.HOST_FORK_MISSING)
+        self.fx.bind(self.fx.sha)
+        M.HOSTKEYS_ALLOWLIST_FILE.write_text("firewalled # 有意不跟\n")
+        _, _, unacked, acked, stale, accepted = M.host_keys_report()
+        self.assertEqual((unacked, acked, stale), ([], ["firewalled"], []))
+        self.assertIn("有意不跟", accepted["firewalled"])
+
+    def test_strict_ignores_allowlist(self):
+        self.fx.sha = self.fx.commit({}, "baseline")
+        self.fx.git("checkout", "-q", "-b", "exam/master")
+        self.fx.commit(self.HOST_UP, "exam")
+        self.fx.git("checkout", "-q", "main")
+        self.fx.write(self.HOST_FORK_MISSING)
+        self.fx.bind(self.fx.sha)
+        M.HOSTKEYS_ALLOWLIST_FILE.write_text("firewalled # 有意不跟\n")
+        _, _, unacked, _, _, _ = M.host_keys_report(strict=True)
+        self.assertEqual(unacked, ["firewalled"])
+
+    def test_stale_entry_flagged(self):
+        self.fx.sha = self.fx.commit({}, "baseline")
+        self.fx.git("checkout", "-q", "-b", "exam/master")
+        self.fx.commit(self.HOST_UP, "exam")
+        self.fx.git("checkout", "-q", "main")
+        self.fx.write(self.HOST_FORK_OK)
+        self.fx.bind(self.fx.sha)
+        M.HOSTKEYS_ALLOWLIST_FILE.write_text("firewalled # 已跟上了\n")
+        _, _, unacked, _, stale, _ = M.host_keys_report()
+        self.assertEqual((unacked, stale), ([], ["firewalled"]))
 
 
 if __name__ == "__main__":

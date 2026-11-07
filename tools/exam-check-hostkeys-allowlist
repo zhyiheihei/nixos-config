@@ -1,0 +1,1 @@
+x86ArchLevel # fork 未逐台核定 CPU 微架构等级：该键只影响本机 nixpkgs 的 gcc arch 优化（nix.nix 的 gccarch-x86-64-vN），填错会让产出的二进制在老 CPU 上 SIGILL。需逐台用 /proc/cpuinfo 或 lscpu 核实后再补，不做批量猜测。
