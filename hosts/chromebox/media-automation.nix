@@ -196,7 +196,6 @@ in
     enable = true;
     forceEncodingConfig = true;
     transcoding.enableHardwareEncoding = true;
-    transcoding.enableSubtitleExtraction = false;
     transcoding.hardwareDecodingCodecs = {
       h264 = true;
       hevc = true;
