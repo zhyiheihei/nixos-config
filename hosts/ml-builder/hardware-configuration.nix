@@ -4,6 +4,7 @@
 }:
 {
   imports = [
+    ../../nixos/hardware/gpu-unlock.nix
     ../../nixos/hardware/nvidia/only.nix
   ];
 

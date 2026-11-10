@@ -203,8 +203,6 @@
 
   systemd.services.nvidia-persistenced.unitConfig.ConditionPathExists = "/proc/driver/nvidia/version";
 
-  lantian.kernel = lib.mkForce pkgs.linuxKernel.packages.linux_6_12.kernel;
-
   systemd.services.egpu-clock-lock = {
     description = "Lock eGPU core clock to avoid TB3 P-state transition drops";
     wantedBy = [ "multi-user.target" ];

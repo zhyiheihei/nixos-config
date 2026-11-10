@@ -6,6 +6,7 @@
 {
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
+    ../../nixos/hardware/gpu-unlock.nix
     ../../nixos/hardware/nvidia/prime.nix
 
     ../../nixos/hardware/smart.nix
