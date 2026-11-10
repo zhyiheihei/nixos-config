@@ -30,10 +30,10 @@
   };
   delegacy-rpz = {
     pname = "delegacy-rpz";
-    version = "2026110200";
+    version = "2026110900";
     src = fetchurl {
-      url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026110200/rpz.delegacy.monostack.org.zone";
-      sha256 = "sha256-/9VuVUvMC8t4RgObm+5/ooXZBX6AX6syMraiGnvKjcs=";
+      url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026110900/rpz.delegacy.monostack.org.zone";
+      sha256 = "sha256-Gbc+BWqVke5nOYnQGUlJy5AAwrysOEdCQKUBLJsibbg=";
     };
   };
   dn42-certificate-authority-client = {
@@ -68,18 +68,18 @@
   };
   grafana-falconlogscale-datasource = {
     pname = "grafana-falconlogscale-datasource";
-    version = "1.10.6";
+    version = "1.10.7";
     src = fetchurl {
-      url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.6/grafana-falconlogscale-datasource-1.10.6.zip";
-      sha256 = "sha256-SrqmVb7JI/tnuPEfgHa6yY3uza+vjUnJDCB9lvra3cE=";
+      url = "https://github.com/grafana/falconlogscale-datasource/releases/download/v1.10.7/grafana-falconlogscale-datasource-1.10.7.zip";
+      sha256 = "sha256-a6IG0tG5RH+aAalm9ABSxM9aNw25AkO6jgaMLSBngUQ=";
     };
   };
   grafana-yesoreyeram-infinity-datasource = {
     pname = "grafana-yesoreyeram-infinity-datasource";
-    version = "4.1.5";
+    version = "4.1.6";
     src = fetchurl {
-      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.5/yesoreyeram-infinity-datasource-4.1.5.zip";
-      sha256 = "sha256-QEoMbS63M5j0dog94IjBNQbsSnYozZyJ/mzDxUI8KYE=";
+      url = "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.6/yesoreyeram-infinity-datasource-4.1.6.zip";
+      sha256 = "sha256-wwIBt33VZ+lntXpKqVzWcNSJFHWYkKwrslb9BCrvbps=";
     };
   };
   iyuuplus = {
@@ -98,17 +98,17 @@
   };
   lobe-icons = {
     pname = "lobe-icons";
-    version = "8064bdc847be0a94c956c00440eb67586af2871f";
+    version = "ea434b96e75813517b377825e01c0df61dee8836";
     src = fetchgit {
       url = "https://github.com/lobehub/lobe-icons.git";
-      rev = "8064bdc847be0a94c956c00440eb67586af2871f";
+      rev = "ea434b96e75813517b377825e01c0df61dee8836";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-f9HrrHD0TiTG2pEfUS1dUtADQEMB+BAbX7pzwfow1PI=";
+      sha256 = "sha256-g7pLjEC5QEEFk5blwIDzDozqo8LircUdbsfoHyPeWDs=";
     };
-    date = "2026-11-02";
+    date = "2026-11-03";
   };
   mihoyo-bbs-tools = {
     pname = "mihoyo-bbs-tools";
@@ -148,43 +148,43 @@
   };
   noctalia-community-plugins = {
     pname = "noctalia-community-plugins";
-    version = "f63f6bbbd7fc499300d32565df1fddc19a896f63";
+    version = "f1d61716fa21cf8c91f86491e8fea43d13e69058";
     src = fetchgit {
       url = "https://github.com/noctalia-dev/community-plugins.git";
-      rev = "f63f6bbbd7fc499300d32565df1fddc19a896f63";
+      rev = "f1d61716fa21cf8c91f86491e8fea43d13e69058";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-294P71q6F9tI0DMqqHm2Grsxj15WGAF9k8W6qB+ggCQ=";
+      sha256 = "sha256-55QyZt1TfbbdSd6LjI8wpRCikx2ApVZKPTF5kDjgDOc=";
     };
-    date = "2026-11-06";
+    date = "2026-11-09";
   };
   noctalia-official-plugins = {
     pname = "noctalia-official-plugins";
-    version = "68d491f4633ba61bc9ead01a3f0ecb499d4d9af4";
+    version = "78dda05830933d296a870413367f0c4fa42cfb9c";
     src = fetchgit {
       url = "https://github.com/noctalia-dev/official-plugins.git";
-      rev = "68d491f4633ba61bc9ead01a3f0ecb499d4d9af4";
+      rev = "78dda05830933d296a870413367f0c4fa42cfb9c";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-BM6/TC2jI1jf/NL5DGA3zrWrEaWFTwm7e3GHfT6NKLI=";
+      sha256 = "sha256-g/TGt9o44TtqLc2hCuREOyFlJIY297vOqjMuBrTFKHI=";
     };
-    date = "2026-11-06";
+    date = "2026-11-09";
   };
   nvidia-patch = {
     pname = "nvidia-patch";
-    version = "8c27b6fa958121424d67107d08c80e01716f4a71";
+    version = "620c4aa29cbff9ea32a0b1e29dad60eb62b9dba5";
     src = fetchFromGitHub {
       owner = "keylase";
       repo = "nvidia-patch";
-      rev = "8c27b6fa958121424d67107d08c80e01716f4a71";
+      rev = "620c4aa29cbff9ea32a0b1e29dad60eb62b9dba5";
       fetchSubmodules = false;
-      sha256 = "sha256-IqsDeGKe6TkCm6fTqgXrlnm7s4X4XxTpZiz6YsG5dL4=";
+      sha256 = "sha256-tZAXQQ+9C94wV/1FVx+lVDDtJm/buphdhysJlw5GSrA=";
     };
-    date = "2026-10-29";
+    date = "2026-11-08";
   };
   open5gs = {
     pname = "open5gs";
@@ -237,7 +237,7 @@
     pname = "scam-dn42-miner";
     version = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
     src = fetchgit {
-      url = "https://git.zhyi.xin/lantian/scam-dn42-miner.git";
+      url = "https://git.lantian.pub/lantian/scam-dn42-miner.git";
       rev = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
       fetchSubmodules = false;
       deepClone = false;
@@ -261,15 +261,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "512e1802380e7fb131ac2dec47e910ea91dd652b";
+    version = "7228d14dc1b0ff04c63e4bae24ca9d605e32460b";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "512e1802380e7fb131ac2dec47e910ea91dd652b";
+      rev = "7228d14dc1b0ff04c63e4bae24ca9d605e32460b";
       fetchSubmodules = false;
-      sha256 = "sha256-ZZYo/3c13W+wn2swaAuXcPEBS6qpGln5Zd5lnS0/yqM=";
+      sha256 = "sha256-n6bxIO82cfNfzG1G74kotXljCzfFoB/GtPH2p8vcVh0=";
     };
-    date = "2026-11-02";
+    date = "2026-11-09";
   };
   ulauncher-albert-calculate-anything = {
     pname = "ulauncher-albert-calculate-anything";
