@@ -143,8 +143,6 @@
 
   lantian.qingjian.enable = true;
 
-  lantian.crow-translate.enable = true;
-
   lantian.hidpi = 1.6;
   lantian.strata.model = "IQ2_XS";
   systemd.services.strata.wantedBy = lib.mkForce [ ];
