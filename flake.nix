@@ -191,6 +191,12 @@
       url = "github:noctalia-dev/umbriel/main";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    venus-mainline = {
+      url = "github:zhyiheihei/venus-mainline";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
+    };
     zhyi-packages = {
       url = "github:zhyiheihei/zhyi-packages";
       inputs.nixpkgs.follows = "nixpkgs";

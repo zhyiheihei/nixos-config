@@ -1146,6 +1146,7 @@
         "systems": "systems_2",
         "treefmt-nix": "treefmt-nix_2",
         "umbriel": "umbriel",
+        "venus-mainline": "venus-mainline",
         "zhyi-packages": "zhyi-packages"
       }
     },
@@ -1450,6 +1451,32 @@
         "owner": "noctalia-dev",
         "ref": "main",
         "repo": "umbriel",
+        "type": "github"
+      }
+    },
+    "venus-mainline": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": [
+          "systems"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794288851,
+        "narHash": "sha256-QXlsk53gzeU4fCktuQ5fK1NGBpqji/4SWcTti9FI9Xo=",
+        "owner": "zhyiheihei",
+        "repo": "venus-mainline",
+        "rev": "5d1d529ef175b9ead1a52296742f6f2f43cb7362",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zhyiheihei",
+        "repo": "venus-mainline",
         "type": "github"
       }
     },
