@@ -6,10 +6,6 @@
   pkgs,
   ...
 }:
-let
-  # SSID 不进公开仓：跟 wg-pubkey.nix 一样放私有 secrets 仓（per-host/wifi.nix，形如 { venus = "…"; }）
-  wifiSsid = (import (inputs.secrets + "/per-host/wifi.nix")).venus;
-in
 {
   imports = [
     ../../nixos/server.nix
@@ -26,17 +22,18 @@ in
   venus.firmware = null;
 
   # venus 只有 wlan0（ath11k）。板级模块负责五路电源/PCIe 重训/固定 MAC，这里只做关联与地址。
-  # SSID 从私有 secrets 仓读，PSK 走 sops，两者都不进公开仓、不落 nix store。
+  # SSID 明文（跟 router 的 moli-rk-wifi 一样），密码走 sops（per-host/wifi/venus.yaml）。
   networking.usePredictableInterfaceNames = false;
   networking.wireless = {
     enable = true;
     interfaces = [ "wlan0" ];
-    secretsFile = config.sops.secrets."wifi-psk".path;
-    networks."${wifiSsid}".pskRaw = "ext:psk_venus";
+    secretsFile = config.sops.secrets."venus-wifi-secrets".path;
+    networks."moli-1004-backup".pskRaw = "ext:psk_venus";
   };
   # sops 解密后是一行 psk_venus=<PSK>（wpa_supplicant 的 secretsFile 格式）
-  sops.secrets."wifi-psk" = {
+  sops.secrets."venus-wifi-secrets" = {
     sopsFile = inputs.secrets + "/per-host/wifi/venus.yaml";
+    key = "wpa-secrets";
   };
   systemd.services."wpa_supplicant-wlan0" = {
     requires = [ "sops-install-secrets.service" ];
