@@ -1467,11 +1467,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794288851,
-        "narHash": "sha256-QXlsk53gzeU4fCktuQ5fK1NGBpqji/4SWcTti9FI9Xo=",
+        "lastModified": 1794298399,
+        "narHash": "sha256-ABpDjHrJ3VLGBCoYx0KhkXTKWO8DbMwyHIl4pQavpvU=",
         "owner": "zhyiheihei",
         "repo": "venus-mainline",
-        "rev": "5d1d529ef175b9ead1a52296742f6f2f43cb7362",
+        "rev": "3fbba6e0fec45b074657a6d042a41e5734748d08",
         "type": "github"
       },
       "original": {
