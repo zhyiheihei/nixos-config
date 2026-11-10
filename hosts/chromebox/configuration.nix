@@ -45,6 +45,7 @@ in
     ../../nixos/optional-apps/mcsm.nix
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
+    ../../nixos/optional-apps/nexttodo.nix
     ../../nixos/optional-apps/openlist.nix
     ../../nixos/optional-apps/resin.nix
     ../../nixos/optional-apps/sublinkpro-relay.nix

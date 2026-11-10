@@ -70,6 +70,7 @@ rec {
     Radarr = 7878;
     ArchiveTeam = 8001;
     Proxmox = 8006;
+    NextTodo = 8080;
     JProxy = 8117;
     OllamaCpaHoneypot.CpaListener = 8317;
     Waline = 8360;

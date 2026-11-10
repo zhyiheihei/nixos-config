@@ -63,6 +63,7 @@
   "moliy.site"
   "n8n.zhyi.xin"
   "nav.zhyi.xin"
+  "nexttodo.zhyi.xin"
   "openlist.moliy.site"
   "openlist.zhyi.xin"
   "pb.zhyi.xin"

@@ -22,6 +22,7 @@ let
     "wallos"
     "mcsm"
     "mcsm-daemon"
+    "nexttodo"
   ];
   mkTlsVhost = name: upstream: {
     "${name}.zhyi.xin" = {

@@ -353,6 +353,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "nexttodo";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
       name = "oidc-tester";
       target = "greencloud";
       ttl = "1h";
