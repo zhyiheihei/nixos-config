@@ -17,6 +17,7 @@ let
   pluginBundle = pkgs.runCommand "noctalia-plugins" { } ''
     mkdir -p $out
     cp -r ${communitySrc}/lyrics $out/
+    cp -r ${communitySrc}/ai-usagebar $out/
     cp -r ${officialSrc}/bitwarden $out/
     cp -r ${./vscode-projects}/. $out/vscode-projects/
   '';
@@ -284,6 +285,7 @@ in
   };
 
   home.packages = [
+    inputs.zhyi-packages.packages.${pkgs.stdenv.hostPlatform.system}.ai-usagebar
     pkgs.playerctl
     pkgs.bitwarden-cli
     pkgs.wl-clipboard
@@ -329,6 +331,7 @@ in
           "h465855hgg/lyrics"
           "noctalia/bitwarden"
           "lantian/vscode-projects"
+          "felipeartur/ai-usagebar"
         ];
         auto_update = "none";
         source = [
@@ -372,6 +375,7 @@ in
           "clipboard"
           "weather"
           "battery"
+          "ai-usage"
           "clock"
           "notifications"
           "control-center"
@@ -404,6 +408,19 @@ in
         control-center.font_scale = 1.0 / iconScale;
         clipboard.scale = iconScale;
         clipboard.font_scale = 1.0 / iconScale;
+
+        ai-usage = {
+          type = "felipeartur/ai-usagebar:bar";
+          auto_providers = [
+            "cline"
+            "ollama"
+            "opencode-go"
+            "zai"
+          ];
+          provider_limit = 4;
+          visualization = "none";
+          extras = "none";
+        };
 
         lyrics = {
           display_mode = "lyrics";
