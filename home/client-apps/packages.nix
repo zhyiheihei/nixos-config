@@ -54,6 +54,7 @@ in
         handbrake
         imagemagick
         immich-cli
+        inputs.zhyi-packages.packages.${pkgs.stdenv.hostPlatform.system}.nexttodo
         jpegoptim
         kicad
         lbzip2

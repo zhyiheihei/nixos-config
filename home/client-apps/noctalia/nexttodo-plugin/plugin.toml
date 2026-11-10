@@ -1,0 +1,36 @@
+id = "zhyi/nexttodo"
+name = "NextTodo"
+version = "0.1.0"
+plugin_api = 43
+author = "zhyi"
+license = "MIT"
+icon = "list-check"
+description = "NextTodo 待办桌面小组件，显示接下来要做的事。"
+tags = ["desktop", "todo"]
+dependencies = ["nexttodo"]
+
+[[desktop_widget]]
+id = "desktop"
+entry = "desktop_widget.luau"
+
+[[service]]
+id = "poller"
+entry = "service.luau"
+
+[[setting]]
+key = "refresh_minutes"
+type = "int"
+label_key = "settings.refresh_minutes.label"
+description_key = "settings.refresh_minutes.description"
+default = 5
+min = 1
+max = 60
+
+[[setting]]
+key = "limit"
+type = "int"
+label_key = "settings.limit.label"
+description_key = "settings.limit.description"
+default = 8
+min = 1
+max = 50

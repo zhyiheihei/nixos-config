@@ -1,0 +1,12 @@
+{
+  "settings": {
+    "limit": {
+      "description": "Maximum number of tasks shown on the desktop widget.",
+      "label": "Task limit"
+    },
+    "refresh_minutes": {
+      "description": "Minutes between NextTodo refreshes.",
+      "label": "Refresh interval"
+    }
+  }
+}

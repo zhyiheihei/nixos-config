@@ -20,6 +20,7 @@ let
     cp -r ${communitySrc}/ai-usagebar $out/
     cp -r ${officialSrc}/bitwarden $out/
     cp -r ${./vscode-projects}/. $out/vscode-projects/
+    cp -r ${./nexttodo-plugin}/. $out/nexttodo/
   '';
 in
 {
@@ -332,6 +333,7 @@ in
           "noctalia/bitwarden"
           "lantian/vscode-projects"
           "felipeartur/ai-usagebar"
+          "zhyi/nexttodo"
         ];
         auto_update = "none";
         source = [
@@ -370,11 +372,11 @@ in
         ];
         center = [ ];
         end = [
-          "lyrics"
           "tray"
           "clipboard"
           "weather"
           "battery"
+          "ram"
           "ai-usage"
           "clock"
           "notifications"
@@ -417,8 +419,8 @@ in
             "opencode-go"
             "zai"
           ];
-          provider_limit = 4;
-          visualization = "none";
+          provider_limit = 1;
+          visualization = "gauge";
           extras = "none";
         };
 
