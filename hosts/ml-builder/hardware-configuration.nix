@@ -11,6 +11,8 @@
 
   hardware.nvidia.package = lib.mkForce config.boot.kernelPackages.nvidiaPackages.latest;
 
+  lantian.gpuUnlockTargets = "0000:01:00.0";
+
   boot.loader.grub = {
     efiSupport = true;
     device = "nodev";
