@@ -27,6 +27,7 @@
   ];
 
   boot.kernelModules = [ "dm_thin_pool" ];
+  boot.blacklistedKernelModules = [ "amd_sfh" ];
   boot.extraModprobeConfig = ''
     options vfio-pci ids=1002:164c,1002:1637
     softdep amdgpu pre: vfio-pci
@@ -132,6 +133,21 @@
     pathConfig = {
       Unit = "pve-proxy-cert-install.service";
       PathChanged = "/nix/sync-servers/acme/lets-encrypt-pve-5700u.zhyi.xin-ecc";
+    };
+  };
+
+  systemd.services.pve-vfio-power = {
+    description = "Keep passthrough PCI functions out of runtime D3";
+    before = [ "pve-guests.service" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = pkgs.writeShellScript "pve-vfio-power" ''
+        for d in 0000:04:00.0 0000:04:00.1 0000:04:00.3 0000:04:00.4; do
+          [ -e "/sys/bus/pci/devices/$d/power/control" ] || continue
+          echo on > "/sys/bus/pci/devices/$d/power/control"
+        done
+      '';
     };
   };
 }
