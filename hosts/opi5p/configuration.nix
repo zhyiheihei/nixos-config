@@ -387,6 +387,8 @@ in
       WAN.ports = directPorts;
       LAN.ports = directPorts;
       LTNET.ports = directPorts;
+      # ml-builder 的 hydra-builder 经 LTNET 连队列器 gRPC（本机把 gRPC 绑在 LTNET）
+      LTNET.tcpPorts."${LT.portStr.Hydra.QueueRunnerGRPC}".type = "local";
     };
   environment.systemPackages = [ pkgs.nfs-utils ];
 
