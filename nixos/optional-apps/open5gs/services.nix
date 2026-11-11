@@ -106,5 +106,10 @@ in
 
   # GTP-U (2152) is the base station -> SGW-U/UPF user plane tunnel
   # (S1-U/N3); it binds every address of the uplink interface by policy.
-  lantian.firewall.presets.public-firewall.allowedInternalPorts = [ LT.port.GTPU ];
+  lantian.firewall.zones = {
+    LAN = {
+      sctpPorts."${LT.portStr.S1AP}".type = "local";
+      udpPorts."${LT.portStr.GTPU}".type = "local";
+    };
+  };
 }

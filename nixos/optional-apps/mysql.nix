@@ -136,6 +136,10 @@ in
     mysql = true;
   };
 
+  lantian.firewall.zones = {
+    LTNET.tcpPorts."${LT.portStr.Prometheus.MySQLExporter}".type = "local";
+  };
+
   users.users.prometheus-mysqld-exporter = {
     group = "prometheus-mysqld-exporter";
     isSystemUser = true;

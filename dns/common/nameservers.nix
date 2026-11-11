@@ -1,16 +1,9 @@
-_:
+{ LT, ... }:
 let
-  PublicServers = [
-    "greencloud.zhyi.xin."
-    "hostdare.zhyi.xin."
-    "volcengine.zhyi.xin."
-  ];
+  publicFacingHosts = builtins.attrNames (LT.hostsWithTag LT.tags."public-facing");
 
-  LTNetServers = [
-    "greencloud.ltnet.zhyi.xin."
-    "hostdare.ltnet.zhyi.xin."
-    "volcengine.ltnet.zhyi.xin."
-  ];
+  PublicServers = builtins.map (n: "${n}.zhyi.xin.") publicFacingHosts;
+  LTNetServers = builtins.map (n: "${n}.ltnet.zhyi.xin.") publicFacingHosts;
 
   DN42Servers = [
     "ns1.zhyi.dn42."

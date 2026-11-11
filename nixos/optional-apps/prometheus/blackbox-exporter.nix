@@ -70,6 +70,18 @@ let
       replacement = blackboxExporterHost;
     }
   ];
+
+  canaryIPv4Targets = lib.mapAttrsToList (_: v: "${v.public.IPv4}:${LT.portStr.FirewallCanary}") (
+    lib.filterAttrs (_: v: v.public.IPv4 != null) LT.otherHosts
+  );
+
+  canaryIPv6Targets = lib.flatten (
+    lib.mapAttrsToList (
+      _: v:
+      lib.optional (v.public.IPv6 != null) "[${v.public.IPv6}]:${LT.portStr.FirewallCanary}"
+      ++ lib.optional (v.public.IPv6Alt != null) "[${v.public.IPv6Alt}]:${LT.portStr.FirewallCanary}"
+    ) LT.otherHosts
+  );
 in
 {
   services.prometheus.exporters.blackbox = {
@@ -123,12 +135,22 @@ in
               { expect = "ZHYI-DN42"; }
             ];
           };
+          firewall_canary_ipv4 = {
+            prober = "tcp";
+            timeout = "10s";
+            tcp.preferred_ip_protocol = "ip4";
+          };
+          firewall_canary_ipv6 = {
+            prober = "tcp";
+            timeout = "10s";
+            tcp.preferred_ip_protocol = "ip6";
+          };
         };
       }
     );
   };
 
-  services.prometheus.scrapeConfigs = [
+  services.victoriametrics.prometheusConfig.scrape_configs = [
     {
       job_name = "blackbox_exporter";
       static_configs = [ { targets = [ blackboxExporterHost ]; } ];
@@ -165,60 +187,80 @@ in
       static_configs = [ { targets = publicFacingHostsExceptSelf 43; } ];
       relabel_configs = relabelConfigs;
     }
+    {
+      job_name = "firewall_canary_ipv4";
+      scrape_interval = "1m";
+      metrics_path = "/probe";
+      params.module = [ "firewall_canary_ipv4" ];
+      static_configs = [ { targets = canaryIPv4Targets; } ];
+      relabel_configs = relabelConfigs;
+    }
+    {
+      job_name = "firewall_canary_ipv6";
+      scrape_interval = "1m";
+      metrics_path = "/probe";
+      params.module = [ "firewall_canary_ipv6" ];
+      static_configs = [ { targets = canaryIPv6Targets; } ];
+      relabel_configs = relabelConfigs;
+    }
   ];
 
-  services.prometheus.ruleFiles = [
-    (pkgs.writeText "blackbox-exporter.rules" (
-      builtins.toJSON {
-        groups = [
-          {
-            name = "blackbox_exporter";
-            rules = [
-              {
-                alert = "https_2xx_web_service_failed";
-                expr = ''probe_success{job="https_2xx"} == 0'';
-                for = "15m";
-                labels.severity = "warning";
-                annotations = {
-                  summary = "⚠️ {{$labels.alias}}: Web service {{$labels.name}} failed.";
-                  description = "{{$labels.alias}} is not returning status code 200 for {{$labels.name}}.";
-                };
-              }
-              {
-                alert = "dns_service_failed";
-                expr = ''probe_success{job="dns"} == 0'';
-                for = "15m";
-                labels.severity = "warning";
-                annotations = {
-                  summary = "⚠️ {{$labels.alias}}: DNS service {{$labels.name}} failed.";
-                  description = "{{$labels.alias}} is not returning DNS response for {{$labels.name}}.";
-                };
-              }
-              {
-                alert = "gopher_service_failed";
-                expr = ''probe_success{job="gopher"} == 0'';
-                for = "15m";
-                labels.severity = "warning";
-                annotations = {
-                  summary = "⚠️ {{$labels.alias}}: Gopher service {{$labels.name}} failed.";
-                  description = "{{$labels.alias}} is not returning Gopher response for {{$labels.name}}.";
-                };
-              }
-              {
-                alert = "whois_service_failed";
-                expr = ''probe_success{job="whois"} == 0'';
-                for = "15m";
-                labels.severity = "warning";
-                annotations = {
-                  summary = "⚠️ {{$labels.alias}}: WHOIS service {{$labels.name}} failed.";
-                  description = "{{$labels.alias}} is not returning WHOIS response for {{$labels.name}}.";
-                };
-              }
-            ];
-          }
-        ];
-      }
-    ))
+  services.vmalert.instances."".rules.groups = [
+    {
+      name = "blackbox_exporter";
+      rules = [
+        {
+          alert = "https_2xx_web_service_failed";
+          expr = ''probe_success{job="https_2xx"} == 0'';
+          for = "15m";
+          labels.severity = "warning";
+          annotations = {
+            summary = "⚠️ {{$labels.alias}}: Web service {{$labels.name}} failed.";
+            description = "{{$labels.alias}} is not returning status code 200 for {{$labels.name}}.";
+          };
+        }
+        {
+          alert = "dns_service_failed";
+          expr = ''probe_success{job="dns"} == 0'';
+          for = "15m";
+          labels.severity = "warning";
+          annotations = {
+            summary = "⚠️ {{$labels.alias}}: DNS service {{$labels.name}} failed.";
+            description = "{{$labels.alias}} is not returning DNS response for {{$labels.name}}.";
+          };
+        }
+        {
+          alert = "gopher_service_failed";
+          expr = ''probe_success{job="gopher"} == 0'';
+          for = "15m";
+          labels.severity = "warning";
+          annotations = {
+            summary = "⚠️ {{$labels.alias}}: Gopher service {{$labels.name}} failed.";
+            description = "{{$labels.alias}} is not returning Gopher response for {{$labels.name}}.";
+          };
+        }
+        {
+          alert = "whois_service_failed";
+          expr = ''probe_success{job="whois"} == 0'';
+          for = "15m";
+          labels.severity = "warning";
+          annotations = {
+            summary = "⚠️ {{$labels.alias}}: WHOIS service {{$labels.name}} failed.";
+            description = "{{$labels.alias}} is not returning WHOIS response for {{$labels.name}}.";
+          };
+        }
+        {
+          alert = "firewall_canary_port_open";
+          expr = ''probe_success{job=~"firewall_canary_.+"} == 1'';
+          for = "5m";
+          labels.severity = "critical";
+          annotations = {
+            summary = "🔥 Firewall canary port ${LT.portStr.FirewallCanary} is reachable on {{$labels.instance}}.";
+            description = "A firewall is no longer blocking TCP port ${LT.portStr.FirewallCanary} on {{$labels.instance}}.";
+          };
+        }
+      ];
+    }
   ];
 
   systemd.services."prometheus-blackbox-exporter".serviceConfig = {

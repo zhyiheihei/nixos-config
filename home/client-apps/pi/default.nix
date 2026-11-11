@@ -85,9 +85,9 @@ in
         "npm:@mjakl/pi-subagent"
         "npm:@moguw/pi-session-migrate"
         "npm:@monotykamary/pi-tps"
+        "npm:@narumitw/pi-goal"
         "npm:@router-for-me/pi-cliproxyapi-provider"
         "npm:pi-btw"
-        "npm:pi-codex-goal"
         "npm:pi-copy-message"
         "npm:pi-fast-resume"
         "npm:pi-ollama-cloud"
@@ -158,6 +158,20 @@ in
   home.file.".pi/agent/pi-fff.json".text = builtins.toJSON {
     enableFsRootScanning = false;
     enableHomeDirScanning = false;
+  };
+  # Packages Pi Web skips while the pi CLI keeps them; see
+  # patches/pi-web-disabled-packages.patch.
+  home.file.".pi/agent/pi-web.json".text = builtins.toJSON {
+    disabledPackages = [
+      "npm:@monotykamary/pi-tps"
+    ];
+  };
+  home.file.".pi/agent/pi-goal.json".text = builtins.toJSON {
+    continuationLimits = {
+      automaticTurns = null;
+      noProgressTurns = null;
+    };
+    retryUsageLimits = true;
   };
   # https://github.com/cortexkit/magic-context/blob/master/CONFIGURATION.md
   home.file.".config/cortexkit/magic-context.jsonc".text = builtins.toJSON {

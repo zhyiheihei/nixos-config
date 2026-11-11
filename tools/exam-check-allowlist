@@ -80,14 +80,35 @@ nixos/minimal-modules/secrets/generate.py # 上游新增文件，本机 treefmt(
 nixos/minimal-modules/secrets/tests.nix # 上游新增文件，测试桩用 greencloud 替代上游 colocrossing（本仓无该主机）
 nixos/common-apps/nginx/vhosts-lantian.nix # skip: 对应 fork 的 vhosts-zhyi.nix（vhost 集合按 zhyi 域重写，NORMALIZE 只做路径映射）
 nixos/optional-apps/attic-placeholder.nix # skip: fork 已按用户 2026-10-24 裁定恢复自建 attic（greencloud-jp 真 atticd + cache.zhyi.xin），503 占位页不再需要；上游仍保留供其 colocrossing 使用
-nixos/optional-apps/asterisk # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/apps/anti-fooling.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/apps/astycrapper.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/apps/beverly.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/apps/lenny.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/apps/never-gonna.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/common.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/config/codecs.conf # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/config/logger.conf # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/config/res_fax.conf # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/default.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/dialplan/default.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/dialplan/html.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/dialplan/vcf.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/enum-verify.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/extensions.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/external-trunks.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/fax-monitor.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/local-devices.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/musics.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/never-gonna-audiosocket.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/templates.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
+nixos/optional-apps/asterisk/transports.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
 nixos/minimal-components/backup/backup.nix # fork 环境适配：aarch64 目标的 rustic 改 x86 交叉编译（hinlink-h28k/lubancat-1 crossPkgs 同款先例）——rustic 的 cargo lib 链接内存峰值在 opi5p 反复触发 memory pressure 断链；requiredSystemFeatures=aarch64-cross 路由 ml-builder
 nixos/minimal-components/backup/prune.nix # 同 backup.nix：prune 单元的 rustic 同款交叉编译
 nixos/optional-apps/qbittorrent.nix # fork 多保留一行 qbittorrent-pt 的 lockfile 清理：router 的 pt 实例数据在 /var/lib/qbittorrent-pt（hosts/router 引用），上游 b4b8fe005 仅修单实例路径视为 typo 删除该行，fork 两实例都要清；另删 harden.qbittorrent.etc 的 ssl/certs/ca-certificates.crt 直通项（190012d35：router 上两实例同时挂该路径触发求值冲突，只留 ca-bundle 指向同一 source）
 hosts/ml-laptop/configuration.nix # 临时偏离：注释 obs-studio 导入绕过 nixpkgs 02c087f3 的 v4l2loopback modules.alias buildEnv 冲突（nixpkgs#576406），上游 nixpkgs bump 后恢复；disabledModules looking-glass 临时偏离已随 nixpkgs bump 撤销；本机防 OOM 偏离：max-jobs=2/cores=2/connect-timeout=60（32G 弱机，构建期 OOM 实证），fork 长期保留或上游对齐后删；Win11 双系统偏离（2026-11-05 用户裁定）：ESP 512M 与 Windows 共用，grub 配置搬入 hardware-configuration.nix 并按 exam lt-hp-omen 写法对齐（efiSupport/device=nodev/gfxmodeBios/gfxmodeEfi/useOSProber，自动探测 Windows 取代手写 chainload extraEntries），另加 configurationLimit=4 限制内核占位（512M 共享 ESP 装不下无限代）；引导落点必须偏离共享 boot-params.nix：HP Insyde 固件下 removable 落点 EFI/BOOT/BOOTX64.EFI 抢不过 Windows 的 Boot0001（BIOS 只列 Windows Boot Manager，只能 F9 手选 EFI 文件），故 host 层 mkForce canTouchEfiVariables=true + efiInstallAsRemovable=false，改落 EFI/NixOS-boot/grubx64.efi 并写 NVRAM NixOS-boot 条目（NixOS Wiki Bootloader「Manually adding EFI boot entry」官方写法）
 nixos/server-components/logging-humio.nix # skip: 上游把日志发 Humio SaaS（filebeat + common/filebeat.yaml token），本仓日志走自建 Loki（server-components/logging-loki.nix），无 Humio 账号；secrets 仓只有历史遗留的 common/flebeat.yaml
 nixos/minimal-components/audit-loki.nix # fork 环境事实：Loki 收日志端点是 greencloud-jp（上游 colocrossing.ltnet.xuyh0120.win）；2026-10-29 日志服务由 greencloud 迁到 greencloud-jp（greencloud 系统盘 59G 已 98% 满，35G 是 Loki 数据），存储落数据盘 /data/loki
-nixos/server-components/logging-loki.nix # 同上：fluent-bit 的 Loki 推送目标改 greencloud-jp（LT.hosts.greencloud-jp.ltnet.IPv4 = 198.18.0.130）
+nixos/minimal-components/logging-victorialogs.nix # fork 环境事实：日志收端同 audit-loki（greencloud-jp，上游 greencloud/colocrossing）；2026-10-29 日志服务迁 greencloud-jp，存储落其数据盘 /data/victorialogs
 nixos/client-apps/v2ray.nix # fork VLESS 出口走 tencent（上游 bwg-lax 主机本仓不存在）
 nixos/optional-cron-jobs/rsgain-cloudmusic.nix # fork 音乐库路径为 /mnt/storage/syncthing/Music/CloudMusic*（上游为 syncthing 直下），环境差异
 nixos/optional-cron-jobs/smart-check/default.nix # fork 无 pve-c3758 主机，省略 SKIPPED_DEVICES 块（原 taishanpi 特例随主机退役一并移除）

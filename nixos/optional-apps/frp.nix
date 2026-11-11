@@ -20,7 +20,10 @@
 
   lantian.harden.frp-frps.enable = true;
 
-  lantian.firewall.presets.public-firewall.allowedInternalPorts = [ LT.port.Frp.Dashboard ];
+  lantian.firewall.zones = {
+    LAN.tcpPorts."${LT.portStr.Frp.Dashboard}".type = "local";
+    LTNET.tcpPorts."${LT.portStr.Frp.Dashboard}".type = "local";
+  };
 
   lantian.nginxVhosts."frpc.zhyi.xin" = {
     locations."/" = {

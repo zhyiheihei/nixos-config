@@ -23,8 +23,10 @@ pkgs.testers.runNixOSTest {
         ../../minimal-components/snakeoil-tls.nix
       ];
       _module.args.LT = {
-        hosts.greencloud.ltnet.IPv4 = "127.0.0.1";
-        port.Loki = 3100;
+        hosts.greencloud-jp.ltnet.IPv4 = "127.0.0.1";
+        port.VictoriaLogs = 3100;
+        this.hasTag = _: false;
+        tags.client = "client";
       };
       time.timeZone = "UTC";
       virtualisation.memorySize = 2048;

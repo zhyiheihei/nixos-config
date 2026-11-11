@@ -7,6 +7,11 @@
   ...
 }:
 let
+  hydraPorts = {
+    "${LT.portStr.Hydra.WebUI}".type = "local";
+    "${LT.portStr.Hydra.WebSocket}".type = "local";
+  };
+
   hydraServices = [
     "hydra-builder"
     "hydra-check-space"
@@ -72,13 +77,13 @@ in
   # Force use original nix for Hydra hosts
   nix.package = lib.mkForce pkgs.nixVersions.latest;
 
+  # Allow proxy access through LTNET
+  lantian.firewall.zones = {
+    LTNET.tcpPorts = hydraPorts;
+  };
+
   services.hydra = {
     enable = true;
-    # FIXME: disable failing checks
-    package = pkgs.hydra.overrideAttrs (old: {
-      doCheck = false;
-      patches = (old.patches or [ ]) ++ [ ./evaluation-command-timeout.patch ];
-    });
     hydraURL = "https://hydra.zhyi.xin";
     listenHost = LT.this.ltnet.IPv4;
     notificationSender = "postmaster@zhyi.xin";

@@ -17,6 +17,11 @@
     birdBindTo = [ "vlmcsd.service" ];
   };
 
+  lantian.firewall.zones = {
+    LAN.forwardTo = [ "NETNS_KMS" ];
+    LTNET.forwardTo = [ "NETNS_KMS" ];
+  };
+
   systemd.services.vlmcsd = config.lantian.netns.kms.bind {
     description = "Vlmcsd";
     wantedBy = [ "multi-user.target" ];

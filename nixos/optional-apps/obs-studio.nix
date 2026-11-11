@@ -9,6 +9,7 @@
       looking-glass-obs
       obs-gstreamer
       obs-multi-rtmp
+      obs-mute-filter
       obs-noise
       obs-vkcapture
       wlrobs

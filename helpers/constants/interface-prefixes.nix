@@ -25,7 +25,10 @@ _: {
       "ns"
       "vboxnet"
       "virbr"
+    ];
+    LTNET = [
       "wgmesh"
+      "zt"
     ];
   };
 }

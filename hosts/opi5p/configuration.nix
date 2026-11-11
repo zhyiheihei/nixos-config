@@ -371,15 +371,23 @@ in
   boot.supportedFilesystems = [ "nfs" ];
 
   # 家庭 LAN 直连入口：入向全部落在 eth0（WAN 前缀），白名单模型下需显式登记。
-  lantian.firewall.presets.public-firewall.allowedPorts = [
-    LT.port.HTTPSAlt
-    LT.port.FrigateAPI
-    LT.port.Frigate
-    LT.port.OneKVMHTTPS
-    LT.port.Go2rtc
-    LT.port.Go2rtcRTSP
-    LT.port.Go2rtcRTSPAlt
-  ];
+  lantian.firewall.zones =
+    let
+      directPorts = {
+        "${LT.portStr.HTTPSAlt}".type = "local";
+        "${LT.portStr.FrigateAPI}".type = "local";
+        "${LT.portStr.Frigate}".type = "local";
+        "${LT.portStr.OneKVMHTTPS}".type = "local";
+        "${LT.portStr.Go2rtc}".type = "local";
+        "${LT.portStr.Go2rtcRTSP}".type = "local";
+        "${LT.portStr.Go2rtcRTSPAlt}".type = "local";
+      };
+    in
+    {
+      WAN.ports = directPorts;
+      LAN.ports = directPorts;
+      LTNET.ports = directPorts;
+    };
   environment.systemPackages = [ pkgs.nfs-utils ];
 
   fileSystems."/mnt/storage" = {

@@ -129,6 +129,10 @@ in
           action = "spawn noctalia msg brightness-down";
           allow_when_locked = true;
         };
+        "Print" = {
+          action = "spawn noctalia msg screenshot-region";
+          repeat = false;
+        };
         "Mod+Left" = "window-focus-left";
         "Mod+Down" = "window-focus-down";
         "Mod+Up" = "window-focus-up";
@@ -227,6 +231,10 @@ in
           title_bar = "off";
         }
         {
+          match.app_id = "^org[.]gnome[.]Loupe$";
+          title_bar = "off";
+        }
+        {
           match.app_id = "^code$|^ghostty$|^com[.]mitchellh[.]ghostty$";
           blur = true;
         }
@@ -291,6 +299,9 @@ in
     pkgs.bitwarden-cli
     pkgs.wl-clipboard
   ];
+
+  # 部署重启 shell 时只结束 shell 自身，不连带杀掉它 fork 出来的子进程
+  systemd.user.services.noctalia.Service.KillMode = "process";
 
   programs.noctalia = {
     enable = true;
@@ -372,6 +383,7 @@ in
         ];
         center = [ ];
         end = [
+          "lyrics"
           "tray"
           "clipboard"
           "weather"
@@ -387,7 +399,7 @@ in
       widget = {
         cpu.type = "sysmon";
         ram.type = "sysmon";
-        clock.format = "{:%I:%M:%S %p}";
+        clock.format = "{:%Y-%m-%d}\n{:%I:%M:%S %p}";
         taskbar.icon_scale = iconScale;
         taskbar.item_spacing = itemSpacing;
         taskbar.pinned = [
@@ -433,6 +445,7 @@ in
           show_cover = false;
           show_romanization = true;
           show_translation = true;
+          text_alignment = "right";
           type = "h465855hgg/lyrics:lyrics";
         };
       };

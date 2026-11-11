@@ -1,6 +1,7 @@
 { lib, ... }:
 rec {
   port = {
+    FirewallCanary = 1;
     Endlessh = 22;
     Whois = 43;
     DNS = 53; # CoreDNS public serving port
@@ -16,6 +17,7 @@ rec {
     Hack3ricFlow = 180;
     HTTPS = 443;
     Smb.Tcp = 445; # SMB over TCP
+    DHCPv6.Client = 546;
     DHCPv6.Server = 547;
     CUPS = 631;
     Rsync = 873;
@@ -25,11 +27,12 @@ rec {
     KMS = 1688;
     SSDP = 1900;
     Gemini = 1965;
+    Go2rtc = 1984; # go2rtc control/API (frigate host network)
+    NFS.Port = 2049;
     GTPU = 2152; # GTP-U user plane (base station <-> LTE core)
     SSH = 2222;
-    Go2rtc = 1984; # go2rtc control/API (frigate host network)
     Xvcd = 2542; # Xilinx Virtual Cable daemon
-    Loki = 3100;
+    VictoriaLogs = 3100;
     SpiceProxy = 3128; # Proxmox VE SPICE web proxy
     Bitmagnet = 3333;
     NFS.StatD = 4000;
@@ -39,6 +42,7 @@ rec {
     I2P.HTTPProxy = 4444;
     I2P.SocksProxy = 4447;
     Pipewire.TCP = 4713;
+    FrigateAPI = 5000; # frigate API (host network)
     Jellyfin = 8096;
     HomeAssistant = 8123;
     OneKVM = 8420;
@@ -54,7 +58,6 @@ rec {
     Pipewire.Roc.End = 10003;
     Pipewire.VBanRecv = 6980; # libpipewire-module-vban-recv default
     Asterisk.UDPTL.End = 4999;
-    FrigateAPI = 5000; # frigate API (host network)
     IPFS.API = 5001;
     IPFS.Gateway = 5002;
     IPerf = 5201;
@@ -63,6 +66,7 @@ rec {
     NATPMP = 5351; # NAT Port Mapping Protocol (miniupnpd nat-pmp)
     mDNS = 5353;
     WSDD = 5357; # WS-Discovery (samba-wsdd), Windows network discovery
+    PostgreSQL = 5432;
     Babel = 6695;
     Bazarr = 6767;
     I2P.SAM = 7656;
@@ -75,6 +79,7 @@ rec {
     OllamaCpaHoneypot.CpaListener = 8317;
     Waline = 8360;
     Matrix.Public = 8448;
+    Prometheus.VMAlert = 8880;
     Sonarr = 8989;
     Tor.Socks = 9050;
     Prometheus.Daemon = 9090;
@@ -199,6 +204,7 @@ rec {
     WGLanTian.ForwardStart = 30010;
     WGLanTian.ForwardStop = 32559;
     Ephemeral.Start = 32768;
+    S1AP = 36412;
     Ephemeral.End = 60999;
   };
 

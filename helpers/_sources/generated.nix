@@ -82,6 +82,18 @@
       sha256 = "sha256-wwIBt33VZ+lntXpKqVzWcNSJFHWYkKwrslb9BCrvbps=";
     };
   };
+  ip-please = {
+    pname = "ip-please";
+    version = "5b6337c077ba24f6b252e522ed4ce8e3a0c0c661";
+    src = fetchFromGitHub {
+      owner = "ip-please";
+      repo = "ip-please.github.io";
+      rev = "5b6337c077ba24f6b252e522ed4ce8e3a0c0c661";
+      fetchSubmodules = false;
+      sha256 = "sha256-alnd3wIbiDGukKoEUYHRi/wjx5v+vtcYS6QQwktqZF8=";
+    };
+    date = "2026-10-23";
+  };
   iyuuplus = {
     pname = "iyuuplus";
     version = "dd81c2bf3f54d080ec378f2cec7f936471f7e35d";
@@ -237,7 +249,7 @@
     pname = "scam-dn42-miner";
     version = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
     src = fetchgit {
-      url = "https://git.lantian.pub/lantian/scam-dn42-miner.git";
+      url = "https://git.zhyi.xin/lantian/scam-dn42-miner.git";
       rev = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
       fetchSubmodules = false;
       deepClone = false;

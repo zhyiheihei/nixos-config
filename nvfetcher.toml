@@ -42,6 +42,10 @@ fetch.url = "https://github.com/grafana/grafana-infinity-datasource/releases/dow
 src.github = "grafana/grafana-infinity-datasource"
 src.prefix = "v"
 
+[ip-please]
+fetch.github = "ip-please/ip-please.github.io"
+src.git = "https://github.com/ip-please/ip-please.github.io.git"
+
 [iyuuplus]
 fetch.git = "https://github.com/ledccn/iyuuplus-dev.git"
 src.git = "https://github.com/ledccn/iyuuplus-dev.git"
@@ -92,8 +96,8 @@ fetch.github = "xddxdd/Sakura_Launcher_GUI"
 src.git = "https://github.com/xddxdd/Sakura_Launcher_GUI.git"
 
 [scam-dn42-miner]
-fetch.git = "https://git.lantian.pub/lantian/scam-dn42-miner.git"
-src.git = "https://git.lantian.pub/lantian/scam-dn42-miner.git"
+fetch.git = "https://git.zhyi.xin/lantian/scam-dn42-miner.git"
+src.git = "https://git.zhyi.xin/lantian/scam-dn42-miner.git"
 src.branch = "fpga"
 
 [skyland-auto-checkin]

@@ -1,12 +1,12 @@
-// Audit local listening sockets against the configured public-firewall
-// allowed-port list, and pin the kernel ephemeral port range that the
-// firewall rules assume.
+// Audit local listening sockets against the configured zone local-port
+// allowlist, and pin the kernel ephemeral port range that the firewall rules
+// assume.
 //
 // All inputs are environment variables (injected by the host-specific wrapper
 // from eval-time config; no live nftables query, no argv):
 // - PORT_AUDIT_ALLOWED: comma-separated port specs, `22` or `20000-23999`,
-//   copied verbatim from lantian.firewall.presets.public-firewall.allowedPorts
-//   plus allowedInternalPorts when the host is firewalled
+//   copied verbatim from every enabled zone's tcpPorts/udpPorts entries whose
+//   type is "local"
 // - PORT_AUDIT_ADDITIONAL: comma-separated port specs copied verbatim from
 //   lantian.firewall.presets.public-firewall.allowedInternalPorts on
 //   non-firewalled hosts; LTnet-only listeners that must never
@@ -14,7 +14,7 @@
 // - PORT_AUDIT_KNOWN_VIOLATIONS: comma-separated port specs copied verbatim
 //   from lantian.port-audit.knownViolations; listeners on public or wildcard
 //   addresses that the firewall deliberately keeps closed (asserted at eval
-//   time not to overlap either allowlist)
+//   time not to overlap any zone's local ports)
 // - PORT_AUDIT_EPHEMERAL: expected `lo-hi` ephemeral port range (defaults to
 //   the kernel/repo baseline 32768-60999 when unset)
 // - PORT_AUDIT_RESERVED_V4 / PORT_AUDIT_RESERVED_V6: comma-separated CIDRs
@@ -22,8 +22,11 @@
 //   loopback/link-local/multicast classes) are internal, not public-facing
 // - /proc/sys/net/ipv4/ip_local_port_range for the live ephemeral port range
 // - /proc/net/{tcp,tcp6,udp,udp6} for listening sockets
+// - /proc/<pid>/fd for attributing a violating socket inode to a process
+//   (only scanned when a violation is found; needs root to see other users)
 //
 // Exit codes: 0 = clean, 1 = audit violations found, 2 = could not gather data.
+use std::collections::HashMap;
 use std::fmt::Write as _;
 use std::net::{IpAddr, Ipv4Addr, Ipv6Addr};
 use std::process::exit;
@@ -51,6 +54,7 @@ struct Listener {
     proto: Proto,
     addr: IpAddr,
     port: u16,
+    inode: u64,
 }
 
 // A reserved-source entry, as accepted or excluded from the audit. CIDRs are
@@ -266,6 +270,7 @@ fn main() {
     }
 
     if hard_errors.is_empty() {
+        let mut offending: Vec<Listener> = Vec::new();
         for l in listeners {
             // Loopback, link-local and multicast bindings never face the
             // public Internet and are never covered by the allowlist.
@@ -297,15 +302,25 @@ fn main() {
             if (expected_ephemeral.0..=expected_ephemeral.1).contains(&l.port) {
                 continue;
             }
-            violations.push(format!(
-                "VIOLATION: {} {}:{} is listening on a public or wildcard address but not in the allowed-port list",
-                l.proto.label(),
-                l.addr,
-                l.port,
-            ));
+            offending.push(l);
         }
-        violations.sort();
-        violations.dedup();
+        if !offending.is_empty() {
+            let owners = socket_owners();
+            for l in offending {
+                let owner = match owners.get(&l.inode) {
+                    Some((pid, name)) => format!("; owner: {name} (pid {pid})"),
+                    None => "; owner: unknown".to_string(),
+                };
+                violations.push(format!(
+                    "VIOLATION: {} {}:{} is listening on a public or wildcard address but not in the allowed-port list{owner}",
+                    l.proto.label(),
+                    l.addr,
+                    l.port,
+                ));
+            }
+            violations.sort();
+            violations.dedup();
+        }
     }
 
     for line in &info {
@@ -423,9 +438,76 @@ fn parse_sockets(path: &str, proto: Proto) -> Result<Vec<Listener>, String> {
             .map_err(|_| format!("line {}: malformed port `{hex_port}`", i + 1))?;
         let addr = parse_hex_addr(hex_addr)
             .ok_or_else(|| format!("line {}: malformed address `{hex_addr}`", i + 1))?;
-        out.push(Listener { proto, addr, port });
+        let inode = fields
+            .get(9)
+            .and_then(|v| v.parse::<u64>().ok())
+            .unwrap_or(0);
+        out.push(Listener {
+            proto,
+            addr,
+            port,
+            inode,
+        });
     }
     Ok(out)
+}
+
+/// Maps socket inode -> (pid, process name) for the lowest pid holding that
+/// socket. Forked workers share the listening socket, so the lowest pid is the
+/// master/parent and the most useful attribution.
+fn socket_owners() -> HashMap<u64, (u32, String)> {
+    let mut owners: HashMap<u64, (u32, String)> = HashMap::new();
+    let Ok(entries) = std::fs::read_dir("/proc") else {
+        return owners;
+    };
+    for entry in entries.flatten() {
+        let Some(pid) = entry
+            .file_name()
+            .to_str()
+            .and_then(|s| s.parse::<u32>().ok())
+        else {
+            continue;
+        };
+        let Ok(fds) = std::fs::read_dir(format!("/proc/{pid}/fd")) else {
+            continue;
+        };
+        let mut name: Option<String> = None;
+        for fd in fds.flatten() {
+            let Ok(target) = std::fs::read_link(fd.path()) else {
+                continue;
+            };
+            let Some(inode) = target
+                .to_str()
+                .and_then(|t| t.strip_prefix("socket:[")?.strip_suffix(']'))
+                .and_then(|t| t.parse::<u64>().ok())
+            else {
+                continue;
+            };
+            let name = name.get_or_insert_with(|| process_name(pid));
+            owners
+                .entry(inode)
+                .and_modify(|e| {
+                    if pid < e.0 {
+                        *e = (pid, name.clone());
+                    }
+                })
+                .or_insert_with(|| (pid, name.clone()));
+        }
+    }
+    owners
+}
+
+fn process_name(pid: u32) -> String {
+    if let Ok(comm) = std::fs::read_to_string(format!("/proc/{pid}/comm")) {
+        let comm = comm.trim();
+        if !comm.is_empty() {
+            return comm.to_string();
+        }
+    }
+    std::fs::read_link(format!("/proc/{pid}/exe"))
+        .ok()
+        .and_then(|p| p.file_name().map(|n| n.to_string_lossy().into_owned()))
+        .unwrap_or_else(|| "?".to_string())
 }
 
 // /proc/net addresses are 32-bit words printed in host (little-endian) order;

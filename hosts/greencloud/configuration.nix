@@ -294,9 +294,17 @@ in
     '';
   };
 
-  lantian.firewall.presets.public-firewall.allowedPorts = [
-    (LT.this.wg-lantian.forwardStart + 5)
-    (LT.this.wg-lantian.forwardStart + 6)
-  ];
+  lantian.firewall.zones =
+    let
+      ztControllerPorts = {
+        "${toString (LT.this.wg-lantian.forwardStart + 5)}".type = "local";
+        "${toString (LT.this.wg-lantian.forwardStart + 6)}".type = "local";
+      };
+    in
+    {
+      WAN.udpPorts = ztControllerPorts;
+      DN42.udpPorts = ztControllerPorts;
+      LTNET.udpPorts = ztControllerPorts;
+    };
 
 }

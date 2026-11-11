@@ -51,14 +51,9 @@ in
           proxyNoTimeout = true;
           proxyOverrideHost = "localhost";
         };
-        "/backend-api/" = {
-          proxyPass = "http://127.0.0.1:${LT.portStr.CLIProxyAPI}";
-          proxyNoTimeout = true;
-          proxyOverrideHost = "localhost";
-        };
       };
 
-      accessibleBy = "private";
+      accessibleBy = "public";
       sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };

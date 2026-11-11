@@ -4,7 +4,9 @@
   ...
 }:
 let
-  cupsAllowedPorts = [ LT.port.CUPS ];
+  cupsPorts = {
+    "${LT.portStr.CUPS}".type = "local";
+  };
 in
 {
   services.printing = {
@@ -39,7 +41,10 @@ in
 
   # CUPS web UI and IPP listen on all interfaces (port 631); LAN/LTnet
   # only by policy (public firewall preset rejects it from WAN).
-  lantian.firewall.presets.public-firewall.allowedInternalPorts = cupsAllowedPorts;
+  lantian.firewall.zones = {
+    LAN.ports = cupsPorts;
+    LTNET.ports = cupsPorts;
+  };
 
   services.system-config-printer.enable = true;
 

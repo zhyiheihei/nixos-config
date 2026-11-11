@@ -1,4 +1,5 @@
 {
+  LT,
   lib,
   inputs,
   ...
@@ -14,6 +15,11 @@ in
     group = "kea";
   };
   users.groups.kea = { };
+
+  # DHCPv6 (547) binds wildcard v6; LAN-only by policy
+  lantian.firewall.zones = {
+    LAN.udpPorts."${LT.portStr.DHCPv6.Server}".type = "local";
+  };
 
   services.kea.dhcp4 = {
     enable = true;

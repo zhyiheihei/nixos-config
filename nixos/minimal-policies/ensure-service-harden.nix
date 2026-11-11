@@ -54,8 +54,6 @@ let
     "nvidia-persistenced"
     "ovs-vswitchd"
     "ovsdb"
-    "palworld"
-    "pcscd"
     "polkit"
     "pppd-wan"
     "pve-cluster"

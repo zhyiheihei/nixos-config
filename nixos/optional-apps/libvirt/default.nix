@@ -12,15 +12,25 @@
     onShutdown = "shutdown";
     qemu = {
       swtpm.enable = true;
+      # Allow access to additional devices and Venus renderer
       verbatimConfig = ''
         cgroup_device_acl = [
           "/dev/null", "/dev/full", "/dev/zero",
           "/dev/random", "/dev/urandom",
           "/dev/ptmx", "/dev/kvm"
         ]
+        seccomp_sandbox = 0
       '';
     };
   };
 
   users.users.zhyi.extraGroups = [ "libvirtd" ];
+
+  # libvirt's dnsmasq serves DHCP and DNS to guests on virbr*.
+  lantian.firewall.zones = {
+    LAN = {
+      ports."53".type = "local";
+      udpPorts."67".type = "local";
+    };
+  };
 }

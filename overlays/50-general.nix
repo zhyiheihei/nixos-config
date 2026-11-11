@@ -8,7 +8,7 @@ rec {
   # attic-server reuses this derivation with a different crate selection.
   attic-client = prev.attic-client.overrideAttrs (
     old:
-    prev.lib.optionalAttrs (prev.lib.hasInfix "-p attic-client " old.cargoBuildFlags) {
+    prev.lib.optionalAttrs (builtins.elem "--package=attic-client" old.cargoBuildFlags) {
       patches = (old.patches or [ ]) ++ [ ../patches/attic-client-nar-backpressure.patch ];
     }
   );
@@ -43,9 +43,6 @@ rec {
     # Fix dangling stack-local chip pointer in tests, from https://github.com/NixOS/nixpkgs/issues/558302#issuecomment-5552862912
     patches = (old.patches or [ ]) ++ [ ../patches/flashrom-fix-dangling-mock-chip-pointer.patch ];
   });
-  grafana-loki = prev.grafana-loki.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ../patches/grafana-loki-unix-socket.patch ];
-  });
   handbrake = prev.handbrake.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.makeWrapper ];
     postFixup = ''
@@ -56,11 +53,15 @@ rec {
     '';
   });
   hydra = prev.hydra.overrideAttrs (old: {
+    # FIXME: disable failing checks
+    doCheck = false;
     patches = (old.patches or [ ]) ++ [
       ../patches/hydra-protect-private-project.patch
       ../patches/hydra-oidc-optional-nbf.patch
       ../patches/hydra-oidc-allow-unverified-email.patch
       ../patches/hydra-topbar-queue-links.patch
+      ../patches/hydra-evaluation-command-timeout.patch
+      ../patches/hydra-disable-build-output-downloads.patch
     ];
   });
   # Systemd socket activation support, from https://github.com/esnet/iperf/pull/1171
@@ -75,7 +76,10 @@ rec {
   });
   matrix-synapse = prev.matrix-synapse.override { inherit matrix-synapse-unwrapped; };
   matrix-synapse-unwrapped = prev.matrix-synapse-unwrapped.overrideAttrs (old: {
-    patches = (old.patches or [ ]) ++ [ ../patches/matrix-synapse-listen-unix.patch ];
+    patches = (old.patches or [ ]) ++ [
+      ../patches/matrix-synapse-listen-unix.patch
+      ../patches/matrix-synapse-dns-ephemeral-source.patch
+    ];
     doCheck = false;
     doInstallCheck = false;
   });

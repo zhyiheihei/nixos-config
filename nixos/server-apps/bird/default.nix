@@ -9,6 +9,16 @@ let
   dn42 = import ./config/dn42.nix args;
   ltnet = import ./config/ltnet.nix args;
   sys = import ./config/sys.nix args;
+
+  birdPorts = {
+    tcpPorts."${LT.portStr.BGP}".type = "local";
+    udpPorts."${LT.portStr.Babel}".type = "local";
+  };
+  ltnetBirdPorts = birdPorts // {
+    tcpPorts = birdPorts.tcpPorts // {
+      "${LT.portStr.Prometheus.BirdExporter}".type = "local";
+    };
+  };
 in
 {
   imports = [
@@ -91,11 +101,14 @@ in
     BindPaths = [ "/run/bird" ];
     BindReadOnlyPaths = [ "/etc/bird" ];
   };
-  # BGP listener (179) and Babel (6695) bind wildcard sockets
-  lantian.firewall.presets.public-firewall.allowedInternalPorts = [
-    LT.port.BGP
-    LT.port.Babel
-  ];
+  # BGP listener (179) and Babel (6695) bind wildcard sockets; DN42 peers
+  # reach them over the DN42 zone, iBGP/Babel over the LAN zone.
+  lantian.firewall.zones = {
+    DN42.tcpPorts."${LT.portStr.BGP}".type = "local";
+    DN42.udpPorts."${LT.portStr.Babel}".type = "local";
+    LAN = birdPorts;
+    LTNET = ltnetBirdPorts;
+  };
 
   lantian.harden.bird = {
     enable = "network";

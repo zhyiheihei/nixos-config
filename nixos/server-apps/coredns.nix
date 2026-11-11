@@ -155,6 +155,20 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
     birdBindTo = [ "coredns-authoritative.service" ];
   };
 
+  lantian.firewall.zones = {
+    NETNS_COREDNS_AUTHORITATIVE.forwardTo = [
+      "DN42"
+      "WAN"
+      "LTNET"
+    ];
+    DN42.forwardTo = [ "NETNS_COREDNS_AUTHORITATIVE" ];
+    LAN.forwardTo = [ "NETNS_COREDNS_AUTHORITATIVE" ];
+    LTNET = {
+      forwardTo = [ "NETNS_COREDNS_AUTHORITATIVE" ];
+      tcpPorts."${LT.portStr.Prometheus.KnotExporter}".type = "local";
+    };
+  };
+
   lantian.firewall.presets.dns-redirect = {
     enable = lib.mkIf config.lantian.netns.coredns-authoritative.enable true;
     netns = "coredns-authoritative";

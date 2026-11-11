@@ -100,17 +100,25 @@ in
 
   # 家庭 LAN 直连入口：本机所有入向都落在 eth0（WAN 前缀），白名单模型下
   # 必须显式登记；不带公网 IPv4（NAT 后），这些口在 IPv6 上与此前一致。
-  lantian.firewall.presets.public-firewall.allowedPorts = [
-    LT.port.Ncps
-    LT.port.HTTPSAlt
-    LT.port.HomeAssistant
-    LT.port.Jellyfin
-    LT.port.ResilioSync.UI
-    LT.port.PeerBanHelper
-    LT.port.SSDP
-    LT.port.Minecraft
-    LT.port.TaoSync
-  ];
+  lantian.firewall.zones =
+    let
+      directPorts = {
+        "${LT.portStr.Ncps}".type = "local";
+        "${LT.portStr.HTTPSAlt}".type = "local";
+        "${LT.portStr.HomeAssistant}".type = "local";
+        "${LT.portStr.Jellyfin}".type = "local";
+        "${LT.portStr.ResilioSync.UI}".type = "local";
+        "${LT.portStr.PeerBanHelper}".type = "local";
+        "${LT.portStr.SSDP}".type = "local";
+        "${LT.portStr.Minecraft}".type = "local";
+        "${LT.portStr.TaoSync}".type = "local";
+      };
+    in
+    {
+      WAN.ports = directPorts;
+      LAN.ports = directPorts;
+      LTNET.ports = directPorts;
+    };
 
   boot.loader.grub = {
     efiSupport = true;
