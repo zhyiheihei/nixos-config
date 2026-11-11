@@ -337,4 +337,6 @@ in
     devices = [ "GPU-0a63998b-46d5-a3c4-1974-520e7e12e9c3" ];
     ocPowerLimit = 150;
   };
+
+  services.scx.enable = lib.mkForce false;
 }

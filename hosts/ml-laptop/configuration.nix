@@ -286,4 +286,6 @@
     # cores = lib.mkForce 4;
     connect-timeout = lib.mkForce 60;
   };
+
+  services.scx.enable = lib.mkForce false;
 }
