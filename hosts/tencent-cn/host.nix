@@ -7,14 +7,11 @@
 {
   index = 132;
   tags = with tags; [
-    # 备案期间临时关闭对外服务
-    # public-facing
+    public-facing
     server
   ];
   cpuThreads = 2;
-  # 备案期间临时改用 LTNET 地址（公网域名记录已摘除）
-  hostname = "198.18.0.132";
-  # hostname = "tencent-cn.zhyi.xin";
+  hostname = "tencent-cn.zhyi.xin";
   city = geo.cities."CN Ningbo";
 
   ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG09gY2QTMMWcJD4Ps0QEKAgvOZNJBgWxfkqpGiZb+Xl root@localhost";

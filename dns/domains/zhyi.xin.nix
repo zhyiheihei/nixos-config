@@ -29,7 +29,7 @@ let
     {
       recordType = "CNAME";
       name = "ai-api";
-      target = "volcengine.ltnet.zhyi.xin.";
+      target = "tencent-cn.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -84,7 +84,7 @@ let
     {
       recordType = "CNAME";
       name = "bitwarden";
-      target = "volcengine.ltnet.zhyi.xin.";
+      target = "tencent-cn.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -158,13 +158,12 @@ let
       target = "greencloud";
       ttl = "1h";
     }
-    # 备案期间临时移出 frpc 记录
-    # {
-    #   recordType = "CNAME";
-    #   name = "frpc";
-    #   target = "tencent-cn";
-    #   ttl = "1h";
-    # }
+    {
+      recordType = "CNAME";
+      name = "frpc";
+      target = "tencent-cn";
+      ttl = "1h";
+    }
     {
       recordType = "CNAME";
       name = "gemini";
@@ -216,7 +215,7 @@ let
     {
       recordType = "CNAME";
       name = "id";
-      target = "volcengine.ltnet.zhyi.xin.";
+      target = "tencent-cn.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -294,7 +293,7 @@ let
     {
       recordType = "CNAME";
       name = "login";
-      target = "volcengine.ltnet.zhyi.xin.";
+      target = "tencent-cn.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -512,7 +511,7 @@ in
         {
           recordType = "A";
           name = "@";
-          address = LT.hosts.volcengine.public.IPv4;
+          address = LT.hosts.tencent-cn.public.IPv4;
           ttl = "10m";
         }
         {

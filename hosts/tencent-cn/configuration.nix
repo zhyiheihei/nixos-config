@@ -1,14 +1,17 @@
-{
-  LT,
-  ...
-}:
+{ inputs, lib, ... }:
 {
   imports = [
     ../../nixos/server.nix
-    # 备案期间临时关闭 frps 对外服务
-    # ../../nixos/optional-apps/frp.nix
+    ../../nixos/optional-apps/frp.nix
 
     ./hardware-configuration.nix
+
+    ../../nixos/optional-apps/cliproxyapi.nix
+    (inputs.secrets + "/cliproxyapi.nix")
+    ../../nixos/optional-apps/dex.nix
+    ../../nixos/optional-apps/halo.nix
+    ../../nixos/optional-apps/pocket-id.nix
+    ../../nixos/optional-apps/vaultwarden.nix
   ];
 
   systemd.network.networks.eth0 = {
@@ -30,18 +33,7 @@
 
   boot.kernelParams = [ "console=ttyS0,115200" ];
 
-  # 备案期间临时关闭对外 vhost
-  # lantian.nginxVhosts."tencent-cn.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
+  lantian.nginxVhosts."tencent-cn.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
-  # 备案期间临时关闭公网 Web 访问（保留 LTNET 访问）：allowlist 模型下
-  # 由 nginx 统一登记 80/443，本地在受理之后追加拒绝。
-  lantian.firewall.chains.PUBLIC_INPUT.rules = [
-    {
-      priority = LT.firewallPriorities.service + 60;
-      text = ''
-        tcp dport { ${LT.portStr.HTTP}, ${LT.portStr.HTTPS} } reject with tcp reset
-        udp dport { ${LT.portStr.HTTP}, ${LT.portStr.HTTPS} } reject with icmpx type port-unreachable
-      '';
-    }
-  ];
+  lantian.nginxVhosts."bitwarden.zhyi.xin".accessibleBy = lib.mkForce "public";
 }
