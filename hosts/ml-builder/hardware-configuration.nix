@@ -1,4 +1,5 @@
 {
+  config,
   lib,
   ...
 }:
@@ -7,6 +8,8 @@
     ../../nixos/hardware/gpu-unlock.nix
     ../../nixos/hardware/nvidia/only.nix
   ];
+
+  hardware.nvidia.package = lib.mkForce config.boot.kernelPackages.nvidiaPackages.latest;
 
   boot.loader.grub = {
     efiSupport = true;
