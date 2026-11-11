@@ -262,6 +262,21 @@ class BaselineMode(Base):
         self.assertEqual(code, 1)
         self.assertIn("home/new.nix", out)
 
+    def test_upstream_deleted_file_retained_reported(self):
+        """baseline 模式同样要点名「上游删过、本仓仍留」的路径（历史删除，非本批 D）。"""
+        fx = self.fx
+        sha = fx.commit({"home/a.nix": b"a\n"}, "baseline")
+        fx.git("checkout", "-q", "-b", "exam/master")
+        fx.commit({"home/gone.nix": b"g\n"}, "add module")
+        fx.commit({"home/gone.nix": None}, "treewide: remove unused modules")
+        fx.git("checkout", "-q", "main")
+        fx.write({"home/a.nix": b"a\n", "home/gone.nix": b"g\n"})
+        fx.bind(sha)
+        out, err, code = run_main()
+        self.assertEqual(code, 1)
+        self.assertIn("未跟随删除", err)
+        self.assertIn("home/gone.nix", out)
+
     def test_allowlisted_drift_is_known(self):
         self.fx.scenario(
             {"home/old.nix": b"x\n"},
@@ -285,6 +300,25 @@ class BaselineMode(Base):
 
 
 class UpstreamMode(Base):
+    def test_upstream_deleted_file_retained_reported(self):
+        """上游删过的模块（换实现/裁未用）若 fork 没跟着删，不能静默算作 fork 独有。"""
+        fx = self.fx
+        sha = fx.commit({"home/a.nix": b"a\n"}, "baseline")
+        fx.git("checkout", "-q", "-b", "exam/master")
+        fx.commit({"home/gone.nix": b"g\n"}, "add module")
+        fx.commit({"home/gone.nix": None}, "treewide: remove unused modules")
+        fx.git("checkout", "-q", "main")
+        fx.write({"home/gone.nix": b"g\n"})
+        fx.bind(sha)
+        out, err, code = run(M.do_upstream, [])
+        self.assertEqual(code, 1)
+        self.assertIn("上游已删除但本仓仍保留", out)
+        self.assertIn("home/gone.nix", out)
+        self.assertIn("remove unused modules", out)
+        fx.bind(sha, allow=(("home/gone.nix", "fork 主机仍在用"),))
+        out, err, code = run(M.do_upstream, [])
+        self.assertIsNone(code, f"unexpected exit {code}: {out}{err}")
+
     def test_rename_not_followed_reported(self):
         self.fx.scenario(
             {"home/old.nix": b"x\n"}, {"home/old.nix": None, "home/new.nix": b"x\n"}, {"home/old.nix": b"x\n"}

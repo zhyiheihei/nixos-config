@@ -393,6 +393,44 @@ def parse_name_status(out):
     return ops
 
 
+def upstream_deleted(paths):
+    """fork 独有路径里，上游历史曾经删除过的路径 -> 最近一次删除它的提交。
+
+    上游「删文件、换实现」（如 loki→victorialogs、generate.py→lantian-secrets、
+    ping.py→dn42-peerfinder、xilinx FHS→dev-tools vivado）在 fork 侧若只是没跟着删，
+    文件就会隐形地滑进 fork独有清单，看起来像 fork 自有资产。这里显式区分：
+    真 fork 独有 vs 上游删过但本仓仍保留（未跟随删除）。
+    """
+    paths = [q for q in paths if q]
+    if not paths:
+        return {}
+    out = git(
+        "log",
+        "--no-renames",
+        "--diff-filter=D",
+        "--name-only",
+        "--pretty=format:%x01%h %s",
+        "exam/master",
+        "--",
+        *paths,
+    ).decode(errors="replace")
+    res, cur = {}, ""
+    for line in out.splitlines():
+        if line.startswith("\x01"):
+            cur = line[1:]
+        elif line.strip():
+            res.setdefault(line.strip(), cur)
+    return res
+
+
+def deleted_retained(fork_only, allow):
+    """上游删除过、本仓仍保留且未登记的路径（返回 [(path, 删除提交)]）。"""
+    deleted = upstream_deleted(fork_only)
+    return sorted(
+        (q, c) for q, c in deleted.items() if q not in allow and (REPO / q).exists()
+    )
+
+
 def tree_ops(rev, subpath=""):
     """rev 相对工作树（rev 为 <base>..<tip> 时为两提交间）的 A/D/R 清单。"""
     paths = [subpath] if subpath else SHARED_PATHS
@@ -584,10 +622,15 @@ def do_upstream(argv):
         if code == "R" and norm_path(old) != norm_path(new)
     ]
 
+    retained = deleted_retained(fork_only, allow)
     tip = git("rev-parse", "--short", "exam/master").decode().strip()
     print(f"对比对象 exam/master {tip}（基线模式见 tools/exam-check）")
     print(f"统计: = 一致 {len(same)} | ≈ 认可替换 {len(subst)} | fork独有 {len(fork_only)} | − 缺失 {len(missing)} | !known 已登记 {len(known)} | ! 未对齐 {len(drift)}")
 
+    if retained:
+        print("\n! 上游已删除但本仓仍保留（未跟随删除：跟进删除，或登记 allowlist 保留理由）:")
+        for q, c in retained:
+            print(f"  {q}  # 上游删除于 {c}")
     if drift:
         print("\n! 未对齐（checkout/搬 patch，或登记 allowlist）:")
         for p in drift:
@@ -626,9 +669,10 @@ def do_upstream(argv):
     if residual:
         print_residual(residual)
 
-    if drift or missing or renamed or residual:
+    if drift or missing or renamed or residual or retained:
         print(
             f"\nexam-check upstream: 未完全对齐（未对齐={len(drift)} 缺失={len(missing)} "
+            f"未跟随删除={len(retained)} "
             f"改名未跟进={len(renamed)} 未落实替换={len(residual)}）",
             file=sys.stderr,
         )
@@ -875,6 +919,7 @@ def main():
             expected.add(norm_path(old))
 
     fork_only = sorted(work_set - expected)
+    retained = deleted_retained(fork_only, allow)
 
     scoped = args.path
     # 上游独有（base 有而 work 无）也可登记「确认不需要」：带 skip: 前缀的条目
@@ -907,6 +952,10 @@ def main():
     )
     print(f"统计: = 一致 {len(same)} | ≈ 认可替换 {len(subst)} | + fork独有 {len(fork_only)} | − 上游独有 {len(upstream_only)} | !known 已登记 {len(known)} | ! 未登记漂移 {len(drift)} | ! 上游条目未同步 {len(content_changed)}")
 
+    if retained:
+        print("\n! 上游已删除但本仓仍保留（未跟随删除：跟进删除，或登记 allowlist 保留理由）:")
+        for q, c in retained:
+            print(f"  {q}  # 上游删除于 {c}")
     if drift:
         print("\n! 未登记漂移（处理：对齐上游 / 主机级接管，然后登记 allowlist 或修掉）:")
         for p in drift:
@@ -961,11 +1010,21 @@ def main():
                 print(f"…（其余 {len(diff) - 120} 行省略）")
 
     pending = [] if args.pending_ok else content_changed
-    if drift or struct_unapplied or lock_drift or residual or pending or host_unacked or host_stale:
+    if (
+        drift
+        or struct_unapplied
+        or lock_drift
+        or residual
+        or pending
+        or host_unacked
+        or host_stale
+        or retained
+    ):
         print(
             f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、"
             f"上游条目未同步 {len(pending)} 个、锁世界脱离 {len(lock_drift)} 项、未落实替换 {len(residual)} 处、"
-            f"host 选项键未跟上 {len(host_unacked)} 个、hostkeys allowlist 失效 {len(host_stale)} 个，exit 1",
+            f"host 选项键未跟上 {len(host_unacked)} 个、hostkeys allowlist 失效 {len(host_stale)} 个、"
+            f"未跟随删除 {len(retained)} 个，exit 1",
             file=sys.stderr,
         )
         sys.exit(1)
