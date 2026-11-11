@@ -14,7 +14,7 @@
   cpuThreads = 8;
   city = geo.cities."CN Ningbo";
 
-  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGcOTI2f6EACREnJ7WQm3W7VhhDJHTxSld47CdUbqplb root@venus";
+  ssh.ed25519 = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEQaHoHOJevao9T+GsKWajKnvJYA2pAw2HiyuCeadZ6H root@venus";
   interconnect = {
     name = "home-lan";
     IPv4 = "192.168.0.150";

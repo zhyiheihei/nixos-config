@@ -15,14 +15,10 @@
     inputs.venus-mainline.nixosModules.venus
   ];
 
-  lantian.kernel = pkgs.callPackage (inputs.venus-mainline + "/nixos/kernel.nix") { };
+  lantian.kernel = pkgs.venus-kernel;
 
-  # 厂商固件（ath11k WCN6851 hw1.1 + qca BT）不在 git 也不在 upstream linux-firmware，
-  # fleet 构建机拿不到：先给 null 保证求值，等固件有 pin 住的来源（静态文件缓存/attic）再填。
-  venus.firmware = null;
+  venus.firmware = pkgs.venus-firmware;
 
-  # venus 只有 wlan0（ath11k）。板级模块负责五路电源/PCIe 重训/固定 MAC，这里只做关联与地址。
-  # SSID 明文（跟 router 的 moli-rk-wifi 一样），密码走 sops（per-host/wifi/venus.yaml）。
   networking.usePredictableInterfaceNames = false;
   networking.wireless = {
     enable = true;
@@ -30,7 +26,6 @@
     secretsFile = config.sops.secrets."venus-wifi-secrets".path;
     networks."moli-1004-backup".pskRaw = "ext:psk_venus";
   };
-  # sops 解密后是一行 psk_venus=<PSK>（wpa_supplicant 的 secretsFile 格式）
   sops.secrets."venus-wifi-secrets" = {
     sopsFile = inputs.secrets + "/per-host/wifi/venus.yaml";
     key = "wpa-secrets";
@@ -40,13 +35,50 @@
     after = [ "sops-install-secrets.service" ];
   };
 
-  # fleet 策略（minimal-policies）：板级 net-watch 是只读诊断单元（读 /sys/class/net、
-  # 写 /var/log），走 network 预设硬化并在 chroot 里绑它要用的路径；wpa_supplicant 补
-  # Restart/RestartSec；板级 getty 默认 RestartSec=1，低于策略的 3s 下限。
+  # 26.11 的 stage-2 init 是 systemd 直接当 PID1，开机无人跑 activation；
+  # 该单元在 systemd 挂好 /run 后执行当前 profile 的 activation，
+  # 补齐 /run/current-system、/run/booted-system、固件路径与 /etc 同步
+  systemd.services.venus-boot-activate = {
+    description = "venus: boot-time NixOS activation";
+    wantedBy = [ "multi-user.target" ];
+    before = [
+      "venus-wifi-power.service"
+      "getty.target"
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      ExecStart = "/nix/var/nix/profiles/system/activate";
+    };
+  };
+  # 90 秒无网即 dd 回滚并重启的看门狗是单机自愈用的；fleet 角色下由 colmena 管回滚，
+  # 且其计数器在持久层缺失导致每次开机归零、引导未完成就被重启
+  systemd.services.venus-wifi-fallback.enable = lib.mkForce false;
+
+  # wpa_supplicant-wlan0 的沙箱绑定 /dev/rfkill，devtmpfs 不会自动创建此节点
+  systemd.tmpfiles.rules = [ "c /dev/rfkill 0644 root root - 10:242" ];
+
+  # 引导使用冻结 boot.img 里的 busybox initrd（ABL 装不下 26.11 的 systemd initrd），
+  # 本闭包的 initrd 仅是占位，不会被引导用到
+  boot.extraModulePackages = lib.mkForce [ ];
+  boot.kernelModules = lib.mkForce [ ];
+  boot.initrd.kernelModules = lib.mkForce [
+    "qcom-refgen-regulator"
+    "cec"
+    "drm_display_helper"
+    "drm_dp_aux_bus"
+    "drm_exec"
+    "drm_gpuvm"
+    "gpu-sched"
+    "mdt_loader"
+    "ubwc_config"
+    "msm"
+    "panel-xiaomi-venus-k2"
+    "dm-mod"
+  ];
+
   lantian.harden = {
     "venus-net-watch".enable = "network";
-    # 上游 wpa_supplicant 单元自己用 RootDirectoryStartOnly 做 chroot，
-    # 与 confinement.enable 互斥（systemd 不允许），所以只取硬化预设。
     "wpa_supplicant-wlan0" = {
       enable = "network";
       enableConfinement = false;
