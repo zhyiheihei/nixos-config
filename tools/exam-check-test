@@ -277,6 +277,16 @@ class BaselineMode(Base):
         self.assertIn("未跟随删除", err)
         self.assertIn("home/gone.nix", out)
 
+    def test_upstream_only_file_missing_is_fatal(self):
+        """删掉一个上游仍存在的共享文件必须报错，不能只统计 + 通过。"""
+        self.fx.scenario({"home/a.nix": b"a\n", "home/b.nix": b"b\n"}, {"home/a.nix": b"a\n", "home/b.nix": b"b\n"},
+                         {"home/a.nix": b"a\n", "home/b.nix": None})
+        out, err, code = run_main()
+        self.assertEqual(code, 1)
+        self.assertIn("上游独有", out)
+        self.assertIn("home/b.nix", out)
+        self.assertIn("上游独有未处理 1 个", err)
+
     def test_stale_allowlist_entry_is_fatal(self):
         """登记了漂移但漂移已消除（文件与上游一致）时必须报错，禁止留假条目。"""
         self.fx.scenario({"home/a.nix": b"a\n"}, {"home/a.nix": b"a\n"}, {"home/a.nix": b"a\n"},
