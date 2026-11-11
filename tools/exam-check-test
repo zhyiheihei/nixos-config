@@ -277,6 +277,16 @@ class BaselineMode(Base):
         self.assertIn("未跟随删除", err)
         self.assertIn("home/gone.nix", out)
 
+    def test_stale_allowlist_entry_is_fatal(self):
+        """登记了漂移但漂移已消除（文件与上游一致）时必须报错，禁止留假条目。"""
+        self.fx.scenario({"home/a.nix": b"a\n"}, {"home/a.nix": b"a\n"}, {"home/a.nix": b"a\n"},
+                         allow=(("home/a.nix", "曾经的漂移"),))
+        out, err, code = run_main()
+        self.assertEqual(code, 1)
+        self.assertIn("allowlist 失效条目", out)
+        self.assertIn("home/a.nix", out)
+        self.assertIn("allowlist 失效条目 1 个", err)
+
     def test_allowlisted_drift_is_known(self):
         self.fx.scenario(
             {"home/old.nix": b"x\n"},

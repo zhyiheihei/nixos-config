@@ -1019,12 +1019,13 @@ def main():
         or host_unacked
         or host_stale
         or retained
+        or stale_allow
     ):
         print(
             f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、"
             f"上游条目未同步 {len(pending)} 个、锁世界脱离 {len(lock_drift)} 项、未落实替换 {len(residual)} 处、"
             f"host 选项键未跟上 {len(host_unacked)} 个、hostkeys allowlist 失效 {len(host_stale)} 个、"
-            f"未跟随删除 {len(retained)} 个，exit 1",
+            f"未跟随删除 {len(retained)} 个、allowlist 失效条目 {len(stale_allow)} 个，exit 1",
             file=sys.stderr,
         )
         sys.exit(1)
