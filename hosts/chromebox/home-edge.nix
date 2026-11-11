@@ -8,6 +8,8 @@ let
   # 走 https + SNI 让上游 vhost 按域名自行选择。
   tlsProxies = {
     dav = LT.hosts.opi5p.interconnect.IPv4;
+    mcsm = LT.hosts.ml-builder.interconnect.IPv4;
+    mcsm-daemon = LT.hosts.ml-builder.interconnect.IPv4;
   };
   plainProxies = {
     qnap = "http://192.168.0.40:8080";
@@ -20,8 +22,6 @@ let
     "openlist"
     "memos"
     "wallos"
-    "mcsm"
-    "mcsm-daemon"
     "nexttodo"
   ];
   mkTlsVhost = name: upstream: {

@@ -42,7 +42,6 @@ in
     ../../nixos/optional-apps/dlx.nix
     ../../nixos/optional-apps/home-assistant.nix
     ../../nixos/optional-apps/i2pd.nix
-    ../../nixos/optional-apps/mcsm.nix
     ../../nixos/optional-apps/ncps.nix
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/nexttodo.nix
@@ -63,8 +62,6 @@ in
   ];
 
   lantian.backup.enable = true;
-
-  lantian.mcsm.enable = true;
 
   lantian.openlist.enable = true;
   systemd.services.podman-openlist.environment = LT.proxyEnvironment // {
@@ -110,7 +107,6 @@ in
         "${LT.portStr.ResilioSync.UI}".type = "local";
         "${LT.portStr.PeerBanHelper}".type = "local";
         "${LT.portStr.SSDP}".type = "local";
-        "${LT.portStr.Minecraft}".type = "local";
         "${LT.portStr.TaoSync}".type = "local";
       };
     in

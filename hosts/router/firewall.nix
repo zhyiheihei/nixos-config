@@ -175,9 +175,9 @@ in
       # Palworld game server on chromebox (UDP only).
       fib daddr type local udp dport 8211 iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
 
-      # Minecraft server on chromebox via MCSM (TCP main + UDP query).
-      fib daddr type local tcp dport 25565 iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
-      fib daddr type local udp dport 25565 iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
+      # Minecraft server on ml-builder via MCSM (TCP main + UDP query).
+      fib daddr type local tcp dport 25565 iifname "ppp0" dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
+      fib daddr type local udp dport 25565 iifname "ppp0" dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
 
       # Redirect LAN DNS requests to the isolated CoreDNS client namespace.
       # br-lan is the bridge ingress seen by LAN guests; eth0 covers direct
@@ -197,9 +197,9 @@ in
       # Palworld game server on chromebox (hairpin, before the ROCK 5C catch-all).
       fib daddr type local udp dport 8211 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
 
-      # Minecraft server on chromebox via MCSM (hairpin).
-      fib daddr type local tcp dport 25565 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
-      fib daddr type local udp dport 25565 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
+      # Minecraft server on ml-builder via MCSM (hairpin).
+      fib daddr type local tcp dport 25565 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
+      fib daddr type local udp dport 25565 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
 
       # All remaining public services (SSH etc.) are handled by the ROCK 5C edge.
       fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to ${edgeAddress}
