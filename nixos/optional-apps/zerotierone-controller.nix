@@ -26,7 +26,7 @@ let
     }
     {
       target = "::/0";
-      via = "fdd8:1938:4e88::204";
+      via = defaultGatewayHost.ltnet.IPv6;
     }
 
     # SideStore

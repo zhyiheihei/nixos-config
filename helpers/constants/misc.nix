@@ -1,14 +1,15 @@
 {
   lib,
   dn42,
+  ltnet,
   neonetwork,
   ...
 }:
 {
   # Target host MUST have DN42 connectivity
-  defaultGatewayHostName = "router";
-  defaultGatewayHostIPv4Routes = dn42.IPv4 ++ neonetwork.IPv4 ++ [ "198.18.0.0/15" ];
-  defaultGatewayHostIPv6Routes = dn42.IPv6 ++ neonetwork.IPv6 ++ [ "fdd8:1938:4e88::/48" ];
+  defaultGatewayHostName = "chromebox";
+  defaultGatewayHostIPv4Routes = dn42.IPv4 ++ neonetwork.IPv4 ++ ltnet.IPv4;
+  defaultGatewayHostIPv6Routes = dn42.IPv6 ++ neonetwork.IPv6 ++ ltnet.IPv6;
 
   forceX11WrapperArgs = builtins.concatStringsSep " " [
     "--set QT_QPA_PLATFORM xcb"
