@@ -283,7 +283,7 @@
 
   nix.settings = {
     max-jobs = lib.mkForce 2;
-    cores = lib.mkForce 2;
+    # cores = lib.mkForce 4;
     connect-timeout = lib.mkForce 60;
   };
 }
