@@ -78,14 +78,20 @@ in
 
     ../../nixos/optional-apps/bzminer.nix
     ../../nixos/optional-apps/krig-miner.nix
+    ../../nixos/optional-apps/mcsm.nix
     ../../nixos/optional-apps/ncps-client.nix
     ../../nixos/optional-apps/syncthing/run-as-lantian.nix
   ];
 
-  # 同步盘落在持久卷（/ 是 tmpfs，/home 只有 51G），media 数据集 240G+
-  lantian.syncthing.storage = lib.mkForce "/nix/persistent/syncthing";
-
   lantian.backup.enable = true;
+
+  lantian.mcsm.enable = true;
+
+  lantian.firewall.zones = {
+    WAN.ports."${LT.portStr.Minecraft}".type = "local";
+    LAN.ports."${LT.portStr.Minecraft}".type = "local";
+    LTNET.ports."${LT.portStr.Minecraft}".type = "local";
+  };
 
   # Turing 卡空闲时掉总线（Xid 79）：关掉驱动的运行时电源管理
   boot.extraModprobeConfig = ''
