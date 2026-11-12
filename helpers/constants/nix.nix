@@ -5,7 +5,7 @@ _: rec {
     "https://comfyui.cachix.org"
     "https://cache.numtide.com"
     "https://cache.flox.dev"
-    "https://cache.lantian.pub/lantian"
+    "https://cache.zhyi.xin/lantian"
     "https://cache.zhyi.xin/zhyi"
     "https://lab.opi5p.zhyi.xin/nix-static-file-cache"
   ];

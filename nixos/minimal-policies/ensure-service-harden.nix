@@ -96,7 +96,7 @@ let
   ];
 
   # Services that cannot run inside a confinement chroot without breaking:
-  # scx writes host cgroupfs and /sys/fs/bpf (mounted read-only under
+  # scx_loader writes host cgroupfs and /sys/fs/bpf (mounted read-only under
   # confinement), oom-score-protect tunes /proc/1's children host-wide
   confinementIgnored = [
     # keep-sorted start
@@ -145,7 +145,7 @@ let
     "samba-smbd"
     "samba-winbindd"
     "samba-wsdd"
-    "scx"
+    "scx_loader"
     "sublinkpro"
     "tg-bot-cleaner-bot"
     "tranquil-pds"

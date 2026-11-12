@@ -171,6 +171,16 @@ in
       description = "ZeroTier One Controller";
       wantedBy = [ "multi-user.target" ];
 
+      # The controller joins no network, so it needs no NAT-traversal port.
+      # ZeroTier picks a random UDP port for both of them: the secondary one
+      # unless allowSecondaryPort=false, and the UPnP tertiary one unless
+      # portMappingEnabled=false. secondaryPort must also stay nonzero to
+      # skip the offline re-randomization path, which upstream gates on
+      # secondaryPort == 0 rather than on allowSecondaryPort.
+      preStart = ''
+        echo '{"settings":{"allowSecondaryPort":false,"portMappingEnabled":false,"secondaryPort":65535}}' > /var/lib/zerotier-one-controller/local.conf
+      '';
+
       serviceConfig = {
         ExecStart = "${lib.getExe' pkgs.zerotierone "zerotier-one"} -p${builtins.toString cfg.port} -U /var/lib/zerotier-one-controller";
         StateDirectory = "zerotier-one-controller";
@@ -197,7 +207,15 @@ in
       after = [ "zerotierone-controller.service" ];
       requires = [ "zerotierone-controller.service" ];
 
-      script = lib.concatStrings (lib.mapAttrsToList (n: v: v._script) cfg.networks);
+      # ExecStart returns before the control plane binds its socket, so a
+      # setup run right after a controller restart races the API and would
+      # fail with curl's "connection refused".
+      script = ''
+        until ${ztcurl} -o /dev/null "${zturl}/status"; do
+          sleep 1
+        done
+      ''
+      + lib.concatStrings (lib.mapAttrsToList (n: v: v._script) cfg.networks);
 
       serviceConfig = {
         Type = "oneshot";
