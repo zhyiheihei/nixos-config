@@ -77,6 +77,14 @@ let
         redirectURIs = [ "https://dashboard.zhyi.xin/login/generic_oauth" ];
       }
       {
+        id = "halo";
+        name = "Halo";
+        secret = {
+          _secret = config.sops.secrets.dex-halo-secret.path;
+        };
+        redirectURIs = [ "https://zhyi.xin/login/oauth2/code/sso" ];
+      }
+      {
         id = "home-assistant";
         name = "Home Assistant";
         public = true;

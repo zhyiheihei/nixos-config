@@ -69,7 +69,7 @@
 
   virtualisation.oci-containers.containers.halo = {
     extraOptions = [ "--network=host" ];
-    image = "docker.io/halohub/halo-pro:2.25.4";
+    image = "docker.io/halohub/halo-pro:2";
     labels."io.containers.autoupdate" = "registry";
     volumes = [ "/var/lib/halo:/root/.halo2" ];
     environment = {
@@ -102,6 +102,10 @@
             sub_filter_once on;
             sub_filter '</head>' '<script defer data-domain="zhyi.xin" data-api="https://stats.zhyi.xin/api/event" src="https://stats.zhyi.xin/js/script.js"></script></head>';
           '';
+        };
+        "/oauth2/authorization/" = {
+          proxyPass = "http://127.0.0.1:${LT.portStr.Halo}";
+          proxyWebsockets = true;
         };
       };
     };
