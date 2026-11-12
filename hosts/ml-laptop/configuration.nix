@@ -144,6 +144,21 @@
   lantian.qingjian.enable = true;
 
   lantian.hidpi = 1.6;
+
+  boot.kernelParams = [
+    "i915.force_probe=!7d55"
+    "xe.force_probe=7d55"
+  ];
+
+  hardware.graphics.extraPackages = with pkgs; [
+    vpl-gpu-rt
+    libvpl
+    level-zero
+    intel-npu-driver
+  ];
+
+  environment.systemPackages = with pkgs; [ openvino ];
+
   lantian.strata.model = "IQ2_XS";
   systemd.services.strata.wantedBy = lib.mkForce [ ];
 
