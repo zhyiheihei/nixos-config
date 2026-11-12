@@ -1242,11 +1242,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794466887,
-        "narHash": "sha256-WVp8JIbFEVQDziNHDzdWsn5HljwS+t0v5AssaaISYXs=",
+        "lastModified": 1794494119,
+        "narHash": "sha256-ytz+BpDIgueX9jWxO0MQNQ9H3HQzwCR98xuojHWdksU=",
         "owner": "zhyiheihei",
         "repo": "nixos-secrets",
-        "rev": "053ecb47cc440366eb62baca0a7a8006c28b5f58",
+        "rev": "61c252c33681f098fe7dfb735a2319dca896f0cb",
         "type": "github"
       },
       "original": {
@@ -1526,11 +1526,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1794298399,
-        "narHash": "sha256-ABpDjHrJ3VLGBCoYx0KhkXTKWO8DbMwyHIl4pQavpvU=",
+        "lastModified": 1794480334,
+        "narHash": "sha256-nD+rgDWFO1PnP/eZcdDMw2N5pbRLlEBGqwSg5+kVLX4=",
         "owner": "zhyiheihei",
         "repo": "venus-mainline",
-        "rev": "3fbba6e0fec45b074657a6d042a41e5734748d08",
+        "rev": "f7511af328e51eca3ae3096b04d6331173d9647c",
         "type": "github"
       },
       "original": {
