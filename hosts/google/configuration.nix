@@ -15,7 +15,7 @@
 
   zramSwap.memoryPercent = lib.mkForce 100;
   systemd.services.nix-daemon.serviceConfig = {
-    Restart = lib.mkForce "on-failure";
+    Restart = "on-failure";
     RestartSec = "10s";
   };
 

@@ -84,11 +84,11 @@ in
   lantian.nginxVhosts."greencloud-jp.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
   services.gitea.settings.storage = {
-    MINIO_ENDPOINT = lib.mkForce "s3.zhyi.xin:443";
-    MINIO_BUCKET = lib.mkForce "gitea";
-    MINIO_LOCATION = lib.mkForce "east-1";
-    MINIO_USE_SSL = lib.mkForce true;
-    SERVE_DIRECT = lib.mkForce false;
+    MINIO_ENDPOINT = "s3.zhyi.xin:443";
+    MINIO_BUCKET = "gitea";
+    MINIO_LOCATION = "east-1";
+    MINIO_USE_SSL = true;
+    SERVE_DIRECT = false;
   };
 
   services.gitea.repositoryRoot = "/data/gitea/repositories";

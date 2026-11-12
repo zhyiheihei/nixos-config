@@ -1,6 +1,5 @@
 {
   inputs,
-  config,
   lib,
   LT,
   pkgs,
@@ -61,8 +60,6 @@ in
     "${inputs.secrets}/nixos-hidden-module/c9f6c0c333e73062"
     "${inputs.secrets}/nixos-hidden-module/ca877276fe06bd79"
   ];
-
-  networking.domain = lib.mkForce "zhyi.xin";
 
   systemd.network.networks.eth0 = {
     matchConfig.Name = "eth0";
@@ -275,9 +272,6 @@ in
   virtualisation.oci-containers.containers.byparr.ports = [
     "${LT.this.ltnet.IPv4}:${LT.portStr.FlareSolverr}:8191"
   ];
-  systemd.services.flaresolverr = lib.mkIf config.services.flaresolverr.enable {
-    environment.HOST = lib.mkForce LT.this.ltnet.IPv4;
-  };
 
   services.miniflux.config.HTTP_CLIENT_USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:153.0) Gecko/20100101 Firefox/153.0";
 

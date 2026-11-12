@@ -283,7 +283,7 @@ in
   nix.settings.connect-timeout = lib.mkForce 15;
 
   nix.settings.extra-platforms = lib.mkForce [ ];
-  nix.buildMachines = lib.mkForce (
+  nix.buildMachines =
     let
       mk = n: maxJobs: features: {
         inherit (LT.hosts.${n}) system;
@@ -304,8 +304,7 @@ in
         "big-parallel"
         "aarch64-cross"
       ])
-    ]
-  );
+    ];
 
   lantian.qemu-user-static-binfmt.enable = lib.mkForce false;
 
@@ -366,7 +365,6 @@ in
       }
     ];
   };
-  networking.networkmanager.enable = lib.mkForce false;
 
   boot.supportedFilesystems = [ "nfs" ];
 
@@ -431,7 +429,6 @@ in
     "_netdev"
   ];
 
-  zramSwap.enable = lib.mkForce false;
   swapDevices = [
     {
       device = "/nix/swap/swapfile";
@@ -450,7 +447,7 @@ in
     requires = [ "nix.mount" ];
     after = [ "nix.mount" ];
     unitConfig = {
-      DefaultDependencies = lib.mkForce false;
+      DefaultDependencies = false;
       ConditionPathExists = "!/nix/swap/swapfile";
     };
     serviceConfig = {

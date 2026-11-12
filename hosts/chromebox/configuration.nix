@@ -132,7 +132,6 @@ in
       }
     ];
   };
-  networking.networkmanager.enable = lib.mkForce false;
 
   systemd.targets.network-online.wants = [ "systemd-networkd-wait-online@eno0.service" ];
 

@@ -258,8 +258,8 @@ in
 
     connect-timeout = lib.mkForce 15;
 
-    max-jobs = lib.mkForce 6;
-    cores = lib.mkForce 16;
+    max-jobs = 6;
+    cores = 16;
   };
 
   environment.variables = proxyEnvironment;
@@ -269,7 +269,7 @@ in
   boot.kernel.sysctl."vm.watermark_scale_factor" = lib.mkForce 500;
 
   zramSwap.memoryPercent = lib.mkForce 100;
-  zramSwap.memoryMax = lib.mkForce (32 * 1024 * 1024 * 1024);
+  zramSwap.memoryMax = 32 * 1024 * 1024 * 1024;
 
   zramSwap.enable = lib.mkForce true;
   boot.kernel.sysctl."vm.page-cluster" = lib.mkForce 0;

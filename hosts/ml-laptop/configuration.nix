@@ -86,11 +86,6 @@
     enable = true;
     resticRepos = [ "home" ];
     paths = {
-      nix-persistent = lib.mkForce {
-        snapshotFrom = "/nix";
-        snapshotTo = "/nix/.snapshot";
-        backupPath = "/nix/.snapshot/persistent";
-      };
       home = {
         snapshotFrom = "/nix";
         snapshotTo = "/nix/.snapshot-home";
@@ -215,11 +210,9 @@
   hardware.nvidia.moduleParams.nvidia.NVreg_EnableGpuFirmware = 0;
 
   services.tlp.settings = {
-    RUNTIME_PM_DENYLIST = lib.mkForce "02:00.0 03:01.0 03:02.0 03:04.0 04:00.0 04:00.1 04:00.2 04:00.3";
+    RUNTIME_PM_DENYLIST = "02:00.0 03:01.0 03:02.0 03:04.0 04:00.0 04:00.1 04:00.2 04:00.3";
 
     CPU_SCALING_GOVERNOR_ON_AC = lib.mkForce "powersave";
-    CPU_ENERGY_PERF_POLICY_ON_AC = lib.mkForce "performance";
-    PLATFORM_PROFILE_ON_AC = lib.mkForce "performance";
   };
 
   services.udev.extraRules = ''
@@ -270,7 +263,7 @@
   users.groups.bird = { };
 
   nix.settings = {
-    max-jobs = lib.mkForce 2;
+    max-jobs = 2;
     # cores = lib.mkForce 4;
     connect-timeout = lib.mkForce 60;
     # 本机没有 aarch64 binfmt，声明 extra-platforms 只会让本地抢走 aarch64

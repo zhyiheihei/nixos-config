@@ -9,8 +9,8 @@
   imports = [ (modulesPath + "/installer/scan/not-detected.nix") ];
 
   hardware.nvidia = {
-    package = lib.mkForce config.boot.kernelPackages.nvidiaPackages.legacy_580;
-    open = lib.mkForce false;
+    package = config.boot.kernelPackages.nvidiaPackages.legacy_580;
+    open = false;
   };
 
   boot.initrd.availableKernelModules = [

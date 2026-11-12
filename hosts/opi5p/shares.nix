@@ -58,7 +58,7 @@
   lantian.syncthing.storage = "/mnt/storage/syncthing";
 
   fileSystems = {
-    "/run/sftp" = lib.mkForce {
+    "/run/sftp" = {
       device = "/mnt/storage";
       fsType = "fuse.bindfs";
 
