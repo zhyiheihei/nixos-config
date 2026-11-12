@@ -82,33 +82,6 @@
     strata.locations."/".enableOAuth = true;
   };
 
-  services.llama-swap.settings = lib.mkForce {
-    globalTTL = 600;
-    healthCheckTimeout = 600;
-    models = {
-      "qwen3-embedding-4b" = {
-        name = "Qwen3 Embedding 4B";
-        cmd = ''
-          ${lib.getExe' (pkgs.llama-cpp.override { vulkanSupport = true; }) "llama-server"} \
-          -m /nix/persistent/var/lib/llama-models/Qwen3-Embedding-4B-Q8_0.gguf \
-          --port ''${PORT} --host 127.0.0.1 \
-          --embeddings --pooling last -ngl 99 \
-          --ctx-size 8192 --batch-size 2048 --ubatch-size 2048
-        '';
-      };
-    };
-    routing.router.settings.groups.single = {
-      swap = true;
-      exclusive = true;
-      members = [ "qwen3-embedding-4b" ];
-    };
-  };
-
-  systemd.services.llama-swap.serviceConfig.SupplementaryGroups = [
-    "render"
-    "video"
-  ];
-
   lantian.backup = {
     enable = true;
     resticRepos = [ "home" ];
