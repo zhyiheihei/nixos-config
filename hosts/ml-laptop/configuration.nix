@@ -285,6 +285,9 @@
     max-jobs = lib.mkForce 2;
     # cores = lib.mkForce 4;
     connect-timeout = lib.mkForce 60;
+    # 本机没有 aarch64 binfmt，声明 extra-platforms 只会让本地抢走 aarch64
+    # 构建并以 Exec format error 失败；留空使这类 drv 派给 opi5p。
+    extra-platforms = lib.mkForce [ ];
   };
 
   services.scx.enable = lib.mkForce false;
