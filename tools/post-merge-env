@@ -90,8 +90,6 @@ def main():
             continue
         if p.startswith(SKIP):
             continue
-        # 上游在本次 merge 范围内没动过的路径是本仓自己的内容，不过 NORMALIZE，
-        # 否则会把 allowlist 登记的 fork 值改坏（如 wg-lantian 键名、cache.lantian.pub）
         if not upstream_changed(base, p):
             continue
         f = REPO / p
