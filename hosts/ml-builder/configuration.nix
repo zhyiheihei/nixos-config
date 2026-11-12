@@ -76,7 +76,6 @@ in
 
     ./hardware-configuration.nix
 
-    ../../nixos/optional-apps/bzminer.nix
     ../../nixos/optional-apps/krig-miner.nix
     ../../nixos/optional-apps/mcsm.nix
     ../../nixos/optional-apps/ncps-client.nix
@@ -328,16 +327,6 @@ in
         "05:00.0"
       ];
     };
-  };
-
-  lantian.bzminer = {
-    enable = false;
-    algorithm = "quantus";
-    pool = "stratum+tcp://qtc-hk.kryptex.network:7049";
-    account = "krxYNEN98Q";
-    worker = "worker";
-    devices = [ "GPU-0a63998b-46d5-a3c4-1974-520e7e12e9c3" ];
-    ocPowerLimit = 150;
   };
 
   services.scx.enable = lib.mkForce false;

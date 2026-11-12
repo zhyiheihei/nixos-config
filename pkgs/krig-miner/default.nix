@@ -9,11 +9,11 @@
 }:
 stdenv.mkDerivation (finalAttrs: {
   pname = "krig-miner";
-  version = "1.5.13";
+  version = "1.6.0";
 
   src = fetchurl {
     url = "https://github.com/kryptex/krig-miner/releases/download/v${finalAttrs.version}/krig-miner-${finalAttrs.version}-linux-x64.tar.gz";
-    hash = "sha256-IaQbQ3HW95tYv4fPeWQbOy3ILrqy40gZM3lKsR28r5g=";
+    hash = "sha256-kTc4jVxL+4Q73ou5bjdpVEaSTfwATrPedqcf0ZVuSgQ=";
   };
 
   sourceRoot = ".";
