@@ -24,11 +24,20 @@
     enable = true;
     interfaces = [ "wlan0" ];
     secretsFile = config.sops.secrets."venus-wifi-secrets".path;
-    networks."moli-1004-backup".pskRaw = "ext:psk_venus";
+    networks."moli-1004-backup" = {
+      pskRaw = "ext:psk_venus";
+      # 独立安装那份用 NM 的 wpa-psk(WPA2) 就能连上；这里默认会先用 SAE(WPA3)，
+      # AP 直接回 AUTH-REJECT status=1，所以把认证方式钉成纯 WPA2-PSK。
+      authProtocols = [ "WPA-PSK" ];
+    };
   };
   sops.secrets."venus-wifi-secrets" = {
     sopsFile = inputs.secrets + "/per-host/wifi/venus.yaml";
     key = "wpa-secrets";
+    # wpa_supplicant 以 wpa_supplicant 用户运行，默认 root:root 0400 它读不了
+    # （journal: "EXT PW FILE: could not open file ... Permission denied"）
+    owner = "wpa_supplicant";
+    mode = "0400";
   };
   systemd.services."wpa_supplicant-wlan0" = {
     requires = [ "sops-install-secrets.service" ];
@@ -40,11 +49,18 @@
   # 补齐 /run/current-system、/run/booted-system、固件路径与 /etc 同步
   systemd.services.venus-boot-activate = {
     description = "venus: boot-time NixOS activation";
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = [ "sysinit.target" ];
     before = [
-      "venus-wifi-power.service"
+      "sysinit.target"
+      "systemd-sysusers.service"
+      "systemd-tmpfiles-setup.service"
       "getty.target"
+      "sshd.service"
+      "venus-wifi-power.service"
     ];
+    unitConfig.DefaultDependencies = false;
+    # /nix 与 /run 由 initrd 挂好并跨 switch-root 继承，不能再等 local-fs.target：
+    # 它会让 activate 与 userborn/tmpfiles-setup-dev/local-fs-pre 形成 ordering cycle。
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
@@ -53,14 +69,18 @@
   };
   # 90 秒无网即 dd 回滚并重启的看门狗是单机自愈用的；fleet 角色下由 colmena 管回滚，
   # 且其计数器在持久层缺失导致每次开机归零、引导未完成就被重启
-  systemd.services.venus-wifi-fallback.enable = lib.mkForce false;
-
-  # wpa_supplicant-wlan0 的沙箱绑定 /dev/rfkill，devtmpfs 不会自动创建此节点
-  systemd.tmpfiles.rules = [ "c /dev/rfkill 0644 root root - 10:242" ];
+  # 引导期临时开启：WiFi 起不来时自动把 boot_b 回滚成可 SSH 的救援系统并重启，
+  # 这样取日志/再烧写都不必人工进 fastboot（WiFi 跑通后改回 false）。
+  # 内核迭代期开启：WiFi 起不来时 90s 后把 boot_b 刷回救援镜像并重启，
+  # 这样新内核实验失败也能自动回到可 SSH（22 端口）的救援系统，不必人工进 fastboot。
+  systemd.services.venus-wifi-fallback.enable = lib.mkForce true;
 
   # 引导使用冻结 boot.img 里的 busybox initrd（ABL 装不下 26.11 的 systemd initrd），
   # 本闭包的 initrd 仅是占位，不会被引导用到
+  # 冻结内核缺 zram/dummy：单独编好的模块由板级模块开机 insmod
+  # （不能进 boot.extraModulePackages，见 pkgs/venus-extra-modules 说明）
   boot.extraModulePackages = lib.mkForce [ ];
+  venus.extraKernelModules = pkgs.venus-extra-modules;
   boot.kernelModules = lib.mkForce [ ];
   boot.initrd.kernelModules = lib.mkForce [
     "qcom-refgen-regulator"
