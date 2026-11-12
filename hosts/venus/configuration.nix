@@ -81,6 +81,9 @@
   # （不能进 boot.extraModulePackages，见 pkgs/venus-extra-modules 说明）
   boot.extraModulePackages = lib.mkForce [ ];
   venus.extraKernelModules = pkgs.venus-extra-modules;
+  # 冻结内核没有 MPTCP（/proc/sys/net/mptcp 不存在），iperf3.socket 用
+  # SocketProtocol=mptcp 会 EIO，venus 上先关掉 iperf 服务端
+  services.iperf3.enable = lib.mkForce false;
   boot.kernelModules = lib.mkForce [ ];
   boot.initrd.kernelModules = lib.mkForce [
     "qcom-refgen-regulator"

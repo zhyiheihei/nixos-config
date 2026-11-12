@@ -507,6 +507,22 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
       };
     };
   };
+  # knot 的 BindPaths 需要 /run/knot 与 /var/cache/zones 预先存在：knot 自己由
+  # netns 包了一层 chroot（RootDirectory=/run/confinement/%n），RuntimeDirectory
+  # 建在 chroot 内，宿主侧这两个目录没人创建，新装主机就会 226/NAMESPACE。
+  systemd.tmpfiles.settings.knot-runtime-dirs = {
+    "/run/knot".d = {
+      mode = "0755";
+      user = "knot";
+      group = "knot";
+    };
+    "/var/cache/zones".d = {
+      mode = "0755";
+      user = "knot";
+      group = "knot";
+    };
+  };
+
   lantian.harden.coredns-authoritative.enable = true;
   lantian.harden.knot.enable = true;
 
