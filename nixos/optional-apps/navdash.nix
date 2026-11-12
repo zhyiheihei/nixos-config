@@ -73,7 +73,7 @@ let
     "git.zhyi.xin" = "Gitea_A";
     "ha.opi5p.zhyi.xin" = "HomeAssistant_A--智能家居";
     "ha.zhyi.xin" = "HomeAssistant_A--智能家居";
-    "halo.volcengine.zhyi.xin" = "Halo--Halo博客--qdnas-s";
+    "halo.tencent-cn.zhyi.xin" = "Halo--Halo博客--qdnas-s";
     "immich.zhyi.xin" = "Immich--照片备份--qdnas-s";
     "jellyfin.zhyi.xin" = "Jellyfin_A";
     "matrix-client.zhyi.xin" = "Element_A";
@@ -104,7 +104,7 @@ let
     "lab.ml-builder.zhyi.xin" = "Nginx_B";
     "lab.opi5p.zhyi.xin" = "Nginx_B";
     "lab.tencent.zhyi.xin" = "Nginx_B";
-    "lab.volcengine.zhyi.xin" = "Nginx_B";
+    "lab.tencent-cn.zhyi.xin" = "Nginx_B";
     "letsencrypt-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "letsencrypt-test-ssl.zhyi.xin" = "icon-allinssl-1.1.1-x86-1767151027811";
     "login.zhyi.xin" = "Authelia_A";
@@ -138,7 +138,7 @@ let
     "pb.zhyi.xin" = "内容与通讯";
     "posts.zhyi.xin" = "内容与通讯";
     "comments.zhyi.xin" = "内容与通讯";
-    "halo.volcengine.zhyi.xin" = "内容与通讯";
+    "halo.tencent-cn.zhyi.xin" = "内容与通讯";
     # 公开 · 身份链路
     "login.zhyi.xin" = "身份链路";
     "id.zhyi.xin" = "身份链路";

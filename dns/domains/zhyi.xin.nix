@@ -116,7 +116,7 @@ let
     {
       recordType = "CNAME";
       name = "cliproxyapi";
-      target = "volcengine.ltnet.zhyi.xin.";
+      target = "tencent-cn.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -196,8 +196,8 @@ let
     }
     {
       recordType = "CNAME";
-      name = "halo.volcengine";
-      target = "volcengine.ltnet.zhyi.xin.";
+      name = "halo.tencent-cn";
+      target = "tencent-cn.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
@@ -470,7 +470,7 @@ let
     {
       recordType = "CNAME";
       name = "um";
-      target = "volcengine.ltnet.zhyi.xin.";
+      target = "tencent-cn.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {

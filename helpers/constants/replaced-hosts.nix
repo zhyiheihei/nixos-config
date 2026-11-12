@@ -5,13 +5,13 @@ _: {
     # issuance (nixos/optional-apps/acme/base-domains.nix) and the nginx redirect
     # vhosts (nixos/common-apps/nginx/vhost-replaced-hosts.nix).
     # keep-sorted start
-    "50kvm" = "volcengine";
-    "v-ps-hkg" = "volcengine";
+    "50kvm" = "tencent-cn";
+    "v-ps-hkg" = "tencent-cn";
     "v-ps-sjc" = "hostdare";
-    gigsgigscloud = "volcengine";
+    gigsgigscloud = "tencent-cn";
     hetzner-de = "greencloud";
     hostdare = "hostdare";
-    linkin = "volcengine";
+    linkin = "tencent-cn";
     oneprovider = "greencloud";
     soyoustart = "greencloud";
     virmach-ny1g = "greencloud";

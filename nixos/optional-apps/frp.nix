@@ -23,6 +23,7 @@
   lantian.firewall.zones = {
     LAN.tcpPorts."${LT.portStr.Frp.Dashboard}".type = "local";
     LTNET.tcpPorts."${LT.portStr.Frp.Dashboard}".type = "local";
+    WAN.tcpPorts."${LT.portStr.Frp.Server}".type = "local";
   };
 
   lantian.nginxVhosts."frpc.zhyi.xin" = {
