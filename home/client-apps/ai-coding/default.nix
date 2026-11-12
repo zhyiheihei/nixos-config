@@ -97,6 +97,19 @@ in
       ];
     };
   };
+
+  # Kept with the pi config for now rather than in the general client package
+  # list.
+  home.packages = [
+    pkgs.llm-agents.dsh
+    pkgs.llm-agents.herdr-app
+  ];
+
+  programs.herdr = {
+    enable = true;
+    package = pkgs.llm-agents.herdr;
+  };
+
   # Pi loads TS extensions through jiti, whose transpile cache lives in
   # $TMPDIR/jiti. /tmp is tmpfs here, so the cache is wiped on every reboot
   # and the first pi launch after boot recompiles ~400 modules (~14 s).
@@ -201,6 +214,8 @@ in
   home.file.".pi/agent/extensions/nixos-command-guard.ts".source =
     ./extensions/nixos-command-guard.ts;
   home.file.".pi/agent/extensions/model-favorites.ts".source = ./extensions/model-favorites.ts;
+  home.file.".pi/agent/extensions/deepseek-loop-guard.ts".source =
+    ./extensions/deepseek-loop-guard.ts;
   home.file.".pi/agent/extensions/last-model.ts".source = ./extensions/last-model.ts;
   home.file.".pi/agent/extensions/sanitize-user-agent.ts".source =
     ./extensions/sanitize-user-agent.ts;
