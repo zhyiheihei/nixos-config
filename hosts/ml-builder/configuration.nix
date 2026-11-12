@@ -87,6 +87,8 @@ in
 
   lantian.mcsm.enable = true;
 
+  lantian.hidpi = 1.6;
+
   lantian.firewall.zones = {
     WAN.ports."${LT.portStr.Minecraft}".type = "local";
     LAN.ports."${LT.portStr.Minecraft}".type = "local";

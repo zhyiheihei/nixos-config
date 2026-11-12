@@ -16,6 +16,7 @@
   boot.loader.grub = {
     efiSupport = true;
     device = "nodev";
+    configurationLimit = 4;
     gfxmodeBios = "2560x1440x32,auto";
     gfxmodeEfi = "2560x1440x32,auto";
   };
