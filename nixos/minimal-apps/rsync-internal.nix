@@ -24,8 +24,6 @@ in
 
   systemd.services.rsync-nix-sync-servers = {
     enable = !isPrimaryServer;
-    requires = [ "sops-install-secrets.service" ];
-    after = [ "sops-install-secrets.service" ];
     serviceConfig = {
       Type = "oneshot";
       ExecStart = builtins.concatStringsSep " " [

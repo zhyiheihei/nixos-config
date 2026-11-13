@@ -271,5 +271,5 @@
     extra-platforms = lib.mkForce [ ];
   };
 
-  services.scx.enable = lib.mkForce false;
+  services.scx-loader.enable = lib.mkForce false;
 }

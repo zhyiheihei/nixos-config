@@ -259,6 +259,11 @@ in
 
     max-jobs = 6;
     cores = 16;
+
+    # 沙箱会清掉 daemon 环境，下面那份 proxyEnvironment（GOPROXY=goproxy.cn 等）
+    # 对构建根本不可见，于是 buildGoModule 直连 proxy.golang.org，IPv6 不通就超时。
+    # 这台是构建机且只被本集群用，关沙箱让代理环境生效（与本机原有的代理意图一致）。
+    sandbox = lib.mkForce false;
   };
 
   environment.variables = proxyEnvironment;
@@ -329,5 +334,5 @@ in
     };
   };
 
-  services.scx.enable = lib.mkForce false;
+  services.scx-loader.enable = lib.mkForce false;
 }
