@@ -54,14 +54,14 @@ nixos/optional-apps/nix-distributed.nix # nixbuild.net 付费构建节点移除�
 nixos/optional-apps/plausible.nix # geonames.csv tmpfiles 软链：nixos-unstable 模块设 GEONAMES_SOURCE_FILE 但无生成机制，greencloud 迁移后实证起不来；上游（colocrossing）无此修复
 nixos/optional-apps/prometheus/default.nix # storagebox.nix 引用移除（fork 不监控 storagebox）
 nixos/optional-apps/palworld.nix # skip: 用户 2026-10-23 决定保留（fork 独有服务，chromebox 启用，上游 3691671e4 已删除）
-nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异（2026-10-15 移除 sglang-sakura-llm job：舰队已无该服务，prometheus up 恒 0）；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
+nixos/optional-apps/prometheus/scrape-configs.nix # 监控目标清单差异；scrape_timeout 110s / interval 2m 参数化（LTNET 跨城 ZeroTier 链路 10s 默认超时 50-70% 抓取失败）
 nixos/optional-apps/radicale.nix # accessibleBy=private→public（2026-10-27 用户决策）：上游 cal 仅 LTNET 可达，本仓 public-sites.nix 已把 cal.zhyi.xin 归入自带鉴权站点，日历/通讯录客户端（手机、桌面、mcp-caldav）需公网直连；鉴权仍为 nginx basic auth + radicale http_x_remote_user
 nixos/optional-apps/zerotierone-controller.nix # GL-MT3600BE 旅行路由器 LAN 路由（192.168.3.0/24 via 198.18.0.115，fork 独有拓扑）+ 家庭 LAN 路由（192.168.0.0/24 via router，供 allowManaged=1 额外客户端异地访问，2026-10-03）；defaultGatewayHost 已随上游收口到 LT 继承（现为 chromebox，原 rock5c 特例登记于 misc.nix 条目）；`::/0` 改指 defaultGatewayHost.ltnet.IPv6（上游写死 fdbc::204，本舰队无 index 204 主机）
 nixos/optional-apps/vlmcsd.nix # neo 监听移除（NeoNetwork 置空）
 nixos/server-apps/bird/config/dn42.nix # neo 路由移除（NeoNetwork 置空）
 nixos/server-apps/coredns.nix # DNSSEC 签名序号漂移（运营性，随各自 zone 重签）；fork 环境偏移：zone 列表含自有域（zhyi.dn42/zhyi.neo/zhyi.xin 等），DNSSEC key serial 对齐 exam 并已同步 secrets 仓 dnssec.yaml（49297b091）；zhyi.neo 与 asn.zhyi.xin 两个 fork 自有域无 DNSSEC key，按 null 不签名
 nixos/server-components/route-chain.nix # neo 路由链移除（NeoNetwork 置空）
-overlays/50-general.nix # prismlauncher jdks 补 openjdk25：本机要跑 Minecraft 26.3（其 version json 写 compatibleJavaMajors=[25]），上游无 Java 25 客户端需求；PrismLauncher 自带的下游 JRE 下载在 NixOS 上被 stub-ld 拒绝（实测 Temurin 25 JRE 报 "Could not start dynamically linked executable"，未开 nix-ld），只能走 nixpkgs 提供的 JDK
+overlays/50-general.nix # prismlauncher jdks 补 openjdk25：本机要跑 Minecraft 26.3（其 version json 写 compatibleJavaMajors=[25]），上游无 Java 25 客户端需求；PrismLauncher 自带的下游 JRE 下载在 NixOS 上被 stub-ld 拒绝（实测 Temurin 25 JRE 报 "Could not start dynamically linked executable"，未开 nix-ld），只能走 nixpkgs 提供的 JDK；aws-lc 交叉编译修复（aarch64 目标时 go 代码生成器按 host 架构编译，rustic 等 aarch64-cross 包依赖，配合 backup.nix 的 aarch64-cross 车道，上游无交叉需求）
 overlays/60-non-flake-packages.nix # fork 独有包注册：venus-extra-modules/venus-firmware/venus-kernel（venus 主线内核工作链，flake 输入 venus-mainline fork 独有）
 helpers/constants/interface-prefixes.nix # bond 前缀（ba915668d：dragon-q8b bond0 对齐 ml-2700/opi5p 正典写法，ZeroTier 接口白名单放行 bond，fork 独有拓扑）
 helpers/constants/misc.nix # defaultGatewayHost=chromebox（上游 pve-epyc，原 rock5c 随 66eeffa39 退役；2026-11-11 起改用家庭常开 mesh 主机 chromebox，本身带 dn42 路由与 netns VIP）：ltnet/dn42 默认网关主机映射特例，与 zerotier 条目同一决策；ULA 已替换为 fdd8 前缀
