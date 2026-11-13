@@ -280,18 +280,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "letsencrypt-ssl";
-      target = "greencloud";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
-      name = "letsencrypt-test-ssl";
-      target = "greencloud";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "login";
       target = "tencent-cn.ltnet.zhyi.xin.";
       ttl = "1h";

@@ -12,6 +12,22 @@ rec {
       patches = (old.patches or [ ]) ++ [ ../patches/attic-client-nar-backpressure.patch ];
     }
   );
+  # 交叉编译 aarch64 时 aws-lc 的 go 代码生成器会用 build 平台的默认 GOARCH
+  # (amd64) 生成二进制、却用 host 的 aarch64-gcc 链接，报 "-m64 not recognized"，
+  # 导致所有需要系统 aws-lc 的 aarch64 包（rustic 等）编不出来。
+  # 生成器产物与目标架构无关，让它按 host 架构编译即可（构建机用 binfmt 执行）。
+  aws-lc = prev.aws-lc.overrideAttrs (
+    old:
+    final.lib.optionalAttrs (prev.stdenv.buildPlatform != prev.stdenv.hostPlatform) {
+      postPatch = (old.postPatch or "") + ''
+        for f in CMakeLists.txt crypto/CMakeLists.txt; do
+          sed -i 's|COMMAND ''${GO_EXECUTABLE} run|COMMAND env GOOS=linux GOARCH=${
+            if prev.stdenv.hostPlatform.isAarch64 then "arm64" else "amd64"
+          } ''${GO_EXECUTABLE} run|' "$f"
+        done
+      '';
+    }
+  );
   calibre = prev.calibre.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/calibre-page-count-shutdown.patch ];
   });
