@@ -56,15 +56,15 @@
   };
   dnscontrol-xddxdd = {
     pname = "dnscontrol-xddxdd";
-    version = "913a94772c1ba09f3e5b623cd50d572951b9ea79";
+    version = "eae23ad6bff7059ef832bc77a395e69f2479840c";
     src = fetchFromGitHub {
       owner = "xddxdd";
       repo = "dnscontrol";
-      rev = "913a94772c1ba09f3e5b623cd50d572951b9ea79";
+      rev = "eae23ad6bff7059ef832bc77a395e69f2479840c";
       fetchSubmodules = false;
-      sha256 = "sha256-wHMKwgEPSAw0GlS7euhvl/QQxIyPTd+fw+JcMqR6QlQ=";
+      sha256 = "sha256-EJJdJZVow8YYV7O1aq6b0JyvLLjKzfi+Z200i9tejlc=";
     };
-    date = "2026-08-08";
+    date = "2026-10-05";
   };
   grafana-falconlogscale-datasource = {
     pname = "grafana-falconlogscale-datasource";
@@ -249,7 +249,7 @@
     pname = "scam-dn42-miner";
     version = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
     src = fetchgit {
-      url = "https://git.zhyi.xin/lantian/scam-dn42-miner.git";
+      url = "https://git.lantian.pub/lantian/scam-dn42-miner.git";
       rev = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
       fetchSubmodules = false;
       deepClone = false;

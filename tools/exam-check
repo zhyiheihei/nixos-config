@@ -307,7 +307,7 @@ def normalize(data: bytes):
 # 反向还原规则（把选项命名空间改回上游写法）不是待替换的上游标识，反查时跳过。
 RESIDUAL_SKIP = {'[ "zhyi" "nginxVhosts" ]'}
 # 选项命名空间的合法上下文：整段内出现 "lantian" 属模块选项路径，不是用户名。
-RESIDUAL_CONTEXT_EXEMPT = ('[ "lantian" "nginxVhosts" ]',)
+RESIDUAL_CONTEXT_EXEMPT = ('[ "lantian" "nginxVhosts" ]', 'git.lantian.pub')
 # 审计工具自身即替换词表的载体，不参与反查。
 RESIDUAL_SELF_FILES = {
     "tools/exam-check",

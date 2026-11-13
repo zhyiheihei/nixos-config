@@ -25,10 +25,6 @@ src.regex = "AGENT_VERSION = \"([0-9\\.]+)\""
 url.name = "peerfinder-agent.py"
 
 [dnscontrol-xddxdd]
-# pin 在 v4 版本（913a947）：v5 迁移后 gcore provider 用 LabelFromFQDNWithDot 处理
-# 不带尾点的 FQDN（gcore v2 API 实际返回格式），记录名被拼成 zhyi.xin.zhyi.xin，
-# preview 会报千条 DELETE/CREATE；上游 master 尚未修复。上游修复后取消 pinned。
-pinned = true
 fetch.github = "xddxdd/dnscontrol"
 src.git = "https://github.com/xddxdd/dnscontrol.git"
 
@@ -96,8 +92,8 @@ fetch.github = "xddxdd/Sakura_Launcher_GUI"
 src.git = "https://github.com/xddxdd/Sakura_Launcher_GUI.git"
 
 [scam-dn42-miner]
-fetch.git = "https://git.zhyi.xin/lantian/scam-dn42-miner.git"
-src.git = "https://git.zhyi.xin/lantian/scam-dn42-miner.git"
+fetch.git = "https://git.lantian.pub/lantian/scam-dn42-miner.git"
+src.git = "https://git.lantian.pub/lantian/scam-dn42-miner.git"
 src.branch = "fpga"
 
 [skyland-auto-checkin]

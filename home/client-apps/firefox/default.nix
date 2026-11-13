@@ -66,6 +66,7 @@ let
           steam-database
           tab-reloader
           tampermonkey
+          tweaks-for-youtube
           ublacklist
           wappalyzer
           zeroomega
