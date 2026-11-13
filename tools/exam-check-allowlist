@@ -106,4 +106,4 @@ pkgs/hp-keyboard-backlight/default.nix # skip: fork 的 ml-laptop 用内核自�
 pkgs/hp-keyboard-backlight/Cargo.toml # skip: 随 pkgs/hp-keyboard-backlight 移除
 pkgs/hp-keyboard-backlight/Cargo.lock # skip: 随 pkgs/hp-keyboard-backlight 移除
 pkgs/hp-keyboard-backlight/src/main.rs # skip: 随 pkgs/hp-keyboard-backlight 移除
-nixos/optional-apps/prometheus/blackbox-exporter.nix # 探测目标与期望串按 fork 环境改写：移除 github-pages/netlify/render/vercel/sip（本仓 DNS 与 nginx 均无这些名字）、jellyfin 改探 :8443（ISP 封 443 入向，家庭入口公网走 8443）、gopher/whois 期望串改 zhyi（gopher\.zhyi\. / ZHYI-DN42，上游为 lantian 身份）
+nixos/optional-apps/prometheus/blackbox-exporter.nix # 探测目标与期望串按 fork 环境改写：移除 github-pages/netlify/render/vercel/sip（本仓 DNS 与 nginx 均无这些名字）、jellyfin 改探 :8443（ISP 封 443 入向，家庭入口公网走 8443）、gopher/whois 期望串改 zhyi（gopher\.zhyi\. / ZHYI-DN42，上游为 lantian 身份）；2026-11-13 公网实测：google/greencloud-jp 双视角 443/8443/v6 入向 TCP 全部超时（上游探 443 无法跟随），blackbox 的 :8443 探测经 tencent 解析器走 LTNET 视图达成 100%，公网直连家庭入口当前不可达（用户自用走 LTNET/ZeroTier 不受影响）
