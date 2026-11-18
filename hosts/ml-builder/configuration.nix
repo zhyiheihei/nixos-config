@@ -2,7 +2,6 @@
   lib,
   pkgs,
   config,
-  inputs,
   LT,
   ...
 }:
@@ -104,7 +103,7 @@ in
   lantian.qemu-user-static-binfmt.enable = true;
 
   sops.secrets.hydra-queue-runner-token = {
-    sopsFile = inputs.secrets + "/hydra.yaml";
+    sopsFile = LT.secret "hydra.yaml";
     mode = "0440";
     owner = "hydra-builder";
     group = "hydra";

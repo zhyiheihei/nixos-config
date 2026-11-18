@@ -1,5 +1,5 @@
 {
-  inputs,
+  LT,
   config,
   lib,
   ...
@@ -10,7 +10,7 @@
     ./cert-exporter.nix
   ];
 
-  sops.secrets.gcore-api-key.sopsFile = inputs.secrets + "/gcore-dns.yaml";
+  sops.secrets.gcore-api-key.sopsFile = LT.secret "gcore-dns.yaml";
   sops.templates.lego-env = {
     content = ''
       GCORE_PERMANENT_API_TOKEN=${config.sops.placeholder.gcore-api-key}

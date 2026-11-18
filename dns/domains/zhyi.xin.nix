@@ -328,12 +328,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "nav";
-      target = "tencent";
-      ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
       name = "netbox";
       target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";

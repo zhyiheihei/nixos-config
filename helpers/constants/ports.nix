@@ -35,6 +35,7 @@ rec {
     VictoriaLogs = 3100;
     SpiceProxy = 3128; # Proxmox VE SPICE web proxy
     Bitmagnet = 3333;
+    Stun = 3478;
     NFS.StatD = 4000;
     Asterisk.UDPTL.Start = 4000;
     NFS.LockD = 4001;
@@ -109,7 +110,10 @@ rec {
     WGMesh.Start = 10000;
     WGMesh.End = 10255;
     OllamaCpaHoneypot.OllamaListener = 11434;
+    LlamaSwapInference.Start = 13000;
+    LlamaSwapInference.End = 13099;
     NMEA = 13110;
+    MiniUPnP.HTTP = 13111;
     FlapAlerted.BGP = 13179;
     FlareSolverr = 13191;
     OpenVPN.GameAccel = 13194;
@@ -139,6 +143,7 @@ rec {
     Attic = 13803;
     qBitTorrent.WebUI = 13808;
     qBitTorrentPT.WebUI = 13809;
+    SakuraLLM = 13810;
     Metapi = 13811;
     HomepageDashboard = 13812;
     HandBrake = 13814;
@@ -157,7 +162,6 @@ rec {
     qBitTorrentSeedbox.WebUI = 13830;
     HubProxy = 13831;
     Ignis = 13832;
-    Navdash = 13833;
     LskyPro = 13835;
     Openlist = 13837;
     TaoSync = 13838;
@@ -176,9 +180,9 @@ rec {
     Ncps = 13851;
     IyuuPlus = 13878;
     LlamaSwap = 13880;
-    Strata = 13881;
     Actual = 13882;
     DLX = 13888;
+    GiteaActions.Cache = 13890;
     ElasticSearch = 13892;
     PiWeb = 13893;
     DN42Peerfinder = 13900;
@@ -193,7 +197,6 @@ rec {
     OllamaCpaHoneypot.Ollama = 13922;
     OllamaCpaHoneypot.Cpa = 13923;
     ADSB.RawOutput978 = 13978;
-    Asterisk.AudioSocket = 13980;
     Resin = 13995;
     Open5GS = 13999;
     DN42.LocalPort.Start = 20000;

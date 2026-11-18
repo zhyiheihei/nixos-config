@@ -48,7 +48,6 @@ let
     "memos"
     "mongodb"
     "mosquitto"
-    "navdash"
     "nextcloud-cron"
     "nextcloud-update-db"
     "nvidia-persistenced"
@@ -105,6 +104,7 @@ let
     "bird"
     "bzminer" # runs inside a podman container, which needs its own namespaces
     "clash-verge"
+    "coturn"
     "cups" # spawns driver-dependent printer filter binaries
     "email-oauth2-proxy"
     "fcgiwrap-nginx" # generic CGI wrapper on lab.zhyi.xin; runs arbitrary user scripts
@@ -133,7 +133,6 @@ let
     "memos"
     "mongodb"
     "mosquitto"
-    "navdash"
     "nextcloud-cron"
     "nextcloud-update-db"
     "oom-score-protect"

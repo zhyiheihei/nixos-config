@@ -1,7 +1,6 @@
 {
   LT,
   config,
-  inputs,
   ...
 }:
 {
@@ -36,7 +35,7 @@
     noIndex.enable = true;
   };
 
-  sops.secrets.frp-token.sopsFile = inputs.secrets + "/common/frp.yaml";
+  sops.secrets.frp-token.sopsFile = LT.secret "common/frp.yaml";
   sops.templates.frp-env.content = ''
     FRP_TOKEN=${config.sops.placeholder.frp-token}
   '';

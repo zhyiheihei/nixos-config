@@ -75,12 +75,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
-    never-gonna-rust = {
-      url = "github:xddxdd/never-gonna-rust";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.flake-parts.follows = "flake-parts";
-      inputs.rust-overlay.follows = "rust-overlay";
-    };
     nix-alien = {
       url = "github:thiagokokada/nix-alien";
       inputs.flake-compat.follows = "flake-compat";
@@ -107,6 +101,12 @@
       url = "github:xddxdd/nix-math";
       inputs.flake-parts.follows = "flake-parts";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nix-tree-rs = {
+      url = "github:Mic92/nix-tree-rs";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.treefmt-nix.follows = "treefmt-nix";
     };
     nixcord = {
       url = "github:kaylorben/nixcord";
@@ -194,12 +194,6 @@
     umbriel = {
       url = "github:noctalia-dev/umbriel/main";
       inputs.nixpkgs.follows = "nixpkgs";
-    };
-    venus-mainline = {
-      url = "github:zhyiheihei/venus-mainline";
-      inputs.flake-parts.follows = "flake-parts";
-      inputs.nixpkgs.follows = "nixpkgs";
-      inputs.systems.follows = "systems";
     };
     zhyi-packages = {
       url = "github:zhyiheihei/zhyi-packages";

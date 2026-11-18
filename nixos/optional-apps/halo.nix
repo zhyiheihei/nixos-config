@@ -1,7 +1,6 @@
 {
   LT,
   config,
-  inputs,
   lib,
   pkgs,
   ...
@@ -10,7 +9,7 @@
   imports = [ ./mysql.nix ];
 
   sops.secrets.halo-mysql-password = {
-    sopsFile = inputs.secrets + "/common/personal-apps.yaml";
+    sopsFile = LT.secret "common/personal-apps.yaml";
     key = "HALO_MYSQL_PASSWORD";
   };
 

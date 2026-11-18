@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   lib,
   LT,
   pkgs,
@@ -26,7 +25,7 @@ in
 {
   sops.secrets = {
     v2ray-key = {
-      sopsFile = inputs.secrets + "/common/v2ray.yaml";
+      sopsFile = LT.secret "common/v2ray.yaml";
     };
   };
 

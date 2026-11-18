@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   lib,
   LT,
   pkgs,
@@ -202,13 +201,14 @@ in
     ../../nixos/optional-apps/one-kvm.nix
     ../../nixos/optional-apps/redroid-rk3588.nix
     ../../nixos/optional-apps/sftp-server.nix
+    ../../nixos/optional-apps/stun.nix
     ../../nixos/optional-apps/syncthing
     ../../nixos/optional-apps/webdav.nix
     ../../nixos/optional-apps/ws-scrcpy.nix
   ];
 
   sops.secrets = lib.genAttrs [ "v2ray-key" ] (_: {
-    sopsFile = inputs.secrets + "/common/v2ray.yaml";
+    sopsFile = LT.secret "common/v2ray.yaml";
     owner = "v2ray";
     group = "v2ray";
   });
@@ -282,7 +282,6 @@ in
 
   nix.settings.connect-timeout = lib.mkForce 15;
 
-  nix.settings.extra-platforms = lib.mkForce [ ];
   nix.buildMachines =
     let
       mk = n: maxJobs: features: {
@@ -473,7 +472,10 @@ in
       };
       hid.backend = "otg";
 
-      stream.mode = "mjpeg";
+      stream = {
+        mode = "webrtc";
+        stun_server = "stun:${LT.this.ltnet.IPv4}:${LT.portStr.Stun}";
+      };
     };
   };
 

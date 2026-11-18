@@ -32,6 +32,7 @@ in
           "mbedtls-3.6.1-unstable-2025-08-11"
           "olm-3.2.16"
           "pnpm-10.29.2"
+          "python3.14-python-jose-3.5.0"
           "ventoy-1.1.18"
           # keep-sorted end
         ];
@@ -62,6 +63,17 @@ in
           inherit permittedInsecurePackages overlays;
           settings = settings // {
             cudaSupport = true;
+          };
+        };
+        pkgsCudaPascal = {
+          sourceInput = inputs.nixpkgs;
+          patches = LT.ls ../patches/nixpkgs;
+          inherit permittedInsecurePackages;
+          # Must come first: the NUR overlays instantiate their packages against
+          # `super`, so only overlays placed before them are visible there.
+          overlays = [ (import ../nixos/hardware/nvidia/cuda-pascal.nix) ] ++ overlays;
+          settings = settings // {
+            cudaCapabilities = [ "6.1" ];
           };
         };
       };

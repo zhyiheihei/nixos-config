@@ -2,6 +2,13 @@
 final: prev:
 let
   sources = final.callPackage ../helpers/_sources/generated.nix { };
+  # nur-xddxdd wraps the Strata engine in a symlinkJoin, so the patch lands on the
+  # derivation it links and the wrapper is rebuilt around it.
+  strataUnwrapped = prev.nur-xddxdd.strata.unwrapped.overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      ../patches/strata-huihui-abliterated-download.patch
+    ];
+  });
 in
 rec {
   # keep-sorted start block=yes
@@ -12,10 +19,6 @@ rec {
       patches = (old.patches or [ ]) ++ [ ../patches/attic-client-nar-backpressure.patch ];
     }
   );
-  # 交叉编译 aarch64 时 aws-lc 的 go 代码生成器会用 build 平台的默认 GOARCH
-  # (amd64) 生成二进制、却用 host 的 aarch64-gcc 链接，报 "-m64 not recognized"，
-  # 导致所有需要系统 aws-lc 的 aarch64 包（rustic 等）编不出来。
-  # 生成器产物与目标架构无关，让它按 host 架构编译即可（构建机用 binfmt 执行）。
   aws-lc = prev.aws-lc.overrideAttrs (
     old:
     final.lib.optionalAttrs (prev.stdenv.buildPlatform != prev.stdenv.hostPlatform) {
@@ -31,13 +34,6 @@ rec {
   calibre = prev.calibre.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/calibre-page-count-shutdown.patch ];
   });
-  clickhouse-lts = prev.clickhouse-lts.overrideAttrs (old: {
-    # ld.lld -r from the LLVM 21.1.8 in the locked nixpkgs produces a broken
-    # combined object for the Rust workspace archives (over 0xffff sections,
-    # section symbols get st_shndx = SHN_UNDEF), and the final link then fails
-    # with "undefined symbol: ". The stripping is only a size optimization.
-    patches = (old.patches or [ ]) ++ [ ../patches/clickhouse-disable-rust-symbol-strip.patch ];
-  });
   colmena = prev.colmena.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [
       ../patches/colmena-combine-logs-same-node.patch
@@ -49,15 +45,11 @@ rec {
       ../patches/dex-glob-match-redirect-uri.patch
       ../patches/dex-skip-approval-screen.patch
     ];
-    vendorHash = "sha256-7T4svxdzKsSQup1Ls43bK+l/xMgxL4mmQQ7Ck3WoKRk=";
+    vendorHash = "sha256-UKNmTziBDj7gJBT6ON9ZpR9Bh5LBtdAdxA4e1uJIcg0=";
     doCheck = false;
   });
   filezilla = prev.filezilla.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/filezilla-override-pasv-ip-for-zero-ip.patch ];
-  });
-  flashrom = prev.flashrom.overrideAttrs (old: {
-    # Fix dangling stack-local chip pointer in tests, from https://github.com/NixOS/nixpkgs/issues/558302#issuecomment-5552862912
-    patches = (old.patches or [ ]) ++ [ ../patches/flashrom-fix-dangling-mock-chip-pointer.patch ];
   });
   handbrake = prev.handbrake.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.makeWrapper ];
@@ -69,7 +61,6 @@ rec {
     '';
   });
   hydra = prev.hydra.overrideAttrs (old: {
-    # FIXME: disable failing checks
     doCheck = false;
     patches = (old.patches or [ ]) ++ [
       ../patches/hydra-protect-private-project.patch
@@ -110,6 +101,14 @@ rec {
     patches = (old.patches or [ ]) ++ [ ../patches/netavark-disable-conntrack.patch ];
     doCheck = false;
   });
+  nur-xddxdd = prev.nur-xddxdd // {
+    strata = prev.nur-xddxdd.strata.overrideAttrs (old: {
+      paths = [ strataUnwrapped ];
+      passthru = (old.passthru or { }) // {
+        unwrapped = strataUnwrapped;
+      };
+    });
+  };
   obs-studio-plugins = prev.obs-studio-plugins // {
     obs-noise = prev.obs-studio-plugins.obs-noise.overrideAttrs (old: {
       # GCC 15 diagnoses a discarded const qualifier and the OBS plugin helper
@@ -177,37 +176,14 @@ rec {
       ]);
   };
   rustic = prev.rustic.overrideAttrs (old: {
-    # nixpkgs' Cargo hook forbids building system libraries internally, but
-    # rustic's zstd-sys/aws-lc-sys need pkg-config to find them
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.pkg-config ];
     buildInputs = (old.buildInputs or [ ]) ++ [
       final.zstd
       final.aws-lc
     ];
-    # Patch vendored rustic_core dependency
-    # Stop tree workers after receiver closes, from https://github.com/rustic-rs/rustic_core/pull/546
-    postPatch = (old.postPatch or "") + ''
-      patch -d "$cargoDepsCopy"/source-registry-0/rustic_core-* -p1 < ${../patches/rustic-core-stop-tree-workers-after-receiver-closes.patch}
-    '';
   });
   sonarr = prev.sonarr.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [ ../patches/sonarr-chinese-numbering.patch ];
-  });
-  ulauncher = prev.ulauncher.overrideAttrs (old: {
-    nativeBuildInputs = old.nativeBuildInputs ++ (with prev; [ gobject-introspection ]);
-
-    propagatedBuildInputs =
-      with prev.python3Packages;
-      old.propagatedBuildInputs
-      ++ [
-        # keep-sorted start
-        faker
-        fuzzywuzzy
-        pint
-        pytz
-        simpleeval
-        # keep-sorted end
-      ];
   });
   yt-dlp = prev.yt-dlp.overrideAttrs (old: {
     patches = (old.patches or [ ]) ++ [

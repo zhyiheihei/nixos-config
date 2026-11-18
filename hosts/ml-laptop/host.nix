@@ -1,11 +1,14 @@
 { tags, geo, ... }:
 {
   index = 118;
-  tags = with tags; [ client ];
+  tags = with tags; [
+    client
+    nix-builder
+  ];
   city = geo.cities."CN Ningbo";
   cpuThreads = 18;
 
-  vramGB = 22;
+  vramGB = 8;
   hostname = "ml-laptop.zhyi.xin";
   manualDeploy = true;
 

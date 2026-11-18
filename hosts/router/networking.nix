@@ -1,6 +1,5 @@
 {
   config,
-  inputs,
   lib,
   LT,
   pkgs,
@@ -61,7 +60,7 @@ let
 in
 {
   sops.secrets.pppoe-credentials = {
-    sopsFile = inputs.secrets + "/per-host/pppoe/router.yaml";
+    sopsFile = LT.secret "per-host/pppoe/router.yaml";
     mode = "0400";
     restartUnits = [ "pppd-wan.service" ];
   };
@@ -254,7 +253,7 @@ in
   environment.systemPackages = [ pkgs.iw ];
 
   sops.secrets.router-wifi-password = {
-    sopsFile = inputs.secrets + "/per-host/wifi/router.yaml";
+    sopsFile = LT.secret "per-host/wifi/router.yaml";
     key = "wifi-password";
     mode = "0400";
     restartUnits = [ "hostapd.service" ];

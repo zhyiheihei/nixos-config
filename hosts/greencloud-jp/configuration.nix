@@ -157,7 +157,7 @@ in
   };
 
   sops.secrets.vaults3-atticd = {
-    sopsFile = inputs.secrets + "/common/attic.yaml";
+    sopsFile = LT.secret "common/attic.yaml";
     owner = "atticd";
     group = "atticd";
   };

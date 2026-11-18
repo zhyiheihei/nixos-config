@@ -12,38 +12,6 @@ let
   myKernelPackageFor =
     kernel:
     let
-      # ccacheKernelStdenv = let
-      #   newStdenv = pkgs.overrideCC kernel.stdenv (pkgs.ccacheWrapper.override {
-      #     inherit (kernel.stdenv) cc;
-      #   });
-      #   mkCCachePlatform = platform:
-      #     platform
-      #     // {
-      #       linux-kernel =
-      #         platform.linux-kernel
-      #         // {
-      #           makeFlags =
-      #             (platform.linux-kernel.makeFlags or [])
-      #             ++ [
-      #               "CC=${lib.getExe' newStdenv.cc "cc"}"
-      #               "HOSTCC=${lib.getExe' newStdenv.cc "cc"}"
-      #               "HOSTCXX=${lib.getExe' newStdenv.cc "c"}++"
-      #             ];
-      #         };
-      #     };
-      # in
-      #   newStdenv.override {
-      #     hostPlatform = mkCCachePlatform newStdenv.hostPlatform;
-      #     buildPlatform = mkCCachePlatform newStdenv.buildPlatform;
-      #   };
-      # ccacheKernel = kernel.override {
-      #   stdenv = ccacheKernelStdenv;
-      #   buildPackages =
-      #     pkgs.buildPackages
-      #     // {
-      #       stdenv = ccacheKernelStdenv;
-      #     };
-      # };
       kernelPackages = pkgs.linuxKernel.packagesFor kernel;
 
       llvmOverride =
@@ -78,9 +46,7 @@ let
               patched = p.overrideAttrs (old: {
                 buildInputs = (old.buildInputs or [ ]) ++ (with pkgs; [ llvmPackages.libunwind ]);
 
-                # Somehow fixup phase is ran twice
                 postFixup = (old.postFixup or "") + ''
-                  # Skip patching if latest patch is not available
                   SED_ENCODE=$(cat "${LT.sources.nvidia-patch.src}/patch.sh" \
                     | grep '"${old.version}"' \
                     | head -n1 \
@@ -131,8 +97,6 @@ let
     lib.foldr (a: a)
       (kernelPackages.extend (
         final: prev: {
-          # Custom kernel packages
-          # keep-sorted start block=yes
           acpi-ec = pkgs.nur-xddxdd.acpi-ec.override { inherit (final) kernel; };
           cryptodev = pkgs.nur-xddxdd.cryptodev-unstable.override { inherit (final) kernel; };
           crystalhd = pkgs.nur-xddxdd.crystalhd.override { inherit (final) kernel; };
@@ -147,7 +111,6 @@ let
           r8168 = pkgs.nur-xddxdd.r8168.override { inherit (final) kernel; };
           xdma = pkgs.nur-xddxdd.xdma.override { inherit (final) kernel; };
           xt_rtpengine = pkgs.nur-xddxdd.xt_rtpengine.override { inherit (final) kernel; };
-          # keep-sorted end
 
           nvidia_x11_grid_16_14 = pkgs.nur-xddxdd.nvidia-grid.grid."16_14".override {
             inherit (final) kernel;
@@ -197,7 +160,6 @@ in
       };
 
       kernel.sysctl = {
-        # https://wiki.archlinux.org/title/Security#Kernel_hardening
         "kernel.dmesg_restrict" = 1;
         "kernel.kptr_restrict" = 1;
         "net.core.bpf_jit_harden" = 1;
@@ -205,13 +167,10 @@ in
         "kernel.yama.ptrace_scope" = 1;
         "kernel.kexec_load_disabled" = 1;
 
-        # Other optimizations
         "kernel.nmi_watchdog" = 0;
 
-        # https://askubuntu.com/a/402940/1038244
         "vm.oom_kill_allocating_task" = 1;
 
-        # https://github.com/NixOS/nixpkgs/pull/268121/files
         "vm.watermark_boost_factor" = 0;
         "vm.watermark_scale_factor" = 125;
         "vm.swappiness" =
@@ -253,27 +212,25 @@ in
       })
       (pkgs.writeTextFile {
         name = "cachyos-ioschedulers-udev-rules";
-        text = ''
-          # HDD
-          ACTION=="add|change", KERNEL=="sd[a-z]*", ATTR{queue/rotational}=="1", \
-              ATTR{queue/scheduler}="bfq"
+        text =
+          let
+            ssdScheduler = if pkgs.stdenv.hostPlatform.isx86_64 then "adios" else "mq-deadline";
+          in
+          ''
+            ACTION=="add|change", KERNEL=="sd[a-z]*", ATTR{queue/rotational}=="1", \
+                ATTR{queue/scheduler}="bfq"
 
-          # SSD
-          ACTION=="add|change", KERNEL=="sd[a-z]*|mmcblk[0-9]*", ATTR{queue/rotational}=="0", \
-              ATTR{queue/scheduler}="adios"
+            ACTION=="add|change", KERNEL=="sd[a-z]*|mmcblk[0-9]*", ATTR{queue/rotational}=="0", \
+                ATTR{queue/scheduler}="${ssdScheduler}"
 
-          # NVMe SSD
-          ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/rotational}=="0", \
-              ATTR{queue/scheduler}="adios"
-        '';
+            ACTION=="add|change", KERNEL=="nvme[0-9]*", ATTR{queue/rotational}=="0", \
+                ATTR{queue/scheduler}="${ssdScheduler}"
+          '';
         destination = "/etc/udev/rules.d/60-ioschedulers.rules";
       })
     ];
 
     systemd.services.systemd-sysctl = {
-      # Only use with envfs
-      # after = ["bin.mount"];
-      # requires = ["bin.mount"];
       serviceConfig = {
         RestartSec = "5s";
         Restart = "on-failure";

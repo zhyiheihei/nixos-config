@@ -1,4 +1,9 @@
-{ inputs, lib, ... }:
+{
+  inputs,
+  lib,
+  LT,
+  ...
+}:
 {
   imports = [
     ../../nixos/server.nix
@@ -36,4 +41,14 @@
   lantian.nginxVhosts."tencent-cn.zhyi.xin".sslCertificate = "lets-encrypt-zhyi.xin";
 
   lantian.nginxVhosts."bitwarden.zhyi.xin".accessibleBy = lib.mkForce "public";
+
+  lantian.firewall.chains.NAT_PREROUTING.rules = [
+    {
+      priority = LT.firewallPriorities.early;
+      text = ''
+        iifname "eth*" udp dport ${LT.portStr.DNS} return
+        iifname "eth*" tcp dport ${LT.portStr.DNS} return
+      '';
+    }
+  ];
 }

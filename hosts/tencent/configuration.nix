@@ -13,7 +13,6 @@
     (inputs.secrets + "/mihoyo-bbs.nix")
     ../../nixos/optional-apps/grafana.nix
     ../../nixos/optional-apps/hubproxy.nix
-    ../../nixos/optional-apps/navdash.nix
     ../../nixos/optional-apps/prometheus
     # ../../nixos/optional-apps/searxng.nix
     # ../../nixos/optional-apps/clawemail.nix
@@ -30,8 +29,6 @@
   lantian.hubproxy.enable = true;
 
   lantian.lskyPro.enable = true;
-
-  lantian.navdash.enable = true;
 
   lantian.nginxVhosts."prometheus.tencent.zhyi.xin" = {
     locations."/" = {

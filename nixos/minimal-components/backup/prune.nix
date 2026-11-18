@@ -8,11 +8,22 @@
 let
   # 与 backup.nix 同款交叉编译 rustic（见该文件注释）
   rustic =
+    let
+      crossPkgs = self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
+    in
     if pkgs.stdenv.hostPlatform.isAarch64 then
-      self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform.rustic.overrideAttrs
-        (old: {
-          requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
-        })
+      crossPkgs.rustic.overrideAttrs (old: {
+        requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+        buildInputs = lib.filter (p: (p.pname or "") != "aws-lc") (old.buildInputs or [ ]);
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
+          crossPkgs.buildPackages.cmake
+          crossPkgs.buildPackages.perl
+          crossPkgs.buildPackages.go
+        ];
+        preBuild = (old.preBuild or "") + ''
+          unset AWS_LC_SYS_USE_SYSTEM
+        '';
+      })
     else
       pkgs.rustic;
 

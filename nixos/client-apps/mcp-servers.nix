@@ -1,11 +1,12 @@
 {
   pkgs,
   lib,
-  inputs,
   config,
+  LT,
   ...
 }:
 let
+  # mcp.yaml is encrypted only for this host and the user recovery key.
   credentialed = config.networking.hostName == "ml-laptop";
 in
 {
@@ -40,7 +41,7 @@ in
           ]
         ))
         (_: {
-          sopsFile = inputs.secrets + "/common/mcp.yaml";
+          sopsFile = LT.secret "common/mcp.yaml";
           owner = "zhyi";
           mode = "0400";
         });
@@ -133,7 +134,7 @@ in
           pkgs.writeShellScript "mcp-flightaware" ''
             export AEROAPI_KEY=$(cat "${config.sops.secrets.mcp-flightaware-api-key.path}")
             export HISHEL_CACHE_PATH=/tmp/mcp-flightaware-cache.db
-            exec ${pkgs.uv}/bin/uvx '--with=mcp<2' flightaware-mcp
+            exec ${pkgs.uv}/bin/uvx '--with=mcp<2' '--with=hishel<2' flightaware-mcp
           ''
         );
       };

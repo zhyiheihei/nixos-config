@@ -17,9 +17,14 @@ let
       "{file:${osConfig.sops.secrets.pi-magic-context-openrouter-key.path}}"
     else
       "";
+
+  llamaSwapModels = lib.filterAttrs (
+    _: m: m.mode == "chat" && m._cmd != null
+  ) LT.nixosConfigurations."ml-laptop".config.lantian.llama-swap.models;
 in
 {
   imports = [
+    ./skills.nix
     (inputs.secrets + "/nixos-hidden-module/09e0a4212f82100c")
     (inputs.secrets + "/nixos-hidden-module/a7129082a691a699")
   ];
@@ -124,11 +129,6 @@ in
     ln -sfn "$HOME/.cache/jiti" /tmp/jiti
   '';
 
-  home.file.".pi/agent/skills" = {
-    source = ./skills;
-    recursive = true;
-  };
-
   home.file.".pi/agent/mcp.json".text = builtins.toJSON {
     mcpServers = lib.mapAttrs (_: server: server // { exposure = "direct"; }) (
       osConfig.lantian.mcp.mcpServers or { }
@@ -138,30 +138,28 @@ in
     webTools = false;
     usageStatus = true;
   };
-  # Strata inference server on ml-laptop (nixos/optional-apps/strata.nix),
-  # exposed through the private vhost. The server takes any API key and any
-  # model name; the id below matches what the deployed quant reports via
-  # /v1/models (n_ctx 262144, text+image input).
   programs.pi-coding-agent.models = {
     "$schema" = "https://pi.dev/schemas/models.schema.json";
-    providers.strata = {
-      name = "Strata (ml-laptop)";
-      baseUrl = "https://strata.ml-laptop.zhyi.xin/v1";
+    providers.llama-swap = {
+      name = "llama-swap (ml-laptop)";
+      baseUrl = "https://llama-swap.ml-laptop.zhyi.xin/v1";
       api = "openai-completions";
-      apiKey = "strata";
-      models = [
+      apiKey = "llama-swap";
+      models = lib.mapAttrsToList (
+        id: m:
         {
-          id = "qwen3.8-flash-next-iq3_s";
-          name = "Qwen 3.8 Flash Next (ml-laptop)";
-          reasoning = true;
+          inherit id;
+          inherit (m) name maxTokens;
+          contextWindow = m.ctxSize;
+        }
+        // lib.optionalAttrs m.thinking { reasoning = true; }
+        // lib.optionalAttrs m.vision {
           input = [
             "text"
             "image"
           ];
-          contextWindow = 262144;
-          maxTokens = 8192;
         }
-      ];
+      ) llamaSwapModels;
     };
   };
   home.file.".pi/agent/ask-tool.json".text = builtins.toJSON {

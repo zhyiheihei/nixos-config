@@ -1,4 +1,7 @@
-{ ... }:
+{
+  LT,
+  ...
+}:
 {
   imports = [
     ../../nixos/server.nix
@@ -12,4 +15,14 @@
     matchConfig.Name = "eth0";
     networkConfig.DHCP = "ipv4";
   };
+
+  lantian.firewall.chains.NAT_PREROUTING.rules = [
+    {
+      priority = LT.firewallPriorities.early;
+      text = ''
+        iifname "eth*" udp dport ${LT.portStr.DNS} return
+        iifname "eth*" tcp dport ${LT.portStr.DNS} return
+      '';
+    }
+  ];
 }

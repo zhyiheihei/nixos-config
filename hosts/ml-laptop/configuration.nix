@@ -3,7 +3,6 @@
   lib,
   LT,
   pkgs,
-  inputs,
   ...
 }:
 {
@@ -20,14 +19,13 @@
     ../../nixos/optional-apps/homepage.nix
     ../../nixos/optional-apps/libvirt
     ../../nixos/optional-apps/llama-cpp.nix
-    ../../nixos/optional-apps/llama-swap.nix
+    ../../nixos/optional-apps/llama-swap
     ../../nixos/optional-apps/netns-tnl-buyvm.nix
     ../../nixos/optional-apps/nix-distributed.nix
     ../../nixos/optional-apps/obs-studio.nix
     ../../nixos/optional-apps/opencl.nix
     ../../nixos/optional-apps/pi-secrets.nix
     ../../nixos/optional-apps/pi-web.nix
-    ../../nixos/optional-apps/strata.nix
     # ../../nixos/optional-apps/pipewire-noise-cancelling.nix
     # ../../nixos/optional-apps/qdrant.nix
     ../../nixos/optional-apps/samba.nix
@@ -46,7 +44,7 @@
   ];
 
   sops.secrets.pi-ai-api-key = {
-    sopsFile = inputs.secrets + "/ai-api.yaml";
+    sopsFile = LT.secret "ai-api.yaml";
     key = "ai-api-key";
     owner = "zhyi";
     group = "users";
@@ -56,7 +54,7 @@
   # attic 上传 token（与 greencloud-jp 的 atticd 共用 secrets 仓 common/attic.yaml）。
   # 落盘方式照上游 hydra 模块：LoadCredential 传 token + attic login 写用户配置，
   # 于是轮换只需更新 secrets 仓并重新部署，不再手改 ~/.config/attic/config.toml。
-  sops.secrets.attic-upload-key.sopsFile = inputs.secrets + "/common/attic.yaml";
+  sops.secrets.attic-upload-key.sopsFile = LT.secret "common/attic.yaml";
 
   systemd.services.attic-client-login = {
     description = "Log in the attic client to the zhyi binary cache";
@@ -79,7 +77,6 @@
     lab.locations."/".enableOAuth = true;
     llama-swap.locations."/".enableOAuth = true;
     pi.locations."/".enableOAuth = true;
-    strata.locations."/".enableOAuth = true;
   };
 
   lantian.backup = {
@@ -126,9 +123,6 @@
   ];
 
   environment.systemPackages = with pkgs; [ openvino ];
-
-  lantian.strata.model = "IQ2_XS";
-  systemd.services.strata.wantedBy = lib.mkForce [ ];
 
   services.samba.settings = {
     "zhyi" = {
@@ -266,9 +260,9 @@
     max-jobs = 2;
     # cores = lib.mkForce 4;
     connect-timeout = lib.mkForce 60;
-    # 本机没有 aarch64 binfmt，声明 extra-platforms 只会让本地抢走 aarch64
-    # 构建并以 Exec format error 失败；留空使这类 drv 派给 opi5p。
-    extra-platforms = lib.mkForce [ ];
+    trusted-substituters = lib.mkForce (
+      lib.remove "https://cache.zhyi.xin/zhyi" LT.constants.nix.substituters
+    );
   };
 
   services.scx-loader.enable = lib.mkForce false;

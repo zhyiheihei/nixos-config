@@ -3,7 +3,6 @@
   self,
   lib,
   config,
-  inputs,
   LT,
   ...
 }:
@@ -17,11 +16,25 @@ let
   # 反复触发 memory pressure 断链；requiredSystemFeatures 路由到 ml-builder
   # 的 aarch64-cross 车道。x86 目标保持原生包。
   rustic =
+    let
+      crossPkgs = self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform;
+    in
     if pkgs.stdenv.hostPlatform.isAarch64 then
-      self.allSystems.x86_64-linux._module.args.pkgs.pkgsCross.aarch64-multiplatform.rustic.overrideAttrs
-        (old: {
-          requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
-        })
+      crossPkgs.rustic.overrideAttrs (old: {
+        requiredSystemFeatures = (old.requiredSystemFeatures or [ ]) ++ [ "aarch64-cross" ];
+        # 交叉 aws-lc 的 dev 输出里 share/rust/aws_lc_bindings.rs 是 0 字节，
+        # 系统库模式必然编不过；改由 crate 自建 AWS-LC（cargo-setup-hook 默认
+        # 打开系统库模式，需要在 preBuild 里关掉）。
+        buildInputs = lib.filter (p: (p.pname or "") != "aws-lc") (old.buildInputs or [ ]);
+        nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
+          crossPkgs.buildPackages.cmake
+          crossPkgs.buildPackages.perl
+          crossPkgs.buildPackages.go
+        ];
+        preBuild = (old.preBuild or "") + ''
+          unset AWS_LC_SYS_USE_SYSTEM
+        '';
+      })
     else
       pkgs.rustic;
 
@@ -90,8 +103,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    sops.secrets.restic-pw.sopsFile = inputs.secrets + "/common/restic.yaml";
-    sops.secrets.sftp-privkey.sopsFile = inputs.secrets + "/common/sftp.yaml";
+    sops.secrets.restic-pw.sopsFile = LT.secret "common/restic.yaml";
+    sops.secrets.sftp-privkey.sopsFile = LT.secret "common/sftp.yaml";
 
     environment.systemPackages = resticCommands ++ [ rustic ];
 

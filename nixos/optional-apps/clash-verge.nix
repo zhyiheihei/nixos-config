@@ -15,6 +15,7 @@ let
   # LTNET / dn42 豁免规则。只保留订阅（ACL4SSR 全量模板）里没有的条目：
   # RFC1918/loopback/CGNAT/链路本地等私网直连订阅已自带，不再重复前置。
   ltnetRules = [
+    "DOMAIN,cache.zhyi.xin,🔰 节点选择"
     "DOMAIN-SUFFIX,zhyi.xin,DIRECT"
     "DOMAIN-SUFFIX,zhyi.dn42,DIRECT"
     "PROCESS-NAME,zerotier-one,DIRECT"

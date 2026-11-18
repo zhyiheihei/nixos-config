@@ -59,15 +59,15 @@ in
 
     sops.secrets = {
       lsky-vaults3-access-key = {
-        sopsFile = inputs.secrets + "/lsky.yaml";
+        sopsFile = LT.secret "lsky.yaml";
         mode = "0400";
       };
       lsky-vaults3-secret-key = {
-        sopsFile = inputs.secrets + "/lsky.yaml";
+        sopsFile = LT.secret "lsky.yaml";
         mode = "0400";
       };
       lsky-license-key = {
-        sopsFile = inputs.secrets + "/lsky.yaml";
+        sopsFile = LT.secret "lsky.yaml";
         mode = "0400";
       };
     };

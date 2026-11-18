@@ -6,6 +6,20 @@
   dockerTools,
 }:
 {
+  anthropic-skills = {
+    pname = "anthropic-skills";
+    version = "e4bb5d960d87126ff3b3a8af1a104b7db67560ba";
+    src = fetchgit {
+      url = "https://github.com/anthropics/skills.git";
+      rev = "e4bb5d960d87126ff3b3a8af1a104b7db67560ba";
+      fetchSubmodules = false;
+      deepClone = false;
+      leaveDotGit = false;
+      sparseCheckout = [ ];
+      sha256 = "sha256-Gr9LatjawHHK9uKpoclWoiDHZ0NTpP3/4Pmeatl8p/Q=";
+    };
+    date = "2026-11-16";
+  };
   anti-fooling-hot-line = {
     pname = "anti-fooling-hot-line";
     version = "02c8e86c20b8011ffe535a016e61287f3989164c";
@@ -30,10 +44,10 @@
   };
   delegacy-rpz = {
     pname = "delegacy-rpz";
-    version = "2026110900";
+    version = "2026111400";
     src = fetchurl {
-      url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026110900/rpz.delegacy.monostack.org.zone";
-      sha256 = "sha256-Gbc+BWqVke5nOYnQGUlJy5AAwrysOEdCQKUBLJsibbg=";
+      url = "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026111400/rpz.delegacy.monostack.org.zone";
+      sha256 = "sha256-mNb3fIAf2Jq7vXXn9RyOvYR53yc3sdE0oiRoPc3mEX4=";
     };
   };
   dn42-certificate-authority-client = {
@@ -84,43 +98,54 @@
   };
   ip-please = {
     pname = "ip-please";
-    version = "5b6337c077ba24f6b252e522ed4ce8e3a0c0c661";
+    version = "651c8e63f75ec0584c016a928c4d17043d30e3f3";
     src = fetchFromGitHub {
       owner = "ip-please";
       repo = "ip-please.github.io";
-      rev = "5b6337c077ba24f6b252e522ed4ce8e3a0c0c661";
+      rev = "651c8e63f75ec0584c016a928c4d17043d30e3f3";
       fetchSubmodules = false;
-      sha256 = "sha256-alnd3wIbiDGukKoEUYHRi/wjx5v+vtcYS6QQwktqZF8=";
+      sha256 = "sha256-ytXtjYy3sAuzKer5WzXc39icO9ptm9zmcU6uo6JxAvg=";
     };
-    date = "2026-10-23";
+    date = "2026-11-13";
   };
   iyuuplus = {
     pname = "iyuuplus";
-    version = "dd81c2bf3f54d080ec378f2cec7f936471f7e35d";
+    version = "6610e577604eecdd5d6bc15af6c5087045eb800c";
     src = fetchgit {
       url = "https://github.com/ledccn/iyuuplus-dev.git";
-      rev = "dd81c2bf3f54d080ec378f2cec7f936471f7e35d";
+      rev = "6610e577604eecdd5d6bc15af6c5087045eb800c";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-CqJbzs1Y8nKHSVOIM+HAKzMz3/A6AKB2ztIB6/iTwI8=";
+      sha256 = "sha256-ZoKAPMfGOuVKJHZg0LhA5lQnj0d03J+HM3J15l/0stA=";
     };
-    date = "2026-08-26";
+    date = "2026-11-16";
   };
   lobe-icons = {
     pname = "lobe-icons";
-    version = "ea434b96e75813517b377825e01c0df61dee8836";
+    version = "34270bc208d7122778dc00b30bd460f97ea03216";
     src = fetchgit {
       url = "https://github.com/lobehub/lobe-icons.git";
-      rev = "ea434b96e75813517b377825e01c0df61dee8836";
+      rev = "34270bc208d7122778dc00b30bd460f97ea03216";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-g7pLjEC5QEEFk5blwIDzDozqo8LircUdbsfoHyPeWDs=";
+      sha256 = "sha256-JE6MU0LOtctuRin+/qZyg6Og1SxhWXxGznsnPquKm0U=";
     };
-    date = "2026-11-03";
+    date = "2026-11-16";
+  };
+  mattpocock-skills = {
+    pname = "mattpocock-skills";
+    version = "v1.3.2";
+    src = fetchFromGitHub {
+      owner = "mattpocock";
+      repo = "skills";
+      rev = "v1.3.2";
+      fetchSubmodules = false;
+      sha256 = "sha256-ej0ATi0BWaAx+83dBwgCQxr9J2L2qEwKhUIeIRJ03Go=";
+    };
   };
   mihoyo-bbs-tools = {
     pname = "mihoyo-bbs-tools";
@@ -160,43 +185,43 @@
   };
   noctalia-community-plugins = {
     pname = "noctalia-community-plugins";
-    version = "707ff54da41b7e5734e269d0dc0eab37666aa0f6";
+    version = "6036d2d668d5b43c9f1121256935aa86fda1929b";
     src = fetchgit {
       url = "https://github.com/noctalia-dev/community-plugins.git";
-      rev = "707ff54da41b7e5734e269d0dc0eab37666aa0f6";
+      rev = "6036d2d668d5b43c9f1121256935aa86fda1929b";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-1VxiBlBaxOPlW+q0C2mIx54FdgWpkxfbVosmsHZJaCs=";
+      sha256 = "sha256-wMLXGYGKOYtk/Lr80S5mSnPx/B+C5aoSzPI1Jbe35uA=";
     };
-    date = "2026-11-12";
+    date = "2026-11-16";
   };
   noctalia-official-plugins = {
     pname = "noctalia-official-plugins";
-    version = "7ae96a6f434768f2664be93fdaba4bc603156277";
+    version = "5dc1d19b1aa6be331ee6506034dc8448aca5c446";
     src = fetchgit {
       url = "https://github.com/noctalia-dev/official-plugins.git";
-      rev = "7ae96a6f434768f2664be93fdaba4bc603156277";
+      rev = "5dc1d19b1aa6be331ee6506034dc8448aca5c446";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-0bPs7KXGPcFL9VsAgkf1PVxHE0kGAmB37YXY/BPhk2Y=";
+      sha256 = "sha256-JQDsY3fmpL57cqG1aCcLJablwTfcwIIJ44BtXj/sowE=";
     };
-    date = "2026-11-11";
+    date = "2026-11-13";
   };
   nvidia-patch = {
     pname = "nvidia-patch";
-    version = "620c4aa29cbff9ea32a0b1e29dad60eb62b9dba5";
+    version = "7f30a61d159fa4c9644a7bf9d71a679c07062f5f";
     src = fetchFromGitHub {
       owner = "keylase";
       repo = "nvidia-patch";
-      rev = "620c4aa29cbff9ea32a0b1e29dad60eb62b9dba5";
+      rev = "7f30a61d159fa4c9644a7bf9d71a679c07062f5f";
       fetchSubmodules = false;
-      sha256 = "sha256-tZAXQQ+9C94wV/1FVx+lVDDtJm/buphdhysJlw5GSrA=";
+      sha256 = "sha256-lyD4TqgaWE0YwfauX7o8PdxVxQmai4LBckqXopN+m8s=";
     };
-    date = "2026-11-08";
+    date = "2026-11-15";
   };
   open5gs = {
     pname = "open5gs";
@@ -233,18 +258,6 @@
     };
     date = "2026-04-22";
   };
-  sakura-share = {
-    pname = "sakura-share";
-    version = "042cc4aa4444e3f90618d977d0c6a2f5de471cdd";
-    src = fetchFromGitHub {
-      owner = "xddxdd";
-      repo = "Sakura_Launcher_GUI";
-      rev = "042cc4aa4444e3f90618d977d0c6a2f5de471cdd";
-      fetchSubmodules = false;
-      sha256 = "sha256-lKNej7INWs45HkCcdlDvqeY4d5f0eFNPgg540H5se1k=";
-    };
-    date = "2025-12-29";
-  };
   scam-dn42-miner = {
     pname = "scam-dn42-miner";
     version = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
@@ -273,183 +286,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "7228d14dc1b0ff04c63e4bae24ca9d605e32460b";
+    version = "4248a81f68f14a1a1fa3730714b99dcc238c12aa";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "7228d14dc1b0ff04c63e4bae24ca9d605e32460b";
+      rev = "4248a81f68f14a1a1fa3730714b99dcc238c12aa";
       fetchSubmodules = false;
-      sha256 = "sha256-n6bxIO82cfNfzG1G74kotXljCzfFoB/GtPH2p8vcVh0=";
+      sha256 = "sha256-TFzJ5WM7jB7i87PR3R4EFHr93VcrNIx/lChft3TDkhM=";
     };
-    date = "2026-11-09";
-  };
-  ulauncher-albert-calculate-anything = {
-    pname = "ulauncher-albert-calculate-anything";
-    version = "037965a44e6f6f496e7ad71ec1651b9edfcde32d";
-    src = fetchFromGitHub {
-      owner = "tchar";
-      repo = "ulauncher-albert-calculate-anything";
-      rev = "037965a44e6f6f496e7ad71ec1651b9edfcde32d";
-      fetchSubmodules = false;
-      sha256 = "sha256-RUxkStLxM8wg4a5yicoQCTjLxSEsb3HQwDSwrQicc2U=";
-    };
-    date = "2024-05-29";
-  };
-  ulauncher-chrome-profiles = {
-    pname = "ulauncher-chrome-profiles";
-    version = "486fead44fcd195abdc62d60569a5facfb433d70";
-    src = fetchFromGitHub {
-      owner = "FloydJohn";
-      repo = "ulauncher-chrome-profiles";
-      rev = "486fead44fcd195abdc62d60569a5facfb433d70";
-      fetchSubmodules = false;
-      sha256 = "sha256-ggUBTW8VxnGpTsnnir+CG6iQfJMx9qVMVUsx1oR8MpI=";
-    };
-    date = "2019-06-30";
-  };
-  ulauncher-colorconverter = {
-    pname = "ulauncher-colorconverter";
-    version = "2d5e2bc17e89f1f1dc561f73e68ea574e0be844a";
-    src = fetchFromGitHub {
-      owner = "sergius02";
-      repo = "ulauncher-colorconverter";
-      rev = "2d5e2bc17e89f1f1dc561f73e68ea574e0be844a";
-      fetchSubmodules = false;
-      sha256 = "sha256-UfRU7BpQUj26THzE8kYLIRUfe7voGvAcGDBTsl+yCwU=";
-    };
-    date = "2020-12-06";
-  };
-  ulauncher-emoji = {
-    pname = "ulauncher-emoji";
-    version = "3ea26a6c07195c9e954ca254133aa56b608e6e53";
-    src = fetchFromGitHub {
-      owner = "Ulauncher";
-      repo = "ulauncher-emoji";
-      rev = "3ea26a6c07195c9e954ca254133aa56b608e6e53";
-      fetchSubmodules = false;
-      sha256 = "sha256-AaO9qPkVTWlFSFg9wSEGqJrM34/yTAqFMRx6h7kUp/U=";
-    };
-    date = "2026-08-30";
-  };
-  ulauncher-extension-list = {
-    pname = "ulauncher-extension-list";
-    version = "27d65fae4abc036e37a09792c8244287017dbc73";
-    src = fetchFromGitHub {
-      owner = "ralcaidev";
-      repo = "ulauncher-extension-list";
-      rev = "27d65fae4abc036e37a09792c8244287017dbc73";
-      fetchSubmodules = false;
-      sha256 = "sha256-E0o9WYWSnxPivxbXm7d2ohFzDeiYZ1NfpERnxoP0gyQ=";
-    };
-    date = "2022-11-10";
-  };
-  ulauncher-faker = {
-    pname = "ulauncher-faker";
-    version = "58832c94acc671a9f603ea7fbf5d4405110bb902";
-    src = fetchFromGitHub {
-      owner = "brpaz";
-      repo = "ulauncher-faker";
-      rev = "58832c94acc671a9f603ea7fbf5d4405110bb902";
-      fetchSubmodules = false;
-      sha256 = "sha256-oFlgKVZYY33NJVn3mS5YmvMHaKot10IsfLTwTCrquVY=";
-    };
-    date = "2021-12-12";
-  };
-  ulauncher-firefox-launcher = {
-    pname = "ulauncher-firefox-launcher";
-    version = "1dc79cbaba76998b144881028bbe3567218d8836";
-    src = fetchFromGitHub {
-      owner = "freisatz";
-      repo = "ulauncher-firefox-launcher";
-      rev = "1dc79cbaba76998b144881028bbe3567218d8836";
-      fetchSubmodules = false;
-      sha256 = "sha256-fewsb8DdRshH6PTJW6dK/v7tTleL1lIrpZTsG/P75B8=";
-    };
-    date = "2025-04-13";
-  };
-  ulauncher-kill = {
-    pname = "ulauncher-kill";
-    version = "00ffe8266dbb6c2aea7d86a6363e51cec4b1981f";
-    src = fetchFromGitHub {
-      owner = "Ulauncher";
-      repo = "ulauncher-kill";
-      rev = "00ffe8266dbb6c2aea7d86a6363e51cec4b1981f";
-      fetchSubmodules = false;
-      sha256 = "sha256-37XvKa+aD7W9yHxXQng0gtW87YDIDybRQEX5Tw426QQ=";
-    };
-    date = "2022-11-26";
-  };
-  ulauncher-meme-my-text = {
-    pname = "ulauncher-meme-my-text";
-    version = "5d62830a7a92983a731e15645831f53d48dad913";
-    src = fetchFromGitHub {
-      owner = "RNairn01";
-      repo = "ulauncher-meme-my-text";
-      rev = "5d62830a7a92983a731e15645831f53d48dad913";
-      fetchSubmodules = false;
-      sha256 = "sha256-vIWIl2qOWYVrCLhGoDXH4xTfhc+GhE9cVFuV1qjYaH0=";
-    };
-    date = "2021-05-07";
-  };
-  ulauncher-pwgen = {
-    pname = "ulauncher-pwgen";
-    version = "96880bb135720cae1ad039b6635062a9e285ca71";
-    src = fetchFromGitHub {
-      owner = "brpaz";
-      repo = "ulauncher-pwgen";
-      rev = "96880bb135720cae1ad039b6635062a9e285ca71";
-      fetchSubmodules = false;
-      sha256 = "sha256-oqPXrMzOXHvbN1ZKZBr2PP+2liD76x71p6hLtLwXYOQ=";
-    };
-    date = "2021-12-12";
-  };
-  ulauncher-timestamp = {
-    pname = "ulauncher-timestamp";
-    version = "e366a81f92b8130dddc0b1bddecad253124c49b9";
-    src = fetchFromGitHub {
-      owner = "brpaz";
-      repo = "ulauncher-timestamp";
-      rev = "e366a81f92b8130dddc0b1bddecad253124c49b9";
-      fetchSubmodules = false;
-      sha256 = "sha256-os3mbadDRB1XicEgyEa74fLgeFtN9mb4+7Oqc54Tv2s=";
-    };
-    date = "2021-12-12";
-  };
-  ulauncher-timezone = {
-    pname = "ulauncher-timezone";
-    version = "9f0749d6ab1fcb99545dae75934b698e5ff975b6";
-    src = fetchFromGitHub {
-      owner = "Epholys";
-      repo = "ultz";
-      rev = "9f0749d6ab1fcb99545dae75934b698e5ff975b6";
-      fetchSubmodules = false;
-      sha256 = "sha256-p2ESZTkVKiKQp+Z3esGz6vlsXxUs3wJxXce14bLOCCE=";
-    };
-    date = "2021-05-12";
-  };
-  ulauncher-tldr = {
-    pname = "ulauncher-tldr";
-    version = "2e5904451bf89dfa155280dfb6fa3d45ed4cab4c";
-    src = fetchFromGitHub {
-      owner = "dhelmr";
-      repo = "ulauncher-tldr";
-      rev = "2e5904451bf89dfa155280dfb6fa3d45ed4cab4c";
-      fetchSubmodules = false;
-      sha256 = "sha256-B/17gbGFUar2+PVfVQWZc7Eq8zADK4CeGW3XHQMqiAg=";
-    };
-    date = "2023-07-29";
-  };
-  ulauncher-vscode-recent = {
-    pname = "ulauncher-vscode-recent";
-    version = "4d879f70b7399de6580ee7de7b9aa6a4b2eed7a7";
-    src = fetchFromGitHub {
-      owner = "MoveCloudROY";
-      repo = "ulauncher-vscode-recent";
-      rev = "4d879f70b7399de6580ee7de7b9aa6a4b2eed7a7";
-      fetchSubmodules = false;
-      sha256 = "sha256-QO+Rsx+SBwNwKN3NFmt8eIt5lkvQDHYlk0rY01cQxTY=";
-    };
-    date = "2026-05-12";
+    date = "2026-11-16";
   };
   um-react = {
     pname = "um-react";

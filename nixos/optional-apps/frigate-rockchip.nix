@@ -247,7 +247,7 @@ in
     sops.secrets = lib.mkMerge (
       lib.mapAttrsToList (name: _: {
         "frigate-${name}-pw" = {
-          sopsFile = inputs.secrets + "/frigate.yaml";
+          sopsFile = LT.secret "frigate.yaml";
           key = "${name}-pw";
           mode = "0444";
         };

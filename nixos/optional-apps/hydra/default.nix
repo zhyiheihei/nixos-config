@@ -2,7 +2,6 @@
   LT,
   lib,
   pkgs,
-  inputs,
   config,
   ...
 }:
@@ -51,25 +50,26 @@ in
     ../nix-distributed.nix
     ../postgresql.nix
     ./cancel-old-builds.nix
+    ./check-kernel-jobsets.nix
   ];
 
   sops.secrets.hydra-attic-push-token = {
-    sopsFile = inputs.secrets + "/hydra.yaml";
+    sopsFile = LT.secret "hydra.yaml";
     mode = "0440";
     owner = "hydra-queue-runner";
     group = "hydra";
   };
-  sops.secrets.hydra-script-password.sopsFile = inputs.secrets + "/hydra.yaml";
+  sops.secrets.hydra-script-password.sopsFile = LT.secret "hydra.yaml";
   # hydra-server runs as hydra-www, with primary group hydra.
   sops.secrets.dex-hydra-secret = {
-    sopsFile = inputs.secrets + "/dex/hydra.yaml";
+    sopsFile = LT.secret "dex/hydra.yaml";
     mode = "0440";
     owner = "hydra";
     group = "hydra";
   };
 
   sops.secrets.hydra-queue-runner-token = {
-    sopsFile = inputs.secrets + "/hydra.yaml";
+    sopsFile = LT.secret "hydra.yaml";
     mode = "0440";
     group = "hydra";
   };

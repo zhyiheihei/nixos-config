@@ -3,7 +3,6 @@
   config,
   pkgs,
   lib,
-  inputs,
   ...
 }:
 let
@@ -82,7 +81,7 @@ in
   imports = [ ./mysql.nix ];
 
   sops.secrets.iyuu-token = {
-    sopsFile = inputs.secrets + "/iyuu.yaml";
+    sopsFile = LT.secret "iyuu.yaml";
     owner = "iyuu";
     group = "iyuu";
   };
@@ -131,10 +130,19 @@ in
       ${pkgs.coreutils}/bin/rm -rf /var/lib/iyuu/.git
 
       # composer dependencies are mutable state, provisioned once and reused
-      # by later generations via the closure's vendor symlink
+      # by later generations via the closure's vendor symlink; the project
+      # root is the read-only closure, so the vendor path comes from the env
+      # and install scripts are skipped since the tree already ships its
+      # config/plugin files
       if [ ! -e /var/lib/iyuu/vendor/autoload.php ]; then
-        ${pkgs.php83Packages.composer}/bin/composer install \
-          --no-dev --no-interaction -d /var/lib/iyuu
+        # a stale vendor (partial install, or the old store symlink farm whose
+        # links resolve nowhere) breaks composer's own state files
+        rm -rf /var/lib/iyuu/vendor
+        mkdir -p /var/lib/iyuu/vendor /var/lib/iyuu/cache
+        COMPOSER_VENDOR_DIR=/var/lib/iyuu/vendor \
+        COMPOSER_CACHE_DIR=/var/lib/iyuu/cache \
+          ${pkgs.php83Packages.composer}/bin/composer install \
+          --no-dev --no-interaction --no-scripts -d ${iyuuplusClosure}
       fi
     '';
 
@@ -148,6 +156,8 @@ in
 
       Restart = "always";
       RestartSec = "5";
+      # the one-time composer provisioning exceeds the 90s default
+      TimeoutStartSec = "15min";
     };
   };
 

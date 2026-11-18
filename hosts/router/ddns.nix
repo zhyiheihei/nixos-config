@@ -1,7 +1,7 @@
 {
   pkgs,
+  LT,
   lib,
-  inputs,
   config,
   ...
 }:
@@ -10,7 +10,7 @@ let
 in
 {
   sops.secrets.ddns-gcore-env = {
-    sopsFile = inputs.secrets + "/lego.yaml";
+    sopsFile = LT.secret "lego.yaml";
     key = "lego-env";
   };
 

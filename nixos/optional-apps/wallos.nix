@@ -1,7 +1,6 @@
 {
   LT,
   config,
-  inputs,
   lib,
   ...
 }:
@@ -17,7 +16,7 @@
 
   config = lib.mkIf config.lantian.wallos.enable {
     sops.secrets.dex-wallos-secret = {
-      sopsFile = inputs.secrets + "/common/dex.yaml";
+      sopsFile = LT.secret "common/dex.yaml";
       owner = "root";
       group = "root";
     };

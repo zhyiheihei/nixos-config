@@ -1,7 +1,6 @@
 {
   LT,
   config,
-  inputs,
   lib,
   ...
 }:
@@ -15,22 +14,22 @@
   config = {
     sops.secrets = {
       dex-memos-secret = {
-        sopsFile = inputs.secrets + "/common/dex.yaml";
+        sopsFile = LT.secret "common/dex.yaml";
         key = "dex-memos-secret";
         mode = "0444";
       };
       memos-ai-api-key = {
-        sopsFile = inputs.secrets + "/ai-api.yaml";
+        sopsFile = LT.secret "ai-api.yaml";
         key = "ai-api-key";
         mode = "0444";
       };
       memos-s3-access-key = {
-        sopsFile = inputs.secrets + "/common/memos.yaml";
+        sopsFile = LT.secret "common/memos.yaml";
         key = "memos-s3-access-key";
         mode = "0444";
       };
       memos-s3-secret-key = {
-        sopsFile = inputs.secrets + "/common/memos.yaml";
+        sopsFile = LT.secret "common/memos.yaml";
         key = "memos-s3-secret-key";
         mode = "0444";
       };

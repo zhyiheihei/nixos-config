@@ -1,12 +1,12 @@
 {
   pkgs,
+  LT,
   config,
-  inputs,
   ...
 }:
 {
   sops.secrets.dex-nextcloud-secret = {
-    sopsFile = inputs.secrets + "/common/dex.yaml";
+    sopsFile = LT.secret "common/dex.yaml";
     owner = "nextcloud";
     group = "nextcloud";
   };

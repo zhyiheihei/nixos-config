@@ -1,7 +1,6 @@
 {
   LT,
   config,
-  inputs,
   lib,
   ...
 }:
@@ -15,11 +14,11 @@
   config = {
     sops.secrets = {
       metacubexd-clash-secret = {
-        sopsFile = inputs.secrets + "/common/personal-apps.yaml";
+        sopsFile = LT.secret "common/personal-apps.yaml";
         key = "METACUBEXD_CLASH_SECRET";
       };
       metacubexd-control-token = {
-        sopsFile = inputs.secrets + "/common/personal-apps.yaml";
+        sopsFile = LT.secret "common/personal-apps.yaml";
         key = "METACUBEXD_CONTROL_TOKEN";
       };
     };
