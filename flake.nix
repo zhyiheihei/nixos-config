@@ -18,6 +18,7 @@
     systems.url = "github:nix-systems/default";
 
     # keep-sorted start block=yes
+
     betterfox-nix = {
       url = "github:HeitorAugustoLN/betterfox-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -194,6 +195,12 @@
     umbriel = {
       url = "github:noctalia-dev/umbriel/main";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+    venus-mainline = {
+      url = "git+https://github.com/zhyiheihei/venus-mainline?ref=main";
+      inputs.flake-parts.follows = "flake-parts";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.systems.follows = "systems";
     };
     zhyi-packages = {
       url = "github:zhyiheihei/zhyi-packages";

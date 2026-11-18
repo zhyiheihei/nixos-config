@@ -1184,6 +1184,7 @@
         "systems": "systems_2",
         "treefmt-nix": "treefmt-nix_2",
         "umbriel": "umbriel",
+        "venus-mainline": "venus-mainline",
         "zhyi-packages": "zhyi-packages"
       }
     },
@@ -1510,6 +1511,33 @@
         "ref": "main",
         "repo": "umbriel",
         "type": "github"
+      }
+    },
+    "venus-mainline": {
+      "inputs": {
+        "flake-parts": [
+          "flake-parts"
+        ],
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": [
+          "systems"
+        ]
+      },
+      "locked": {
+        "lastModified": 1795011546,
+        "narHash": "sha256-hTyJS6M98Ugwle3rrHGDvuUVARkugSjI1QgMA8coJWo=",
+        "ref": "main",
+        "rev": "e6bdb99f2a03ec3fa179f44a821697cb5f0db70a",
+        "revCount": 121,
+        "type": "git",
+        "url": "https://github.com/zhyiheihei/venus-mainline"
+      },
+      "original": {
+        "ref": "main",
+        "type": "git",
+        "url": "https://github.com/zhyiheihei/venus-mainline"
       }
     },
     "xdg-desktop-portal-umbriel": {
