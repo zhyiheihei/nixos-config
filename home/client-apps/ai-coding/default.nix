@@ -60,7 +60,7 @@ in
       enableInstallTelemetry = false;
       enableAnalytics = false;
       defaultProvider = "cliproxyapi";
-      defaultModel = "zhyi/coding-fast";
+      defaultModel = "deepseek-v4.1-flash";
       defaultThinkingLevel = "high";
       showCacheMissNotices = false;
 
@@ -189,9 +189,9 @@ in
     enabled = true;
     auto_update = false;
     allow_home_project = true;
-    historian.pi.model = "cliproxyapi/zhyi/coding-fast";
-    dreamer.pi.model = "cliproxyapi/zhyi/coding-fast";
-    sidekick.model = "cliproxyapi/zhyi/coding-fast";
+    historian.pi.model = "cliproxyapi/deepseek-v4.1-flash";
+    dreamer.pi.model = "cliproxyapi/deepseek-v4.1-flash";
+    sidekick.model = "cliproxyapi/deepseek-v4.1-flash";
     embedding = {
       provider = "openai-compatible";
       model = "qwen/qwen3-embedding-8b";
