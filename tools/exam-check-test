@@ -602,5 +602,210 @@ class HostKeys(unittest.TestCase):
         self.assertEqual((unacked, stale), ([], ["firewalled"]))
 
 
+def dns_file(records, extra=""):
+    """拼一份最小 DNS 域名文件；records 为 (name, target) 或 (name, None) 表示无 target。"""
+    lines = ["{", "  records = ["]
+    for name, target in records:
+        lines += ["    {", '      recordType = "CNAME";', f'      name = "{name}";']
+        if target is not None:
+            lines.append(f'      target = "{target}";')
+        lines += ['      ttl = "1h";', "    }"]
+    lines += ["  ];", extra, "}", ""]
+    return "\n".join(lines).encode()
+
+
+class DnsRecordParse(unittest.TestCase):
+    """dns_records 只认自家风格的 recordType/name/target，不能跨记录串值。"""
+
+    def test_target_not_inherited_across_records(self):
+        raw = '\n'.join(
+            [
+                "{",
+                '  recordType = "CNAME";',
+                '  name = "no-target";',
+                '  ttl = "1h";',
+                "}",
+                "{",
+                '  recordType = "CNAME";',
+                '  name = "next";',
+                '  target = "colocrossing";',
+                "}",
+            ]
+        )
+        self.assertEqual(
+            M.dns_records(raw),
+            [("CNAME", "no-target", None), ("CNAME", "next", "colocrossing")],
+        )
+
+    def test_expression_name_and_target_are_unknown(self):
+        raw = '\n'.join(
+            [
+                "{",
+                '  recordType = "CNAME";',
+                '  name = "${dyn}";',
+                '  target = "colocrossing";',
+                "}",
+                "{",
+                '  recordType = "CNAME";',
+                '  name = "dav";',
+                '  target = "${homeDdnsTarget}";',
+                "}",
+            ]
+        )
+        views = M.dns_zone_views(raw)
+        self.assertEqual(views, {})
+
+
+class DnsViews(Base):
+    """DNS 视图审计：同一条记录公网/LTNET 是否跟随上游。fork 侧单域名文件 vs 上游多域名文件。"""
+
+    FORK = "dns/domains/zhyi.xin.nix"
+    UP = "dns/domains/xuyh0120.win.nix"
+    UP2 = "dns/domains/lantian.pub.nix"
+
+    def scenario(self, up, fork, up2=None, allow=()):
+        exam = {self.UP: dns_file(up)}
+        if up2 is not None:
+            exam[self.UP2] = dns_file(up2)
+        self.fx.scenario({}, exam, {self.FORK: dns_file(fork)}, allow=allow)
+
+    def report(self, strict=False):
+        return M.dns_view_report(M.load_allowlist(), strict)
+
+    def test_public_to_internal_flagged(self):
+        self.scenario([("ai-api", "colocrossing")], [("ai-api", "colocrossing.ltnet.zhyi.xin.")])
+        drift, known, stale = self.report()
+        self.assertEqual([d[0] for d in drift], [f"{self.FORK}#ai-api"])
+        self.assertEqual((drift[0][1], drift[0][2]), (["public"], ["internal"]))
+        self.assertEqual((known, stale), ([], []))
+
+    def test_internal_to_public_flagged(self):
+        self.scenario([("oidc-tester", "colocrossing.ltnet.xuyh0120.win.")], [("oidc-tester", "greencloud")])
+        drift, _, _ = self.report()
+        self.assertEqual([d[0] for d in drift], [f"{self.FORK}#oidc-tester"])
+        self.assertEqual((drift[0][1], drift[0][2]), (["internal"], ["public"]))
+
+    def test_same_view_different_host_clean(self):
+        self.scenario([("api", "colocrossing")], [("api", "greencloud")])
+        self.assertEqual(self.report()[0], [])
+
+    def test_ltnet_host_change_clean(self):
+        self.scenario([("cal", "colocrossing.ltnet.xuyh0120.win.")], [("cal", "greencloud.ltnet.zhyi.xin.")])
+        self.assertEqual(self.report()[0], [])
+
+    def test_interpolated_target_skipped(self):
+        self.scenario([("dav", "colocrossing")], [("dav", "${homeDdnsTarget}")])
+        self.assertEqual(self.report()[0], [])
+
+    def test_upstream_interpolated_skipped(self):
+        self.scenario([("dav", "${homeDdnsTarget}")], [("dav", "greencloud.ltnet.zhyi.xin.")])
+        self.assertEqual(self.report()[0], [])
+
+    def test_interpolated_name_skipped(self):
+        self.scenario([("${dyn}", "colocrossing")], [("${dyn}", "greencloud.ltnet.zhyi.xin.")])
+        self.assertEqual(self.report()[0], [])
+
+    def test_non_cname_ignored(self):
+        exam = {
+            self.UP: dns_file([("ai-api", "greencloud.ltnet.zhyi.xin.")],)
+        }
+        # 上游只有 A 记录（无 CNAME）时不参与视图比较
+        self.fx.scenario(
+            {},
+            {self.UP: b'{\n  records = [\n    {\n      recordType = "A";\n      name = "ai-api";\n      target = "colocrossing";\n    }\n  ];\n}\n'},
+            {self.FORK: dns_file([("ai-api", "greencloud.ltnet.zhyi.xin.")])},
+        )
+        self.assertEqual(self.report()[0], [])
+
+    def test_label_case_insensitive(self):
+        self.scenario([("AI-API", "colocrossing")], [("ai-api", "greencloud.ltnet.zhyi.xin.")])
+        drift, _, _ = self.report()
+        self.assertEqual([d[0] for d in drift], [f"{self.FORK}#ai-api"])
+
+    def test_ltnet_substring_not_confused(self):
+        # 只有 ".ltnet." 才算内网视图；裸词 ltnet 不是
+        self.scenario([("a", "myltnet.example.com")], [("a", "x.ltnet.example.com")])
+        drift, _, _ = self.report()
+        self.assertEqual([d[0] for d in drift], [f"{self.FORK}#a"])
+
+    def test_multi_zone_union_flags_conflict(self):
+        self.scenario(
+            [("foo", "colocrossing.ltnet.xuyh0120.win.")],
+            [("foo", "colocrossing")],
+            up2=[("foo", "colocrossing")],
+        )
+        drift, _, _ = self.report()
+        self.assertEqual([d[0] for d in drift], [f"{self.FORK}#foo"])
+        self.assertEqual(drift[0][1], ["internal", "public"])
+
+    def test_multi_zone_agreement_clean(self):
+        self.scenario([("foo", "colocrossing")], [("foo", "greencloud")], up2=[("foo", "colocrossing")])
+        self.assertEqual(self.report()[0], [])
+
+    def test_duplicate_fork_label_flags(self):
+        self.scenario(
+            [("foo", "colocrossing")],
+            [("foo", "greencloud"), ("foo", "greencloud.ltnet.zhyi.xin.")],
+        )
+        drift, _, _ = self.report()
+        self.assertEqual(drift[0][2], ["internal", "public"])
+
+    def test_wildcard_label_compared(self):
+        self.scenario([("*.at", "colocrossing")], [("*.at", "greencloud.ltnet.zhyi.xin.")])
+        self.assertEqual([d[0] for d in self.report()[0]], [f"{self.FORK}#*.at"])
+
+    def test_allowlist_registers_known(self):
+        key = f"{self.FORK}#ai-api"
+        self.scenario([("ai-api", "colocrossing")], [("ai-api", "x.ltnet.zhyi.xin.")], allow=[(key, "已接受")])
+        drift, known, stale = self.report()
+        self.assertEqual(([d[0] for d in drift], [k[0] for k in known], stale), ([], [key], []))
+
+    def test_strict_ignores_allowlist(self):
+        key = f"{self.FORK}#ai-api"
+        self.scenario([("ai-api", "colocrossing")], [("ai-api", "x.ltnet.zhyi.xin.")], allow=[(key, "已接受")])
+        self.assertEqual([d[0] for d in self.report(strict=True)[0]], [key])
+
+    def test_stale_registration_flagged(self):
+        key = f"{self.FORK}#gone"
+        self.scenario([("ai-api", "colocrossing")], [("ai-api", "colocrossing")], allow=[(key, "已接受")])
+        self.assertEqual(self.report()[2], [key])
+
+    def test_missing_fork_file_no_crash(self):
+        self.fx.scenario({}, {self.UP: dns_file([("ai-api", "colocrossing")])}, {},)
+        self.assertEqual(self.report(), ([], [], []))
+
+    def test_no_upstream_dns_no_crash(self):
+        self.fx.scenario({}, {}, {self.FORK: dns_file([("ai-api", "greencloud")])})
+        self.assertEqual(self.report(), ([], [], []))
+
+    def test_scoped_run_skips_dns_section(self):
+        self.fx.scenario(
+            {},
+            {"home/a.nix": b"a\n", self.UP: dns_file([("ai-api", "colocrossing")])},
+            {"home/a.nix": b"a\n", self.FORK: dns_file([("ai-api", "x.ltnet.zhyi.xin.")])},
+        )
+        out, _, code = run_main(["--path", "home"])
+        self.assertIsNone(code)
+        self.assertNotIn("DNS 视图", out)
+
+    def test_main_reports_and_fails(self):
+        self.scenario([("ai-api", "colocrossing")], [("ai-api", "x.ltnet.zhyi.xin.")])
+        out, err, code = run_main()
+        self.assertEqual(code, 1)
+        self.assertIn("DNS 视图与上游不一致", out)
+        self.assertIn(f"{self.FORK}#ai-api", out)
+        self.assertIn("DNS 视图漂移 1 条", err)
+
+    def test_main_clean_passes(self):
+        self.scenario([("ai-api", "colocrossing")], [("ai-api", "greencloud")])
+        out, err, code = run_main()
+        self.assertIsNone(code, err)
+        self.assertIn("通过", out)
+
+    def test_idempotent(self):
+        self.scenario([("ai-api", "colocrossing")], [("ai-api", "x.ltnet.zhyi.xin.")])
+        self.assertEqual(self.report(), self.report())
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

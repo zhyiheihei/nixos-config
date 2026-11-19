@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # 上游 exam 对齐工具（agent 入口，自描述）：
-#   tools/exam-check          审计共享路径相对基线的漂移（默认动作）
+#   tools/exam-check          审计共享路径相对基线的漂移 + DNS 视图是否跟随上游（默认动作）
 #   tools/exam-check log      查看基线以来上游增量
 #   tools/exam-check host-map [exam-host] 查看按服务导入核定的主机映射
 #   tools/exam-check structure           上游新增/删除/改名是否已跟进
@@ -202,11 +202,17 @@ def load_allowlist():
     if not ALLOWLIST_FILE.is_file():
         return entries
     for raw in ALLOWLIST_FILE.read_text().splitlines():
-        if "#" in raw:
+        # 分隔符用 " # " 而非首个 "#"，于是路径里可以带 "#"（DNS 视图条目
+        # dns/domains/<文件>#<记录>）；无空格的旧写法则退回首个 "#"。
+        if " # " in raw:
+            path, reason = raw.split(" # ", 1)
+        elif "#" in raw:
             path, reason = raw.split("#", 1)
-            path = path.strip()
-            if path:
-                entries[path] = reason.strip()
+        else:
+            continue
+        path = path.strip()
+        if path:
+            entries[path] = reason.strip()
     return entries
 
 
@@ -370,6 +376,107 @@ def print_residual(hits, limit=60):
         print(f"      {snippet}")
     if len(hits) > limit:
         print(f"  …（其余 {len(hits) - limit} 处省略）")
+
+
+# ===== DNS 视图审计 =====
+# dns/ 不在 SHARED_PATHS（本仓单域名文件与上游多域名文件无法逐字比对），而
+# tools/post-merge-env 每次 merge 后会把上游 dns/domains/*.nix 整份删掉，上游的 DNS
+# 改动只能人工搬。这里补语义层：按归一化后的标签把两侧同一条记录配对，比较解析视图
+# ——裸主机名 = 公网，<host>.ltnet.<域> = LTNET。
+# 2026-11-19 ai-api 事故：上游 955bc8e49 把该记录的 target 从 ltnet 改成公网，本仓只
+# 跟进了同一提交的 nix 侧，DNS 侧静默丢失；文件级审计与结构审计都看不到这一层。
+# 边界：只比较两侧都有的标签（上游新增/删除记录不报）；上游域名文件改名/删除导致
+# 没有对应域时本审计静默，因为无法从文件名推断映射。
+DNS_DIR = "dns/domains/"
+DNS_LTNET = ".ltnet."
+
+
+def dns_records(text):
+    """抠出 (recordType, name, target)；缺 target 或为表达式时 target 为 None。"""
+    out = []
+    for chunk in re.split(r'(?m)^\s*recordType = "', text)[1:]:
+        record_type = chunk.split('"', 1)[0]
+        name = re.search(r'(?m)^\s*name = "([^"]*)"', chunk)
+        target = re.search(r'(?m)^\s*target = "([^"]*)"', chunk)
+        if name:
+            out.append((record_type, name.group(1), target.group(1) if target else None))
+    return out
+
+
+def dns_zone_views(text):
+    """标签 -> 视图集合（public/internal）。表达式值无法判定视图，直接跳过。"""
+    views = {}
+    for record_type, name, target in dns_records(text):
+        if record_type != "CNAME" or "${" in name:
+            continue
+        if target is None or "${" in target:
+            continue
+        label = normalize(name.encode()).strip().lower().rstrip(".")
+        views.setdefault(label, set()).add("internal" if DNS_LTNET in target else "public")
+    return views
+
+
+def upstream_dns_views():
+    """上游各域名文件的记录视图，按归一化后的域名归组（多个上游域对应本仓同一个域）。"""
+    zones = {}
+    try:
+        listing = git("ls-tree", "-r", "--name-only", "exam/master", "--", DNS_DIR).decode().splitlines()
+    except SystemExit:
+        return zones
+    for path in listing:
+        if not path.endswith(".nix"):
+            continue
+        zone = normalize(path[len(DNS_DIR) : -len(".nix")].encode())
+        try:
+            text = git("show", f"exam/master:{path}").decode(errors="surrogateescape")
+        except SystemExit:
+            continue
+        for label, values in dns_zone_views(text).items():
+            zones.setdefault(zone, {}).setdefault(label, set()).update(values)
+    return zones
+
+
+def dns_view_report(allow, strict=False):
+    """(drift, known, stale)：同一条记录在两侧的视图集合是否仍一致。
+
+    只比较两侧都有、且都能判定视图的记录；本仓独有或上游独有记录不在此列。
+    allowlist 用 'dns/domains/<文件>#<记录>' 登记已接受的视图偏离。
+    """
+    upstream = upstream_dns_views()
+    drift, known, matched = [], [], set()
+    for path in sorted((REPO / DNS_DIR).glob("*.nix")):
+        zone = normalize(path.name[: -len(".nix")].encode())
+        if zone not in upstream:
+            continue
+        fork_views = dns_zone_views(path.read_text(errors="surrogateescape"))
+        for label, values in sorted(upstream[zone].items()):
+            mine = fork_views.get(label)
+            if not mine or mine == values:
+                continue
+            key = f"{DNS_DIR}{path.name}#{label}"
+            matched.add(key)
+            entry = (key, sorted(values), sorted(mine))
+            (drift if strict or key not in allow else known).append(entry)
+    stale = [
+        key for key in allow
+        if key.startswith(DNS_DIR) and "#" in key and key not in matched
+    ]
+    return drift, known, sorted(stale)
+
+
+def print_dns_views(drift, known, stale, allow):
+    if drift:
+        print("\n! DNS 视图与上游不一致（同一条记录公网/LTNET 不同：对齐 DNS，或登记 allowlist 的 dns/domains/<文件>#<记录>）:")
+        for key, values, mine in drift:
+            print(f"  {key}  upstream={'/'.join(values)} fork={'/'.join(mine)}")
+    if known:
+        print("\n!known DNS 视图偏离（已登记）:")
+        for key, values, mine in known:
+            print(f"  {key}  upstream={'/'.join(values)} fork={'/'.join(mine)}  # {allow.get(key, '')}")
+    if stale:
+        print("\nallowlist 失效条目（DNS 视图已一致，请删除）:")
+        for key in stale:
+            print(f"  {key}")
 
 
 def norm_path(p):
@@ -846,7 +953,7 @@ def main():
                "  tools/exam-check log          # 上游改了什么\n"
                "  tools/exam-check host-map     # 查看按服务导入核定的主机映射\n"
                "  tools/exam-check structure    # 上游新增/删除/改名是否已跟进（A/D/R）\n"
-               "  tools/exam-check              # 我们漂了多少（含结构审计与上游条目级变更；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
+               "  tools/exam-check              # 我们漂了多少（含结构审计、上游条目级变更与 DNS 视图；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
                "  tools/exam-check normalize <path>...  # 验收替换表套用到工作树文件（checkout 上游后收尾）\n"
                "  tools/exam-check -v           # 漂移文件的归一化 diff\n"
                "同步完成后 bump tools/exam-check-baseline 的 baseline。",
@@ -999,6 +1106,10 @@ def main():
     if not args.path:
         _, _, host_unacked, host_acked, host_stale, host_accepted = host_keys_report(args.strict)
         print_host_keys(host_unacked, host_acked, host_stale, host_accepted)
+    dns_drift, dns_known, dns_stale = [], [], []
+    if not args.path:
+        dns_drift, dns_known, dns_stale = dns_view_report(allow, args.strict)
+        print_dns_views(dns_drift, dns_known, dns_stale, allow)
     if args.verbose:
         for p in drift + known:
             base = normalize(baseline_content(baseline, p)).splitlines()
@@ -1018,6 +1129,8 @@ def main():
         or pending
         or host_unacked
         or host_stale
+        or dns_drift
+        or dns_stale
         or retained
         or stale_allow
         or upstream_only
@@ -1026,6 +1139,7 @@ def main():
             f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、"
             f"上游条目未同步 {len(pending)} 个、锁世界脱离 {len(lock_drift)} 项、未落实替换 {len(residual)} 处、"
             f"host 选项键未跟上 {len(host_unacked)} 个、hostkeys allowlist 失效 {len(host_stale)} 个、"
+            f"DNS 视图漂移 {len(dns_drift)} 条、DNS 登记失效 {len(dns_stale)} 条、"
             f"未跟随删除 {len(retained)} 个、allowlist 失效条目 {len(stale_allow)} 个、"
             f"上游独有未处理 {len(upstream_only)} 个，exit 1",
             file=sys.stderr,

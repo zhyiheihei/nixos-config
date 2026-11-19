@@ -29,7 +29,7 @@ let
     {
       recordType = "CNAME";
       name = "ai-api";
-      target = "tencent-cn.ltnet.zhyi.xin.";
+      target = "tencent-cn";
       ttl = "1h";
     }
     {
@@ -341,7 +341,7 @@ let
     {
       recordType = "CNAME";
       name = "oidc-tester";
-      target = "greencloud";
+      target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";
     }
     {
