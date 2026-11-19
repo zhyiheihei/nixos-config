@@ -1526,11 +1526,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795013358,
-        "narHash": "sha256-dPkoA+cHIIjlabpU+dmv9HA/DLi68WRfynX+EwcN2Ak=",
+        "lastModified": 1795054250,
+        "narHash": "sha256-cs+3EOpuVuVpmeKnDzkBuvYk4s4OX4as03KMIox4gk8=",
         "ref": "main",
-        "rev": "72ce1e622e566858852652aaa90db3acedd839e3",
-        "revCount": 122,
+        "rev": "9d3e42c77474e4031b5b1ef0d620b58959286b26",
+        "revCount": 125,
         "type": "git",
         "url": "https://github.com/zhyiheihei/venus-mainline"
       },
