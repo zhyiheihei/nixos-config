@@ -1,6 +1,7 @@
 { tags, geo, ... }:
 {
   index = 116;
+  x86ArchLevel = 3;
   tags = with tags; [ ];
   city = geo.cities."CN Ningbo";
   cpuThreads = 16;

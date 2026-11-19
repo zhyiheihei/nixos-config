@@ -6,6 +6,7 @@
 }:
 {
   index = 131;
+  x86ArchLevel = 3;
   system = "x86_64-linux";
   tags = with tags; [ server ];
   cpuThreads = 8;

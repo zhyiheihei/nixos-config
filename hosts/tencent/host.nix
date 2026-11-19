@@ -6,6 +6,7 @@
 }:
 {
   index = 128;
+  x86ArchLevel = 4;
   tags = with tags; [
     dn42
     public-facing

@@ -26,7 +26,8 @@
     defaults = {
       dnsProvider = "gcore";
       dnsResolver = "8.8.8.8:53";
-      dnsPropagationCheck = false;
+      dnsAuthoritativePropagationCheck = false;
+      dnsRecursivePropagationCheck = false;
       email = "molishanguang@outlook.com";
       environmentFile = config.sops.templates.lego-env.path;
       postRun = ''

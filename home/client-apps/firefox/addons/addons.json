@@ -127,9 +127,9 @@
   },
   {
     "pname": "pay-by-privacy",
-    "version": "2.4.17",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/4823381/pay_by_privacy-2.4.17.xpi",
-    "hash": "sha256-jKpTzg5i4EzTcXCKJQMvJzfUTg5yYwFZ/ybILHLJiXU=",
+    "version": "2.4.18",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5267892/pay_by_privacy-2.4.18.xpi",
+    "hash": "sha256-Snd7X8PxSBeG+4uRD4fX8CjA+UfJao4esfmLKSjVin0=",
     "addonId": "privacy@privacy.com"
   },
   {
@@ -155,9 +155,9 @@
   },
   {
     "pname": "read-frog-open-ai-translator",
-    "version": "1.60.0",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5259406/read_frog_open_ai_translator-1.60.0.xpi",
-    "hash": "sha256-0ACrr69J0HQvc28pH5DHGzAGsdqXSvmL6f35Dk5/9UU=",
+    "version": "1.60.1",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5274046/read_frog_open_ai_translator-1.60.1.xpi",
+    "hash": "sha256-xBVMH+o1esRW39pwNKb0LaR+mWupYR1U3YuZekDg6yQ=",
     "addonId": "{bd311a81-4530-4fcc-9178-74006155461b}"
   },
   {
@@ -176,9 +176,9 @@
   },
   {
     "pname": "rsshub-radar",
-    "version": "2.3.1",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5198364/rsshub_radar-2.3.1.xpi",
-    "hash": "sha256-1Phqd7e9Z1nt45GM/JTvOwwnLzeufTyOdLeEriYcYmo=",
+    "version": "2.4.0",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5267272/rsshub_radar-2.4.0.xpi",
+    "hash": "sha256-5o+6C3eUQ+956qd22UJKqf/68L7GycfMf1RrpF2/Uv8=",
     "addonId": "i@diygod.me"
   },
   {

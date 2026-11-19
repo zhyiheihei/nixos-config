@@ -1,6 +1,7 @@
 { tags, geo, ... }:
 {
   index = 118;
+  x86ArchLevel = 3;
   tags = with tags; [
     client
     nix-builder

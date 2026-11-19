@@ -6,6 +6,7 @@
 }:
 {
   index = 130;
+  x86ArchLevel = 3;
   tags = with tags; [
     cn-accel
     dn42

@@ -6,6 +6,7 @@
 }:
 {
   index = 114;
+  x86ArchLevel = 3;
   tags = with tags; [
     client
     nix-builder
