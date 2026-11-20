@@ -28,6 +28,8 @@ in
 
     ../../nixos/optional-apps/gitea
 
+    ../../nixos/optional-apps/renovate.nix
+
     # ./nextcloud.nix
 
     ../../nixos/optional-apps/attic.nix

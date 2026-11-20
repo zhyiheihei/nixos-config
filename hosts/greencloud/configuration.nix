@@ -40,7 +40,6 @@ in
     ../../nixos/optional-apps/netbox.nix
     ../../nixos/optional-apps/nginx-api.nix
     ../../nixos/optional-apps/plausible.nix
-    ../../nixos/optional-apps/renovate.nix
     ../../nixos/optional-apps/radicale.nix
     # ../../nixos/optional-apps/radicle.nix
     ../../nixos/optional-apps/rsync-server-ci.nix
