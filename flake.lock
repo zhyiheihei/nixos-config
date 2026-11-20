@@ -1,50 +1,5 @@
 {
   "nodes": {
-    "root": {
-      "inputs": {
-        "betterfox-nix": "betterfox-nix",
-        "chinese-fonts-overlay": "chinese-fonts-overlay",
-        "colmena": "colmena",
-        "country-ip-blocks": "country-ip-blocks",
-        "flake-compat": "flake-compat",
-        "flake-parts": "flake-parts",
-        "flake-utils": "flake-utils",
-        "flat-flake": "flat-flake",
-        "git-hooks": "git-hooks",
-        "home-manager": "home-manager",
-        "honkai-railway-grub-theme": "honkai-railway-grub-theme",
-        "llm-agents": "llm-agents",
-        "markdown-apa7th-docx": "markdown-apa7th-docx",
-        "mcp-libvirt-vm-use": "mcp-libvirt-vm-use",
-        "nix-alien": "nix-alien",
-        "nix-cachyos-kernel": "nix-cachyos-kernel",
-        "nix-gaming": "nix-gaming",
-        "nix-index-database": "nix-index-database",
-        "nix-math": "nix-math",
-        "nix-tree-rs": "nix-tree-rs",
-        "nixcord": "nixcord",
-        "nixfmt-rs": "nixfmt-rs",
-        "nixos-hardware": "nixos-hardware",
-        "nixpkgs": "nixpkgs_2",
-        "nixpkgs-multiverse": "nixpkgs-multiverse",
-        "noctalia": "noctalia",
-        "nur": "nur",
-        "nur-xddxdd": "nur-xddxdd",
-        "picoforge": "picoforge",
-        "preservation": "preservation",
-        "proxmox-nixos": "proxmox-nixos",
-        "rust-overlay": "rust-overlay",
-        "secrets": "secrets_2",
-        "sops-nix": "sops-nix",
-        "srvos": "srvos",
-        "stylix": "stylix",
-        "systems": "systems_2",
-        "treefmt-nix": "treefmt-nix_2",
-        "umbriel": "umbriel",
-        "venus-mainline": "venus-mainline",
-        "zhyi-packages": "zhyi-packages"
-      }
-    },
     "base16": {
       "inputs": {
         "fromYaml": "fromYaml"
@@ -977,6 +932,22 @@
         "url": "https://channels.nixos.org/nixos-unstable/nixexprs.tar.zst"
       }
     },
+    "nixpkgs_3": {
+      "locked": {
+        "lastModified": 1789426278,
+        "narHash": "sha256-GnotcvKtbTMnoVx6G4E7ZdUX6487Dky74dqq3pU7iRk=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "efe6f071ede9d21c37462d2d6682d5e670099684",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "noctalia": {
       "inputs": {
         "nixpkgs": [
@@ -1150,6 +1121,51 @@
         "type": "github"
       }
     },
+    "root": {
+      "inputs": {
+        "betterfox-nix": "betterfox-nix",
+        "chinese-fonts-overlay": "chinese-fonts-overlay",
+        "colmena": "colmena",
+        "country-ip-blocks": "country-ip-blocks",
+        "flake-compat": "flake-compat",
+        "flake-parts": "flake-parts",
+        "flake-utils": "flake-utils",
+        "flat-flake": "flat-flake",
+        "git-hooks": "git-hooks",
+        "home-manager": "home-manager",
+        "honkai-railway-grub-theme": "honkai-railway-grub-theme",
+        "llm-agents": "llm-agents",
+        "markdown-apa7th-docx": "markdown-apa7th-docx",
+        "mcp-libvirt-vm-use": "mcp-libvirt-vm-use",
+        "nix-alien": "nix-alien",
+        "nix-cachyos-kernel": "nix-cachyos-kernel",
+        "nix-gaming": "nix-gaming",
+        "nix-index-database": "nix-index-database",
+        "nix-math": "nix-math",
+        "nix-tree-rs": "nix-tree-rs",
+        "nixcord": "nixcord",
+        "nixfmt-rs": "nixfmt-rs",
+        "nixos-hardware": "nixos-hardware",
+        "nixpkgs": "nixpkgs_2",
+        "nixpkgs-multiverse": "nixpkgs-multiverse",
+        "noctalia": "noctalia",
+        "nur": "nur",
+        "nur-xddxdd": "nur-xddxdd",
+        "picoforge": "picoforge",
+        "preservation": "preservation",
+        "proxmox-nixos": "proxmox-nixos",
+        "rust-overlay": "rust-overlay",
+        "secrets": "secrets",
+        "sops-nix": "sops-nix",
+        "srvos": "srvos",
+        "stylix": "stylix",
+        "systems": "systems_2",
+        "treefmt-nix": "treefmt-nix_2",
+        "umbriel": "umbriel",
+        "venus-mainline": "venus-mainline",
+        "zhyi-packages": "zhyi-packages"
+      }
+    },
     "rust-overlay": {
       "inputs": {
         "nixpkgs": [
@@ -1170,7 +1186,7 @@
         "type": "github"
       }
     },
-    "secrets_2": {
+    "secrets": {
       "inputs": {
         "flake-parts": [
           "flake-parts"
@@ -1183,11 +1199,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795055503,
-        "narHash": "sha256-H50NSKqisxfFolRG3h3NoCqQ8lploshd77zuGz4qREI=",
+        "lastModified": 1795080518,
+        "narHash": "sha256-VzOCfGNoTolD5hRvpNMGPdyMlholRh0yWLpc4m6IbsM=",
         "owner": "zhyiheihei",
         "repo": "nixos-secrets",
-        "rev": "52889caf40cbe63d20229fe15ee1a27c98580406",
+        "rev": "a70f9fc7f493bdc20668345f80c671ea3bb4e424",
         "type": "github"
       },
       "original": {
@@ -1459,19 +1475,17 @@
         "flake-parts": [
           "flake-parts"
         ],
-        "nixpkgs": [
-          "nixpkgs"
-        ],
+        "nixpkgs": "nixpkgs_3",
         "systems": [
           "systems"
         ]
       },
       "locked": {
-        "lastModified": 1795054250,
-        "narHash": "sha256-cs+3EOpuVuVpmeKnDzkBuvYk4s4OX4as03KMIox4gk8=",
+        "lastModified": 1795140790,
+        "narHash": "sha256-NzhTI6xBAsQ8ikHiCR/t2PVx94HPhmnJxyTOv70D0lo=",
         "ref": "main",
-        "rev": "9d3e42c77474e4031b5b1ef0d620b58959286b26",
-        "revCount": 125,
+        "rev": "17a813e496003e5ce5e9e7b35e81468b4480d202",
+        "revCount": 137,
         "type": "git",
         "url": "https://github.com/zhyiheihei/venus-mainline"
       },

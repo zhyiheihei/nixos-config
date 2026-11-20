@@ -195,7 +195,6 @@
     venus-mainline = {
       url = "git+https://github.com/zhyiheihei/venus-mainline?ref=main";
       inputs.flake-parts.follows = "flake-parts";
-      inputs.nixpkgs.follows = "nixpkgs";
       inputs.systems.follows = "systems";
     };
     zhyi-packages = {
