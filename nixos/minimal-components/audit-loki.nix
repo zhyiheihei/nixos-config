@@ -42,7 +42,7 @@ let
         {
           name = "http";
           match = "audit";
-          host = LT.hosts.greencloud-jp.ltnet.IPv4;
+          host = LT.hosts.chromebox.ltnet.IPv4;
           port = LT.port.VictoriaLogs;
           tls = "off";
           uri = "/insert/jsonline?_stream_fields=job,host&_msg_field=log&_time_field=date&extra_fields=job=audit,host=${config.networking.hostName}";

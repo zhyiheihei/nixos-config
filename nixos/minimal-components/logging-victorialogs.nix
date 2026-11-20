@@ -42,7 +42,7 @@
           {
             name = "http";
             match = "journal";
-            host = LT.hosts.greencloud-jp.ltnet.IPv4;
+            host = LT.hosts.chromebox.ltnet.IPv4;
             port = LT.port.VictoriaLogs;
             tls = "off";
             # 在请求中补充固定字段，已有磁盘队列也能保留主机和日志类型。

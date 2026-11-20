@@ -50,6 +50,7 @@ in
     ../../nixos/optional-apps/sublinkpro-relay.nix
     ../../nixos/optional-apps/taosync.nix
     ../../nixos/optional-apps/tor.nix
+    ../../nixos/optional-apps/victorialogs.nix
 
     ../../nixos/optional-cron-jobs/ncmm.nix
     ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
@@ -90,6 +91,28 @@ in
     proxyWebsockets = true;
     enableOAuth = true;
   };
+
+  # 日志存储落 QNAP NFS 共享盘：victorialogs 模块固定用 /var/lib/victorialogs，这里把该路径绑到 /mnt/storage
+  fileSystems."/var/lib/victorialogs" = {
+    device = "/mnt/storage/victorialogs";
+    fsType = "auto";
+    options = [
+      "bind"
+      "x-systemd.requires-mounts-for=/mnt/storage"
+      "x-systemd.automount"
+    ];
+  };
+
+  systemd.tmpfiles.settings.victorialogs."/mnt/storage/victorialogs"."d" = {
+    mode = "0700";
+    user = "victorialogs-collector";
+    group = "victorialogs";
+  };
+
+  systemd.services.victorialogs.unitConfig.RequiresMountsFor = [
+    "/mnt/storage"
+    "/var/lib/victorialogs"
+  ];
 
   services.calibre-cops.libraryPath = "/mnt/storage/media/Calibre Library";
 

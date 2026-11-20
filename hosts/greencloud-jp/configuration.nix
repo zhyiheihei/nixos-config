@@ -33,24 +33,7 @@ in
     # ./nextcloud.nix
 
     ../../nixos/optional-apps/attic.nix
-
-    ../../nixos/optional-apps/victorialogs.nix
   ];
-
-  # 日志存储落数据盘：victorialogs 模块固定用 /var/lib/victorialogs，这里把该路径绑到数据盘
-  fileSystems."/var/lib/victorialogs" = {
-    device = "/data/victorialogs";
-    fsType = "auto";
-    options = [ "bind" ];
-  };
-
-  systemd.tmpfiles.settings.victorialogs."/data/victorialogs"."d" = {
-    mode = "0700";
-    user = "victorialogs-collector";
-    group = "victorialogs";
-  };
-
-  systemd.services.victorialogs.unitConfig.RequiresMountsFor = [ "/var/lib/victorialogs" ];
 
   lantian.backup.schedule = null;
 
