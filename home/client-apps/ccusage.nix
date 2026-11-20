@@ -21,13 +21,16 @@ in
     "$schema" = "https://ccusage.com/config-schema.json";
     defaults.pricingOverrides = {
       "deepseek-v4-flash:0731" = rates 0.14 0.28 0.0028; # DeepSeek V4 Flash 0731
-      "lantian/coding-fast" = rates 0.3 1.2 0.006; # DeepSeek V4.1 Flash 1017
-      "lantian/coding-smart" = rates 1.4 4.4 0.26; # GLM-5.3
+      "deepseek-v4.1-flash-1017" = rates 0.3 1.2 0.006; # DeepSeek V4.1 Flash 1017
+      "deepseek-v4.1-flash:1017" = rates 0.3 1.2 0.006; # DeepSeek V4.1 Flash 1017
+      "glm-5.3-flash" = rates 0.15 0.5 0.03; # GLM-5.3-Flash
       "minimax/minimax-m2.7:general-compute" = rates 0.3 1.2 0.06; # MiniMax-M2.7
       "moonshotai/kimi-k3:modal-kimi-k3" = rates 3 15 0.3; # Kimi K3
       "ollama-cloud/glm-5.3" = rates 1.4 4.4 0.26; # GLM-5.3
       "stealth/ox-alpha" = rates 0.15 0.5 0.03; # GLM-5.3-Flash
       "systalize/zai-org/GLM-5.3-Flash" = rates 0.15 0.5 0.03; # GLM-5.3-Flash
+      "zhyi/coding-fast" = rates 0.15 0.5 0.03; # GLM-5.3-Flash
+      "zhyi/deepseek-v4.1-flash" = rates 0.3 1.2 0.006; # DeepSeek V4.1 Flash 1017
     };
   };
 }

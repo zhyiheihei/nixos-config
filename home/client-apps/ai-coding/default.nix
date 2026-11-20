@@ -189,9 +189,9 @@ in
     enabled = true;
     auto_update = false;
     allow_home_project = true;
-    historian.pi.model = "cliproxyapi/deepseek-v4.1-flash";
-    dreamer.pi.model = "cliproxyapi/deepseek-v4.1-flash";
-    sidekick.model = "cliproxyapi/deepseek-v4.1-flash";
+    historian.pi.model = "cliproxyapi/zhyi/deepseek-v4.1-flash";
+    dreamer.pi.model = "cliproxyapi/zhyi/deepseek-v4.1-flash";
+    sidekick.model = "cliproxyapi/zhyi/deepseek-v4.1-flash";
     embedding = {
       provider = "openai-compatible";
       model = "qwen/qwen3-embedding-8b";
