@@ -13,6 +13,7 @@ let
   backupMounts = {
     Documents = "/mnt/storage/syncthing/Documents";
     Pictures = "/mnt/storage/syncthing/Pictures";
+    Personal = "/mnt/storage/personal";
   };
 
   # 登录失败时用 sops 当前密码重置 admin（OPENLIST_ADMIN_PASSWORD 只在首次
