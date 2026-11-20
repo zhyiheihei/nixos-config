@@ -19,6 +19,12 @@
 
   lantian.mcsm.enable = true;
 
+  sops.secrets.mcsm-ghcr-auth = {
+    sopsFile = LT.secret "mcsm.yaml";
+    key = "ghcr_auth";
+    path = "/root/.config/containers/auth.json";
+  };
+
   virtualisation.oci-containers.containers.mcsm-daemon.ports = lib.mkForce [
     "127.0.0.1:${LT.portStr.Mcsm.Daemon}:24444"
     "10.88.0.1:${LT.portStr.Mcsm.Daemon}:24444"
@@ -38,6 +44,8 @@
   };
 
   systemd.tmpfiles.rules = [ "d /var/log/audit 0750 root root -" ];
+
+  systemd.services.podman.environment = LT.proxyEnvironment;
 
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = lib.mkForce ''
     [[registry]]
