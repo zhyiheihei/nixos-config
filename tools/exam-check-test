@@ -164,6 +164,35 @@ class StructureAdded(Base):
         self.assertEqual(self.msgs(), [])
 
 
+class StaleReasonReference(Base):
+    """理由文本点名的 .nix 文件不存在时必报（2026-11-19 Loki 条目过期事故）。"""
+
+    def reason(self, reason):
+        self.fx.scenario(
+            {"home/a.nix": b"a\n"},
+            {"home/a.nix": b"b\n"},
+            {"home/a.nix": b"a\n"},
+            allow=[("home/a.nix", reason)],
+        )
+        return run_main()
+
+    def test_missing_path_flagged(self):
+        out, err, _ = self.reason("skip: 日志走自建 Loki（home/logging-loki.nix）")
+        self.assertIn("! allowlist 理由引用失效", out)
+        self.assertIn("home/logging-loki.nix", out)
+        self.assertIn("allowlist 理由引用失效 1 处", err)
+
+    def test_existing_path_is_fresh(self):
+        out, err, _ = self.reason("skip: 日志走自建（home/a.nix）")
+        self.assertNotIn("! allowlist 理由引用失效", out)
+        self.assertIn("理由引用失效 0 处", err)
+
+    def test_retired_wording_exempt(self):
+        out, err, _ = self.reason("skip: 旧实现 home/logging-loki.nix 已删")
+        self.assertNotIn("! allowlist 理由引用失效", out)
+        self.assertIn("理由引用失效 0 处", err)
+
+
 class StructureDeleted(Base):
     def test_unapplied_then_applied(self):
         self.fx.scenario({"home/old.nix": b"x\n"}, {"home/old.nix": None}, {})

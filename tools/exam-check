@@ -229,6 +229,40 @@ def load_hostkeys_allowlist():
     return entries
 
 
+# 理由文本里带目录的 .nix 路径（不含裸文件名，裸名常是散文里的 LT.nix 之类）。
+ALLOW_REASON_PATH_RE = re.compile(
+    r"(?<![A-Za-z0-9_.-])((?:[A-Za-z0-9_.+-]+/)+[A-Za-z0-9_.+-]+\.nix)(?![A-Za-z0-9_-])"
+)
+# 引用点前后出现这些词说明理由描述的就是该文件消失（「old.nix 已删」），不算过期引用。
+ALLOW_REASON_RETIRED = ("删", "移除", "退役", "改名", "替换", "废弃", "不再", "→")
+
+
+def stale_reason_references(allow, subpath=""):
+    """allowlist 理由文本点名的 .nix 文件是否还存在（本仓工作树或上游 exam/master）。
+
+    文件级审计只认条目路径，理由文本里的实现描述无人复核：2026-11-19 发现
+    logging-humio 条目仍写「本仓日志走自建 Loki（server-components/logging-loki.nix）」,
+    该实现早被 victorialogs 取代，工具却报 0 失效条目。这里把理由里带目录的
+    .nix 路径按两侧树解析（本仓或上游任一存在即有效），两侧都找不到且上下文
+    不是删除/替换语境时视为过期引用，要求改写理由。
+    """
+    tree = worktree_files("")
+    tree |= set(git("ls-tree", "-r", "--name-only", "exam/master").decode(errors="replace").split())
+    hits = []
+    for entry, reason in sorted(allow.items()):
+        if subpath and entry != subpath and not entry.startswith(subpath.rstrip("/") + "/"):
+            continue
+        for token in sorted(set(ALLOW_REASON_PATH_RE.findall(reason))):
+            if token in tree or any(p.endswith("/" + token) for p in tree):
+                continue
+            idx = reason.find(token)
+            window = reason[max(0, idx - 40) : idx + len(token) + 40]
+            if any(word in window for word in ALLOW_REASON_RETIRED):
+                continue
+            hits.append((entry, token))
+    return hits
+
+
 HOST_KEY_RE = re.compile(r"^  ([A-Za-z][A-Za-z0-9_-]*)\s*=", re.M)
 
 
@@ -953,7 +987,7 @@ def main():
                "  tools/exam-check log          # 上游改了什么\n"
                "  tools/exam-check host-map     # 查看按服务导入核定的主机映射\n"
                "  tools/exam-check structure    # 上游新增/删除/改名是否已跟进（A/D/R）\n"
-               "  tools/exam-check              # 我们漂了多少（含结构审计、上游条目级变更与 DNS 视图；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
+               "  tools/exam-check              # 我们漂了多少（含结构审计、上游条目级变更、DNS 视图与 allowlist 理由引用；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
                "  tools/exam-check normalize <path>...  # 验收替换表套用到工作树文件（checkout 上游后收尾）\n"
                "  tools/exam-check -v           # 漂移文件的归一化 diff\n"
                "同步完成后 bump tools/exam-check-baseline 的 baseline。",
@@ -1083,6 +1117,11 @@ def main():
         print("\nallowlist 失效条目（漂移已消除，请删除）:")
         for p in stale_allow:
             print(f"  {p}")
+    stale_refs = [] if args.strict else stale_reason_references(allow, args.path)
+    if stale_refs:
+        print("\n! allowlist 理由引用失效（理由点名的 .nix 文件在本仓与上游都不存在，多为实现已换、理由没改）:")
+        for entry, token in stale_refs:
+            print(f"  {entry}  ->  {token}")
     # 盲区修复（2026-10-13 obs-noise 漏跟事故）：A/D/R 之外，上游还会往既有文件里
     # 塞内容 hunk（M）。基线快照不包含这些变更，仅靠 allowlist 整文件豁免会漏跟，
     # 必须在每次审计时把 M 条目连 commit/hunk 一起出示（allowlisted 文件同样列）。
@@ -1133,6 +1172,7 @@ def main():
         or dns_stale
         or retained
         or stale_allow
+        or stale_refs
         or upstream_only
     ):
         print(
@@ -1141,6 +1181,7 @@ def main():
             f"host 选项键未跟上 {len(host_unacked)} 个、hostkeys allowlist 失效 {len(host_stale)} 个、"
             f"DNS 视图漂移 {len(dns_drift)} 条、DNS 登记失效 {len(dns_stale)} 条、"
             f"未跟随删除 {len(retained)} 个、allowlist 失效条目 {len(stale_allow)} 个、"
+            f"allowlist 理由引用失效 {len(stale_refs)} 处、"
             f"上游独有未处理 {len(upstream_only)} 个，exit 1",
             file=sys.stderr,
         )

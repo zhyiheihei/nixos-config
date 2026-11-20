@@ -98,8 +98,8 @@ nixos/optional-apps/asterisk/transports.nix # skip: 用户 2026-10-24 确认不�
 nixos/minimal-components/backup/backup.nix # fork 环境适配：aarch64 目标的 rustic 改 x86 交叉编译（hinlink-h28k/lubancat-1 crossPkgs 同款先例）——rustic 的 cargo lib 链接内存峰值在 opi5p 反复触发 memory pressure 断链；requiredSystemFeatures=aarch64-cross 路由 ml-builder；交叉 aws-lc 的 dev 输出 bindings 为 0 字节，交叉 rustic 不吃系统 aws-lc（改用 crate 自建，补 cmake/perl/go 并在 preBuild 清 AWS_LC_SYS_USE_SYSTEM）
 nixos/minimal-components/backup/prune.nix # 同 backup.nix：prune 单元的 rustic 同款交叉编译（含同款 aws-lc 自建调整）
 nixos/minimal-components/nix.nix # 2026-11-18 用户裁定：client 标签主机（ml-laptop/ml-builder，即部署发起侧与本机构建侧）的 substituters 只配置 ncps（mkForce），其余缓存的优先级统一沉到 ncps 的 upstream 列表：本机无代理，直连 cache.nixos.org/cachix 等境外源大量超时，构建必须只走 ncps 才顺畅
-nixos/server-components/logging-humio.nix # skip: 上游把日志发 Humio SaaS（filebeat + common/filebeat.yaml token），本仓日志走自建 Loki（server-components/logging-loki.nix），无 Humio 账号；secrets 仓只有历史遗留的 common/flebeat.yaml
-nixos/minimal-components/audit-loki.nix # fork 环境事实：Loki 收日志端点是 chromebox（上游 colocrossing.ltnet.xuyh0120.win）；2026-10-29 日志服务由 greencloud 迁到 greencloud-jp，2026-11-18 再迁回家庭 chromebox（greencloud-jp 流量超限后收端外移），存储落 QNAP NFS 共享盘 /mnt/storage/victorialogs
+nixos/server-components/logging-humio.nix # skip: 上游把日志发 Humio SaaS（filebeat + common/filebeat.yaml token），本仓无 Humio 账号，日志只走自建 VictoriaLogs（nixos/optional-apps/victorialogs.nix）；secrets 仓只有历史遗留的 common/flebeat.yaml
+nixos/minimal-components/audit-loki.nix # fork 环境事实：日志收端 VictoriaLogs 是 chromebox（上游 colocrossing.ltnet.xuyh0120.win）；2026-10-29 日志服务由 greencloud 迁到 greencloud-jp，2026-11-18 再迁回家庭 chromebox（greencloud-jp 流量超限后收端外移），存储落 QNAP NFS 共享盘 /mnt/storage/victorialogs
 nixos/minimal-components/logging-victorialogs.nix # fork 环境事实：日志收端同 audit-loki（chromebox，上游 greencloud/colocrossing）；2026-10-29 日志服务迁 greencloud-jp 数据盘 /data/victorialogs，2026-11-18 迁回 chromebox 并落 /mnt/storage/victorialogs
 nixos/client-apps/v2ray.nix # fork VLESS 出口走 tencent（上游 bwg-lax 主机本仓不存在）
 nixos/optional-cron-jobs/rsgain-cloudmusic.nix # fork 音乐库路径为 /mnt/storage/syncthing/Music/CloudMusic*（上游为 syncthing 直下），环境差异
