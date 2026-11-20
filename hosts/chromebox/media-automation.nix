@@ -106,7 +106,10 @@ in
         unitConfig.RequiresMountsFor = [ "/mnt/storage" ];
         serviceConfig.Restart = "on-failure";
 
-        confinement.packages = [ pkgs.intel-media-driver ];
+        confinement.packages = [
+          pkgs.intel-media-driver
+          pkgs.intel-compute-runtime-legacy1
+        ];
 
         serviceConfig = {
           BindPaths = [ "/run/opengl-driver" ];
@@ -189,7 +192,10 @@ in
 
   hardware.graphics = {
     enable = true;
-    extraPackages = [ pkgs.intel-media-driver ];
+    extraPackages = [
+      pkgs.intel-media-driver
+      pkgs.intel-compute-runtime-legacy1
+    ];
   };
 
   services.jellyfin = {
