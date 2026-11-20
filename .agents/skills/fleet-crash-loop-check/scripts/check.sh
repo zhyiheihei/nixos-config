@@ -5,8 +5,9 @@ WIN="${1:-24h}"
 
 while read -r name host port; do
   (
-    out=$(ssh -p "$port" -o BatchMode=yes -o ConnectTimeout=8 -o StrictHostKeyChecking=accept-new \
-      "root@$host" bash -s -- "$WIN" <<'EOF'
+    out=$(
+      ssh -p "$port" -o BatchMode=yes -o ConnectTimeout=8 -o StrictHostKeyChecking=accept-new \
+        "root@$host" bash -s -- "$WIN" <<'EOF'
 WIN=$1
 echo "-- failed --"
 systemctl list-units --type=service --state=failed --no-legend --no-pager
