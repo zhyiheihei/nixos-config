@@ -165,18 +165,26 @@ in
               Gateway = if lib.hasInfix ":" r then "fdd8:1938:4e88::${i}" else "198.18.0.${i}";
             }
           ]
-          ++ lib.optionals (!wgmeshEnabled) [
-            {
-              Destination = "0.0.0.0/0";
-              Gateway = if lib.hasInfix ":" r then "fdd8:1938:4e88::${i}" else "198.18.0.${i}";
-              Table = 10000 + v.index;
-            }
-            {
-              Destination = "::/0";
-              Gateway = if lib.hasInfix ":" r then "fdd8:1938:4e88::${i}" else "198.18.0.${i}";
-              Table = 10000 + v.index;
-            }
-          ]
+          ++ lib.optionals (!wgmeshEnabled) (
+            if lib.hasInfix ":" r then
+              [
+                {
+                  Destination = "::/0";
+                  Gateway = "fdd8:1938:4e88::${i}";
+                  Table = 10000 + v.index;
+                  Metric = 1024;
+                }
+              ]
+            else
+              [
+                {
+                  Destination = "0.0.0.0/0";
+                  Gateway = "198.18.0.${i}";
+                  Table = 10000 + v.index;
+                  Metric = 1024;
+                }
+              ]
+          )
         ) routes
         ++ lib.optionals (n == LT.defaultGatewayHostName && !config.services.bird.enable) (
           # If BIRD is enabled then BGP handle these routes
