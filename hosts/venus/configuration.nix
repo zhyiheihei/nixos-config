@@ -26,6 +26,8 @@
   networking.nameservers = lib.mkForce [ "192.168.0.1" ];
 
   lantian.firewall.zones.LAN.ports."${LT.portStr.Minecraft}".type = "local";
+
+  systemd.tmpfiles.rules = [ "d /var/log/audit 0750 root root -" ];
   lantian.firewall.zones.LAN.udpPorts."9993".type = "local";
 
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = lib.mkForce ''
