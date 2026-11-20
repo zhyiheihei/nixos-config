@@ -111,8 +111,8 @@
   lantian.hidpi = 1.6;
 
   boot.kernelParams = [
-    "i915.force_probe=!7d55"
-    "xe.force_probe=7d55"
+    "i915.force_probe=7d55"
+    "xe.force_probe=!7d55"
   ];
 
   hardware.graphics.extraPackages = with pkgs; [
