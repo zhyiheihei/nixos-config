@@ -28,8 +28,6 @@
   virtualisation.oci-containers.containers.mcsm-daemon.ports = lib.mkForce [
     "127.0.0.1:${LT.portStr.Mcsm.Daemon}:24444"
     "10.88.0.1:${LT.portStr.Mcsm.Daemon}:24444"
-    "25565:25565/tcp"
-    "25565:25565/udp"
   ];
 
   networking.nameservers = lib.mkForce [ "192.168.0.1" ];

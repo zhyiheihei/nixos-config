@@ -36,12 +36,13 @@ in
         ];
         environment = {
           MCSM_DOCKER_WORKSPACE_PATH = "/var/lib/mcsm/daemon/data/InstanceData";
+          DOCKER_HOST = "unix:///run/podman/podman.sock";
         };
         volumes = [
           "/etc/localtime:/etc/localtime:ro"
           "/var/lib/mcsm/daemon/data:/opt/mcsmanager/daemon/data"
           "/var/lib/mcsm/daemon/logs:/opt/mcsmanager/daemon/logs"
-          "/var/run/docker.sock:/var/run/docker.sock"
+          "/run/podman:/run/podman"
         ];
       };
     };
