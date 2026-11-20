@@ -175,6 +175,10 @@ in
       # Palworld game server on chromebox (UDP only).
       fib daddr type local udp dport 8211 iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
 
+      # WireGuard listeners of chromebox for the overseas mesh peers; the home
+      # uplink drops inbound UDP to NATed hosts, which breaks those tunnels.
+      fib daddr type local udp dport { 10120, 10121, 10128, 10130, 10117 } iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
+
       # Minecraft server on ml-builder via MCSM (TCP main + UDP query).
       fib daddr type local tcp dport 25565 iifname "ppp0" dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
       fib daddr type local udp dport 25565 iifname "ppp0" dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
