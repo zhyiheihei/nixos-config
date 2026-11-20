@@ -75,7 +75,11 @@ in
       # max-jobs = "auto";
       # lazy-trees = true;
 
-      substituters = [ "https://cache.nixos.org" ] ++ config.nix.settings.trusted-substituters;
+      substituters =
+        if LT.this.hasTag LT.tags.client then
+          lib.mkForce [ "http://192.168.0.56:${LT.portStr.Ncps}" ]
+        else
+          [ "https://cache.nixos.org" ] ++ config.nix.settings.trusted-substituters;
       system-features =
         lib.optionals (LT.this.system == "x86_64-linux") [ "gccarch-x86-64" ]
         ++ lib.optionals (LT.this.x86ArchLevel != null && LT.this.x86ArchLevel >= 2) [ "gccarch-x86-64-v2" ]
