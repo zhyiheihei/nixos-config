@@ -65,7 +65,7 @@ in
           proxyWebsockets = true;
         };
 
-        sslCertificate = "zerossl-zhyi.xin";
+        sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
       "mcsm-daemon.zhyi.xin" = {
@@ -75,7 +75,7 @@ in
           proxyNoTimeout = true;
         };
 
-        sslCertificate = "zerossl-zhyi.xin";
+        sslCertificate = "lets-encrypt-zhyi.xin";
         noIndex.enable = true;
       };
     };

@@ -37,6 +37,7 @@ let
         '';
       };
       accessibleBy = "public";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
   };
@@ -48,6 +49,7 @@ let
         proxyNoTimeout = true;
       };
       accessibleBy = "public";
+      sslCertificate = "lets-encrypt-zhyi.xin";
       noIndex.enable = true;
     };
   };

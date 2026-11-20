@@ -98,7 +98,7 @@
 
   lantian.nginxVhosts."cloud.zhyi.xin" = {
 
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     enableCommonLocationOptions = false;
     enableCommonVhostOptions = false;
   };

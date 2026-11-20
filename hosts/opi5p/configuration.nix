@@ -492,13 +492,13 @@ in
       proxyNoTimeout = true;
       enableBasicAuth = true;
     };
-    sslCertificate = "zerossl-zhyi.xin";
+    sslCertificate = "lets-encrypt-zhyi.xin";
     noIndex.enable = true;
   };
 
   lantian.food-dashboard = {
     enable = true;
-    sslCertificate = "zerossl-opi5p.zhyi.xin";
+    sslCertificate = "lets-encrypt-opi5p.zhyi.xin";
     caldavUrl = "https://cal.zhyi.xin";
     caldavUser = "zhyi";
     caldavPasswordFile = config.sops.secrets.default-pw.path;
@@ -558,7 +558,7 @@ in
 
     accessibleBy = "private";
 
-    sslCertificate = "zerossl-opi5p.zhyi.xin";
+    sslCertificate = "lets-encrypt-opi5p.zhyi.xin";
     noIndex.enable = true;
   };
 
