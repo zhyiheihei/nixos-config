@@ -1,7 +1,7 @@
 {
-  LT,
   config,
   lib,
+  LT,
   ...
 }:
 {

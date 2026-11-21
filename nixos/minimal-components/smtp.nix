@@ -37,7 +37,6 @@
 
   lantian.harden."notify-email@" = {
     enable = true;
-    enableConfinement = false;
     etc = {
       msmtprc = true;
     };
@@ -51,6 +50,7 @@
     };
 
     path = [
+      config.systemd.package
       pkgs.inetutils
       pkgs.msmtp
     ];
@@ -80,6 +80,7 @@
       Type = "oneshot";
       BindReadOnlyPaths = [
         config.sops.secrets.smtp-pass.path
+        "/var/log/journal"
       ];
     };
   };

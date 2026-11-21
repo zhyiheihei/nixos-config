@@ -178,6 +178,22 @@ rec {
         jdk-bin-8
       ]);
   };
+  # No python either: the search engine is the last exec path the patches leave in.
+  qbittorrent = (prev.qbittorrent.override { trackerSearch = false; }).overrideAttrs (old: {
+    patches = (old.patches or [ ]) ++ [
+      ../patches/qbittorrent-disable-run-external-program.patch
+      ../patches/qbittorrent-disable-python.patch
+    ];
+    cmakeFlags = (old.cmakeFlags or [ ]) ++ [ "-DPLUGINS=OFF" ];
+  });
+  # Built from the overlaid qbittorrent derivation but with its own source, so
+  # the patches have to be replaced instead of appended.
+  qbittorrent-enhanced = prev.qbittorrent-enhanced.overrideAttrs (_old: {
+    patches = [
+      ../patches/qbittorrent-enhanced-disable-run-external-program.patch
+      ../patches/qbittorrent-enhanced-disable-python.patch
+    ];
+  });
   rustic = prev.rustic.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ final.pkg-config ];
     buildInputs = (old.buildInputs or [ ]) ++ [

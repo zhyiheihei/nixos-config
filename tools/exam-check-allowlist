@@ -23,7 +23,7 @@ home/client-apps/packages.nix # 追加 siyuan 桌面客户端（配套 fork 独�
 home/client-apps/firefox/addons/update.py # SLUGS 列表追加 zeroomega（否则下次运行会从 addons.json 抹掉该扩展）
 home/client-apps/git.nix # 签名 key 为用户本人 GPG 指纹（结构零差异）
 home/common-apps/tunings.nix # fork git 身份（moli-pp，非 Magic Flash 显示名）
-nixos/client-apps/mcp-servers.nix # fork-only siyuan MCP + caldav 域名/用户名 zhyi 化 + browseros 门控 ml-laptop（上游 c7fd34b4 libvirt server 已随本次同步采纳）
+nixos/client-apps/mcp-servers.nix # 环境事实与 fork 独有项：credentialed 门控主机 ml-laptop（上游 lt-hp-omen）、sops 文件 common/mcp.yaml 与 owner zhyi、gitea 主机 git.zhyi.xin、fork 独有 siyuan MCP；上游新增的 composio 与单日历 caldav token 已随 2026-11-21 同步采纳；上游 lantian-rag 不采纳（本仓无 RAG 服务）
 nixos/common-apps/coredns.nix # 仅保留 CN 主机 AliDNS/DNSPod 分支，其余结构对齐上游
 nixos/common-apps/nginx/nginx.nix # gopher map 移除 neo（NeoNetwork 置空）+ user nginx nginx 指令（nginx #1388：root nginx -t 会把 temp 目录 chown 成编译默认 nobody，大 body 请求全 500） + htpasswd 用户名 lantian→zhyi（用户 2026-10-22 定为硬偏移：全站 Basic Auth 统一 zhyi 账号） + nginx 运行时 temp 目录改 /var/cache/nginx（nixpkgs 包编译默认 /tmp/nginx_client_body 等，nginx 带 PrivateTmp 时落在 tmpfs：2026-11-03 一台上传 800MB NAR 把请求体全缓冲进内存，greencloud-jp 因此连续 OOM）
 nixos/common-apps/nginx/oauth2-proxy.nix # csrf cookie 对齐说明 + cookie 域清单差异
@@ -67,7 +67,7 @@ helpers/constants/interface-prefixes.nix # bond 前缀（ba915668d：dragon-q8b 
 helpers/constants/misc.nix # defaultGatewayHost=chromebox（上游 pve-epyc，原 rock5c 随 66eeffa39 退役；2026-11-11 起改用家庭常开 mesh 主机 chromebox，本身带 dn42 路由与 netns VIP）：ltnet/dn42 默认网关主机映射特例，与 zerotier 条目同一决策；ULA 已替换为 fdd8 前缀
 nixos/minimal-components/kernel.nix # vm.swappiness 在 nix-builder 标签主机为 0（f28facd0b 防构建机 OOM 收口），非 nix-builder 分支随上游 d10db560f client?10:180
 nixos/common-apps/nginx/vhosts-zhyi.nix # fork：对应上游 vhosts-lantian.nix（后者登记 skip），vhost 集合按 zhyi 域重写
-nixos/minimal-policies/ensure-service-harden.nix # fork：额外豁免本仓独有且无法 confinement 的服务（palworld/clash-verge/leigod/hydra/zpool-trim/矿工 bzminer、krig-miner、krig-miner-quantus），上游启用集不含这些服务
+nixos/minimal-policies/ensure-service-harden.nix # fork：在上游 ignored 清单后追加本仓独有或上游未硬化/无法 confinement 的服务（palworld、clash-verge、leigod、hydra 系列、bzminer/krig-miner/krig-miner-quantus、mosquitto、memos、mongodb、home-assistant、hostapd、pppd-wan、ws-scrcpy、cliproxyapi、earlyoom、samba 系列、bird、jellyfin、iyuuplus 等 52 项）
 nixos/server-apps/wg-mesh.nix # 端口覆盖表 wgPortOverrides：opi5p=10151、chromebox=49131（rock5c=10133 随主机退役于 66eeffa39 一并删除）（家宽对外入向 UDP 回程丢包，换端口即恢复；20123/20131 落入 block-cn-ports 的 20000-23999 拒绝范围，改用范围外高位端口），端口按拥有者主机登记，监听端口与对端 Endpoint 两侧自洽；2026-10-27 起家宽主机（interconnect.name == home-lan，原 lan-access 标签已随上游 0a7a34752 删除）对 greencloud-jp 改用其公网 v6 端点（实测家宽→45.159.48.76 的 v4 回程按源端口定向丢弃：JP:10151 的入向 UDP 全丢，同期 10124/10129/49123/49131 的入向正常，JP→家宽的 TCP 也时长时短；v6 双向稳定），无公网 v6 的 VPS 仍走 v4；2026-11-04 复核：49xxx 段（临时端口范围 32768-60999）被沿途 QoS 严重排队，JP:49123↔rock5c（已退役）实测 70% 丢包/RTT 6.9s，换成 10133 后 0% 丢包/RTT 65ms 且 BGP 立即 Established（同批 49131↔chromebox 换 10131 无改善，chromebox 另有原因，保留 49131）
 nixos/optional-apps/prometheus/storagebox.nix # 服务停用（secrets 仓 7bcc13f 移除 hetzner-storagebox-metrics token，本仓无 Hetzner），模块为 `{ }` 占位；上游为完整 exporter 实现
 nixos/minimal-modules/secrets/tests.nix # 上游新增文件，测试桩用 greencloud 替代上游 colocrossing（本仓无该主机）

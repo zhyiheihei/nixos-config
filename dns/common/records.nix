@@ -70,6 +70,14 @@
 
     GeoDNSTarget = "zhyi.xin.";
 
+    # RFC 7929 DANE OPENPGPKEY lookup name for a mail address: the first 28
+    # bytes of sha256(localpart), hex-encoded, below _openpgpkey.<domain>.
+    openPGPKeyLabel =
+      address:
+      builtins.substring 0 56 (
+        builtins.hashString "sha256" (builtins.head (lib.splitString "@" address))
+      );
+
     Libravatar = [
       {
         recordType = "fakeALIAS";

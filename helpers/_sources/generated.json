@@ -63,11 +63,11 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-Gbc+BWqVke5nOYnQGUlJy5AAwrysOEdCQKUBLJsibbg=",
+            "sha256": "sha256-mNb3fIAf2Jq7vXXn9RyOvYR53yc3sdE0oiRoPc3mEX4=",
             "type": "url",
-            "url": "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026110900/rpz.delegacy.monostack.org.zone"
+            "url": "https://codeberg.org/IPv6-Monostack/delegacy-rpz/releases/download/v2026111400/rpz.delegacy.monostack.org.zone"
         },
-        "version": "2026110900"
+        "version": "2026111400"
     },
     "dn42-certificate-authority-client": {
         "cargoLock": null,
@@ -144,15 +144,15 @@
         "pinned": false,
         "src": {
             "name": null,
-            "sha256": "sha256-wwIBt33VZ+lntXpKqVzWcNSJFHWYkKwrslb9BCrvbps=",
+            "sha256": "sha256-vAz2yfxW+Flufki4fZW6cEXQxhd2po8w1zhjddTQxI4=",
             "type": "url",
-            "url": "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.6/yesoreyeram-infinity-datasource-4.1.6.zip"
+            "url": "https://github.com/grafana/grafana-infinity-datasource/releases/download/v4.1.8/yesoreyeram-infinity-datasource-4.1.8.zip"
         },
-        "version": "4.1.6"
+        "version": "4.1.8"
     },
     "ip-please": {
         "cargoLock": null,
-        "date": "2026-10-23",
+        "date": "2026-11-13",
         "extract": null,
         "name": "ip-please",
         "passthru": null,
@@ -164,16 +164,16 @@
             "name": null,
             "owner": "ip-please",
             "repo": "ip-please.github.io",
-            "rev": "5b6337c077ba24f6b252e522ed4ce8e3a0c0c661",
-            "sha256": "sha256-alnd3wIbiDGukKoEUYHRi/wjx5v+vtcYS6QQwktqZF8=",
+            "rev": "651c8e63f75ec0584c016a928c4d17043d30e3f3",
+            "sha256": "sha256-ytXtjYy3sAuzKer5WzXc39icO9ptm9zmcU6uo6JxAvg=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "5b6337c077ba24f6b252e522ed4ce8e3a0c0c661"
+        "version": "651c8e63f75ec0584c016a928c4d17043d30e3f3"
     },
     "iyuuplus": {
         "cargoLock": null,
-        "date": "2026-08-26",
+        "date": "2026-11-16",
         "extract": null,
         "name": "iyuuplus",
         "passthru": null,
@@ -183,17 +183,17 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "dd81c2bf3f54d080ec378f2cec7f936471f7e35d",
-            "sha256": "sha256-CqJbzs1Y8nKHSVOIM+HAKzMz3/A6AKB2ztIB6/iTwI8=",
+            "rev": "6610e577604eecdd5d6bc15af6c5087045eb800c",
+            "sha256": "sha256-ZoKAPMfGOuVKJHZg0LhA5lQnj0d03J+HM3J15l/0stA=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://github.com/ledccn/iyuuplus-dev.git"
         },
-        "version": "dd81c2bf3f54d080ec378f2cec7f936471f7e35d"
+        "version": "6610e577604eecdd5d6bc15af6c5087045eb800c"
     },
     "lobe-icons": {
         "cargoLock": null,
-        "date": "2026-11-03",
+        "date": "2026-11-18",
         "extract": null,
         "name": "lobe-icons",
         "passthru": null,
@@ -203,13 +203,13 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "ea434b96e75813517b377825e01c0df61dee8836",
-            "sha256": "sha256-g7pLjEC5QEEFk5blwIDzDozqo8LircUdbsfoHyPeWDs=",
+            "rev": "9752d967494e48d8f83f2808feb2b0207bf70997",
+            "sha256": "sha256-Iyi23NwGDHCqXpdN1qGxkG+yLeDOiUKEgwesIqRQMrk=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://github.com/lobehub/lobe-icons.git"
         },
-        "version": "ea434b96e75813517b377825e01c0df61dee8836"
+        "version": "9752d967494e48d8f83f2808feb2b0207bf70997"
     },
     "mattpocock-skills": {
         "cargoLock": null,
@@ -297,7 +297,7 @@
     },
     "noctalia-community-plugins": {
         "cargoLock": null,
-        "date": "2026-11-12",
+        "date": "2026-11-18",
         "extract": null,
         "name": "noctalia-community-plugins",
         "passthru": null,
@@ -307,17 +307,17 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "707ff54da41b7e5734e269d0dc0eab37666aa0f6",
-            "sha256": "sha256-1VxiBlBaxOPlW+q0C2mIx54FdgWpkxfbVosmsHZJaCs=",
+            "rev": "b9aefd48419862beb576ac9dbb6ff065c5d37c60",
+            "sha256": "sha256-3cBgQhHalZbTU5kCRJyqCHT9ptqHLg4fPf4rAd1cEb0=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://github.com/noctalia-dev/community-plugins.git"
         },
-        "version": "707ff54da41b7e5734e269d0dc0eab37666aa0f6"
+        "version": "b9aefd48419862beb576ac9dbb6ff065c5d37c60"
     },
     "noctalia-official-plugins": {
         "cargoLock": null,
-        "date": "2026-11-11",
+        "date": "2026-11-19",
         "extract": null,
         "name": "noctalia-official-plugins",
         "passthru": null,
@@ -327,17 +327,17 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "7ae96a6f434768f2664be93fdaba4bc603156277",
-            "sha256": "sha256-0bPs7KXGPcFL9VsAgkf1PVxHE0kGAmB37YXY/BPhk2Y=",
+            "rev": "27f56445ee60a8f63e5e97045e710c5695802dbd",
+            "sha256": "sha256-M/AZVG120D1fS1lhYeZveljdnJEW7bKGBlw70LRKY20=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://github.com/noctalia-dev/official-plugins.git"
         },
-        "version": "7ae96a6f434768f2664be93fdaba4bc603156277"
+        "version": "27f56445ee60a8f63e5e97045e710c5695802dbd"
     },
     "nvidia-patch": {
         "cargoLock": null,
-        "date": "2026-11-08",
+        "date": "2026-11-15",
         "extract": null,
         "name": "nvidia-patch",
         "passthru": null,
@@ -349,12 +349,12 @@
             "name": null,
             "owner": "keylase",
             "repo": "nvidia-patch",
-            "rev": "620c4aa29cbff9ea32a0b1e29dad60eb62b9dba5",
-            "sha256": "sha256-tZAXQQ+9C94wV/1FVx+lVDDtJm/buphdhysJlw5GSrA=",
+            "rev": "7f30a61d159fa4c9644a7bf9d71a679c07062f5f",
+            "sha256": "sha256-lyD4TqgaWE0YwfauX7o8PdxVxQmai4LBckqXopN+m8s=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "620c4aa29cbff9ea32a0b1e29dad60eb62b9dba5"
+        "version": "7f30a61d159fa4c9644a7bf9d71a679c07062f5f"
     },
     "open5gs": {
         "cargoLock": null,
@@ -462,7 +462,7 @@
     },
     "tar1090-db": {
         "cargoLock": null,
-        "date": "2026-11-09",
+        "date": "2026-11-16",
         "extract": null,
         "name": "tar1090-db",
         "passthru": null,
@@ -474,12 +474,12 @@
             "name": null,
             "owner": "wiedehopf",
             "repo": "tar1090-db",
-            "rev": "7228d14dc1b0ff04c63e4bae24ca9d605e32460b",
-            "sha256": "sha256-n6bxIO82cfNfzG1G74kotXljCzfFoB/GtPH2p8vcVh0=",
+            "rev": "4248a81f68f14a1a1fa3730714b99dcc238c12aa",
+            "sha256": "sha256-TFzJ5WM7jB7i87PR3R4EFHr93VcrNIx/lChft3TDkhM=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "7228d14dc1b0ff04c63e4bae24ca9d605e32460b"
+        "version": "4248a81f68f14a1a1fa3730714b99dcc238c12aa"
     },
     "um-react": {
         "cargoLock": null,

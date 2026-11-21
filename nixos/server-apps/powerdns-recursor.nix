@@ -122,6 +122,7 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
         any_to_tcp = true;
         qname_minimization = false;
         server_id = "${config.networking.hostName}.zhyi.xin";
+        socket_dir = "/run/pdns-recursor";
         forward_zones_file = "/nix/sync-servers/ltnet-scripts/pdns-recursor-conf/fwd-dn42-interconnect.yml";
         forward_zones = forwardZones;
         forward_zones_recurse = forwardZonesRecurse;
@@ -148,15 +149,35 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
         DynamicUser = lib.mkForce false;
         ExecReload = [
           ""
-          "${lib.getExe' pkgs.pdns-recursor "rec_control"} reload-zones"
+          "${lib.getExe' pkgs.pdns-recursor "rec_control"} --socket-dir=/run/pdns-recursor reload-zones"
         ];
         User = lib.mkForce "pdns-recursor";
         Group = lib.mkForce "pdns-recursor";
         Restart = "always";
         RestartSec = 5;
+        AmbientCapabilities = [
+          "CAP_NET_BIND_SERVICE"
+          "CAP_CHOWN"
+        ];
+        CapabilityBoundingSet = [
+          "CAP_NET_BIND_SERVICE"
+          "CAP_CHOWN"
+        ];
+        MemoryDenyWriteExecute = false;
+        ProtectSystem = "full";
+        PrivateUsers = false;
+        BindReadOnlyPaths = [
+          "/etc/static/pdns-recursor:/etc/pdns-recursor"
+          "/nix/sync-servers/ltnet-scripts/pdns-recursor-conf"
+        ];
+        SystemCallFilter = [
+          "~@clock @debug @module @mount @raw-io @reboot @swap @cpu-emulation @obsolete"
+        ];
       };
     };
   };
+
+  lantian.harden.pdns-recursor.enable = true;
 
   users.users.pdns-recursor = {
     group = "pdns-recursor";

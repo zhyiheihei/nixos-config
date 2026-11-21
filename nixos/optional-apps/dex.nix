@@ -167,14 +167,6 @@ let
         redirectURIs = [ "https://oidc-tester.zhyi.xin/oauth2/callback" ];
       }
       {
-        id = "tranquil-pds";
-        name = "Tranquil PDS";
-        secret = {
-          _secret = config.sops.secrets.dex-tranquil-pds-secret.path;
-        };
-        redirectURIs = [ "https://at.zhyi.xin/oauth/sso/callback" ];
-      }
-      {
         id = "vaultwarden";
         name = "Vaultwarden";
         secret = {

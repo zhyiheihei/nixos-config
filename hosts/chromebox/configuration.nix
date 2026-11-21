@@ -53,7 +53,6 @@ in
     ../../nixos/optional-apps/victorialogs.nix
 
     ../../nixos/optional-cron-jobs/ncmm.nix
-    ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
     ../../nixos/optional-cron-jobs/rsgain-cloudmusic.nix
 
     ./hardware-configuration.nix

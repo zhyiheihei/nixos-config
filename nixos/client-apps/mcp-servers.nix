@@ -30,6 +30,7 @@ in
       lib.genAttrs
         (map (name: "mcp-${name}-api-key") (
           lib.optionals credentialed [
+            "composio"
             "context7"
             "exa"
             "firecrawl"
@@ -44,24 +45,17 @@ in
           sopsFile = LT.secret "common/mcp.yaml";
           owner = "zhyi";
           mode = "0400";
-        });
+        })
+      // lib.optionalAttrs credentialed {
+        mcp-caldav-calendar-url = {
+          sopsFile = LT.secret "common/mcp.yaml";
+          owner = "zhyi";
+          mode = "0400";
+        };
+      };
 
     lantian.mcp.mcpServers = {
       # keep-sorted start block=yes
-      akasha-terminal = {
-        type = "streamable-http";
-        url = "https://agent.zlb.ink/api/mcp/";
-      };
-      caldav = {
-        command = toString (
-          pkgs.writeShellScript "mcp-caldav" ''
-            export CALDAV_BASE_URL=https://cal.zhyi.xin
-            export CALDAV_USERNAME=zhyi
-            export CALDAV_PASSWORD=$(cat "${config.sops.secrets.default-pw.path}")
-            exec ${pkgs.nodejs}/bin/npx -y caldav-mcp
-          ''
-        );
-      };
       deepwiki = {
         type = "streamable-http";
         url = "https://mcp.deepwiki.com/mcp";
@@ -102,6 +96,25 @@ in
       browseros = {
         type = "streamable-http";
         url = "http://127.0.0.1:9000/mcp";
+      };
+      caldav = {
+        command = toString (
+          pkgs.writeShellScript "mcp-caldav" ''
+            export CALDAV_URL=$(cat "${config.sops.secrets.mcp-caldav-calendar-url.path}")
+            export CALDAV_TOKEN=unused
+            exec ${pkgs.nodejs}/bin/npx -y @ni-c/caldav-mcp
+          ''
+        );
+      };
+      composio = {
+        command = toString (
+          pkgs.writeShellScript "mcp-composio" ''
+            exec ${lib.getExe pkgs.mcp-proxy} \
+              -H x-consumer-api-key "$(cat ${config.sops.secrets.mcp-composio-api-key.path})" \
+              --transport streamablehttp \
+              "https://connect.composio.dev/mcp"
+          ''
+        );
       };
       context7 = {
         command = toString (

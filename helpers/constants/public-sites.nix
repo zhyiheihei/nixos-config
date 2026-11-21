@@ -14,6 +14,7 @@
   "lab.zhyi.xin"
   "letsencrypt-ssl.zhyi.xin"
   "letsencrypt-test-ssl.zhyi.xin"
+  "openpgpkey.zhyi.xin"
   "posts.zhyi.xin"
   "sip.zhyi.xin"
   "tachidesk.zhyi.xin"

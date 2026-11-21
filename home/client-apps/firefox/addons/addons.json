@@ -1,23 +1,23 @@
 [
   {
     "pname": "adnauseam",
-    "version": "3.29.2",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5058842/adnauseam-3.29.2.xpi",
-    "hash": "sha256-qDhCE+Beh7fRin5xBgTEgqkeHcxFIFsHS/fZuUVLEGQ=",
+    "version": "3.29.4",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5248814/adnauseam-3.29.4.xpi",
+    "hash": "sha256-39ny9egav4mQfV3bUDj+XAlyvyTFILX9WNgQmlCxiAQ=",
     "addonId": "adnauseam@rednoise.org"
   },
   {
     "pname": "all-api-hub",
-    "version": "4.10.1",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5241862/all_api_hub-4.10.1.xpi",
-    "hash": "sha256-0stL4BSDbLw/YleyCUJujccwrjN+TSj6MJ7a97KGE7Q=",
+    "version": "4.11.0",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5282933/all_api_hub-4.11.0.xpi",
+    "hash": "sha256-QeNtqTO9r9xGROEX0vXImmUsr+8VYPZ6PnjXNLPvt+k=",
     "addonId": "{bc73541a-133d-4b50-b261-36ea20df0d24}"
   },
   {
     "pname": "awardwallet",
-    "version": "3.8.13",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5232468/awardwallet-3.8.13.xpi",
-    "hash": "sha256-F/crnlTJ6WBk076amCX8jhImrOQ7kWosytBxtb8khws=",
+    "version": "3.8.21",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5280431/awardwallet-3.8.21.xpi",
+    "hash": "sha256-Dg0PUPTAHxLv94/gs9khDXarIY1sKmD2KCdwRxXfbOo=",
     "addonId": "6200cc7406cd11e1a68a12313d1adcbe@jetpack"
   },
   {
@@ -29,9 +29,9 @@
   },
   {
     "pname": "bitwarden-password-manager",
-    "version": "2026.10.2",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5198653/bitwarden_password_manager-2026.10.2.xpi",
-    "hash": "sha256-q/nXJz3VWsBYPsxpl/f3rj0p3hHirQpIOLgOK5QdqnM=",
+    "version": "2026.11.0",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5278513/bitwarden_password_manager-2026.11.0.xpi",
+    "hash": "sha256-YH1kM9neFRpMURNa2ecIgkYNDgSTqbWF8VqYSNXxC5c=",
     "addonId": "{446900e4-71c2-419f-a6a7-df9c091e268b}"
   },
   {
@@ -106,9 +106,9 @@
   },
   {
     "pname": "multi-account-containers",
-    "version": "8.4.0",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5168122/multi_account_containers-8.4.0.xpi",
-    "hash": "sha256-EJNtaC4XvS6K+gGL3pT5J7UM8Flz1u+Mo8VPgHss97o=",
+    "version": "8.4.1",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5272233/multi_account_containers-8.4.1.xpi",
+    "hash": "sha256-CV2dRwFYwsCWOLRg3uD8pEibnkf1EuoWjZSY+WTHm2Q=",
     "addonId": "@testpilot-containers"
   },
   {

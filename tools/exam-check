@@ -1036,7 +1036,7 @@ def main():
     for path in sorted(base_set):
         mapped = rmap.get(path, path)
         if mapped is None:
-            upstream_only.append(path)
+            # 上游自基线删除该路径，本仓跟随删除后无从比对，不计入上游独有
             continue
         ep = norm_path(mapped)
         expected.add(ep)

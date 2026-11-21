@@ -45,14 +45,13 @@ in
     ../../nixos/optional-apps/rsync-server-ci.nix
     ../../nixos/optional-apps/rsync-server-internal.nix
     ../../nixos/optional-apps/sublinkpro-nix.nix
-    ../../nixos/optional-apps/tranquil-pds.nix
+    ../../nixos/optional-apps/bluesky-pds.nix
     ../../nixos/optional-apps/waline
     ../../nixos/optional-apps/tg-bot-cleaner-bot
     # ../../nixos/optional-apps/yggdrasil-alfis.nix
     ../../nixos/optional-apps/zerotierone-controller.nix
 
     ../../nixos/optional-cron-jobs/dn42-certificate.nix
-    # ../../nixos/optional-cron-jobs/radicale-calendar-sync.nix
 
     "${inputs.secrets}/nixos-hidden-module/11116c7374949a7a"
     "${inputs.secrets}/nixos-hidden-module/35c68fea6f2bde77"

@@ -1,4 +1,4 @@
-# Zhyi's NixOS Configuration
+# Magic Flash's NixOS Configuration
 
 ## 文档范围
 
@@ -81,6 +81,24 @@ flake.lock 的标准格式：顶层 `"root"` 键是一个字符串，指向 `"no
 | `configuration.nix`          | 主配置文件                                |
 | `hardware-configuration.nix` | 硬件配置（由 nixos-generate-config 生成） |
 
+### 可用标签
+
+| 标签             | 说明                                                       |
+| ---------------- | ---------------------------------------------------------- |
+| `client`         | 客户端配置（带 GUI）                                       |
+| `cn-accel`       | 中国网络加速节点（启用 v2ray、openvpn-gameaccel）  |
+| `dn42`           | DN42 节点                                                  |
+| `nix-builder`    | Nix 远程构建节点                                           |
+| `public-facing`  | 公网可访问节点（用于 Prometheus blackbox 监控等）          |
+| `server`         | 服务器配置                                                 |
+| `ipv4-only`      | 仅 IPv4                                                    |
+| `ipv6-only`      | 仅 IPv6                                                    |
+| `lan-access`     | 局域网访问                                                 |
+| `cuda`           | NVIDIA CUDA 支持                                           |
+| `cuda-pascal`    | Pascal（CC 6.1）CUDA 12 包集（仅编译 CC 6.1）                |
+| `low-gpu`        | 低性能 GPU 优化（禁用桌面模糊、简化 mpv 缩放）             |
+| `low-ram`        | 低内存优化                                                 |
+
 ### 服务导入落位（exam 对齐）
 
 服务落位跟随 exam 宿主机角色，在对应角色内按职能选主机：
@@ -120,7 +138,7 @@ flake.lock 的标准格式：顶层 `"root"` 键是一个字符串，指向 `"no
 | `server-components/`  | 服务器组件（backup、dn42、logging 等）                 |
 | `client-components/`  | 客户端组件                                             |
 | `pve-components/`     | Proxmox VE 组件（自动导入到 pve.nix）                  |
-| `hardware/`           | 通用硬件配置片段（LVM、QEMU、NVIDIA 等，需在主机配置中手动导入） |
+| `hardware/`           | 通用硬件配置片段（LVM、QEMU、NVIDIA 等，需在主机配置中手动导入）；`nvidia/cuda-pascal.nix` 是覆盖层，由 flake 模块按主机引用 |
 | `optional-apps/`      | 可选应用（部分主机使用，需在主机配置中手动导入）        |
 | `optional-cron-jobs/` | 可选定时任务（部分主机使用，需在主机配置中手动导入）    |
 
@@ -178,6 +196,7 @@ flake.lock 的标准格式：顶层 `"root"` 键是一个字符串，指向 `"no
 | `cities.json`      | 城市数据                                    |
 | `constants/`       | 各类常量（端口、网络、区域等）              |
 | `fn/`              | 辅助函数（nginx、hosts、systemd 等） |
+| `gpg-keys/`        | GPG 公钥导出（二进制，供 WKD 站点与 DNS OPENPGPKEY 记录使用） |
 
 ### dns/ 目录
 
@@ -379,6 +398,18 @@ portStr.MyService  # 返回 "13xxx" 而非 13xxx
 
 ## 开发指南
 
+### 提交信息约定
+
+提交标题使用英文，格式为 `<scope>: <summary>`；需要细分范围时使用 `<scope>(<subscope>): <summary>`。
+
+- `scope` 使用小写的模块、应用或目录名；主机配置使用 `hosts(<hostname>)`。
+- `summary` 以小写的祈使动词开头，简洁描述改动，不加句号；专有名称保留原有大小写。
+- 通用维护使用 `general`，自动更新使用 `auto`，项目文档使用 `docs`；不要无故改用 `feat:`、`fix:` 等类型前缀。
+- 提交前查看近期 `git log`，沿用相关范围的命名；不同目的的改动保持独立提交。
+- 只有用户明确授权时才改写已有提交；提交、推送和部署分别取得授权。
+
+示例：`home: replace the launcher`、`hosts(example): enable the serial console`、`docs: document commit message conventions`。
+
 ### 常用命令
 
 构建全部 NixOS 主机配置时，使用 `make build`，不要自行拼接逐主机构建命令替代。
@@ -410,6 +441,8 @@ nix run .#update-flake
 3. **分别检查密钥与 socket 权限**：使用现有密钥仓库和配置生成机制，不把明文写入 Nix store、日志或验收产物。允许代理连接 Unix socket，不代表允许代理读取同目录的机密配置；应分别验证目录、配置文件与 socket 的实际权限。账户数据库中的组成员不等于长驻进程已持有的附加组，验收时也要检查实际进程的身份与组列表。
 4. **先检查部署影响**：检查求值结果、生成的配置与 systemd 单元，再对明确指定的主机执行 Colmena dry-activate。审阅实际停止、重启和重载清单，不把无关服务的变化当作新增模块的必然结果，也不为通过部署而盲修其他模块。
 5. **区分各阶段完成状态**：文件复制或恢复应同时校验内容和执行权限，Nix store 路径也受执行位影响；运行验收应检查真实打包进程、服务状态、journal、后端连接和应用接口。数据已复制、服务已启动、首次索引完成是不同状态，未完成的阶段必须明确报告。健康检查成功不代表 API 与 MCP 路由均可用，应经过实际反向代理入口测试初始化、工具发现与查询，并核对 Host、Origin 等转发行为。自编验收脚本应先对照真实响应建立解析预期，不把脚本解析错误直接当成服务故障。
+6. **模型权重不进 store，首次下载交给受 guard 约束的一次性单元**：数十 GB 的权重放在主机缓存目录，由 `llama-swap-provision-<model>` oneshot 单元在首次服务前下载，`ConditionPathExistsGlob` 以模型自身的配置文件为完成标记（缺失才运行，目录被清空后自动重新触发）。不要把它塞进模型的 `cmd`：llama-swap 的 `healthCheckTimeout` 只在健康检查报告加载进度时重置，下载阶段不产生进度，会被判为启动失败。下载与首次加载耗时（数十分钟）应与服务启动、请求验证分别记录。
+7. **升级后核对解包目录与服务自己计算的源码哈希**：包装器把应用文件解包到缓存目录并与新 store 路径合并，旧版本残留的文件会让应用算出的源码哈希与其自带构建元数据不一致，进而误判需要重新编译。解包代码要镜像（删除源中已不存在的文件）而非只做合并，否则每次升级都会重演。
 6. **完成后记录通用经验**：只在本文件补充可复用的开发与验证流程，不记录具体应用的配置细节、密钥、部署 revision 或临时产物路径。提交、推送和部署分别遵守用户的授权范围。
 
 ### 添加新主机
@@ -434,6 +467,14 @@ lantian.firewall.zones = {
 ```
 
 `forward` 和 `reject` 条目仍使用属性集形式。
+
+### 密钥文件引用
+
+需要把 secrets 仓库中的单个文件放进 store 时（`sops.secrets.<name>.sopsFile`、`BindReadOnlyPaths`、服务命令行参数等），统一用 `LT.secret "<相对路径>"`（[`helpers/fn/secret.nix`](helpers/fn/secret.nix)），由 `pkgs.runCommand` 只复制该文件。
+
+禁止把 `inputs.secrets + "/..."` 直接用作派生依赖：该字符串携带整个 secrets 仓库的 store 路径上下文，会让整个仓库进入系统闭包并被推到二进制缓存。仅在求值期读取的 `import (inputs.secrets + "/...")`、`builtins.readFile (...)` 不受影响。
+
+[`nixos/minimal-components/secrets-closure.nix`](nixos/minimal-components/secrets-closure.nix) 把 `inputs.secrets.outPath` 加入 `system.forbiddenDependenciesRegexes` 作为兜底断言；由于 sops 文件在求值期尚不存在，该模块同时关闭 `sops.validateSopsFiles`。
 
 ## 架构图
 
