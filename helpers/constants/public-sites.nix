@@ -90,6 +90,7 @@
   "hostdare.zhyi.xin"
   "lg.zhyi.dn42"
   "lg.zhyi.xin"
+  "map.mc.zhyi.xin"
   "sub.zhyi.xin"
   "tencent-cn.zhyi.xin"
   "tencent.zhyi.xin"

@@ -204,6 +204,7 @@ rec {
     Asterisk.RTP.Start = 25000;
     Asterisk.RTP.End = 25199;
     Minecraft = 25565; # MCSM-managed server (tcp main + udp query)
+    MinecraftMap = 25567; # Minecraft live map of an MCSM-managed server
     WGLanTian.ForwardStart = 30010;
     WGLanTian.ForwardStop = 32559;
     Ephemeral.Start = 32768;

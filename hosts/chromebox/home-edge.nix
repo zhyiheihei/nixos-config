@@ -24,7 +24,7 @@ let
     "wallos"
     "nexttodo"
   ];
-  mkTlsVhost = name: upstream: {
+  mkTlsVhost = cert: name: upstream: {
     "${name}.zhyi.xin" = {
       locations."/" = {
         proxyPass = "https://${upstream}";
@@ -37,7 +37,7 @@ let
         '';
       };
       accessibleBy = "public";
-      sslCertificate = "lets-encrypt-zhyi.xin";
+      sslCertificate = cert;
       noIndex.enable = true;
     };
   };
@@ -67,7 +67,10 @@ in
     lib.genAttrs (map (name: "${name}.zhyi.xin") publicServices) (_: {
       accessibleBy = lib.mkForce "public";
     })
-    // builtins.foldl' (acc: n: acc // mkTlsVhost n tlsProxies.${n}) { } (builtins.attrNames tlsProxies)
+    // builtins.foldl' (acc: n: acc // mkTlsVhost "lets-encrypt-zhyi.xin" n tlsProxies.${n}) { } (
+      builtins.attrNames tlsProxies
+    )
+    // mkTlsVhost "lets-encrypt-mc.zhyi.xin" "map.mc" LT.hosts.venus.interconnect.IPv4
     // builtins.foldl' (acc: n: acc // mkPlainVhost n plainProxies.${n}) { } (
       builtins.attrNames plainProxies
     );

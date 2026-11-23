@@ -286,6 +286,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "map.mc";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
       name = "matrix";
       target = "greencloud";
       ttl = "1h";

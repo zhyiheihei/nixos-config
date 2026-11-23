@@ -25,6 +25,17 @@
     path = "/root/.config/containers/auth.json";
   };
 
+  lantian.nginxVhosts."map.mc.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.MinecraftMap}";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
+
+    sslCertificate = "lets-encrypt-mc.zhyi.xin";
+    noIndex.enable = true;
+  };
+
   virtualisation.oci-containers.containers.mcsm-daemon.ports = lib.mkForce [
     "127.0.0.1:${LT.portStr.Mcsm.Daemon}:24444"
     "10.88.0.1:${LT.portStr.Mcsm.Daemon}:24444"
