@@ -38,8 +38,10 @@ def run(fn, *args):
     return out.getvalue(), err.getvalue(), code
 
 
-def run_main(args=()):
-    with mock.patch.object(sys, "argv", ["exam-check", *args]):
+def run_main(args=(), eval_failure=None):
+    with mock.patch.object(M, "eval_report", return_value=list(eval_failure or [])), mock.patch.object(
+        sys, "argv", ["exam-check", *args]
+    ):
         return run(M.main)
 
 
@@ -641,6 +643,50 @@ def dns_file(records, extra=""):
         lines += ['      ttl = "1h";', "    }"]
     lines += ["  ];", extra, "}", ""]
     return "\n".join(lines).encode()
+
+
+class EvalGate(Base):
+    """CI 产物求值是唯一能看穿文本层的门禁（2026-11-23 undefined lib 事故）。"""
+
+    def fake(self, returncode=0, stderr=""):
+        return mock.Mock(returncode=returncode, stderr=stderr, stdout="")
+
+    def test_pass_is_silent(self):
+        with mock.patch.object(M.subprocess, "run", return_value=self.fake()):
+            self.assertEqual(M.eval_report(), [])
+            out = io.StringIO()
+            with contextlib.redirect_stdout(out):
+                M.print_eval([])
+            self.assertEqual(out.getvalue(), "")
+
+    def test_failure_keeps_tail_and_names_error(self):
+        stderr = "\n".join(f"line{i}" for i in range(40)) + "\n\nerror: undefined variable 'lib'\n"
+        with mock.patch.object(M.subprocess, "run", return_value=self.fake(1, stderr)):
+            failure = M.eval_report()
+        self.assertEqual(len(failure), 15)
+        self.assertEqual(failure[-1], "error: undefined variable 'lib'")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            M.print_eval(failure)
+        self.assertIn("nix eval .#dnscontrol-config 失败", out.getvalue())
+
+    def test_nix_missing_is_reported(self):
+        with mock.patch.object(M.subprocess, "run", side_effect=FileNotFoundError):
+            self.assertIn("nix 不在 PATH", " ".join(M.eval_report()))
+
+    def test_green_when_eval_passes(self):
+        self.fx.scenario({"home/a.nix": b"a\n"}, {"home/a.nix": b"a\n"}, {"home/a.nix": b"a\n"})
+        out, _, code = run_main()
+        self.assertEqual(code, None)
+        self.assertIn("exam-check: 通过", out)
+
+    def test_exit_1_when_eval_fails(self):
+        self.fx.scenario({"home/a.nix": b"a\n"}, {"home/a.nix": b"a\n"}, {"home/a.nix": b"a\n"})
+        out, err, code = run_main(eval_failure=["error: undefined variable 'lib'"])
+        self.assertEqual(code, 1)
+        self.assertIn("! nix eval .#dnscontrol-config 失败", out)
+        self.assertIn("undefined variable 'lib'", out)
+        self.assertIn("产物求值失败 1 行", err)
 
 
 class DnsRecordParse(unittest.TestCase):

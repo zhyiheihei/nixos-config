@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # 上游 exam 对齐工具（agent 入口，自描述）：
-#   tools/exam-check          审计共享路径相对基线的漂移 + DNS 视图是否跟随上游（默认动作）
+#   tools/exam-check          审计共享路径相对基线的漂移 + DNS 视图是否跟随上游 + CI 产物能否求值（默认动作）
 #   tools/exam-check log      查看基线以来上游增量
 #   tools/exam-check host-map [exam-host] 查看按服务导入核定的主机映射
 #   tools/exam-check structure           上游新增/删除/改名是否已跟进
@@ -513,6 +513,48 @@ def print_dns_views(drift, known, stale, allow):
             print(f"  {key}")
 
 
+# ===== 产物求值审计 =====
+# 文件级与 DNS 视图审计都只看文本：SHARED_PATHS 内的文件做字节比对，fork 自有的 dns/
+# 连比对都没有，DNS 视图审计只解析记录标签。模块头少一个形参这类语义错误在文本层
+# 完全不可见。2026-11-23 事故：merge 把 dns/common/records.nix 的 `lib` 形参丢了，
+# 正文仍在用 lib.splitString，两侧审计都静默，CI 从那笔 push 起每次都在
+# dnscontrol-config 求值上炸（undefined variable 'lib'），DNS 三天没推上去。
+# 这里直接求值 CI 唯一构建的那个产物（writeText，不编译、不建 store、不落 GC root）。
+EVAL_ATTR = "dnscontrol-config"
+
+
+def eval_report():
+    """求值 CI 产物，返回报错末尾若干行；空列表表示通过。"""
+    try:
+        r = subprocess.run(
+            [
+                "nix",
+                "--extra-experimental-features",
+                "nix-command flakes",
+                "eval",
+                "--raw",
+                f".#{EVAL_ATTR}.outPath",
+            ],
+            cwd=str(REPO),
+            capture_output=True,
+            text=True,
+        )
+    except FileNotFoundError:
+        return ["nix 不在 PATH，无法求值"]
+    if r.returncode == 0:
+        return []
+    lines = [ln for ln in (r.stderr or "").splitlines() if ln.strip()]
+    return lines[-15:] or ["求值失败（无输出）"]
+
+
+def print_eval(failure):
+    if not failure:
+        return
+    print(f"\n! nix eval .#{EVAL_ATTR} 失败（push 后 CI 必炸在求值上；报错末尾）：")
+    for line in failure:
+        print(f"  {line}")
+
+
 def norm_path(p):
     """路径级认可替换（vhosts-lantian.nix→vhosts-zhyi.nix 等），供结构审计配对。"""
     for old, new in NORMALIZE:
@@ -987,7 +1029,7 @@ def main():
                "  tools/exam-check log          # 上游改了什么\n"
                "  tools/exam-check host-map     # 查看按服务导入核定的主机映射\n"
                "  tools/exam-check structure    # 上游新增/删除/改名是否已跟进（A/D/R）\n"
-               "  tools/exam-check              # 我们漂了多少（含结构审计、上游条目级变更、DNS 视图与 allowlist 理由引用；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
+               "  tools/exam-check              # 我们漂了多少（含结构审计、上游条目级变更、DNS 视图、allowlist 理由引用与 CI 产物求值；exit 0=绿，1=有未登记漂移，2=配置错误）\n"
                "  tools/exam-check normalize <path>...  # 验收替换表套用到工作树文件（checkout 上游后收尾）\n"
                "  tools/exam-check -v           # 漂移文件的归一化 diff\n"
                "同步完成后 bump tools/exam-check-baseline 的 baseline。",
@@ -1149,6 +1191,8 @@ def main():
     if not args.path:
         dns_drift, dns_known, dns_stale = dns_view_report(allow, args.strict)
         print_dns_views(dns_drift, dns_known, dns_stale, allow)
+    eval_failure = [] if args.path else eval_report()
+    print_eval(eval_failure)
     if args.verbose:
         for p in drift + known:
             base = normalize(baseline_content(baseline, p)).splitlines()
@@ -1174,6 +1218,7 @@ def main():
         or stale_allow
         or stale_refs
         or upstream_only
+        or eval_failure
     ):
         print(
             f"\nexam-check: 未登记漂移 {len(drift)} 个、上游结构变更未跟进 {len(struct_unapplied)} 项、"
@@ -1182,7 +1227,8 @@ def main():
             f"DNS 视图漂移 {len(dns_drift)} 条、DNS 登记失效 {len(dns_stale)} 条、"
             f"未跟随删除 {len(retained)} 个、allowlist 失效条目 {len(stale_allow)} 个、"
             f"allowlist 理由引用失效 {len(stale_refs)} 处、"
-            f"上游独有未处理 {len(upstream_only)} 个，exit 1",
+            f"上游独有未处理 {len(upstream_only)} 个、"
+            f"产物求值失败 {len(eval_failure)} 行，exit 1",
             file=sys.stderr,
         )
         sys.exit(1)
