@@ -71,8 +71,6 @@ in
       builtins.attrNames tlsProxies
     )
     // mkTlsVhost "lets-encrypt-mc.zhyi.xin" "map.mc" LT.hosts.venus.interconnect.IPv4
-    // mkTlsVhost "lets-encrypt-mc.zhyi.xin" "dl.mc" LT.hosts.venus.interconnect.IPv4
-    // mkTlsVhost "lets-encrypt-dl.mc.zhyi.xin" "test.dl.mc" LT.hosts.venus.interconnect.IPv4
     // builtins.foldl' (acc: n: acc // mkPlainVhost n plainProxies.${n}) { } (
       builtins.attrNames plainProxies
     );

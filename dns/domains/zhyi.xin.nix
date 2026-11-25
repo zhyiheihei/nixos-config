@@ -148,12 +148,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "dl.mc";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
-    {
-      recordType = "CNAME";
       name = "element";
       target = "greencloud";
       ttl = "1h";
@@ -454,12 +448,6 @@ let
       name = "tachidesk";
       target = "chromebox.ltnet.zhyi.xin.";
       ttl = "1h";
-    }
-    {
-      recordType = "CNAME";
-      name = "test.dl.mc";
-      target = homeDdnsTarget;
-      ttl = "2m";
     }
     {
       recordType = "CNAME";
