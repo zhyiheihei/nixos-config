@@ -67,10 +67,8 @@
 
   lantian.firewall.zones = {
     WAN.ports."${LT.portStr.Minecraft}".type = "local";
-    WAN.tcpPorts."${LT.portStr.MinecraftDownload}".type = "local";
     LAN = {
       ports."${LT.portStr.Minecraft}".type = "local";
-      tcpPorts."${LT.portStr.MinecraftDownload}".type = "local";
       udpPorts."9993".type = "local";
     };
     LTNET.ports."${LT.portStr.Minecraft}".type = "local";
