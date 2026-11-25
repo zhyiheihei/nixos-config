@@ -36,6 +36,28 @@
     noIndex.enable = true;
   };
 
+  lantian.nginxVhosts."dl.mc.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.MinecraftDownload}";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
+
+    sslCertificate = "lets-encrypt-mc.zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  lantian.nginxVhosts."test.dl.mc.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.MinecraftDownloadTest}";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
+
+    sslCertificate = "lets-encrypt-dl.mc.zhyi.xin";
+    noIndex.enable = true;
+  };
+
   virtualisation.oci-containers.containers.mcsm-daemon.ports = lib.mkForce [
     "127.0.0.1:${LT.portStr.Mcsm.Daemon}:24444"
     "10.88.0.1:${LT.portStr.Mcsm.Daemon}:24444"
@@ -45,8 +67,10 @@
 
   lantian.firewall.zones = {
     WAN.ports."${LT.portStr.Minecraft}".type = "local";
+    WAN.tcpPorts."${LT.portStr.MinecraftDownload}".type = "local";
     LAN = {
       ports."${LT.portStr.Minecraft}".type = "local";
+      tcpPorts."${LT.portStr.MinecraftDownload}".type = "local";
       udpPorts."9993".type = "local";
     };
     LTNET.ports."${LT.portStr.Minecraft}".type = "local";

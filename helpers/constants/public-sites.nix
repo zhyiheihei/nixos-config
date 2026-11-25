@@ -83,6 +83,7 @@
 
   # Intentionally public without authentication
   # keep-sorted start
+  "dl.mc.zhyi.xin"
   "flapalerted.zhyi.xin"
   "google.zhyi.xin"
   "greencloud-jp.zhyi.xin"
@@ -94,6 +95,7 @@
   "sub.zhyi.xin"
   "tencent-cn.zhyi.xin"
   "tencent.zhyi.xin"
+  "test.dl.mc.zhyi.xin"
   "volcengine.zhyi.xin"
   # keep-sorted end
 ]

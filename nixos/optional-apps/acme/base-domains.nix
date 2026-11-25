@@ -29,6 +29,7 @@ in
       # ATproto PDS
       (mkLetsEncryptWildcardCert "at.zhyi.xin")
       (mkLetsEncryptWildcardCert "mc.zhyi.xin")
+      (mkLetsEncryptWildcardCert "dl.mc.zhyi.xin")
     ]
     ++ (builtins.map mkLetsEncryptWildcardCert hostSubdomains)
     ++ (builtins.map mkLetsEncryptWildcardCert replacedHostSubdomains)
