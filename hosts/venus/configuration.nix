@@ -51,6 +51,17 @@
 
   systemd.services.podman.environment = LT.proxyEnvironment;
 
+  # 私有镜像凭据：pterodactyl/wings 用 podman 拉 ghcr.io/<owner>/zccfwq-server:<tag>，
+  # 凭据得是 podman 认的 auth.json（整份 JSON 字符串），直接落到 podman 的默认路径。
+  # 2026-11-27 迁 MCSM → pterodactyl 时这段被一并删掉，于是
+  # /root/.config/containers/auth.json 成了悬空软链、podman 拉镜像 denied；现在补回来。
+  # 值在 mcsm.yaml 的 ghcr_auth（已轮换为只读包 token）；文件名是历史债，暂不改名。
+  sops.secrets.ghcr-auth = {
+    sopsFile = LT.secret "mcsm.yaml";
+    key = "ghcr_auth";
+    path = "/root/.config/containers/auth.json";
+  };
+
   environment.etc."containers/registries.conf.d/99-mirrors.conf".text = lib.mkForce ''
     [[registry]]
     location = "docker.io"
