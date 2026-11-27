@@ -115,4 +115,29 @@ in
       RandomizedDelaySec = "120";
     };
   };
+
+  # 镜像回收放在节点侧，不放 CI：镜像层在节点上，CI 的 runner 看不到也删不了；
+  # 让 CI 去 ssh 节点删镜像等于把生产文件系统暴露给 CI，且失败没人知道。
+  # 只删「30 天内没被任何容器引用」的镜像：正在跑的与回滚要用的都留着
+  # （回滚点按 OPS §10 保留最近 2 个版本，30 天足够覆盖）。
+  systemd.services.pterodactyl-image-gc = {
+    description = "回收 Pterodactyl 节点上无人引用的旧镜像";
+    environment = LT.proxyEnvironment;
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.podman}/bin/podman image prune --all --force --filter until=720h";
+      SuccessExitStatus = "0 125";
+      TimeoutStartSec = "10min";
+    };
+  };
+
+  systemd.timers.pterodactyl-image-gc = {
+    description = "每周回收一次旧镜像";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnCalendar = "Sun 04:30";
+      Persistent = true;
+      RandomizedDelaySec = "30min";
+    };
+  };
 }
