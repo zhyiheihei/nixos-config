@@ -167,8 +167,10 @@ in
   };
 
   lantian.harden = lib.mkMerge [
-    (lib.genAttrs hydraServices (_: {
+    (lib.genAttrs hydraServices (name: {
       enable = true;
+      # check-space 每五分钟调用两次 stat 检查磁盘空间，会正常命中诱饵。
+      enableTripwire = name != "hydra-check-space";
       passwd = true;
     }))
     {
@@ -222,7 +224,10 @@ in
           "static/nix" = true;
         };
       };
-      hydra-attic-repush.enable = true;
+      hydra-attic-repush = {
+        enable = true;
+        enableTripwire = true;
+      };
     }
   ];
 
@@ -381,8 +386,8 @@ in
       hydra-attic-repush = {
         script = ''
           (for F in /nix/var/nix/gcroots/hydra/*; do
-            echo "/nix/store/$(basename "$F")"
-          done) | xargs -n10 ${lib.getExe pkgs.attic-client} push zhyi || true
+            echo "/nix/store/''${F##*/}"
+          done) | ${pkgs.findutils}/bin/xargs -n10 ${lib.getExe pkgs.attic-client} push zhyi || true
         '';
         serviceConfig = {
           Type = "oneshot";

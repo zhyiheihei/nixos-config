@@ -43,9 +43,9 @@
   },
   {
     "pname": "clearurls",
-    "version": "1.27.3",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/4432106/clearurls-1.27.3.xpi",
-    "hash": "sha256-VJJrbkJ01ZNaX8DapjIPHTcePS8aWHdGfKOrIqZcTyA=",
+    "version": "1.28.0",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5286652/clearurls-1.28.0.xpi",
+    "hash": "sha256-aTYBuh8hxpQDdPdqzC3UvTIBhpsP4QqxuSe1k+4lCNE=",
     "addonId": "{74145f27-f039-47ce-a470-a662b129930a}"
   },
   {
@@ -113,9 +113,9 @@
   },
   {
     "pname": "noscript",
-    "version": "13.6.38",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5229642/noscript-13.6.38.xpi",
-    "hash": "sha256-ZfGtvVRScAq9nvfQr2iIVNP3BBNUSpd4KQooZzuhwok=",
+    "version": "13.6.39",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5293695/noscript-13.6.39.xpi",
+    "hash": "sha256-FcoaNiAn6qvmCUDTysfzcdrhWH/kow48fhwBrp4vBz4=",
     "addonId": "{73a6fe31-595d-460b-a920-fcc0f8843232}"
   },
   {
@@ -148,16 +148,16 @@
   },
   {
     "pname": "pt-depiler",
-    "version": "0.0.6.2119",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5254518/pt_depiler-0.0.6.2119.xpi",
-    "hash": "sha256-LVHw2nKE8pCOUBdOsvDwWyCKabpM5o2zV+BSQMZQ9ok=",
+    "version": "0.0.6.2145",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5288188/pt_depiler-0.0.6.2145.xpi",
+    "hash": "sha256-R+85tgTQAzhInYdyxwbmvJteNzG28CuMQBSd6OZTTDE=",
     "addonId": "ptdepiler.ptplugins@gmail.com"
   },
   {
     "pname": "read-frog-open-ai-translator",
-    "version": "1.60.1",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5274046/read_frog_open_ai_translator-1.60.1.xpi",
-    "hash": "sha256-xBVMH+o1esRW39pwNKb0LaR+mWupYR1U3YuZekDg6yQ=",
+    "version": "1.63.0",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5314134/read_frog_open_ai_translator-1.63.0.xpi",
+    "hash": "sha256-IROnIr+D5vgglgVivAGxWFYPi5QpOkhdCPO4ab4xHvU=",
     "addonId": "{bd311a81-4530-4fcc-9178-74006155461b}"
   },
   {
@@ -225,9 +225,9 @@
   },
   {
     "pname": "wappalyzer",
-    "version": "6.12.8",
-    "url": "https://addons.mozilla.org/firefox/downloads/file/5166528/wappalyzer-6.12.8.xpi",
-    "hash": "sha256-ILtgBSGQ4AIElw/J1DDlx3Vuq5Co4p8wBuefLtn477g=",
+    "version": "6.12.9",
+    "url": "https://addons.mozilla.org/firefox/downloads/file/5312683/wappalyzer-6.12.9.xpi",
+    "hash": "sha256-ezh9VsO6YOkEeJDzI6FCXsjERZwg8j5ouF/XxJI2llQ=",
     "addonId": "wappalyzer@crunchlabz.com"
   },
   {

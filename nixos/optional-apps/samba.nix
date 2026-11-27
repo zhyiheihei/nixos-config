@@ -135,9 +135,13 @@ in
     lib.genAttrs [ "samba-nmbd" "samba-smbd" "samba-winbindd" ] (_: {
       enable = true;
       enableConfinement = false;
+      enableTripwire = true;
     })
     // {
-      samba-wsdd.enable = true;
+      samba-wsdd = {
+        enable = true;
+        enableTripwire = true;
+      };
     };
 
   systemd.tmpfiles.settings.samba = {

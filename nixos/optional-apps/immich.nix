@@ -65,11 +65,16 @@
     };
     lantian.harden.immich-server = {
       enable = true;
+      # ExifTool 从 PATH 调用 Perl，包包装器追加的真实 Perl 排在诱饵之后。
+      enableTripwire = false;
       postgresql = true;
       redis = "immich";
     };
 
-    lantian.harden.immich-machine-learning.enable = true;
+    lantian.harden.immich-machine-learning = {
+      enable = true;
+      enableTripwire = true;
+    };
 
     systemd.tmpfiles.settings = {
       immich = {

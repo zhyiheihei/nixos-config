@@ -2,6 +2,7 @@
   pkgs,
   LT,
   config,
+  lib,
   ...
 }:
 {
@@ -28,7 +29,7 @@
       port = 587;
       from = "postmaster@zhyi.cc";
       user = "EjG9ROGAei";
-      passwordeval = "cat ${config.sops.secrets.smtp-pass.path}";
+      passwordeval = "${pkgs.coreutils}/bin/cat ${lib.escapeShellArg config.sops.secrets.smtp-pass.path}";
       tls = true;
       tls_starttls = true;
       tls_trust_file = "/etc/ssl/certs/ca-certificates.crt";
@@ -37,6 +38,8 @@
 
   lantian.harden."notify-email@" = {
     enable = true;
+    # 通知脚本需要真实 journalctl 读取失败单元的日志，因此依赖 systemd。
+    enableTripwire = false;
     etc = {
       msmtprc = true;
     };
@@ -60,7 +63,7 @@
 
       [ "$MONITOR_SERVICE_RESULT" = "success" ] && FLAG="⭕️ SUCCESS:" || FLAG="❌ FAILURE:"
 
-      cat <<EOF | sendmail -t
+      sendmail -t <<EOF
       To: $MAILTO
       Subject: $FLAG $MONITOR_UNIT on $HOSTNAME
 

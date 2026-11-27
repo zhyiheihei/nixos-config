@@ -57,6 +57,8 @@ in
     };
   };
   lantian.harden.ipfs.enable = true;
+  # 上游 pre-start 脚本通过 PATH 调用 rm，不能使用诱饵。
+  lantian.harden.ipfs.enableTripwire = false;
 
   users.users.zhyi.extraGroups = [ config.services.kubo.group ];
   users.users.nginx.extraGroups = [ config.services.kubo.group ];

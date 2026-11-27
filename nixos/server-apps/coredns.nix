@@ -442,7 +442,10 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
     # Queries knot control socket
     BindReadOnlyPaths = [ "/run/knot" ];
   };
-  lantian.harden.prometheus-knot-exporter.enable = true;
+  lantian.harden.prometheus-knot-exporter = {
+    enable = true;
+    enableTripwire = true;
+  };
 
   systemd.services = {
     coredns-authoritative = netns.bind {
@@ -516,8 +519,14 @@ lib.mkIf (!(LT.this.hasTag LT.tags.low-ram)) {
     };
   };
 
-  lantian.harden.coredns-authoritative.enable = true;
-  lantian.harden.knot.enable = true;
+  lantian.harden.coredns-authoritative = {
+    enable = true;
+    enableTripwire = true;
+  };
+  lantian.harden.knot = {
+    enable = true;
+    enableTripwire = true;
+  };
 
   users.users.coredns = {
     group = "coredns";

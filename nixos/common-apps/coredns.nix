@@ -138,4 +138,5 @@ lib.mkIf (!config.services.pdns-recursor.enable) {
     };
   };
   lantian.harden.coredns.enable = true;
+  lantian.harden.coredns.enableTripwire = true;
 }

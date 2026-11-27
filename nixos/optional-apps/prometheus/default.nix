@@ -8,6 +8,7 @@
   imports = [
     ./alertmanager.nix
     ./blackbox-exporter.nix
+    ./log-alerts.nix
     ./periodic-tasks.nix
     ./rules.nix
     ./scrape-configs.nix

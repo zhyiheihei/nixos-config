@@ -180,7 +180,10 @@ in
     ProcSubset = "all";
     ProtectProc = "default";
   };
-  lantian.harden.mptcp.enable = "network";
+  lantian.harden.mptcp = {
+    enable = "network";
+    enableTripwire = true;
+  };
 
   # https://github.com/nix-community/srvos/blob/main/nixos/common/networking.nix
   systemd.services.systemd-networkd.stopIfChanged = false;

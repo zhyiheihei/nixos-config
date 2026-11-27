@@ -49,6 +49,8 @@
 
   lantian.harden.rsgain-cloudmusic = {
     enable = true;
+    # 扫描与处理队列依赖 find/grep/touch/nproc 等基础命令，不能使用诱饵。
+    enableTripwire = false;
     enableConfinement = false;
   };
 

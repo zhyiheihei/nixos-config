@@ -145,6 +145,7 @@ in
     "pm.status_path" = "/status";
   };
   lantian.harden.phpfpm-nextcloud = {
+    enableTripwire = lib.mkForce false;
     etc.msmtprc = true;
     # Oracle instant client requires the CERTIFICATE-only bundle; bind the
     # generated bundle directly, like the harden /etc/ssl defaults do
@@ -166,6 +167,8 @@ in
   };
   lantian.harden.nextcloud-cron = {
     enable = true;
+    # OCC 的 Symfony Console 每次运行都会调用 stty -a 探测终端，造成正常触发。
+    enableTripwire = false;
     passwd = true;
     etc."nsswitch.conf" = true;
     # Oracle instant client requires the CERTIFICATE-only bundle; bind the
@@ -175,6 +178,8 @@ in
   };
   lantian.harden.nextcloud-update-db = {
     enable = true;
+    # 升级时运行的 OCC 也会通过 Symfony Console 调用 stty -a 探测终端。
+    enableTripwire = false;
     passwd = true;
     etc."nsswitch.conf" = true;
     etc."pki/tls/cert.pem" = oracleCaBundle;

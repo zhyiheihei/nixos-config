@@ -105,6 +105,7 @@ in
   };
   lantian.harden.mysql = {
     enable = true;
+    enableTripwire = true;
     passwd = true;
     etc."my.cnf" = true;
   };
@@ -133,6 +134,7 @@ in
   };
   lantian.harden.prometheus-mysqld-exporter = {
     enable = true;
+    enableTripwire = true;
     mysql = true;
   };
 

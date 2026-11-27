@@ -124,17 +124,17 @@
   };
   lobe-icons = {
     pname = "lobe-icons";
-    version = "9752d967494e48d8f83f2808feb2b0207bf70997";
+    version = "05260484d9f4de68f90cc87a634ae68fa4043efd";
     src = fetchgit {
       url = "https://github.com/lobehub/lobe-icons.git";
-      rev = "9752d967494e48d8f83f2808feb2b0207bf70997";
+      rev = "05260484d9f4de68f90cc87a634ae68fa4043efd";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-Iyi23NwGDHCqXpdN1qGxkG+yLeDOiUKEgwesIqRQMrk=";
+      sha256 = "sha256-sN5CjGkMFdaka/kTau0qhLA66/stx9UpWVUFMmaCxtM=";
     };
-    date = "2026-11-18";
+    date = "2026-11-23";
   };
   mattpocock-skills = {
     pname = "mattpocock-skills";
@@ -149,15 +149,15 @@
   };
   mihoyo-bbs-tools = {
     pname = "mihoyo-bbs-tools";
-    version = "01be3bab9c5f99983c61ce0d494d25d9cbea8511";
+    version = "c401f21bf7f2816ad3b799b3cb1ce9eda8fc7c48";
     src = fetchFromGitHub {
       owner = "Womsxd";
       repo = "MihoyoBBSTools";
-      rev = "01be3bab9c5f99983c61ce0d494d25d9cbea8511";
+      rev = "c401f21bf7f2816ad3b799b3cb1ce9eda8fc7c48";
       fetchSubmodules = false;
-      sha256 = "sha256-9gGgoMFiCzDLxnAfgwQdocMurqbWNdtzJAJz8g17K0I=";
+      sha256 = "sha256-ROfz67VmmZaDeLEndx2jQkbI9Uw6mEXRG8vACSKEe4Q=";
     };
-    date = "2026-11-01";
+    date = "2026-11-25";
   };
   mpv-sockets = {
     pname = "mpv-sockets";
@@ -185,31 +185,31 @@
   };
   noctalia-community-plugins = {
     pname = "noctalia-community-plugins";
-    version = "b9aefd48419862beb576ac9dbb6ff065c5d37c60";
+    version = "b8e6bbbed56e41daa6d8440f3305858d09083bb3";
     src = fetchgit {
       url = "https://github.com/noctalia-dev/community-plugins.git";
-      rev = "b9aefd48419862beb576ac9dbb6ff065c5d37c60";
+      rev = "b8e6bbbed56e41daa6d8440f3305858d09083bb3";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-3cBgQhHalZbTU5kCRJyqCHT9ptqHLg4fPf4rAd1cEb0=";
+      sha256 = "sha256-dH//QAvegTcyAhNYhDNSAwDWcHXu4T5GJoIDovrDU58=";
     };
-    date = "2026-11-18";
+    date = "2026-11-26";
   };
   noctalia-official-plugins = {
     pname = "noctalia-official-plugins";
-    version = "27f56445ee60a8f63e5e97045e710c5695802dbd";
+    version = "96d289f50ff1ed72030872bf33c31e7d691c9d47";
     src = fetchgit {
       url = "https://github.com/noctalia-dev/official-plugins.git";
-      rev = "27f56445ee60a8f63e5e97045e710c5695802dbd";
+      rev = "96d289f50ff1ed72030872bf33c31e7d691c9d47";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [ ];
-      sha256 = "sha256-M/AZVG120D1fS1lhYeZveljdnJEW7bKGBlw70LRKY20=";
+      sha256 = "sha256-4GCFK4VSD9mlUoSW3hUAzNDVvtWdsEx4KMj3x02xhR0=";
     };
-    date = "2026-11-19";
+    date = "2026-11-25";
   };
   nvidia-patch = {
     pname = "nvidia-patch";
@@ -262,7 +262,7 @@
     pname = "scam-dn42-miner";
     version = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
     src = fetchgit {
-      url = "https://git.lantian.pub/lantian/scam-dn42-miner.git";
+      url = "https://git.zhyi.xin/lantian/scam-dn42-miner.git";
       rev = "44bb64d3731bc85a9f9a1fef034da6c6fdc6ac1e";
       fetchSubmodules = false;
       deepClone = false;
@@ -286,15 +286,15 @@
   };
   tar1090-db = {
     pname = "tar1090-db";
-    version = "4248a81f68f14a1a1fa3730714b99dcc238c12aa";
+    version = "8f870d3cf3e7802d24e70f2f6fb8f91e2a7b12f4";
     src = fetchFromGitHub {
       owner = "wiedehopf";
       repo = "tar1090-db";
-      rev = "4248a81f68f14a1a1fa3730714b99dcc238c12aa";
+      rev = "8f870d3cf3e7802d24e70f2f6fb8f91e2a7b12f4";
       fetchSubmodules = false;
-      sha256 = "sha256-TFzJ5WM7jB7i87PR3R4EFHr93VcrNIx/lChft3TDkhM=";
+      sha256 = "sha256-HJvNbvFwmdU4kd2j5GQubUeD/GD8u1uPY6cSrFKXwPc=";
     };
-    date = "2026-11-16";
+    date = "2026-11-23";
   };
   um-react = {
     pname = "um-react";
@@ -306,13 +306,13 @@
   };
   vscode-vibrancy-continued = {
     pname = "vscode-vibrancy-continued";
-    version = "v1.6.0";
+    version = "v1.6.3";
     src = fetchFromGitHub {
       owner = "illixion";
       repo = "vscode-vibrancy-continued";
-      rev = "v1.6.0";
+      rev = "v1.6.3";
       fetchSubmodules = false;
-      sha256 = "sha256-b5PxrMBF/XgqKFbvzjiBEfQNKaBATh9BoLL+u773/5k=";
+      sha256 = "sha256-qZBrIkkyiD8u+cvgHeOVCsSimJm0l8xPzbMhd9hDxBs=";
     };
   };
   wordpress-theme-twentyeleven = {

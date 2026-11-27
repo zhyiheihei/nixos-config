@@ -39,6 +39,7 @@
   };
   lantian.harden.sonarr = {
     enable = true;
+    enableTripwire = true;
     passwd = true;
     etc = {
       "resolv.conf" = true;
@@ -78,7 +79,10 @@
     AmbientCapabilities = [ "" ];
     SystemCallErrorNumber = "EPERM";
   };
-  lantian.harden."prometheus-exportarr-sonarr-exporter".enable = true;
+  lantian.harden."prometheus-exportarr-sonarr-exporter" = {
+    enable = true;
+    enableTripwire = true;
+  };
 
   lantian.firewall.zones = {
     LTNET.tcpPorts."${LT.portStr.Prometheus.SonarrExporter}".type = "local";

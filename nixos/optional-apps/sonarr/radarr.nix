@@ -39,6 +39,7 @@
   };
   lantian.harden.radarr = {
     enable = true;
+    enableTripwire = true;
     passwd = true;
     etc = {
       "resolv.conf" = true;
@@ -79,7 +80,10 @@
     AmbientCapabilities = [ "" ];
     SystemCallErrorNumber = "EPERM";
   };
-  lantian.harden."prometheus-exportarr-radarr-exporter".enable = true;
+  lantian.harden."prometheus-exportarr-radarr-exporter" = {
+    enable = true;
+    enableTripwire = true;
+  };
 
   lantian.firewall.zones = {
     LTNET.tcpPorts."${LT.portStr.Prometheus.RadarrExporter}".type = "local";

@@ -30,6 +30,8 @@
     jails.sshd.settings.enable = lib.mkForce false;
   };
 
+  systemd.services.fail2ban.path = [ pkgs.gnugrep ];
+
   systemd.services.fail2ban.serviceConfig.RestrictAddressFamilies = [
     "AF_UNIX"
     "AF_INET"
@@ -39,6 +41,8 @@
 
   lantian.harden.fail2ban = {
     enable = true;
+    # journald 后端调用 systemd-path；Python 的 libc 探测还会尝试 gcc 和 ld。
+    enableTripwire = false;
     enableConfinement = false;
   };
 }

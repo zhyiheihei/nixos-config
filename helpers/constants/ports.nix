@@ -82,6 +82,7 @@ rec {
     Waline = 8360;
     Matrix.Public = 8448;
     Prometheus.VMAlert = 8880;
+    Prometheus.VMAlertLogs = 8881;
     Sonarr = 8989;
     Tor.Socks = 9050;
     Prometheus.Daemon = 9090;
@@ -179,6 +180,7 @@ rec {
     Ncps = 13851;
     IyuuPlus = 13878;
     LlamaSwap = 13880;
+    ComfyUI = 13881;
     Actual = 13882;
     DLX = 13888;
     GiteaActions.Cache = 13890;

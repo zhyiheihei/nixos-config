@@ -45,12 +45,15 @@ in
     WAN.tcpPorts."${LT.portStr.Endlessh}".type = "local";
   };
 
-  # Upstream module already chroots endlessh (RootDirectory=/run/endlessh)
+  # Upstream module already chroots endlessh (RootDirectory=/run/endlessh), so
+  # confinement stays off: enabling it would assign a second, different
+  # RootDirectory and the two plain definitions fail to merge at eval.
   systemd.services.endlessh = {
     serviceConfig.RestartSec = "5s";
   };
   lantian.harden.endlessh = {
     enable = true;
     enableConfinement = false;
+    enableTripwire = true;
   };
 }

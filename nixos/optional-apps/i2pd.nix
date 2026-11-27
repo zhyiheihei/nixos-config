@@ -1,7 +1,4 @@
-{
-  LT,
-  ...
-}:
+{ LT, ... }:
 {
   services.i2pd = {
     enable = true;
@@ -36,4 +33,6 @@
     RestartSec = "5s";
   };
   lantian.harden.i2pd.enable = true;
+  # 上游凭据加载脚本通过 PATH 调用 coreutils，不能使用诱饵。
+  lantian.harden.i2pd.enableTripwire = false;
 }

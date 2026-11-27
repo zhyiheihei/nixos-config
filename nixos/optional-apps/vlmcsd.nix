@@ -33,5 +33,8 @@
       DynamicUser = true;
     };
   };
-  lantian.harden.vlmcsd.enable = true;
+  lantian.harden.vlmcsd = {
+    enable = true;
+    enableTripwire = true;
+  };
 }
