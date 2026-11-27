@@ -65,7 +65,8 @@ in
       volumes = [ "${dataDir}:/opt/workbuddy" ];
       networks = [ "workbuddy_nw" ];
       extraOptions = [
-        "--add-host=workbuddy2api:172.19.0.2"
+        "--ip=172.19.0.2"
+        "--add-host=workbuddy2api:172.19.0.3"
         # 与镜像内 HEALTHCHECK 同参数；--sdnotify=healthy 要求 run 命令行
         # 显式设置 healthcheck（podman 不回读镜像定义）。
         "--health-cmd=curl -fsS http://127.0.0.1:7864/api/healthz"
@@ -90,7 +91,7 @@ in
       workdir = "/conf";
       volumes = [ "${dataDir}/workbuddy2api:/conf" ];
       networks = [ "workbuddy_nw" ];
-      extraOptions = [ "--ip=172.19.0.2" ];
+      extraOptions = [ "--ip=172.19.0.3" ];
     };
   };
 
