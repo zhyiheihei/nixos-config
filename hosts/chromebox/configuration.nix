@@ -50,6 +50,7 @@ in
     ../../nixos/optional-apps/sublinkpro-relay.nix
     ../../nixos/optional-apps/taosync.nix
     ../../nixos/optional-apps/tor.nix
+    ../../nixos/optional-apps/workbuddy.nix
     ../../nixos/optional-apps/victorialogs.nix
 
     ../../nixos/optional-cron-jobs/ncmm.nix
