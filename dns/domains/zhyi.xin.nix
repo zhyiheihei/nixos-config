@@ -316,18 +316,6 @@ let
     }
     {
       recordType = "CNAME";
-      name = "mcsm";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
-    {
-      recordType = "CNAME";
-      name = "mcsm-daemon";
-      target = homeDdnsTarget;
-      ttl = "2m";
-    }
-    {
-      recordType = "CNAME";
       name = "memos";
       target = homeDdnsTarget;
       ttl = "2m";
@@ -341,6 +329,12 @@ let
     {
       recordType = "CNAME";
       name = "nexttodo";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
+      name = "node";
       target = homeDdnsTarget;
       ttl = "2m";
     }
@@ -360,6 +354,12 @@ let
     {
       recordType = "CNAME";
       name = "palworld";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
+      name = "panel";
       target = homeDdnsTarget;
       ttl = "2m";
     }

@@ -183,20 +183,6 @@ in
     sslCertificate = "lets-encrypt-moliy.site";
     noIndex.enable = true;
   };
-  lantian.nginxVhosts."mcsm.moliy.site" = {
-    locations."/" = {
-      proxyPass = "https://mcsm.zhyi.xin";
-      proxyOverrideHost = "mcsm.zhyi.xin";
-      proxyWebsockets = true;
-      proxyNoTimeout = true;
-      extraConfig = ''
-        proxy_ssl_server_name on;
-        proxy_ssl_name mcsm.zhyi.xin;
-      '';
-    };
-    sslCertificate = "lets-encrypt-moliy.site";
-    noIndex.enable = true;
-  };
   lantian.nginxVhosts."memos.moliy.site" = {
     locations."/" = {
       proxyPass = "https://memos.zhyi.xin";

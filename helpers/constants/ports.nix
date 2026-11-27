@@ -28,6 +28,7 @@ rec {
     SSDP = 1900;
     Gemini = 1965;
     Go2rtc = 1984; # go2rtc control/API (frigate host network)
+    Pterodactyl.SFTP = 2022;
     NFS.Port = 2049;
     GTPU = 2152; # GTP-U user plane (base station <-> LTE core)
     SSH = 2222;
@@ -171,8 +172,6 @@ rec {
     KRig = 13884;
     MoviePilot.Frontend = 13890;
     MoviePilot.Backend = 13891;
-    Mcsm.Web = 13996;
-    Mcsm.Daemon = 13997;
     ChineseSubFinder = 19035;
     Syncthing.P2P = 22000; # NAT-traversal listener, overloads the DN42 range
     Syncthing.WebUI = 13834;
@@ -196,6 +195,10 @@ rec {
     ADSB.PlaneWatch = 13919;
     OllamaCpaHoneypot.Ollama = 13922;
     OllamaCpaHoneypot.Cpa = 13923;
+    Pterodactyl.Panel = 13930;
+    Pterodactyl.Wings = 13931;
+    Pterodactyl.Database = 13932;
+    Pterodactyl.Redis = 13933;
     ADSB.RawOutput978 = 13978;
     Resin = 13995;
     Open5GS = 13999;
@@ -203,8 +206,9 @@ rec {
     DN42.LocalPort.End = 23999;
     Asterisk.RTP.Start = 25000;
     Asterisk.RTP.End = 25199;
-    Minecraft = 25565; # MCSM-managed server (tcp main + udp query)
-    MinecraftMap = 25567; # Minecraft live map of an MCSM-managed server
+    Minecraft = 25565; # Pterodactyl-managed Minecraft server (tcp main + udp query)
+    MinecraftSecondary = 25566; # Second Pterodactyl-managed Minecraft server
+    MinecraftMap = 25567; # Minecraft live map of a Pterodactyl-managed server
     WGLanTian.ForwardStart = 30010;
     WGLanTian.ForwardStop = 32559;
     Ephemeral.Start = 32768;

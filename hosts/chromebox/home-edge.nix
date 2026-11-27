@@ -8,8 +8,8 @@ let
   # 走 https + SNI 让上游 vhost 按域名自行选择。
   tlsProxies = {
     dav = LT.hosts.opi5p.interconnect.IPv4;
-    mcsm = LT.hosts.venus.interconnect.IPv4;
-    mcsm-daemon = LT.hosts.venus.interconnect.IPv4;
+    node = LT.hosts.venus.interconnect.IPv4;
+    panel = LT.hosts.venus.interconnect.IPv4;
   };
   plainProxies = {
     qnap = "http://192.168.0.40:8080";

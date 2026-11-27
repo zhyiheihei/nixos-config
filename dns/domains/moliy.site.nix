@@ -15,8 +15,6 @@ let
     "immich"
     "jellyfin"
     "mc"
-    "mcsm"
-    "mcsm-daemon"
     "memos"
     "openlist"
     "palworld"
