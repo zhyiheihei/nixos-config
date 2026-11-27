@@ -64,8 +64,15 @@ in
       environmentFiles = [ config.sops.templates.workbuddy-env.path ];
       volumes = [ "${dataDir}:/opt/workbuddy" ];
       networks = [ "workbuddy_nw" ];
-      extraOptions = [ "--add-host=workbuddy2api:172.19.0.2" ];
-      # 管理端镜像自带 /api/healthz 健康检查；等它通过后再放行上游单元。
+      extraOptions = [
+        "--add-host=workbuddy2api:172.19.0.2"
+        # 与镜像内 HEALTHCHECK 同参数；--sdnotify=healthy 要求 run 命令行
+        # 显式设置 healthcheck（podman 不回读镜像定义）。
+        "--health-cmd=curl -fsS http://127.0.0.1:7864/api/healthz"
+        "--health-interval=30s"
+        "--health-start-period=10s"
+      ];
+      # 管理端健康通过后再放行上游单元。
       podman.sdnotify = "healthy";
     };
 
