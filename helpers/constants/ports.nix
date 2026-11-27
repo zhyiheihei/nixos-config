@@ -209,6 +209,7 @@ rec {
     Minecraft = 25565; # Pterodactyl-managed Minecraft server (tcp main + udp query)
     MinecraftSecondary = 25566; # Second Pterodactyl-managed Minecraft server
     MinecraftMap = 25567; # Minecraft live map of a Pterodactyl-managed server
+    MinecraftTertiary = 25568; # Third Pterodactyl-managed Minecraft server
     WGLanTian.ForwardStart = 30010;
     WGLanTian.ForwardStop = 32559;
     Ephemeral.Start = 32768;

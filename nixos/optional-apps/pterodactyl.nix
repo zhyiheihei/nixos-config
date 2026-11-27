@@ -15,10 +15,11 @@ let
     "pterodactyl-database"
     "pterodactyl-redis"
     "pterodactyl-panel"
-    "pterodactyl-wings"
   ];
 in
 {
+  imports = [ ./pterodactyl-wings.nix ];
+
   options.lantian.pterodactyl = {
     enable = lib.mkEnableOption "Pterodactyl game server panel";
 
@@ -52,6 +53,12 @@ in
       default = "node.${domain}";
       description = "Public domain of the Wings API, reachable by the panel and by browsers";
     };
+
+    containerHosts = lib.mkOption {
+      type = lib.types.attrsOf lib.types.str;
+      default = { };
+      description = "Extra name-to-address mappings inside the panel container, for nodes the panel reaches over the LAN";
+    };
   };
 
   config = lib.mkIf cfg.enable {
@@ -60,58 +67,22 @@ in
         assertion = builtins.elem cfg.panelDomain LT.constants.publicSites;
         message = "${cfg.panelDomain} must be listed in helpers/constants/public-sites.nix";
       }
-      {
-        assertion = builtins.elem cfg.nodeDomain LT.constants.publicSites;
-        message = "${cfg.nodeDomain} must be listed in helpers/constants/public-sites.nix";
-      }
     ];
+
+    lantian.pterodactylWings = {
+      enable = true;
+      panelAddress = podmanGateway;
+      inherit (cfg)
+        containerDns
+        nodeDomain
+        panelDomain
+        storage
+        ;
+    };
 
     # The database credentials are generated on the host instead of being
     # committed to the secrets repository.
     systemd.services = {
-      # Wings creates its own network, which makes Podman give containers an
-      # embedded resolver (aardvark-dns) instead of the host's resolv.conf.
-      # Creating the network without the DNS plugin keeps game containers on
-      # the system resolver, matching how other container workloads run here.
-      pterodactyl-network = {
-        description = "Create the Pterodactyl container network without the Podman DNS plugin";
-        wantedBy = [ "multi-user.target" ];
-        before = [ "podman-pterodactyl-wings.service" ];
-        requiredBy = [ "podman-pterodactyl-wings.service" ];
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-        };
-        script = ''
-          ${pkgs.podman}/bin/podman network exists pterodactyl_nw ||
-            ${pkgs.podman}/bin/podman network create --disable-dns \
-              --subnet 172.18.0.0/16 --gateway 172.18.0.1 pterodactyl_nw
-        '';
-      };
-
-      pterodactyl-wings-config = {
-        description = "Apply host overrides to the Pterodactyl Wings configuration";
-        before = [ "podman-pterodactyl-wings.service" ];
-        requiredBy = [ "podman-pterodactyl-wings.service" ];
-        unitConfig.ConditionPathExists = "${cfg.storage}/wings/config.yml";
-        serviceConfig = {
-          Type = "oneshot";
-          RemainAfterExit = true;
-        };
-        script = ''
-          ${pkgs.yq-go}/bin/yq -i '
-            .api.host = "0.0.0.0"
-            | .api.port = ${toString LT.portStr.Pterodactyl.Wings}
-            | .api.ssl.enabled = false
-            | .system.sftp.bind_port = ${toString LT.portStr.Pterodactyl.SFTP}
-            | .system.data = "${cfg.storage}/volumes"
-            | .ignore_panel_config_updates = true
-            | .docker.log_config.type = ""
-            | .docker.network.dns = ${builtins.toJSON cfg.containerDns}
-          ' ${cfg.storage}/wings/config.yml
-        '';
-      };
-
       pterodactyl-secrets = {
         description = "Generate Pterodactyl database credentials";
         wantedBy = [ "multi-user.target" ];
@@ -139,19 +110,9 @@ in
     // lib.genAttrs (map (name: "podman-${name}") containers) (_: {
       after = [ "pterodactyl-secrets.service" ];
       requires = [ "pterodactyl-secrets.service" ];
-    })
-    // {
-      # Wings refuses to start without the node configuration written by the
-      # panel, so keep the unit idle until the first deployment is bootstrapped.
-      "podman-pterodactyl-wings".unitConfig.ConditionPathExists = "${cfg.storage}/wings/config.yml";
-    };
+    });
 
     systemd.tmpfiles.settings.pterodactyl = {
-      "${cfg.storage}"."d" = {
-        mode = "0700";
-        user = "root";
-        group = "root";
-      };
       "${cfg.storage}/database"."d" = {
         mode = "0750";
         user = "999";
@@ -178,41 +139,6 @@ in
         group = "root";
       };
       "${cfg.storage}/secrets"."d" = {
-        mode = "0700";
-        user = "root";
-        group = "root";
-      };
-      "${cfg.storage}/wings"."d" = {
-        mode = "0700";
-        user = "root";
-        group = "root";
-      };
-      "${cfg.storage}/volumes"."d" = {
-        mode = "0700";
-        user = "root";
-        group = "root";
-      };
-      "${cfg.storage}/archives"."d" = {
-        mode = "0700";
-        user = "root";
-        group = "root";
-      };
-      "${cfg.storage}/backups"."d" = {
-        mode = "0700";
-        user = "root";
-        group = "root";
-      };
-      "/var/log/pterodactyl"."d" = {
-        mode = "0700";
-        user = "root";
-        group = "root";
-      };
-      "/run/wings"."d" = {
-        mode = "0700";
-        user = "root";
-        group = "root";
-      };
-      "/var/log/pterodactyl/install"."d" = {
         mode = "0700";
         user = "root";
         group = "root";
@@ -275,37 +201,14 @@ in
           TRUSTED_PROXIES = podmanGateway;
         };
         environmentFiles = [ "${secretsDir}/panel.env" ];
-        extraOptions = [ "--add-host=${cfg.nodeDomain}:${podmanGateway}" ];
+        extraOptions = [
+          "--add-host=${cfg.nodeDomain}:${podmanGateway}"
+        ]
+        ++ lib.mapAttrsToList (name: address: "--add-host=${name}:${address}") cfg.containerHosts;
         ports = [ "127.0.0.1:${LT.portStr.Pterodactyl.Panel}:80" ];
         volumes = [
           "${cfg.storage}/panel/var:/app/var"
           "${cfg.storage}/panel/logs:/app/storage/logs"
-        ];
-      };
-
-      pterodactyl-wings = {
-        image = "ghcr.io/pterodactyl/wings:latest";
-        labels."io.containers.autoupdate" = "registry";
-        extraOptions = [ "--add-host=${cfg.panelDomain}:${podmanGateway}" ];
-        environment = {
-          TZ = config.time.timeZone;
-          DOCKER_HOST = "unix:///var/run/docker.sock";
-          SSL_CERT_FILE = "/etc/ssl/certs/ca-certificates.crt";
-        };
-        ports = [
-          "127.0.0.1:${LT.portStr.Pterodactyl.Wings}:${LT.portStr.Pterodactyl.Wings}"
-          "${LT.portStr.Pterodactyl.SFTP}:${LT.portStr.Pterodactyl.SFTP}"
-        ];
-        volumes = [
-          "/run/podman/podman.sock:/var/run/docker.sock"
-          "/run/wings:/run/wings"
-          "/etc/localtime:/etc/localtime:ro"
-          "/etc/ssl/certs/ca-certificates.crt:/etc/ssl/certs/ca-certificates.crt:ro"
-          "${cfg.storage}/wings:/etc/pterodactyl"
-          "${cfg.storage}/volumes:/var/lib/pterodactyl/volumes"
-          "${cfg.storage}/archives:/var/lib/pterodactyl/archives"
-          "${cfg.storage}/backups:/var/lib/pterodactyl/backups"
-          "/var/log/pterodactyl:/var/log/pterodactyl"
         ];
       };
     };
@@ -313,18 +216,6 @@ in
     lantian.nginxVhosts."${cfg.panelDomain}" = {
       locations."/" = {
         proxyPass = "http://127.0.0.1:${LT.portStr.Pterodactyl.Panel}";
-        proxyWebsockets = true;
-        proxyNoTimeout = true;
-      };
-
-      sslCertificate = "lets-encrypt-${domain}";
-      accessibleBy = "public";
-      noIndex.enable = true;
-    };
-
-    lantian.nginxVhosts."${cfg.nodeDomain}" = {
-      locations."/" = {
-        proxyPass = "http://127.0.0.1:${LT.portStr.Pterodactyl.Wings}";
         proxyWebsockets = true;
         proxyNoTimeout = true;
       };

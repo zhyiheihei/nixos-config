@@ -179,11 +179,13 @@ in
       # uplink drops inbound UDP to NATed hosts, which breaks those tunnels.
       fib daddr type local udp dport { 10120, 10121, 10128, 10130, 10117 } iifname "ppp0" dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
 
-      # Minecraft servers on venus (Pterodactyl), TCP main + UDP query.
+      # Minecraft servers on venus / ml-builder (Pterodactyl), TCP main + UDP query.
       fib daddr type local tcp dport 25565 iifname "ppp0" dnat ip to ${LT.hosts.venus.interconnect.IPv4}
       fib daddr type local udp dport 25565 iifname "ppp0" dnat ip to ${LT.hosts.venus.interconnect.IPv4}
-      fib daddr type local tcp dport ${LT.portStr.MinecraftSecondary} iifname "ppp0" dnat ip to ${LT.hosts.venus.interconnect.IPv4}
-      fib daddr type local udp dport ${LT.portStr.MinecraftSecondary} iifname "ppp0" dnat ip to ${LT.hosts.venus.interconnect.IPv4}
+      fib daddr type local tcp dport ${LT.portStr.MinecraftSecondary} iifname "ppp0" dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
+      fib daddr type local udp dport ${LT.portStr.MinecraftSecondary} iifname "ppp0" dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
+      fib daddr type local tcp dport ${LT.portStr.MinecraftTertiary} iifname "ppp0" dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
+      fib daddr type local udp dport ${LT.portStr.MinecraftTertiary} iifname "ppp0" dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
 
       # Redirect LAN DNS requests to the isolated CoreDNS client namespace.
       # br-lan is the bridge ingress seen by LAN guests; eth0 covers direct
@@ -203,11 +205,13 @@ in
       # Palworld game server on chromebox (hairpin, before the ROCK 5C catch-all).
       fib daddr type local udp dport 8211 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.chromebox.interconnect.IPv4}
 
-      # Minecraft servers on venus (Pterodactyl, hairpin).
+      # Minecraft servers on venus / ml-builder (Pterodactyl, hairpin).
       fib daddr type local tcp dport 25565 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.venus.interconnect.IPv4}
       fib daddr type local udp dport 25565 iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.venus.interconnect.IPv4}
-      fib daddr type local tcp dport ${LT.portStr.MinecraftSecondary} iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.venus.interconnect.IPv4}
-      fib daddr type local udp dport ${LT.portStr.MinecraftSecondary} iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.venus.interconnect.IPv4}
+      fib daddr type local tcp dport ${LT.portStr.MinecraftSecondary} iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
+      fib daddr type local udp dport ${LT.portStr.MinecraftSecondary} iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
+      fib daddr type local tcp dport ${LT.portStr.MinecraftTertiary} iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
+      fib daddr type local udp dport ${LT.portStr.MinecraftTertiary} iifname { "br-lan", "eth0" } ip daddr != @RESERVED_IPV4 dnat ip to ${LT.hosts.ml-builder.interconnect.IPv4}
 
       # All remaining public services (SSH etc.) are handled by the ROCK 5C edge.
       fib daddr type local iifname "br-lan" ip daddr != @RESERVED_IPV4 dnat ip to ${edgeAddress}

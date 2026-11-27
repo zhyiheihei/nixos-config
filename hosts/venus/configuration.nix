@@ -2,7 +2,6 @@
   inputs,
   lib,
   LT,
-  pkgs,
   ...
 }:
 let
@@ -26,6 +25,11 @@ in
 
   lantian.pterodactyl.enable = true;
 
+  lantian.pterodactyl.containerHosts."ml-builder.ltnet.zhyi.xin" =
+    LT.hosts.ml-builder.interconnect.IPv4;
+
+  lantian.pterodactylWings.prefetchImage = serverImage;
+
   lantian.nginxVhosts."map.mc.zhyi.xin" = {
     locations."/" = {
       proxyPass = "http://127.0.0.1:${LT.portStr.MinecraftMap}";
@@ -41,17 +45,16 @@ in
 
   lantian.firewall.zones = {
     WAN.ports."${LT.portStr.Minecraft}".type = "local";
-    WAN.ports."${LT.portStr.MinecraftSecondary}".type = "local";
     WAN.ports."${LT.portStr.Pterodactyl.SFTP}".type = "local";
     LAN = {
       ports."${LT.portStr.Minecraft}".type = "local";
-      ports."${LT.portStr.MinecraftSecondary}".type = "local";
       ports."${LT.portStr.Pterodactyl.SFTP}".type = "local";
       udpPorts."9993".type = "local";
     };
-    LTNET.ports."${LT.portStr.Minecraft}".type = "local";
-    LTNET.ports."${LT.portStr.MinecraftSecondary}".type = "local";
-    LTNET.ports."${LT.portStr.Pterodactyl.SFTP}".type = "local";
+    LTNET = {
+      ports."${LT.portStr.Minecraft}".type = "local";
+      ports."${LT.portStr.Pterodactyl.SFTP}".type = "local";
+    };
   };
 
   systemd.tmpfiles.rules = [ "d /var/log/audit 0750 root root -" ];
@@ -85,34 +88,4 @@ in
     [[registry.mirror]]
     location = "hub.tencent.zhyi.xin/ghcr.io"
   '';
-
-  # 发版后自动预拉镜像。wings 在实例启动时才拉，1.5G 的层会让「启动」长时间停在拉取上；
-  # 这里提前拉好，实例启动直接命中本地层。代理沿用 LT.proxyEnvironment（与 podman.service 同一份），
-  # 凭据来自上面的 sops.secrets.ghcr-auth。
-  systemd.services.pterodactyl-prefetch-image = {
-    description = "预拉 Pterodactyl 实例镜像（${serverImage}）";
-    wants = [ "network-online.target" ];
-    after = [
-      "network-online.target"
-      "sops-install-secrets.service"
-    ];
-    environment = LT.proxyEnvironment;
-    serviceConfig = {
-      Type = "oneshot";
-      ExecStart = "${pkgs.podman}/bin/podman pull ${serverImage}";
-      # 拉不动就下一轮再试，别把 systemd 状态搞成 failed 淹没真正的告警
-      SuccessExitStatus = "0 125";
-      TimeoutStartSec = "30min";
-    };
-  };
-
-  systemd.timers.pterodactyl-prefetch-image = {
-    description = "定时预拉 Pterodactyl 实例镜像";
-    wantedBy = [ "timers.target" ];
-    timerConfig = {
-      OnBootSec = "5min";
-      OnUnitActiveSec = "30min";
-      RandomizedDelaySec = "120";
-    };
-  };
 }

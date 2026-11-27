@@ -77,8 +77,44 @@ in
 
     ../../nixos/optional-apps/krig-miner.nix
     ../../nixos/optional-apps/ncps-client.nix
+    ../../nixos/optional-apps/pterodactyl-wings.nix
     ../../nixos/optional-apps/syncthing/run-as-lantian.nix
   ];
+
+  lantian.pterodactylWings = {
+    enable = true;
+    apiBind = "0.0.0.0";
+    containerDns = [ "192.168.0.1" ];
+    panelAddress = LT.hosts.venus.interconnect.IPv4;
+    prefetchImage = "ghcr.io/zhyiheihei/zccfwq-server:latest-paper";
+  };
+
+  sops.secrets.ghcr-auth = {
+    sopsFile = LT.secret "mcsm.yaml";
+    key = "ghcr_auth";
+    path = "/root/.config/containers/auth.json";
+  };
+
+  systemd.services.podman.environment = proxyEnvironment;
+
+  lantian.firewall.zones = {
+    WAN = {
+      ports."${LT.portStr.MinecraftSecondary}".type = "local";
+      ports."${LT.portStr.MinecraftTertiary}".type = "local";
+    };
+    LAN = {
+      ports."${LT.portStr.MinecraftSecondary}".type = "local";
+      ports."${LT.portStr.MinecraftTertiary}".type = "local";
+      ports."${LT.portStr.Pterodactyl.SFTP}".type = "local";
+      ports."${LT.portStr.Pterodactyl.Wings}".type = "local";
+    };
+    LTNET = {
+      ports."${LT.portStr.MinecraftSecondary}".type = "local";
+      ports."${LT.portStr.MinecraftTertiary}".type = "local";
+      ports."${LT.portStr.Pterodactyl.SFTP}".type = "local";
+      ports."${LT.portStr.Pterodactyl.Wings}".type = "local";
+    };
+  };
 
   lantian.backup.enable = true;
 
