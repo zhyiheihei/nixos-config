@@ -2,8 +2,15 @@
   inputs,
   lib,
   LT,
+  pkgs,
   ...
 }:
+let
+  # Pterodactyl 实例跑的是本仓 fork 的服务端镜像（zccfwq）。CI 每次发版都推
+  # <版本>-paper 与 latest-paper，两者共享同一批层，所以这里只要盯着 latest-paper 预拉：
+  # digest 没变时 podman 只做一次清单查询，不下载。
+  serverImage = "ghcr.io/zhyiheihei/zccfwq-server:latest-paper";
+in
 {
   imports = [
     ../../nixos/server.nix
@@ -78,4 +85,34 @@
     [[registry.mirror]]
     location = "hub.tencent.zhyi.xin/ghcr.io"
   '';
+
+  # 发版后自动预拉镜像。wings 在实例启动时才拉，1.5G 的层会让「启动」长时间停在拉取上；
+  # 这里提前拉好，实例启动直接命中本地层。代理沿用 LT.proxyEnvironment（与 podman.service 同一份），
+  # 凭据来自上面的 sops.secrets.ghcr-auth。
+  systemd.services.pterodactyl-prefetch-image = {
+    description = "预拉 Pterodactyl 实例镜像（${serverImage}）";
+    wants = [ "network-online.target" ];
+    after = [
+      "network-online.target"
+      "sops-install-secrets.service"
+    ];
+    environment = LT.proxyEnvironment;
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.podman}/bin/podman pull ${serverImage}";
+      # 拉不动就下一轮再试，别把 systemd 状态搞成 failed 淹没真正的告警
+      SuccessExitStatus = "0 125";
+      TimeoutStartSec = "30min";
+    };
+  };
+
+  systemd.timers.pterodactyl-prefetch-image = {
+    description = "定时预拉 Pterodactyl 实例镜像";
+    wantedBy = [ "timers.target" ];
+    timerConfig = {
+      OnBootSec = "5min";
+      OnUnitActiveSec = "30min";
+      RandomizedDelaySec = "120";
+    };
+  };
 }
