@@ -28,7 +28,21 @@ in
   lantian.pterodactyl.containerHosts."ml-builder.ltnet.zhyi.xin" =
     LT.hosts.ml-builder.interconnect.IPv4;
 
+  lantian.pterodactyl.containerHosts."node2.zhyi.xin" = "10.88.0.1";
+
   lantian.pterodactylWings.prefetchImage = serverImage;
+
+  lantian.nginxVhosts."node2.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "http://${LT.hosts.ml-builder.interconnect.IPv4}:${LT.portStr.Pterodactyl.Wings}";
+      proxyWebsockets = true;
+      proxyNoTimeout = true;
+    };
+
+    sslCertificate = "lets-encrypt-zhyi.xin";
+    accessibleBy = "public";
+    noIndex.enable = true;
+  };
 
   lantian.nginxVhosts."map.mc.zhyi.xin" = {
     locations."/" = {

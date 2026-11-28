@@ -340,6 +340,12 @@ let
     }
     {
       recordType = "CNAME";
+      name = "node2";
+      target = homeDdnsTarget;
+      ttl = "2m";
+    }
+    {
+      recordType = "CNAME";
       name = "oidc-tester";
       target = "greencloud.ltnet.zhyi.xin.";
       ttl = "1h";

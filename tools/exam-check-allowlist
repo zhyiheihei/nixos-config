@@ -7,7 +7,7 @@ flake.nix # fork inputs（secrets/zhyi-packages）、hydra jobs 剔除 apps、AR
 helpers/cities.json # fork 主机地理位置数据
 helpers/constants/nix.nix # 用户 2026-10-24 裁定：恢复自建 attic 且缓存列表同时保留 fork ncps 与 exam attic——constants 加 cache.zhyi.xin + zhyi RS256 公钥；上游 cache.lantian.pub 由 nur nix-cache-attic 模块提供（钉作者域名/公钥），fork 不引入该模块（见 nixos-configurations.nix 条目）；新 NUR meta 已无 cachix 项，fork 的 xddxdd.cachix 引用一并退役；nix-static-file-cache 落点改 fork 本地 lab.opi5p.zhyi.xin（上游 lab.pve-epyc.xuyh0120.win，作者宿主机名 URL 内不经 NORMALIZE 替换，属环境事实，2026-11-01 用户裁定）；constants 补 cache.lantian.pub/lantian + lantian 公钥（上游由 nur nix-cache-attic 模块注入 nix.settings、不进 constants，fork ncps 上游抓取名单=constants，作者缓存必须入列且排在 fork cache.zhyi.xin 之前）；2026-10-31 删 cuda-maintainers.cachix.org（fork 当年自加项，上游全树无此缓存，cachix 匿名拉已 401，每批次白挨 401+60s 禁用）+ 去重 cache.nixos-cuda.org（上游各一份）
 helpers/constants/ports.nix # fork 服务端口登记（单域 vhost 生态 + V2Ray.HttpClient=1081 HTTP CONNECT 入站，供 .NET 应用/jellyfin 使用）；DLX/OidcTester 按用户 2026-09-13 决策移除（临时性服务不启用）；25566/25568 为 ml-builder 上两台测试服（路由器 DNAT 直投），25567 为 venus 正式服的 BlueMap 入口（仅 nginx 内部代理，不对外映射）
-helpers/constants/public-sites.nix # fork 子域清单（并入单域 zhyi.xin，无 google-test/zhyi.xin）；map.mc 为 venus Minecraft 地图入口
+helpers/constants/public-sites.nix # fork 子域清单（并入单域 zhyi.xin，无 google-test/zhyi.xin）；map.mc 为 venus Minecraft 地图入口；node2 为 ml-builder wings 的 TLS 入口（venus nginx 反代到 192.168.0.50:13931）
 helpers/constants/zones.nix # NeoNetwork 置空（2026-08-21 集群决策）
 helpers/constants/replaced-hosts.nix # 旧主机名替换目标改 tencent-cn（2026-11-12 用户裁定 tencent-cn 取代 volcengine，volcengine 待 VPS 到期再下线）：50kvm/v-ps-hkg/gigsgigscloud/linkin 的 301 跳转与 acme SAN 是主机事实，随新宿主落到 tencent-cn；上游把这些名字映射到 alice/zgocloud（NORMALIZE→volcengine）
 helpers/default.nix # 出站代理常量收口 helpers/proxy.nix（work-norms §10 认可）

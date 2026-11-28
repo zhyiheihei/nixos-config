@@ -63,6 +63,7 @@
   "nav.zhyi.xin"
   "nexttodo.zhyi.xin"
   "node.zhyi.xin"
+  "node2.zhyi.xin"
   "openlist.moliy.site"
   "openlist.zhyi.xin"
   "panel.zhyi.xin"

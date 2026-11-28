@@ -9,6 +9,7 @@ let
   tlsProxies = {
     dav = LT.hosts.opi5p.interconnect.IPv4;
     node = LT.hosts.venus.interconnect.IPv4;
+    node2 = LT.hosts.venus.interconnect.IPv4;
     panel = LT.hosts.venus.interconnect.IPv4;
   };
   plainProxies = {
