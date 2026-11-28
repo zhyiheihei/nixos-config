@@ -57,6 +57,8 @@ in
     };
   };
 
+  lantian.port-audit.knownViolations = [ LT.port.MinecraftMap ];
+
   systemd.tmpfiles.rules = [ "d /var/log/audit 0750 root root -" ];
 
   systemd.services.podman.environment = LT.proxyEnvironment;
