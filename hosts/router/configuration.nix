@@ -23,32 +23,32 @@ let
 
   qbitPreStartPT = ''
     conf=/var/lib/qbittorrent-pt/qBittorrent/config/qBittorrent.conf
-    mkdir -p "$(dirname "$conf")"
-    touch "$conf"
-    if ! grep -q '^\[BitTorrent\]$' "$conf"; then
+    ${pkgs.coreutils}/bin/mkdir -p "$(${pkgs.coreutils}/bin/dirname "$conf")"
+    ${pkgs.coreutils}/bin/touch "$conf"
+    if ! ${pkgs.gnugrep}/bin/grep -q '^\[BitTorrent\]$' "$conf"; then
       printf '[BitTorrent]\n' >> "$conf"
     fi
-    if ! grep -q '^\[Preferences\]$' "$conf"; then
+    if ! ${pkgs.gnugrep}/bin/grep -q '^\[Preferences\]$' "$conf"; then
       printf '[Preferences]\n' >> "$conf"
     fi
-    sed -i '/^Session\\DefaultSavePath=/d' "$conf"
-    sed -i '/^Session\\Interface=/d' "$conf"
-    sed -i '/^Session\\InterfaceName=/d' "$conf"
-    sed -i '/^Session\\InterfaceAddress=/d' "$conf"
-    sed -i '/^Session\\GlobalDLSpeedLimit=/d' "$conf"
-    sed -i '/^Session\\GlobalUPSpeedLimit=/d' "$conf"
-    sed -i '/^Session\\AsyncIOThreadsCount=/d' "$conf"
-    sed -i '/^Session\\DiskCacheSize=/d' "$conf"
-    sed -i '/^Session\\DiskCacheTTL=/d' "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=${unifiedDownloadPath}/" "$conf"
+    ${pkgs.gnused}/bin/sed -i '/^Session\\DefaultSavePath=/d' "$conf"
+    ${pkgs.gnused}/bin/sed -i '/^Session\\Interface=/d' "$conf"
+    ${pkgs.gnused}/bin/sed -i '/^Session\\InterfaceName=/d' "$conf"
+    ${pkgs.gnused}/bin/sed -i '/^Session\\InterfaceAddress=/d' "$conf"
+    ${pkgs.gnused}/bin/sed -i '/^Session\\GlobalDLSpeedLimit=/d' "$conf"
+    ${pkgs.gnused}/bin/sed -i '/^Session\\GlobalUPSpeedLimit=/d' "$conf"
+    ${pkgs.gnused}/bin/sed -i '/^Session\\AsyncIOThreadsCount=/d' "$conf"
+    ${pkgs.gnused}/bin/sed -i '/^Session\\DiskCacheSize=/d' "$conf"
+    ${pkgs.gnused}/bin/sed -i '/^Session\\DiskCacheTTL=/d' "$conf"
+    ${pkgs.gnused}/bin/sed -i "/^\[BitTorrent\]$/a Session\\\\DefaultSavePath=${unifiedDownloadPath}/" "$conf"
     # Leave Session\Interface unset ("Any interface"); reason documented at
     # the main instance's qbitPreStart (PPPoE redial re-bind, 2026-08-13).
-    sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceAddress=0.0.0.0" "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalDLSpeedLimit=0" "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalUPSpeedLimit=2000" "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\AsyncIOThreadsCount=4" "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheSize=256" "$conf"
-    sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheTTL=60" "$conf"
+    ${pkgs.gnused}/bin/sed -i "/^\[BitTorrent\]$/a Session\\\\InterfaceAddress=0.0.0.0" "$conf"
+    ${pkgs.gnused}/bin/sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalDLSpeedLimit=0" "$conf"
+    ${pkgs.gnused}/bin/sed -i "/^\[BitTorrent\]$/a Session\\\\GlobalUPSpeedLimit=2000" "$conf"
+    ${pkgs.gnused}/bin/sed -i "/^\[BitTorrent\]$/a Session\\\\AsyncIOThreadsCount=4" "$conf"
+    ${pkgs.gnused}/bin/sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheSize=256" "$conf"
+    ${pkgs.gnused}/bin/sed -i "/^\[BitTorrent\]$/a Session\\\\DiskCacheTTL=60" "$conf"
   '';
 
   qbitPreStart = ''
