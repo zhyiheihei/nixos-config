@@ -10,6 +10,8 @@
 
     "${inputs.secrets}/nixos-hidden-module/aacd9f37de95f98d"
 
+    ../../nixos/optional-apps/cliproxyapi.nix
+    (inputs.secrets + "/cliproxyapi.nix")
   ];
 
   systemd.network.networks.eth0 = {

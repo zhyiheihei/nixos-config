@@ -75,6 +75,7 @@ nixos/optional-apps/prometheus/storagebox.nix # 服务停用（secrets 仓 7bcc1
 nixos/minimal-modules/secrets/tests.nix # 上游新增文件，测试桩用 greencloud 替代上游 colocrossing（本仓无该主机）
 nixos/common-apps/nginx/vhosts-lantian.nix # skip: 对应 fork 的 vhosts-zhyi.nix（vhost 集合按 zhyi 域重写，NORMALIZE 只做路径映射）
 nixos/optional-apps/attic-placeholder.nix # skip: fork 已按用户 2026-10-24 裁定恢复自建 attic（greencloud-jp 真 atticd + cache.zhyi.xin），503 占位页不再需要；上游仍保留供其 colocrossing 使用
+nixos/optional-apps/cliproxyapi.nix # 公开 ai-api vhost 除上游 /v1/ 外追加 /backend-api/ 透传：fork 的 pi 客户端插件（@router-for-me/pi-cliproxyapi-provider）推理固定打 /backend-api/codex/responses，只转发 /v1/ 时公网接入 404；上游 pi 走 LTNET 私有 vhost 不遇此问题
 nixos/optional-apps/asterisk/apps/anti-fooling.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
 nixos/optional-apps/asterisk/apps/astycrapper.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器
 nixos/optional-apps/asterisk/apps/beverly.nix # skip: 用户 2026-10-24 确认不启用——上游作者个人话务台（美国 VPS 接真实 SIP 外线），本仓无话务需求，无角色对应机器

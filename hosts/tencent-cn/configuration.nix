@@ -1,5 +1,4 @@
 {
-  inputs,
   lib,
   LT,
   ...
@@ -11,8 +10,6 @@
 
     ./hardware-configuration.nix
 
-    ../../nixos/optional-apps/cliproxyapi.nix
-    (inputs.secrets + "/cliproxyapi.nix")
     ../../nixos/optional-apps/dex.nix
     ../../nixos/optional-apps/halo.nix
     ../../nixos/optional-apps/pocket-id.nix
