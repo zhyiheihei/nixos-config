@@ -80,6 +80,7 @@ in
     workbuddy2api = {
       image = "ghcr.io/ithtelab/workbuddy2api:latest";
       labels."io.containers.autoupdate" = "registry";
+      ports = [ "127.0.0.1:${LT.portStr.WorkBuddy2API}:7863" ];
       environment.TZ = config.time.timeZone;
       # 上游镜像 ENTRYPOINT 已带 -config /app/config.json，必须整条覆盖，
       # 不能只改 command（会被追加成重复参数，读的还是镜像内示例配置）。
@@ -134,6 +135,17 @@ in
     };
     # 管理端持有全部账号凭据，仅内网可达；如需公网访问，加入 home-edge.nix 的
     # publicServices 并登记 helpers/constants/public-sites.nix。
+    accessibleBy = "private";
+    sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
+    noIndex.enable = true;
+  };
+
+  # OpenAI 兼容上游，供跨主机 CLIProxyAPI（tencent-cn）等 LTNET 内调用方使用。
+  lantian.nginxVhosts."workbuddy2api.${config.networking.hostName}.zhyi.xin" = {
+    locations."/" = {
+      proxyPass = "http://127.0.0.1:${LT.portStr.WorkBuddy2API}";
+      proxyNoTimeout = true;
+    };
     accessibleBy = "private";
     sslCertificate = "lets-encrypt-${config.networking.hostName}.zhyi.xin";
     noIndex.enable = true;

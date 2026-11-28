@@ -73,6 +73,7 @@ rec {
     Bazarr = 6767;
     I2P.SAM = 7656;
     OCFS2 = 7777;
+    WorkBuddy2API = 7863;
     WorkBuddy = 7864;
     Radarr = 7878;
     ArchiveTeam = 8001;
